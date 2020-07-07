@@ -1,4 +1,4 @@
 [[redirects]]
   from = "/*"
-  to = "/dist/:splat.js"
+  to = "/dist/:splat/index.js"
   status = 200
