@@ -1,4 +1,11 @@
 [[redirects]]
+  from = "/"
+  to = "/public/index.json"
+  status = 200
+  headers = {Content-Type = "application/json", X-Is-Evervault-Cool = "yes"}
+
+[[redirects]]
   from = "/*"
   to = "/dist/:splat/index.js"
   status = 200
+  headers = {X-Is-Evervault-Cool = "yes"}
