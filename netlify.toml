@@ -5,7 +5,13 @@
   headers = {Content-Type = "application/json", X-Is-Evervault-Cool = "yes"}
 
 [[redirects]]
-  from = "/*"
-  to = "/dist/:splat/index.js"
+  from = "/:apiVersion"
+  to = "/dist/:apiVersion/index.js"
   status = 200
+  headers = {X-Is-Evervault-Cool = "yes"}
+
+[[redirects]]
+  from = "/*"
+  to = "/public/404.json"
+  status = 404
   headers = {X-Is-Evervault-Cool = "yes"}
