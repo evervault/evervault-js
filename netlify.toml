@@ -8,4 +8,4 @@
   from = "/:apiVersion"
   to = "/dist/:apiVersion/index.js"
   status = 200
-  headers = {X-Is-Evervault-Cool = "yes"}
+  headers = {X-Is-Evervault-Cool = "yes", Access-Control-Allow-Origin = "*"}
