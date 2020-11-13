@@ -1,6 +1,4 @@
-<p>
-  <a href="https://welcome.evervault.com/"><img src="res/logo.svg"></a>
-</p>
+[![Evervault](https://evervault.com/evervault.svg)](https://welcome.evervault.com/)
 
 # Evervault Node.js SDK
 
