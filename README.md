@@ -32,7 +32,9 @@ const evervault = new Evervault('<TEAM_ID>');
 
 ## Reference
 
-At present, there is one function available in the JavaScript SDK: `evervault.encrypt()`.
+The Evervault JavaScript SDK exposes one function.
+
+### evervault.encrypt()
 
 `evervault.encrypt()` encrypts data for use in your [Cages](https://docs.evervault.com/tutorial). To encrypt data in the browser, simply pass an object or string into the `evervault.encrypt()` function. Store the encrypted data in your database as normal.
 
