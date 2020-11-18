@@ -1,6 +1,6 @@
 [![Evervault](https://evervault.com/evervault.svg)](https://welcome.evervault.com/)
 
-# Evervault Node.js SDK
+# Evervault JavaScript SDK
 
 The [Evervault](https://evervault.com) JavaScript SDK is a toolkit for encrypting data in the browser. Using the Evervault React.js SDK means your customer's data never leaves their browser unencrypted.
 
