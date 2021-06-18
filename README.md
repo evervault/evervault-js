@@ -1,4 +1,4 @@
-[![Evervault](https://evervault.com/evervault.svg)](https://welcome.evervault.com/)
+[![Evervault](https://evervault.com/evervault.svg)](https://evervault.com/)
 
 # Evervault JavaScript SDK
 
