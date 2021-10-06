@@ -6,7 +6,7 @@ The [Evervault](https://evervault.com) JavaScript SDK is a toolkit for encryptin
 
 ## Getting Started
 
-Before starting with the Evervault Node.js SDK, you will need to [create an account](https://app.evervault.com/register) and a team.
+Before starting with the Evervault JavaScript SDK, you will need to [create an account](https://app.evervault.com/register) and a team.
 
 For full installation support, [book time here](https://calendly.com/evervault/cages-onboarding).
 
