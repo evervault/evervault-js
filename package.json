@@ -2,7 +2,7 @@
   "name": "evervault-browser-sdk",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./lib/v1/index.js",
   "directories": {
     "lib": "lib"
   },
