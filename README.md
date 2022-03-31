@@ -94,7 +94,7 @@ const hook = inputs.on('change', async (context) => {
 	//      "type": "invalid_pan",
 	//      "message": "The credit card number you entered was invalid"
 	//    }
-	//	}
+	// }
 });
 ```
 
@@ -120,8 +120,7 @@ const cardData = await inputs.getData();
 //      "type": "invalid_pan",
 //      "message": "The credit card number you entered was invalid"
 //    }
-//	}
-});
+// }
 ```
 
 ## Contributing
