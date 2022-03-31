@@ -78,24 +78,24 @@ This option is best when you are looking to handle the card values in realtime, 
 
 ``` javascript
 const hook = inputs.on('change', async (context) => {
-		// `context` is an object containing details about the card data your user has entered
-		// {
-		//    "card": {
-		//      "type": "ev:encrypted:abc123",
-		//      "number": "ev:encrypted:def456",
-		//      "cvc": "ev:encrypted:ghi789",
-		//      "expMonth": "ev:encrypted:jkl012",
-		//      "expYear": "ev:encrypted:mno345"
-		//    },
-		//    "isValid": true,
-		//    "isPotentiallyValid": true,
-		//    "isEmpty": false,  
-		//    "error": {
-		//      "type": "invalid_pan",
-		//      "message": "The credit card number you entered was invalid"
-		//    }
-		//	}
-	});
+	// `context` is an object containing details about the card data your user has entered
+	// {
+	//    "card": {
+  //      "type": "ev:encrypted:abc123",
+	//      "number": "ev:encrypted:def456",
+	//      "cvc": "ev:encrypted:ghi789",
+	//      "expMonth": "ev:encrypted:jkl012",
+	//      "expYear": "ev:encrypted:mno345"
+	//    },
+	//    "isValid": true,
+	//    "isPotentiallyValid": true,
+	//    "isEmpty": false,
+	//    "error": {
+	//      "type": "invalid_pan",
+	//      "message": "The credit card number you entered was invalid"
+	//    }
+	//	}
+});
 ```
 
 #### `getData` method
@@ -104,25 +104,25 @@ This option is best when you are looking to retrieve card data occasionally, lik
 
 ``` javascript
 const cardData = await inputs.getData();
-		// `cardData` is an object containing details about the card data your user has entered
-		// {
-		//    "card": {
-		//      "type": "ev:encrypted:abc123",
-		//      "number": "ev:encrypted:def456",
-		//      "cvc": "ev:encrypted:ghi789",
-		//      "expMonth": "ev:encrypted:jkl012",
-		//      "expYear": "ev:encrypted:mno345"
-		//    },
-		//    "isValid": true,
-		//    "isPotentiallyValid": true,
-		//    "isEmpty": false,  
-		//    "error": {
-		//      "type": "invalid_pan",
-		//      "message": "The credit card number you entered was invalid"
-		//    }
-		//	}
-	});
-  ```
+// `cardData` is an object containing details about the card data your user has entered
+// {
+//    "card": {
+//      "type": "ev:encrypted:abc123",
+//      "number": "ev:encrypted:def456",
+//      "cvc": "ev:encrypted:ghi789",
+//      "expMonth": "ev:encrypted:jkl012",
+//      "expYear": "ev:encrypted:mno345"
+//    },
+//    "isValid": true,
+//    "isPotentiallyValid": true,
+//    "isEmpty": false,  
+//    "error": {
+//      "type": "invalid_pan",
+//      "message": "The credit card number you entered was invalid"
+//    }
+//	}
+});
+```
 
 ## Contributing
 
