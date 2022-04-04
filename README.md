@@ -60,7 +60,7 @@ Simply pass the id of the element in which the iFrame should be embedded.
 </body>
 <script src="https://js.evervault.com/v1"></script>
 <script>
-	const inputs = evervault.inputs('#evervault-card-fields');
+	const inputs = evervault.inputs('#ev-card-fields');
 </script>
 ```
 
