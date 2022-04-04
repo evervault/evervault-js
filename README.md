@@ -77,8 +77,8 @@ There are two ways of accessing encrypted card data once it has been entered.
 This option is best when you are looking to handle the card values in realtime, like displaying validation errors as a user is inputting their card data. The callback for the hook is run every time your user updates the card data.
 
 ``` javascript
-const hook = inputs.on('change', async (context) => {
-	// `context` is an object containing details about the card data your user has entered
+const hook = inputs.on('change', async (cardData) => {
+	// `cardData` is an object containing details about the card data your user has entered
 	// {
 	//    "card": {
   //      "type": "ev:encrypted:abc123",
