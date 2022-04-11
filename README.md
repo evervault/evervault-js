@@ -17,14 +17,14 @@ To make Evervault available for use in your app, add this script to your page's 
 ```html
 <script src="https://js.evervault.com/v1"></script>
 ```
+
 ## Setup
 
 Once installed, initialize the JavaScript SDK with your team's unique ID found in the [Settings](https://app.evervault.com/settings).
 
 ```js
-const evervault = new Evervault('<TEAM_ID>');
+const evervault = new Evervault("<TEAM_ID>");
 ```
-
 
 ## Reference
 
@@ -38,9 +38,9 @@ The Evervault JavaScript SDK exposes two functions.
 async evervault.encrypt(data: Object | String);
 ```
 
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| data | Object or String | Data to be encrypted. |
+| Parameter | Type             | Description           |
+| --------- | ---------------- | --------------------- |
+| data      | Object or String | Data to be encrypted. |
 
 ### evervault.inputs()
 
@@ -52,49 +52,49 @@ Simply pass the id of the element in which the iFrame should be embedded.
 
 ```html
 <body>
-	<form id="ev-payment-form">
-		<div id="ev-card-fields">
-	    <!-- Evervault will create input elements here -->
-	  </div>
+  <form id="ev-payment-form">
+    <div id="ev-card-fields">
+      <!-- Evervault will create input elements here -->
+    </div>
   </form>
 </body>
 <script src="https://js.evervault.com/v1"></script>
 <script>
-	const inputs = evervault.inputs('#ev-card-fields');
+  const inputs = evervault.inputs("#ev-card-fields");
 </script>
 ```
 
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| id | string | Id of the element in which the Evervault Inputs iFrame should be embedded |
+| Parameter | Type   | Description                                                               |
+| --------- | ------ | ------------------------------------------------------------------------- |
+| id        | string | Id of the element in which the Evervault Inputs iFrame should be embedded |
 
 #### Retrieving card data
 
-There are two ways of accessing encrypted card data once it has been entered. 
+There are two ways of accessing encrypted card data once it has been entered.
 
 ##### `onChange` hook
 
 This option is best when you are looking to handle the card values in realtime, like displaying validation errors as a user is inputting their card data. The callback for the hook is run every time your user updates the card data.
 
-``` javascript
-const hook = inputs.on('change', async (cardData) => {
-	// `cardData` is an object containing details about the card data your user has entered
-	// {
-	//    "card": {
+```javascript
+const hook = inputs.on("change", async (cardData) => {
+  // `cardData` is an object containing details about the card data your user has entered
+  // {
+  //    "card": {
   //      "type": "ev:encrypted:abc123",
-	//      "number": "ev:encrypted:def456",
-	//      "cvc": "ev:encrypted:ghi789",
-	//      "expMonth": "ev:encrypted:jkl012",
-	//      "expYear": "ev:encrypted:mno345"
-	//    },
-	//    "isValid": true,
-	//    "isPotentiallyValid": true,
-	//    "isEmpty": false,
-	//    "error": {
-	//      "type": "invalid_pan",
-	//      "message": "The credit card number you entered was invalid"
-	//    }
-	// }
+  //      "number": "ev:encrypted:def456",
+  //      "cvc": "ev:encrypted:ghi789",
+  //      "expMonth": "ev:encrypted:jkl012",
+  //      "expYear": "ev:encrypted:mno345"
+  //    },
+  //    "isValid": true,
+  //    "isPotentiallyValid": true,
+  //    "isEmpty": false,
+  //    "error": {
+  //      "type": "invalid_pan",
+  //      "message": "The credit card number you entered was invalid"
+  //    }
+  // }
 });
 ```
 
@@ -102,7 +102,7 @@ const hook = inputs.on('change', async (cardData) => {
 
 This option is best when you are looking to retrieve card data occasionally, like when your form is submitted.
 
-``` javascript
+```javascript
 const cardData = await inputs.getData();
 // `cardData` is an object containing details about the card data your user has entered
 // {
@@ -115,7 +115,7 @@ const cardData = await inputs.getData();
 //    },
 //    "isValid": true,
 //    "isPotentiallyValid": true,
-//    "isEmpty": false,  
+//    "isEmpty": false,
 //    "error": {
 //      "type": "invalid_pan",
 //      "message": "The credit card number you entered was invalid"
