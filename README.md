@@ -50,7 +50,7 @@ Evervault Inputs are served within an iFrame retrieved directly from Evervaultâ€
 
 Simply pass the id of the element in which the iFrame should be embedded.
 
-We also support [themes](https://docs.evervault.com/concepts/inputs/about#customising-inputs) so you can customise how Inputs looks in your UI.
+We also support [themes](https://docs.evervault.com/concepts/inputs/overview#customising-inputs) so you can customise how Inputs looks in your UI.
 
 ```javascript
 evervault.inputs(id: String, theme: String);
