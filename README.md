@@ -35,12 +35,12 @@ The Evervault JavaScript SDK exposes two functions.
 `evervault.encrypt()` encrypts data for use in your [Cages](https://docs.evervault.com/tutorial). To encrypt data in the browser, simply pass an object or string into the `evervault.encrypt()` function. Store the encrypted data in your database as normal.
 
 ```javascript
-async evervault.encrypt(data: Object | String);
+async evervault.encrypt(data: Object | Array | String | Number);
 ```
 
-| Parameter | Type             | Description           |
-| --------- | ---------------- | --------------------- |
-| data      | Object or String | Data to be encrypted. |
+| Parameter | Type                                    | Description           |
+| --------- | --------------------------------------- | --------------------- |
+| data      | `Object`, `Array`, `String` or `Number` | Data to be encrypted. |
 
 ### evervault.inputs()
 
