@@ -50,6 +50,17 @@ Evervault Inputs are served within an iFrame retrieved directly from Evervaultâ€
 
 Simply pass the id of the element in which the iFrame should be embedded.
 
+We also support [themes](https://docs.evervault.com/concepts/inputs/about#customising-inputs) so you can customise how Inputs looks in your UI.
+
+```javascript
+evervault.inputs(id: String, theme: String);
+```
+
+| Parameter | Type   | Description                                                               |
+| --------- | ------ | ------------------------------------------------------------------------- |
+| id        | string | Id of the element in which the Evervault Inputs iFrame should be embedded |
+| theme     | string | Optional theme for styling Inputs, currently supported: Minimal           |
+
 ```html
 <body>
   <form id="ev-payment-form">
@@ -60,42 +71,40 @@ Simply pass the id of the element in which the iFrame should be embedded.
 </body>
 <script src="https://js.evervault.com/v1"></script>
 <script>
-  const inputs = evervault.inputs("#ev-card-fields");
+  const inputs = evervault.inputs("ev-card-fields");
 </script>
 ```
-
-| Parameter | Type   | Description                                                               |
-| --------- | ------ | ------------------------------------------------------------------------- |
-| id        | string | Id of the element in which the Evervault Inputs iFrame should be embedded |
 
 #### Retrieving card data
 
 There are two ways of accessing encrypted card data once it has been entered.
+In each case, a `cardData` object containing details about the card data your user has entered is returned.
+
+```json
+{
+  "card": {
+    "type": "visa_credit",
+    "number": "ev:encrypted:abc123",
+    "cvc": "ev:encrypted:def456",
+    "expMonth": "01",
+    "expYear": "23"
+  },
+  "isValid": true,
+  "isPotentiallyValid": true,
+  "isEmpty": false,
+  "error": {
+    "type": "invalid_pan",
+    "message": "The credit card number you entered was invalid"
+  }
+}
+```
 
 ##### `onChange` hook
 
 This option is best when you are looking to handle the card values in realtime, like displaying validation errors as a user is inputting their card data. The callback for the hook is run every time your user updates the card data.
 
 ```javascript
-const hook = inputs.on("change", async (cardData) => {
-  // `cardData` is an object containing details about the card data your user has entered
-  // {
-  //    "card": {
-  //      "type": "ev:encrypted:abc123",
-  //      "number": "ev:encrypted:def456",
-  //      "cvc": "ev:encrypted:ghi789",
-  //      "expMonth": "ev:encrypted:jkl012",
-  //      "expYear": "ev:encrypted:mno345"
-  //    },
-  //    "isValid": true,
-  //    "isPotentiallyValid": true,
-  //    "isEmpty": false,
-  //    "error": {
-  //      "type": "invalid_pan",
-  //      "message": "The credit card number you entered was invalid"
-  //    }
-  // }
-});
+const hook = inputs.on("change", async (cardData) => {});
 ```
 
 #### `getData` method
@@ -104,23 +113,6 @@ This option is best when you are looking to retrieve card data occasionally, lik
 
 ```javascript
 const cardData = await inputs.getData();
-// `cardData` is an object containing details about the card data your user has entered
-// {
-//    "card": {
-//      "type": "ev:encrypted:abc123",
-//      "number": "ev:encrypted:def456",
-//      "cvc": "ev:encrypted:ghi789",
-//      "expMonth": "ev:encrypted:jkl012",
-//      "expYear": "ev:encrypted:mno345"
-//    },
-//    "isValid": true,
-//    "isPotentiallyValid": true,
-//    "isEmpty": false,
-//    "error": {
-//      "type": "invalid_pan",
-//      "message": "The credit card number you entered was invalid"
-//    }
-// }
 ```
 
 ## Contributing
