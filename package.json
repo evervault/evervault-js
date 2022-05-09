@@ -9,7 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "prettier --check \"./**/*.js\"",
-    "build": "./scripts/build.sh"
+    "build": "./scripts/build.sh",
+    "dev": "npm run build && php -S localhost:5000"
   },
   "author": "",
   "license": "ISC",
