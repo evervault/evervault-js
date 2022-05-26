@@ -44,7 +44,7 @@ async evervault.encrypt(data: Object | Array | String | Number);
 
 ### evervault.inputs()
 
-**Note:** Self-Serve customers can only use Inputs in [debug mode](https://docs.evervault.com/concepts/inputs/debug-mode), which is not safe for production use.
+**Note: Self-Serve customers can only use Inputs in [debug mode](https://docs.evervault.com/concepts/inputs/debug-mode), which is not safe for production use.**
 
 `evervault.inputs()` initialises Evervault Inputs which make it easy to collect encrypted cardholder data in a completely PCI-compliant environment.
 
