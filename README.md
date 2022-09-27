@@ -15,7 +15,7 @@ For full installation support, [book time here](https://calendly.com/evervault/c
 To make Evervault available for use in your app, add this script to your page's footer:
 
 ```html
-<script src="https://js.evervault.com/v1"></script>
+<script src="https://js.evervault.com/v2"></script>
 ```
 
 ## Setup
@@ -23,7 +23,7 @@ To make Evervault available for use in your app, add this script to your page's 
 Once installed, initialize the JavaScript SDK with your team's unique ID found in the [Settings](https://app.evervault.com/settings).
 
 ```js
-const evervault = new Evervault("<TEAM_ID>");
+const evervault = new Evervault("<TEAM_ID>", "<APP_ID>");
 ```
 
 ## Reference
