@@ -1,4 +1,5 @@
 const assert = require("assert");
+require("dotenv").config();
 const Evervault = require("../lib/v2/index.js");
 
 require("./utils").runBrowserJsPolyfills();
@@ -51,33 +52,66 @@ describe("Encryption", () => {
 
 describe("File Encryption", () => {
   it("it encrypts a file", async () => {
-    const file = new File(
-      ["hello", new TextEncoder().encode("world")],
-      "hello"
-    );
+    const file = new File(["hello world"], "hello.txt");
     const encryptedFile = await ev.encrypt(file);
+    const data = Buffer.from(await encryptedFile.arrayBuffer());
+
+    assert(encryptedFile instanceof File);
+    assert(encryptedFile.name === "hello.txt.ev");
+
     assert(
-      Buffer.compare(
-        encryptedFile.slice(0, 6),
-        Buffer.from("%EVENC", "utf-8")
-      ) == 0
+      Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
     );
+
+    // Test that the debug flag is not set
+    assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x00])) == 0);
   });
 
   it("it encrypts a file in debug mode", async () => {
-    const file = new File(
-      ["hello", new TextEncoder().encode("world")],
-      "hello"
-    );
+    const file = new File(["hello world"], "hello.txt");
+
     const encryptedFile = await evDebug.encrypt(file);
+    const data = Buffer.from(await encryptedFile.arrayBuffer());
+
+    assert(encryptedFile instanceof File);
+    assert(encryptedFile.name === "hello.txt.ev");
+
     assert(
-      Buffer.compare(
-        encryptedFile.slice(0, 6),
-        Buffer.from("%EVENC", "utf-8")
-      ) == 0
+      Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
     );
+
+    // Test that the debug flag is set
+    assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x01])) == 0);
+  });
+
+  it("it encrypts a blob", async () => {
+    const blob = new Blob(["hello world"]);
+    const encryptedFile = await ev.encrypt(blob);
+    const data = Buffer.from(await encryptedFile.arrayBuffer());
+
+    assert(encryptedFile instanceof Blob);
+
     assert(
-      Buffer.compare(encryptedFile.slice(54, 55), Buffer.from([0x01])) == 0
+      Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
     );
+
+    // Test that the debug flag is not set
+    assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x00])) == 0);
+  });
+
+  it("it encrypts a blob in debug mode", async () => {
+    const blob = new Blob(["hello world"]);
+
+    const encryptedFile = await evDebug.encrypt(blob);
+    const data = Buffer.from(await encryptedFile.arrayBuffer());
+
+    assert(encryptedFile instanceof Blob);
+
+    assert(
+      Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
+    );
+
+    // Test that the debug flag is set
+    assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x01])) == 0);
   });
 });
