@@ -31,3 +31,6 @@ jobs:
       - run: npm install
       - run: npm run lint
       - run: npm run test
+        env:
+          EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+          EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
