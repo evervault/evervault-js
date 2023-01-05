@@ -1,36 +1,41 @@
-const assert = require('assert');
-const Evervault = require('../lib/v2/index.js');
+const assert = require("assert");
+const Evervault = require("../lib/v2/index.js");
 
-require('./utils').runBrowserJsPolyfills();
+require("./utils").runBrowserJsPolyfills();
 
-const encryptedStringRegex = /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/
+const encryptedStringRegex =
+  /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
 const ev = new Evervault(process.env.EV_TEAM_UUID, process.env.EV_APP_UUID);
-const evDebug = new Evervault(process.env.EV_TEAM_UUID, process.env.EV_APP_UUID, { isDebugMode: true });
+const evDebug = new Evervault(
+  process.env.EV_TEAM_UUID,
+  process.env.EV_APP_UUID,
+  { isDebugMode: true }
+);
 
-describe('Encryption', () => {
+describe("Encryption", () => {
   beforeEach(() => ev.loadKeys());
 
-  it('it encrypts a string', async () => {
-    const encryptedString = await ev.encrypt('Big Secret');
+  it("it encrypts a string", async () => {
+    const encryptedString = await ev.encrypt("Big Secret");
     assert(encryptedStringRegex.test(encryptedString));
   });
 
-  it('it encrypts a number', async () => {
+  it("it encrypts a number", async () => {
     const encryptedString = await ev.encrypt(12345);
     assert(encryptedStringRegex.test(encryptedString));
   });
 
-  it('it encrypts a boolean', async () => {
+  it("it encrypts a boolean", async () => {
     const encryptedString = await ev.encrypt(true);
     assert(encryptedStringRegex.test(encryptedString));
   });
 
-  it('it encrypts all datatypes in an object', async () => {
+  it("it encrypts all datatypes in an object", async () => {
     const encryptedObject = await ev.encrypt({
-      name: 'Claude Shannon',
+      name: "Claude Shannon",
       employer: {
-        name: 'Bell Labs',
-        location: 'Murray Hill, NJ, USA',
+        name: "Bell Labs",
+        location: "Murray Hill, NJ, USA",
         current: true,
       },
       yearOfBirth: 1916,
@@ -44,17 +49,35 @@ describe('Encryption', () => {
   });
 });
 
-describe('File Encryption', () => {
-  it('it encrypts a file', async () => {
-    const file = new File(["hello", new TextEncoder().encode("world")], "hello")
+describe("File Encryption", () => {
+  it("it encrypts a file", async () => {
+    const file = new File(
+      ["hello", new TextEncoder().encode("world")],
+      "hello"
+    );
     const encryptedFile = await ev.encrypt(file);
-    assert(Buffer.compare(encryptedFile.slice(0, 6), Buffer.from("%EVENC", "utf-8")) == 0)
+    assert(
+      Buffer.compare(
+        encryptedFile.slice(0, 6),
+        Buffer.from("%EVENC", "utf-8")
+      ) == 0
+    );
   });
 
-  it('it encrypts a file in debug mode', async () => {
-    const file = new File(["hello", new TextEncoder().encode("world")], "hello")
+  it("it encrypts a file in debug mode", async () => {
+    const file = new File(
+      ["hello", new TextEncoder().encode("world")],
+      "hello"
+    );
     const encryptedFile = await evDebug.encrypt(file);
-    assert(Buffer.compare(encryptedFile.slice(0, 6), Buffer.from("%EVENC", "utf-8")) == 0)
-    assert(Buffer.compare(encryptedFile.slice(54, 55), Buffer.from([0x01])) == 0)
+    assert(
+      Buffer.compare(
+        encryptedFile.slice(0, 6),
+        Buffer.from("%EVENC", "utf-8")
+      ) == 0
+    );
+    assert(
+      Buffer.compare(encryptedFile.slice(54, 55), Buffer.from([0x01])) == 0
+    );
   });
 });
