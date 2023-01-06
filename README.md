@@ -34,8 +34,6 @@ The Evervault JavaScript SDK exposes two functions.
 
 `evervault.encrypt()` encrypts data for use in your [Cages](https://docs.evervault.com/tutorial). To encrypt data in the browser, simply pass an object or string into the `evervault.encrypt()` function. Store the encrypted data in your database as normal.
 
-Note: Encrypted Files or Blobs are returned as an ArrayBuffer containing the bytes of the encrypted File.
-
 ```javascript
 async evervault.encrypt(data: Object | Array | String | Number | File | Blob);
 ```
