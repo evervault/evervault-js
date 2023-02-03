@@ -57,7 +57,7 @@ describe("File Encryption", () => {
     const data = Buffer.from(await encryptedFile.arrayBuffer());
 
     assert(encryptedFile instanceof File);
-    assert(encryptedFile.name === "hello.txt.ev");
+    assert(encryptedFile.name === "hello.txt");
 
     assert(
       Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
@@ -74,7 +74,7 @@ describe("File Encryption", () => {
     const data = Buffer.from(await encryptedFile.arrayBuffer());
 
     assert(encryptedFile instanceof File);
-    assert(encryptedFile.name === "hello.txt.ev");
+    assert(encryptedFile.name === "hello.txt");
 
     assert(
       Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
