@@ -7,16 +7,19 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "lint": "prettier --check \"./**/*.js\"",
     "build": "./scripts/build.sh",
     "dev": "npm run build && php -S localhost:5000"
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {},
   "devDependencies": {
+    "dotenv": "^16.0.3",
+    "jsdom": "^20.0.3",
+    "mocha": "^10.2.0",
     "prettier": "^2.0.5",
+    "web-file-polyfill": "^1.0.4",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12"
   }
