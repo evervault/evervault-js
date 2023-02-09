@@ -55,13 +55,33 @@ Simply pass the id of the element in which the iFrame should be embedded.
 We also support [themes](https://docs.evervault.com/concepts/inputs/overview#customising-inputs) so you can customise how Inputs looks in your UI.
 
 ```javascript
-evervault.inputs(id: String, theme: String);
+evervault.inputs(id: String, settings: Object);
 ```
 
 | Parameter | Type   | Description                                                               |
 | --------- | ------ | ------------------------------------------------------------------------- |
-| id        | string | Id of the element in which the Evervault Inputs iFrame should be embedded |
-| theme     | string | Optional theme for styling Inputs, currently supported: Minimal           |
+| id        | String | Id of the element in which the Evervault Inputs iFrame should be embedded |
+| config    | Object | A config object for custom styling.                                       |
+
+#### config
+
+| Parameter                  | Type   | Description                                                                        |
+| -------------------------- | ------ | ---------------------------------------------------------------------------------- |
+| theme                      | String | The base styling for Inputs. Currently supports default, minimal and material.     |
+| height                     | String | The height of the Evervault Inputs iframe.                                         |
+| primaryColor               | String | The main theme color.                                                              |
+| labelColor                 | String | The color CSS property applied to the input labels.                                |
+| inputBorderColor           | String | The border-color CSS property applied to inputs.                                   |
+| inputTextColor             | String | The color CSS property applied to inputs.                                          |
+| inputBackgroundColor       | String | The color CSS property applied to the ::placeholder CSS pseudo-element for inputs. |
+| inputBorderRadius          | String | The border-radius CSS property applied to inputs.                                  |
+| inputHeight                | String | The height CSS property applied to inputs.                                         |
+| cardNumberLabel            | String | The label for the card number input                                                |
+| expirationDateLabel        | String | The label for the expiration date input                                            |
+| securityCodeLabel          | String | The label for the security code input                                              |
+| invalidCardNumberLabel     | String | The message shown on an invalid card number                                        |
+| invalidExpirationDateLabel | String | The message shown on an invalid expiration date                                    |
+| invalidSecurityCodeLabel   | String | The message shown on an invalid security code                                      |
 
 ```html
 <body>
@@ -71,7 +91,7 @@ evervault.inputs(id: String, theme: String);
     </div>
   </form>
 </body>
-<script src="https://js.evervault.com/v1"></script>
+<script src="https://js.evervault.com/v2"></script>
 <script>
   const inputs = evervault.inputs("ev-card-fields");
 </script>
@@ -109,13 +129,30 @@ This option is best when you are looking to handle the card values in realtime, 
 const hook = inputs.on("change", async (cardData) => {});
 ```
 
-#### `getData` method
+##### `getData` method
 
 This option is best when you are looking to retrieve card data occasionally, like when your form is submitted.
 
 ```javascript
 const cardData = await inputs.getData();
 ```
+
+#### Localization
+
+The iFrame can be localized on initialization by providing a set of labels in the [config](#config). The labels can then be updated as required using the `setLabels` method.
+
+```javascript
+await inputs.setLabels({});
+```
+
+| Parameter                  | Type   | Description                                     |
+| -------------------------- | ------ | ----------------------------------------------- |
+| cardNumberLabel            | String | The label for the card number input             |
+| expirationDateLabel        | String | The label for the expiration date input         |
+| securityCodeLabel          | String | The label for the security code input           |
+| invalidCardNumberLabel     | String | The message shown on an invalid card number     |
+| invalidExpirationDateLabel | String | The message shown on an invalid expiration date |
+| invalidSecurityCodeLabel   | String | The message shown on an invalid security code   |
 
 ## Contributing
 
