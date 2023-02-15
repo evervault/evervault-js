@@ -79,10 +79,10 @@ evervault.inputs(id: String, settings: Object);
 | cardNumberLabel            | String | The label for the card number input                                                |
 | expirationDateLabel        | String | The label for the expiration date input                                            |
 | securityCodeLabel          | String | The label for the security code input                                              |
+| expirationDatePlaceholder  | String | The placeholder shown for the expiration date input                                |
 | invalidCardNumberLabel     | String | The message shown on an invalid card number                                        |
 | invalidExpirationDateLabel | String | The message shown on an invalid expiration date                                    |
 | invalidSecurityCodeLabel   | String | The message shown on an invalid security code                                      |
-| expirationDatePlaceholder  | String | The placeholder shown for the expiration date input                                |
 
 ```html
 <body>
@@ -151,10 +151,10 @@ await inputs.setLabels({});
 | cardNumberLabel            | String | The label for the card number input                 |
 | expirationDateLabel        | String | The label for the expiration date input             |
 | securityCodeLabel          | String | The label for the security code input               |
+| expirationDatePlaceholder  | String | The placeholder shown for the expiration date input |
 | invalidCardNumberLabel     | String | The message shown on an invalid card number         |
 | invalidExpirationDateLabel | String | The message shown on an invalid expiration date     |
 | invalidSecurityCodeLabel   | String | The message shown on an invalid security code       |
-| expirationDatePlaceholder  | String | The placeholder shown for the expiration date input |
 
 ## Contributing
 
