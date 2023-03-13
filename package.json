@@ -18,6 +18,7 @@
     "dotenv": "^16.0.3",
     "jsdom": "^20.0.3",
     "mocha": "^10.2.0",
+    "nock": "^13.3.0",
     "prettier": "^2.0.5",
     "web-file-polyfill": "^1.0.4",
     "webpack": "^4.43.0",
