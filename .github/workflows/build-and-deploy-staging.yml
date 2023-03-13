@@ -1,49 +1,48 @@
-name: Build and Deploy Staging
+# name: Build and Deploy Staging
 
-on:
-  push:
-    branches:
-      - master
+# on:
+#   push:
+#     branches:
+#       - master
 
-jobs:
-  build-deploy-staging:
-    environment:
-      name: staging
-    runs-on: ubuntu-latest
+# jobs:
+#   build-deploy-staging:
+#     environment:
+#       name: staging
+#     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [ 16.x ]
+#     strategy:
+#       matrix:
+#         node-version: [ 18.x ]
 
-    steps:
-      - uses: actions/checkout@v1
+#     steps:
+#       - uses: actions/checkout@v1
 
-      - uses: actions/cache@v1
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      - name: Build Inputs Staging
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm install
-      - run: npm run build
+#       - uses: actions/cache@v1
+#         with:
+#           path: ~/.npm
+#           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+#           restore-keys: |
+#             ${{ runner.os }}-node-
+#       - name: Build Inputs Staging
+#         uses: actions/setup-node@v1
+#         with:
+#           node-version: ${{ matrix.node-version }}
+#       - run: npm install
+#       - run: npm run build
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
-          aws-region: 'us-east-1'
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
+#           aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
+#           aws-region: 'us-east-1'
 
-      - name: S3 Deploy
-        run:
-          aws s3 cp ./dist $AWS_S3_BUCKET --recursive && aws s3 cp ./public $AWS_S3_BUCKET --recursive
-        env:
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET_STAGING }}
+#       - name: S3 Deploy
+#         run: aws s3 cp ./dist $AWS_S3_BUCKET --recursive && aws s3 cp ./public $AWS_S3_BUCKET --recursive
+#         env:
+#           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET_STAGING }}
 
-      - name: Cloudfront Cache Invalidation
-        run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_STAGING }} --paths "/v1/index.js" "/v2/index.js"
+#       - name: Cloudfront Cache Invalidation
+#         run: |
+#           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_STAGING }} --paths "/v1/index.js" "/v2/index.js"
