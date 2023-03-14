@@ -16,7 +16,10 @@ describe("customConfig", () => {
     const ev = new Evervault(
       process.env.EV_TEAM_UUID,
       process.env.EV_APP_UUID,
-      { publicKey: "BDeIKmwjqB35+tnMzQFEvXIvM2kyK6DX75NBEhSZxCR5CQZYnh1fwWsXMEqqKihmEGfMX0+EDHtmZNP/TK7mqMc=" }
+      {
+        publicKey:
+          "BDeIKmwjqB35+tnMzQFEvXIvM2kyK6DX75NBEhSZxCR5CQZYnh1fwWsXMEqqKihmEGfMX0+EDHtmZNP/TK7mqMc=",
+      }
     );
     const encryptedString = await ev.encrypt("Big Secret");
     assert(encryptedStringRegex.test(encryptedString));
