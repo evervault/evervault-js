@@ -29,6 +29,7 @@ jobs:
 
   call-deploy-staging:
     needs: call-build
+    name: Deploy
     uses: ./.github/workflows/test-aws-deploy.yml
     with:
       environment: staging
