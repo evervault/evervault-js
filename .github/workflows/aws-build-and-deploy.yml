@@ -1,4 +1,4 @@
-name: Deployment
+name: Build and Deploy to AWS
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
   call-deploy-staging:
     needs: call-build
     name: Deploy
-    uses: ./.github/workflows/deploy-base.yml
+    uses: ./.github/workflows/aws-generic-deploy.yml
     with:
       name: Staging
       environment: staging
@@ -44,7 +44,7 @@ jobs:
     needs: 
       - call-build
       - call-deploy-staging
-    uses: ./.github/workflows/deploy-base.yml
+    uses: ./.github/workflows/aws-generic-deploy.yml
     with:
       name: Production
       environment: production
