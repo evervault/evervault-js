@@ -26,6 +26,15 @@ jobs:
       - name: Build Application
         run: npm run build
 
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: js-sdk-build-artifacts
+          retention-days: 1
+          path: |
+            dist/
+            public/
+
   call-deploy-staging:
     needs: build
     name: Deploy
