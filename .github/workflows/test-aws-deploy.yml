@@ -43,9 +43,9 @@ jobs:
       - name: Fake S3 Deploy
         run: echo $AWS_S3_BUCKET
         env:
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_S3_BUCKET: ${{ secrets.aws-s3-bucket }}
 
       - name: Fake Cloudfront Cache Invalidation
         run: echo $AWS_CLOUDFRONT_DISTRIBUTION_ID
         env:
-          AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+          AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.aws-cloudfront-distribution-id }}
