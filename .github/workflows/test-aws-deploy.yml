@@ -2,6 +2,11 @@ name: Deploy / Base
 
 on:
   workflow_call:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: string
     secrets:
       aws-access-key-id:
         description: 'AWS Access Key ID'
@@ -9,10 +14,17 @@ on:
       aws-secret-access-key:
         description: 'AWS Secret Access Key'
         required: true
+      aws-s3-bucket:
+        description: 'AWS S3 Bucket'
+        required: true
+      aws-cloudfront-distribution-id:
+        description: 'AWS Cloudfront Distribution ID'
+        required: true
 
 jobs:
   build-deploy-base:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
 
     steps:
       - name: Configure AWS Credentials
@@ -28,12 +40,12 @@ jobs:
       - name: Test 
         run: echo ${{ job.build-deploy-base.environment }}
 
-      - name: S3 Deploy
+      - name: Fake S3 Deploy
         run: echo $AWS_S3_BUCKET
         env:
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
 
-      - name: Cloudfront Cache Invalidation
+      - name: Fake Cloudfront Cache Invalidation
         run: echo $AWS_CLOUDFRONT_DISTRIBUTION_ID
         env:
           AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
