@@ -14,6 +14,12 @@ on:
       aws-secret-access-key:
         description: 'AWS Secret Access Key'
         required: true
+      aws-s3-bucket:
+        description: 'AWS S3 Bucket'
+        required: true
+      aws-cloudfront-distribution-id:
+        description: 'AWS Cloudfront Distribution ID'
+        required: true
 
 jobs:
   build-deploy-base:
