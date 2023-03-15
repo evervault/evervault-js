@@ -83,6 +83,11 @@ evervault.inputs(id: String, settings: Object);
 | invalidCardNumberLabel     | String | The message shown on an invalid card number                                        |
 | invalidExpirationDateLabel | String | The message shown on an invalid expiration date                                    |
 | invalidSecurityCodeLabel   | String | The message shown on an invalid security code                                      |
+| fontUrl                    | String | Load a custom font with the Google Fonts API                                       |
+| fontFamily                 | String | Set the font-family for the fontUrl                                                |
+| inputFontSize              | String | Set the font-size property of the input attribute                                  |
+| labelFontSize              | String | Set the font-size property of the label attribute                                  |
+| labelFontWeight            | String | Set the font-weight property of the label attribute                                |
 | disableCVV                 | Boolean | If true the CVV field will not be displayed                                       |
 
 ```html
