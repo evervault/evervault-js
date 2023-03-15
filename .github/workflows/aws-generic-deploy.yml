@@ -39,6 +39,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
           aws-region: 'us-east-1'
 
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: js-sdk-build-artifacts
+
       - name: S3 Deploy
         run: aws s3 cp ./dist $AWS_S3_BUCKET --recursive && aws s3 cp ./public $AWS_S3_BUCKET --recursive
         env:
