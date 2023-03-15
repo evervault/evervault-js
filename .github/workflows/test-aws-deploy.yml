@@ -28,13 +28,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
           aws-region: 'us-east-1'
 
+      - name: Test inputs
+        run: echo ${{ inputs.environment }}
+
+      - name: Test 
+        run: echo ${{ job.build-deploy-base.environment }}
+
       - name: S3 Deploy
-        run: aws s3 cp ./dist $AWS_S3_BUCKET --recursive && aws s3 cp ./public $AWS_S3_BUCKET --recursive
+        run: echo $AWS_S3_BUCKET
         env:
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
 
       - name: Cloudfront Cache Invalidation
-        run: |
-          aws cloudfront create-invalidation --distribution-id $AWS_CLOUDFRONT_DISTRIBUTION_ID --paths "/v1/index.js" "/v2/index.js"
+        run: echo $AWS_CLOUDFRONT_DISTRIBUTION_ID
         env:
           AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
