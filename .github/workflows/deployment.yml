@@ -26,7 +26,9 @@ jobs:
   
   call-deploy-production:
     name: Deploy / Production
-    needs: call-deploy-staging
+    needs: 
+      - build
+      - call-deploy-staging
     environment:
       name: production
     uses: ./.github/workflows/build-deploy-base.yml
