@@ -13,29 +13,21 @@ jobs:
   call-deploy-staging:
     needs: build
     name: Deploy / Staging
-    environment:
-      name: staging
     uses: ./.github/workflows/deploy-base.yml
     with:
       environment: staging
     secrets:
       aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
-      aws-s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
-      aws-cloudfront-distribution-id: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
   
   call-deploy-production:
     name: Deploy / Production
     needs: 
       - build
       - call-deploy-staging
-    environment:
-      name: production
     uses: ./.github/workflows/deploy-base.yml
     with:
       environment: production
     secrets:
       aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
-      aws-s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
-      aws-cloudfront-distribution-id: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
