@@ -1,0 +1,27 @@
+name: Build
+
+on:
+  workflow_call:
+
+jobs:
+  build-deploy-base:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      success: ${{ steps.build-deploy-success.outputs.success }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Build Inputs Staging
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+     
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Application
+        run: npm run build

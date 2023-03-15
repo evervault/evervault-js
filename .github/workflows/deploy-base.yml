@@ -1,0 +1,48 @@
+name: Deploy / Base
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'The environment to deploy to'
+        required: true
+        type: string
+    secrets:
+      aws-access-key-id:
+        description: 'AWS Access Key ID'
+        required: true
+      aws-secret-access-key:
+        description: 'AWS Secret Access Key'
+        required: true
+      aws-s3-bucket:
+        description: 'AWS S3 Bucket'
+        required: true
+      aws-cloudfront-distribution-id:
+        description: 'AWS Cloudfront Distribution ID'
+        required: true
+
+jobs:
+  build-deploy-base:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      success: ${{ steps.build-deploy-success.outputs.success }}
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: 'us-east-1'
+
+      - name: S3 Deploy
+        run: aws s3 cp ./dist $AWS_S3_BUCKET --recursive && aws s3 cp ./public $AWS_S3_BUCKET --recursive
+        env:
+          AWS_S3_BUCKET: ${{ secrets.aws-s3-bucket }}
+
+      - name: Cloudfront Cache Invalidation
+        run: |
+          aws cloudfront create-invalidation --distribution-id $AWS_CLOUDFRONT_DISTRIBUTION --paths "/v1/index.js" "/v2/index.js"
+        env:
+          AWS_CLOUDFRONT_DISTRIBUTION: ${{ secrets.aws-cloudfront-distribution-id }}
