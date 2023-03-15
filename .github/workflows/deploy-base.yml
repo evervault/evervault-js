@@ -42,10 +42,10 @@ jobs:
       - name: S3 Deploy
         run: aws s3 cp ./dist $AWS_S3_BUCKET --recursive && aws s3 cp ./public $AWS_S3_BUCKET --recursive
         env:
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_S3_BUCKET: ${{ secrets.aws-s3-bucket }}
 
       - name: Cloudfront Cache Invalidation
         run: |
           aws cloudfront create-invalidation --distribution-id $AWS_CLOUDFRONT_DISTRIBUTION_ID --paths "/v1/index.js" "/v2/index.js"
         env:
-          AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+          AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.aws-cloudfront-distribution-id }}

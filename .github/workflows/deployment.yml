@@ -28,6 +28,7 @@ jobs:
 
   call-deploy-staging:
     needs: call-build
+    name: Deploy
     uses: ./.github/workflows/deploy-base.yml
     with:
       name: Staging
@@ -39,6 +40,7 @@ jobs:
       aws-cloudfront-distribution-id: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
   
   call-deploy-production:
+    name: Deploy
     needs: 
       - call-build
       - call-deploy-staging
