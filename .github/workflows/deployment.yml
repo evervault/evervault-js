@@ -11,7 +11,7 @@ jobs:
     uses: ./.github/workflows/build.yml
 
   call-deploy-staging:
-    needs: build
+    needs: call-build
     name: Deploy / Staging
     uses: ./.github/workflows/deploy-base.yml
     with:
@@ -23,7 +23,7 @@ jobs:
   call-deploy-production:
     name: Deploy / Production
     needs: 
-      - build
+      - call-build
       - call-deploy-staging
     uses: ./.github/workflows/deploy-base.yml
     with:
