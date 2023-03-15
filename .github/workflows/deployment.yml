@@ -23,7 +23,6 @@ jobs:
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
       aws-s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
-
   
   call-deploy-production:
     name: Deploy / Production
