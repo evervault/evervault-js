@@ -15,7 +15,7 @@ jobs:
     name: Deploy / Staging
     environment:
       name: staging
-    uses: ./.github/workflows/build-deploy-base.yml
+    uses: ./.github/workflows/deploy-base.yml
     with:
       environment: staging
     secrets:
