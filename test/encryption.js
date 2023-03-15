@@ -84,6 +84,14 @@ describe("File Encryption", () => {
     assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x01])) == 0);
   });
 
+  it("throws an error if the file is too large", async () => {
+    const file = new File(["hello world"], "hello.txt");
+    Object.defineProperty(file, "size", { value: 26 * 1024 * 1024 });
+    ev.encrypt(file).catch((err) => {
+      assert(err instanceof ExceededMaxFileSizeError);
+    });
+  });
+
   it("it encrypts a blob", async () => {
     const blob = new Blob(["hello world"]);
     const encryptedFile = await ev.encrypt(blob);
@@ -113,5 +121,13 @@ describe("File Encryption", () => {
 
     // Test that the debug flag is set
     assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x01])) == 0);
+  });
+
+  it("throws an error if the blob is too large", async () => {
+    const blob = new Blob(["hello world"]);
+    Object.defineProperty(blob, "size", { value: 26 * 1024 * 1024 });
+    ev.encrypt(blob).catch((err) => {
+      assert(err instanceof ExceededMaxFileSizeError);
+    });
   });
 });
