@@ -37,9 +37,6 @@ jobs:
       - name: Test inputs
         run: echo ${{ inputs.environment }}
 
-      - name: Test 
-        run: echo ${{ job.build-deploy-base.environment }}
-
       - name: Fake S3 Deploy
         run: echo $AWS_S3_BUCKET
         env:
