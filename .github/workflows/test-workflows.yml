@@ -15,8 +15,7 @@ jobs:
     needs: call-build
     name: Deploy / Staging
     uses: ./.github/workflows/test-aws-deploy.yml
-    with:
-      environment: staging
+    environment: staging
     secrets:
       aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}

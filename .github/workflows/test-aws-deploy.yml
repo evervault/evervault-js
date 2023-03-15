@@ -2,11 +2,6 @@ name: Deploy / Base
 
 on:
   workflow_call:
-    inputs:
-      environment:
-        description: 'Environment to deploy to'
-        required: true
-        type: string
     secrets:
       aws-access-key-id:
         description: 'AWS Access Key ID'
@@ -18,7 +13,6 @@ on:
 jobs:
   build-deploy-base:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
 
     steps:
       - name: Configure AWS Credentials
