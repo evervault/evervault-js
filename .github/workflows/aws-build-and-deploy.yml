@@ -27,7 +27,7 @@ jobs:
         run: npm run build
 
   call-deploy-staging:
-    needs: call-build
+    needs: build
     name: Deploy
     uses: ./.github/workflows/aws-generic-deploy.yml
     with:
@@ -42,7 +42,7 @@ jobs:
   call-deploy-production:
     name: Deploy
     needs: 
-      - call-build
+      - build
       - call-deploy-staging
     uses: ./.github/workflows/aws-generic-deploy.yml
     with:
