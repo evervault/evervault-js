@@ -1,6 +1,7 @@
 const assert = require("assert");
 require("dotenv").config();
 const Evervault = require("../lib/v2/index.js");
+const crc32 = require("crc-32");
 
 require("./utils").runBrowserJsPolyfills();
 
@@ -121,6 +122,20 @@ describe("File Encryption", () => {
 
     // Test that the debug flag is set
     assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x01])) == 0);
+  });
+
+  it("it encrypts a file and verifies that the crc32 was genered correctly", async () => {
+    const file = new File(["hello world"], "hello.txt");
+    const encryptedFile = await ev.encrypt(file);
+    const data = await encryptedFile.arrayBuffer();
+
+    const crc32Bytes = data.slice(-4);
+    const view = new DataView(crc32Bytes);
+    const crc32FromFile = view.getInt32(0, true);
+
+    const crc32FromFileContents = crc32.buf(Buffer.from(data.slice(0, -4)));
+
+    assert(crc32FromFile === crc32FromFileContents);
   });
 
   it("throws an error if the blob is too large", async () => {
