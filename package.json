@@ -3,10 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "main": "./lib/v1/index.js",
+  "engines": {
+    "node": "~18",
+    "pnpm": "~7"
+  },
   "directories": {
     "lib": "lib"
   },
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "test": "mocha",
     "lint": "prettier --check \"./**/*.js\"",
     "build": "./scripts/build.sh",
