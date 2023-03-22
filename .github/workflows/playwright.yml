@@ -19,6 +19,9 @@ jobs:
       run: npx playwright install --with-deps
     - name: Run Playwright tests
       run: npx playwright test
+      env:
+        EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+        EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
     - uses: actions/upload-artifact@v3
       if: always()
       with:
