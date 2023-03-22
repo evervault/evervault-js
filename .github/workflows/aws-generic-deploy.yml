@@ -49,4 +49,4 @@ jobs:
 
       - name: Cloudfront Cache Invalidation
         run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/v1/index.js" "/v2/index.js"
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/v2/index.js"

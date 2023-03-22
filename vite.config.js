@@ -1,7 +1,13 @@
 import { resolve } from 'node:path'
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
+  test: {
+    browser: {
+      enabled: true,
+      headless: true,
+    }
+  },
   build: {
     lib: {
       // Could also be a dictionary or array of multiple entry points
