@@ -10,18 +10,22 @@
     "test": "mocha",
     "lint": "prettier --check \"./**/*.js\"",
     "build": "./scripts/build.sh",
-    "dev": "npm run build && php -S localhost:5000"
+    "dev": "npm run build && php -S localhost:5000",
+    "test-serve": "npm run test-serve:build && npx serve -p 3000 -s ./e2e-app",
+    "test-serve:build": "npm run build && cp -r ./dist/v2/index.js ./e2e-app/evervault.bundle.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@playwright/test": "^1.31.2",
     "dotenv": "^16.0.3",
     "jsdom": "^20.0.3",
     "mocha": "^10.2.0",
+    "nock": "^13.3.0",
     "prettier": "^2.0.5",
     "web-file-polyfill": "^1.0.4",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
-    "nock": "^13.3.0"
+    "serve": "^14.2.0"
   }
 }
