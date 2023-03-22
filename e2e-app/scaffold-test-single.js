@@ -1,6 +1,11 @@
+const searchParams = new URLSearchParams(window.location.search);
+
+const EV_TEAM_UUID = searchParams.get("team");
+const EV_APP_UUID = searchParams.get("app");
+
 const ev = new window.Evervault(
-    'team_8eba95118afb',
-    'app_d9a6d46b70ab'
+    EV_TEAM_UUID,
+    EV_APP_UUID,
 )
 
 const encryptForm = document.getElementById("ev-encrypt-form");
