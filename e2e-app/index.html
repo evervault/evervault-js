@@ -6,8 +6,20 @@
   </head>
   <body>
     Evervault Test
-    <div id="ev-encrypt-output" >OUTPUT GOES HERE</div>
-    <script src="/evervault.bundle.js" ></script>
-    <script src="/scaffold-test.js" ></script>
+    <form id="ev-encrypt-form" data-testid="ev-encrypt-form">
+      <input id="ev-encrypt-input" name="ev-encrypt-input" data-testid="ev-encrypt-input" type="text" />
+      <button
+        id="ev-encrypt-submit"
+        type="submit"
+        data-testid="ev-encrypt-submit"
+      >
+        Encrypt
+      </button>
+    </form>
+    <span id="ev-encrypt-output" data-testid="ev-encrypt-output">
+      OUTPUT GOES HERE
+    </span>
+    <script src="/evervault.bundle.js"></script>
+    <script src="/scaffold-test.js"></script>
   </body>
 </html>
