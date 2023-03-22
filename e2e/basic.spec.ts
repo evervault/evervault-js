@@ -7,14 +7,18 @@ const encryptedStringRegex =
   /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
 
 test("has title", async ({ page }) => {
-  await page.goto(`http://localhost:3000/?team=${process.env.EV_TEAM_UUID}&app=${process.env.EV_APP_UUID}`);
+  await page.goto(
+    `http://localhost:3000/?team=${process.env.EV_TEAM_UUID}&app=${process.env.EV_APP_UUID}`
+  );
 
   // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/Evervault Test/);
 });
 
 test("encrypts a string", async ({ page }) => {
-  await page.goto(`http://localhost:3000/?team=${process.env.EV_TEAM_UUID}&app=${process.env.EV_APP_UUID}`);
+  await page.goto(
+    `http://localhost:3000/?team=${process.env.EV_TEAM_UUID}&app=${process.env.EV_APP_UUID}`
+  );
 
   const output = await page.getByTestId("ev-encrypt-output");
 
@@ -26,14 +30,15 @@ test("encrypts a string", async ({ page }) => {
   await expect(output).toHaveText(encryptedStringRegex);
 });
 
-
 test("encrypts an object", async ({ page }) => {
-  await page.goto(`http://localhost:3000/object_test?team=${process.env.EV_TEAM_UUID}&app=${process.env.EV_APP_UUID}`);
+  await page.goto(
+    `http://localhost:3000/object_test?team=${process.env.EV_TEAM_UUID}&app=${process.env.EV_APP_UUID}`
+  );
 
   const output = await page.getByTestId("ev-encrypt-output");
 
   await expect(output).toHaveText(/OUTPUT GOES HERE/);
- 
+
   await page.getByLabel(/Your Name/).fill("Shane Curren");
   await page.getByLabel(/Employer Name/).fill("Evervault");
   await page.getByLabel(/Employer Address/).fill("123 Fake Street");
@@ -53,5 +58,4 @@ test("encrypts an object", async ({ page }) => {
   await expect(json.employer.name).toMatch(encryptedStringRegex);
   await expect(json.employer.location).toMatch(encryptedStringRegex);
   await expect(json.employer.current).toMatch(encryptedStringRegex);
-
 });
