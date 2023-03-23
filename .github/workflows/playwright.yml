@@ -13,12 +13,13 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: 16
+        cache: 'pnpm'
     - name: Install dependencies
-      run: npm ci
+      run: pnpm install --frozen-lockfile
     - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+      run: pnpm dlx playwright install --with-deps
     - name: Run Playwright tests
-      run: npx playwright test
+      run: pnpm dlx playwright test
       env:
         EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
         EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
