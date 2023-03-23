@@ -3,10 +3,8 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    browser: {
-      enabled: true,
-      headless: true,
-    }
+    environment: 'jsdom',
+    include: ['**/test/**/*.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}']
   },
   build: {
     lib: {
