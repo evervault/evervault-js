@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [19]
+        node-version: [18]
         os: [ubuntu-latest]
 
     steps:
