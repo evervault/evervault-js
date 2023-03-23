@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Evervault Test</title>
+  </head>
+  <body>
+    Evervault Test
+    <form id="ev-encrypt-form" data-testid="ev-encrypt-form">
+      <input id="ev-encrypt-input" name="ev-encrypt-input" data-testid="ev-encrypt-input" type="text" />
+      <button
+        id="ev-encrypt-submit"
+        type="submit"
+        data-testid="ev-encrypt-submit"
+      >
+        Encrypt
+      </button>
+    </form>
+    <span id="ev-encrypt-output" data-testid="ev-encrypt-output">
+      OUTPUT GOES HERE
+    </span>
+    <script src="/evervault.bundle.js"></script>
+    <script src="/scaffold-test-single.js"></script>
+  </body>
+</html>
