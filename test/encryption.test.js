@@ -1,6 +1,8 @@
 import { describe, assert, it, beforeEach } from "vitest";
 
+import { ExceededMaxFileSizeError } from "../lib/utils/errors";
 import Evervault from "../lib/main";
+import { setupCrypto } from "./setup";
 
 const encryptedStringRegex =
   /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
@@ -15,7 +17,10 @@ const evDebug = new Evervault(
 );
 
 describe("Encryption", () => {
-  beforeEach(() => ev.loadKeys());
+  beforeEach(() => {
+    setupCrypto();
+    ev.loadKeys();
+  });
 
   it("it encrypts a string", async () => {
     const encryptedString = await ev.encrypt("Big Secret");
@@ -55,11 +60,11 @@ describe("File Encryption", () => {
   it("it encrypts a file", async () => {
     const file = new File(["hello world"], "hello.txt");
     const encryptedFile = await ev.encrypt(file);
-    const data = Buffer.from(await encryptedFile.arrayBuffer());
 
     assert(encryptedFile instanceof File);
     assert(encryptedFile.name === "hello.txt");
 
+    const data = Buffer.from(await encryptedFile.arrayBuffer());
     assert(
       Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
     );
@@ -72,11 +77,11 @@ describe("File Encryption", () => {
     const file = new File(["hello world"], "hello.txt");
 
     const encryptedFile = await evDebug.encrypt(file);
-    const data = Buffer.from(await encryptedFile.arrayBuffer());
 
     assert(encryptedFile instanceof File);
     assert(encryptedFile.name === "hello.txt");
 
+    const data = Buffer.from(await encryptedFile.arrayBuffer());
     assert(
       Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
     );
@@ -96,10 +101,10 @@ describe("File Encryption", () => {
   it("it encrypts a blob", async () => {
     const blob = new Blob(["hello world"]);
     const encryptedFile = await ev.encrypt(blob);
-    const data = Buffer.from(await encryptedFile.arrayBuffer());
 
     assert(encryptedFile instanceof Blob);
 
+    const data = Buffer.from(await encryptedFile.arrayBuffer());q
     assert(
       Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
     );
@@ -112,9 +117,9 @@ describe("File Encryption", () => {
     const blob = new Blob(["hello world"]);
 
     const encryptedFile = await evDebug.encrypt(blob);
-    const data = Buffer.from(await encryptedFile.arrayBuffer());
 
     assert(encryptedFile instanceof Blob);
+    const data = Buffer.from(await encryptedFile.arrayBuffer());
 
     assert(
       Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0

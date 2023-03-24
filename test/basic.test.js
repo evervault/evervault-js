@@ -1,6 +1,8 @@
 import { describe, assert, it, beforeAll } from "vitest";
 import * as nock from 'nock';
 
+import { setupCrypto } from "./setup";
+
 import EvervaultClient from "../lib/main";
 
 const encryptedStringRegex =
@@ -8,6 +10,7 @@ const encryptedStringRegex =
 
 describe("customConfig", () => {
   beforeAll(async () => {
+    setupCrypto();;
     nock.disableNetConnect();
   });
   it("does not call out to api when publicKey is present", async () => {
