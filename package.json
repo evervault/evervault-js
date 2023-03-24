@@ -3,16 +3,21 @@
   "version": "1.0.0",
   "description": "",
   "main": "./lib/v1/index.js",
+  "engines": {
+    "node": ">=16 <=19",
+    "pnpm": "~7"
+  },
   "directories": {
     "lib": "lib"
   },
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "test": "mocha",
     "lint": "prettier --check \"./**/*.js\"",
     "build": "./scripts/build.sh",
-    "dev": "npm run build && php -S localhost:5000",
-    "test-serve": "npm run test-serve:build && npx serve -p 3000 ./e2e-app",
-    "test-serve:build": "npm run build && cp -r ./dist/v2/index.js ./e2e-app/evervault.bundle.js"
+    "dev": "pnpm run build && php -S localhost:5000",
+    "test-serve": "pnpm run test-serve:build && serve -p 3000 ./e2e-app",
+    "test-serve:build": "pnpm run build && cp -r ./dist/v2/index.js ./e2e-app/evervault.bundle.js"
   },
   "author": "",
   "license": "ISC",
