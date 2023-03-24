@@ -1,6 +1,5 @@
 import { describe, assert, it, beforeEach, expect } from "vitest";
 
-import { ExceededMaxFileSizeError } from "../lib/utils/errors";
 import Evervault from "../lib/main";
 import { setupCrypto } from "./setup";
 
@@ -92,7 +91,9 @@ describe("File Encryption", () => {
   it("throws an error if the file is too large", async () => {
     const file = new File(["hello world"], "hello.txt");
     Object.defineProperty(file, "size", { value: 26 * 1024 * 1024 });
-    expect(() => ev.encrypt(file)).rejects.toThrowError(/File size must be less than 25MB/);
+    expect(() => ev.encrypt(file)).rejects.toThrowError(
+      /File size must be less than 25MB/
+    );
   });
 
   it("it encrypts a blob", async () => {
@@ -129,6 +130,8 @@ describe("File Encryption", () => {
   it("throws an error if the blob is too large", async () => {
     const blob = new Blob(["hello world"]);
     Object.defineProperty(blob, "size", { value: 26 * 1024 * 1024 });
-    expect(() => ev.encrypt(blob)).rejects.toThrowError(/File size must be less than 25MB/);
+    expect(() => ev.encrypt(blob)).rejects.toThrowError(
+      /File size must be less than 25MB/
+    );
   });
 });
