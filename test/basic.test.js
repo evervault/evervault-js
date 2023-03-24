@@ -1,5 +1,5 @@
 import { describe, assert, it, beforeAll } from "vitest";
-import * as nock from 'nock';
+import * as nock from "nock";
 
 import { setupCrypto } from "./setup";
 
@@ -10,7 +10,7 @@ const encryptedStringRegex =
 
 describe("customConfig", () => {
   beforeAll(async () => {
-    setupCrypto();;
+    setupCrypto();
     nock.disableNetConnect();
   });
   it("does not call out to api when publicKey is present", async () => {
