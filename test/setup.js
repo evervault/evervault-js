@@ -1,8 +1,8 @@
-import { webcrypto } from "node:crypto";
+import { Crypto } from "@peculiar/webcrypto";
 import { File, Blob } from "web-file-polyfill";
 
 export const setupCrypto = () => {
-  const crypto = webcrypto
+  const crypto = new Crypto();
 
   Object.defineProperty(window, "crypto", {
     value: crypto,
