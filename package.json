@@ -2,7 +2,7 @@
   "name": "evervault-browser-sdk",
   "version": "1.0.0",
   "description": "",
-  "main": "./lib/v1/index.js",
+  "main": "./lib/index.js",
   "engines": {
     "node": ">=16 <=19",
     "pnpm": "~7"
@@ -14,10 +14,10 @@
     "preinstall": "npx only-allow pnpm",
     "test": "mocha",
     "lint": "prettier --check \"./**/*.js\"",
-    "build": "./scripts/build.sh",
+    "build": "webpack --mode=production --config=webpack.config.js",
     "dev": "pnpm run build && php -S localhost:5000",
     "test-serve": "pnpm run test-serve:build && serve -p 3000 ./e2e-app",
-    "test-serve:build": "pnpm run build && cp -r ./dist/v2/index.js ./e2e-app/evervault.bundle.js"
+    "test-serve:build": "pnpm run build && cp ./dist/index.js ./e2e-app/evervault.bundle.js"
   },
   "author": "",
   "license": "ISC",

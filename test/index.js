@@ -1,7 +1,7 @@
 const assert = require("assert");
 const nock = require("nock");
 require("dotenv").config();
-const Evervault = require("../lib/v2/index.js");
+const Evervault = require("../lib/index.js");
 
 require("./utils").runBrowserJsPolyfills();
 
