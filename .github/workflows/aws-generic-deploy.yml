@@ -11,6 +11,10 @@ on:
         description: 'Name of the job'
         required: true
         type: string
+      version:
+        description: 'Version of the package to deploy'
+        required: true
+        type: string
     secrets:
       aws-access-key-id:
         description: 'AWS Access Key ID'
@@ -45,7 +49,7 @@ jobs:
           name: js-sdk-build-artifacts
 
       - name: S3 Deploy
-        run: aws s3 cp ./dist $AWS_S3_BUCKET --recursive && aws s3 cp ./public $AWS_S3_BUCKET --recursive
+        run: aws s3 cp ./dist/${{ inputs.version }} s3//{{ secrets.aws-s3-bucket }}/{{ inputs.version }} --recursive && aws s3 cp ./public s3//${{ secrets.aws-s3-bucket }} --recursive
         env:
           AWS_S3_BUCKET: ${{ secrets.aws-s3-bucket }}
 
