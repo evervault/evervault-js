@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@playwright/test': ^1.32.1
   dotenv: ^16.0.3
   jsdom: ^20.0.3
   mocha: ^10.2.0
@@ -12,6 +13,7 @@ specifiers:
   webpack-cli: ^3.3.12
 
 devDependencies:
+  '@playwright/test': 1.32.1
   dotenv: 16.0.3
   jsdom: 20.0.3
   mocha: 10.2.0
@@ -24,9 +26,24 @@ devDependencies:
 
 packages:
 
+  /@playwright/test/1.32.1:
+    resolution: {integrity: sha512-FTwjCuhlm1qHUGf4hWjfr64UMJD/z0hXYbk+O387Ioe6WdyZQ+0TBDAc6P+pHjx2xCv1VYNgrKbYrNixFWy4Dg==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dependencies:
+      '@types/node': 18.15.10
+      playwright-core: 1.32.1
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
   /@tootallnate/once/2.0.0:
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}
     engines: {node: '>= 10'}
+    dev: true
+
+  /@types/node/18.15.10:
+    resolution: {integrity: sha512-9avDaQJczATcXgfmMAW3MIWArOO7A+m90vuCFLr8AotWf8igO/mRoYukrk2cqZVtv38tHs33retzHEilM7FpeQ==}
     dev: true
 
   /@webassemblyjs/ast/1.9.0:
@@ -2688,6 +2705,12 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       find-up: 3.0.0
+    dev: true
+
+  /playwright-core/1.32.1:
+    resolution: {integrity: sha512-KZYUQC10mXD2Am1rGlidaalNGYk3LU1vZqqNk0gT4XPty1jOqgup8KDP8l2CUlqoNKhXM5IfGjWgW37xvGllBA==}
+    engines: {node: '>=14'}
+    hasBin: true
     dev: true
 
   /posix-character-classes/0.1.1:
