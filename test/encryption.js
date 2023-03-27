@@ -14,7 +14,6 @@ const evDebug = new Evervault(
 );
 
 describe("Encryption", () => {
-
   it("it encrypts a string", async () => {
     const encryptedString = await ev.encrypt("Big Secret");
     assert(encryptedStringRegex.test(encryptedString));
