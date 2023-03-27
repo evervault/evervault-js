@@ -49,12 +49,8 @@ jobs:
           name: js-sdk-build-artifacts
 
       - name: S3 Deploy
-        run: aws s3 cp ./dist/${{ inputs.version }} s3//{{ secrets.aws-s3-bucket }}/{{ inputs.version }} --recursive && aws s3 cp ./public s3//${{ secrets.aws-s3-bucket }} --recursive
-        env:
-          AWS_S3_BUCKET: ${{ secrets.aws-s3-bucket }}
+        run: aws s3 cp ./dist s3//{{ secrets.aws-s3-bucket }}/{{ inputs.version }} --recursive && aws s3 cp ./public s3//${{ secrets.aws-s3-bucket }} --recursive
 
       - name: Cloudfront Cache Invalidation
         run: |
-          aws cloudfront create-invalidation --distribution-id $AWS_CLOUDFRONT_DISTRIBUTION_ID --paths "/v1/index.js" "/v2/index.js"
-        env:
-          AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.aws-cloudfront-distribution-id }}
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/v1/index.js" "/v2/index.js"
