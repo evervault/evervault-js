@@ -2,10 +2,9 @@ name: Test
 
 on:
   push:
-    branches:
-      - '**'
-      - '!master'
-
+    branches: [main, master, v1]
+  pull_request:
+    branches: [main, master, v1]
 jobs:
   run-tests:
     runs-on: ubuntu-latest
