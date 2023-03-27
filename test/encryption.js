@@ -14,7 +14,6 @@ const evDebug = new Evervault(
 );
 
 describe("Encryption", () => {
-  beforeEach(() => ev.loadKeys());
 
   it("it encrypts a string", async () => {
     const encryptedString = await ev.encrypt("Big Secret");
