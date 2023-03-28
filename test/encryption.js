@@ -1,6 +1,6 @@
 const assert = require("assert");
 require("dotenv").config();
-const Evervault = require("../lib/v2/index.js");
+const Evervault = require("../lib/index.js");
 
 require("./utils").runBrowserJsPolyfills();
 
@@ -14,8 +14,6 @@ const evDebug = new Evervault(
 );
 
 describe("Encryption", () => {
-  beforeEach(() => ev.loadKeys());
-
   it("it encrypts a string", async () => {
     const encryptedString = await ev.encrypt("Big Secret");
     assert(encryptedStringRegex.test(encryptedString));
@@ -50,84 +48,85 @@ describe("Encryption", () => {
   });
 });
 
-describe("File Encryption", () => {
-  it("it encrypts a file", async () => {
-    const file = new File(["hello world"], "hello.txt");
-    const encryptedFile = await ev.encrypt(file);
-    const data = Buffer.from(await encryptedFile.arrayBuffer());
+// Not supporting File Encryption in V1
+// describe("File Encryption", () => {
+//   it("it encrypts a file", async () => {
+//     const file = new File(["hello world"], "hello.txt");
+//     const encryptedFile = await ev.encrypt(file);
+//     const data = Buffer.from(await encryptedFile.arrayBuffer());
 
-    assert(encryptedFile instanceof File);
-    assert(encryptedFile.name === "hello.txt");
+//     assert(encryptedFile instanceof File);
+//     assert(encryptedFile.name === "hello.txt");
 
-    assert(
-      Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
-    );
+//     assert(
+//       Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
+//     );
 
-    // Test that the debug flag is not set
-    assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x00])) == 0);
-  });
+//     // Test that the debug flag is not set
+//     assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x00])) == 0);
+//   });
 
-  it("it encrypts a file in debug mode", async () => {
-    const file = new File(["hello world"], "hello.txt");
+//   it("it encrypts a file in debug mode", async () => {
+//     const file = new File(["hello world"], "hello.txt");
 
-    const encryptedFile = await evDebug.encrypt(file);
-    const data = Buffer.from(await encryptedFile.arrayBuffer());
+//     const encryptedFile = await evDebug.encrypt(file);
+//     const data = Buffer.from(await encryptedFile.arrayBuffer());
 
-    assert(encryptedFile instanceof File);
-    assert(encryptedFile.name === "hello.txt");
+//     assert(encryptedFile instanceof File);
+//     assert(encryptedFile.name === "hello.txt");
 
-    assert(
-      Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
-    );
+//     assert(
+//       Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
+//     );
 
-    // Test that the debug flag is set
-    assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x01])) == 0);
-  });
+//     // Test that the debug flag is set
+//     assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x01])) == 0);
+//   });
 
-  it("throws an error if the file is too large", async () => {
-    const file = new File(["hello world"], "hello.txt");
-    Object.defineProperty(file, "size", { value: 26 * 1024 * 1024 });
-    ev.encrypt(file).catch((err) => {
-      assert(err instanceof ExceededMaxFileSizeError);
-    });
-  });
+//   it("throws an error if the file is too large", async () => {
+//     const file = new File(["hello world"], "hello.txt");
+//     Object.defineProperty(file, "size", { value: 26 * 1024 * 1024 });
+//     ev.encrypt(file).catch((err) => {
+//       assert(err instanceof ExceededMaxFileSizeError);
+//     });
+//   });
 
-  it("it encrypts a blob", async () => {
-    const blob = new Blob(["hello world"]);
-    const encryptedFile = await ev.encrypt(blob);
-    const data = Buffer.from(await encryptedFile.arrayBuffer());
+//   it("it encrypts a blob", async () => {
+//     const blob = new Blob(["hello world"]);
+//     const encryptedFile = await ev.encrypt(blob);
+//     const data = Buffer.from(await encryptedFile.arrayBuffer());
 
-    assert(encryptedFile instanceof Blob);
+//     assert(encryptedFile instanceof Blob);
 
-    assert(
-      Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
-    );
+//     assert(
+//       Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
+//     );
 
-    // Test that the debug flag is not set
-    assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x00])) == 0);
-  });
+//     // Test that the debug flag is not set
+//     assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x00])) == 0);
+//   });
 
-  it("it encrypts a blob in debug mode", async () => {
-    const blob = new Blob(["hello world"]);
+//   it("it encrypts a blob in debug mode", async () => {
+//     const blob = new Blob(["hello world"]);
 
-    const encryptedFile = await evDebug.encrypt(blob);
-    const data = Buffer.from(await encryptedFile.arrayBuffer());
+//     const encryptedFile = await evDebug.encrypt(blob);
+//     const data = Buffer.from(await encryptedFile.arrayBuffer());
 
-    assert(encryptedFile instanceof Blob);
+//     assert(encryptedFile instanceof Blob);
 
-    assert(
-      Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
-    );
+//     assert(
+//       Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) == 0
+//     );
 
-    // Test that the debug flag is set
-    assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x01])) == 0);
-  });
+//     // Test that the debug flag is set
+//     assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x01])) == 0);
+//   });
 
-  it("throws an error if the blob is too large", async () => {
-    const blob = new Blob(["hello world"]);
-    Object.defineProperty(blob, "size", { value: 26 * 1024 * 1024 });
-    ev.encrypt(blob).catch((err) => {
-      assert(err instanceof ExceededMaxFileSizeError);
-    });
-  });
-});
+//   it("throws an error if the blob is too large", async () => {
+//     const blob = new Blob(["hello world"]);
+//     Object.defineProperty(blob, "size", { value: 26 * 1024 * 1024 });
+//     ev.encrypt(blob).catch((err) => {
+//       assert(err instanceof ExceededMaxFileSizeError);
+//     });
+//   });
+// });

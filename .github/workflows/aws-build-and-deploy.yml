@@ -3,7 +3,7 @@ name: Build and Deploy to AWS
 on:
   push:
     branches:
-      - master
+      - v1
 
 jobs:
   build:
@@ -45,6 +45,7 @@ jobs:
     with:
       name: Staging
       environment: staging
+      version: v1
     secrets:
       aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
@@ -60,6 +61,7 @@ jobs:
     with:
       name: Production
       environment: production
+      version: v1
     secrets:
       aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
