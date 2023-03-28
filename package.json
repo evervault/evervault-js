@@ -42,7 +42,7 @@
     "web-file-polyfill": "^1.0.4"
   },
   "dependencies": {
-    "buffer": "^6.0.3",
+    "uint8arrays": "^4.0.3",
     "events": "^3.3.0"
   }
 }
