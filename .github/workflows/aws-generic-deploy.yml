@@ -49,7 +49,7 @@ jobs:
           name: js-sdk-build-artifacts
 
       - name: S3 Deploy
-        run: aws s3 cp ./dist s3//${{ secrets.aws-s3-bucket }}/${{ inputs.version }} --recursive && aws s3 cp ./public s3//${{ secrets.aws-s3-bucket }} --recursive
+        run: aws s3 cp ./dist s3://${{ secrets.aws-s3-bucket }}/${{ inputs.version }} --recursive && aws s3 cp ./public s3://${{ secrets.aws-s3-bucket }} --recursive
 
       - name: Cloudfront Cache Invalidation
         run: |
