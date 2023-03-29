@@ -23,12 +23,13 @@
     "lint": "prettier --check \"./**/*.js\"",
     "build": "vite build",
     "dev": "vite",
-    "test-serve": "pnpm run test-serve:build && serve -p 3000 ./e2e-app",
+    "test-serve": "pnpm run test-serve:build && node ./e2e-app/server.mjs",
     "test-serve:build": "pnpm run build && cp -r ./dist/index.js ./e2e-app/evervault.bundle.js"
   },
   "author": "",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@evervault/sdk": "^3.10.1",
     "@peculiar/webcrypto": "^1.4.3",
     "@playwright/test": "^1.32.1",
     "@trust/webcrypto": "^0.9.2",
@@ -36,13 +37,14 @@
     "jsdom": "^21.1.1",
     "nock": "^13.3.0",
     "prettier": "^2.8.7",
-    "serve": "^14.2.0",
+    "serve-handler": "^6.1.5",
     "vite": "^4.2.1",
     "vitest": "^0.29.7",
     "web-file-polyfill": "^1.0.4"
   },
   "dependencies": {
     "buffer": "^6.0.3",
-    "events": "^3.3.0"
+    "events": "^3.3.0",
+    "fastify": "^4.15.0"
   }
 }
