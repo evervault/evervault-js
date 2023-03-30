@@ -10,11 +10,6 @@ jobs:
   run-tests:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [19]
-        os: [ubuntu-latest]
-
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
@@ -22,12 +17,12 @@ jobs:
           version: 7
       - uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: '.nvmrc'
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm run lint
       - run: pnpm run test
         env:
-          EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
-          EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+          VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+          VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}

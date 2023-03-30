@@ -20,9 +20,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Install Playwright Browsers
-        run: pnpm dlx playwright install --with-deps
+        run: npx playwright install --with-deps
       - name: Run Playwright tests
-        run: pnpm dlx playwright test
+        run: npx playwright test
         env:
           EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
           EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
