@@ -35,8 +35,8 @@ jobs:
           name: js-sdk-build-artifacts
           retention-days: 1
           path: |
+            cdn-root/
             dist/
-            public/
 
   call-deploy-staging:
     needs: build
