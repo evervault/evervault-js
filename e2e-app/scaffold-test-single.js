@@ -18,7 +18,7 @@ encryptForm.addEventListener("submit", async (e) => {
   const fnPlayload = {
     encrypted: encryptedValue,
     unencrypted: value,
-  }
+  };
 
   const result = await fetch("/test_decryption", {
     method: "POST",
@@ -28,9 +28,9 @@ encryptForm.addEventListener("submit", async (e) => {
     body: JSON.stringify(fnPlayload),
   });
 
-  if(result.ok) {
+  if (result.ok) {
     const data = await result.json();
-    if(data.success) {
+    if (data.success) {
       document.getElementById("ev-encrypt-output").innerHTML = encryptedValue;
       document.getElementById("ev-encrypt-success").innerHTML = "Success!";
     }
