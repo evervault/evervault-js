@@ -26,8 +26,7 @@
     "test-serve": "pnpm run test-serve:build && node ./e2e-app/server.mjs",
     "test-serve:build": "pnpm run build && cp -r ./dist/index.js ./e2e-app/evervault.bundle.js"
   },
-  "author": "",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "devDependencies": {
     "@evervault/sdk": "^3.10.1",
     "@peculiar/webcrypto": "^1.4.3",
@@ -44,7 +43,6 @@
   },
   "dependencies": {
     "buffer": "^6.0.3",
-    "events": "^3.3.0",
-    "fastify": "^4.15.0"
+    "events": "^3.3.0"
   }
 }
