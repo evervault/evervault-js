@@ -26,6 +26,7 @@ jobs:
         env:
           EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
           EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+          EV_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
       - uses: actions/upload-artifact@v3
         if: always()
         with:

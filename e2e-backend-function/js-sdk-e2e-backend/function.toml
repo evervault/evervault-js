@@ -1,0 +1,4 @@
+[function]
+name = "js-sdk-e2e-backend"
+language = "node@16"
+handler = "index.handler"

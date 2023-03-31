@@ -22,9 +22,29 @@ encryptForm.addEventListener("submit", async (e) => {
   };
 
   const encryptedValue = await ev.encrypt(objectToEncrypt);
-  document.getElementById("ev-encrypt-output").innerHTML = JSON.stringify(
-    encryptedValue,
-    null,
-    2
-  );
+
+  const fnPlayload = {
+    encrypted: encryptedValue,
+    unencrypted: objectToEncrypt,
+  };
+
+  const result = await fetch("/test_decryption", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(fnPlayload),
+  });
+
+  if (result.ok) {
+    const data = await result.json();
+    if (data.success) {
+      document.getElementById("ev-encrypt-output").innerHTML = JSON.stringify(
+        encryptedValue,
+        null,
+        2
+      );
+      document.getElementById("ev-encrypt-success").innerHTML = "Success!";
+    }
+  }
 });

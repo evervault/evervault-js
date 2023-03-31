@@ -2,13 +2,11 @@
 
 # Evervault JavaScript SDK
 
-The [Evervault](https://evervault.com) JavaScript SDK is a toolkit for encrypting data in the browser. Using the Evervault React.js SDK means your customer's data never leaves their browser unencrypted.
+The [Evervault](https://evervault.com) JavaScript SDK is a toolkit for encrypting data in the browser. Using the Evervault JavaScript SDK means your customer's data never leaves their browser unencrypted.
 
 ## Getting Started
 
-Before starting with the Evervault JavaScript SDK, you will need to [create an account](https://app.evervault.com/register) and a team.
-
-For full installation support, [book time here](https://calendly.com/evervault/cages-onboarding).
+Before starting with the Evervault JavaScript SDK, you will need to [create an account](https://app.evervault.com/register), a team and an app.
 
 ## Installation
 
@@ -32,7 +30,7 @@ The Evervault JavaScript SDK exposes two functions.
 
 ### evervault.encrypt()
 
-`evervault.encrypt()` encrypts data for use in your [Cages](https://docs.evervault.com/tutorial). To encrypt data in the browser, simply pass an object or string into the `evervault.encrypt()` function. Store the encrypted data in your database as normal.
+`evervault.encrypt()` encrypts data for use in your [Functions](https://docs.evervault.com/products/functions) and [Cages](https://docs.evervault.com/products/cages). To encrypt data in the browser, simply pass an object or string into the `evervault.encrypt()` function. Store the encrypted data in your database as normal.
 
 ```javascript
 async evervault.encrypt(data: Object | Array | String | Number | File | Blob);
@@ -40,7 +38,7 @@ async evervault.encrypt(data: Object | Array | String | Number | File | Blob);
 
 | Parameter | Type                                    | Description           |
 | --------- | --------------------------------------- | --------------------- |
-| data      | `Object`, `Array`, `String` or `Number` | Data to be encrypted. |
+| data      | `Object`, `Array`, `String`, `Number`, `File` or `Blob` | Data to be encrypted. |
 
 ### evervault.inputs()
 

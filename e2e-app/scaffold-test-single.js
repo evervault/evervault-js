@@ -14,5 +14,25 @@ encryptForm.addEventListener("submit", async (e) => {
 
   const value = formData.get("ev-encrypt-input");
   const encryptedValue = await ev.encrypt(value);
-  document.getElementById("ev-encrypt-output").innerHTML = encryptedValue;
+
+  const fnPlayload = {
+    encrypted: encryptedValue,
+    unencrypted: value,
+  };
+
+  const result = await fetch("/test_decryption", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(fnPlayload),
+  });
+
+  if (result.ok) {
+    const data = await result.json();
+    if (data.success) {
+      document.getElementById("ev-encrypt-output").innerHTML = encryptedValue;
+      document.getElementById("ev-encrypt-success").innerHTML = "Success!";
+    }
+  }
 });
