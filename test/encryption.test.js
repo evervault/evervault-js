@@ -1,3 +1,5 @@
+import { Buffer } from "node:buffer";
+
 import { describe, assert, it, beforeEach, expect } from "vitest";
 
 import Evervault from "../lib/main";
