@@ -1,5 +1,8 @@
-import { Buffer } from "buffer/index";
-
+import {
+  base64StringToUint8Array,
+  hexStringToUint8Array,
+  uint8ArrayToHexString,
+} from "../utils/encoding";
 import ASN1 from "./asn1";
 
 /**
@@ -12,7 +15,7 @@ export function createCurve(curveValues) {
   const asn1Encoder = buildEncoder(curveValues);
   return (decompressedPublicKey) => {
     return asn1Encoder(
-      Buffer.from(decompressedPublicKey, "base64").toString("hex")
+      uint8ArrayToHexString(base64StringToUint8Array(decompressedPublicKey))
     );
   };
 }
@@ -58,6 +61,6 @@ function buildEncoder({ p, a, b, seed, generator, n, h }) {
       ASN1.BitStr(decompressedKey)
     );
 
-    return Buffer.from(hexEncodedKey, "hex");
+    return hexStringToUint8Array(hexEncodedKey);
   };
 }

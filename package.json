@@ -1,32 +1,5 @@
 {
-  "name": "@evervault/browser",
-  "version": "2.3.0",
-  "engines": {
-    "node": "~18",
-    "pnpm": "~7"
-  },
-  "files": [
-    "dist"
-  ],
-  "main": "dist/index.js",
-  "module": "dist/index.es.mjs",
-  "exports": {
-    ".": {
-      "import": "./dist/index.es.mjs",
-      "require": "./dist/index.js"
-    }
-  },
-  "scripts": {
-    "preinstall": "npx only-allow pnpm",
-    "test": "vitest",
-    "coverage": "vitest --coverage",
-    "lint": "prettier --check \"./**/*.js\"",
-    "build": "vite build",
-    "dev": "vite",
-    "test-serve": "pnpm run test-serve:build && node ./e2e-app/server.mjs",
-    "test-serve:build": "pnpm run build && cp -r ./dist/index.js ./e2e-app/evervault.bundle.js"
-  },
-  "license": "MIT",
+  "private": true,
   "devDependencies": {
     "@evervault/sdk": "^3.10.1",
     "@peculiar/webcrypto": "^1.4.3",
@@ -40,9 +13,5 @@
     "vite": "^4.2.1",
     "vitest": "^0.29.7",
     "web-file-polyfill": "^1.0.4"
-  },
-  "dependencies": {
-    "buffer": "^6.0.3",
-    "events": "^3.3.0"
   }
 }

@@ -1,21 +1,20 @@
-import { Buffer } from "buffer/index";
-
 import { Datatypes, errors, cryptoUtils } from "../utils";
+import concatUint8Arrays from "../utils/concatUint8Arrays";
+import {
+  uint8ArrayToBase64String,
+  utf8StringToUint8Array,
+} from "../utils/encoding";
 
-const generateBytes = (byteLength) => {
-  return new Promise((resolve, reject) => {
-    const randomBytes = new Uint8Array(byteLength);
-    if (window.crypto) {
-      window.crypto.getRandomValues(randomBytes);
-      resolve(randomBytes);
-    } else {
-      reject(
-        new errors.CryptoError(
-          "Your browser is outdated and does not support the Web Crypto API. Please upgrade it."
-        )
-      );
-    }
-  });
+const generateBytes = async (byteLength) => {
+  let randomBytes = new Uint8Array(byteLength);
+  if (window.crypto) {
+    window.crypto.getRandomValues(randomBytes);
+    return randomBytes;
+  } else {
+    throw new errors.CryptoError(
+      "Your browser is outdated and does not support the Web Crypto API. Please upgrade it."
+    );
+  }
 };
 
 export default function Crypto(config, isDebug) {
@@ -97,7 +96,7 @@ export default function Crypto(config, isDebug) {
     return new Promise((resolve, reject) => {
       const reader = new window.FileReader();
 
-      reader.onloadend = (event) => {
+      reader.onloadend = (_event) => {
         if (!reader.result) {
           reject({
             error: "Failed to read file to be encrypted",
@@ -110,7 +109,7 @@ export default function Crypto(config, isDebug) {
               name: "AES-GCM",
               iv: keyIv,
               tagLength: config.authTagLength,
-              additionalData: Buffer.from(ecdhTeamKey, "base64"),
+              additionalData: ecdhTeamKey,
             },
             derivedSecretImported,
             reader.result
@@ -150,17 +149,17 @@ export default function Crypto(config, isDebug) {
         name: "AES-GCM",
         iv: keyIv,
         tagLength: config.authTagLength,
-        additionalData: Buffer.from(ecdhTeamKey, "base64"),
+        additionalData: ecdhTeamKey,
       },
       derivedSecretImported,
-      Buffer.from(str)
+      utf8StringToUint8Array(str)
     );
 
     return await _format(
       datatype,
-      Datatypes.arrayBufferToBase64(keyIv),
+      uint8ArrayToBase64String(keyIv),
       ecdhPublicKey,
-      Datatypes.arrayBufferToBase64(Buffer.from(encryptedBuffer))
+      uint8ArrayToBase64String(new Uint8Array(encryptedBuffer))
     );
   };
 
@@ -169,7 +168,7 @@ export default function Crypto(config, isDebug) {
   };
 
   const _evVersionPrefix = base64RemovePadding(
-    Buffer.from(config.evVersion).toString("base64")
+    uint8ArrayToBase64String(utf8StringToUint8Array(config.evVersion))
   );
 
   const _format = async (
@@ -186,7 +185,7 @@ export default function Crypto(config, isDebug) {
     return `ev:${isDebug ? "debug:" : ""}${_evVersionPrefix}${
       datatype !== "string" ? ":" + datatype : ""
     }:${base64RemovePadding(keyIv)}:${base64RemovePadding(
-      Datatypes.arrayBufferToBase64(compressedKey)
+      uint8ArrayToBase64String(compressedKey)
     )}:${base64RemovePadding(encryptedData)}:$`;
   };
 
@@ -197,21 +196,21 @@ export default function Crypto(config, isDebug) {
     );
 
     const compressedKey = cryptoUtils.ecPointCompress(exportableEcdhPublicKey);
-    const evEncryptedFileIdentifier = Buffer.from([
+    const evEncryptedFileIdentifier = new Uint8Array([
       0x25, 0x45, 0x56, 0x45, 0x4e, 0x43,
     ]);
-    const versionNumber = Buffer.from([0x01]);
-    const offsetToData = Buffer.from([0x37, 0x00]);
-    const flags = isDebug ? Buffer.from([0x01]) : Buffer.from([0x00]);
+    const versionNumber = new Uint8Array([0x01]);
+    const offsetToData = new Uint8Array([0x37, 0x00]);
+    const flags = isDebug ? new Uint8Array([0x01]) : new Uint8Array([0x00]);
 
-    const data = Buffer.concat([
+    const data = concatUint8Arrays([
       evEncryptedFileIdentifier,
       versionNumber,
       offsetToData,
-      Buffer.from(compressedKey),
-      Buffer.from(keyIv),
+      compressedKey,
+      keyIv,
       flags,
-      Buffer.from(encryptedData),
+      utf8StringToUint8Array(encryptedData),
     ]);
 
     if (fileName) {
