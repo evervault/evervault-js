@@ -10,6 +10,7 @@
     "nock": "^13.3.0",
     "prettier": "^2.8.7",
     "serve-handler": "^6.1.5",
+    "turbo": "^1.8.8",
     "vite": "^4.2.1",
     "vitest": "^0.29.7",
     "web-file-polyfill": "^1.0.4"
