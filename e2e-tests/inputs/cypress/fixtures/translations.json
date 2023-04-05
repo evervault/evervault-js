@@ -1,0 +1,11 @@
+{
+  "FR": {
+    "cardNumberLabel": "Numéro de carte bancaire",
+    "expirationDateLabel": "Date d'expiration",
+    "securityCodeLabel": "Code de sécurité",
+    "invalidCardNumberLabel": "Numéro de carte bancaire invalide",
+    "invalidExpirationDateLabel": "Date d'expiration invalide",
+    "invalidSecurityCodeLabel": "Numéro de carte invalide",
+    "expirationDatePlaceholder": "MM/AA"
+  }
+}

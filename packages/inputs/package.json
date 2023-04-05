@@ -1,0 +1,18 @@
+{
+  "private": false,
+  "name": "@evervault/inputs",
+  "version": "2.4.0",
+  "description": "Repo for the backend for Evervault Inputs",
+  "scripts": {
+    "build": "webpack --mode=production --config webpack.config.js",
+    "start": "pnpm run serve",
+    "dev": "webpack serve --mode=development"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@evervault/browser": "workspace:^2.4.0",
+    "card-validator": "^8.1.1",
+    "credit-card-type": "^9.1.0",
+    "imask": "^6.4.2"
+  }
+}
