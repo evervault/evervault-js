@@ -4,9 +4,8 @@
   "version": "2.4.0",
   "description": "Repo for the backend for Evervault Inputs",
   "scripts": {
-    "build": "webpack --mode=production --config webpack.config.js",
-    "start": "pnpm run serve",
-    "dev": "webpack serve --mode=development"
+    "dev": "vite",
+    "build": "vite build"
   },
   "license": "MIT",
   "dependencies": {
