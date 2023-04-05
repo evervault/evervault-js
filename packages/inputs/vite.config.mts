@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [
     {
       enforce: "post",
-      ...sri({ publicPath: "/" }),
+      ...sri({ publicPath: "/", algorithms: ["sha512"] }),
     },
   ],
 });
