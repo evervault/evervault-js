@@ -4,17 +4,18 @@
   "version": "2.4.0",
   "engines": {
     "node": "~18",
-    "pnpm": "~7"
+    "pnpm": "~8"
   },
   "files": [
     "dist"
   ],
-  "main": "dist/index.js",
-  "module": "dist/index.es.mjs",
+  "type": "module",
+  "main": "dist/evervault-browser.main.umd.cjs",
+  "module": "dist/evervault-browser.main.js",
   "exports": {
     ".": {
-      "import": "./dist/index.es.mjs",
-      "require": "./dist/index.js"
+      "import": "./dist/evervault-browser.main.js",
+      "require": "./dist/evervault-browser.main.umd.cjs"
     }
   },
   "scripts": {
@@ -23,12 +24,10 @@
     "coverage": "vitest --coverage",
     "lint": "prettier --check \"./**/*.js\"",
     "build": "vite build",
-    "dev": "vite",
-    "test-serve": "pnpm run test-serve:build && node ./e2e-app/server.mjs",
-    "test-serve:build": "pnpm run build && cp -r ./dist/index.js ./e2e-app/evervault.bundle.js"
+    "dev": "vite"
   },
   "license": "MIT",
   "dependencies": {
-    "events": "^3.3.0"
+    "@evervault/browser-encryptor": "workspace:^2.4.0"
   }
 }

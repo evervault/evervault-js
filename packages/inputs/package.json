@@ -9,7 +9,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@evervault/browser": "workspace:^2.4.0",
+    "@evervault/browser-encryptor": "workspace:^2.4.0",
     "card-validator": "^8.1.1",
     "credit-card-type": "^9.1.0",
     "imask": "^6.4.2"

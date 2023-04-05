@@ -11,9 +11,8 @@ export default defineConfig({
     lib: {
       // Could also be a dictionary or array of multiple entry points
       entry: resolve(__dirname, "lib/main.js"),
-      name: "Evervault",
-      // the proper extensions will be added
-      fileName: "evervault-browser.main",
+      fileName: "evervault-browser-encryptor.main",
+      name: "EvervaultBrowserEncryptor",
     },
   },
 });

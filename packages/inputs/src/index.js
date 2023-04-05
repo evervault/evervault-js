@@ -1,4 +1,4 @@
-import Evervault from '@evervault/browser';
+import BrowserEncryptor from '@evervault/browser-encryptor';
 
 import IMask from 'imask';
 import customStylesHandler from './customStylesHandler';
@@ -71,8 +71,8 @@ const formOverrides = setFormOverrides(urlParams);
 let errorLabels = getErrorLabels(urlParams);
 
 const form = document.getElementById('form');
-const evervault = new Evervault(team, app);
-evervault.loadKeys();
+const encryptor = new BrowserEncryptor(team, app, { context: 'inputs'});
+encryptor.loadKeys();
 
 // Assign theme class if theme is minimal
 if (form && theme) {
@@ -198,21 +198,21 @@ async function encryptSensitiveCardDetails(card) {
   const encryptedCard = card;
   if (card.number) {
     const strippedCardNumber = card.number.replace(/\s/g, '');
-    encryptedCard.number = await evervault.encrypt(strippedCardNumber);
+    encryptedCard.number = await encryptor.encrypt(strippedCardNumber);
   }
   if (card.cvc) {
-    encryptedCard.cvc = await evervault.encrypt(card.cvc);
+    encryptedCard.cvc = await encryptor.encrypt(card.cvc);
   }
   if (card.track.fullTrack.length > 0) {
-    encryptedCard.track.fullTrack = await evervault.encrypt(
+    encryptedCard.track.fullTrack = await encryptor.encrypt(
       card.track.fullTrack
     );
   }
   if (card.track.trackOne.length > 0) {
-    encryptedCard.track.trackOne = await evervault.encrypt(card.track.trackOne);
+    encryptedCard.track.trackOne = await encryptor.encrypt(card.track.trackOne);
   }
   if (card.track.trackTwo.length > 0) {
-    encryptedCard.track.trackTwo = await evervault.encrypt(card.track.trackTwo);
+    encryptedCard.track.trackTwo = await encryptor.encrypt(card.track.trackTwo);
   }
   return encryptedCard;
 }
@@ -237,7 +237,7 @@ function mountWarningBanner() {
 function watchSDKStatus() {
   let intervalRef;
   intervalRef = setInterval(() => {
-    const sdkState = evervault.isInDebugMode();
+    const sdkState = encryptor.isInDebugMode();
     if (sdkState) {
       mountWarningBanner();
     }
