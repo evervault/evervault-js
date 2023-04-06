@@ -4,6 +4,7 @@ export const CardLib = {
   validExpirationData: '01/35',
   invalidExpirationData: '01/21',
   validSecurityCode: '123',
+  invalidSecurityCode: '1234',
   validAmexCard: '378282246310005',
   validAmexCVV: '1234',
 } 
