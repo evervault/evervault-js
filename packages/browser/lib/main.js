@@ -1,6 +1,6 @@
 import BrowserEncryptor from "@evervault/browser-encryptor";
 
-import { Datatypes, errors, extractDomain } from "./utils";
+import { Datatypes, errors } from "./utils";
 import Config from "./config";
 import { Input } from "./core";
 
@@ -24,13 +24,6 @@ export default class EvervaultClient {
       customConfig.publicKey
     );
 
-    if (window.location.origin === this.config.input.inputsUrl) {
-      this.context = "inputs";
-    } else {
-      this.context = "default";
-    }
-
-    this.forms.register();
     this.input = Input(this.config);
   }
 

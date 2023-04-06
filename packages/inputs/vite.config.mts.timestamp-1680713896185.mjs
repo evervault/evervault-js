@@ -1,0 +1,15 @@
+// vite.config.mts
+import { defineConfig } from "file:///Users/ciaran/Development/Evervault/evervault-js/node_modules/.pnpm/vitest@0.29.8_jsdom@21.1.1/node_modules/vitest/dist/config.js";
+import sri from "file:///Users/ciaran/Development/Evervault/evervault-js/node_modules/.pnpm/rollup-plugin-sri@1.3.4/node_modules/rollup-plugin-sri/dist/index.js";
+var vite_config_default = defineConfig({
+  plugins: [
+    {
+      enforce: "post",
+      ...sri({ publicPath: "/", algorithms: ["sha512"] })
+    }
+  ]
+});
+export {
+  vite_config_default as default
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsidml0ZS5jb25maWcubXRzIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJjb25zdCBfX3ZpdGVfaW5qZWN0ZWRfb3JpZ2luYWxfZGlybmFtZSA9IFwiL1VzZXJzL2NpYXJhbi9EZXZlbG9wbWVudC9FdmVydmF1bHQvZXZlcnZhdWx0LWpzL3BhY2thZ2VzL2lucHV0c1wiO2NvbnN0IF9fdml0ZV9pbmplY3RlZF9vcmlnaW5hbF9maWxlbmFtZSA9IFwiL1VzZXJzL2NpYXJhbi9EZXZlbG9wbWVudC9FdmVydmF1bHQvZXZlcnZhdWx0LWpzL3BhY2thZ2VzL2lucHV0cy92aXRlLmNvbmZpZy5tdHNcIjtjb25zdCBfX3ZpdGVfaW5qZWN0ZWRfb3JpZ2luYWxfaW1wb3J0X21ldGFfdXJsID0gXCJmaWxlOi8vL1VzZXJzL2NpYXJhbi9EZXZlbG9wbWVudC9FdmVydmF1bHQvZXZlcnZhdWx0LWpzL3BhY2thZ2VzL2lucHV0cy92aXRlLmNvbmZpZy5tdHNcIjtpbXBvcnQgeyBkZWZpbmVDb25maWcgfSBmcm9tIFwidml0ZXN0L2NvbmZpZ1wiO1xuaW1wb3J0IHNyaSBmcm9tIFwicm9sbHVwLXBsdWdpbi1zcmlcIjtcblxuZXhwb3J0IGRlZmF1bHQgZGVmaW5lQ29uZmlnKHtcbiAgcGx1Z2luczogW1xuICAgIHtcbiAgICAgIGVuZm9yY2U6IFwicG9zdFwiLFxuICAgICAgLi4uc3JpKHsgcHVibGljUGF0aDogXCIvXCIsIGFsZ29yaXRobXM6IFtcInNoYTUxMlwiXSB9KSxcbiAgICB9LFxuICBdLFxufSk7XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBQW9YLFNBQVMsb0JBQW9CO0FBQ2paLE9BQU8sU0FBUztBQUVoQixJQUFPLHNCQUFRLGFBQWE7QUFBQSxFQUMxQixTQUFTO0FBQUEsSUFDUDtBQUFBLE1BQ0UsU0FBUztBQUFBLE1BQ1QsR0FBRyxJQUFJLEVBQUUsWUFBWSxLQUFLLFlBQVksQ0FBQyxRQUFRLEVBQUUsQ0FBQztBQUFBLElBQ3BEO0FBQUEsRUFDRjtBQUNGLENBQUM7IiwKICAibmFtZXMiOiBbXQp9Cg==

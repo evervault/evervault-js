@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "name": "@evervault/inputs-e2e-app",
+  "version": "0.0.0",
+  "engines": {
+    "node": "~18",
+    "pnpm": "~8"
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@evervault/browser": "workspace:^2.4.0"
+  }
+}

@@ -4,7 +4,6 @@
     "dev": "turbo run dev"
   },
   "devDependencies": {
-    "@evervault/sdk": "^3.10.1",
     "@peculiar/webcrypto": "^1.4.3",
     "@playwright/test": "^1.32.2",
     "@small-tech/vite-plugin-sri": "^1.0.1",

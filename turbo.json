@@ -9,8 +9,9 @@
       "cache": false,
       "persistent": true
     },
-    "test": {},
-    "lint": {},
+    "e2e:test": {
+      "dependsOn": ["^build"]
+    },
     "deploy": {
       "dependsOn": ["build", "test", "lint"]
     }

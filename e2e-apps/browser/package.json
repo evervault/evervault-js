@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "name": "@evervault/browser-e2e-app",
+  "version": "0.0.0",
+  "engines": {
+    "node": "~18",
+    "pnpm": "~8"
+  },
+  "scripts": {
+    "build": "vite build"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@evervault/browser": "workspace:*"
+  }
+}

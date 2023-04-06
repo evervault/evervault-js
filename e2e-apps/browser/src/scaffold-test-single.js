@@ -1,14 +1,15 @@
+import Evervault from "@evervault/browser";
+
 const searchParams = new URLSearchParams(window.location.search);
 
 const EV_TEAM_UUID = searchParams.get("team");
 const EV_APP_UUID = searchParams.get("app");
 
-const ev = new window.Evervault(EV_TEAM_UUID, EV_APP_UUID);
+const ev = new Evervault(EV_TEAM_UUID, EV_APP_UUID);
 
 const encryptForm = document.getElementById("ev-encrypt-form");
 encryptForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  console.log("test");
 
   const formData = new FormData(encryptForm);
 
@@ -20,8 +21,9 @@ encryptForm.addEventListener("submit", async (e) => {
     unencrypted: value,
   };
 
-  const result = await fetch("/test_decryption", {
+  const result = await fetch("/api/test_decryption", {
     method: "POST",
+    mode: "cors",
     headers: {
       "Content-Type": "application/json",
     },
