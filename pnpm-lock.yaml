@@ -19,6 +19,9 @@ importers:
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
+      dotenv-cli:
+        specifier: ^7.2.1
+        version: 7.2.1
       jsdom:
         specifier: ^21.1.1
         version: 21.1.1
@@ -83,14 +86,11 @@ importers:
         specifier: ^6.1.5
         version: 6.1.5
 
-  e2e-apps/inputs:
-    dependencies:
-      '@evervault/browser':
-        specifier: workspace:^2.4.0
-        version: link:../../packages/browser
-
   e2e-tests/browser:
     dependencies:
+      '@evervault/browser-e2e-app':
+        specifier: workspace:*
+        version: link:../../e2e-apps/browser
       '@evervault/e2e-decrypt-backend':
         specifier: workspace:*
         version: link:../../e2e-apps/decrypt-backend
@@ -1776,6 +1776,21 @@ packages:
       dom-serializer: 2.0.0
       domelementtype: 2.3.0
       domhandler: 5.0.3
+    dev: true
+
+  /dotenv-cli@7.2.1:
+    resolution: {integrity: sha512-ODHbGTskqRtXAzZapDPvgNuDVQApu4oKX8lZW7Y0+9hKA6le1ZJlyRS687oU9FXjOVEDU/VFV6zI125HzhM1UQ==}
+    hasBin: true
+    dependencies:
+      cross-spawn: 7.0.3
+      dotenv: 16.0.3
+      dotenv-expand: 10.0.0
+      minimist: 1.2.8
+    dev: true
+
+  /dotenv-expand@10.0.0:
+    resolution: {integrity: sha512-GopVGCpVS1UKH75VKHGuQFqS1Gusej0z4FyQkPdwjil2gNIv+LNsqBlboOzpJFZKVT95GkCyWJbBSdFEFUWI2A==}
+    engines: {node: '>=12'}
     dev: true
 
   /dotenv@16.0.3:

@@ -4,7 +4,7 @@
     "name": "@evervault/browser-e2e-tests",
     "scripts": {
         "dev:test": "playwright test",
-        "e2e:test": "start-server-and-test \"(cd ../../e2e-apps/decrypt-backend && npm run start)\" http://localhost:3010 \"playwright test\""
+        "e2e:test": "dotenv -e start-server-and-test \"(cd ../../e2e-apps/decrypt-backend && npm run start)\" http://localhost:3010 \"playwright test\""
     },
     "dependencies": {
         "start-server-and-test": "^2.0.0",
