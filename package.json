@@ -3,15 +3,19 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "e2e:test": "dotenv -- turbo run e2e:test"
+    "e2e:test": "dotenv -- turbo run e2e:test",
+    "ci:prune:browser": "turbo prune --scope=\"browser\" --docker",
+    "ci:prune:inputs": "turbo prune --scope=\"inputs\" --docker"
   },
   "devDependencies": {
+    "@dagger.io/dagger": "^0.5.0",
     "@peculiar/webcrypto": "^1.4.3",
     "@small-tech/vite-plugin-sri": "^1.0.1",
     "@types/node": "^18.15.11",
     "cypress": "^12.6.0",
     "dotenv": "^16.0.3",
     "dotenv-cli": "^7.2.1",
+    "install": "^0.13.0",
     "jsdom": "^21.1.1",
     "nock": "^13.3.0",
     "postcss": "^8.4.12",
