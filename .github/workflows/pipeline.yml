@@ -1,4 +1,4 @@
-name: dagger
+name: Dagger Pipeline
 on:
   push:
     branches: [main]
