@@ -28,11 +28,10 @@ jobs:
         env:
           PKG: ${{ matrix.pkg }}
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          name: build-image--${{ matrix.pkg }}
-          path: |
-            build-image--${{ matrix.pkg }}.tar
+          name: build-image--${{ matrix.pkg }}.tar
+          path: build-image--${{ matrix.pkg }}.tar
   test:
     name: test
     runs-on: ubuntu-latest
@@ -42,9 +41,9 @@ jobs:
         pkg: ["browser", "inputs"]
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
-          name: build-image--${{ matrix.pkg }}
+          name: build-image--${{ matrix.pkg }}.tar
       - uses: pnpm/action-setup@v2
         with:
           version: 8
@@ -58,3 +57,6 @@ jobs:
         run: node --loader ts-node/esm ./pipeline/test.mts
         env:
           PKG: ${{ matrix.pkg }}
+          EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+          EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+          EV_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}

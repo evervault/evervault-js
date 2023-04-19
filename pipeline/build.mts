@@ -6,7 +6,7 @@ connect(
 
     const source = client
       .host()
-      .directory(".", { exclude: ["node_modules/", ".pnpm-store/", "ci/"] });
+      .directory(".", { exclude: ["node_modules/", ".pnpm-store/", "ci/", ".env"] });
 
     const nodeWithPnpmAndTurbo = client
       .container()
