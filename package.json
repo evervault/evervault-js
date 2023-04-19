@@ -8,8 +8,6 @@
     "e2e:test": "dotenv -- turbo run e2e:test",
     "e2e:test:browser": "dotenv -- turbo run e2e:test --filter=browser",
     "e2e:test:inputs": "dotenv -- turbo run e2e:test --filter=inputs",
-    "e2e:test:browser:ci": "turbo run e2e:test --filter=browser",
-    "e2e:test:inputs:ci": "turbo run e2e:test --filter=inputs",
     "ci:prune:browser": "turbo prune --scope=\"browser\" --docker",
     "ci:prune:inputs": "turbo prune --scope=\"inputs\" --docker"
   },
