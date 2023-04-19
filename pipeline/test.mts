@@ -21,7 +21,7 @@ connect(
       .withSecretVariable("VITE_EV_TEAM_UUID", teamUuid)
 
 
-    await build.withExec(["pnpm", "run", `e2e:test:${pkg}:ci`]).exitCode();
+    await build.withExec(["pnpm", "run", `e2e:test:${pkg}`]).exitCode();
   },
   { LogOutput: process.stdout }
 );
