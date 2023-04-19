@@ -27,6 +27,12 @@ jobs:
         run: node --loader ts-node/esm ./pipeline/build.mts
         env:
           PKG: ${{ matrix.pkg }}
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-image--${{ matrix.pkg }}
+          path: |
+            build-image--${{ matrix.pkg }}.tar
   test:
     name: test
     runs-on: ubuntu-latest
@@ -36,6 +42,9 @@ jobs:
         pkg: ["browser", "inputs"]
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v2
+        with:
+          name: build-image--${{ matrix.pkg }}
       - uses: pnpm/action-setup@v2
         with:
           version: 8
