@@ -1,14 +1,6 @@
 
 name: Build & Test
-on:
-  push:
-    branches: 
-      - master
-      - main
-  pull_request:
-    branches: 
-      - "master"
-      - "main"
+on: workflow_call
 
 jobs:
   build:
