@@ -22,6 +22,8 @@ jobs:
         EV_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
         VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
         VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+        TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+        TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
 
       steps:
         - name: Check out code
