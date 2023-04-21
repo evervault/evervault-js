@@ -50,6 +50,7 @@ jobs:
 
       - name: Rename Build Artifacts
         run: cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
+
       - name: S3 Deploy
         run: aws s3 cp ./dist/ s3://${{ secrets.aws-s3-bucket }}/${{ inputs.version }}/ --recursive && aws s3 cp ./cdn-root/ s3://${{ secrets.aws-s3-bucket }}/ --recursive
 
