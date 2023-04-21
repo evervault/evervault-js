@@ -1,0 +1,38 @@
+---
+name: Build & Test Turbo
+on:
+  push:
+    branches: ["master", "main"]
+  pull_request:
+    types: [opened, synchronize]
+jobs:
+  build:
+    name: Build and Test
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+      - name: Unit test
+        run: pnpm test
+      - name: Build
+        run: pnpm build
+      - name: E2E test
+        run: pnpm run test:e2e
+        env:
+          EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+          EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+          EV_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+          VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+          VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+
+          
