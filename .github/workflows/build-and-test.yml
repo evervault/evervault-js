@@ -58,3 +58,9 @@ jobs:
 
       - name: E2E test
         run: pnpm run e2e:test
+
+      - name: Upload build
+        uses: actions/upload-artifact@v2
+        with:
+          name: browser-sdk-build
+          path: packages/browser/dist

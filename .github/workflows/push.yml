@@ -1,0 +1,28 @@
+name: Pull Request
+on:
+  push:
+    branches:
+      - "master"
+      - "main"
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-and-test.yml
+    secrets:
+      TESTS_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+      TESTS_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+      TESTS_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  deploy:
+    needs: build
+    uses: ./.github/workflows/aws-generic-deploy.yml
+    with:
+      environment: "staging"
+      name: "Deploy to Staging"
+      version: "v2"
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      aws-s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
+      aws-cloudfront-distribution-id: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
