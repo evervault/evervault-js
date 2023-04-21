@@ -42,10 +42,10 @@ jobs:
             cache: 'pnpm'
 
         - name: Install deps
-          run: pnpm install --frozen-lockfile
+          run: pnpm install
 
         - name: Install Playwright Browsers
-          run: npx playwright install --with-deps
+          run: pnpm dlx playwright install --with-deps
         
         - name: Unit test
           run: pnpm test
