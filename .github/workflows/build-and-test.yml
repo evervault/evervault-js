@@ -1,5 +1,5 @@
 
-name: Build & Test Turbo
+name: Build & Test
 on:
   push:
     branches: ["master", "main"]
@@ -8,42 +8,42 @@ on:
 
 jobs:
   build:
-    name: Build and Test
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
+      name: Build and Test
+      timeout-minutes: 15
+      runs-on: ubuntu-latest
 
-    env:
-      EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
-      EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
-      EV_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
-      VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
-      VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+      env:
+        EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+        EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+        EV_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+        VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+        VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
 
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
+      steps:
+        - name: Check out code
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 2
 
-      - uses: pnpm/action-setup@v2.0.1
-        with:
-          version: 8.3
+        - uses: pnpm/action-setup@v2.0.1
+          with:
+            version: 8.3
 
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'pnpm'
+        - name: Setup Node.js environment
+          uses: actions/setup-node@v3
+          with:
+            node-version-file: '.nvmrc'
+            cache: 'pnpm'
 
-      - name: Install deps
-        run: pnpm install --frozen-lockfile
+        - name: Install deps
+          run: pnpm install --frozen-lockfile
 
-      - name: Unit test
-        run: pnpm test
+        - name: Unit test
+          run: pnpm test
 
-      - name: Build
-        run: pnpm build
+        - name: Build
+          run: pnpm build
 
-      - name: E2E test
-        run: pnpm run test:e2e
+        - name: E2E test
+          run: pnpm run test:e2e
         
