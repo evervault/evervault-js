@@ -20,7 +20,8 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "coverage": "vitest --coverage",
     "lint": "prettier --check \"./**/*.js\"",
     "build": "vite build",

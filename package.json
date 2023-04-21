@@ -5,11 +5,10 @@
     "build": "turbo run build",
     "build:browser": "dotenv -- turbo run build --filter=browser",
     "build:inputs": "dotenv -- turbo run build --filter=inputs",
+    "test": "dotenv -- turbo run test",
     "e2e:test": "dotenv -- turbo run e2e:test",
     "e2e:test:browser": "dotenv -- turbo run e2e:test --filter=browser",
-    "e2e:test:inputs": "dotenv -- turbo run e2e:test --filter=inputs",
-    "ci:prune:browser": "turbo prune --scope=\"browser\" --docker",
-    "ci:prune:inputs": "turbo prune --scope=\"inputs\" --docker"
+    "ci:prune:browser": "turbo prune --scope=\"browser\" --docker"
   },
   "devDependencies": {
     "@dagger.io/dagger": "^0.5.0",
