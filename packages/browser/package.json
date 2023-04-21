@@ -28,6 +28,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@evervault/browser-encryptor": "workspace:^2.4.0"
+    "events": "^3.3.0"
   }
 }

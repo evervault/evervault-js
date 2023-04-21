@@ -107,18 +107,6 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
 
-  e2e-tests/inputs:
-    dependencies:
-      '@evervault/inputs':
-        specifier: workspace:*
-        version: link:../../packages/inputs
-      '@playwright/test':
-        specifier: ^1.32.2
-        version: 1.32.2
-      start-server-and-test:
-        specifier: ^2.0.0
-        version: 2.0.0
-
   ev-functions/js-sdk-e2e-backend:
     devDependencies:
       '@evervault/sdk':
@@ -127,30 +115,9 @@ importers:
 
   packages/browser:
     dependencies:
-      '@evervault/browser-encryptor':
-        specifier: workspace:^2.4.0
-        version: link:../browser-encryptor
-
-  packages/browser-encryptor:
-    dependencies:
       events:
         specifier: ^3.3.0
         version: 3.3.0
-
-  packages/inputs:
-    dependencies:
-      '@evervault/browser-encryptor':
-        specifier: workspace:^2.4.0
-        version: link:../browser-encryptor
-      card-validator:
-        specifier: ^8.1.1
-        version: 8.1.1
-      credit-card-type:
-        specifier: ^9.1.0
-        version: 9.1.0
-      imask:
-        specifier: ^6.4.2
-        version: 6.4.3
 
 packages:
 
@@ -1329,12 +1296,6 @@ packages:
     resolution: {integrity: sha512-iaIZ8gVrWfemh5DG3T9/YqarVZoYf0r188IjaGwx68j4Pf0SGY6CQkmJUIE+NZHkkecQGohzXmBGEwWDr9aM3Q==}
     dev: true
 
-  /card-validator@8.1.1:
-    resolution: {integrity: sha512-cN4FsKwoTfTFnqPwVc7TQLSsH/QMDB3n/gWm0XelcApz4sKipnOQ6k33sa3bWsNnnIpgs7eXOF+mUV2UQAX2Sw==}
-    dependencies:
-      credit-card-type: 9.1.0
-    dev: false
-
   /centra@2.6.0:
     resolution: {integrity: sha512-dgh+YleemrT8u85QL11Z6tYhegAs3MMxsaWAq/oXeAmYJ7VxL3SI9TZtnfaEvNDMAPolj25FXIb3S+HCI4wQaQ==}
 
@@ -1496,10 +1457,6 @@ packages:
   /create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
     dev: true
-
-  /credit-card-type@9.1.0:
-    resolution: {integrity: sha512-CpNFuLxiPFxuZqhSKml3M+t0K/484pMAnfYWH14JoD7OZMnmC0Lmo+P7JX9SobqFpRoo7ifA18kOHdxJywYPEA==}
-    dev: false
 
   /cross-fetch@3.1.5:
     resolution: {integrity: sha512-lvb1SBsI0Z7GDwmuid+mU3kWVBwTVUbe7S0H52yaaAdQOXq2YktTCZdlAcNKFzE6QtRz0snpw9bNiPeOIkkQvw==}
@@ -2178,11 +2135,6 @@ packages:
     dependencies:
       safer-buffer: 2.1.2
     dev: true
-
-  /imask@6.4.3:
-    resolution: {integrity: sha512-aH2GHemGkr3cbRBfhogHMIx05eUxdHrZNlKTTLmz8VxpSopuHHJ8+85FsDlBVQqxPlDLhZuwj4lpHHWbLOdBSw==}
-    engines: {npm: '>=4.0.0'}
-    dev: false
 
   /ini@1.3.8:
     resolution: {integrity: sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==}
