@@ -47,6 +47,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: browser-sdk-build
+          path: dist
 
       - name: Rename Build Artifacts
         run: cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
