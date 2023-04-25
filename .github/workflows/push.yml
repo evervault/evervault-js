@@ -1,4 +1,4 @@
-name: Pull Request
+name: Main Push Workflow
 on:
   push:
     branches:
