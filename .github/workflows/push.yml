@@ -25,4 +25,4 @@ jobs:
       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       aws-s3-bucket: ${{ secrets.BROWSER_SDK_S3_BUCKET }}
-      aws-cloudfront-distribution-id: ${{ secrets.BROWSER_SDK_S3_BUCKET }}
+      aws-cloudfront-distribution-id: ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }}
