@@ -1,0 +1,32 @@
+<html>
+
+<body>
+  <input type="file" onchange="showFile(this)">
+
+  <script src="https://js.evervault.com/v2" async></script>
+  <script>
+
+    async function showFile(input) {
+      const ev = new Evervault('team_fc26733f1539', 'app_275032e00186', { isDebugMode: true })
+      const d = Date.now();
+      let file = input.files[0];
+
+      const encrypted = await ev.encrypt("this is a string");
+      console.log(encrypted);
+
+
+      const req = new XMLHttpRequest();
+      const fd = new FormData();
+      req.open("POST", "	https://webhook.site/751fbe22-8b04-4a50-b51e-dccb84452c56", true);
+      req.onload = (event) => {
+        console.log('uploaded');
+      };
+
+      fd.append("index1", encrypted);
+
+      // req.send(fd);
+    }
+  </script>
+</body>
+
+</html>

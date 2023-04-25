@@ -199,7 +199,7 @@ export default function Crypto(config, isDebug) {
     const evEncryptedFileIdentifier = new Uint8Array([
       0x25, 0x45, 0x56, 0x45, 0x4e, 0x43,
     ]);
-    const versionNumber = new Uint8Array([0x01]);
+    const versionNumber = new Uint8Array([0x03]);
     const offsetToData = new Uint8Array([0x37, 0x00]);
     const flags = isDebug ? new Uint8Array([0x01]) : new Uint8Array([0x00]);
 
@@ -213,12 +213,24 @@ export default function Crypto(config, isDebug) {
       new Uint8Array(encryptedData),
     ]);
 
+    const crc32Hash = crc32(data);
+
+    // Convert crc32Hash to little endian Uint8Array
+    const crc32HashArray = new Uint8Array([
+      crc32Hash & 0xff,
+      (crc32Hash >> 8) & 0xff,
+      (crc32Hash >> 16) & 0xff,
+      (crc32Hash >> 24) & 0xff,
+    ]);
+
+    const finalData = concatUint8Arrays([data, crc32HashArray]);
+
     if (fileName) {
-      return new File([data], fileName, {
+      return new File([finalData], fileName, {
         type: "application/octet-stream",
       });
     } else {
-      return new Blob([data], {
+      return new Blob([finalData], {
         type: "application/octet-stream",
       });
     }
