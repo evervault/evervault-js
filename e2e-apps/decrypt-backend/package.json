@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "name": "@evervault/e2e-decrypt-backend",
+  "version": null,
+  "engines": {
+    "node": "~18",
+    "pnpm": "~8"
+  },
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@evervault/browser-e2e-app": "workspace:*",
+    "@evervault/sdk": "^3.10.1",
+    "serve-handler": "^6.1.5"
+  }
+}

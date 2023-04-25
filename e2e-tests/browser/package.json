@@ -1,0 +1,15 @@
+{
+    "private": true,
+    "version": null,
+    "name": "@evervault/browser-e2e-tests",
+    "scripts": {
+        "dev:test": "playwright test",
+        "e2e:test": "start-server-and-test \"(cd ../../e2e-apps/decrypt-backend && npm run start)\" http://localhost:3010 \"playwright test\""
+    },
+    "dependencies": {
+        "start-server-and-test": "^2.0.0",
+        "@playwright/test": "^1.32.2",
+        "@evervault/e2e-decrypt-backend": "workspace:*",
+        "@evervault/browser-e2e-app": "workspace:*"
+    }
+}

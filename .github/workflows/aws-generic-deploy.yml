@@ -46,11 +46,15 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: js-sdk-build-artifacts
+          name: browser-sdk-build
+          path: dist
+
+      - name: Rename Build Artifacts
+        run: cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
 
       - name: S3 Deploy
-        run: aws s3 cp ./dist/ s3://${{ secrets.aws-s3-bucket }}/${{ inputs.version }}/ --recursive && aws s3 cp ./cdn-root/ s3://${{ secrets.aws-s3-bucket }}/ --recursive
+        run: aws s3 cp ./dist/ s3://${{ secrets.aws-s3-bucket }}/${{ inputs.version }}/ --recursive
 
       - name: Cloudfront Cache Invalidation
         run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/v2/index.js"
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/${{ inputs.version }}/index.js"

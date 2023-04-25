@@ -1,4 +1,5 @@
 import { resolve } from "node:path";
+
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
@@ -12,13 +13,7 @@ export default defineConfig({
       entry: resolve(__dirname, "lib/main.js"),
       name: "Evervault",
       // the proper extensions will be added
-      fileName: (format) => {
-        if (format === "es") {
-          return `index.es.mjs`;
-        } else {
-          return `index.js`;
-        }
-      },
+      fileName: "evervault-browser.main",
     },
   },
 });

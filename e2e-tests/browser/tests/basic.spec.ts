@@ -8,7 +8,7 @@ const encryptedStringRegex =
 
 test("encrypts a string", async ({ page }) => {
   await page.goto(
-    `http://localhost:3000/?team=${process.env.EV_TEAM_UUID}&app=${process.env.EV_APP_UUID}`
+    `http://localhost:3010/?team=${process.env.EV_TEAM_UUID}&app=${process.env.EV_APP_UUID}`
   );
 
   const output = await page.getByTestId("ev-encrypt-output");
@@ -25,7 +25,7 @@ test("encrypts a string", async ({ page }) => {
 
 test("encrypts an object", async ({ page }) => {
   await page.goto(
-    `http://localhost:3000/object_test?team=${process.env.EV_TEAM_UUID}&app=${process.env.EV_APP_UUID}`
+    `http://localhost:3010/object_test?team=${process.env.EV_TEAM_UUID}&app=${process.env.EV_APP_UUID}`
   );
 
   const output = await page.getByTestId("ev-encrypt-output");
