@@ -35,13 +35,18 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Setup Node.js 18
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8.3
+
+      - name: Setup Node.js environment
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
 
       - name: Install Dependencies
-        run: yarn
+        run: pnpm install
 
       - name: Create Release Pull Request
         uses: changesets/action@v1
