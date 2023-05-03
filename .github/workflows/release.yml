@@ -1,0 +1,28 @@
+name: Main Release Workflow
+on:
+  release:
+    types: [published]
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-and-test.yml
+    secrets:
+      TESTS_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+      TESTS_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+      TESTS_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  deploy:
+    needs: build
+    uses: ./.github/workflows/aws-generic-deploy.yml
+    with:
+      environment: "production"
+      name: "Deploy to Production"
+      version: "v2"
+    secrets:
+      aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
+      aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
+      aws-s3-bucket: ${{ secrets.BROWSER_SDK_S3_BUCKET }}
+      aws-cloudfront-distribution-id: ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }}
