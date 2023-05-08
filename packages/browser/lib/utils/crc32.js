@@ -26,4 +26,4 @@ function crc32(buffer) {
   return crc ^ 0xffffffff;
 }
 
-module.exports = crc32;
+export { crc32 };

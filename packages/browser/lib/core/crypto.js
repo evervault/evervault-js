@@ -4,6 +4,7 @@ import {
   uint8ArrayToBase64String,
   utf8StringToUint8Array,
 } from "../utils/encoding";
+import { crc32 } from "../utils/crc32";
 
 const generateBytes = async (byteLength) => {
   let randomBytes = new Uint8Array(byteLength);
