@@ -3,6 +3,7 @@ import { Buffer } from "node:buffer";
 import { describe, assert, it, beforeEach, expect } from "vitest";
 
 import Evervault from "../lib/main";
+import { crc32 } from "../lib/utils/crc32";
 import { setupCrypto } from "./setup";
 
 const encryptedStringRegex =
