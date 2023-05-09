@@ -11,6 +11,7 @@
     "ci:prune:browser": "turbo prune --scope=\"browser\" --docker"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.26.1",
     "@peculiar/webcrypto": "^1.4.3",
     "@small-tech/vite-plugin-sri": "^1.0.1",
     "@swc/core": "^1.3.51",
