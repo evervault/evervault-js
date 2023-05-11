@@ -1,7 +1,7 @@
 export class EvervaultError extends Error {
   type: string;
 
-  constructor(message: string) {
+  constructor(message?: string) {
     super(message);
     this.type = this.constructor.name;
   }
