@@ -1,5 +1,16 @@
-export default function constructSource(config, settings) {
+type ConstructSourceConfig = {
+  teamId: string;
+  appId: string;
+  input: {
+    inputsUrl: string;
+  };
+}
+
+// Settings will become more specific in future
+export default function constructSource(config: ConstructSourceConfig, settings?: Record<string, any>) {
   let settingsQuery = "";
+
+  // TODO: use URLSearchParams
   if (settings) {
     Object.keys(settings).map((key) => {
       settingsQuery += `&${key}=${encodeURIComponent(settings[key])}`;

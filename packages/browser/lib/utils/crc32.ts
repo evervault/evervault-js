@@ -11,11 +11,7 @@ for (let i = 0; i < 256; i++) {
   crcTable[i] = c;
 }
 
-// calculate a crc32 given an array buffer
-//
-// @param {ArrayBuffer} buffer
-// @return {Number}
-function crc32(buffer) {
+function crc32(buffer: Uint8Array) {
   let crc = 0xffffffff;
   const len = buffer.byteLength;
 

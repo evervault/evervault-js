@@ -1,10 +1,10 @@
-import { Datatypes, errors, cryptoUtils } from "../utils";
-import concatUint8Arrays from "../utils/concatUint8Arrays";
+import { Datatypes, errors, cryptoUtils } from "../utils/index.js";
+import concatUint8Arrays from "../utils/concatUint8Arrays.js";
 import {
   uint8ArrayToBase64String,
   utf8StringToUint8Array,
-} from "../utils/encoding";
-import { crc32 } from "../utils/crc32";
+} from "../utils/encoding.js";
+import { crc32 } from "../utils/crc32.js";
 
 const generateBytes = async (byteLength) => {
   let randomBytes = new Uint8Array(byteLength);

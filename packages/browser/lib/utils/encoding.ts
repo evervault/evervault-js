@@ -1,29 +1,14 @@
-/**
- *
- * @param {string} str
- * @returns {Uint8Array}
- */
-export function utf8StringToUint8Array(str) {
+export function utf8StringToUint8Array(str: string) {
   const utf8Encoder = new TextEncoder();
   return utf8Encoder.encode(str);
 }
 
-/**
- *
- * @param {Uint8Array} arr
- * @returns {string}
- */
-export function uint8ArrayToUtf8String(arr) {
+export function uint8ArrayToUtf8String(arr: Uint8Array) {
   const utf8Decoder = new TextDecoder();
   return utf8Decoder.decode(arr);
 }
 
-/**
- *
- * @param {string} hex
- * @returns {Uint8Array}
- */
-export function hexStringToUint8Array(hex) {
+export function hexStringToUint8Array(hex: string) {
   const length = hex.length / 2;
   const result = new Uint8Array(length);
 
@@ -35,23 +20,13 @@ export function hexStringToUint8Array(hex) {
   return result;
 }
 
-/**
- *
- * @param {Uint8Array} arr
- * @returns {string}
- */
-export function uint8ArrayToHexString(arr) {
+export function uint8ArrayToHexString(arr: Uint8Array) {
   return Array.from(arr)
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
 }
 
-/**
- *
- * @param {string} base64
- * @returns {Uint8Array}
- */
-export function base64StringToUint8Array(base64) {
+export function base64StringToUint8Array(base64: string) {
   const binaryStr = window.atob(base64);
   const length = binaryStr.length;
   const result = new Uint8Array(length);
@@ -63,12 +38,7 @@ export function base64StringToUint8Array(base64) {
   return result;
 }
 
-/**
- *
- * @param {Uint8Array} arr
- * @returns {string}
- */
-export function uint8ArrayToBase64String(arr) {
+export function uint8ArrayToBase64String(arr: Uint8Array) {
   const binaryStr = Array.from(arr)
     .map((byte) => String.fromCharCode(byte))
     .join("");

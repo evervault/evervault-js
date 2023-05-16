@@ -1,11 +1,11 @@
-import { P256 } from "../curves";
-import concatUint8Arrays from "./concatUint8Arrays";
-import { base64StringToUint8Array, uint8ArrayToBase64String } from "./encoding";
+import { P256 } from "../curves/index.js";
+import concatUint8Arrays from "./concatUint8Arrays.js";
+import { base64StringToUint8Array, uint8ArrayToBase64String } from "./encoding.js";
 
 // To compress - record the sign of the `y` point
 // then remove the `y` point and encode the recorded
 // sign in the first bit
-export function ecPointCompress(ecdhRawPublicKey) {
+export function ecPointCompress(ecdhRawPublicKey: ArrayBuffer) {
   const u8full = new Uint8Array(ecdhRawPublicKey);
   const len = u8full.byteLength;
   const u8 = u8full.slice(0, (1 + len) >>> 1); // drop `y`
@@ -13,7 +13,7 @@ export function ecPointCompress(ecdhRawPublicKey) {
   return u8;
 }
 
-export async function deriveSharedSecret(ecdh, publicKey, ephemeralPublicKey) {
+export async function deriveSharedSecret(ecdh: CryptoKeyPair, publicKey: string, ephemeralPublicKey: CryptoKey) {
   // Convert to a P256 `CryptoKey` object
   const importedPublicKey = await window.crypto.subtle.importKey(
     "raw",
@@ -67,7 +67,7 @@ export async function deriveSharedSecret(ecdh, publicKey, ephemeralPublicKey) {
   return hashDigest;
 }
 
-export async function buildCageKeyFromSuppliedPublicKey(publicKey) {
+export async function buildCageKeyFromSuppliedPublicKey(publicKey: string) {
   const compressedKey = ecPointCompress(base64StringToUint8Array(publicKey));
   const compressedKeyString = uint8ArrayToBase64String(
     new Uint8Array(compressedKey)
