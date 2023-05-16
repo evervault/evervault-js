@@ -1,7 +1,7 @@
-export * as Datatypes from "./datatypes.js";
-export * as errors from "./errors.js";
-export * as cryptoUtils from "./crypto.js";
+export * as Datatypes from "./datatypes";
+export * as errors from "./errors";
+export * as cryptoUtils from "./crypto";
 
-export { default as extractDomain } from "./extractDomain.js";
-export { default as calculateHeight } from "./calculateHeight.js";
-export { default as constructSource } from "./constructSource.js";
+export { default as extractDomain } from "./extractDomain";
+export { default as calculateHeight } from "./calculateHeight";
+export { default as constructSource } from "./constructSource";

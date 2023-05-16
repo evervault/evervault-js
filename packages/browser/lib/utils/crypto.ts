@@ -1,6 +1,6 @@
-import { P256 } from "../curves/index.js";
-import concatUint8Arrays from "./concatUint8Arrays.js";
-import { base64StringToUint8Array, uint8ArrayToBase64String } from "./encoding.js";
+import { P256 } from "../curves/index";
+import concatUint8Arrays from "./concatUint8Arrays";
+import { base64StringToUint8Array, uint8ArrayToBase64String } from "./encoding";
 
 // To compress - record the sign of the `y` point
 // then remove the `y` point and encode the recorded

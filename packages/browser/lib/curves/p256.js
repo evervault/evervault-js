@@ -1,4 +1,4 @@
-import { createCurve } from "./base.js";
+import { createCurve } from "./base";
 
 // https://neuromancer.sk/std/x962/prime256v1
 const P256_CONSTANTS = {

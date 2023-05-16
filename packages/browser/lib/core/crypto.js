@@ -1,10 +1,10 @@
-import { Datatypes, errors, cryptoUtils } from "../utils/index.js";
-import concatUint8Arrays from "../utils/concatUint8Arrays.js";
+import { Datatypes, errors, cryptoUtils } from "../utils";
+import concatUint8Arrays from "../utils/concatUint8Arrays";
 import {
   uint8ArrayToBase64String,
   utf8StringToUint8Array,
-} from "../utils/encoding.js";
-import { crc32 } from "../utils/crc32.js";
+} from "../utils/encoding";
+import { crc32 } from "../utils/crc32";
 
 const generateBytes = async (byteLength) => {
   let randomBytes = new Uint8Array(byteLength);
@@ -193,7 +193,7 @@ export default function Crypto(config, isDebug) {
   const _formatFile = async (keyIv, ecdhPublicKey, encryptedData, fileName) => {
     const exportableEcdhPublicKey = await window.crypto.subtle.exportKey(
       "raw",
-      ecdhPublicKey
+      ecdhPublicKe
     );
 
     const compressedKey = cryptoUtils.ecPointCompress(exportableEcdhPublicKey);

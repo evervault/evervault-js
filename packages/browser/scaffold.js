@@ -1,4 +1,4 @@
-import Evervault from "./lib/main.js";
+import Evervault from "./lib/main";
 
 (async () => {
   var evervault = new Evervault(
