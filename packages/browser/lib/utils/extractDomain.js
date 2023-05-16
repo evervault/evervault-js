@@ -1,4 +1,15 @@
-export default function extractDomainFromUrl(url) {
+// @ts-check
+
+/**
+ * 
+ * @param {string} url 
+ * @returns {string | undefined}
+ */
+export default function extractDomain(url) {
+  // This is only used in the auto function which is 
+  // deprecated/not documented ,so were not doing a full 
+  // ts conversion
+
   var result;
   var match;
   url = url.trim();

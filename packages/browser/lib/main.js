@@ -129,6 +129,9 @@ export default class EvervaultClient {
     }
   }
 
+  /**
+   * @deprecated
+   **/
   auto(fieldsToEncrypt = []) {
     if (!global.oldFetch) {
       global.oldFetch = global.fetch;
