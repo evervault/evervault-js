@@ -193,7 +193,7 @@ export default function Crypto(config, isDebug) {
   const _formatFile = async (keyIv, ecdhPublicKey, encryptedData, fileName) => {
     const exportableEcdhPublicKey = await window.crypto.subtle.exportKey(
       "raw",
-      ecdhPublicKe
+      ecdhPublicKey
     );
 
     const compressedKey = cryptoUtils.ecPointCompress(exportableEcdhPublicKey);
