@@ -7,12 +7,14 @@ import ASN1 from "./asn1";
 
 /**
  * Given an EC curve name and its constants, generate a DER encoder for its compressed public keys
- * @param curveName
- * @param curveValues
+ * @param {unknown} curveValues
  * @returns Function(decompressedPublicKey): base64EncodedString
  */
 export function createCurve(curveValues) {
   const asn1Encoder = buildEncoder(curveValues);
+  /**
+   * @param {string} decompressedPublicKey
+   */
   return (decompressedPublicKey) => {
     return asn1Encoder(
       uint8ArrayToHexString(base64StringToUint8Array(decompressedPublicKey))
