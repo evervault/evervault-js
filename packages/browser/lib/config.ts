@@ -2,9 +2,6 @@ const KEYS_URL = "https://keys.evervault.com";
 const INPUTS_ORIGIN = "https://inputs.evervault.com";
 const INPUTS_URL = `${INPUTS_ORIGIN}/v2/index.html`;
 
-
-type 
-
 const DEFAULT_CONFIG_URLS = {
   keysUrl: KEYS_URL,
   inputsUrl: INPUTS_URL,
