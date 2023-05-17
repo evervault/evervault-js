@@ -1,4 +1,4 @@
-import { P256 } from "../curves/index";
+import { P256 } from "../curves";
 import concatUint8Arrays from "./concatUint8Arrays";
 import { base64StringToUint8Array, uint8ArrayToBase64String } from "./encoding";
 

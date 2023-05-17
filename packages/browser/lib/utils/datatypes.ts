@@ -13,7 +13,7 @@ export const isDefined = <T>(data: T | null | undefined): data is NonNullable<T>
 export const isUndefined = (data: unknown): data is undefined => typeof data === "undefined";
 export const isNumber = (data: unknown): data is number => typeof data === "number";
 export const isBoolean = (data: unknown): data is boolean => typeof data === "boolean";
-export const isFile = (data: unknown) => data instanceof File || data instanceof Blob;
+export const isFile = (data: unknown): data is (File | Blob) => data instanceof File || data instanceof Blob;
 
 export const isEncryptable = (data: unknown) =>
   isDefined(data) && (isString(data) || isNumber(data) || isBoolean(data));
