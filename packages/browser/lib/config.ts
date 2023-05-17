@@ -2,6 +2,9 @@ const KEYS_URL = "https://keys.evervault.com";
 const INPUTS_ORIGIN = "https://inputs.evervault.com";
 const INPUTS_URL = `${INPUTS_ORIGIN}/v2/index.html`;
 
+
+type 
+
 const DEFAULT_CONFIG_URLS = {
   keysUrl: KEYS_URL,
   inputsUrl: INPUTS_URL,
@@ -11,10 +14,10 @@ const DEFAULT_CONFIG_URLS = {
 const MAX_FILE_SIZE_IN_MB = 25;
 
 export default function Config(
-  teamId,
-  appId,
+  teamId: string,
+  appId: string,
   customUrls = DEFAULT_CONFIG_URLS,
-  publicKey
+  publicKey: string
 ) {
   return {
     teamId,
