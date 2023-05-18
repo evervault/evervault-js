@@ -1,10 +1,11 @@
-import { Datatypes, errors, cryptoUtils } from "../utils";
-import concatUint8Arrays from "../utils/concatUint8Arrays";
+// @ts-check
+
+import { Datatypes, errors, concatUint8Arrays, ecPointCompress } from "../utils";
 import {
   uint8ArrayToBase64String,
   utf8StringToUint8Array,
-} from "../utils/encoding";
-import { crc32 } from "../utils/crc32";
+} from "../encoding";
+import { crc32 } from "../utils";
 
 const generateBytes = async (byteLength) => {
   let randomBytes = new Uint8Array(byteLength);
@@ -182,7 +183,7 @@ export default function Crypto(config, isDebug) {
       "raw",
       ecdhPublicKey
     );
-    const compressedKey = cryptoUtils.ecPointCompress(exportableEcdhPublicKey);
+    const compressedKey = ecPointCompress(exportableEcdhPublicKey);
     return `ev:${isDebug ? "debug:" : ""}${_evVersionPrefix}${
       datatype !== "string" ? ":" + datatype : ""
     }:${base64RemovePadding(keyIv)}:${base64RemovePadding(
@@ -196,7 +197,7 @@ export default function Crypto(config, isDebug) {
       ecdhPublicKey
     );
 
-    const compressedKey = cryptoUtils.ecPointCompress(exportableEcdhPublicKey);
+    const compressedKey = ecPointCompress(exportableEcdhPublicKey);
     const evEncryptedFileIdentifier = new Uint8Array([
       0x25, 0x45, 0x56, 0x45, 0x4e, 0x43,
     ]);

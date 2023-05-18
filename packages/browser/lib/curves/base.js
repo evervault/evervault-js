@@ -2,7 +2,7 @@ import {
   base64StringToUint8Array,
   hexStringToUint8Array,
   uint8ArrayToHexString,
-} from "../utils/encoding";
+} from "../encoding";
 import ASN1 from "./asn1";
 
 /**

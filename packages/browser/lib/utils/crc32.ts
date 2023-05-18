@@ -11,7 +11,7 @@ for (let i = 0; i < 256; i++) {
   crcTable[i] = c;
 }
 
-function crc32(buffer: Uint8Array) {
+export default function crc32(buffer: Uint8Array): number {
   let crc = 0xffffffff;
   const len = buffer.byteLength;
 
@@ -21,5 +21,3 @@ function crc32(buffer: Uint8Array) {
 
   return crc ^ 0xffffffff;
 }
-
-export { crc32 };
