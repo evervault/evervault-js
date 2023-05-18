@@ -1,3 +1,4 @@
+import type { KeyConfig } from "../config";
 
 import {
   base64StringToUint8Array,
@@ -5,13 +6,15 @@ import {
 } from "../encoding";
 import ecPointCompress from "./ecPointCompress";
 
-export default async function buildCageKeyFromSuppliedPublicKey(
-  publicKey: string
-): Promise<{
+export type CageKey = {
   ecdhP256KeyUncompressed: string;
   ecdhP256Key: string;
-  isDebugMode: false;
-}> {
+  readonly isDebugMode: false;
+};
+
+export default async function buildCageKeyFromSuppliedPublicKey(
+  publicKey: string
+): Promise<CageKey> {
   const compressedKey = ecPointCompress(base64StringToUint8Array(publicKey));
   const compressedKeyString = uint8ArrayToBase64String(
     new Uint8Array(compressedKey)
@@ -20,5 +23,5 @@ export default async function buildCageKeyFromSuppliedPublicKey(
     ecdhP256KeyUncompressed: publicKey,
     ecdhP256Key: compressedKeyString,
     isDebugMode: false,
-  };
+  } satisfies KeyConfig;
 }
