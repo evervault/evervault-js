@@ -13,5 +13,5 @@ const P256_CONSTANTS = {
   h: "01",
 };
 
-
-export const encodePublicKey = createCurve(P256_CONSTANTS);
+export const encodePublicKey: (decompressedPublicKey: string) => Uint8Array =
+  createCurve(P256_CONSTANTS);
