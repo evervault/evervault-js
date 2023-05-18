@@ -15,10 +15,10 @@ export const isNumber = (data: unknown): data is number => typeof data === "numb
 export const isBoolean = (data: unknown): data is boolean => typeof data === "boolean";
 export const isFile = (data: unknown): data is (File | Blob) => data instanceof File || data instanceof Blob;
 
-export const isEncryptable = (data: unknown) =>
+export const isEncryptable = (data: unknown): boolean =>
   isDefined(data) && (isString(data) || isNumber(data) || isBoolean(data));
 
-export const getHeaderType = (data: unknown) => {
+export const getHeaderType = (data: unknown): string | undefined => {
   if (!isDefined(data)) return;
   if (isArray(data)) return data.constructor.name;
   else {
@@ -26,7 +26,8 @@ export const getHeaderType = (data: unknown) => {
   }
 };
 
-export const ensureString = (data: unknown) => {
+export const ensureString = (data: unknown): string | undefined => {
+  // TODO: the ensureString function... is not garanteed to return a string 
   if (isUndefined(data)) return;
 
   if (!isDefined(data)) return JSON.stringify(data);
@@ -38,7 +39,7 @@ export const ensureString = (data: unknown) => {
   return JSON.stringify(data);
 };
 
-export const utf8ToBase64URL = (str: string) => {
+export const utf8ToBase64URL = (str: string): string => {
   const base64Encoded = window.btoa(str);
   return base64Encoded
     .replace(/\+/g, "-")
