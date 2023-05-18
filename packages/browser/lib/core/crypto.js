@@ -1,5 +1,3 @@
-// @ts-check
-
 import { Datatypes, errors, concatUint8Arrays, ecPointCompress } from "../utils";
 import {
   uint8ArrayToBase64String,
