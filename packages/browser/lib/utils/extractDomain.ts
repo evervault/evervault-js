@@ -1,15 +1,9 @@
-// @ts-check
-
 /**
- * 
- * @param {string} url 
- * @returns {string | undefined}
+ * @deprecated only used in the auto algorithm
+ * @param url 
+ * @returns 
  */
-export default function extractDomain(url) {
-  // This is only used in the auto function which is 
-  // deprecated/not documented ,so were not doing a full 
-  // ts conversion
-
+export default function extractDomain(url: string): string | undefined {
   var result;
   var match;
   url = url.trim();
