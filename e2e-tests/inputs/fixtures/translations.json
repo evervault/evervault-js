@@ -1,0 +1,38 @@
+{
+  "GA": {
+    "cardNumberLabel": "Uimhir chárta",
+    "expirationDateLabel": "Dáta éaga",
+    "securityCodeLabel": "Cód slándála",
+    "invalidCardNumberLabel": "Uimhir chárta neamhbhailí",
+    "invalidExpirationDateLabel": "Dáta éaga neamhbhailí",
+    "invalidSecurityCodeLabel": "Cód slándála neamhbhailí",
+    "expirationDatePlaceholder": "MM/BB"
+  },
+  "FR": {
+    "cardNumberLabel": "Numéro de carte bancaire",
+    "expirationDateLabel": "Date d'expiration",
+    "securityCodeLabel": "Code de sécurité",
+    "invalidCardNumberLabel": "Numéro de carte bancaire invalide",
+    "invalidExpirationDateLabel": "Date d'expiration invalide",
+    "invalidSecurityCodeLabel": "Numéro de carte invalide",
+    "expirationDatePlaceholder": "MM/AA"
+  },
+  "SV": {
+    "cardNumberLabel": "Kortnummer",
+    "expirationDateLabel": "Utgångsdatum",
+    "securityCodeLabel": "Säkerhetskod",
+    "invalidCardNumberLabel": "Ogiltigt kortnummer",
+    "invalidExpirationDateLabel": "Ogiltigt utgångsdatum",
+    "invalidSecurityCodeLabel": "Ogiltig säkerhetskod",
+    "expirationDatePlaceholder": "MM/AA"
+  },
+  "DE": {
+    "cardNumberLabel": "Kartennummer",
+    "expirationDateLabel": "Ablaufdatum",
+    "securityCodeLabel": "Sicherheitsnummer",
+    "invalidCardNumberLabel": "Ungültige Kartennummer",
+    "invalidExpirationDateLabel": "Ungültiges Ablaufdatum",
+    "invalidSecurityCodeLabel": "Ungültige Sicherheitsnummer",
+    "expirationDatePlaceholder": "MM/JJ"
+  }
+}
