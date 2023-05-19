@@ -14,9 +14,10 @@ jobs:
       TESTS_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  deploy:
+  deploy-js:
+    if: contains( github.event.release.tag_name, 'browser')
     needs: build
-    uses: ./.github/workflows/aws-generic-deploy.yml
+    uses: ./.github/workflows/aws-generic-deploy-js.yml
     with:
       environment: "production"
       name: "Deploy to Production"
@@ -26,3 +27,16 @@ jobs:
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
       aws-s3-bucket: ${{ secrets.BROWSER_SDK_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }}
+  deploy-inputs:
+    if: contains( github.event.release.tag_name, 'inputs')
+    needs: build
+    uses: ./.github/workflows/aws-generic-deploy-inputs.yml
+    with:
+      environment: "production"
+      name: "Deploy to Production"
+    secrets:
+      aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
+      aws-s3-bucket: ${{ secrets.BROWSER_SDK_S3_BUCKET }}
+      aws-cloudfront-distribution-id: ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }}
+    

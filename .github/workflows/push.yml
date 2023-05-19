@@ -16,9 +16,9 @@ jobs:
       TESTS_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  deploy:
+  deploy-browser:
     needs: build
-    uses: ./.github/workflows/aws-generic-deploy.yml
+    uses: ./.github/workflows/aws-generic-deploy-browser.yml
     with:
       environment: "staging"
       name: "Deploy to Staging"
@@ -28,6 +28,18 @@ jobs:
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
       aws-s3-bucket: ${{ secrets.BROWSER_SDK_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }}
+  deploy-inputs:
+      needs: build
+      uses: ./.github/workflows/aws-generic-deploy-inputs.yml
+      with:
+        environment: "staging"
+        name: "Deploy to Staging"
+      secrets:
+        aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
+        aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
+        aws-s3-bucket: ${{ secrets.BROWSER_SDK_S3_BUCKET }}
+        aws-cloudfront-distribution-id: ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }}
+  
   release:
     name: Release
     runs-on: ubuntu-latest
