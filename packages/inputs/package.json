@@ -5,8 +5,7 @@
   "description": "Repo for the backend for Evervault Inputs",
   "scripts": {
     "build": "./build.sh",
-    "serve": "webpack serve --mode=development",
-    "test": "start-server-and-test \"webpack serve --mode=development\" http://localhost:9000 \"playwright test\""
+    "serve": "webpack serve --mode=development"
   },
   "engines": {
     "node": "^18",
