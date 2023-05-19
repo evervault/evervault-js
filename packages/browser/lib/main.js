@@ -3,13 +3,14 @@ import {
   errors,
   extractDomain,
   buildCageKeyFromSuppliedPublicKey,
-  deriveSharedSecret
+  deriveSharedSecret,
 } from "./utils";
 import Config from "./config";
-import { Crypto, Http, Forms, Input } from "./core";
+import { CoreCrypto, Http, Forms, Input } from "./core";
 import { base64StringToUint8Array } from "./encoding";
 
 export default class EvervaultClient {
+  config;
   #debugMode;
   #ecdhTeamKey;
   #ecdhPublicKey;
@@ -40,7 +41,6 @@ export default class EvervaultClient {
       customConfig.urls,
       customConfig.publicKey
     );
-    this.crypto = Crypto(this.config.encryption, this.isInDebugMode());
 
     if (window.location.origin === this.config.input.inputsUrl) {
       this.context = "inputs";
@@ -88,9 +88,6 @@ export default class EvervaultClient {
       this.#debugMode = cageKey.isDebugMode;
     }
 
-    // recreate crypto module  with debug state
-    this.crypto = Crypto(this.config.encryption, this.isInDebugMode());
-
     this.#derivedAesKey = await deriveSharedSecret(
       keyPair,
       cageKey.ecdhP256KeyUncompressed,
@@ -98,6 +95,11 @@ export default class EvervaultClient {
     );
   }
 
+  /**
+   * Encrypts data on your device with your app's public key.
+   * @param {any} data - The data to encrypt.
+   * @returns {Promise<any>} - The encrypted data.
+   * */
   async encrypt(data) {
     // Ignore empty strings — encrypting an empty string in Safari causes an Operation Specific Error.
     if (Datatypes.isEmptyString(data)) {
@@ -107,13 +109,17 @@ export default class EvervaultClient {
       this.keysLoadingPromise = this.loadKeys();
     }
     await this.keysLoadingPromise;
+
+    const crypto = new CoreCrypto(
+      this.#ecdhTeamKey,
+      this.#ecdhPublicKey,
+      this.#derivedAesKey,
+      this.config.encryption,
+      this.isInDebugMode()
+    );
+
     try {
-      return await this.crypto.encrypt(
-        this.#ecdhTeamKey,
-        this.#ecdhPublicKey,
-        this.#derivedAesKey,
-        data
-      );
+      return await crypto.encrypt(data);
     } catch (err) {
       throw err;
     }
