@@ -1,6 +1,7 @@
-import { createCurve } from "./base";
+import createCurve from "./createCurve";
 
-// https://neuromancer.sk/std/x962/prime256v1
+export type TP256Constants = typeof P256_CONSTANTS;
+
 const P256_CONSTANTS = {
   p: "FF FF FF FF 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 FF FF FF FF FF FF FF FF FF FF FF FF",
   a: "FF FF FF FF 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 FF FF FF FF FF FF FF FF FF FF FF FC",
@@ -12,7 +13,5 @@ const P256_CONSTANTS = {
   h: "01",
 };
 
-/**
- * Encode Public Key with prime256v1 curve
- */
-export const encodePublicKey = createCurve(P256_CONSTANTS);
+export const encodePublicKey: (decompressedPublicKey: string) => Uint8Array =
+  createCurve(P256_CONSTANTS);
