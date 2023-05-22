@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@evervault/inputs",
-  "version": "2.5.0",
+  "version": "2.5.0-prerelease.1",
   "description": "Repo for the backend for Evervault Inputs",
   "scripts": {
     "build": "./build.sh",
