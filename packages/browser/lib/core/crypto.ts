@@ -48,12 +48,25 @@ async function formatEncryptedData(
   )}:${base64RemovePadding(encryptedData)}:$`;
 }
 
-async function formatEncryptedFile(
+async function formatEncryptedFileOrBlob(
   keyIv: Uint8Array,
   ecdhPublicKey: CryptoKey,
   encryptedData: ArrayBuffer,
-  fileName: string,
   isDebug: boolean
+): Promise<Blob>;
+async function formatEncryptedFileOrBlob(
+  keyIv: Uint8Array,
+  ecdhPublicKey: CryptoKey,
+  encryptedData: ArrayBuffer,
+  isDebug: boolean,
+  fileName: string
+): Promise<File>;
+async function formatEncryptedFileOrBlob(
+  keyIv: Uint8Array,
+  ecdhPublicKey: CryptoKey,
+  encryptedData: ArrayBuffer,
+  isDebug: boolean,
+  fileName?: string
 ) {
   const exportableEcdhPublicKey = await window.crypto.subtle.exportKey(
     "raw",
@@ -90,7 +103,7 @@ async function formatEncryptedFile(
 
   const finalData = concatUint8Arrays([data, crc32HashArray]);
 
-  if (fileName) {
+  if (fileName != null) {
     return new File([finalData], fileName, {
       type: "application/octet-stream",
     });
@@ -122,13 +135,15 @@ export class CoreCrypto {
     this.#config = config;
   }
 
-  async #encryptObject(data: Record<string, unknown>) {
+  async #encryptObject(data: Record<string, unknown>): Promise<unknown> {
     return await this.#traverseObject({
       ...data,
     });
   }
 
-  async #encryptFile(dataContainer: Blob) {
+  async #encryptFile(dataContainer: File): Promise<File>;
+  async #encryptFile(dataContainer: Blob): Promise<Blob>;
+  async #encryptFile(dataContainer: File | Blob) {
     if (dataContainer.size > this.#config.maxFileSizeInBytes) {
       throw new errors.ExceededMaxFileSizeError(
         `File size must be less than ${this.#config.maxFileSizeInMB}MB`
@@ -169,17 +184,28 @@ export class CoreCrypto {
             derivedSecretImported,
             readerResult
           )
-          .then((encrypted) =>
-            resolve(
-              formatEncryptedFile(
-                keyIv,
-                this.#ecdhPublicKey,
-                encrypted,
-                dataContainer.name,
-                this.#isDebug
-              )
-            )
-          );
+          .then((encrypted) => {
+            if (dataContainer instanceof File) {
+              resolve(
+                formatEncryptedFileOrBlob(
+                  keyIv,
+                  this.#ecdhPublicKey,
+                  encrypted,
+                  this.#isDebug,
+                  dataContainer.name
+                )
+              );
+            } else {
+              resolve(
+                formatEncryptedFileOrBlob(
+                  keyIv,
+                  this.#ecdhPublicKey,
+                  encrypted,
+                  this.#isDebug
+                )
+              );
+            }
+          });
       };
 
       reader.readAsArrayBuffer(dataContainer);
