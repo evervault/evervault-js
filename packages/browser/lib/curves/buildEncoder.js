@@ -1,26 +1,13 @@
-import {
-  base64StringToUint8Array,
-  hexStringToUint8Array,
-  uint8ArrayToHexString,
-} from "../utils/encoding";
+import { hexStringToUint8Array } from "../utils/encoding";
 import ASN1 from "./asn1";
 
 /**
- * Given an EC curve name and its constants, generate a DER encoder for its compressed public keys
- * @param curveName
- * @param curveValues
- * @returns Function(decompressedPublicKey): base64EncodedString
- */
-export function createCurve(curveValues) {
-  const asn1Encoder = buildEncoder(curveValues);
-  return (decompressedPublicKey) => {
-    return asn1Encoder(
-      uint8ArrayToHexString(base64StringToUint8Array(decompressedPublicKey))
-    );
-  };
-}
-
-function buildEncoder({ p, a, b, seed, generator, n, h }) {
+ * @param {import("./p256").TP256Constants} curveValues
+ **/
+export default function buildEncoder({ p, a, b, seed, generator, n, h }) {
+  /** 
+   * @param {string} decompressedKey
+   * */
   return (decompressedKey) => {
     const hexEncodedKey = ASN1(
       "30",
