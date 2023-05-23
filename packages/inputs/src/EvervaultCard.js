@@ -22,7 +22,7 @@ export default class EvervaultCard {
 
   set cardExpiry(value) {
     const validator = cardValidator.expirationDate(value);
-    if (value.length >= 7 && !validator.isValid) {
+    if (value.length >= 4 && !validator.isValid) {
       validator.isPotentiallyValid = false;
     }
     this._cardExpiry = {...validator, inputValue: value};
