@@ -1,11 +1,13 @@
-import { Datatypes, errors, extractDomain } from "./utils";
+import {
+  Datatypes,
+  errors,
+  extractDomain,
+  buildCageKeyFromSuppliedPublicKey,
+  deriveSharedSecret
+} from "./utils";
 import Config from "./config";
 import { Crypto, Http, Forms, Input } from "./core";
-import {
-  deriveSharedSecret,
-  buildCageKeyFromSuppliedPublicKey,
-} from "./utils/crypto";
-import { base64StringToUint8Array } from "./utils/encoding";
+import { base64StringToUint8Array } from "./encoding";
 
 export default class EvervaultClient {
   #debugMode;
@@ -129,6 +131,9 @@ export default class EvervaultClient {
     }
   }
 
+  /**
+   * @deprecated
+   **/
   auto(fieldsToEncrypt = []) {
     if (!global.oldFetch) {
       global.oldFetch = global.fetch;

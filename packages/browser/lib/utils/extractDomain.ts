@@ -1,4 +1,9 @@
-export default function extractDomainFromUrl(url) {
+/**
+ * @deprecated only used in the auto algorithm
+ * @param url 
+ * @returns 
+ */
+export default function extractDomain(url: string): string | undefined {
   var result;
   var match;
   url = url.trim();

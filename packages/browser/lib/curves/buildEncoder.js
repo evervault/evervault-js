@@ -1,4 +1,6 @@
-import { hexStringToUint8Array } from "../utils/encoding";
+import {
+  hexStringToUint8Array,
+} from "../encoding";
 import ASN1 from "./asn1";
 
 /**
