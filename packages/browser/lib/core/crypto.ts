@@ -246,7 +246,8 @@ export class CoreCrypto {
     );
   }
 
-  async #traverseObject(data: any): Promise<any> {
+  // Use unknown in interal methods
+  async #traverseObject(data: unknown): Promise<unknown> {
     if (Datatypes.isEncryptableAsString(data)) {
       return await this.#encryptString(
         Datatypes.ensureString(data),
@@ -268,6 +269,7 @@ export class CoreCrypto {
     }
   }
 
+  // Use any in public methods
   async encrypt(data: any): Promise<any> {
     if (!Datatypes.isDefined(data)) {
       throw new Error("Data must not be undefined");
