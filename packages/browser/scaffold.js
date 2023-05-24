@@ -12,4 +12,10 @@ import Evervault from "./lib/main";
   const hook = inputs.on("change", async (encryptedCardData) => {
     console.log(encryptedCardData);
   });
+
+  inputs.isInputsLoaded.then((isLoaded) => {
+    if (isLoaded) {
+      console.log("Inputs loaded");
+    }
+  });
 })();
