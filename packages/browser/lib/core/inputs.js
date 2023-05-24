@@ -1,5 +1,3 @@
-import { resolve } from "path";
-import { e } from "../../../../e2e-apps/browser/dist/assets/evervault-browser.main-60a4e5d4";
 import { constructSource, calculateHeight } from "../utils";
 
 export default function Inputs(config) {
