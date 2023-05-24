@@ -20,12 +20,13 @@ export default function Inputs(config) {
         }
       });
 
-      const isInputsLoaded = new Promise<boolean>((resolve) => {
+      /**
+       * @type {Promise<boolean>}
+       */
+      const isInputsLoaded = new Promise((resolve) => {
         const elem = document.getElementById("ev-iframe");
 
-        if (
-          elem instanceof HTMLIFrameElement
-        ) {
+        if (elem instanceof HTMLIFrameElement) {
           const doc = elem.contentDocument ?? elem.contentWindow.document;
 
           if (doc.readyState === "complete") {
@@ -39,14 +40,6 @@ export default function Inputs(config) {
             }
           }, 750);
         }
-
-        window.addEventListener("message", (event) => {
-          if (event.origin !== config.input.inputsOrigin) return;
-          if (event.data?.type === "EV_FRAME_READY") {
-            resolve(true);
-          }
-        });
-        return;
       });
 
       return {
