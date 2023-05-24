@@ -1,0 +1,53 @@
+name: Deploy Inputs
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: string
+      name:
+        description: 'Name of the job'
+        required: true
+        type: string
+    secrets:
+      aws-access-key-id:
+        description: 'AWS Access Key ID'
+        required: true
+      aws-secret-access-key:
+        description: 'AWS Secret Access Key'
+        required: true
+      aws-s3-bucket:
+        description: 'AWS S3 Bucket'
+        required: true
+      aws-cloudfront-distribution-id:
+        description: 'AWS Cloudfront Distribution ID'
+        required: true
+
+jobs:
+  generic-deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    name: ${{ inputs.name }}
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: 'us-east-1'
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: inputs-sdk-build
+          path: dist
+
+      - name: S3 Deploy
+        run: aws s3 cp ./dist s3://${{ secrets.aws-s3-bucket }} --recursive
+
+      - name: Cloudfront Cache Invalidation
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/index.html" "/bundle.js" "/v2/index.html"
