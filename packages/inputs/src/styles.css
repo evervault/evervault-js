@@ -226,6 +226,10 @@ textarea {
     color: var(--label-color);
   }
 
+  & .input-group input:not(:placeholder-shown) + label {
+    color: var(--label-color);
+  }
+
   & .label {
     display: none;
   }
