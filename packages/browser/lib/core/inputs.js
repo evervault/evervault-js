@@ -1,3 +1,5 @@
+import { resolve } from "path";
+import { e } from "../../../../e2e-apps/browser/dist/assets/evervault-browser.main-60a4e5d4";
 import { constructSource, calculateHeight } from "../utils";
 
 export default function Inputs(config) {
@@ -20,7 +22,37 @@ export default function Inputs(config) {
         }
       });
 
+      const isInputsLoaded = new Promise<boolean>((resolve) => {
+        const elem = document.getElementById("ev-iframe");
+
+        if (
+          elem instanceof HTMLIFrameElement
+        ) {
+          const doc = elem.contentDocument ?? elem.contentWindow.document;
+
+          if (doc.readyState === "complete") {
+            resolve(true);
+          }
+
+          const interval = setInterval(() => {
+            if (doc.readyState === "complete") {
+              clearInterval(interval);
+              resolve(true);
+            }
+          }, 750);
+        }
+
+        window.addEventListener("message", (event) => {
+          if (event.origin !== config.input.inputsOrigin) return;
+          if (event.data?.type === "EV_FRAME_READY") {
+            resolve(true);
+          }
+        });
+        return;
+      });
+
       return {
+        isInputsLoaded,
         getData: () =>
           new Promise((res, rej) => {
             const channel = new MessageChannel();
@@ -41,6 +73,7 @@ export default function Inputs(config) {
               (event) => {
                 if (event.origin !== config.input.inputsOrigin) return;
                 if (event.data?.type === "EV_FRAME_HEIGHT") return;
+                if (event.data?.type === "EV_FRAME_READY") return;
                 fn(event.data);
               },
               false
