@@ -1,3 +1,5 @@
+# Deploy packages to staging enviroments on push to master
+
 name: Main Push Workflow
 on:
   push:

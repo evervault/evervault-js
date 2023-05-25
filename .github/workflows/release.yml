@@ -1,3 +1,6 @@
+# Deploy package to production envrionment on release
+# The tag names created by `changeset tag` include the name of the package we want to release
+
 name: Main Release Workflow
 on:
   release:
