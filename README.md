@@ -1,6 +1,24 @@
 # evervault-js
 Evervault JavaScript SDK.
 
+## Repositary structure
+
+This is a monorepo managed with [Turborepo](https://turbo.fyi/) and [pnpm workspaces](https://pnpm.io/workspaces).
+
+Top level folders are as such:
+
+- `packages` - Public packages. Detailed below.
+- `e2e-tests` - End to end tests for the packages.
+- `e2e-apps` - Skeleton apps using packages that are then targed by the e2e tests.
+- `ev-functions` - [Evervault Functions](https://docs.evervault.com/products/functions) that are used by the e2e tests. Mostly to test decryption.
+- `statics` - Contains a few static JSON files served from the browser endpoint that barely change.
+
+
+## Packages
+
+- `@evervault/browser` - [Evervault JavaScript SDK for the browser.](https://docs.evervault.com/sdks/javascript) Lives under `packages/browser`.
+- `@evervault/inputs` - [Our simple and secure way to collect cardholder data.](https://docs.evervault.com/products/inputs) This packages included the HTML and JS that Evervault hosts that is embedded in an iframe by clients. Lives under`packages/inputs`
+
 ## Setup
 
 First get a node version manager to install node. Any version manager that supports `.nvmrc` will work.
@@ -59,7 +77,7 @@ The build artifacts will be under `dist` in each package.
 
 ## Release managment
 
-We use changsets to version manage the packages in this repo.
+We use [changsets](https://github.com/changesets/changesets) to version manage the packages in this repo.
 
 When creating a pr that needs to be rolled into a version release, do `npx changeset`, select the level of the version bump required and describe the changes for the change logs. DO NOT select `major` for releasing breaking changes without team approval.
 
@@ -67,8 +85,8 @@ To release:
 - Merge the version PR that the changeset bot created to bump the version numbers.
 - On local machine, `git checkout master`
 - `git pull`
-- `npx changeset tag`, which will create git tags for each version needed
-- Push the tags needed with `git push origin <TAG_NAME>`
+- `npx changeset tag`, which will create git tags for each package and version needed
+- Push the tag to base the release on to needed with `git push origin <TAG_NAME>`
 - Create a GitHub release with either the UI or the local CLI: `gh release create`
 
 The production deployment action will deploy code to the production environment on release publish.
@@ -78,3 +96,4 @@ The production deployment action will deploy code to the production environment 
 | | Production | Staging |
 |-|------------|---------|
 |browser|js.evervault.com/v2/index.js|js.evervault.io/v2/index.js|
+|inputs|inputs.evervault.com/v2/index.html|inputs.evervault.io/v2/index.html|
