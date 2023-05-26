@@ -1,4 +1,4 @@
-type EncryptableAsString = string | number | boolean;
+type EncryptableAsString = string | number | boolean | bigint | Function;
 
 // TODO: Replace with zod
 export const isArray = (data: unknown): data is Array<any> => (data != null && typeof data === 'object') && data instanceof Array;
@@ -29,8 +29,11 @@ export const getHeaderType = (data: NonNullable<unknown>): string => {
 
 export const ensureString = (data: EncryptableAsString): string => {
   if(isString(data)) return data;
-  else if(isNumber(data)) return data.toString();
-  else if(isBoolean(data)) return data.toString();
+  if(isNumber(data)) return data.toString();
+  if(isBoolean(data)) return data.toString();
+  if (typeof data === "bigint" || typeof data === "function") {
+    return data.toString();
+  }
   else throw new Error(`Cannot ensure string for ${data}`);
 };
 
