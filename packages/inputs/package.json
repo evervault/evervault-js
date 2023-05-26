@@ -4,8 +4,8 @@
   "version": "2.5.0",
   "description": "Repo for the backend for Evervault Inputs",
   "scripts": {
-    "build": "./build.sh",
-    "serve": "webpack serve --mode=development"
+    "dev": "vite",
+    "build": "vite build"
   },
   "engines": {
     "node": "^18",
@@ -13,18 +13,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@playwright/test": "^1.32.2",
-    "css-loader": "^6.7.1",
-    "html-webpack-plugin": "^5.5.0",
-    "postcss": "^8.4.12",
-    "postcss-loader": "^6.2.1",
-    "postcss-preset-env": "^7.4.3",
-    "prettier": "^1.18.2",
-    "start-server-and-test": "^2.0.0",
-    "style-loader": "^3.3.1",
-    "webpack": "^5.76.0",
-    "webpack-cli": "^5.0.1",
-    "webpack-dev-server": "^4.7.4"
+    "start-server-and-test": "^2.0.0"
   },
   "dependencies": {
     "card-validator": "^8.1.1",
