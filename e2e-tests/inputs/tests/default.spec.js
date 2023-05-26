@@ -5,7 +5,7 @@ test.describe("evervault inputs", () => {
   test.describe("v2 render default inputs", () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(
-        "http://localhost:9000/v2/?team=59a96deeef03&app=app_869a0605f7c3"
+        "http://localhost:4173/v2/?team=59a96deeef03&app=app_869a0605f7c3"
       );
     });
 

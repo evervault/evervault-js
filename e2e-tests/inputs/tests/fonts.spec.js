@@ -14,7 +14,7 @@ test.describe("evervault inputs", () => {
   test.describe("v2 render localized inputs with custom fonts", () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(
-        `http://localhost:9000/v2/?team=${teamUuid}&app=${appUuid}&fontUrl=${fontUrl}&fontFamily=${fontFamily}&labelWeight=${labelWeight}&labelFontSize=${labelFontSize}&inputFontSize=${inputFontSize}`
+        `http://localhost:4173/v2/?team=${teamUuid}&app=${appUuid}&fontUrl=${fontUrl}&fontFamily=${fontFamily}&labelWeight=${labelWeight}&labelFontSize=${labelFontSize}&inputFontSize=${inputFontSize}`
       );
       expect(page.locator("id=font-url")).toBeTruthy();
     });

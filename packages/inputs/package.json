@@ -5,7 +5,8 @@
   "description": "Repo for the backend for Evervault Inputs",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "engines": {
     "node": "^18",
