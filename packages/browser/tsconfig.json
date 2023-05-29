@@ -4,7 +4,7 @@
     "swc": true
   },
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ESNext" /* Most of this is copied from the @tsconfig/bases package config for vite react (without the react bits) */,
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": true,
