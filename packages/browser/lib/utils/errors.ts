@@ -1,8 +1,12 @@
 export class EvervaultError extends Error {
   type: string;
 
-  constructor(message?: string) {
-    super(message);
+  constructor(message?: string, options?: { cause?: unknown }) {
+    if (message != null && options != null) {
+      super(message, options);
+    } else {
+      super(message);
+    }
     this.type = this.constructor.name;
   }
 }
