@@ -32,6 +32,14 @@ export default class EvervaultClient {
   #debugMode;
   #cryptoPromise: Promise<CoreCrypto> | null = null;
 
+  /**
+   * The SDK constructor accepts two parameters:
+   * - Your Team ID
+   * - Your App ID
+   * 
+   * @param teamId The ID of your Evervault team. This can be found inside of your team settings on the [Evervault dashboard](https://app.evervault.com).
+   * @param appId The ID of your Evervault app. This can be found inside of your app settings on the [Evervault dashboard](https://app.evervault.com).
+   */
   constructor(teamId: string, appId: string, customConfig: CustomConfig = {}) {
     if (!Datatypes.isString(teamId)) {
       throw new errors.InitializationError("teamId must be a string");
