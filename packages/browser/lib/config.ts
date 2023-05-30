@@ -2,6 +2,11 @@ const KEYS_URL = "https://keys.evervault.com";
 const INPUTS_ORIGIN = "https://inputs.evervault.com";
 const INPUTS_URL = `${INPUTS_ORIGIN}/v2/index.html`;
 
+export type ConfigUrls = {
+  keysUrl?: string;
+  inputsUrl?: string;
+  inputsOrigin?: string;
+};
 
 export type EncryptionSubConfig = typeof encryptionConstants & { publicKey?: string };
 
@@ -33,7 +38,7 @@ const DEFAULT_CONFIG_URLS = {
   keysUrl: KEYS_URL,
   inputsUrl: INPUTS_URL,
   inputsOrigin: INPUTS_ORIGIN,
-};
+} satisfies ConfigUrls;
 
 const MAX_FILE_SIZE_IN_MB = 25 as const;
 
@@ -67,7 +72,7 @@ const debugKey = {
 export default function Config(
   teamId: string,
   appId: string,
-  customUrls = DEFAULT_CONFIG_URLS,
+  customUrls?: ConfigUrls,
   publicKey?: string
 ): Config {
   return {
@@ -75,11 +80,11 @@ export default function Config(
     appId,
     encryption: createEncryptionConfig(publicKey),
     http: {
-      keysUrl: customUrls.keysUrl || DEFAULT_CONFIG_URLS.keysUrl,
+      keysUrl: customUrls?.keysUrl || DEFAULT_CONFIG_URLS.keysUrl,
     },
     input: {
-      inputsUrl: customUrls.inputsUrl || DEFAULT_CONFIG_URLS.inputsUrl,
-      inputsOrigin: customUrls.inputsOrigin || DEFAULT_CONFIG_URLS.inputsOrigin,
+      inputsUrl: customUrls?.inputsUrl || DEFAULT_CONFIG_URLS.inputsUrl,
+      inputsOrigin: customUrls?.inputsOrigin || DEFAULT_CONFIG_URLS.inputsOrigin,
     },
     debugKey,
   };
