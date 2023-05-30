@@ -4,10 +4,13 @@ type ConstructSourceConfig = {
   input: {
     inputsUrl: string;
   };
-}
+};
 
 // Settings will become more specific in future
-export default function constructSource(config: ConstructSourceConfig, settings?: Record<string, any>) {
+export default function constructSource(
+  config: ConstructSourceConfig,
+  settings?: Record<string, any>
+) {
   let settingsQuery = "";
 
   // TODO: use URLSearchParams

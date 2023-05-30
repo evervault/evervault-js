@@ -16,6 +16,8 @@
     "deploy": {
       "dependsOn": ["build", "test", "lint"]
     },
+    "typecheck": {},
+    "format:check": {},
     "test": {}
   }
 }

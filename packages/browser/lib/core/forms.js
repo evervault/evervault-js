@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 
-/** 
- * @deprecated Forms is no longer a supported Evervault product and this feature will be removed in a future version 
+/**
+ * @deprecated Forms is no longer a supported Evervault product and this feature will be removed in a future version
  * @param {Evervault} evervault
  * */
 function Forms(evervault) {
@@ -54,12 +54,14 @@ function Forms(evervault) {
 
       let form = undefined;
 
-      if(forms.length != 0) {
+      if (forms.length != 0) {
         // Dear lord, there actually using forms
         // This should not fire at all, but if it does, Customers should be advised to uses Inputs, Relay or the SDK encrypt function
         // This notice is put in by Ciaran.
-        console.error("Evervault Forms is no longer a supported Evervault product. This feature is not to beused in production code and will be removed in a future version. Please contact Evervault support if you see this message.");
-      };
+        console.error(
+          "Evervault Forms is no longer a supported Evervault product. This feature is not to beused in production code and will be removed in a future version. Please contact Evervault support if you see this message."
+        );
+      }
 
       for (let i = 0; i < forms.length; i++) {
         form = forms[i];

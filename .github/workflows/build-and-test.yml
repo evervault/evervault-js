@@ -53,6 +53,12 @@ jobs:
       - name: Unit test
         run: pnpm test
 
+      - name: Formats check
+        run: pnpm run format:check
+
+      - name: Typescript check
+        run: pnpm run typecheck
+
       - name: Build
         run: pnpm build
 

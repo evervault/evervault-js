@@ -23,7 +23,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest --coverage",
-    "lint": "prettier --check \"./**/*.js\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
     "build": "vite build",
     "dev": "vite"
   },

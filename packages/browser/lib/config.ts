@@ -8,7 +8,9 @@ export type ConfigUrls = {
   inputsOrigin?: string;
 };
 
-export type EncryptionSubConfig = typeof encryptionConstants & { publicKey?: string };
+export type EncryptionSubConfig = typeof encryptionConstants & {
+  publicKey?: string;
+};
 
 export type HttpConfig = {
   keysUrl: string;
@@ -57,10 +59,11 @@ const encryptionConstants = {
   maxFileSizeInBytes: MAX_FILE_SIZE_IN_MB * 1024 * 1024,
 };
 
-const createEncryptionConfig = (publicKey?: string) => ({
-  ...encryptionConstants,
-  publicKey,
-} satisfies EncryptionSubConfig);
+const createEncryptionConfig = (publicKey?: string) =>
+  ({
+    ...encryptionConstants,
+    publicKey,
+  } satisfies EncryptionSubConfig);
 
 const debugKey = {
   ecdhP256KeyUncompressed:
@@ -84,7 +87,8 @@ export default function Config(
     },
     input: {
       inputsUrl: customUrls?.inputsUrl || DEFAULT_CONFIG_URLS.inputsUrl,
-      inputsOrigin: customUrls?.inputsOrigin || DEFAULT_CONFIG_URLS.inputsOrigin,
+      inputsOrigin:
+        customUrls?.inputsOrigin || DEFAULT_CONFIG_URLS.inputsOrigin,
     },
     debugKey,
   };

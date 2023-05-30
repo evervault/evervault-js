@@ -36,7 +36,7 @@ export default class EvervaultClient {
    * The SDK constructor accepts two parameters:
    * - Your Team ID
    * - Your App ID
-   * 
+   *
    * @param teamId The ID of your Evervault team. This can be found inside of your team settings on the [Evervault dashboard](https://app.evervault.com).
    * @param appId The ID of your Evervault app. This can be found inside of your app settings on the [Evervault dashboard](https://app.evervault.com).
    */

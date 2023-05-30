@@ -1,7 +1,7 @@
 type CalculateHeightSettings = {
   height?: string;
   theme?: "minimal" | "material";
-}
+};
 
 export default function calculateHeight(settings?: CalculateHeightSettings) {
   if (settings != null) {
