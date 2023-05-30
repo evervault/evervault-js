@@ -170,7 +170,7 @@ textarea {
 /* THEME: minimal */
 
 .form-minimal {
-  & .input-group[data-element='cardnumber'] {
+  & .input-group[data-element="cardnumber"] {
     width: 100%;
     margin-bottom: -1px;
 
@@ -186,15 +186,15 @@ textarea {
       display: none;
     }
 
-    & .input-group[data-element='expirationdate'] .input {
+    & .input-group[data-element="expirationdate"] .input {
       border-radius: 0 0 0 var(--input-radius);
     }
 
-    & .input-group[data-element='securitycode'] {
+    & .input-group[data-element="securitycode"] {
       margin-left: -1px;
     }
 
-    & .input-group[data-element='securitycode'] .input {
+    & .input-group[data-element="securitycode"] .input {
       border-radius: 0 0 var(--input-radius) 0;
     }
   }
@@ -216,7 +216,7 @@ textarea {
     align-items: center;
     justify-content: flex-start;
 
-    &[data-element='cardnumber'] {
+    &[data-element="cardnumber"] {
       margin-bottom: calc(var(--spacing-unit) * 4);
     }
   }

@@ -232,10 +232,10 @@ function setFrameHeight() {
   parent.postMessage({ type: "EV_FRAME_HEIGHT", height: scrollHeight }, "*");
 }
 
-window.onload = function() {
+window.onload = function () {
   watchSDKStatus();
   inputElementsManager = new InputElementsManager(postToParent, formOverrides);
-  const magStripe = new MagStripe(inputElementsManager)
+  const magStripe = new MagStripe(inputElementsManager);
   setFrameHeight();
 
   window.addEventListener(
