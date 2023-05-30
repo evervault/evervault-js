@@ -136,7 +136,15 @@ export default class EvervaultClient {
    * @param config A theme string (supported: default, minimal or material), or a config object for custom styles.
    * @returns
    */
-  inputs(elementId: string, config?: string | Record<string, any>) {
+  inputs(
+    elementId: string,
+    config?: string | Record<string, any>
+  ): {
+    isInputsLoaded: Promise<boolean>;
+    getData: () => Promise<unknown>;
+    on: (event: unknown, fn: (data: any) => void) => void;
+    setLabels: (labels: Record<string, any>) => void;
+  } {
     try {
       if (typeof config === "string") {
         return this.input.generate(elementId, { theme: config });
