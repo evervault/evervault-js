@@ -1,6 +1,5 @@
 import customStylesHandler from "./customStylesHandler";
 import "./styles.css";
-import { swipeCapture } from "./MagStripe";
 import {
   setInputLabels,
   updateInputLabels,
@@ -43,23 +42,39 @@ function insertLinkTag(id, rel, href, options = {}) {
 }
 
 if (fontUrl) {
-  insertLinkTag(
-    "font-preconnect",
-    "preconnect",
-    "https://fonts.googleapis.com"
-  );
+  try {
+    const parsedFontUrl = new URL(fontUrl);
 
-  insertLinkTag(
-    "font-preconnect-cors",
-    "preconnect",
-    "https://fonts.gstatic.com",
-    { crossOrigin: "" }
-  );
+    // Only allow fonts from fonts.googleapis.com
+    if (parsedFontUrl.hostname !== "fonts.googleapis.com") {
+      throw new Error("Invalid fontUrl. Please use a fontUrl from fonts.googleapis.com")
+    } else {
+      // Avoid CSRF or Clickjacking attacks by reconstructing the URL
+      const reconstructedGoogleFontUrl = new URL(parsedFontUrl.pathname, "https://fonts.googleapis.com");
+      reconstructedGoogleFontUrl.params = parsedFontUrl.params;
 
-  insertLinkTag("font-url", "stylesheet", fontUrl, {
-    type: "text/css",
-    media: "all",
-  });
+      insertLinkTag(
+        "font-preconnect",
+        "preconnect",
+        "https://fonts.googleapis.com"
+      );
+
+      insertLinkTag(
+        "font-preconnect-cors",
+        "preconnect",
+        "https://fonts.gstatic.com",
+        { crossOrigin: "" }
+      );
+
+      insertLinkTag("font-url", "stylesheet", reconstructedGoogleFontUrl.toString(), {
+        type: "text/css",
+        media: "all",
+      });
+    }
+  } catch(e) {
+    console.error(e);
+    console.error("The above error means that your custom font's have not been set.")
+  }
 }
 
 // Custom Styles
