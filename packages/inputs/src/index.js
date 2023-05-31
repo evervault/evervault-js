@@ -44,6 +44,40 @@ function insertLinkTag(id, rel, href, options = {}) {
 }
 
 if (fontUrl) {
+  try {
+    const parsedFontUrl = new URL(fontUrl);
+
+    // Only allow fonts from fonts.googleapis.com
+    if (parsedFontUrl.hostname !== "fonts.googleapis.com") {
+      console.log(
+        "Invalid fontUrl. Please use a fontUrl from fonts.googleapis.com"
+      );
+    } else {
+      // Avoid CSRF or Clickjacking attacks by reconstructing the URL
+      const reconstructedGoogleFontUrl = new URL(parsedFontUrl.pathname, "https://fonts.googleapis.com");
+      reconstructedGoogleFontUrl.params = parsedFontUrl.params;
+      
+      insertLinkTag(
+        "font-preconnect",
+        "preconnect",
+        "https://fonts.googleapis.com"
+      );
+
+      insertLinkTag(
+        "font-preconnect-cors",
+        "preconnect",
+        "https://fonts.gstatic.com",
+        { crossOrigin: "" }
+      );
+
+      insertLinkTag("font-url", "stylesheet", reconstructedGoogleFontUrl.toString(), {
+        type: "text/css",
+        media: "all",
+      });
+    }
+  } catch(e) {
+  }
+}
   insertLinkTag(
     "font-preconnect",
     "preconnect",
