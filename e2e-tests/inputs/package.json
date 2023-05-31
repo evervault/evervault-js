@@ -4,7 +4,7 @@
   "name": "@evervault/inputs-e2e-tests",
   "scripts": {
     "dev:test": "playwright test",
-    "e2e:test": "start-server-and-test \"(cd ../../packages/inputs && pnpm run preview)\" http://localhost:4173 \"playwright test\""
+    "e2e:test": "start-server-and-test \"(cd ../../packages/inputs && pnpm run serve)\" http://localhost:9000 \"playwright test\""
   },
   "dependencies": {
     "start-server-and-test": "^2.0.0",
