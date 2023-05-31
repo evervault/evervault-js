@@ -75,6 +75,18 @@ The build artifacts will be under `dist` in each package.
 
 `pnpm e2e:test` will run all Playwright e2e tests in the repo.
 
+Both `test` and `e2e:test` will need to pass in CI for PR's to be merged.
+
+## Typechecking
+
+Typechecking is done with [TypeScript](https://www.typescriptlang.org/). In packages that have typescript enabled (e.g. have a `tsconfig.json`), the CI step will run the `typecheck` task. PR's will be blocked if this doesn't pass.
+
+## Formatting
+
+Formatting is done with [Prettier](https://prettier.io). The `format` task will overwrite files with the correct formatting, while the `format:check` task will only check files for correct formatting.
+
+The CI will block PR's if `format:check` fails. If this occurs, run `pnpm run format` to update the formatting on all files. I also recommend using [Editor integrations](https://prettier.io/docs/en/editors.html) with Prettier to format as you write code.
+
 ## Release managment
 
 We use [changsets](https://github.com/changesets/changesets) to version manage the packages in this repo.
