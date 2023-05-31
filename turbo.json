@@ -19,6 +19,9 @@
     "typecheck": {},
     "format": {},
     "format:check": {},
-    "test": {}
+    "test": {},
+    "preview": {
+      "dependsOn": ["build"]
+    }
   }
 }
