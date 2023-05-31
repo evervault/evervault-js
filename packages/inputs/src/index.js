@@ -76,24 +76,6 @@ if (fontUrl) {
     console.error("The above error means that your custom font's have not been set.")
   }
 }
-  insertLinkTag(
-    "font-preconnect",
-    "preconnect",
-    "https://fonts.googleapis.com"
-  );
-
-  insertLinkTag(
-    "font-preconnect-cors",
-    "preconnect",
-    "https://fonts.gstatic.com",
-    { crossOrigin: "" }
-  );
-
-  insertLinkTag("font-url", "stylesheet", fontUrl, {
-    type: "text/css",
-    media: "all",
-  });
-}
 
 // Custom Styles
 customStylesHandler(urlParams);
