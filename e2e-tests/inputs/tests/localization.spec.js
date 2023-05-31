@@ -7,7 +7,7 @@ const locales = ["GA", "FR", "SV", "DE"];
 
 const createLocaleUrl = (locale) => {
   const localeTranslations = translations[locale];
-  let url = new URL("http://localhost:4173/v2");
+  let url = new URL("http://localhost:9000/v2");
   url.searchParams.append("team", "59a96deeef03");
   url.searchParams.append("app", "app_869a0605f7c3");
   url.searchParams.append(

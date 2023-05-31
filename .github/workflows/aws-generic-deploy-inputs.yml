@@ -11,10 +11,6 @@ on:
         description: 'Name of the job'
         required: true
         type: string
-      version:
-        description: 'Version path to deploy inputs to'
-        required: true
-        type: string
     secrets:
       aws-access-key-id:
         description: 'AWS Access Key ID'
@@ -50,9 +46,7 @@ jobs:
           path: dist
 
       - name: S3 Deploy
-        run: |
-          aws s3 rm s3://${{ secrets.aws-s3-bucket }}/${{ inputs.version }}/assets --recursive |
-          aws s3 cp ./dist s3://${{ secrets.aws-s3-bucket }}/${{ inputs.version }}/ --recursive
+        run: aws s3 cp ./dist s3://${{ secrets.aws-s3-bucket }} --recursive
 
       - name: Cloudfront Cache Invalidation
         run: |
