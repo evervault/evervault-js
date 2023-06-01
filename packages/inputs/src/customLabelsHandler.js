@@ -2,7 +2,7 @@ const defaultInputLabels = {
   cardNumberLabel: "Card number",
   expirationDateLabel: "Expiration date",
   securityCodeLabel: "Security code",
-  expirationDatePlaceholder: "MM/YY"
+  expirationDatePlaceholder: "MM/YY",
 };
 
 export function setInputLabels(theme, urlParams) {
@@ -20,7 +20,7 @@ export function setInputLabels(theme, urlParams) {
     setLabel(key, value);
     setPlaceholder(key, value);
   }
-};
+}
 
 export function updateInputLabels(labelUpdates) {
   for (const [key, value] of Object.entries(labelUpdates)) {
@@ -33,19 +33,22 @@ function setPlaceholder(key, value) {
   if (key == "expirationDateLabel") {
     return;
   }
-  const elementId = key == "expirationDatePlaceholder" ? "expirationdate" : key.slice(0, -5).toLowerCase();
+  const elementId =
+    key == "expirationDatePlaceholder"
+      ? "expirationdate"
+      : key.slice(0, -5).toLowerCase();
   const input = document.getElementById(elementId);
   if (input) {
     input.placeholder = value;
   }
-};
+}
 
 function setLabel(key, value) {
   let elements = document.getElementsByClassName(key);
   for (const element of elements) {
     element.innerText = value;
   }
-};
+}
 
 const defaultErrorLabels = {
   invalidCardNumberLabel: "Your card number is invalid",
@@ -53,7 +56,7 @@ const defaultErrorLabels = {
   invalidSecurityCodeLabel: "Your CVC is invalid",
 };
 
-export function getErrorLabels (urlParams) {
+export function getErrorLabels(urlParams) {
   const errorLabels = defaultErrorLabels;
 
   for (const key in errorLabels) {
@@ -64,9 +67,9 @@ export function getErrorLabels (urlParams) {
   }
 
   return errorLabels;
-};
+}
 
-export function updateErrorLabels (existingLabels, newLabels) {
+export function updateErrorLabels(existingLabels, newLabels) {
   for (const key in existingLabels) {
     let newLabel = newLabels[key];
     if (newLabel) {
@@ -75,13 +78,13 @@ export function updateErrorLabels (existingLabels, newLabels) {
   }
 
   return existingLabels;
-};
-
-const defaultFormOverrides = {
-  disableCVV: false
 }
 
-export function setFormOverrides (urlParams) {
+const defaultFormOverrides = {
+  disableCVV: false,
+};
+
+export function setFormOverrides(urlParams) {
   const formOverrides = defaultFormOverrides;
 
   for (const key in formOverrides) {

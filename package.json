@@ -7,6 +7,9 @@
     "build:browser": "dotenv -- turbo run build --filter=browser",
     "build:inputs": "dotenv -- turbo run build --filter=inputs",
     "test": "dotenv -- turbo run test",
+    "format": "turbo run format",
+    "format:check": "turbo run format:check",
+    "typecheck": "turbo run typecheck",
     "e2e:test": "dotenv -- turbo run e2e:test",
     "e2e:test:browser": "dotenv -- turbo run e2e:test --filter=browser",
     "ci:prune:browser": "turbo prune --scope=\"browser\" --docker"

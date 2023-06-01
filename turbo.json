@@ -16,6 +16,12 @@
     "deploy": {
       "dependsOn": ["build", "test", "lint"]
     },
-    "test": {}
+    "typecheck": {},
+    "format": {},
+    "format:check": {},
+    "test": {},
+    "preview": {
+      "dependsOn": ["build"]
+    }
   }
 }

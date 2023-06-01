@@ -1,0 +1,7 @@
+.turbo
+node_modules
+dist
+package.json
+tsconfig.json
+test-results
+playwright-report

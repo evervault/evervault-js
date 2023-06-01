@@ -2,22 +2,30 @@ import type { HttpConfig } from "../config";
 
 import { errors } from "../utils";
 
-export default function Http(config: HttpConfig, teamId: string, appId: string, context: string) {
-  if(window == null) {
+export default function Http(
+  config: HttpConfig,
+  teamId: string,
+  appId: string,
+  context: string
+) {
+  if (window == null) {
     throw new errors.InitializationError(
-      "\`window\` object not found. You cannot run this SDK outside of a browser environment."
+      "`window` object not found. You cannot run this SDK outside of a browser environment."
     );
-  };
+  }
 
   if (!("fetch" in window)) {
     throw new errors.InitializationError(
       "Your browser is outdated and does not support window.fetch(). Please upgrade it."
     );
-  };
+  }
 
   const getCageKey = async () => {
     try {
-      const keyEndpoint = new URL(`${teamId}/apps/${appId}?context=${context}`, config.keysUrl);
+      const keyEndpoint = new URL(
+        `${teamId}/apps/${appId}?context=${context}`,
+        config.keysUrl
+      );
 
       const response = await fetch(keyEndpoint, {
         method: "GET",

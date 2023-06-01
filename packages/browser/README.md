@@ -36,8 +36,8 @@ The Evervault JavaScript SDK exposes two functions.
 async evervault.encrypt(data: Object | Array | String | Number | File | Blob);
 ```
 
-| Parameter | Type                                    | Description           |
-| --------- | --------------------------------------- | --------------------- |
+| Parameter | Type                                                    | Description           |
+| --------- | ------------------------------------------------------- | --------------------- |
 | data      | `Object`, `Array`, `String`, `Number`, `File` or `Blob` | Data to be encrypted. |
 
 ### evervault.inputs()
@@ -63,31 +63,31 @@ evervault.inputs(id: String, settings: Object);
 
 #### config
 
-| Parameter                  | Type   | Description                                                                        |
-| -------------------------- | ------ | ---------------------------------------------------------------------------------- |
-| theme                      | String | The base styling for Inputs. Currently supports default, minimal and material.     |
-| height                     | String | The height of the Evervault Inputs iframe.                                         |
-| primaryColor               | String | The main theme color.                                                              |
-| labelColor                 | String | The color CSS property applied to the input labels.                                |
-| inputBorderColor           | String | The border-color CSS property applied to inputs.                                   |
-| inputTextColor             | String | The color CSS property applied to inputs.                                          |
-| inputBackgroundColor       | String | The color CSS property applied to the ::placeholder CSS pseudo-element for inputs. |
-| inputBorderRadius          | String | The border-radius CSS property applied to inputs.                                  |
-| inputHeight                | String | The height CSS property applied to inputs.                                         |
-| cardNumberLabel            | String | The label for the card number input                                                |
-| expirationDateLabel        | String | The label for the expiration date input                                            |
-| securityCodeLabel          | String | The label for the security code input                                              |
-| expirationDatePlaceholder  | String | The placeholder shown for the expiration date input                                |
-| invalidCardNumberLabel     | String | The message shown on an invalid card number                                        |
-| invalidExpirationDateLabel | String | The message shown on an invalid expiration date                                    |
-| invalidSecurityCodeLabel   | String | The message shown on an invalid security code                                      |
-| fontUrl                    | String | Load a custom font with the Google Fonts API                                       |
-| fontFamily                 | String | Set the font-family for the fontUrl                                                |
-| inputFontSize              | String | Set the font-size property of the input attribute                                  |
-| inputBoxShadow             | String | Set the box-shadow property of the input attribute                                 |
-| labelFontSize              | String | Set the font-size property of the label attribute                                  |
-| labelWeight                | String | Set the font-weight property of the label attribute                                |
-| disableCVV                 | Boolean | If true the CVV field will not be displayed                                       |
+| Parameter                  | Type    | Description                                                                        |
+| -------------------------- | ------- | ---------------------------------------------------------------------------------- |
+| theme                      | String  | The base styling for Inputs. Currently supports default, minimal and material.     |
+| height                     | String  | The height of the Evervault Inputs iframe.                                         |
+| primaryColor               | String  | The main theme color.                                                              |
+| labelColor                 | String  | The color CSS property applied to the input labels.                                |
+| inputBorderColor           | String  | The border-color CSS property applied to inputs.                                   |
+| inputTextColor             | String  | The color CSS property applied to inputs.                                          |
+| inputBackgroundColor       | String  | The color CSS property applied to the ::placeholder CSS pseudo-element for inputs. |
+| inputBorderRadius          | String  | The border-radius CSS property applied to inputs.                                  |
+| inputHeight                | String  | The height CSS property applied to inputs.                                         |
+| cardNumberLabel            | String  | The label for the card number input                                                |
+| expirationDateLabel        | String  | The label for the expiration date input                                            |
+| securityCodeLabel          | String  | The label for the security code input                                              |
+| expirationDatePlaceholder  | String  | The placeholder shown for the expiration date input                                |
+| invalidCardNumberLabel     | String  | The message shown on an invalid card number                                        |
+| invalidExpirationDateLabel | String  | The message shown on an invalid expiration date                                    |
+| invalidSecurityCodeLabel   | String  | The message shown on an invalid security code                                      |
+| fontUrl                    | String  | Load a custom font with the Google Fonts API                                       |
+| fontFamily                 | String  | Set the font-family for the fontUrl                                                |
+| inputFontSize              | String  | Set the font-size property of the input attribute                                  |
+| inputBoxShadow             | String  | Set the box-shadow property of the input attribute                                 |
+| labelFontSize              | String  | Set the font-size property of the label attribute                                  |
+| labelWeight                | String  | Set the font-weight property of the label attribute                                |
+| disableCVV                 | Boolean | If true the CVV field will not be displayed                                        |
 
 ```html
 <body>

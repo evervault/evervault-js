@@ -20,7 +20,7 @@ export function hexStringToUint8Array(hex: string): Uint8Array {
   return result;
 }
 
-export function uint8ArrayToHexString(arr: Uint8Array): string  {
+export function uint8ArrayToHexString(arr: Uint8Array): string {
   return Array.from(arr)
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");

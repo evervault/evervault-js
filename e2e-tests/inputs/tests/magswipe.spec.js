@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 
-const EV_STRING_REGEX = /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
+const EV_STRING_REGEX =
+  /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
 
 test.setTimeout(120000);
 
@@ -53,7 +54,9 @@ test.describe("evervault inputs", () => {
       expect(data.isPotentiallyValid).toBe(true);
       expect(data.isValid).toBe(false);
 
-      await expect(page.getByLabel("Card number")).toHaveValue("4242 4242 4242 4242");
+      await expect(page.getByLabel("Card number")).toHaveValue(
+        "4242 4242 4242 4242"
+      );
       await expect(page.getByLabel("Expiration date")).toHaveValue("01 / 30");
       await expect(page.getByLabel("Security code")).toHaveValue("");
     });
@@ -72,7 +75,9 @@ test.describe("evervault inputs", () => {
         });
       });
 
-      await page.getByLabel("Card number").type(";4242424242424242=3001123456?");
+      await page
+        .getByLabel("Card number")
+        .type(";4242424242424242=3001123456?");
       await page.getByLabel("Card number").press("Enter");
 
       await page.waitForTimeout(500);
@@ -97,7 +102,9 @@ test.describe("evervault inputs", () => {
       expect(data.isPotentiallyValid).toBe(true);
       expect(data.isValid).toBe(false);
 
-      await expect(page.getByLabel("Card number")).toHaveValue("4242 4242 4242 4242");
+      await expect(page.getByLabel("Card number")).toHaveValue(
+        "4242 4242 4242 4242"
+      );
       await expect(page.getByLabel("Expiration date")).toHaveValue("01 / 30");
       await expect(page.getByLabel("Security code")).toHaveValue("");
     });

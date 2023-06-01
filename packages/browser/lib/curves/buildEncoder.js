@@ -1,13 +1,11 @@
-import {
-  hexStringToUint8Array,
-} from "../encoding";
+import { hexStringToUint8Array } from "../encoding";
 import ASN1 from "./asn1";
 
 /**
  * @param {import("./p256").TP256Constants} curveValues
  **/
 export default function buildEncoder({ p, a, b, seed, generator, n, h }) {
-  /** 
+  /**
    * @param {string} decompressedKey
    * */
   return (decompressedKey) => {

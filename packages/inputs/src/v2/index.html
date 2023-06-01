@@ -19,7 +19,12 @@
       <input type="hidden" id="name" />
       <div class="form-group">
         <div class="input-group" data-element="cardnumber">
-          <label class="label cardNumberLabel" for="cardnumber" data-testid="cardNumberLabel">Card number</label>
+          <label
+            class="label cardNumberLabel"
+            for="cardnumber"
+            data-testid="cardNumberLabel"
+            >Card number</label
+          >
           <input
             class="input"
             id="cardnumber"
@@ -37,7 +42,12 @@
         </div>
         <div class="input-row">
           <div class="input-group" data-element="expirationdate">
-            <label class="label expirationDateLabel" for="expirationdate" data-testid="expirationDateLabel">Expiration date</label>
+            <label
+              class="label expirationDateLabel"
+              for="expirationdate"
+              data-testid="expirationDateLabel"
+              >Expiration date</label
+            >
             <input
               class="input"
               id="expirationdate"
@@ -49,12 +59,23 @@
               autocomplete="billing cc-exp"
               data-testid="expirationdate"
             />
-            <label class="absoluteLabel expirationDateLabel" for="expirationdate"
+            <label
+              class="absoluteLabel expirationDateLabel"
+              for="expirationdate"
               >Expiration date</label
             >
           </div>
-          <div id="security-code-container" class="input-group" data-element="securitycode">
-            <label class="label securityCodeLabel" for="securitycode" data-testid="securityCodeLabel">Security code</label>
+          <div
+            id="security-code-container"
+            class="input-group"
+            data-element="securitycode"
+          >
+            <label
+              class="label securityCodeLabel"
+              for="securitycode"
+              data-testid="securityCodeLabel"
+              >Security code</label
+            >
             <input
               class="input"
               id="securitycode"
@@ -67,11 +88,17 @@
               autocomplete="billing cc-cvc"
               data-testid="securitycode"
             />
-            <label class="absoluteLabel securityCodeLabel" for="securitycode">Security code</label>
+            <label class="absoluteLabel securityCodeLabel" for="securitycode"
+              >Security code</label
+            >
           </div>
         </div>
       </div>
-      <div class="helper helper-visible" id="helper" data-testid="validation-message"></div>
+      <div
+        class="helper helper-visible"
+        id="helper"
+        data-testid="validation-message"
+      ></div>
     </form>
   </body>
 </html>

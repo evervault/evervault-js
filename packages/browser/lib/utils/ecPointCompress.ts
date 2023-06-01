@@ -3,7 +3,9 @@
  * then remove the `y` point and encode the recorded
  * sign in the first bit
  * */
-export default function ecPointCompress(ecdhRawPublicKey: ArrayBuffer): Uint8Array {
+export default function ecPointCompress(
+  ecdhRawPublicKey: ArrayBuffer
+): Uint8Array {
   const u8full = new Uint8Array(ecdhRawPublicKey);
   const len = u8full.byteLength;
   const u8 = u8full.slice(0, (1 + len) >>> 1); // drop `y`

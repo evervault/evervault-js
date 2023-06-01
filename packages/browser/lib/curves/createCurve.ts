@@ -1,9 +1,6 @@
 import type { TP256Constants } from "./p256";
 
-import {
-  base64StringToUint8Array,
-  uint8ArrayToHexString,
-} from "../encoding";
+import { base64StringToUint8Array, uint8ArrayToHexString } from "../encoding";
 import buildEncoder from "./buildEncoder";
 
 /**
