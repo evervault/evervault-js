@@ -4,6 +4,21 @@
 
 ### Patch Changes
 
+- Updated dependencies [ff0c619]
+- Updated dependencies [8fb7c01]
+- Updated dependencies [7716fc4]
+- Updated dependencies [5b299d8]
+- Updated dependencies [5b089d0]
+- Updated dependencies [dcd8844]
+- Updated dependencies [4e49d48]
+- Updated dependencies [3a81a8f]
+- Updated dependencies [456eeaf]
+  - @evervault/browser@2.6.1
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [bc3a1f2]
 - Updated dependencies [27b299c]
 - Updated dependencies [d8d0198]

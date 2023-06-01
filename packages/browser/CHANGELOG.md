@@ -1,5 +1,19 @@
 # @evervault/browser
 
+## 2.6.1
+
+### Patch Changes
+
+- ff0c619: move crypto module to typescript
+- 8fb7c01: Fix sri plugin not returning hashes
+- 7716fc4: deprecate forms module
+- 5b299d8: clean up tsconfig
+- 5b089d0: rename main js to ts only
+- dcd8844: actually typechecking and docs for main module
+- 4e49d48: format files
+- 3a81a8f: change inputs module to typescript
+- 456eeaf: move http module to typescript
+
 ## 2.6.0
 
 ### Minor Changes
