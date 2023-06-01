@@ -8,4 +8,5 @@ export default defineConfig({
       ...sri({ publicPath: "/", algorithms: ["sha512"] }),
     },
   ],
+  base: "/v2/",
 });
