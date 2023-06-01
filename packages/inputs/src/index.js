@@ -1,3 +1,5 @@
+import Evervault from "@evervault/browser";
+
 import customStylesHandler from "./customStylesHandler";
 import "./styles.css";
 import {
