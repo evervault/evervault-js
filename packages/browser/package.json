@@ -10,6 +10,7 @@
     "dist"
   ],
   "type": "module",
+  "types": "./dist/evervault-browser.main.d.ts",
   "main": "./dist/evervault-browser.main.umd.cjs",
   "module": "./dist/evervault-browser.main.js",
   "exports": {
