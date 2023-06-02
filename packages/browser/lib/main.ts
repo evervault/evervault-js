@@ -15,12 +15,6 @@ type CustomConfig = {
   publicKey?: string;
 };
 
-type Keys = {
-  teamKey: Uint8Array;
-  publicKey: CryptoKey;
-  derivedAesKey: ArrayBuffer;
-};
-
 export default class EvervaultClient {
   /** @deprecated */
   forms;
