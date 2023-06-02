@@ -1,4 +1,4 @@
-import dts from 'vite-plugin-dts'
+import dts from "vite-plugin-dts";
 import { resolve } from "node:path";
 import { defineConfig } from "vitest/config";
 
@@ -16,7 +16,9 @@ export default defineConfig({
       fileName: "evervault-browser.main",
     },
   },
-  plugins: [dts({
-    rollupTypes: true
-  })],
+  plugins: [
+    dts({
+      rollupTypes: true,
+    }),
+  ],
 });

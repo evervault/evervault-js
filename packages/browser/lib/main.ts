@@ -15,6 +15,7 @@ type CustomConfig = {
   publicKey?: string;
 };
 
+// Remove this.
 type Keys = {
   teamKey: Uint8Array;
   publicKey: CryptoKey;
