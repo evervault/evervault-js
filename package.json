@@ -13,7 +13,7 @@
     "e2e:test": "dotenv -- turbo run e2e:test",
     "e2e:test:browser": "dotenv -- turbo run e2e:test --filter=browser",
     "ci:prune:browser": "turbo prune --scope=\"browser\" --docker",
-    "version": "changeset version && pnpm install"
+    "version": "changeset version && pnpm install --no-frozen-lockfile"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.1",
