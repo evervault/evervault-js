@@ -57,7 +57,7 @@ if (fontUrl) {
       const reconstructedGoogleFontUrl = new URL(parsedFontUrl.pathname, "https://fonts.googleapis.com");
       
       // Turns out `searchParams` is a read-only property
-      reconstructedGoogleFontUrl.searchParams = parsedFontUrl.searchParams;
+      reconstructedGoogleFontUrl.search = parsedFontUrl.search;
 
       insertLinkTag(
         "font-preconnect",
@@ -78,6 +78,8 @@ if (fontUrl) {
       });
     }
   } catch(e) {
+    console.error(e);
+    console.error("The above error means that your custom font's have not been set.")
   }
 }
 
@@ -91,7 +93,7 @@ const formOverrides = setFormOverrides(urlParams);
 let errorLabels = getErrorLabels(urlParams);
 
 const form = document.getElementById("form");
-const evervault = new Evervault(team!, app!);
+const evervault = new Evervault(team, app);
 evervault.loadKeys();
 
 // Assign theme class if theme is minimal
