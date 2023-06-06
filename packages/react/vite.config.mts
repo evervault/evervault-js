@@ -1,9 +1,9 @@
+import dts from "vite-plugin-dts";
 import { resolve } from "node:path";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  plugins: [react({ jsxRuntime: "classic" })],
   build: {
     lib: {
       // Could also be a dictionary or array of multiple entry points
@@ -22,4 +22,10 @@ export default defineConfig({
       },
     },
   },
+  plugins: [
+    react({ jsxRuntime: "classic" }),
+    dts({
+      rollupTypes: true,
+    }),
+  ],
 });
