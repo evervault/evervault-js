@@ -233,7 +233,7 @@ function setFrameHeight() {
   parent.postMessage({ type: "EV_FRAME_HEIGHT", height: scrollHeight }, "*");
 }
 
-window.onload = function () {
+const onLoad = function () {
   watchSDKStatus();
   inputElementsManager = new InputElementsManager(postToParent, formOverrides);
   const magStripe = new MagStripe(inputElementsManager);
@@ -255,3 +255,5 @@ window.onload = function () {
 
   document.addEventListener("keypress", magStripe.swipeCapture, true);
 };
+
+window.addEventListener('load', onLoad);
