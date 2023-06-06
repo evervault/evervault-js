@@ -55,8 +55,10 @@ if (fontUrl) {
     } else {
       // Avoid CSRF or Clickjacking attacks by reconstructing the URL
       const reconstructedGoogleFontUrl = new URL(parsedFontUrl.pathname, "https://fonts.googleapis.com");
-      reconstructedGoogleFontUrl.params = parsedFontUrl.params;
       
+      // Turns out `searchParams` is a read-only property
+      reconstructedGoogleFontUrl.searchParams = parsedFontUrl.searchParams;
+
       insertLinkTag(
         "font-preconnect",
         "preconnect",
@@ -89,7 +91,7 @@ const formOverrides = setFormOverrides(urlParams);
 let errorLabels = getErrorLabels(urlParams);
 
 const form = document.getElementById("form");
-const evervault = new Evervault(team, app);
+const evervault = new Evervault(team!, app!);
 evervault.loadKeys();
 
 // Assign theme class if theme is minimal
