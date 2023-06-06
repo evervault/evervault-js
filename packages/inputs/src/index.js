@@ -78,24 +78,6 @@ if (fontUrl) {
   } catch(e) {
   }
 }
-  insertLinkTag(
-    "font-preconnect",
-    "preconnect",
-    "https://fonts.googleapis.com"
-  );
-
-  insertLinkTag(
-    "font-preconnect-cors",
-    "preconnect",
-    "https://fonts.gstatic.com",
-    { crossOrigin: "" }
-  );
-
-  insertLinkTag("font-url", "stylesheet", fontUrl, {
-    type: "text/css",
-    media: "all",
-  });
-}
 
 // Custom Styles
 customStylesHandler(urlParams);
