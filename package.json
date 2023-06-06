@@ -12,7 +12,8 @@
     "typecheck": "turbo run typecheck",
     "e2e:test": "dotenv -- turbo run e2e:test",
     "e2e:test:browser": "dotenv -- turbo run e2e:test --filter=browser",
-    "ci:prune:browser": "turbo prune --scope=\"browser\" --docker"
+    "ci:prune:browser": "turbo prune --scope=\"browser\" --docker",
+    "version": "changeset version && pnpm install"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.1",
