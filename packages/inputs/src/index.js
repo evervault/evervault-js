@@ -254,6 +254,7 @@ const onLoad = function () {
   );
 
   document.addEventListener("keypress", magStripe.swipeCapture, true);
+  parent.postMessage({ type: "EV_INPUTS_LOADED" }, "*");
 };
 
 window.addEventListener('load', onLoad);
