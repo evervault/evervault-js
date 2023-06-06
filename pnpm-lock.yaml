@@ -174,7 +174,7 @@ importers:
   packages/react:
     dependencies:
       '@evervault/browser':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../browser
       react:
         specifier: '>=16.12.0'
