@@ -1,5 +1,15 @@
 # @evervault/browser
 
+## 2.7.0
+
+### Minor Changes
+
+- 09bd2c1: add type declarations
+
+### Patch Changes
+
+- 5c22c45: revert fontUrl santitization
+
 ## 2.6.1
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @evervault/inputs
 
+## 2.6.1
+
+### Patch Changes
+
+- 5c22c45: revert fontUrl santitization
+- Updated dependencies [09bd2c1]
+- Updated dependencies [5c22c45]
+  - @evervault/browser@2.7.0
+
 ## 2.6.0
 
 ### Minor Changes
