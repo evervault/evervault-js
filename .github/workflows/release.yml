@@ -45,11 +45,19 @@ jobs:
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
       aws-s3-bucket: ${{ secrets.INPUTS_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.INPUTS_CLOUDFRONT_DISTRIBUTION_ID }}
-# release:
-#   name: Release
-#   runs-on: ubuntu-latest
-#   needs: build
-#   steps:
-#     - uses: softprops/action-gh-release@v0.1.15
-#       with:
-#         generate_release_notes: true
+
+  publish-js:
+    if: contains(github.event.release.tag_name, '@evervault/browser')
+    needs: build
+    uses: ./.github/workflows/npm-publish-browser.yml
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-react:
+    if: contains(github.event.release.tag_name, '@evervault/react')
+    needs:
+      - build
+      - deploy-js
+    uses: ./.github/workflows/npm-publish-react.yml
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
