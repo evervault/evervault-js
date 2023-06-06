@@ -3,7 +3,7 @@ import EvervaultClient from "@evervault/browser";
 
 declare global {
   var evInputsCount: number;
-};
+}
 
 global.evInputsCount = 0;
 
@@ -20,7 +20,9 @@ export type EvervaultInputProps = {
   onInputsLoad?: () => void;
 };
 
-export const EvervaultContext = React.createContext<EvervaultClient | null>(null);
+export const EvervaultContext = React.createContext<EvervaultClient | null>(
+  null
+);
 
 export const EvervaultProvider = ({
   teamId,
@@ -37,7 +39,11 @@ export const EvervaultProvider = ({
   );
 };
 
-export const EvervaultInput = ({ onChange, config, onInputsLoad }: EvervaultInputProps) => {
+export const EvervaultInput = ({
+  onChange,
+  config,
+  onInputsLoad,
+}: EvervaultInputProps) => {
   global.evInputsCount = global.evInputsCount ? global.evInputsCount + 1 : 1;
   const encryptedInputId = `encryptedInput-${global.evInputsCount}`;
 
