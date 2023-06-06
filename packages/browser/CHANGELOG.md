@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.7.1
+
+### Patch Changes
+
+- 2939642: use window.postMessage to send inputs loaded status for better browser compatibility
+
 ## 2.7.0
 
 ### Minor Changes
