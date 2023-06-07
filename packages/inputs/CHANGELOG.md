@@ -1,5 +1,15 @@
 # @evervault/inputs
 
+## 2.7.0
+
+### Minor Changes
+
+- 3c916a6: Use primary color for focused input labels in material theme
+
+### Patch Changes
+
+- 5212a8c: properly sanitise fontUrls and bring over queryParams
+
 ## 2.6.2
 
 ### Patch Changes
