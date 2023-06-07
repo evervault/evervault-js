@@ -223,7 +223,7 @@ textarea {
 
   & .input-group:focus-within .absoluteLabel {
     transform: translateY(-100%) scale(0.8);
-    color: var(--label-color);
+    color: var(--color-primary);
   }
 
   & .input-group input:not(:placeholder-shown) + label {
