@@ -3,8 +3,9 @@
 
 name: Main Release Workflow
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "@evervault/*"
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -18,7 +19,7 @@ jobs:
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   deploy-js:
-    if: contains( github.event.release.tag_name, 'browser')
+    if: contains( github.ref, 'refs/tags/@evervault/browser')
     needs: build
     uses: ./.github/workflows/aws-generic-deploy-browser.yml
     with:
@@ -31,7 +32,7 @@ jobs:
       aws-s3-bucket: ${{ secrets.BROWSER_SDK_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }}
   deploy-inputs:
-    if: contains( github.event.release.tag_name, 'inputs')
+    if: contains( github.ref, 'refs/tags/@evervault/inputs')
     needs: build
     uses: ./.github/workflows/aws-generic-deploy-inputs.yml
     with:
@@ -43,4 +44,8 @@ jobs:
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
       aws-s3-bucket: ${{ secrets.INPUTS_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.INPUTS_CLOUDFRONT_DISTRIBUTION_ID }}
+  release:
+    needs: build
+    name: Release
+    uses: softprops/action-gh-release@v1
     
