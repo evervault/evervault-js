@@ -5,7 +5,10 @@ const defaultInputLabels = {
   expirationDatePlaceholder: "MM/YY",
 };
 
-export function setInputLabels(theme: string | null, urlParams: URLSearchParams) {
+export function setInputLabels(
+  theme: string | null,
+  urlParams: URLSearchParams
+) {
   for (let [key, value] of Object.entries(defaultInputLabels)) {
     let param = urlParams.get(key);
     if (param) {
@@ -61,17 +64,26 @@ const defaultErrorLabels = {
 
 export function getErrorLabels(urlParams: URLSearchParams) {
   return {
-    invalidCardNumberLabel: urlParams.get("invalidCardNumberLabel") ?? defaultErrorLabels.invalidCardNumberLabel,
-    invalidExpirationDateLabel: urlParams.get("invalidExpirationDateLabel") ?? defaultErrorLabels.invalidExpirationDateLabel,
-    invalidSecurityCodeLabel: urlParams.get("invalidSecurityCodeLabel") ?? defaultErrorLabels.invalidSecurityCodeLabel,
-  }
+    invalidCardNumberLabel:
+      urlParams.get("invalidCardNumberLabel") ??
+      defaultErrorLabels.invalidCardNumberLabel,
+    invalidExpirationDateLabel:
+      urlParams.get("invalidExpirationDateLabel") ??
+      defaultErrorLabels.invalidExpirationDateLabel,
+    invalidSecurityCodeLabel:
+      urlParams.get("invalidSecurityCodeLabel") ??
+      defaultErrorLabels.invalidSecurityCodeLabel,
+  };
 }
 
-export function updateErrorLabels(existingLabels: typeof defaultErrorLabels, newLabels: Partial<typeof defaultErrorLabels>) {
+export function updateErrorLabels(
+  existingLabels: typeof defaultErrorLabels,
+  newLabels: Partial<typeof defaultErrorLabels>
+) {
   return {
     ...existingLabels,
     ...newLabels,
-  }
+  };
 }
 
 const defaultFormOverrides = {
@@ -80,6 +92,8 @@ const defaultFormOverrides = {
 
 export function setFormOverrides(urlParams: URLSearchParams) {
   return {
-    disableCVV: Boolean(urlParams.get("disableCVV") ?? defaultFormOverrides.disableCVV),
-  }
+    disableCVV: Boolean(
+      urlParams.get("disableCVV") ?? defaultFormOverrides.disableCVV
+    ),
+  };
 }

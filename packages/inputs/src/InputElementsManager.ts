@@ -17,13 +17,13 @@ type InputMasks = {
 };
 
 type ElementId =
-  "cardnumber" |
-  "expirationdate" |
-  "securitycode" |
-  "name" |
-  "trackdata" |
-  "trackone" |
-  "tracktwo";
+  | "cardnumber"
+  | "expirationdate"
+  | "securitycode"
+  | "name"
+  | "trackdata"
+  | "trackone"
+  | "tracktwo";
 
 const createGetInputElementOrThow = (key: ElementId) => {
   const nameElement = document.getElementById(key);
@@ -51,7 +51,6 @@ export class InputElementsManager {
       trackOne: createGetInputElementOrThow("trackone"),
       trackTwo: createGetInputElementOrThow("tracktwo"),
     };
-
 
     this.masks = {
       cardNumber: IMask(this.elements.cardNumber, {

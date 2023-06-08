@@ -172,7 +172,10 @@ const getData = async () => {
     inputElementsManager.elements.expirationDate.classList.add("input-invalid");
   }
 
-  if (evCard.cardCVVVerification.isPotentiallyValid && !formOverrides.disableCVV) {
+  if (
+    evCard.cardCVVVerification.isPotentiallyValid &&
+    !formOverrides.disableCVV
+  ) {
     inputElementsManager.elements.cvv?.classList.remove("input-invalid");
   } else if (!formOverrides.disableCVV) {
     inputElementsManager.elements.cvv?.classList.add("input-invalid");
@@ -197,7 +200,9 @@ const getData = async () => {
     lastFour: evCard.cardNumberVerification.isValid
       ? cardNumberValue.substr(cardNumberValue.length - 4)
       : "",
-    bin: evCard.cardNumberVerification.isValid ? cardNumberValue.substr(0, 6) : "",
+    bin: evCard.cardNumberVerification.isValid
+      ? cardNumberValue.substr(0, 6)
+      : "",
   };
 
   setFrameHeight();

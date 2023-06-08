@@ -3,7 +3,7 @@ import creditCardType, { types as CardType } from "credit-card-type";
 
 const isAmexCard = (value: string) =>
   creditCardType(value).some(
-    (value) => (value.type === CardType["AMERICAN_EXPRESS"])
+    (value) => value.type === CardType["AMERICAN_EXPRESS"]
   );
 
 export default class EvervaultCard {
@@ -75,17 +75,23 @@ export default class EvervaultCard {
 
   isCardValid() {
     if (this.#disableCVV) {
-      return this.cardNumberVerification.isValid && this.cardExpiryVerification.isValid;
+      return (
+        this.cardNumberVerification.isValid &&
+        this.cardExpiryVerification.isValid
+      );
     }
     return (
-      this.cardNumberVerification.isValid && this.cardExpiryVerification.isValid && this.cardCVVVerification.isValid
+      this.cardNumberVerification.isValid &&
+      this.cardExpiryVerification.isValid &&
+      this.cardCVVVerification.isValid
     );
   }
 
   isPotentiallyValid() {
     if (this.#disableCVV) {
       return (
-        this.cardNumberVerification.isPotentiallyValid && this.cardExpiryVerification.isPotentiallyValid
+        this.cardNumberVerification.isPotentiallyValid &&
+        this.cardExpiryVerification.isPotentiallyValid
       );
     }
     return (
