@@ -60,4 +60,4 @@ jobs:
       - deploy-js
     uses: ./.github/workflows/npm-publish-react.yml
     secrets:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      NPM_TOKEN: ${{ secrets.REACT_SDK_NPM_TOKEN }}
