@@ -5,7 +5,7 @@ const defaultInputLabels = {
   expirationDatePlaceholder: "MM/YY",
 };
 
-export function setInputLabels(theme, urlParams) {
+export function setInputLabels(theme: string | null, urlParams: URLSearchParams) {
   for (let [key, value] of Object.entries(defaultInputLabels)) {
     let param = urlParams.get(key);
     if (param) {
@@ -22,14 +22,14 @@ export function setInputLabels(theme, urlParams) {
   }
 }
 
-export function updateInputLabels(labelUpdates) {
+export function updateInputLabels(labelUpdates: Record<string, string>) {
   for (const [key, value] of Object.entries(labelUpdates)) {
     setLabel(key, value);
     setPlaceholder(key, value);
   }
 }
 
-function setPlaceholder(key, value) {
+function setPlaceholder(key: string, value: string) {
   if (key == "expirationDateLabel") {
     return;
   }
@@ -38,14 +38,17 @@ function setPlaceholder(key, value) {
       ? "expirationdate"
       : key.slice(0, -5).toLowerCase();
   const input = document.getElementById(elementId);
-  if (input) {
+  if (input instanceof HTMLInputElement) {
     input.placeholder = value;
   }
 }
 
-function setLabel(key, value) {
+function setLabel(key: string, value: string) {
   let elements = document.getElementsByClassName(key);
   for (const element of elements) {
+    if (!(element instanceof HTMLElement)) {
+      continue;
+    }
     element.innerText = value;
   }
 }
@@ -56,43 +59,27 @@ const defaultErrorLabels = {
   invalidSecurityCodeLabel: "Your CVC is invalid",
 };
 
-export function getErrorLabels(urlParams) {
-  const errorLabels = defaultErrorLabels;
-
-  for (const key in errorLabels) {
-    let param = urlParams.get(key);
-    if (param) {
-      errorLabels[key] = param;
-    }
+export function getErrorLabels(urlParams: URLSearchParams) {
+  return {
+    invalidCardNumberLabel: urlParams.get("invalidCardNumberLabel") ?? defaultErrorLabels.invalidCardNumberLabel,
+    invalidExpirationDateLabel: urlParams.get("invalidExpirationDateLabel") ?? defaultErrorLabels.invalidExpirationDateLabel,
+    invalidSecurityCodeLabel: urlParams.get("invalidSecurityCodeLabel") ?? defaultErrorLabels.invalidSecurityCodeLabel,
   }
-
-  return errorLabels;
 }
 
-export function updateErrorLabels(existingLabels, newLabels) {
-  for (const key in existingLabels) {
-    let newLabel = newLabels[key];
-    if (newLabel) {
-      existingLabels[key] = newLabel;
-    }
+export function updateErrorLabels(existingLabels: typeof defaultErrorLabels, newLabels: Partial<typeof defaultErrorLabels>) {
+  return {
+    ...existingLabels,
+    ...newLabels,
   }
-
-  return existingLabels;
 }
 
 const defaultFormOverrides = {
   disableCVV: false,
 };
 
-export function setFormOverrides(urlParams) {
-  const formOverrides = defaultFormOverrides;
-
-  for (const key in formOverrides) {
-    const param = urlParams.get(key);
-    if (param) {
-      formOverrides[key] = param;
-    }
+export function setFormOverrides(urlParams: URLSearchParams) {
+  return {
+    disableCVV: Boolean(urlParams.get("disableCVV") ?? defaultFormOverrides.disableCVV),
   }
-
-  return defaultFormOverrides;
 }

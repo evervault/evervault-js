@@ -27,18 +27,23 @@ const app = urlParams.get("app");
 const theme = urlParams.get("theme");
 const fontUrl = urlParams.get("fontUrl");
 
-let inputElementsManager;
+let inputElementsManager: InputElementsManager;
 
-function insertLinkTag(id, rel, href, options = {}) {
+function insertLinkTag(
+  id: string,
+  rel: string,
+  href: string,
+  options: { crossOrigin?: string; type?: string; media?: string } = {}
+) {
   if (!document.getElementById(id)) {
     const head = document.getElementsByTagName("head")[0];
     const link = document.createElement("link");
     link.id = id;
     link.rel = rel;
     link.href = href;
-    Object.keys(options).forEach((key) => {
-      link[key] = options[key];
-    });
+    if (options.crossOrigin) link.crossOrigin = options.crossOrigin;
+    if (options.type) link.type = options.type;
+    if (options.media) link.media = options.media;
     head.appendChild(link);
   }
 }
@@ -49,11 +54,16 @@ if (fontUrl) {
 
     // Only allow fonts from fonts.googleapis.com
     if (parsedFontUrl.hostname !== "fonts.googleapis.com") {
-      throw new Error("Invalid fontUrl. Please use a fontUrl from fonts.googleapis.com")
+      throw new Error(
+        "Invalid fontUrl. Please use a fontUrl from fonts.googleapis.com"
+      );
     } else {
       // Avoid CSRF or Clickjacking attacks by reconstructing the URL
-      const reconstructedGoogleFontUrl = new URL(parsedFontUrl.pathname, "https://fonts.googleapis.com");
-      
+      const reconstructedGoogleFontUrl = new URL(
+        parsedFontUrl.pathname,
+        "https://fonts.googleapis.com"
+      );
+
       // Turns out `searchParams` is a read-only property
       reconstructedGoogleFontUrl.search = parsedFontUrl.search;
 
@@ -70,14 +80,21 @@ if (fontUrl) {
         { crossOrigin: "" }
       );
 
-      insertLinkTag("font-url", "stylesheet", reconstructedGoogleFontUrl.toString(), {
-        type: "text/css",
-        media: "all",
-      });
+      insertLinkTag(
+        "font-url",
+        "stylesheet",
+        reconstructedGoogleFontUrl.toString(),
+        {
+          type: "text/css",
+          media: "all",
+        }
+      );
     }
-  } catch(e) {
+  } catch (e) {
     console.error(e);
-    console.error("The above error means that your custom font's have not been set.")
+    console.error(
+      "The above error means that your custom font's have not been set."
+    );
   }
 }
 
@@ -91,15 +108,14 @@ const formOverrides = setFormOverrides(urlParams);
 let errorLabels = getErrorLabels(urlParams);
 
 const form = document.getElementById("form");
-const evervault = new Evervault(team, app);
-evervault.loadKeys();
+const evervault = new Evervault(team!, app!);
 
 // Assign theme class if theme is minimal
 if (form && theme) {
   document.getElementById("form")?.classList.add(`form-${theme}`);
 }
 
-let evCard;
+let evCard: EvervaultCard;
 if (formOverrides.disableCVV) {
   evCard = new EvervaultCard(
     DEFAULT_CARD_CONFIG.filter((field) => field !== "cardCVV")
@@ -114,24 +130,24 @@ const postToParent = async () => {
 };
 
 const getData = async () => {
-  const helper = document.getElementById("helper");
+  const helper = document.getElementById("helper")!;
   const track = {
-    fullTrack: document.getElementById("trackdata").value,
-    trackOne: document.getElementById("trackone").value,
-    trackTwo: document.getElementById("tracktwo").value,
+    fullTrack: inputElementsManager?.elements.trackData.value,
+    trackOne: inputElementsManager?.elements.trackOne.value,
+    trackTwo: inputElementsManager?.elements.trackTwo.value,
   };
-  const name = document.getElementById("name").value;
+  const name = inputElementsManager?.elements.name.value;
 
   const cardNumberValue = inputElementsManager?.masks.cardNumber.unmaskedValue;
   const expirationDateValue =
     inputElementsManager?.masks.expirationDate.unmaskedValue;
-  const cvcValue = formOverrides.disableCVV
-    ? null
-    : inputElementsManager?.masks.cvc.unmaskedValue;
+  const cvvValue = formOverrides.disableCVV
+    ? undefined
+    : inputElementsManager?.masks.cvv?.unmaskedValue;
 
   evCard.cardNumber = cardNumberValue;
   evCard.cardExpiry = expirationDateValue;
-  evCard.cardCVV = cvcValue ?? "";
+  evCard.cardCVV = cvvValue ?? "";
   const error = evCard.generateError(errorLabels);
 
   helper.innerText = error.length > 0 ? error[0].message : "";
@@ -142,46 +158,46 @@ const getData = async () => {
     helper.classList.remove("helper-visible");
   }
 
-  if (evCard.cardNumber.isPotentiallyValid) {
-    inputElementsManager.els.cardNumber.classList.remove("input-invalid");
+  if (evCard.cardNumberVerification.isPotentiallyValid) {
+    inputElementsManager.elements.cardNumber.classList.remove("input-invalid");
   } else {
-    inputElementsManager.els.cardNumber.classList.add("input-invalid");
+    inputElementsManager.elements.cardNumber.classList.add("input-invalid");
   }
 
-  if (evCard.cardExpiry.isPotentiallyValid) {
-    inputElementsManager.els.expirationDate.classList.remove("input-invalid");
+  if (evCard.cardExpiryVerification.isPotentiallyValid) {
+    inputElementsManager.elements.expirationDate.classList.remove(
+      "input-invalid"
+    );
   } else {
-    inputElementsManager.els.expirationDate.classList.add("input-invalid");
+    inputElementsManager.elements.expirationDate.classList.add("input-invalid");
   }
 
-  if (evCard.cardCVV.isPotentiallyValid && !formOverrides.disableCVV) {
-    inputElementsManager.els.cvc.classList.remove("input-invalid");
+  if (evCard.cardCVVVerification.isPotentiallyValid && !formOverrides.disableCVV) {
+    inputElementsManager.elements.cvv?.classList.remove("input-invalid");
   } else if (!formOverrides.disableCVV) {
-    inputElementsManager.els.cvc.classList.add("input-invalid");
+    inputElementsManager.elements.cvv?.classList.add("input-invalid");
   }
 
   let card = {
-    type: evCard.cardNumber?.card?.type ?? "",
+    type: evCard.cardNumberVerification?.card?.type ?? "",
     number: cardNumberValue,
-    expMonth: evCard.cardExpiry.month ?? "",
-    expYear: evCard.cardExpiry.year ?? "",
+    expMonth: evCard.cardExpiryVerification.month ?? "",
+    expYear: evCard.cardExpiryVerification.year ?? "",
     track,
     name,
     swipe: track.fullTrack.length > 0 ? true : false,
+    // We mispelled this in the our public interface, so we need to keep it for backwards compatibility
+    cvc: formOverrides.disableCVV ? undefined : cvvValue,
   };
-
-  if (!formOverrides.disableCVV) {
-    card = { ...card, cvc: cvcValue };
-  }
 
   const isEmpty = cardIsEmpty(card);
 
   const encryptedCard = {
     ...(await encryptSensitiveCardDetails(card)),
-    lastFour: evCard.cardNumber.isValid
+    lastFour: evCard.cardNumberVerification.isValid
       ? cardNumberValue.substr(cardNumberValue.length - 4)
       : "",
-    bin: evCard.cardNumber.isValid ? cardNumberValue.substr(0, 6) : "",
+    bin: evCard.cardNumberVerification.isValid ? cardNumberValue.substr(0, 6) : "",
   };
 
   setFrameHeight();
@@ -195,7 +211,15 @@ const getData = async () => {
   };
 };
 
-async function encryptSensitiveCardDetails(card) {
+async function encryptSensitiveCardDetails(card: {
+  number: string;
+  cvc?: string;
+  track: {
+    fullTrack: string;
+    trackOne: string;
+    trackTwo: string;
+  };
+}) {
   const encryptedCard = card;
   if (card.number) {
     const strippedCardNumber = card.number.replace(/\s/g, "");
@@ -218,12 +242,17 @@ async function encryptSensitiveCardDetails(card) {
   return encryptedCard;
 }
 
-function cardIsEmpty(card) {
-  return !card.number && !card.cvc && !card.expMonth && !card.expYear;
+function cardIsEmpty(card: {
+  number?: string;
+  cvv?: string;
+  expMonth?: string;
+  expYear?: string;
+}) {
+  return !card.number && !card.cvv && !card.expMonth && !card.expYear;
 }
 
 function mountWarningBanner() {
-  const bodyElem = document.querySelector("body");
+  const bodyElem = document.querySelector("body")!;
   const warningBanner = document.createElement("div");
   warningBanner.id = "warning-banner-holder";
   warningBanner.innerHTML = `<small>⚠️ Warning: you are in <a href="https://docs.evervault.com/concepts/inputs/debug-mode">debug mode</a>.</small>`;
@@ -231,7 +260,7 @@ function mountWarningBanner() {
 }
 
 function watchSDKStatus() {
-  let intervalRef;
+  let intervalRef: NodeJS.Timeout;
   intervalRef = setInterval(() => {
     const sdkState = evervault.isInDebugMode();
     if (sdkState) {
@@ -275,4 +304,4 @@ const onLoad = function () {
   parent.postMessage({ type: "EV_INPUTS_LOADED" }, "*");
 };
 
-window.addEventListener('load', onLoad);
+window.addEventListener("load", onLoad);

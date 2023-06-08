@@ -57,7 +57,7 @@ const supportedProperties = [
   },
 ];
 
-export default function (urlParams) {
+export default function (urlParams: URLSearchParams) {
   let root = document.documentElement;
   supportedProperties.forEach(({ name, variable }) => {
     const paramValue = urlParams.get(name);
