@@ -19,6 +19,7 @@ jobs:
       TESTS_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
       TESTS_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+
   deploy-js:
     if: contains(github.event.release.tag_name, '@evervault/browser')
     needs: build
@@ -32,6 +33,7 @@ jobs:
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
       aws-s3-bucket: ${{ secrets.BROWSER_SDK_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }}
+
   deploy-inputs:
     if: contains(github.event.release.tag_name, '@evervault/inputs')
     needs: build
@@ -55,9 +57,7 @@ jobs:
 
   publish-react:
     if: contains(github.event.release.tag_name, '@evervault/react')
-    needs:
-      - build
-      - deploy-js
+    needs: build
     uses: ./.github/workflows/npm-publish-react.yml
     secrets:
       NPM_TOKEN: ${{ secrets.REACT_SDK_NPM_TOKEN }}
