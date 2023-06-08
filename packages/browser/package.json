@@ -6,6 +6,11 @@
     "node": "~18",
     "pnpm": "~8"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evervault/evervault-js.git",
+    "directory": "packages/browser"
+  },
   "files": [
     "dist"
   ],

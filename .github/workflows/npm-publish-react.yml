@@ -3,13 +3,16 @@ name: Publish to npm
 on:
   workflow_call:
     secrets:
-      npm_token:
+      NPM_TOKEN:
         description: "NPM Token"
         required: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Check out code
@@ -26,6 +29,7 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install deps
         run: pnpm install --frozen-lockfile
@@ -34,3 +38,4 @@ jobs:
         run: pnpm --filter "@evervault/react" publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
