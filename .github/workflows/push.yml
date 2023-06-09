@@ -11,7 +11,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   build:
-    uses: ./.github/workflows/build-and-test.
+    uses: ./.github/workflows/build-and-test.yml
     with:
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
     secrets:
