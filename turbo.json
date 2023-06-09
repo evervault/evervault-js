@@ -10,16 +10,20 @@
       "persistent": true
     },
     "e2e:test": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["build"],
       "outputs": ["playwright-report/**", "test-results/**"]
     },
     "deploy": {
       "dependsOn": ["build", "test", "lint"]
     },
-    "typecheck": {},
+    "typecheck": {
+      "dependsOn": ["^build"]
+    },
     "format": {},
     "format:check": {},
-    "test": {},
+    "test": {
+      "dependsOn": ["^build"]
+    },
     "preview": {
       "dependsOn": ["build"]
     }
