@@ -261,9 +261,11 @@ export class CoreCrypto {
       return encryptedObject;
     } else if (Datatypes.isArray(data)) {
       const encryptedArray = [...data];
-      return await Promise.all(encryptedArray.map(async (value) => {
-        return await this.#traverseObject(value);
-      }));
+      return await Promise.all(
+        encryptedArray.map(async (value) => {
+          return await this.#traverseObject(value);
+        })
+      );
     } else {
       return data;
     }
