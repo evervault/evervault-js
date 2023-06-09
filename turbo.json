@@ -22,7 +22,7 @@
     "format": {},
     "format:check": {},
     "test": {
-      "dependsOn": ["build"]
+      "dependsOn": ["^build"]
     },
     "preview": {
       "dependsOn": ["build"]
