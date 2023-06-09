@@ -11,12 +11,13 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   build:
-    uses: ./.github/workflows/build-and-test.yml
+    uses: ./.github/workflows/build-and-test.
+    with:
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
     secrets:
       TESTS_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
       TESTS_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
       TESTS_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
-      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   deploy-browser:
     needs: build
