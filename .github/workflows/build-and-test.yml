@@ -50,6 +50,9 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
+      - name: Build
+        run: pnpm build
+
       - name: Unit test
         run: pnpm test
 
@@ -58,9 +61,6 @@ jobs:
 
       - name: Typescript check
         run: pnpm run typecheck
-
-      - name: Build
-        run: pnpm build
 
       - name: E2E test
         run: pnpm run e2e:test
