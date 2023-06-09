@@ -24,7 +24,7 @@ export default class EvervaultClient {
   input;
 
   #debugMode;
-  #cryptoPromise: Promise<CoreCrypto> | null = null;
+  #cryptoPromise: Promise<CoreCrypto>;
 
   /**
    * The SDK constructor accepts two parameters:
@@ -62,7 +62,7 @@ export default class EvervaultClient {
     this.forms.register();
     this.input = Input(this.config);
 
-    this.#cryptoPromise = null;
+    this.#cryptoPromise = this.loadKeys();
   }
 
   // TODO: make this private
@@ -117,9 +117,7 @@ export default class EvervaultClient {
     if (Datatypes.isEmptyString(data)) {
       return data;
     }
-    if (this.#cryptoPromise === null) {
-      this.#cryptoPromise = this.loadKeys();
-    }
+
     const crypto = await this.#cryptoPromise;
 
     try {
