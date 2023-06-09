@@ -11,12 +11,13 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   build:
-    uses: ./.github/workflows/build-and-test.yml
+    uses: ./.github/workflows/build-and-test.
+    with:
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
     secrets:
       TESTS_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
       TESTS_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
       TESTS_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
-      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   deploy-browser:
     needs: build
@@ -64,8 +65,14 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Create Release Pull Request
+        id: changesets
         uses: changesets/action@v1
         with:
           version: pnpm run version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Tags
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: |
+          npx changeset tag && git push origin --tags

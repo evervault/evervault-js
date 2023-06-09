@@ -1,14 +1,17 @@
 name: Build & Test
 on:
   workflow_call:
+    inputs:
+      TURBO_TEAM:
+        type: string
+        description: "Turbo team name"
+        required: true
     secrets:
       TESTS_TEAM_UUID:
         required: true
       TESTS_APP_UUID:
         required: true
       TESTS_DECRYPT_FN_KEY:
-        required: true
-      TURBO_TEAM:
         required: true
       TURBO_TOKEN:
         required: true
@@ -25,7 +28,7 @@ jobs:
       EV_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
       VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
       VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
-      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+      TURBO_TEAM: ${{ inputs.TURBO_TEAM }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
 
     steps:
@@ -50,6 +53,9 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
+      - name: Build
+        run: pnpm build
+
       - name: Unit test
         run: pnpm test
 
@@ -58,9 +64,6 @@ jobs:
 
       - name: Typescript check
         run: pnpm run typecheck
-
-      - name: Build
-        run: pnpm build
 
       - name: E2E test
         run: pnpm run e2e:test
