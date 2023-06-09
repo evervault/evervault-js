@@ -28,24 +28,12 @@ export default function Inputs(config: Config) {
       });
 
       const isInputsLoaded = new Promise<boolean>((resolve) => {
-        const elem = document.getElementById("ev-iframe");
-
-        if (elem instanceof HTMLIFrameElement) {
-          // TODO: needs another error check
-          const doc = (elem.contentDocument ??
-            elem.contentWindow?.document) as Document;
-
-          if (doc.readyState === "complete") {
+        window.addEventListener("message", (event) => {
+          if (event.origin !== config.input.inputsOrigin) return;
+          if (event.data?.type === "EV_INPUTS_LOADED") {
             resolve(true);
           }
-
-          const interval = setInterval(() => {
-            if (doc.readyState === "complete") {
-              clearInterval(interval);
-              resolve(true);
-            }
-          }, 750);
-        }
+        });
       });
 
       return {
@@ -70,6 +58,7 @@ export default function Inputs(config: Config) {
               (event) => {
                 if (event.origin !== config.input.inputsOrigin) return;
                 if (event.data?.type === "EV_FRAME_HEIGHT") return;
+                if (event.data?.type === "EV_INPUTS_LOADED") return;
                 if (event.data?.type === "EV_FRAME_READY") return;
                 fn(event.data);
               },

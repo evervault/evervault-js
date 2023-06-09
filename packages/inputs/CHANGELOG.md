@@ -1,5 +1,24 @@
 # @evervault/inputs
 
+## 2.7.0
+
+### Minor Changes
+
+- 3c916a6: Use primary color for focused input labels in material theme
+
+### Patch Changes
+
+- 5212a8c: properly sanitise fontUrls and bring over queryParams
+
+## 2.6.2
+
+### Patch Changes
+
+- 2939642: use window.postMessage to send inputs loaded status for better browser compatibility
+- a1676a8: fixed onload behaviour in firefox
+- Updated dependencies [2939642]
+  - @evervault/browser@2.7.1
+
 ## 2.6.1
 
 ### Patch Changes

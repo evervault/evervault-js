@@ -93,15 +93,7 @@ We use [changsets](https://github.com/changesets/changesets) to version manage t
 
 When creating a pr that needs to be rolled into a version release, do `npx changeset`, select the level of the version bump required and describe the changes for the change logs. DO NOT select `major` for releasing breaking changes without team approval.
 
-To release:
-- Merge the version PR that the changeset bot created to bump the version numbers.
-- On local machine, `git checkout master`
-- `git pull`
-- `npx changeset tag`, which will create git tags for each package and version needed
-- Push the tag to base the release on to needed with `git push origin <TAG_NAME>`
-- Create a GitHub release with either the UI or the local CLI: `gh release create`
-
-The production deployment action will deploy code to the production environment on release publish.
+To release, merge the version PR that the changeset bot created to bump the version numbers. This will bump the versions of the packages, deploy them to AWS and/or publish to NPM, and create a new release on GitHub.
 
 ## Environments
 
