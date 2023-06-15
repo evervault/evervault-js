@@ -1,5 +1,4 @@
-import type { Config } from "postcss-load-config";
-import postcssPresetEnv from "postcss-preset-env";
+const postcssPresetEnv = require("postcss-preset-env");
 
 const config = {
   plugins: [
@@ -9,6 +8,6 @@ const config = {
       features: { "nesting-rules": true },
     }),
   ],
-} satisfies Config;
+};
 
-export default config;
+module.exports = config;
