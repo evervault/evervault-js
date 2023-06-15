@@ -1,5 +1,15 @@
 # @evervault/inputs
 
+## 2.7.1
+
+### Patch Changes
+
+- 0231977: Use .js extension for PostCSS config
+- 77ea201: move inputs to typescript
+- Updated dependencies [a5392b2]
+- Updated dependencies [77ea201]
+  - @evervault/browser@2.7.2
+
 ## 2.7.0
 
 ### Minor Changes
