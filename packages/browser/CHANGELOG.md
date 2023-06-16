@@ -1,5 +1,12 @@
 # @evervault/browser
 
+## 2.7.2
+
+### Patch Changes
+
+- a5392b2: use Promise.all for encrypting arrays
+- 77ea201: move inputs to typescript
+
 ## 2.7.1
 
 ### Patch Changes
