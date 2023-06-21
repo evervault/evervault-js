@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/build-and-test.yml
-    with: 
+    with:
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
     secrets:
       TESTS_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
