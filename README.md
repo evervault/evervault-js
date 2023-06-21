@@ -1,4 +1,5 @@
 # evervault-js
+
 Evervault JavaScript SDK.
 
 ## Repositary structure
@@ -12,7 +13,6 @@ Top level folders are as such:
 - `e2e-apps` - Skeleton apps using packages that are then targed by the e2e tests.
 - `ev-functions` - [Evervault Functions](https://docs.evervault.com/products/functions) that are used by the e2e tests. Mostly to test decryption.
 - `statics` - Contains a few static JSON files served from the browser endpoint that barely change.
-
 
 ## Packages
 
@@ -60,8 +60,7 @@ pnpm install
 
 We use Vercel for remote caching of the packages in this repo. This means that when you install a package from this repo, it will be cached on Vercel and subsequent installs will be much faster.
 
-Run `turbo link` to link the workspace to Vercel with your account. 
-
+Run `turbo link` to link the workspace to Vercel with your account.
 
 ## Building
 
@@ -93,11 +92,16 @@ We use [changsets](https://github.com/changesets/changesets) to version manage t
 
 When creating a pr that needs to be rolled into a version release, do `npx changeset`, select the level of the version bump required and describe the changes for the change logs. DO NOT select `major` for releasing breaking changes without team approval.
 
-To release, merge the version PR that the changeset bot created to bump the version numbers. This will bump the versions of the packages, deploy them to AWS and/or publish to NPM, and create a new release on GitHub.
+To release:
+
+- Merge the version PR that the changeset bot created to bump the version numbers.
+  This will bump the versions of the packages and create a git tag for the release.
+- Create a GitHub release with either the UI or the local CLI: `gh release create`
+  This will trigger a workflow to deploy them to AWS and/or publish to NPM, and create a new release on GitHub.
 
 ## Environments
 
-| | Production | Staging |
-|-|------------|---------|
-|browser|js.evervault.com/v2/index.js|js.evervault.io/v2/index.js|
-|inputs|inputs.evervault.com/v2/index.html|inputs.evervault.io/v2/index.html|
+|         | Production                         | Staging                           |
+| ------- | ---------------------------------- | --------------------------------- |
+| browser | js.evervault.com/v2/index.js       | js.evervault.io/v2/index.js       |
+| inputs  | inputs.evervault.com/v2/index.html | inputs.evervault.io/v2/index.html |
