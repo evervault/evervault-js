@@ -32,24 +32,27 @@ jobs:
       aws-s3-bucket: ${{ secrets.BROWSER_SDK_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }}
   deploy-inputs:
-      needs: build
-      uses: ./.github/workflows/aws-generic-deploy-inputs.yml
-      with:
-        environment: "staging"
-        name: "Deploy to Staging"
-        version: "v2"
-      secrets:
-        aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
-        aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
-        aws-s3-bucket: ${{ secrets.INPUTS_S3_BUCKET }}
-        aws-cloudfront-distribution-id: ${{ secrets.INPUTS_CLOUDFRONT_DISTRIBUTION_ID }}
-  
+    needs: build
+    uses: ./.github/workflows/aws-generic-deploy-inputs.yml
+    with:
+      environment: "staging"
+      name: "Deploy to Staging"
+      version: "v2"
+    secrets:
+      aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
+      aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
+      aws-s3-bucket: ${{ secrets.INPUTS_S3_BUCKET }}
+      aws-cloudfront-distribution-id: ${{ secrets.INPUTS_CLOUDFRONT_DISTRIBUTION_ID }}
+
   release:
     name: Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
+
+      - name: Get tags
+        run: git fetch --tags origin
 
       - uses: pnpm/action-setup@v2
         with:

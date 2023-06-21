@@ -166,11 +166,12 @@ await inputs.setLabels({});
 If you need to wait for the iFrame that serves inputs to load before doing some action, there is an easy way to do so.
 
 #### isInputsLoaded
+
 This is a `Promise` that resolves when the iFrame is loaded. You can listen for the iFrame load event by `await`ing this `Promise`, or using `then`:
 
 ```javascript
-const evervault = new Evervault('<TEAM_ID>', '<APP_ID>');
-const inputs = evervault.inputs('ev-card-fields');
+const evervault = new Evervault("<TEAM_ID>", "<APP_ID>");
+const inputs = evervault.inputs("ev-card-fields");
 
 await inputs.isInputsLoaded;
 
@@ -179,7 +180,7 @@ handleInputsLoaded();
 // or
 
 inputs.isInputsLoaded.then(() => {
-    handleInputsLoaded();
+  handleInputsLoaded();
 });
 ```
 
