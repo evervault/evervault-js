@@ -20,7 +20,7 @@ jobs:
       TESTS_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   deploy-js:
-    if: contains(event.release.tag_name,, '@evervault/browser')
+    if: contains(github.event.release.tag_name,, '@evervault/browser')
     needs: build
     uses: ./.github/workflows/aws-generic-deploy-browser.yml
     with:
@@ -33,7 +33,7 @@ jobs:
       aws-s3-bucket: ${{ secrets.BROWSER_SDK_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }}
   deploy-inputs:
-    if: contains(event.release.tag_name, '@evervault/inputs')
+    if: contains(github.event.release.tag_name, '@evervault/inputs')
     needs: build
     uses: ./.github/workflows/aws-generic-deploy-inputs.yml
     with:
