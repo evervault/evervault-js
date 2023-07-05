@@ -1,7 +1,12 @@
+---
 name: Publish to npm
-
 on:
   workflow_call:
+    inputs:
+      package:
+        description: "Name of the job"
+        required: true
+        type: string
     secrets:
       NPM_TOKEN:
         description: "NPM Token"
@@ -29,12 +34,13 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
       - name: Publish to npm
-        run: pnpm --filter "@evervault/browser" publish --access public
+        run: pnpm --filter ${{ inputs.package }} publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true

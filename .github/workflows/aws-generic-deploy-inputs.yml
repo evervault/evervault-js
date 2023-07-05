@@ -1,5 +1,5 @@
+---
 name: Deploy Inputs
-
 on:
   workflow_call:
     inputs:

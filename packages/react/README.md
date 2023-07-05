@@ -12,7 +12,7 @@ For full installation support, [book time here](https://calendly.com/evervault/s
 
 ## Documentation
 
-See the Evervault [React.js SDK documentation](https://docs.evervault.com/reference/react-sdk).
+See the Evervault [React.js SDK documentation](https://docs.evervault.com/sdks/react-sdk).
 
 ## Installation
 
@@ -30,7 +30,7 @@ yarn add @evervault/react
 
 Once installed, initialize the React.js SDK with your Team and App ID found in the [Evervault Dashboard](https://app.evervault.com).
 
-Use the `<EvervaultProvider>` component as a provider for your app.
+Use the `<EvervaultProvider>` component as a provider for your app.
 
 ```jsx
 import { EvervaultProvider } from "@evervault/react";
@@ -46,7 +46,7 @@ export default function App() {
 
 ## Encrypt a string
 
-Once you've added the `<EvervaultProvider>`, you can access the `useEvervault()` hook in its children. The `useEvervault()` hook returns an initialized instance of the [JavaScript SDK](https://docs.evervault.com/sdks/javascript-sdk), which includes the `encrypt()` function. The `encrypt()` function can can be used to encrypt plaintext data in your application.
+Once you've added the `<EvervaultProvider>`, you can access the `useEvervault()` hook in its children. The `useEvervault()` hook returns an initialized instance of the [JavaScript SDK](https://docs.evervault.com/sdks/javascript-sdk), which includes the `encrypt()` function. The `encrypt()` function can can be used to encrypt plaintext data in your application.
 
 ```jsx
 import { useState } from "react";
@@ -77,7 +77,7 @@ export default function ChildComponent() {
 
 ## `<EvervaultProvider />`
 
-The `EvervaultProvider` component exposes the `useEvervault()` hook to any nested components.
+The `EvervaultProvider` component exposes the `useEvervault()` hook to any nested components.
 
 ```jsx
 <EvervaultProvider teamId={String} appId={String} />
@@ -87,14 +87,14 @@ The `EvervaultProvider` component exposes the `useEvervault()` hook to any n
 
 | Parameter | Type   | Description                                                       |
 | --------- | ------ | ----------------------------------------------------------------- |
-| `teamId`  | String | The unique identifier for your Team. It's found in Team Settings. |
+| `teamId`  | String | The unique identifier for your Team. It's found in Team Settings. |
 | `appId`   | String | The unique identifier for your App. It's found in App Settings.   |
 
 ---
 
 ## `useEvervault()`
 
-The `useEvervault` hook is accessible in children of the `EvervaultProvider`, and returns an initialized instance of the Evervault [JavaScript SDK](https://docs.evervault.com/sdks/javascript-sdk). One of the functions included in the returned object is `encrypt()`, which can be passed any plaintext data structure.
+The `useEvervault` hook is accessible in children of the `EvervaultProvider`, and returns an initialized instance of the Evervault [JavaScript SDK](https://docs.evervault.com/sdks/javascript-sdk). One of the functions included in the returned object is `encrypt()`, which can be passed any plaintext data structure.
 
 ```jsx
 const evervault = useEvervault();
@@ -122,13 +122,13 @@ const encrypted = await evervault.encrypt("Hello, world!");
 
 ## `<EvervaultInput />`
 
-The `<EvervaultInput />` component makes it easy to use [Evervault Inputs](/products/inputs) in your React application. Inputs make it easy to collect encrypted cardholder data in a completely PCI-compliant environment.
+The `<EvervaultInput />` component makes it easy to use [Evervault Inputs](/products/inputs) in your React application. Inputs make it easy to collect encrypted cardholder data in a completely PCI-compliant environment.
 
 Evervault Inputs are served within an iFrame retrieved directly from Evervault’s PCI-compliant infrastructure, which can reduce your PCI DSS compliance scope to the simplest form (SAQ A).
 
 Simply include the component in your JSX to get started.
 
-The component also supports [themes](/products/inputs/#themes) and custom styles so you can customise how Inputs looks in your UI.
+The component also supports [themes](/products/inputs/#themes) and custom styles so you can customise how Inputs looks in your UI.
 
 ### Props
 
@@ -165,7 +165,7 @@ The component also supports [themes](/products/inputs/#themes) and custom styl
 
 There are two ways of accessing encrypted card data once it has been entered.
 
-In each case, a `cardData` object containing details about the card data your user has entered is returned.
+In each case, a `cardData` object containing details about the card data your user has entered is returned.
 
 You can see the format of this object below:
 
@@ -195,9 +195,7 @@ The callback function is run every time your user updates the card data.
 ```javascript
 <EvervaultProvider teamId={"<TEAM_ID>"} appId={"<APP_ID>"}>
   <div className="App">
-    <EvervaultInput
-      onChange={(encryptedCard) => setEncryptedCard(encryptedCard)}
-    />
+    <EvervaultInput onChange={(encryptedCard) => setEncryptedCard(encryptedCard)} />
   </div>
 </EvervaultProvider>
 ```
