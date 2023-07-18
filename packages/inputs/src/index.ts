@@ -201,7 +201,7 @@ const getData = async () => {
       ? cardNumberValue.substr(cardNumberValue.length - 4)
       : "",
     bin: evCard.cardNumberVerification.isValid
-      ? cardNumberValue.substr(0, 6)
+      ? binNumber(cardNumberValue, evCard.cardNumberVerification.card.type)
       : "",
   };
 
@@ -215,6 +215,15 @@ const getData = async () => {
     error,
   };
 };
+
+// Formatting of BIN taken from https://www.pcisecuritystandards.org/faq/articles/Frequently_Asked_Question/What-are-acceptable-formats-for-truncation-of-primary-account-numbers/
+function binNumber(cardNumber: string, cardType: string) {
+  if (cardType === "amex") {
+    return cardNumber.substring(0, 6);
+  } else {
+    return cardNumber.substring(0, 8);
+  }
+}
 
 async function encryptSensitiveCardDetails(card: {
   number: string;

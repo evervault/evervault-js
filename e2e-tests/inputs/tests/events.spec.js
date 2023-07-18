@@ -40,6 +40,7 @@ test.describe("evervault inputs", () => {
       expect(data.encryptedCard.lastFour).toMatch(
         CardLib.validCardNumber.slice(-4)
       );
+      expect(data.encryptedCard.bin).toMatch(CardLib.validAmexCard.slice(0, 8));
       expect(data.encryptedCard.expMonth).toMatch(
         CardLib.validExpirationData.split("/")[0]
       );
@@ -80,6 +81,7 @@ test.describe("evervault inputs", () => {
       expect(data.encryptedCard.lastFour).toMatch(
         CardLib.validAmexCard.slice(-4)
       );
+      expect(data.encryptedCard.bin).toMatch(CardLib.validAmexCard.slice(0, 6));
       expect(data.encryptedCard.expMonth).toMatch(
         CardLib.validExpirationData.split("/")[0]
       );
