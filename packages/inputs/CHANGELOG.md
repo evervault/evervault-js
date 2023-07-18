@@ -1,5 +1,11 @@
 # @evervault/inputs
 
+## 2.8.0
+
+### Minor Changes
+
+- 3a306c1: Bugfix: Card number BIN will now return 8 characters instead of 6 for any card that is not AMEX
+
 ## 2.7.1
 
 ### Patch Changes
