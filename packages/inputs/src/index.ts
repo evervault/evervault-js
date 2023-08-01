@@ -125,7 +125,7 @@ if (formOverrides.disableCVV) {
   evCard = new EvervaultCard(DEFAULT_CARD_CONFIG);
 }
 
-// Unhide form when all customisations are applied to avoid lag
+// Unhide form when all customisations are applied in order to avoid a flash of unstyled content
 document.getElementById("form")?.classList.remove("hide");
 
 const postToParent = async () => {
