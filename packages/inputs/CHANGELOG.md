@@ -1,5 +1,11 @@
 # @evervault/inputs
 
+## 2.8.1
+
+### Patch Changes
+
+- 28f51da: The form was rendered before customisations were applied to it. This caused a short lag where users were seeing the uncustomised form on some browsers.
+
 ## 2.8.0
 
 ### Minor Changes
