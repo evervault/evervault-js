@@ -70,7 +70,7 @@ The build artifacts will be under `dist` in each package.
 
 ## Testing
 
-`pnpm test` will run all unite tests in the repo.
+`pnpm test` will run all unit tests in the repo.
 
 `pnpm e2e:test` will run all Playwright e2e tests in the repo.
 
