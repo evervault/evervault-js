@@ -196,7 +196,7 @@ export default class EvervaultClient {
     }
   }
 
-  decryptWithToken(token: string, data: any): Promise<any> {
+  decrypt(token: string, data: any): Promise<any> {
     return this.http.decryptWithToken(token, data);
   }
 

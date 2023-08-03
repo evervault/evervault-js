@@ -32,7 +32,9 @@ describe("customConfig", () => {
 
 const execToken = "abcdefg";
 const decrypted = {
-  value: "Big Secret",
+  data: {
+    value: "Big Secret",
+  }
 };
 
 export const restHandlers = [
@@ -63,7 +65,7 @@ describe("decrypt", () => {
   describe("success", () => {
     it("decrypts correctly", async () => {
       const ev = new EvervaultClient("abcdefg", "uppa");
-      const result = await ev.decryptWithToken(execToken, "encryptedString");
+      const result = await ev.decrypt(execToken, "encryptedString");
       assert(result.value == decrypted.value);
     });
   });
@@ -72,7 +74,7 @@ describe("decrypt", () => {
     it("errors", async () => {
       const ev = new EvervaultClient("abcdefg", "uppa");
       try {
-        const response = await ev.decryptWithToken(
+        const response = await ev.decrypt(
           "invalid",
           "encryptedString"
         );

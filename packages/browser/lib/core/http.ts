@@ -60,7 +60,9 @@ export default function Http(
           "Content-Type": "application/json",
           Authorization: "ExecutionToken " + token,
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          data: data,
+        }),
       });
 
       if (!response.ok) {
@@ -69,7 +71,7 @@ export default function Http(
 
       const body = await response.json();
 
-      return body;
+      return body.data;
     } catch (err) {
       throw new errors.DecryptError(
         "An error occurred while decrypting the data",
