@@ -26,3 +26,44 @@ describe("customConfig", () => {
     assert(encryptedStringRegex.test(encryptedString));
   });
 });
+
+describe("decrypt", () => {
+  const execToken = "abcdefg";
+  const decrypted = {
+    value: "Big Secret",
+  };
+
+  describe("success", () => {
+    beforeAll(async () => {
+      setupCrypto();
+      nock("https://api.evervault.com").post("/decrypt").matchHeader("Authorization", `ExecutionToken ${execToken}`).once().reply(200, decrypted);
+    });
+
+    it("decrypts correctly", async () => {
+      const ev = new EvervaultClient(
+        "abcdefg",
+        "uppa"
+      );
+      const decryptedString = await ev.decryptWithToken(execToken, "encryptedString");
+      assert(decryptedString === decrypted.value);
+    });
+  });
+
+  describe("unauthorized", () => {
+    beforeAll(async () => {
+      setupCrypto();
+      nock("https://api.evervault.com").post("/decrypt").matchHeader("Authorization", `ExecutionToken ${execToken}`).once().reply(401, {});
+    });
+
+    it("bubbles errors", async () => {
+      const ev = new EvervaultClient(
+        "abcdefg",
+        "uppa"
+      );
+      const response = await ev.decryptWithToken(execToken, "encryptedString");
+      assert(response instanceof Error);
+    });
+  });
+
+
+});

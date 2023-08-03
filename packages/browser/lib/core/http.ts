@@ -50,5 +50,36 @@ export default function Http(
     }
   };
 
-  return { getCageKey };
+  const decryptWithToken = async (token: string, data: any) => {
+    try {
+      const decryptEndpoint = new URL(
+        `${teamId}/decrypt/${token}`,
+        config.keysUrl
+      );
+
+      const response = await fetch(decryptEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "ExecutionToken " + token,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const body = await response.json();
+
+      return body;
+    } catch (err) {
+      throw new errors.CageKeyError(
+        "An error occurred while decrypting the data",
+        { cause: err }
+      );
+    }
+  };
+
+  return { getCageKey, decryptWithToken };
 }

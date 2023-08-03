@@ -196,6 +196,10 @@ export default class EvervaultClient {
     }
   }
 
+  decryptWithToken(token: string, data: any): Promise<any> {
+    return this.http.decryptWithToken(token, data);
+  }
+
   isInDebugMode() {
     return this.#debugMode;
   }
