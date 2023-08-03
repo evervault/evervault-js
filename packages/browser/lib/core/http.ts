@@ -74,7 +74,8 @@ export default function Http(
 
       return body;
     } catch (err) {
-      throw new errors.CageKeyError(
+      console.log(err);
+      throw new errors.DecryptError(
         "An error occurred while decrypting the data",
         { cause: err }
       );
