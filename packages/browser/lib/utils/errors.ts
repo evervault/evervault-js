@@ -18,3 +18,5 @@ export class CryptoError extends EvervaultError {}
 export class CageKeyError extends EvervaultError {}
 
 export class ExceededMaxFileSizeError extends EvervaultError {}
+
+export class DecryptError extends EvervaultError {}

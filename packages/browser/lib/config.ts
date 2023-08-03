@@ -1,11 +1,13 @@
 const KEYS_URL = "https://keys.evervault.com";
 const INPUTS_ORIGIN = "https://inputs.evervault.com";
+const API_URL = "https://api.evervault.com";
 const INPUTS_URL = `${INPUTS_ORIGIN}/v2/index.html`;
 
 export type ConfigUrls = {
   keysUrl?: string;
   inputsUrl?: string;
   inputsOrigin?: string;
+  apiUrl?: string;
 };
 
 export type EncryptionSubConfig = typeof encryptionConstants & {
@@ -14,6 +16,7 @@ export type EncryptionSubConfig = typeof encryptionConstants & {
 
 export type HttpConfig = {
   keysUrl: string;
+  apiUrl: string;
 };
 
 export type InputConfig = {
@@ -39,6 +42,7 @@ export type Config = {
 const DEFAULT_CONFIG_URLS = {
   keysUrl: KEYS_URL,
   inputsUrl: INPUTS_URL,
+  apiUrl: API_URL,
   inputsOrigin: INPUTS_ORIGIN,
 } satisfies ConfigUrls;
 
@@ -84,6 +88,7 @@ export default function Config(
     encryption: createEncryptionConfig(publicKey),
     http: {
       keysUrl: customUrls?.keysUrl || DEFAULT_CONFIG_URLS.keysUrl,
+      apiUrl: customUrls?.apiUrl || API_URL,
     },
     input: {
       inputsUrl: customUrls?.inputsUrl || DEFAULT_CONFIG_URLS.inputsUrl,
