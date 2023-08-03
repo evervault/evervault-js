@@ -53,7 +53,7 @@ export default function Http(
   const decryptWithToken = async (token: string, data: any) => {
     try {
       const decryptEndpoint = new URL(
-        `${teamId}/decrypt/${token}`,
+        `${teamId}/decrypt`,
         config.keysUrl
       );
 
@@ -61,7 +61,7 @@ export default function Http(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "ExecutionToken " + token,
+          "Authorization": "Token " + token,
         },
         body: JSON.stringify(data),
       });
