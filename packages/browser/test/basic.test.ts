@@ -66,7 +66,7 @@ describe("decrypt", () => {
     it("decrypts correctly", async () => {
       const ev = new EvervaultClient("abcdefg", "uppa");
       const result = await ev.decrypt(execToken, "encryptedString");
-      assert(result.value == decrypted.value);
+      assert(result.value == decrypted.data.value);
     });
   });
 
