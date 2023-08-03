@@ -74,7 +74,6 @@ export default function Http(
 
       return body;
     } catch (err) {
-      console.log(err);
       throw new errors.DecryptError(
         "An error occurred while decrypting the data",
         { cause: err }
