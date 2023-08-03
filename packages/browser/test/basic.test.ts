@@ -34,7 +34,7 @@ const execToken = "abcdefg";
 const decrypted = {
   data: {
     value: "Big Secret",
-  }
+  },
 };
 
 export const restHandlers = [
@@ -74,10 +74,7 @@ describe("decrypt", () => {
     it("errors", async () => {
       const ev = new EvervaultClient("abcdefg", "uppa");
       try {
-        const response = await ev.decrypt(
-          "invalid",
-          "encryptedString"
-        );
+        const response = await ev.decrypt("invalid", "encryptedString");
         assert(false); // should not reach here
       } catch (err) {
         assert(err instanceof DecryptError);
