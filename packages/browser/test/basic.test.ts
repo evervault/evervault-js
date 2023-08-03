@@ -36,13 +36,13 @@ const decrypted = {
 };
 
 export const restHandlers = [
-  rest.post('https://api.evervault.com/decrypt', (req, res, ctx) => {
-    if (req.headers.get('Authorization') !== `ExecutionToken ${execToken}`) {
-      return res(ctx.status(401), ctx.json({}))
+  rest.post("https://api.evervault.com/decrypt", (req, res, ctx) => {
+    if (req.headers.get("Authorization") !== `ExecutionToken ${execToken}`) {
+      return res(ctx.status(401), ctx.json({}));
     }
-    return res(ctx.status(200), ctx.json(decrypted))
+    return res(ctx.status(200), ctx.json(decrypted));
   }),
-]
+];
 
 const server = setupServer(...restHandlers);
 
@@ -62,10 +62,7 @@ describe("decrypt", () => {
 
   describe("success", () => {
     it("decrypts correctly", async () => {
-      const ev = new EvervaultClient(
-        "abcdefg",
-        "uppa"
-      );
+      const ev = new EvervaultClient("abcdefg", "uppa");
       const result = await ev.decryptWithToken(execToken, "encryptedString");
       assert(result.value == decrypted.value);
     });
@@ -73,12 +70,12 @@ describe("decrypt", () => {
 
   describe("unauthorized", () => {
     it("errors", async () => {
-      const ev = new EvervaultClient(
-        "abcdefg",
-        "uppa"
-      );
+      const ev = new EvervaultClient("abcdefg", "uppa");
       try {
-        const response = await ev.decryptWithToken('invalid token', "encryptedString");
+        const response = await ev.decryptWithToken(
+          "invalid",
+          "encryptedString"
+        );
         assert(false); // should not reach here
       } catch (err) {
         assert(err instanceof DecryptError);

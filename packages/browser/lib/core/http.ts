@@ -52,15 +52,13 @@ export default function Http(
 
   const decryptWithToken = async (token: string, data: any) => {
     try {
-      const decryptEndpoint = new URL(
-        `${config.apiUrl}/decrypt`
-      );
+      const decryptEndpoint = new URL(`${config.apiUrl}/decrypt`);
 
       const response = await fetch(`${config.apiUrl}/decrypt`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "ExecutionToken " + token,
+          Authorization: "ExecutionToken " + token,
         },
         body: JSON.stringify(data),
       });
