@@ -58,7 +58,7 @@ export default function Http(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "ExecutionToken " + token,
+          Authorization: "Token " + token,
         },
         body: JSON.stringify({
           data: data,
