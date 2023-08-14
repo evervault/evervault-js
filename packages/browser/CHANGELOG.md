@@ -1,5 +1,16 @@
 # @evervault/browser
 
+## 2.8.0
+
+### Minor Changes
+
+- c2a4b11: Added a function to call the Decrypt API using a single-use token
+
+### Patch Changes
+
+- 661eba2: Change auth scheme
+- b1f8a95: Update context resolution for browser SDK - compare window origin against inputs url.
+
 ## 2.7.2
 
 ### Patch Changes
