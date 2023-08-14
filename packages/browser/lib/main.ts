@@ -51,7 +51,10 @@ export default class EvervaultClient {
       customConfig?.publicKey
     );
 
-    const context = this.getContext(window?.location?.origin ?? "", this.config.input.inputsUrl);
+    const context = this.getContext(
+      window?.location?.origin ?? "",
+      this.config.input.inputsUrl
+    );
 
     this.http = Http(
       this.config.http,
