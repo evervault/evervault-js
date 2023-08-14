@@ -1,4 +1,4 @@
-import type { HttpConfig } from "../config";
+import type { HttpConfig, SdkContext } from "../config";
 
 import { errors } from "../utils";
 
@@ -6,7 +6,7 @@ export default function Http(
   config: HttpConfig,
   teamId: string,
   appId: string,
-  context: string
+  context: SdkContext
 ) {
   if (window == null) {
     throw new errors.InitializationError(
@@ -52,8 +52,6 @@ export default function Http(
 
   const decryptWithToken = async (token: string, data: any) => {
     try {
-      const decryptEndpoint = new URL(`${config.apiUrl}/decrypt`);
-
       const response = await fetch(`${config.apiUrl}/decrypt`, {
         method: "POST",
         headers: {

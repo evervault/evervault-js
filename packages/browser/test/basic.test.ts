@@ -30,6 +30,34 @@ describe("customConfig", () => {
   });
 });
 
+describe("Resolving SDK Context", () => {
+  it("Is able to correctly resolve the SDK context", () => {
+    const ev = new EvervaultClient(
+      import.meta.env.VITE_EV_TEAM_UUID,
+      import.meta.env.VITE_EV_APP_UUID,
+      {
+        publicKey:
+          "BDeIKmwjqB35+tnMzQFEvXIvM2kyK6DX75NBEhSZxCR5CQZYnh1fwWsXMEqqKihmEGfMX0+EDHtmZNP/TK7mqMc=",
+      }
+    );
+    assert(ev.getContext("https://inputs.evervault.com") === "inputs");
+    assert(
+      ev.getContext("https://inputs.evervault.com/v2/index.html") === "inputs"
+    );
+    assert(
+      ev.getContext(
+        "https://inputs.evervault.com/v2/index.html?query=string"
+      ) === "inputs"
+    );
+    assert(ev.getContext("https://app.acme.com") === "default");
+    assert(ev.getContext("https://app.acme.com/v2/index.html") === "default");
+    assert(
+      ev.getContext("https://app.acme.com/v2/index.html?query=string") ===
+        "default"
+    );
+  });
+});
+
 const execToken = "abcdefg";
 const decrypted = {
   data: {

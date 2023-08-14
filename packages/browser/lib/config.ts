@@ -39,6 +39,8 @@ export type Config = {
   debugKey: typeof debugKey;
 };
 
+export type SdkContext = "inputs" | "default";
+
 const DEFAULT_CONFIG_URLS = {
   keysUrl: KEYS_URL,
   inputsUrl: INPUTS_URL,

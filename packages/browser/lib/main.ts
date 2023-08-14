@@ -5,7 +5,7 @@ import {
   buildCageKeyFromSuppliedPublicKey,
   deriveSharedSecret,
 } from "./utils";
-import Config, { ConfigUrls } from "./config";
+import Config, { ConfigUrls, SdkContext } from "./config";
 import { CoreCrypto, Http, Forms, Input } from "./core";
 import { base64StringToUint8Array } from "./encoding";
 
@@ -51,11 +51,13 @@ export default class EvervaultClient {
       customConfig?.publicKey
     );
 
+    const context = this.getContext(this.config.input.inputsUrl);
+
     this.http = Http(
       this.config.http,
       this.config.teamId,
       this.config.appId,
-      this.config.input.inputsUrl ? "inputs" : "default"
+      context
     );
 
     this.forms = Forms(this);
@@ -102,6 +104,14 @@ export default class EvervaultClient {
       this.config.encryption,
       this.isInDebugMode()
     );
+  }
+
+  getContext(inputsUrl: string): SdkContext {
+    if(window?.location?.origin === inputsUrl) {
+      return "inputs";
+    } else {
+      return "default";
+    }
   }
 
   /**
