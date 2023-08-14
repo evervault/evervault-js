@@ -30,6 +30,31 @@ describe("customConfig", () => {
   });
 });
 
+describe("Resolving SDK Context", () => {
+  it("Is able to correctly resolve the SDK context", () => {
+    const ev = new EvervaultClient(
+      import.meta.env.VITE_EV_TEAM_UUID,
+      import.meta.env.VITE_EV_APP_UUID,
+      {
+        publicKey:
+          "BDeIKmwjqB35+tnMzQFEvXIvM2kyK6DX75NBEhSZxCR5CQZYnh1fwWsXMEqqKihmEGfMX0+EDHtmZNP/TK7mqMc=",
+      }
+    );
+    // SDK in an inputs iFrame should always resolve `inputs` context
+    assert(
+      ev.getContext(
+        "https://inputs.evervault.com",
+        "https://inputs.evervault.com"
+      ) === "inputs"
+    );
+    // SDK on a non-inputs iFrame should always resolve `default` context
+    assert(
+      ev.getContext("https://app.acme.com", "https://inputs.evervault.com") ===
+        "default"
+    );
+  });
+});
+
 const execToken = "abcdefg";
 const decrypted = {
   data: {
