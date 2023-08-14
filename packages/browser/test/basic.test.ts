@@ -40,19 +40,16 @@ describe("Resolving SDK Context", () => {
           "BDeIKmwjqB35+tnMzQFEvXIvM2kyK6DX75NBEhSZxCR5CQZYnh1fwWsXMEqqKihmEGfMX0+EDHtmZNP/TK7mqMc=",
       }
     );
-    assert(ev.getContext("https://inputs.evervault.com") === "inputs");
-    assert(
-      ev.getContext("https://inputs.evervault.com/v2/index.html") === "inputs"
-    );
+    // SDK in an inputs iFrame should always resolve `inputs` context
     assert(
       ev.getContext(
-        "https://inputs.evervault.com/v2/index.html?query=string"
+        "https://inputs.evervault.com",
+        "https://inputs.evervault.com"
       ) === "inputs"
     );
-    assert(ev.getContext("https://app.acme.com") === "default");
-    assert(ev.getContext("https://app.acme.com/v2/index.html") === "default");
+    // SDK on a non-inputs iFrame should always resolve `default` context
     assert(
-      ev.getContext("https://app.acme.com/v2/index.html?query=string") ===
+      ev.getContext("https://app.acme.com", "https://inputs.evervault.com") ===
         "default"
     );
   });
