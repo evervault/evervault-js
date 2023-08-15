@@ -55,7 +55,7 @@ jobs:
     with:
       package: "@evervault/browser"
     secrets:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      NPM_TOKEN: ${{ secrets.BROWSER_SDK_NPM_TOKEN }}
 
   publish-react:
     if: contains(github.event.release.tag_name, '@evervault/react')
