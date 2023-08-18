@@ -14,7 +14,8 @@
     "directory": "packages/react"
   },
   "main": "./dist/evervault-react.main.umd.cjs",
-  "module": "./dist/evervault-react..main.js",
+  "module": "./dist/evervault-react.main.js",
+  "types": "./dist/evervault-react.main.d.ts",
   "exports": {
     ".": {
       "import": "./dist/evervault-react.main.js",
@@ -29,7 +30,7 @@
     "dev": "vite"
   },
   "peerDependencies": {
-    "react": ">=16.12.0"
+    "react": ">=18.0.0"
   },
   "dependencies": {
     "@evervault/browser": "workspace:^"
