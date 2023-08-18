@@ -1,12 +1,6 @@
 import * as React from "react";
 import EvervaultClient from "@evervault/browser";
 
-declare global {
-  var evInputsCount: number;
-}
-
-global.evInputsCount = 0;
-
 export type EvervaultProviderProps = {
   teamId: string;
   appId: string;
@@ -44,17 +38,16 @@ export const EvervaultInput = ({
   config,
   onInputsLoad,
 }: EvervaultInputProps) => {
-  global.evInputsCount = global.evInputsCount ? global.evInputsCount + 1 : 1;
-  const encryptedInputId = `encryptedInput-${global.evInputsCount}`;
+  const id = React.useId();
 
   if (typeof window === "undefined") {
-    return <div id={encryptedInputId}></div>;
+    return <div id={id} />;
   }
 
   const evervault = useEvervault();
 
   const initEvForm = async () => {
-    const encryptedInput = evervault?.inputs(encryptedInputId, config);
+    const encryptedInput = evervault?.inputs(id, config);
     encryptedInput?.on("change", async (cardData: any) => {
       if (typeof onChange === "function") {
         onChange(cardData);
@@ -74,7 +67,7 @@ export const EvervaultInput = ({
     initEvForm();
   }, [evervault]);
 
-  return <div id={encryptedInputId}></div>;
+  return <div id={id} />;
 };
 
 export function useEvervault() {
