@@ -73,7 +73,7 @@ export const EvervaultInput = ({
 export function useEvervault() {
   if (typeof React.useContext !== "function") {
     throw new Error(
-      "You must use React >= 16.8 in order to use useEvervault()"
+      "You must use React >= 18.0 in order to use useEvervault()"
     );
   }
   const evervault = React.useContext(EvervaultContext);
