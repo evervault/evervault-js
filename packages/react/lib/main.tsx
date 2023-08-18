@@ -24,10 +24,12 @@ export const EvervaultProvider = ({
   customConfig,
   children,
 }: EvervaultProviderProps) => {
-  const _evervault = new EvervaultClient(teamId, appId, customConfig);
+  const evervault = React.useMemo(() => {
+    return new EvervaultClient(teamId, appId, customConfig);
+  }, [teamId, appId, customConfig]);
 
   return (
-    <EvervaultContext.Provider value={_evervault}>
+    <EvervaultContext.Provider value={evervault}>
       {children}
     </EvervaultContext.Provider>
   );
