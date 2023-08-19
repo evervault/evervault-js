@@ -116,11 +116,24 @@ if (form && theme) {
 }
 
 let evCard: EvervaultCard;
-if (formOverrides.disableCVV) {
-  evCard = new EvervaultCard(
-    DEFAULT_CARD_CONFIG.filter((field) => field !== "cardCVV")
-  );
-  document.getElementById("security-code-container")?.classList.add("hide");
+if (formOverrides.disableCVV || formOverrides.disableExpiry) {
+  const reducedConfig = DEFAULT_CARD_CONFIG.reduce((acc, current) => {
+    if (
+      (current !== "cardCVV" || !formOverrides.disableCVV) &&
+      (current !== "cardExpiry" || !formOverrides.disableExpiry)
+    ) {
+      acc.push(current);
+    }
+    return acc;
+  }, [] as string[]);
+
+  if (formOverrides.disableCVV) {
+    document.getElementById("security-code-container")?.classList.add("hide");
+  }
+  if (formOverrides.disableExpiry) {
+    document.getElementById("expiry-code-container")?.classList.add("hide");
+  }
+  evCard = new EvervaultCard(reducedConfig);
 } else {
   evCard = new EvervaultCard(DEFAULT_CARD_CONFIG);
 }
@@ -149,7 +162,7 @@ const getData = async () => {
     : inputElementsManager?.masks.cvv?.unmaskedValue;
 
   evCard.cardNumber = cardNumberValue;
-  evCard.cardExpiry = expirationDateValue;
+  evCard.cardExpiry = formOverrides.disableExpiry ? "" : expirationDateValue;
   evCard.cardCVV = cvvValue ?? "";
   const error = evCard.generateError(errorLabels);
 
@@ -187,8 +200,12 @@ const getData = async () => {
   let card = {
     type: evCard.cardNumberVerification?.card?.type ?? "",
     number: cardNumberValue,
-    expMonth: evCard.cardExpiryVerification.month ?? "",
-    expYear: evCard.cardExpiryVerification.year ?? "",
+    expMonth: formOverrides.disableExpiry
+      ? undefined
+      : evCard.cardExpiryVerification.month ?? "",
+    expYear: formOverrides.disableExpiry
+      ? undefined
+      : evCard.cardExpiryVerification.year ?? "",
     track,
     name,
     swipe: track.fullTrack.length > 0 ? true : false,
@@ -208,7 +225,6 @@ const getData = async () => {
   };
 
   setFrameHeight();
-
   return {
     encryptedCard,
     isValid: evCard.isCardValid(),

@@ -88,12 +88,16 @@ export function updateErrorLabels(
 
 const defaultFormOverrides = {
   disableCVV: false,
+  disableExpiry: false,
 };
 
 export function setFormOverrides(urlParams: URLSearchParams) {
   return {
     disableCVV: Boolean(
       urlParams.get("disableCVV") ?? defaultFormOverrides.disableCVV
+    ),
+    disableExpiry: Boolean(
+      urlParams.get("disableExpiry") ?? defaultFormOverrides.disableExpiry
     ),
   };
 }

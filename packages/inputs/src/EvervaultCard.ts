@@ -8,13 +8,15 @@ const isAmexCard = (value: string) =>
 
 export default class EvervaultCard {
   #disableCVV: boolean;
+  #disableExpiry: boolean;
 
   cardNumber: string;
-  cardExpiry: string;
+  cardExpiry: string | null;
   cardCVV: string | null;
 
   constructor(config: string[]) {
     this.#disableCVV = !config.includes("cardCVV");
+    this.#disableExpiry = !config.includes("cardExpiry");
 
     this.cardNumber = "";
     this.cardExpiry = "";
@@ -23,6 +25,10 @@ export default class EvervaultCard {
     } else {
       this.cardCVV = null;
     }
+
+    if (!this.#disableExpiry) {
+      this.cardExpiry = null;
+    }
   }
 
   get cardNumberVerification() {
@@ -30,8 +36,11 @@ export default class EvervaultCard {
   }
 
   get cardExpiryVerification() {
+    if (this.#disableExpiry) {
+      return { isValid: true, isPotentiallyValid: true, month: "", year: "" };
+    }
     const validator = cardValidator.expirationDate(this.cardExpiry);
-    if (this.cardExpiry.length >= 4 && !validator.isValid) {
+    if (this.cardExpiry && this.cardExpiry.length >= 4 && !validator.isValid) {
       validator.isPotentiallyValid = false;
     }
     return validator;
@@ -80,6 +89,14 @@ export default class EvervaultCard {
         this.cardExpiryVerification.isValid
       );
     }
+    if (this.#disableExpiry) {
+      return (
+        this.cardNumberVerification.isValid && this.cardCVVVerification.isValid
+      );
+    }
+    if (this.#disableExpiry && this.#disableCVV) {
+      return this.cardNumberVerification.isValid;
+    }
     return (
       this.cardNumberVerification.isValid &&
       this.cardExpiryVerification.isValid &&
@@ -93,6 +110,14 @@ export default class EvervaultCard {
         this.cardNumberVerification.isPotentiallyValid &&
         this.cardExpiryVerification.isPotentiallyValid
       );
+    }
+    if (this.#disableExpiry) {
+      return (
+        this.cardNumberVerification.isValid && this.cardCVVVerification.isValid
+      );
+    }
+    if (this.#disableExpiry && this.#disableCVV) {
+      return this.cardNumberVerification.isValid;
     }
     return (
       this.cardNumberVerification.isPotentiallyValid &&

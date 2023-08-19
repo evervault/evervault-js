@@ -160,6 +160,7 @@ The component also supports [themes](/products/inputs/#themes) and custom styles
 | `config.labelFontSize`              | String           | Set the font-size property of the label attribute                                               |
 | `config.labelWeight`                | String           | Set the font-weight property of the label attribute                                             |
 | `config.disableCVV`                 | Boolean          | Removes the CVV field from Inputs, showing only the Card Number and Expiry fields               |
+| `config.disableExpiry`              | Boolean          | Removes the Expiry field from Inputs, showing only the Card Number and CVV fields               |
 
 ### Retrieving card data
 
