@@ -26,7 +26,7 @@ export default class EvervaultCard {
       this.cardCVV = null;
     }
 
-    if (!this.#disableExpiry) {
+    if (this.#disableExpiry) {
       this.cardExpiry = null;
     }
   }
