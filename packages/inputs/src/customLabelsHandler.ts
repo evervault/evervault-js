@@ -86,35 +86,18 @@ export function updateErrorLabels(
   };
 }
 
-type FormOverrides = {
-  disableCVV: boolean;
-  disableExpiry: boolean;
-};
-
-const defaultFormOverrides: FormOverrides = {
+const defaultFormOverrides = {
   disableCVV: false,
   disableExpiry: false,
 };
 
-function evaluateSearchParam(
-  label: keyof FormOverrides,
-  urlParams: URLSearchParams,
-  defaults: FormOverrides
-): boolean {
-  return urlParams.get(label) == "true" ?? defaults[label];
-}
-
 export function setFormOverrides(urlParams: URLSearchParams) {
   return {
-    disableCVV: evaluateSearchParam(
-      "disableCVV",
-      urlParams,
-      defaultFormOverrides
+    disableCVV: Boolean(
+      urlParams.get("disableCVV") ?? defaultFormOverrides.disableCVV
     ),
-    disableExpiry: evaluateSearchParam(
-      "disableExpiry",
-      urlParams,
-      defaultFormOverrides
+    disableExpiry: Boolean(
+      urlParams.get("disableExpiry") ?? defaultFormOverrides.disableExpiry
     ),
   };
 }
