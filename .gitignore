@@ -16,3 +16,4 @@ out
 ci
 *.tar
 *.tar.gz
+vite.config.mts.timestamp-*
