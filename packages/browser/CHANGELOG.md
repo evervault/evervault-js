@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.9.0
+
+### Minor Changes
+
+- f228f34: Add disableExpiry support to Evervault Inputs. This allows inputs to be rendered with only the card number field.
+
 ## 2.8.0
 
 ### Minor Changes

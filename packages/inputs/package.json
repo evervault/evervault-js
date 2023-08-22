@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@evervault/inputs",
-  "version": "2.8.2",
+  "version": "2.9.0",
   "description": "Repo for the backend for Evervault Inputs",
   "scripts": {
     "dev": "vite",
@@ -20,7 +20,7 @@
     "start-server-and-test": "^2.0.0"
   },
   "dependencies": {
-    "@evervault/browser": "workspace:^2.8.0",
+    "@evervault/browser": "workspace:^2.9.0",
     "card-validator": "^8.1.1",
     "credit-card-type": "^9.1.0",
     "imask": "^6.6.1"
