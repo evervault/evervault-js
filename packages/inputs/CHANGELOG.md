@@ -1,5 +1,17 @@
 # @evervault/inputs
 
+## 2.9.0
+
+### Minor Changes
+
+- f228f34: Add disableExpiry support to Evervault Inputs. This allows inputs to be rendered with only the card number field.
+
+### Patch Changes
+
+- 770007f: Correct inputs' parsing of its form overrides. Previously explicitly set defaults (i.e. false for disabling fields) were treated as true due to a bad type check. This issue is now resolved.
+- Updated dependencies [f228f34]
+  - @evervault/browser@2.9.0
+
 ## 2.8.2
 
 ### Patch Changes
