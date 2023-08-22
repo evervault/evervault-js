@@ -1,5 +1,11 @@
 # @evervault/inputs
 
+## 2.9.1
+
+### Patch Changes
+
+- 873ef33: Previous change violates existing documentation for Evervault Inputs - config overrides support string values.
+
 ## 2.9.0
 
 ### Minor Changes
