@@ -204,6 +204,44 @@ textarea {
   }
 }
 
+/* THEME: reveal */
+
+.form-reveal {
+  & .input-group[data-element="cardnumber"] {
+    width: 100%;
+    margin-bottom: -1px;
+  }
+
+  & .input {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  & .input-row {
+    gap: -0;
+
+    & .label {
+      display: none;
+    }
+
+    & .input-group[data-element="expirationdate"] .input {
+      border-radius: 0 0 0 var(--input-radius);
+    }
+
+    & .input-group[data-element="securitycode"] {
+      margin-left: -1px;
+    }
+
+    & .input-group[data-element="securitycode"] .input {
+      border-radius: 0 0 var(--input-radius) 0;
+    }
+  }
+
+  & .label {
+    margin: calc(var(--spacing-unit) * 2) 0;
+  }
+}
 /* THEME: material */
 
 .form-material {
