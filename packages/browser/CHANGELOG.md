@@ -1,5 +1,15 @@
 # @evervault/browser
 
+## 2.10.0
+
+### Minor Changes
+
+- 02e2ed1: feat: added evervault reveal functionality
+
+### Patch Changes
+
+- 95927f5: fix: remove label from reveal
+
 ## 2.9.0
 
 ### Minor Changes

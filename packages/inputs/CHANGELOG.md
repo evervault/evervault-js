@@ -1,5 +1,18 @@
 # @evervault/inputs
 
+## 2.10.0
+
+### Minor Changes
+
+- 02e2ed1: feat: added evervault reveal functionality
+
+### Patch Changes
+
+- 944b803: fix: dont load reveal until fetched
+- Updated dependencies [95927f5]
+- Updated dependencies [02e2ed1]
+  - @evervault/browser@2.10.0
+
 ## 2.9.1
 
 ### Patch Changes
