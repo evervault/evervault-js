@@ -221,10 +221,6 @@ textarea {
   & .input-row {
     gap: -0;
 
-    & .label {
-      display: none;
-    }
-
     & .input-group[data-element="expirationdate"] .input {
       border-radius: 0 0 0 var(--input-radius);
     }
@@ -239,6 +235,7 @@ textarea {
   }
 
   & .label {
+    display: none;
     margin: calc(var(--spacing-unit) * 2) 0;
   }
 }
