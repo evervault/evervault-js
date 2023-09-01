@@ -318,7 +318,10 @@ function setFrameHeight() {
 
 const onLoad = function () {
   watchSDKStatus();
-  inputElementsManager = new InputElementsManager(postToParent, { ...formOverrides, reveal: isReveal });
+  inputElementsManager = new InputElementsManager(postToParent, {
+    ...formOverrides,
+    reveal: isReveal,
+  });
   const magStripe = new MagStripe(inputElementsManager);
   setFrameHeight();
 
@@ -338,10 +341,12 @@ const onLoad = function () {
             let response = await req.json();
 
             // Set the values of the inputs
-            inputElementsManager.masks.cardNumber.unmaskedValue = response.cardNumber.toString();
+            inputElementsManager.masks.cardNumber.unmaskedValue =
+              response.cardNumber.toString();
 
             if (inputElementsManager.masks.expirationDate) {
-              inputElementsManager.masks.expirationDate.unmaskedValue = response.expiry;
+              inputElementsManager.masks.expirationDate.unmaskedValue =
+                response.expiry;
             }
 
             if (inputElementsManager.elements.cvv) {
@@ -367,7 +372,6 @@ const onLoad = function () {
       resolve(true);
     }
   });
-
 
   document.addEventListener("keypress", magStripe.swipeCapture, true);
   parent.postMessage({ type: "EV_INPUTS_LOADED" }, "*");

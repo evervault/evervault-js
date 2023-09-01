@@ -4,7 +4,12 @@ import { constructSource, calculateHeight } from "../utils";
 
 export default function Inputs(config: Config) {
   return {
-    generate: function (id: string, settings: Record<string, any>, isReveal: boolean = false, request?: Request) {
+    generate: function (
+      id: string,
+      settings: Record<string, any>,
+      isReveal: boolean = false,
+      request?: Request
+    ) {
       // TODO: add error check in a seperate pr (small behavour change)
       (
         document.getElementById(id) as HTMLIFrameElement
@@ -12,7 +17,7 @@ export default function Inputs(config: Config) {
         config,
         // TODO: better typings for this (will affect user facing typings)
         isReveal,
-        settings,
+        settings
       )}" id="ev-iframe" title="Payment details" frameborder="0" scrolling="0" height=${calculateHeight(
         settings
       )}></iframe>`;
@@ -36,28 +41,34 @@ export default function Inputs(config: Config) {
               if (!request) {
                 throw new Error("Request is required for Evervault Reveal");
               }
-              const requestStr = JSON.stringify(request, ['bodyUsed',
-                'cache',
-                'credentials',
-                'destination',
-                'headers',
-                'integrity',
-                'isHistoryNavigation',
-                'keepalive',
-                'method',
-                'mode',
-                'redirect',
-                'referrer',
-                'referrerPolicy',
-                'url']);
+              const requestStr = JSON.stringify(request, [
+                "bodyUsed",
+                "cache",
+                "credentials",
+                "destination",
+                "headers",
+                "integrity",
+                "isHistoryNavigation",
+                "keepalive",
+                "method",
+                "mode",
+                "redirect",
+                "referrer",
+                "referrerPolicy",
+                "url",
+              ]);
 
               const channel = new MessageChannel();
               (
                 document.getElementById("ev-iframe") as HTMLIFrameElement
-              ).contentWindow?.postMessage({
-                type: 'revealRequestConfig',
-                request: requestStr,
-              }, "*", [channel.port2]);
+              ).contentWindow?.postMessage(
+                {
+                  type: "revealRequestConfig",
+                  request: requestStr,
+                },
+                "*",
+                [channel.port2]
+              );
             } else {
               resolve(true);
             }
