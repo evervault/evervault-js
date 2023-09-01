@@ -140,7 +140,9 @@ if (formOverrides.disableCVV || formOverrides.disableExpiry) {
 }
 
 // Unhide form when all customisations are applied in order to avoid a flash of unstyled content
-document.getElementById("form")?.classList.remove("hide");
+if (!isReveal) {
+  document.getElementById("form")?.classList.remove("hide");
+}
 
 const postToParent = async () => {
   window.parent.postMessage(await getData(), "*");
@@ -354,6 +356,10 @@ const onLoad = function () {
             }
 
             inputElementsManager.elements.name.value = response.name;
+
+            if (isReveal) {
+              document.getElementById("form")?.classList.remove("hide");
+            }
 
             resolve(true);
           } catch (e) {
