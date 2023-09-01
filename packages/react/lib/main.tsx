@@ -14,6 +14,12 @@ export type EvervaultInputProps = {
   onInputsLoad?: () => void;
 };
 
+export type EvervaultRevealProps = {
+  request: Request;
+  config?: any;
+  onRevealLoad?: () => void;
+};
+
 export const EvervaultContext = React.createContext<EvervaultClient | null>(
   null
 );
@@ -62,6 +68,38 @@ export const EvervaultInput = ({
       encryptedInput.isInputsLoaded instanceof Promise
     ) {
       encryptedInput.isInputsLoaded.then(() => onInputsLoad());
+    }
+  };
+
+  React.useEffect(() => {
+    initEvForm();
+  }, [evervault]);
+
+  return <div id={id} />;
+};
+
+export const EvervaultReveal = ({
+  request,
+  config,
+  onRevealLoad,
+}: EvervaultRevealProps) => {
+  const id = React.useId();
+
+  if (typeof window === "undefined") {
+    return <div id={id} />;
+  }
+
+  const evervault = useEvervault();
+
+  const initEvForm = async () => {
+    const encryptedInput = evervault?.reveal(id, request, config);
+
+    if (
+      onRevealLoad &&
+      encryptedInput?.isRevealLoaded != null &&
+      encryptedInput.isRevealLoaded instanceof Promise
+    ) {
+      encryptedInput.isRevealLoaded.then(() => onRevealLoad());
     }
   };
 

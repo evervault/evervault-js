@@ -42,7 +42,7 @@ export class InputElementsManager {
   elements: InputElements;
   masks: InputMasks;
 
-  constructor(postToParent: (message: any) => void, { disableCVV = false }) {
+  constructor(postToParent: (message: any) => void, { disableCVV = false, reveal = false }) {
     this.elements = {
       cardNumber: createGetInputElementOrThow("cardnumber"),
       expirationDate: createGetInputElementOrThow("expirationdate"),
@@ -86,6 +86,19 @@ export class InputElementsManager {
         mask: "000[0]",
       });
       this.elements.cvv.addEventListener("input", postToParent);
+    }
+
+    // if reveal disable all the fields
+    if (reveal) {
+      this.elements.cardNumber.disabled = true;
+      this.elements.expirationDate.disabled = true;
+      this.elements.name.disabled = true;
+      this.elements.trackData.disabled = true;
+      this.elements.trackOne.disabled = true;
+      this.elements.trackTwo.disabled = true;
+      if (this.elements.cvv) {
+        this.elements.cvv.disabled = true;
+      }
     }
   }
 }

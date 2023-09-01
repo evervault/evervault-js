@@ -169,6 +169,23 @@ export default class EvervaultClient {
     }
   }
 
+  reveal(
+    elementId: string,
+    request: Request,
+    config?: Record<string, any>
+  ): {
+    isRevealLoaded: Promise<boolean>;
+  } {
+    let reveal = this.input.generate(elementId, {
+      theme: "reveal",
+      ...config,
+    }, true, request);
+
+    return {
+      isRevealLoaded: reveal.isInputsLoaded,
+    }
+  }
+
   /**
    * @deprecated
    **/
