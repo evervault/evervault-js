@@ -20,7 +20,7 @@ export default function Inputs(config: Config) {
         settings
       )}" id="ev-iframe" title="Payment details" frameborder="0" scrolling="0" height=${calculateHeight(
         settings
-        )} allowTransparency="true"></iframe>`;
+      )} allowTransparency="true"></iframe>`;
 
       window.addEventListener("message", (event) => {
         if (event.origin !== config.input.inputsOrigin) return;
@@ -28,8 +28,10 @@ export default function Inputs(config: Config) {
           settings?.height === "auto" &&
           event.data?.type === "EV_FRAME_HEIGHT"
         ) {
-          ((document.getElementById(id) as HTMLDivElement).firstChild as HTMLIFrameElement).height =
-            event.data.height;
+          (
+            (document.getElementById(id) as HTMLDivElement)
+              .firstChild as HTMLIFrameElement
+          ).height = event.data.height;
         }
       });
 

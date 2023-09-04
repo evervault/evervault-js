@@ -57,12 +57,12 @@ export const EvervaultInput = ({
   let cfg = config;
   if (!cfg) {
     cfg = {
-      height: "auto"
-    }
+      height: "auto",
+    };
   } else if (!cfg.height) {
     cfg = {
       height: "auto",
-      ...cfg
+      ...cfg,
     };
   }
 
@@ -106,12 +106,12 @@ export const EvervaultReveal = ({
   let cfg = config;
   if (!cfg) {
     cfg = {
-      height: "auto"
-    }
+      height: "auto",
+    };
   } else if (!cfg.height) {
     cfg = {
       height: "auto",
-      ...cfg
+      ...cfg,
     };
   }
 
