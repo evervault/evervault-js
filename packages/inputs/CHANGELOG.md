@@ -1,5 +1,18 @@
 # @evervault/inputs
 
+## 2.11.0
+
+### Minor Changes
+
+- 349bd47: improve darkmode support for inputs/reveal
+
+### Patch Changes
+
+- faa8124: add normal to color scheme to fix transparency
+- Updated dependencies [349bd47]
+- Updated dependencies [349bd47]
+  - @evervault/browser@2.11.0
+
 ## 2.10.0
 
 ### Minor Changes

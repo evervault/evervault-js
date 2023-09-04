@@ -1,5 +1,21 @@
 # @evervault/react
 
+## 3.0.0
+
+### Major Changes
+
+- 349bd47: increase minimum react version to 18
+
+### Minor Changes
+
+- 349bd47: auto-resize inputs iframe when using React
+
+### Patch Changes
+
+- Updated dependencies [349bd47]
+- Updated dependencies [349bd47]
+  - @evervault/browser@2.11.0
+
 ## 2.8.0
 
 ### Minor Changes
