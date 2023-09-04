@@ -1,5 +1,15 @@
 # @evervault/browser
 
+## 2.11.0
+
+### Minor Changes
+
+- 349bd47: improve darkmode support for inputs/reveal
+
+### Patch Changes
+
+- 349bd47: fix inputs auto resizing
+
 ## 2.10.0
 
 ### Minor Changes

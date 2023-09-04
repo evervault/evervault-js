@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -163,7 +163,7 @@ importers:
   packages/inputs:
     dependencies:
       '@evervault/browser':
-        specifier: workspace:^2.10.0
+        specifier: workspace:^2.11.0
         version: link:../browser
       card-validator:
         specifier: ^8.1.1
