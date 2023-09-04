@@ -216,6 +216,7 @@ textarea {
     border: none;
     box-shadow: none;
     padding: 0;
+    background: none transparent;
   }
 
   & .input-row {

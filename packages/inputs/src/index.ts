@@ -342,6 +342,10 @@ const onLoad = function () {
             let req = await fetch(request.url);
             let response = await req.json();
 
+            if (!response.cardNumber) {
+              throw new Error("No card number found in response");
+            }
+
             // Set the values of the inputs
             inputElementsManager.masks.cardNumber.unmaskedValue =
               response.cardNumber.toString();
@@ -383,6 +387,8 @@ const onLoad = function () {
   parent.postMessage({ type: "EV_INPUTS_LOADED" }, "*");
 
   revealRequestReceived.then(() => {
+    setFrameHeight();
+
     if (isReveal) {
       parent.postMessage({ type: "EV_REVEAL_LOADED" }, "*");
     }

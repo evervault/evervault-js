@@ -1,4 +1,4 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
 
 settings:
   autoInstallPeers: true
@@ -187,6 +187,8 @@ importers:
       react:
         specifier: '>=18.0.0'
         version: 18.2.0
+
+  packages/test-react: {}
 
 packages:
 

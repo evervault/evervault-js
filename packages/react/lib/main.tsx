@@ -54,8 +54,20 @@ export const EvervaultInput = ({
 
   const evervault = useEvervault();
 
+  let cfg = config;
+  if (!cfg) {
+    cfg = {
+      height: "auto"
+    }
+  } else if (!cfg.height) {
+    cfg = {
+      height: "auto",
+      ...cfg
+    };
+  }
+
   const initEvForm = async () => {
-    const encryptedInput = evervault?.inputs(id, config);
+    const encryptedInput = evervault?.inputs(id, cfg);
     encryptedInput?.on("change", async (cardData: any) => {
       if (typeof onChange === "function") {
         onChange(cardData);
@@ -91,8 +103,20 @@ export const EvervaultReveal = ({
 
   const evervault = useEvervault();
 
+  let cfg = config;
+  if (!cfg) {
+    cfg = {
+      height: "auto"
+    }
+  } else if (!cfg.height) {
+    cfg = {
+      height: "auto",
+      ...cfg
+    };
+  }
+
   const initEvForm = async () => {
-    const encryptedInput = evervault?.reveal(id, request, config);
+    const encryptedInput = evervault?.reveal(id, request, cfg);
 
     if (
       onRevealLoad &&
