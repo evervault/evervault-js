@@ -48,15 +48,6 @@ jobs:
       aws-s3-bucket: ${{ secrets.INPUTS_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.INPUTS_CLOUDFRONT_DISTRIBUTION_ID }}
 
-  publish-js:
-    if: contains(github.event.release.tag_name, '@evervault/browser')
-    needs: build
-    uses: ./.github/workflows/npm-publish.yml
-    with:
-      package: "@evervault/browser"
-    secrets:
-      NPM_TOKEN: ${{ secrets.BROWSER_SDK_NPM_TOKEN }}
-
   publish-react:
     if: contains(github.event.release.tag_name, '@evervault/react')
     needs: build
