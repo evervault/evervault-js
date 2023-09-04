@@ -24,16 +24,16 @@ export const EvervaultContext = React.createContext<EvervaultClient | null>(
   null
 );
 
-const EVERVAULT_URL = 'https://js.evervault.com/v2';
+const EVERVAULT_URL = "https://js.evervault.com/v2";
 const injectScript = () => {
-  const script = document.createElement('script');
+  const script = document.createElement("script");
   script.src = EVERVAULT_URL;
 
   const headOrBody = document.head || document.body;
 
   if (!headOrBody) {
     throw new Error(
-      'Expected document.body not to be null. Evervault.js requires a <body> element.'
+      "Expected document.body not to be null. Evervault.js requires a <body> element."
     );
   }
 
@@ -51,13 +51,13 @@ const loadScript = () => {
   }
 
   evervaultPromise = new Promise((resolve, reject) => {
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
       resolve(null);
       return;
     }
 
     if (window.Evervault) {
-      console.warn('Evervault has already been loaded');
+      console.warn("Evervault has already been loaded");
     }
 
     if (window.Evervault) {
@@ -68,16 +68,16 @@ const loadScript = () => {
     try {
       const script = injectScript();
 
-      script.addEventListener('load', () => {
+      script.addEventListener("load", () => {
         if (window.Evervault) {
           resolve(window.Evervault);
         } else {
-          reject(new Error('Evervault.js not available'));
+          reject(new Error("Evervault.js not available"));
         }
       });
 
-      script.addEventListener('error', () => {
-        reject(new Error('Failed to load Evervault.js'));
+      script.addEventListener("error", () => {
+        reject(new Error("Failed to load Evervault.js"));
       });
     } catch (error) {
       reject(error);
@@ -101,7 +101,7 @@ const loadEvervault = async (): Promise<typeof EvervaultClient | undefined> => {
 
   loadCalled = true;
   return evervaultPromise.then(() => {
-    if (typeof window !== 'undefined') return window.Evervault;
+    if (typeof window !== "undefined") return window.Evervault;
   });
 };
 
@@ -112,7 +112,7 @@ export const EvervaultProvider = ({
   children,
   ...props
 }: EvervaultProviderProps) => {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return (
       <EvervaultContext.Provider value={null}>
         {children}
@@ -125,7 +125,7 @@ export const EvervaultProvider = ({
   React.useEffect(() => {
     loadEvervault().then((evervault) => {
       if (evervault !== undefined) {
-        setEv(new evervault(teamId, appId, customConfig))
+        setEv(new evervault(teamId, appId, customConfig));
       }
     });
   }, [loadEvervault]);
@@ -231,7 +231,7 @@ export const EvervaultReveal = ({
 };
 
 export function useEvervault() {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return;
   }
 
