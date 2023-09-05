@@ -122,4 +122,64 @@ test.describe("evervault inputs", () => {
       ).toBeVisible();
     });
   });
+
+  test.describe("v2 render with expiry disabled", () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(
+        "http://localhost:4173/v2/?team=59a96deeef03&app=app_869a0605f7c3&disableExpiry=true"
+      );
+    });
+
+    test("renders inputs without expiry", async ({ page }) => {
+      await expect(page.getByLabel("Card number")).toBeVisible();
+      await expect(page.getByLabel("Security code")).toBeVisible();
+      await expect(page.getByLabel("Expiration date")).not.toBeVisible();
+    });
+
+    test("does not show errors for correct fields", async ({ page }) => {
+      await page.getByLabel("Card number").fill(CardLib.validCardNumber);
+      await page.getByLabel("Card number").press("Enter");
+
+      await expect(
+        page.getByText("Your card number is invalid")
+      ).not.toBeVisible();
+    });
+
+    test("does show errors for incorrect card number", async ({ page }) => {
+      await page.getByLabel("Card number").fill(CardLib.invalidCardNumber);
+      await page.getByLabel("Card number").press("Enter");
+
+      await expect(page.getByText("Your card number is invalid")).toBeVisible();
+    });
+  });
+
+  test.describe("v2 render with expiry and CVV disabled", () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(
+        "http://localhost:4173/v2/?team=59a96deeef03&app=app_869a0605f7c3&disableExpiry=true&disableCVV=true"
+      );
+    });
+
+    test("renders inputs without expiry", async ({ page }) => {
+      await expect(page.getByLabel("Card number")).toBeVisible();
+      await expect(page.getByLabel("Security code")).not.toBeVisible();
+      await expect(page.getByLabel("Expiration date")).not.toBeVisible();
+    });
+
+    test("does not show errors for correct fields", async ({ page }) => {
+      await page.getByLabel("Card number").fill(CardLib.validCardNumber);
+      await page.getByLabel("Card number").press("Enter");
+
+      await expect(
+        page.getByText("Your card number is invalid")
+      ).not.toBeVisible();
+    });
+
+    test("does show errors for incorrect card number", async ({ page }) => {
+      await page.getByLabel("Card number").fill(CardLib.invalidCardNumber);
+      await page.getByLabel("Card number").press("Enter");
+
+      await expect(page.getByText("Your card number is invalid")).toBeVisible();
+    });
+  });
 });

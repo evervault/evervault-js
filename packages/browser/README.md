@@ -88,6 +88,7 @@ evervault.inputs(id: String, settings: Object);
 | labelFontSize              | String  | Set the font-size property of the label attribute                                  |
 | labelWeight                | String  | Set the font-weight property of the label attribute                                |
 | disableCVV                 | Boolean | If true the CVV field will not be displayed                                        |
+| disableExpiry              | Boolean | If true the Expiry field will not be displayed                                     |
 
 ```html
 <body>

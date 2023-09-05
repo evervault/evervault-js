@@ -2,6 +2,10 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Vite React",
   "_version": "2.0.0",
+  "include": [
+    "lib/*.tsx",
+    "global.d.ts"
+  ],
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,

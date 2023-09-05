@@ -80,3 +80,13 @@ jobs:
         with:
           name: inputs-sdk-build
           path: packages/inputs/dist
+      
+      - name: Upload react build
+        uses: actions/upload-artifact@v3
+        with:
+          name: react-sdk-build
+          path: |
+            packages/react/LICENSE
+            packages/react/package.json
+            packages/react/README.md
+            packages/react/dist

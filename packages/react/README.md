@@ -37,7 +37,7 @@ import { EvervaultProvider } from "@evervault/react";
 import ChildComponent from "../ChildComponent";
 export default function App() {
   return (
-    <EvervaultProvider teamId={"<TEAM_ID>"} appId={"<APP_ID>"}>
+    <EvervaultProvider teamId="<TEAM_ID>" appId="<APP_ID>">
       <ChildComponent />
     </EvervaultProvider>
   );
@@ -46,7 +46,7 @@ export default function App() {
 
 ## Encrypt a string
 
-Once you've added the `<EvervaultProvider>`, you can access the `useEvervault()` hook in its children. The `useEvervault()` hook returns an initialized instance of the [JavaScript SDK](https://docs.evervault.com/sdks/javascript-sdk), which includes the `encrypt()` function. The `encrypt()` function can can be used to encrypt plaintext data in your application.
+Once you've added the `<EvervaultProvider>`, you can use the `useEvervault()` hook in its children. The `useEvervault()` hook returns an initialized instance of the [JavaScript SDK](https://docs.evervault.com/sdks/javascript-sdk), which includes the `encrypt()` function.
 
 ```jsx
 import { useState } from "react";
@@ -80,7 +80,9 @@ export default function ChildComponent() {
 The `EvervaultProvider` component exposes the `useEvervault()` hook to any nested components.
 
 ```jsx
-<EvervaultProvider teamId={String} appId={String} />
+<EvervaultProvider teamId="<TEAM_ID>" appId="<APP_ID>">
+  <App />
+</EvervaultProvider>
 ```
 
 ### Props
@@ -104,7 +106,7 @@ const evervault = useEvervault();
 
 ### `evervault.encrypt(data)`
 
-Encrypts data using [Evervault Encryption](/security/evervault-encryption). Evervault Strings can be used across all of our products. It is accessible on the returned value from the `useEvervault()` hook. To encrypt data using the React.js SDK, simply pass a `String` or an `Object` into the `evervault.encrypt()` function.
+Encrypts data using [Evervault Encryption](https://docs.evervault.com/security/evervault-encryption). Evervault Strings can be used across all of our products. It is accessible on the returned value from the `useEvervault()` hook. To encrypt data using the React.js SDK, simply pass a `String` or an `Object` into the `evervault.encrypt()` function.
 
 The encrypted data can be passed to your server and stored in your database as normal. It can also be used with any of Evervault’s other services.
 
@@ -114,21 +116,17 @@ const evervault = useEvervault();
 const encrypted = await evervault.encrypt("Hello, world!");
 ```
 
-| Parameter | Type             | Description          |
-| --------- | ---------------- | -------------------- |
-| `data`    | String \| Object | The data to encrypt. |
+| Parameter | Type                                                    | Description           |
+| --------- | ------------------------------------------------------- | --------------------- |
+| data      | `Object`, `Array`, `String`, `Number`, `File` or `Blob` | Data to be encrypted. |
 
 ---
 
 ## `<EvervaultInput />`
 
-The `<EvervaultInput />` component makes it easy to use [Evervault Inputs](/products/inputs) in your React application. Inputs make it easy to collect encrypted cardholder data in a completely PCI-compliant environment.
+Use [Evervault Inputs](https://docs.evervault.com/products/inputs) to securely collect encrypted cardholder data. Evervault Inputs are served within an iFrame retrieved directly from Evervault’s PCI-compliant infrastructure, which can reduce your PCI DSS compliance scope to the simplest form (SAQ A).
 
-Evervault Inputs are served within an iFrame retrieved directly from Evervault’s PCI-compliant infrastructure, which can reduce your PCI DSS compliance scope to the simplest form (SAQ A).
-
-Simply include the component in your JSX to get started.
-
-The component also supports [themes](/products/inputs/#themes) and custom styles so you can customise how Inputs looks in your UI.
+Evervault Inputs also support [themes](https://docs.evervault.com/products/inputs/#themes) and custom styles so you can customise how Inputs looks in your UI.
 
 ### Props
 
@@ -160,23 +158,37 @@ The component also supports [themes](/products/inputs/#themes) and custom styles
 | `config.labelFontSize`              | String           | Set the font-size property of the label attribute                                               |
 | `config.labelWeight`                | String           | Set the font-weight property of the label attribute                                             |
 | `config.disableCVV`                 | Boolean          | Removes the CVV field from Inputs, showing only the Card Number and Expiry fields               |
+| `config.disableExpiry`              | Boolean          | Removes the Expiry field from Inputs, showing only the Card Number and CVV fields               |
 
 ### Retrieving card data
 
-There are two ways of accessing encrypted card data once it has been entered.
+To access the encrypted card data, you must pass an `onChange` handler. This function will be called any time the card data is updated and is passed an object with the encrypted card details as well as validation information.
 
-In each case, a `cardData` object containing details about the card data your user has entered is returned.
+```jsx
+function Payment() {
+  const handleChange = ({ encryptedCard, isValid }) => {
+    if (isValid) {
+      console.log(encryptedCard);
+    }
+  };
 
-You can see the format of this object below:
+  return <EvervaultInput onChange={handleChange} />;
+}
+```
 
-```json
+#### onChange callback params
+
+The onChange callback will be passed the following object as a parameter.
+
+```js
 {
-  "card": {
+  "encryptedCard": {
     "type": "visa_credit",
     "number": "ev:encrypted:abc123",
     "cvc": "ev:encrypted:def456",
     "expMonth": "01",
     "expYear": "23"
+    "lastFour": "1234"
   },
   "isValid": true,
   "isPotentiallyValid": true,
@@ -188,41 +200,25 @@ You can see the format of this object below:
 }
 ```
 
-#### onChange()
-
-The callback function is run every time your user updates the card data.
-
-```javascript
-<EvervaultProvider teamId={"<TEAM_ID>"} appId={"<APP_ID>"}>
-  <div className="App">
-    <EvervaultInput onChange={(encryptedCard) => setEncryptedCard(encryptedCard)} />
-  </div>
-</EvervaultProvider>
-```
-
 ### Localization
 
-The iFrame can be localized on initialization by providing a set of labels in the [config](#inputs-params-config).
+The iFrame can be localized on initialization by providing a set of labels in the [config](https://docs.evervault.com/sdks/reactjs#input-props-config).
 
-```javascript
+```jsx
 const config = {
   cardNumberLabel: 'Numéro de carte:',
   expirationDateLabel: 'Date d'expiration:',
   securityCodeLabel: 'Code de sécurité:'
 }
 
-<EvervaultProvider teamId={'<TEAM_ID>'} appId={'<APP_ID>'}>
-  <div className="App">
-    <EvervaultInput onChange={(encryptedCard) => setEncryptedCard(encryptedCard)} config={config} />
-  </div>
-</EvervaultProvider>
+<EvervaultInput onChange={handleChange} config={config} />
 ```
 
 ### Custom Fonts
 
 A custom font can be loaded from Google's [Fonts API](https://fonts.google.com) and the `font-family` set with the `fontFamily` config paramerter
 
-```javascript
+```jsx
 const config = {
   fontUrl: 'https://fonts.googleapis.com/css2?family=Poppins:wght@100;800&display=swap',
   fontFamily: 'Poppins, sans-serif',
@@ -232,27 +228,19 @@ const config = {
   labelWeight: '400'
 }
 
-<EvervaultProvider teamId={'<TEAM_ID>'} appId={'<APP_ID>'}>
-  <div className="App">
-    <EvervaultInput onChange={(encryptedCard) => setEncryptedCard(encryptedCard)} config={config} />
-  </div>
-</EvervaultProvider>
+<EvervaultInput onChange={handleChange} config={config} />
 ```
 
 ### iFrame loading status
 
 If you need to wait for the iFrame that serves Inputs to load before doing some action, you can used the `onInputsLoad` prop callback:
 
-```javascript
-<EvervaultProvider teamId={"<TEAM_ID>"} appId={"<APP_ID>"}>
-  <div className="App">
-    <EvervaultInput
-      onInputsLoad={() => {
-        console.log("Inputs has loaded!");
-      }}
-    />
-  </div>
-</EvervaultProvider>
+```jsx
+<EvervaultInput
+  onInputsLoad={() => {
+    console.log("Inputs has loaded!");
+  }}
+/>
 ```
 
 ## Contributing

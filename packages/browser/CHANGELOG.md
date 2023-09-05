@@ -1,5 +1,42 @@
 # @evervault/browser
 
+## 2.11.0
+
+### Minor Changes
+
+- 349bd47: improve darkmode support for inputs/reveal
+
+### Patch Changes
+
+- 349bd47: fix inputs auto resizing
+
+## 2.10.0
+
+### Minor Changes
+
+- 02e2ed1: feat: added evervault reveal functionality
+
+### Patch Changes
+
+- 95927f5: fix: remove label from reveal
+
+## 2.9.0
+
+### Minor Changes
+
+- f228f34: Add disableExpiry support to Evervault Inputs. This allows inputs to be rendered with only the card number field.
+
+## 2.8.0
+
+### Minor Changes
+
+- c2a4b11: Added a function to call the Decrypt API using a single-use token
+
+### Patch Changes
+
+- 661eba2: Change auth scheme
+- b1f8a95: Update context resolution for browser SDK - compare window origin against inputs url.
+
 ## 2.7.2
 
 ### Patch Changes

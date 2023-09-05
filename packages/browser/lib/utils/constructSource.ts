@@ -9,6 +9,7 @@ type ConstructSourceConfig = {
 // Settings will become more specific in future
 export default function constructSource(
   config: ConstructSourceConfig,
+  isReveal: boolean,
   settings?: Record<string, any>
 ) {
   let settingsQuery = "";
@@ -23,6 +24,7 @@ export default function constructSource(
   const { inputsUrl } = config.input;
   const { teamId, appId } = config;
 
-  return `${inputsUrl}?team=${teamId}&app=${appId}${settingsQuery}
-  `;
+  return `${inputsUrl}?team=${teamId}&app=${appId}${settingsQuery}&mode=${
+    isReveal ? "reveal" : "inputs"
+  }`;
 }

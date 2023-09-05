@@ -4,17 +4,23 @@ import { constructSource, calculateHeight } from "../utils";
 
 export default function Inputs(config: Config) {
   return {
-    generate: function (id: string, settings: Record<string, any>) {
+    generate: function (
+      id: string,
+      settings: Record<string, any>,
+      isReveal: boolean = false,
+      request?: Request
+    ) {
       // TODO: add error check in a seperate pr (small behavour change)
       (
         document.getElementById(id) as HTMLIFrameElement
       ).innerHTML = `<iframe src="${constructSource(
         config,
         // TODO: better typings for this (will affect user facing typings)
+        isReveal,
         settings
       )}" id="ev-iframe" title="Payment details" frameborder="0" scrolling="0" height=${calculateHeight(
         settings
-      )}></iframe>`;
+      )} allowTransparency="true"></iframe>`;
 
       window.addEventListener("message", (event) => {
         if (event.origin !== config.input.inputsOrigin) return;
@@ -22,8 +28,10 @@ export default function Inputs(config: Config) {
           settings?.height === "auto" &&
           event.data?.type === "EV_FRAME_HEIGHT"
         ) {
-          (document.getElementById(id) as HTMLIFrameElement).height =
-            event.data.height;
+          (
+            (document.getElementById(id) as HTMLDivElement)
+              .firstChild as HTMLIFrameElement
+          ).height = event.data.height;
         }
       });
 
@@ -31,7 +39,46 @@ export default function Inputs(config: Config) {
         window.addEventListener("message", (event) => {
           if (event.origin !== config.input.inputsOrigin) return;
           if (event.data?.type === "EV_INPUTS_LOADED") {
-            resolve(true);
+            if (isReveal) {
+              if (!request) {
+                throw new Error("Request is required for Evervault Reveal");
+              }
+              const requestStr = JSON.stringify(request, [
+                "bodyUsed",
+                "cache",
+                "credentials",
+                "destination",
+                "headers",
+                "integrity",
+                "isHistoryNavigation",
+                "keepalive",
+                "method",
+                "mode",
+                "redirect",
+                "referrer",
+                "referrerPolicy",
+                "url",
+              ]);
+
+              const channel = new MessageChannel();
+              (
+                document.getElementById("ev-iframe") as HTMLIFrameElement
+              ).contentWindow?.postMessage(
+                {
+                  type: "revealRequestConfig",
+                  request: requestStr,
+                },
+                "*",
+                [channel.port2]
+              );
+            } else {
+              resolve(true);
+            }
+          }
+          if (event.data?.type === "EV_REVEAL_LOADED") {
+            if (isReveal) {
+              resolve(true);
+            }
           }
         });
       });

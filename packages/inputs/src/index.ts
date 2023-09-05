@@ -26,6 +26,7 @@ const app = urlParams.get("app");
 // Theme: default, minimal or material
 const theme = urlParams.get("theme");
 const fontUrl = urlParams.get("fontUrl");
+const isReveal = urlParams.get("mode") === "reveal";
 
 let inputElementsManager: InputElementsManager;
 
@@ -116,17 +117,32 @@ if (form && theme) {
 }
 
 let evCard: EvervaultCard;
-if (formOverrides.disableCVV) {
-  evCard = new EvervaultCard(
-    DEFAULT_CARD_CONFIG.filter((field) => field !== "cardCVV")
-  );
-  document.getElementById("security-code-container")?.classList.add("hide");
+if (formOverrides.disableCVV || formOverrides.disableExpiry) {
+  const reducedConfig = DEFAULT_CARD_CONFIG.reduce((acc, current) => {
+    if (
+      (current !== "cardCVV" || !formOverrides.disableCVV) &&
+      (current !== "cardExpiry" || !formOverrides.disableExpiry)
+    ) {
+      acc.push(current);
+    }
+    return acc;
+  }, [] as string[]);
+
+  if (formOverrides.disableCVV) {
+    document.getElementById("security-code-container")?.classList.add("hide");
+  }
+  if (formOverrides.disableExpiry) {
+    document.getElementById("expiry-code-container")?.classList.add("hide");
+  }
+  evCard = new EvervaultCard(reducedConfig);
 } else {
   evCard = new EvervaultCard(DEFAULT_CARD_CONFIG);
 }
 
 // Unhide form when all customisations are applied in order to avoid a flash of unstyled content
-document.getElementById("form")?.classList.remove("hide");
+if (!isReveal) {
+  document.getElementById("form")?.classList.remove("hide");
+}
 
 const postToParent = async () => {
   window.parent.postMessage(await getData(), "*");
@@ -149,7 +165,7 @@ const getData = async () => {
     : inputElementsManager?.masks.cvv?.unmaskedValue;
 
   evCard.cardNumber = cardNumberValue;
-  evCard.cardExpiry = expirationDateValue;
+  evCard.cardExpiry = formOverrides.disableExpiry ? "" : expirationDateValue;
   evCard.cardCVV = cvvValue ?? "";
   const error = evCard.generateError(errorLabels);
 
@@ -187,8 +203,12 @@ const getData = async () => {
   let card = {
     type: evCard.cardNumberVerification?.card?.type ?? "",
     number: cardNumberValue,
-    expMonth: evCard.cardExpiryVerification.month ?? "",
-    expYear: evCard.cardExpiryVerification.year ?? "",
+    expMonth: formOverrides.disableExpiry
+      ? undefined
+      : evCard.cardExpiryVerification.month ?? "",
+    expYear: formOverrides.disableExpiry
+      ? undefined
+      : evCard.cardExpiryVerification.year ?? "",
     track,
     name,
     swipe: track.fullTrack.length > 0 ? true : false,
@@ -208,7 +228,6 @@ const getData = async () => {
   };
 
   setFrameHeight();
-
   return {
     encryptedCard,
     isValid: evCard.isCardValid(),
@@ -301,26 +320,79 @@ function setFrameHeight() {
 
 const onLoad = function () {
   watchSDKStatus();
-  inputElementsManager = new InputElementsManager(postToParent, formOverrides);
+  inputElementsManager = new InputElementsManager(postToParent, {
+    ...formOverrides,
+    reveal: isReveal,
+  });
   const magStripe = new MagStripe(inputElementsManager);
   setFrameHeight();
 
-  window.addEventListener(
-    "message",
-    async (event) => {
-      if (event.data == "message") {
-        event.ports[0]?.postMessage(await getData());
-      } else {
-        updateInputLabels(event.data);
-        errorLabels = updateErrorLabels(errorLabels, event.data);
-        getData();
-      }
-    },
-    false
-  );
+  let revealRequestReceived = new Promise((resolve) => {
+    window.addEventListener(
+      "message",
+      async (event) => {
+        if (event.data == "message") {
+          event.ports[0]?.postMessage(await getData());
+        } else if (event.data?.type == "revealRequestConfig") {
+          try {
+            const requestData = JSON.parse(event.data.request);
+            const request = new Request(requestData.url, {
+              ...requestData,
+            });
+            let req = await fetch(request.url);
+            let response = await req.json();
+
+            if (!response.cardNumber) {
+              throw new Error("No card number found in response");
+            }
+
+            // Set the values of the inputs
+            inputElementsManager.masks.cardNumber.unmaskedValue =
+              response.cardNumber.toString();
+
+            if (inputElementsManager.masks.expirationDate) {
+              inputElementsManager.masks.expirationDate.unmaskedValue =
+                response.expiry;
+            }
+
+            if (inputElementsManager.elements.cvv) {
+              inputElementsManager.elements.cvv.value = response.cvv;
+            }
+
+            inputElementsManager.elements.name.value = response.name;
+
+            if (isReveal) {
+              document.getElementById("form")?.classList.remove("hide");
+            }
+
+            resolve(true);
+          } catch (e) {
+            console.error(e);
+          }
+        } else {
+          updateInputLabels(event.data);
+          errorLabels = updateErrorLabels(errorLabels, event.data);
+          getData();
+        }
+      },
+      false
+    );
+
+    if (!isReveal) {
+      resolve(true);
+    }
+  });
 
   document.addEventListener("keypress", magStripe.swipeCapture, true);
   parent.postMessage({ type: "EV_INPUTS_LOADED" }, "*");
+
+  revealRequestReceived.then(() => {
+    setFrameHeight();
+
+    if (isReveal) {
+      parent.postMessage({ type: "EV_REVEAL_LOADED" }, "*");
+    }
+  });
 };
 
 window.addEventListener("load", onLoad);

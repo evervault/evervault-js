@@ -1,5 +1,59 @@
 # @evervault/inputs
 
+## 2.11.0
+
+### Minor Changes
+
+- 349bd47: improve darkmode support for inputs/reveal
+
+### Patch Changes
+
+- faa8124: add normal to color scheme to fix transparency
+- Updated dependencies [349bd47]
+- Updated dependencies [349bd47]
+  - @evervault/browser@2.11.0
+
+## 2.10.0
+
+### Minor Changes
+
+- 02e2ed1: feat: added evervault reveal functionality
+
+### Patch Changes
+
+- 944b803: fix: dont load reveal until fetched
+- Updated dependencies [95927f5]
+- Updated dependencies [02e2ed1]
+  - @evervault/browser@2.10.0
+
+## 2.9.1
+
+### Patch Changes
+
+- 873ef33: Previous change violates existing documentation for Evervault Inputs - config overrides support string values.
+
+## 2.9.0
+
+### Minor Changes
+
+- f228f34: Add disableExpiry support to Evervault Inputs. This allows inputs to be rendered with only the card number field.
+
+### Patch Changes
+
+- 770007f: Correct inputs' parsing of its form overrides. Previously explicitly set defaults (i.e. false for disabling fields) were treated as true due to a bad type check. This issue is now resolved.
+- Updated dependencies [f228f34]
+  - @evervault/browser@2.9.0
+
+## 2.8.2
+
+### Patch Changes
+
+- 4a344ed: add react, licences
+- Updated dependencies [661eba2]
+- Updated dependencies [b1f8a95]
+- Updated dependencies [c2a4b11]
+  - @evervault/browser@2.8.0
+
 ## 2.8.1
 
 ### Patch Changes

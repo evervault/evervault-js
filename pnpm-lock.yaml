@@ -163,7 +163,7 @@ importers:
   packages/inputs:
     dependencies:
       '@evervault/browser':
-        specifier: workspace:^2.7.2
+        specifier: workspace:^2.11.0
         version: link:../browser
       card-validator:
         specifier: ^8.1.1
@@ -181,12 +181,13 @@ importers:
 
   packages/react:
     dependencies:
+      react:
+        specifier: '>=18.0.0'
+        version: 18.2.0
+    devDependencies:
       '@evervault/browser':
         specifier: workspace:^
         version: link:../browser
-      react:
-        specifier: '>=16.12.0'
-        version: 18.2.0
 
 packages:
 

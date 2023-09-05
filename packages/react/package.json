@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@evervault/react",
-  "version": "2.6.0-prerelease.0",
+  "version": "2.0.0",
   "description": "React package for the Evervault SDK",
   "license": "MIT",
   "type": "module",
@@ -13,8 +13,9 @@
     "url": "https://github.com/evervault/evervault-js.git",
     "directory": "packages/react"
   },
-  "main": "./dist/evervault-react.main.umd.cjs",
-  "module": "./dist/evervault-react..main.js",
+  "main": "dist/evervault-react.main.umd.cjs",
+  "module": "dist/evervault-react.main.js",
+  "types": "dist/evervault-react.main.d.ts",
   "exports": {
     ".": {
       "import": "./dist/evervault-react.main.js",
@@ -29,9 +30,9 @@
     "dev": "vite"
   },
   "peerDependencies": {
-    "react": ">=16.12.0"
+    "react": ">=18.0.0"
   },
-  "dependencies": {
+  "devDependencies": {
     "@evervault/browser": "workspace:^"
   }
 }

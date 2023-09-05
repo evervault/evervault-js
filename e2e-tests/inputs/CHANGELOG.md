@@ -4,6 +4,44 @@
 
 ### Patch Changes
 
+- Updated dependencies [349bd47]
+- Updated dependencies [faa8124]
+  - @evervault/inputs@2.11.0
+
+## null
+
+### Patch Changes
+
+- Updated dependencies [944b803]
+- Updated dependencies [02e2ed1]
+  - @evervault/inputs@2.10.0
+
+## null
+
+### Patch Changes
+
+- Updated dependencies [873ef33]
+  - @evervault/inputs@2.9.1
+
+## null
+
+### Patch Changes
+
+- Updated dependencies [f228f34]
+- Updated dependencies [770007f]
+  - @evervault/inputs@2.9.0
+
+## null
+
+### Patch Changes
+
+- Updated dependencies [4a344ed]
+  - @evervault/inputs@2.8.2
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [28f51da]
   - @evervault/inputs@2.8.1
 
