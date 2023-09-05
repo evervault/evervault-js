@@ -1,6 +1,5 @@
 ---
 name: Deploy Browser
-
 on:
   workflow_call:
     inputs:
@@ -31,7 +30,7 @@ on:
         required: true
 
 jobs:
-  generic-deploy:
+  deploy:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     name: ${{ inputs.name }}
@@ -57,5 +56,4 @@ jobs:
         run: aws s3 cp ./dist/ s3://${{ secrets.aws-s3-bucket }}/${{ inputs.version }}/ --recursive
 
       - name: Cloudfront Cache Invalidation
-        run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/${{ inputs.version }}/index.js"
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/${{ inputs.version }}/index.js"
