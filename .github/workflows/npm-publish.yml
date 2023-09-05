@@ -37,7 +37,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.artifact }}
-          working-directory:  ${{ inputs.repo_path }}
+          path:  ${{ inputs.repo_path }}
 
       - uses: pnpm/action-setup@v2
         with:
