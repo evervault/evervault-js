@@ -1,28 +1,37 @@
 import * as React from "react";
 import type EvervaultClient from "@evervault/browser";
 
-export type EvervaultProviderProps = {
+export interface EvervaultProviderProps {
   teamId: string;
   appId: string;
   customConfig?: any;
   children: React.ReactNode | null;
-};
+}
 
-export type EvervaultInputProps = {
+export interface EvervaultInputProps {
   onChange?: (cardData: any) => void;
   config?: any;
   onInputsLoad?: () => void;
-};
+}
 
-export type EvervaultRevealProps = {
+export interface EvervaultRevealProps {
   request: Request;
   config?: any;
   onRevealLoad?: () => void;
-};
+}
 
-export const EvervaultContext = React.createContext<EvervaultClient | null>(
-  null
-);
+export class PromisifiedEvervaultClient extends Promise<EvervaultClient> {
+  constructor(...args: ConstructorParameters<typeof Promise<EvervaultClient>>) {
+    super(...args);
+  }
+
+  public encrypt(data: any): Promise<string> {
+    return this.then((ev) => ev.encrypt(data));
+  }
+}
+
+export const EvervaultContext =
+  React.createContext<PromisifiedEvervaultClient | null>(null);
 
 const EVERVAULT_URL = "https://js.evervault.com/v2";
 const injectScript = () => {
@@ -120,15 +129,18 @@ export const EvervaultProvider = ({
     );
   }
 
-  const [ev, setEv] = React.useState<EvervaultClient | null>(null);
-
-  React.useEffect(() => {
-    loadEvervault().then((evervault) => {
-      if (evervault !== undefined) {
-        setEv(new evervault(teamId, appId, customConfig));
-      }
-    });
-  }, [loadEvervault]);
+  const [ev] = React.useState<PromisifiedEvervaultClient>(
+    new PromisifiedEvervaultClient((resolve, reject) => {
+      loadEvervault().then((evervault) => {
+        if (evervault !== undefined) {
+          resolve(new evervault(teamId, appId, customConfig));
+        } else {
+          console.error("Evervault.js not available");
+          reject("Evervault.js not available");
+        }
+      });
+    })
+  );
 
   return (
     <EvervaultContext.Provider {...props} value={ev}>
@@ -162,25 +174,23 @@ export const EvervaultInput = ({
     };
   }
 
-  const initEvForm = async () => {
-    const encryptedInput = evervault?.inputs(id, cfg);
-    encryptedInput?.on("change", async (cardData: any) => {
-      if (typeof onChange === "function") {
-        onChange(cardData);
+  React.useEffect(() => {
+    evervault?.then((ev) => {
+      const encryptedInput = ev.inputs(id, cfg);
+      encryptedInput?.on("change", async (cardData: any) => {
+        if (typeof onChange === "function") {
+          onChange(cardData);
+        }
+      });
+
+      if (
+        onInputsLoad &&
+        encryptedInput?.isInputsLoaded != null &&
+        encryptedInput.isInputsLoaded instanceof Promise
+      ) {
+        encryptedInput.isInputsLoaded.then(() => onInputsLoad());
       }
     });
-
-    if (
-      onInputsLoad &&
-      encryptedInput?.isInputsLoaded != null &&
-      encryptedInput.isInputsLoaded instanceof Promise
-    ) {
-      encryptedInput.isInputsLoaded.then(() => onInputsLoad());
-    }
-  };
-
-  React.useEffect(() => {
-    initEvForm();
   }, [evervault]);
 
   return <div id={id} />;
@@ -211,28 +221,26 @@ export const EvervaultReveal = ({
     };
   }
 
-  const initEvForm = async () => {
-    const encryptedInput = evervault?.reveal(id, request, cfg);
-
-    if (
-      onRevealLoad &&
-      encryptedInput?.isRevealLoaded != null &&
-      encryptedInput.isRevealLoaded instanceof Promise
-    ) {
-      encryptedInput.isRevealLoaded.then(() => onRevealLoad());
-    }
-  };
-
   React.useEffect(() => {
-    initEvForm();
+    evervault?.then((ev) => {
+      const encryptedInput = ev.reveal(id, request, cfg);
+
+      if (
+        onRevealLoad &&
+        encryptedInput?.isRevealLoaded != null &&
+        encryptedInput.isRevealLoaded instanceof Promise
+      ) {
+        encryptedInput.isRevealLoaded.then(() => onRevealLoad());
+      }
+    });
   }, [evervault]);
 
   return <div id={id} />;
 };
 
-export function useEvervault() {
+export function useEvervault(): PromisifiedEvervaultClient | null {
   if (typeof window === "undefined") {
-    return;
+    return null;
   }
 
   if (typeof React.useContext !== "function") {
