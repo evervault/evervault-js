@@ -1,41 +1,148 @@
 import * as React from "react";
-import EvervaultClient from "@evervault/browser";
+import type EvervaultClient from "@evervault/browser";
 
-export type EvervaultProviderProps = {
+export interface EvervaultProviderProps {
   teamId: string;
   appId: string;
   customConfig?: any;
   children: React.ReactNode | null;
-};
+}
 
-export type EvervaultInputProps = {
+export interface EvervaultInputProps {
   onChange?: (cardData: any) => void;
   config?: any;
   onInputsLoad?: () => void;
-};
+}
 
-export type EvervaultRevealProps = {
+export interface EvervaultRevealProps {
   request: Request;
   config?: any;
   onRevealLoad?: () => void;
+}
+
+export class PromisifiedEvervaultClient extends Promise<EvervaultClient> {
+  constructor(...args: ConstructorParameters<typeof Promise<EvervaultClient>>) {
+    super(...args);
+  }
+
+  public encrypt(data: any): Promise<string> {
+    return this.then((ev) => ev.encrypt(data));
+  }
+}
+
+export const EvervaultContext =
+  React.createContext<PromisifiedEvervaultClient | null>(null);
+
+const EVERVAULT_URL = "https://js.evervault.com/v2";
+const injectScript = () => {
+  const script = document.createElement("script");
+  script.src = EVERVAULT_URL;
+
+  const headOrBody = document.head || document.body;
+
+  if (!headOrBody) {
+    throw new Error(
+      "Expected document.body not to be null. Evervault.js requires a <body> element."
+    );
+  }
+
+  headOrBody.appendChild(script);
+
+  return script;
 };
 
-export const EvervaultContext = React.createContext<EvervaultClient | null>(
-  null
-);
+let evervaultPromise: Promise<unknown> | null = null;
+
+const loadScript = () => {
+  // Ensure that we only attempt to load Evervault.js at most once
+  if (evervaultPromise !== null) {
+    return evervaultPromise;
+  }
+
+  evervaultPromise = new Promise((resolve, reject) => {
+    if (typeof window === "undefined") {
+      resolve(null);
+      return;
+    }
+
+    if (window.Evervault) {
+      console.warn("Evervault has already been loaded");
+      resolve(window.Evervault);
+      return;
+    }
+
+    try {
+      const script = injectScript();
+
+      script.addEventListener("load", () => {
+        if (window.Evervault) {
+          resolve(window.Evervault);
+        } else {
+          reject(new Error("Evervault.js not available"));
+        }
+      });
+
+      script.addEventListener("error", () => {
+        reject(new Error("Failed to load Evervault.js"));
+      });
+    } catch (error) {
+      reject(error);
+      return;
+    }
+  });
+
+  return evervaultPromise;
+};
+
+const loadEvervault = async (): Promise<typeof EvervaultClient | undefined> => {
+  const evervaultPromise = Promise.resolve().then(() => loadScript());
+
+  let loadCalled = false;
+
+  evervaultPromise.catch((err) => {
+    if (!loadCalled) {
+      console.warn(err);
+    }
+  });
+
+  loadCalled = true;
+  return evervaultPromise.then(() => {
+    if (typeof window !== "undefined") return window.Evervault;
+  });
+};
 
 export const EvervaultProvider = ({
   teamId,
   appId,
   customConfig,
   children,
+  ...props
 }: EvervaultProviderProps) => {
-  const evervault = React.useMemo(() => {
-    return new EvervaultClient(teamId, appId, customConfig);
-  }, [teamId, appId, customConfig]);
+  if (typeof window === "undefined") {
+    return (
+      <EvervaultContext.Provider value={null}>
+        {children}
+      </EvervaultContext.Provider>
+    );
+  }
+
+  const ev = React.useMemo<PromisifiedEvervaultClient>(
+    () =>
+      new PromisifiedEvervaultClient((resolve, reject) => {
+        loadEvervault().then((evervault) => {
+          if (evervault !== undefined) {
+            resolve(new evervault(teamId, appId, customConfig));
+          } else {
+            console.error("Evervault.js not available");
+            reject("Evervault.js not available");
+          }
+        });
+      }),
+    []
+  );
 
   return (
-    <EvervaultContext.Provider value={evervault}>
+    <EvervaultContext.Provider {...props} value={ev}>
       {children}
     </EvervaultContext.Provider>
   );
@@ -66,25 +173,23 @@ export const EvervaultInput = ({
     };
   }
 
-  const initEvForm = async () => {
-    const encryptedInput = evervault?.inputs(id, cfg);
-    encryptedInput?.on("change", async (cardData: any) => {
-      if (typeof onChange === "function") {
-        onChange(cardData);
+  React.useEffect(() => {
+    evervault?.then((ev) => {
+      const encryptedInput = ev.inputs(id, cfg);
+      encryptedInput?.on("change", async (cardData: any) => {
+        if (typeof onChange === "function") {
+          onChange(cardData);
+        }
+      });
+
+      if (
+        onInputsLoad &&
+        encryptedInput?.isInputsLoaded != null &&
+        encryptedInput.isInputsLoaded instanceof Promise
+      ) {
+        encryptedInput.isInputsLoaded.then(() => onInputsLoad());
       }
     });
-
-    if (
-      onInputsLoad &&
-      encryptedInput?.isInputsLoaded != null &&
-      encryptedInput.isInputsLoaded instanceof Promise
-    ) {
-      encryptedInput.isInputsLoaded.then(() => onInputsLoad());
-    }
-  };
-
-  React.useEffect(() => {
-    initEvForm();
   }, [evervault]);
 
   return <div id={id} />;
@@ -115,31 +220,34 @@ export const EvervaultReveal = ({
     };
   }
 
-  const initEvForm = async () => {
-    const encryptedInput = evervault?.reveal(id, request, cfg);
-
-    if (
-      onRevealLoad &&
-      encryptedInput?.isRevealLoaded != null &&
-      encryptedInput.isRevealLoaded instanceof Promise
-    ) {
-      encryptedInput.isRevealLoaded.then(() => onRevealLoad());
-    }
-  };
-
   React.useEffect(() => {
-    initEvForm();
+    evervault?.then((ev) => {
+      const encryptedInput = ev.reveal(id, request, cfg);
+
+      if (
+        onRevealLoad &&
+        encryptedInput?.isRevealLoaded != null &&
+        encryptedInput.isRevealLoaded instanceof Promise
+      ) {
+        encryptedInput.isRevealLoaded.then(() => onRevealLoad());
+      }
+    });
   }, [evervault]);
 
   return <div id={id} />;
 };
 
-export function useEvervault() {
+export function useEvervault(): PromisifiedEvervaultClient | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
   if (typeof React.useContext !== "function") {
     throw new Error(
       "You must use React >= 18.0 in order to use useEvervault()"
     );
   }
+
   const evervault = React.useContext(EvervaultContext);
   if (!evervault) {
     throw new Error(

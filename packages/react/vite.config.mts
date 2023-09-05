@@ -4,6 +4,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
+  esbuild: {
+    banner: `"use client";`,
+  },
   build: {
     lib: {
       // Could also be a dictionary or array of multiple entry points
