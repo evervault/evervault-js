@@ -85,8 +85,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: react-sdk-build
-          path: |
-            packages/react/LICENSE
-            packages/react/package.json
-            packages/react/README.md
-            packages/react/dist
+          path: packages/react/dist

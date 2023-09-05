@@ -7,6 +7,10 @@ on:
         description: "Name of the job"
         required: true
         type: string
+      repo_path:
+        description: "Where it is in the repo"
+        required: true
+        type: string
       artifact:
         description: "The artifact containing the built code"
         required: true
@@ -24,10 +28,16 @@ jobs:
       id-token: write
 
     steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      
       - name: Download Build Artifacts
         uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.artifact }}
+          working-directory:  ${{ inputs.repo_path }}
 
       - uses: pnpm/action-setup@v2
         with:
