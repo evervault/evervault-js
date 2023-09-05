@@ -5,7 +5,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   esbuild: {
-    banner: `"use client";`
+    banner: `"use client";`,
   },
   build: {
     lib: {
