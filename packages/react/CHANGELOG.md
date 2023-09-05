@@ -1,5 +1,15 @@
 # @evervault/react
 
+## 2.0.0
+
+### Major Changes
+
+- bfa5a56: Add EvervaultReveal
+  Migrate React SDK to Typescript
+  Bump minimum React version to 18
+  Turn on auto-resize Inputs and Reveal by Default
+  Fix bug with SSR Inputs
+
 ## 3.0.0
 
 ### Major Changes
