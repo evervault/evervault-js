@@ -13,9 +13,9 @@
     "url": "https://github.com/evervault/evervault-js.git",
     "directory": "packages/react"
   },
-  "main": "./dist/evervault-react.main.umd.cjs",
-  "module": "./dist/evervault-react.main.js",
-  "types": "./dist/evervault-react.main.d.ts",
+  "main": "dist/evervault-react.main.umd.cjs",
+  "module": "dist/evervault-react.main.js",
+  "types": "dist/evervault-react.main.d.ts",
   "exports": {
     ".": {
       "import": "./dist/evervault-react.main.js",
