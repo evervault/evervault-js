@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.0.1
+
+### Patch Changes
+
+- f325cb4: fix release flow
+
 ## 2.0.0
 
 ### Major Changes
