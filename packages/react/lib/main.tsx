@@ -67,9 +67,6 @@ const loadScript = () => {
 
     if (window.Evervault) {
       console.warn("Evervault has already been loaded");
-    }
-
-    if (window.Evervault) {
       resolve(window.Evervault);
       return;
     }
@@ -129,17 +126,19 @@ export const EvervaultProvider = ({
     );
   }
 
-  const [ev] = React.useState<PromisifiedEvervaultClient>(
-    new PromisifiedEvervaultClient((resolve, reject) => {
-      loadEvervault().then((evervault) => {
-        if (evervault !== undefined) {
-          resolve(new evervault(teamId, appId, customConfig));
-        } else {
-          console.error("Evervault.js not available");
-          reject("Evervault.js not available");
-        }
-      });
-    })
+  const ev = React.useMemo<PromisifiedEvervaultClient>(
+    () =>
+      new PromisifiedEvervaultClient((resolve, reject) => {
+        loadEvervault().then((evervault) => {
+          if (evervault !== undefined) {
+            resolve(new evervault(teamId, appId, customConfig));
+          } else {
+            console.error("Evervault.js not available");
+            reject("Evervault.js not available");
+          }
+        });
+      }),
+    []
   );
 
   return (
