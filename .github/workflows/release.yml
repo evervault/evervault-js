@@ -55,5 +55,6 @@ jobs:
     with:
       package: "@evervault/react"
       artifact: "react-sdk-build"
+      repo_path: "packages/react/dist"
     secrets:
       NPM_TOKEN: ${{ secrets.REACT_SDK_NPM_TOKEN }}
