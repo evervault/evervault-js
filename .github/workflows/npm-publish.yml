@@ -7,6 +7,10 @@ on:
         description: "Name of the job"
         required: true
         type: string
+      artifact:
+        description: "The artifact containing the built code"
+        required: true
+        type: string
     secrets:
       NPM_TOKEN:
         description: "NPM Token"
@@ -20,10 +24,10 @@ jobs:
       id-token: write
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v3
         with:
-          fetch-depth: 2
+          name: ${{ inputs.artifact }}
 
       - uses: pnpm/action-setup@v2
         with:
@@ -40,7 +44,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Publish to npm
-        run: pnpm --filter ${{ inputs.package }} publish --access public --no-git-checks
+        run: pnpm --filter ${{ inputs.package }} publish --access public --no-git-checks --dry-run
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true

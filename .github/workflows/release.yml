@@ -54,5 +54,6 @@ jobs:
     uses: ./.github/workflows/npm-publish.yml
     with:
       package: "@evervault/react"
+      artifact: "react-sdk-build"
     secrets:
       NPM_TOKEN: ${{ secrets.REACT_SDK_NPM_TOKEN }}
