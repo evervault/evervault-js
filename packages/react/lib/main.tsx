@@ -1,5 +1,6 @@
 import * as React from "react";
 import type EvervaultClient from "@evervault/browser";
+import type { EvervaultRequestProps } from "@evervault/browser";
 
 export interface EvervaultProviderProps {
   teamId: string;
@@ -15,7 +16,7 @@ export interface EvervaultInputProps {
 }
 
 export interface EvervaultRevealProps {
-  request: Request;
+  request: Request | EvervaultRequestProps;
   config?: any;
   onRevealLoad?: () => void;
 }
