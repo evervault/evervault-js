@@ -4,6 +4,7 @@
 
 ### Patch Changes
 
+- 490005b: allow basic request object for compat with NextJS SSR
 - f325cb4: fix release flow
 
 ## 2.0.0
