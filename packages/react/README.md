@@ -240,7 +240,7 @@ If you need to wait for the iFrame that serves Inputs to load before doing some 
   onInputsLoad={() => {
     console.log("Inputs has loaded!");
   }}
-  />
+/>
 ```
 
 ## `<EvervaultReveal />`
@@ -269,22 +269,22 @@ your Relay you can add the component to your React app.
 ```jsx
 export default function Reveal() {
   const request = {
-    url: 'https://blackhole-posterior-io.relay.evervault.com/4m0s3d',
-    method: 'GET',
+    url: "https://blackhole-posterior-io.relay.evervault.com/4m0s3d",
+    method: "GET",
     headers: {
-      'Authorization': 'Bearer ey...'
-    }
+      Authorization: "Bearer ey...",
+    },
   };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <EvervaultReveal request={request}></EvervaultReveal>
     </main>
-  )
+  );
 }
 ```
 
-The only required field is `request` which takes an object that supports all of the same fields as a  [Javascript Request Object](https://developer.mozilla.org/en-US/docs/Web/API/Request). The URL must be the Evervault Inbound
+The only required field is `request` which takes an object that supports all of the same fields as a [Javascript Request Object](https://developer.mozilla.org/en-US/docs/Web/API/Request). The URL must be the Evervault Inbound
 Relay you configured earlier.
 
 ### Props
