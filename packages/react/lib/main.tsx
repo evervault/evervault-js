@@ -15,9 +15,23 @@ export interface EvervaultInputProps {
 }
 
 export interface EvervaultRevealProps {
-  request: Request;
+  request: Request | EvervaultRequestProps;
   config?: any;
   onRevealLoad?: () => void;
+}
+
+export interface EvervaultRequestProps {
+  cache?: RequestCache;
+  credentials?: RequestCredentials;
+  destination?: RequestDestination;
+  headers?: Headers;
+  integrity?: string;
+  keepalive?: string;
+  method?: string;
+  mode?: RequestMode;
+  referrer?: string;
+  referrerPolicy?: ReferrerPolicy;
+  url?: string;
 }
 
 export class PromisifiedEvervaultClient extends Promise<EvervaultClient> {

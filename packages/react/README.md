@@ -240,8 +240,83 @@ If you need to wait for the iFrame that serves Inputs to load before doing some 
   onInputsLoad={() => {
     console.log("Inputs has loaded!");
   }}
-/>
+  />
 ```
+
+## `<EvervaultReveal />`
+
+Use [Evervault Reveal](https://docs.evervault.com/products/inputs#reveal) to show encrypted card
+details to show your users their encrypted card details in plaintext in a secure iFrame hosted by
+Evervault. Before using Reveal you'll first have to create a Relay to decrypt the card details;
+Reveal expects to receive the card data from the Relay as a JSON object with the schema below.
+
+Note: It is important that the endpoint that you create sets the applicable CORS headers so that it
+can be accessed from the Inputs iFrame. Otherwise your requests will fail!
+
+```json
+{
+  "cardNumber": "string | number",
+  "cvv": "string | number",
+  "expiry": "string | number"
+}
+```
+
+Once you have your endpoint that returns the encrypted card data, you'll need to create an
+[Evervault Inbound Relay](https://docs.evervault.com/products/inbound-relay) that will decrypt the
+encrypted card data as is passes through it, before it gets to the iFrame. Once you have created
+your Relay you can add the component to your React app.
+
+```jsx
+export default function Reveal() {
+  const request = {
+    url: 'https://blackhole-posterior-io.relay.evervault.com/4m0s3d',
+    method: 'GET',
+    headers: {
+      'Authorization': 'Bearer ey...'
+    }
+  };
+
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      <EvervaultReveal request={request}></EvervaultReveal>
+    </main>
+  )
+}
+```
+
+The only required field is `request` which takes an object that supports all of the same fields as a  [Javascript Request Object](https://developer.mozilla.org/en-US/docs/Web/API/Request). The URL must be the Evervault Inbound
+Relay you configured earlier.
+
+### Props
+
+| Parameter                           | Type             | Description                                                                                     |
+| ----------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------- |
+| `onRevealLoad`                      | Function         | A function that is called when the iFrame that serves Reveal has loaded.                        |
+| `config`                            | String \| Object | A theme string (supported: default, minimal or material), or a config object for custom styles. |
+| `config.theme`                      | String           | The base styling for Inputs. Currently supports default, minimal and material.                  |
+| `config.height`                     | String           | The height of the Evervault Inputs iframe.                                                      |
+| `config.primaryColor`               | String           | The main theme color.                                                                           |
+| `config.labelColor`                 | String           | The color CSS property applied to the input labels.                                             |
+| `config.inputBorderColor`           | String           | The border-color CSS property applied to inputs.                                                |
+| `config.inputTextColor`             | String           | The color CSS property applied to inputs.                                                       |
+| `config.inputBackgroundColor`       | String           | The color CSS property applied to the ::placeholder CSS pseudo-element for inputs.              |
+| `config.inputBorderRadius`          | String           | The border-radius CSS property applied to inputs.                                               |
+| `config.inputHeight`                | String           | The height CSS property applied to inputs.                                                      |
+| `config.cardNumberLabel`            | String           | The label for the card number input                                                             |
+| `config.expirationDateLabel`        | String           | The label for the expiration date input                                                         |
+| `config.securityCodeLabel`          | String           | The label for the security code input                                                           |
+| `config.expirationDatePlaceholder`  | String           | The placeholder for the expiration date input                                                   |
+| `config.invalidCardNumberLabel`     | String           | The message shown on an invalid card number                                                     |
+| `config.invalidExpirationDateLabel` | String           | The message shown on an invalid expiration date                                                 |
+| `config.invalidSecurityCodeLabel`   | String           | The message shown on an invalid security code                                                   |
+| `config.fontUrl`                    | String           | Load a custom font with the Google Fonts API                                                    |
+| `config.fontFamily`                 | String           | Set the font-family for the fontUrl                                                             |
+| `config.inputFontSize`              | String           | Set the font-size property of the input attribute                                               |
+| `config.inputBoxShadow`             | String           | Set the box-shadow property of the input attribute                                              |
+| `config.labelFontSize`              | String           | Set the font-size property of the label attribute                                               |
+| `config.labelWeight`                | String           | Set the font-weight property of the label attribute                                             |
+| `config.disableCVV`                 | Boolean          | Removes the CVV field from Inputs, showing only the Card Number and Expiry fields               |
+| `config.disableExpiry`              | Boolean          | Removes the Expiry field from Inputs, showing only the Card Number and CVV fields               |
 
 ## Contributing
 
