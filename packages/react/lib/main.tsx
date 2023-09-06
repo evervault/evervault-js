@@ -1,5 +1,6 @@
 import * as React from "react";
 import type EvervaultClient from "@evervault/browser";
+import type { EvervaultRequestProps } from "@evervault/browser";
 
 export interface EvervaultProviderProps {
   teamId: string;
@@ -18,20 +19,6 @@ export interface EvervaultRevealProps {
   request: Request | EvervaultRequestProps;
   config?: any;
   onRevealLoad?: () => void;
-}
-
-export interface EvervaultRequestProps {
-  cache?: RequestCache;
-  credentials?: RequestCredentials;
-  destination?: RequestDestination;
-  headers?: Headers;
-  integrity?: string;
-  keepalive?: string;
-  method?: string;
-  mode?: RequestMode;
-  referrer?: string;
-  referrerPolicy?: ReferrerPolicy;
-  url?: string;
 }
 
 export class PromisifiedEvervaultClient extends Promise<EvervaultClient> {

@@ -9,7 +9,7 @@ import Config, { ConfigUrls, SdkContext } from "./config";
 import { CoreCrypto, Http, Forms, Input } from "./core";
 import { base64StringToUint8Array } from "./encoding";
 
-type CustomConfig = {
+interface CustomConfig {
   isDebugMode?: boolean;
   urls?: ConfigUrls;
   publicKey?: string;

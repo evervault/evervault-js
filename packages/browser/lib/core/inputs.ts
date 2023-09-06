@@ -1,5 +1,5 @@
 import type { Config } from "../config";
-import { EvervaultRequestProps } from "../main";
+import type { EvervaultRequestProps } from "../main";
 
 import { constructSource, calculateHeight } from "../utils";
 
