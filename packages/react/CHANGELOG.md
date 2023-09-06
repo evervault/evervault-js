@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.0.2
+
+### Patch Changes
+
+- 490005b: allow basic request object for compat with NextJS SSR
+
 ## 2.0.1
 
 ### Patch Changes
