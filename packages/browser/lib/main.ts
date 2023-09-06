@@ -15,6 +15,20 @@ type CustomConfig = {
   publicKey?: string;
 };
 
+export interface EvervaultRequestProps {
+  cache?: RequestCache;
+  credentials?: RequestCredentials;
+  destination?: RequestDestination;
+  headers?: Headers;
+  integrity?: string;
+  keepalive?: string;
+  method?: string;
+  mode?: RequestMode;
+  referrer?: string;
+  referrerPolicy?: ReferrerPolicy;
+  url?: string;
+}
+
 export default class EvervaultClient {
   /** @deprecated */
   forms;
@@ -171,7 +185,7 @@ export default class EvervaultClient {
 
   reveal(
     elementId: string,
-    request: Request,
+    request: Request | EvervaultRequestProps,
     config?: Record<string, any>
   ): {
     isRevealLoaded: Promise<boolean>;

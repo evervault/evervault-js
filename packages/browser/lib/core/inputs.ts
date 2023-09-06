@@ -1,4 +1,5 @@
 import type { Config } from "../config";
+import { EvervaultRequestProps } from "../main";
 
 import { constructSource, calculateHeight } from "../utils";
 
@@ -8,7 +9,7 @@ export default function Inputs(config: Config) {
       id: string,
       settings: Record<string, any>,
       isReveal: boolean = false,
-      request?: Request
+      request?: Request | EvervaultRequestProps
     ) {
       // TODO: add error check in a seperate pr (small behavour change)
       (
