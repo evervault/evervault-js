@@ -21,7 +21,8 @@ on:
         required: true
 
 jobs:
-  build:
+  publish:
+    name: Publish to NPM
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -32,12 +33,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 2
-      
+
       - name: Download Build Artifacts
         uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.artifact }}
-          path:  ${{ inputs.repo_path }}
+          path: ${{ inputs.repo_path }}
 
       - uses: pnpm/action-setup@v2
         with:
@@ -49,6 +50,8 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
+      - name: PNPM install
+        run: pnpm install --frozen-lockfile
 
       - name: Publish to npm
         run: pnpm --filter ${{ inputs.package }} publish --access public --no-git-checks
