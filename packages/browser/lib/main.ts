@@ -13,7 +13,7 @@ interface CustomConfig {
   isDebugMode?: boolean;
   urls?: ConfigUrls;
   publicKey?: string;
-};
+}
 
 export interface EvervaultRequestProps {
   cache?: RequestCache;
