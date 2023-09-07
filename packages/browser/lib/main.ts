@@ -186,7 +186,8 @@ export default class EvervaultClient {
   reveal(
     elementId: string,
     request: Request | EvervaultRequestProps,
-    config?: Record<string, any>
+    config?: Record<string, any>,
+    onCopy?: () => void
   ): {
     isRevealLoaded: Promise<boolean>;
   } {
@@ -197,7 +198,8 @@ export default class EvervaultClient {
         ...config,
       },
       true,
-      request
+      request,
+      onCopy
     );
 
     return {

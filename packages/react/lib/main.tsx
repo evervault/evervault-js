@@ -18,6 +18,7 @@ export interface EvervaultInputProps {
 export interface EvervaultRevealProps {
   request: Request | EvervaultRequestProps;
   config?: any;
+  onCopy?: () => void;
   onRevealLoad?: () => void;
 }
 
@@ -199,6 +200,7 @@ export const EvervaultInput = ({
 export const EvervaultReveal = ({
   request,
   config,
+  onCopy,
   onRevealLoad,
 }: EvervaultRevealProps) => {
   const id = React.useId();
@@ -223,7 +225,7 @@ export const EvervaultReveal = ({
 
   React.useEffect(() => {
     evervault?.then((ev) => {
-      const encryptedInput = ev.reveal(id, request, cfg);
+      const encryptedInput = ev.reveal(id, request, cfg, onCopy);
 
       if (
         onRevealLoad &&

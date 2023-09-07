@@ -9,7 +9,8 @@ export default function Inputs(config: Config) {
       id: string,
       settings: Record<string, any>,
       isReveal: boolean = false,
-      request?: Request | EvervaultRequestProps
+      request?: Request | EvervaultRequestProps,
+      onCopyCallback?: () => void
     ) {
       // TODO: add error check in a seperate pr (small behavour change)
       (
@@ -20,8 +21,9 @@ export default function Inputs(config: Config) {
         isReveal,
         settings
       )}" id="ev-iframe" title="Payment details" frameborder="0" scrolling="0" height=${calculateHeight(
-        settings
-      )} allowTransparency="true"></iframe>`;
+        settings,
+        isReveal
+      )} ${isReveal ? "width=\"100%\"" : ""} allowTransparency="true" allow="clipboard-write"></iframe>`;
 
       window.addEventListener("message", (event) => {
         if (event.origin !== config.input.inputsOrigin) return;
@@ -38,6 +40,7 @@ export default function Inputs(config: Config) {
 
       const isInputsLoaded = new Promise<boolean>((resolve) => {
         window.addEventListener("message", (event) => {
+          console.log(event);
           if (event.origin !== config.input.inputsOrigin) return;
           if (event.data?.type === "EV_INPUTS_LOADED") {
             if (isReveal) {
@@ -75,6 +78,10 @@ export default function Inputs(config: Config) {
             } else {
               resolve(true);
             }
+          } else if (event.data?.type === "EV_REVEAL_COPY_EVENT") {
+            if (isReveal && onCopyCallback) {
+              onCopyCallback();
+            }
           }
           if (event.data?.type === "EV_REVEAL_LOADED") {
             if (isReveal) {
@@ -108,6 +115,8 @@ export default function Inputs(config: Config) {
                 if (event.data?.type === "EV_FRAME_HEIGHT") return;
                 if (event.data?.type === "EV_INPUTS_LOADED") return;
                 if (event.data?.type === "EV_FRAME_READY") return;
+                if (event.data?.type === "EV_REVEAL_COPY_EVENT") return;
+                if (event.data?.type === "EV_REVEAL_LOADED") return;
                 fn(event.data);
               },
               false

@@ -13,6 +13,7 @@ import EvervaultCard from "./EvervaultCard";
 
 import { InputElementsManager } from "./InputElementsManager";
 import { MagStripe } from "./MagStripe";
+import { setupReveal } from "./RevealManager";
 
 const DEFAULT_CARD_CONFIG = ["cardNumber", "cardExpiry", "cardCVV"];
 
@@ -320,11 +321,17 @@ function setFrameHeight() {
 
 const onLoad = function () {
   watchSDKStatus();
-  inputElementsManager = new InputElementsManager(postToParent, {
-    ...formOverrides,
-    reveal: isReveal,
-  });
-  const magStripe = new MagStripe(inputElementsManager);
+  if (!isReveal) {
+    inputElementsManager = new InputElementsManager(postToParent, {
+      ...formOverrides,
+      reveal: isReveal,
+    });
+
+    const magStripe = new MagStripe(inputElementsManager);
+
+    document.addEventListener("keypress", magStripe.swipeCapture, true);
+  }
+
   setFrameHeight();
 
   let revealRequestReceived = new Promise((resolve) => {
@@ -335,35 +342,7 @@ const onLoad = function () {
           event.ports[0]?.postMessage(await getData());
         } else if (event.data?.type == "revealRequestConfig") {
           try {
-            const requestData = JSON.parse(event.data.request);
-            const request = new Request(requestData.url, {
-              ...requestData,
-            });
-            let req = await fetch(request.url);
-            let response = await req.json();
-
-            if (!response.cardNumber) {
-              throw new Error("No card number found in response");
-            }
-
-            // Set the values of the inputs
-            inputElementsManager.masks.cardNumber.unmaskedValue =
-              response.cardNumber.toString();
-
-            if (inputElementsManager.masks.expirationDate) {
-              inputElementsManager.masks.expirationDate.unmaskedValue =
-                response.expiry;
-            }
-
-            if (inputElementsManager.elements.cvv) {
-              inputElementsManager.elements.cvv.value = response.cvv;
-            }
-
-            inputElementsManager.elements.name.value = response.name;
-
-            if (isReveal) {
-              document.getElementById("form")?.classList.remove("hide");
-            }
+            await setupReveal(event.data.request);
 
             resolve(true);
           } catch (e) {
@@ -383,14 +362,17 @@ const onLoad = function () {
     }
   });
 
-  document.addEventListener("keypress", magStripe.swipeCapture, true);
   parent.postMessage({ type: "EV_INPUTS_LOADED" }, "*");
 
   revealRequestReceived.then(() => {
-    setFrameHeight();
-
     if (isReveal) {
+      document.getElementById("reveal-group")?.classList.remove("hide");
+
+      setFrameHeight();
+
       parent.postMessage({ type: "EV_REVEAL_LOADED" }, "*");
+    } else {
+      setFrameHeight();
     }
   });
 };

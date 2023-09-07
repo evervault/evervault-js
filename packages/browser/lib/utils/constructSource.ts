@@ -21,8 +21,12 @@ export default function constructSource(
     });
   }
 
-  const { inputsUrl } = config.input;
+  let { inputsUrl } = config.input;
   const { teamId, appId } = config;
+
+  if (isReveal) {
+    inputsUrl = inputsUrl + "/reveal.html";
+  }
 
   return `${inputsUrl}?team=${teamId}&app=${appId}${settingsQuery}&mode=${
     isReveal ? "reveal" : "inputs"
