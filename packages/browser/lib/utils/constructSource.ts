@@ -1,8 +1,11 @@
+const INPUTS_URL_SLUG = "/v2/index.html";
+const REVEAL_URL_SLUG = "/v2/reveal.html";
+
 type ConstructSourceConfig = {
   teamId: string;
   appId: string;
   input: {
-    inputsUrl: string;
+    inputsOrigin: string;
   };
 };
 
@@ -21,11 +24,12 @@ export default function constructSource(
     });
   }
 
-  let { inputsUrl } = config.input;
+  let { inputsOrigin } = config.input;
   const { teamId, appId } = config;
 
+  let inputsUrl = inputsOrigin + INPUTS_URL_SLUG;
   if (isReveal) {
-    inputsUrl = inputsUrl + "/reveal.html";
+    inputsUrl = inputsOrigin + REVEAL_URL_SLUG;
   }
 
   return `${inputsUrl}?team=${teamId}&app=${appId}${settingsQuery}&mode=${

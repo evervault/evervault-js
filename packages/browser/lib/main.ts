@@ -67,7 +67,7 @@ export default class EvervaultClient {
 
     const context = this.getContext(
       window?.location?.origin ?? "",
-      this.config.input.inputsUrl
+      this.config.input.inputsOrigin
     );
 
     this.http = Http(
