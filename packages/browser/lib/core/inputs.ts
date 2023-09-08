@@ -42,7 +42,6 @@ export default function Inputs(config: Config) {
 
       const isInputsLoaded = new Promise<boolean>((resolve) => {
         window.addEventListener("message", (event) => {
-          console.log(event);
           if (event.origin !== config.input.inputsOrigin) return;
           if (event.data?.type === "EV_INPUTS_LOADED") {
             if (isReveal) {

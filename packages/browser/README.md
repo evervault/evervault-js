@@ -212,7 +212,7 @@ your Relay you can add the component to your React app.
 <div id="reveal"></div>
 
 <script>
-  let request = new Request("https://secure.example.com", {
+  let request = new Request("https://example-com.relay.evervault.com/card-details", {
     method: "GET",
     headers: {
       Authorization: "Bearer ey...",
