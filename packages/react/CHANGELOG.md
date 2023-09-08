@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.1.0
+
+### Minor Changes
+
+- a1c73da: feat: add more config for Evervault Reveal
+
 ## 2.0.1
 
 ### Patch Changes

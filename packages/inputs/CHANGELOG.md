@@ -1,5 +1,19 @@
 # @evervault/inputs
 
+## 2.12.0
+
+### Minor Changes
+
+- a1c73da: feat: add more config for Evervault Reveal
+
+### Patch Changes
+
+- 416915b: fix: fix header serialization
+- Updated dependencies [a1c73da]
+- Updated dependencies [83f693f]
+- Updated dependencies [416915b]
+  - @evervault/browser@2.12.0
+
 ## 2.11.0
 
 ### Minor Changes
