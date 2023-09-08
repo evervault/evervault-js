@@ -185,6 +185,57 @@ inputs.isInputsLoaded.then(() => {
 });
 ```
 
+### evervault.reveal()
+
+Use [evervault.reveal](https://docs.evervault.com/products/inputs#reveal) to show encrypted card
+details to show your users their encrypted card details in plaintext in a secure iFrame hosted by
+Evervault. Before using Reveal you'll first have to create a Relay to decrypt the card details;
+Reveal expects to receive the card data from the Relay as a JSON object with the schema below.
+
+Note: It is important that the endpoint that you create sets the applicable CORS headers so that it
+can be accessed from the Inputs iFrame. Otherwise your requests will fail!
+
+```json
+{
+  "cardNumber": "string | number",
+  "cvv": "string | number",
+  "expiry": "string | number"
+}
+```
+
+Once you have your endpoint that returns the encrypted card data, you'll need to create an
+[Evervault Inbound Relay](https://docs.evervault.com/products/inbound-relay) that will decrypt the
+encrypted card data as is passes through it, before it gets to the iFrame. Once you have created
+your Relay you can add the component to your React app.
+
+```html
+<div id="reveal"></div>
+
+<script>
+  let request = new Request("https://secure.example.com", {
+    method: "GET",
+    headers: {
+      Authorization: "Bearer ey...",
+    },
+  });
+
+  let config = {
+    revealFontSize: "20px",
+    revealFontWeight: 200,
+    revealTextColor: "#d1dce6",
+  };
+
+  evervault.reveal("reveal", request, config, () => alert("Copied from Clipboard!"));
+</script>
+```
+
+| Parameter | Type                                                                | Required | Description                                                                           |
+| --------- | ------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------- |
+| id        | String                                                              | yes      | Id of the element in which the Evervault Reveal iFrame should be embedded             |
+| request   | [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) | yes      | The request that the iFrame will make to get the Card Details                         |
+| config    | Object                                                              | no       | A config object for custom styling.                                                   |
+| onCopy    | Function                                                            | no       | A callback Function that is called when the user clicks the Copy button in the iFrame |
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/evervault/evervault-js.

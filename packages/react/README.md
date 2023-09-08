@@ -289,34 +289,17 @@ Relay you configured earlier.
 
 ### Props
 
-| Parameter                           | Type             | Description                                                                                     |
-| ----------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------- |
-| `onRevealLoad`                      | Function         | A function that is called when the iFrame that serves Reveal has loaded.                        |
-| `config`                            | String \| Object | A theme string (supported: default, minimal or material), or a config object for custom styles. |
-| `config.theme`                      | String           | The base styling for Inputs. Currently supports default, minimal and material.                  |
-| `config.height`                     | String           | The height of the Evervault Inputs iframe.                                                      |
-| `config.primaryColor`               | String           | The main theme color.                                                                           |
-| `config.labelColor`                 | String           | The color CSS property applied to the input labels.                                             |
-| `config.inputBorderColor`           | String           | The border-color CSS property applied to inputs.                                                |
-| `config.inputTextColor`             | String           | The color CSS property applied to inputs.                                                       |
-| `config.inputBackgroundColor`       | String           | The color CSS property applied to the ::placeholder CSS pseudo-element for inputs.              |
-| `config.inputBorderRadius`          | String           | The border-radius CSS property applied to inputs.                                               |
-| `config.inputHeight`                | String           | The height CSS property applied to inputs.                                                      |
-| `config.cardNumberLabel`            | String           | The label for the card number input                                                             |
-| `config.expirationDateLabel`        | String           | The label for the expiration date input                                                         |
-| `config.securityCodeLabel`          | String           | The label for the security code input                                                           |
-| `config.expirationDatePlaceholder`  | String           | The placeholder for the expiration date input                                                   |
-| `config.invalidCardNumberLabel`     | String           | The message shown on an invalid card number                                                     |
-| `config.invalidExpirationDateLabel` | String           | The message shown on an invalid expiration date                                                 |
-| `config.invalidSecurityCodeLabel`   | String           | The message shown on an invalid security code                                                   |
-| `config.fontUrl`                    | String           | Load a custom font with the Google Fonts API                                                    |
-| `config.fontFamily`                 | String           | Set the font-family for the fontUrl                                                             |
-| `config.inputFontSize`              | String           | Set the font-size property of the input attribute                                               |
-| `config.inputBoxShadow`             | String           | Set the box-shadow property of the input attribute                                              |
-| `config.labelFontSize`              | String           | Set the font-size property of the label attribute                                               |
-| `config.labelWeight`                | String           | Set the font-weight property of the label attribute                                             |
-| `config.disableCVV`                 | Boolean          | Removes the CVV field from Inputs, showing only the Card Number and Expiry fields               |
-| `config.disableExpiry`              | Boolean          | Removes the Expiry field from Inputs, showing only the Card Number and CVV fields               |
+| Parameter                 | Type             | Description                                                                                     |
+| ------------------------- | ---------------- | ----------------------------------------------------------------------------------------------- |
+| `onRevealLoad`            | Function         | A function that is called when the iFrame that serves Reveal has loaded.                        |
+| `onCopy`                  | Function         | A function that is called when user clicks the copy button inside the Reveal component.         |
+| `config`                  | String \| Object | A theme string (supported: default, minimal or material), or a config object for custom styles. |
+| `config.height`           | String           | The height of the Evervault Inputs iframe.                                                      |
+| `config.fontUrl`          | String           | Load a custom font with the Google Fonts API                                                    |
+| `config.fontFamily`       | String           | Set the font-family for the fontUrl                                                             |
+| `config.revealFontSize`   | String           | Set the font-size property of the reveal text fields                                            |
+| `config.revealFontWeight` | String           | Set the font-weight property of the reveal text fields                                          |
+| `config.revealTextColor`  | String           | Set the font-color property of the reveal text fields                                           |
 
 ## Contributing
 
