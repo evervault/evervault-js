@@ -23,7 +23,9 @@ export default function Inputs(config: Config) {
       )}" id="ev-iframe" title="Payment details" frameborder="0" scrolling="0" height=${calculateHeight(
         settings,
         isReveal
-      )} ${isReveal ? "width=\"100%\"" : ""} allowTransparency="true" allow="clipboard-write"></iframe>`;
+      )} ${
+        isReveal ? 'width="100%"' : ""
+      } allowTransparency="true" allow="clipboard-write"></iframe>`;
 
       window.addEventListener("message", (event) => {
         if (event.origin !== config.input.inputsOrigin) return;

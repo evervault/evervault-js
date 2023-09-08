@@ -1,42 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="color-scheme" content="light dark normal" />
+    <title>Evervault Reveal</title>
+    <script type="module" src="../app/index.ts" mode="reveal"></script>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport"
-    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <meta name="color-scheme" content="light dark normal" />
-  <title>Evervault Reveal</title>
-  <script type="module" src="../app/index.ts" mode="reveal"></script>
-</head>
-
-<body>
-  <div id="reveal-group" class="hide reveal-group">
-    <div class="reveal-row">
-      <div class="reveal-string" id="cardnumber" name="cardnumber" data-element="cardnumber" data-testid="cardnumber">
-        0000 0000 0000 0000
+  <body>
+    <div id="reveal-group" class="hide reveal-group">
+      <div class="reveal-row">
+        <div
+          class="reveal-string"
+          id="cardnumber"
+          name="cardnumber"
+          data-element="cardnumber"
+          data-testid="cardnumber"
+        >
+          0000 0000 0000 0000
+        </div>
+        <button id="copybutton">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-copy"
+          >
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+          </svg>
+        </button>
       </div>
-      <button id="copybutton">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-          class="lucide lucide-copy">
-          <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-        </svg>
-      </button>
+      <div class="reveal-row reveal-row-bottom">
+        <div
+          class="reveal-string"
+          id="expirationdate"
+          name="expirationdate"
+          data-element="expirationdate"
+          data-testid="expirationdate"
+        >
+          00 / 00
+        </div>
+        <div
+          class="reveal-string"
+          id="securitycode"
+          name="securitycode"
+          data-element="securitycode"
+          data-testid="securitycode"
+        >
+          000
+        </div>
+      </div>
     </div>
-    <div class="reveal-row reveal-row-bottom">
-      <div class="reveal-string" id="expirationdate" name="expirationdate" data-element="expirationdate"
-        data-testid="expirationdate">
-        00 / 00
-      </div>
-      <div class="reveal-string" id="securitycode" name="securitycode" data-element="securitycode"
-        data-testid="securitycode">
-        000
-      </div>
-    </div>
-  </div>
-</body>
-
+  </body>
 </html>

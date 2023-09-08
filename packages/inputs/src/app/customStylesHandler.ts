@@ -66,7 +66,7 @@ const supportedProperties = [
   {
     name: "revealTextColor",
     variable: "--reveal-color",
-  }
+  },
 ];
 
 export default function (urlParams: URLSearchParams) {

@@ -1,48 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport"
-    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <meta name="color-scheme" content="light dark normal" />
-  <title>Evervault</title>
-  <script type="module" src="../app/index.ts" mode="inputs"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="color-scheme" content="light dark normal" />
+    <title>Evervault</title>
+    <script type="module" src="../app/index.ts" mode="inputs"></script>
   </head>
 
-<body>
-  <form class="form hide" id="form">
-    <input type="hidden" id="trackdata" />
-    <input type="hidden" id="trackone" />
-    <input type="hidden" id="tracktwo" />
-    <input type="hidden" id="name" />
-    <div class="form-group">
-      <div class="input-group" data-element="cardnumber">
-        <label class="label cardNumberLabel" for="cardnumber" data-testid="cardNumberLabel">Card number</label>
-        <input class="input" id="cardnumber" name="cardnumber" type="text" pattern="[0-9]*" inputmode="numeric"
-          placeholder="Card number" autocomplete="billing cc-number" data-testid="cardnumber" />
-        <label class="absoluteLabel cardNumberLabel" for="cardnumber">Card number</label>
+  <body>
+    <form class="form hide" id="form">
+      <input type="hidden" id="trackdata" />
+      <input type="hidden" id="trackone" />
+      <input type="hidden" id="tracktwo" />
+      <input type="hidden" id="name" />
+      <div class="form-group">
+        <div class="input-group" data-element="cardnumber">
+          <label
+            class="label cardNumberLabel"
+            for="cardnumber"
+            data-testid="cardNumberLabel"
+            >Card number</label
+          >
+          <input
+            class="input"
+            id="cardnumber"
+            name="cardnumber"
+            type="text"
+            pattern="[0-9]*"
+            inputmode="numeric"
+            placeholder="Card number"
+            autocomplete="billing cc-number"
+            data-testid="cardnumber"
+          />
+          <label class="absoluteLabel cardNumberLabel" for="cardnumber"
+            >Card number</label
+          >
         </div>
         <div class="input-row">
-        <div class="input-group" data-element="expirationdate" id="expiry-code-container">
-          <label class="label expirationDateLabel" for="expirationdate" data-testid="expirationDateLabel">Expiration
-            date</label>
-          <input class="input" id="expirationdate" name="expirationdate" type="text" pattern="[0-9]*" inputmode="numeric"
-            placeholder="MM / YY" autocomplete="billing cc-exp" data-testid="expirationdate" />
-          <label class="absoluteLabel expirationDateLabel" for="expirationdate">Expiration date</label>
+          <div
+            class="input-group"
+            data-element="expirationdate"
+            id="expiry-code-container"
+          >
+            <label
+              class="label expirationDateLabel"
+              for="expirationdate"
+              data-testid="expirationDateLabel"
+              >Expiration date</label
+            >
+            <input
+              class="input"
+              id="expirationdate"
+              name="expirationdate"
+              type="text"
+              pattern="[0-9]*"
+              inputmode="numeric"
+              placeholder="MM / YY"
+              autocomplete="billing cc-exp"
+              data-testid="expirationdate"
+            />
+            <label
+              class="absoluteLabel expirationDateLabel"
+              for="expirationdate"
+              >Expiration date</label
+            >
+          </div>
+          <div
+            id="security-code-container"
+            class="input-group"
+            data-element="securitycode"
+          >
+            <label
+              class="label securityCodeLabel"
+              for="securitycode"
+              data-testid="securityCodeLabel"
+              >Security code</label
+            >
+            <input
+              class="input"
+              id="securitycode"
+              name="securitycode"
+              type="text"
+              pattern="[0-9]*"
+              inputmode="numeric"
+              maxlength="4"
+              placeholder="CVC"
+              autocomplete="billing cc-cvc"
+              data-testid="securitycode"
+            />
+            <label class="absoluteLabel securityCodeLabel" for="securitycode"
+              >Security code</label
+            >
+          </div>
         </div>
-        <div id="security-code-container" class="input-group" data-element="securitycode">
-          <label class="label securityCodeLabel" for="securitycode" data-testid="securityCodeLabel">Security
-            code</label>
-          <input class="input" id="securitycode" name="securitycode" type="text" pattern="[0-9]*" inputmode="numeric"
-            maxlength="4" placeholder="CVC" autocomplete="billing cc-cvc" data-testid="securitycode" />
-          <label class="absoluteLabel securityCodeLabel" for="securitycode">Security code</label>
-        </div>
-        </div>
-        </div>
-    <div class="helper helper-visible" id="helper" data-testid="validation-message"></div>
+      </div>
+      <div
+        class="helper helper-visible"
+        id="helper"
+        data-testid="validation-message"
+      ></div>
     </form>
-    </body>
-
+  </body>
 </html>

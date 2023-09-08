@@ -40,7 +40,9 @@ async function makeRequest(requestJson: string): Promise<CardData> {
 function setRevealContent(cardData: CardData) {
   const cardNumberElement = document.getElementById("cardnumber");
   if (cardNumberElement) {
-    cardNumberElement.innerHTML = formatAnyLengthCardNumber(cardData.cardNumber);
+    cardNumberElement.innerHTML = formatAnyLengthCardNumber(
+      cardData.cardNumber
+    );
   }
 
   const expiryElement = document.getElementById("expirationdate");
@@ -122,7 +124,7 @@ function setupClipboardCopyButton() {
 function overwriteCopyAction() {
   const cardNumberElement = document.getElementById("cardnumber");
   if (cardNumberElement) {
-    cardNumberElement.addEventListener('copy', function (event) {
+    cardNumberElement.addEventListener("copy", function (event) {
       // Prevent the default copy action
       event.preventDefault();
 

@@ -3,7 +3,10 @@ type CalculateHeightSettings = {
   theme?: "minimal" | "material";
 };
 
-export default function calculateHeight(settings?: CalculateHeightSettings, isReveal = false) {
+export default function calculateHeight(
+  settings?: CalculateHeightSettings,
+  isReveal = false
+) {
   if (settings != null) {
     if (settings.height) {
       return settings.height;
