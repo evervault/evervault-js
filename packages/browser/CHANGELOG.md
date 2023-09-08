@@ -1,5 +1,16 @@
 # @evervault/browser
 
+## 2.12.0
+
+### Minor Changes
+
+- a1c73da: feat: add more config for Evervault Reveal
+
+### Patch Changes
+
+- 83f693f: fix: fix a bug where browser sdk wouldn't encrypt in debug mode for free teams
+- 416915b: fix: fix header serialization
+
 ## 2.11.0
 
 ### Minor Changes
