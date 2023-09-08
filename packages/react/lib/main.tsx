@@ -36,9 +36,14 @@ export const EvervaultContext =
   React.createContext<PromisifiedEvervaultClient | null>(null);
 
 const EVERVAULT_URL = "https://js.evervault.com/v2";
-const injectScript = () => {
+const injectScript = (overrideUrl?: string) => {
   const script = document.createElement("script");
-  script.src = EVERVAULT_URL;
+
+  if (overrideUrl) {
+    script.src = overrideUrl;
+  } else {
+    script.src = EVERVAULT_URL;
+  }
 
   const headOrBody = document.head || document.body;
 
@@ -55,7 +60,7 @@ const injectScript = () => {
 
 let evervaultPromise: Promise<unknown> | null = null;
 
-const loadScript = () => {
+const loadScript = (overrideUrl?: string) => {
   // Ensure that we only attempt to load Evervault.js at most once
   if (evervaultPromise !== null) {
     return evervaultPromise;
@@ -74,7 +79,7 @@ const loadScript = () => {
     }
 
     try {
-      const script = injectScript();
+      const script = injectScript(overrideUrl);
 
       script.addEventListener("load", () => {
         if (window.Evervault) {
@@ -96,8 +101,12 @@ const loadScript = () => {
   return evervaultPromise;
 };
 
-const loadEvervault = async (): Promise<typeof EvervaultClient | undefined> => {
-  const evervaultPromise = Promise.resolve().then(() => loadScript());
+const loadEvervault = async (
+  overrideUrl?: string
+): Promise<typeof EvervaultClient | undefined> => {
+  const evervaultPromise = Promise.resolve().then(() =>
+    loadScript(overrideUrl)
+  );
 
   let loadCalled = false;
 
@@ -131,7 +140,7 @@ export const EvervaultProvider = ({
   const ev = React.useMemo<PromisifiedEvervaultClient>(
     () =>
       new PromisifiedEvervaultClient((resolve, reject) => {
-        loadEvervault().then((evervault) => {
+        loadEvervault(customConfig.jsSdkUrl).then((evervault) => {
           if (evervault !== undefined) {
             resolve(new evervault(teamId, appId, customConfig));
           } else {
