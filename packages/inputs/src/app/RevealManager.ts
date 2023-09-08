@@ -19,7 +19,7 @@ async function makeRequest(requestJson: string): Promise<CardData> {
   const request = new Request(requestData.url, {
     ...requestData,
   });
-  let req = await fetch(request.url);
+  let req = await fetch(request);
   let response = await req.json();
 
   if (!response.cardNumber) {
