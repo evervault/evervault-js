@@ -55,6 +55,18 @@ const supportedProperties = [
     name: "fontFamily",
     variable: "--ff",
   },
+  {
+    name: "revealFontSize",
+    variable: "--reveal-font-size",
+  },
+  {
+    name: "revealFontWeight",
+    variable: "--reveal-font-weight",
+  },
+  {
+    name: "revealTextColor",
+    variable: "--reveal-color",
+  },
 ];
 
 export default function (urlParams: URLSearchParams) {

@@ -1,7 +1,6 @@
 const KEYS_URL = "https://keys.evervault.com";
 const INPUTS_ORIGIN = "https://inputs.evervault.com";
 const API_URL = "https://api.evervault.com";
-const INPUTS_URL = `${INPUTS_ORIGIN}/v2/index.html`;
 
 export type ConfigUrls = {
   keysUrl?: string;
@@ -20,7 +19,6 @@ export type HttpConfig = {
 };
 
 export type InputConfig = {
-  inputsUrl: string;
   inputsOrigin: string;
 };
 
@@ -43,7 +41,6 @@ export type SdkContext = "inputs" | "default";
 
 const DEFAULT_CONFIG_URLS = {
   keysUrl: KEYS_URL,
-  inputsUrl: INPUTS_URL,
   apiUrl: API_URL,
   inputsOrigin: INPUTS_ORIGIN,
 } satisfies ConfigUrls;
@@ -93,7 +90,6 @@ export default function Config(
       apiUrl: customUrls?.apiUrl || API_URL,
     },
     input: {
-      inputsUrl: customUrls?.inputsUrl || DEFAULT_CONFIG_URLS.inputsUrl,
       inputsOrigin:
         customUrls?.inputsOrigin || DEFAULT_CONFIG_URLS.inputsOrigin,
     },

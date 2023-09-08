@@ -41,6 +41,10 @@
   --label-weight: 400;
   --label-font-size: 14px;
 
+  --reveal-font-weight: 400;
+  --reveal-font-size: 16px;
+  --reveal-color: #0a2540;
+
   --warning-background: #f6e5bc;
   --warning-color: #93461a;
 }
@@ -163,6 +167,41 @@ textarea {
   }
 }
 
+/* Styling for Reveal */
+
+.reveal-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: var(--reveal-color);
+  font-size: var(--reveal-font-size);
+  font-weight: var(--reveal-font-weight);
+  line-height: 1;
+
+  & .reveal-row {
+    display: flex;
+    flex-direction: row;
+    gap: calc(var(--reveal-font-size) * 0.5);
+  }
+
+  & .reveal-row-bottom {
+    gap: 4rem;
+  }
+
+  & button {
+    background: none transparent;
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    & svg {
+      color: var(--reveal-color);
+      height: var(--reveal-font-size);
+      width: var(--reveal-font-size);
+    }
+  }
+}
 .hide {
   display: none;
 }
@@ -204,42 +243,6 @@ textarea {
   }
 }
 
-/* THEME: reveal */
-
-.form-reveal {
-  & .input-group[data-element="cardnumber"] {
-    width: 100%;
-    margin-bottom: -1px;
-  }
-
-  & .input {
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    background: none transparent;
-  }
-
-  & .input-row {
-    gap: -0;
-
-    & .input-group[data-element="expirationdate"] .input {
-      border-radius: 0 0 0 var(--input-radius);
-    }
-
-    & .input-group[data-element="securitycode"] {
-      margin-left: -1px;
-    }
-
-    & .input-group[data-element="securitycode"] .input {
-      border-radius: 0 0 var(--input-radius) 0;
-    }
-  }
-
-  & .label {
-    display: none;
-    margin: calc(var(--spacing-unit) * 2) 0;
-  }
-}
 /* THEME: material */
 
 .form-material {

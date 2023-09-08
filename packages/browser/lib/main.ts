@@ -67,7 +67,7 @@ export default class EvervaultClient {
 
     const context = this.getContext(
       window?.location?.origin ?? "",
-      this.config.input.inputsUrl
+      this.config.input.inputsOrigin
     );
 
     this.http = Http(
@@ -186,7 +186,8 @@ export default class EvervaultClient {
   reveal(
     elementId: string,
     request: Request | EvervaultRequestProps,
-    config?: Record<string, any>
+    config?: Record<string, any>,
+    onCopy?: () => void
   ): {
     isRevealLoaded: Promise<boolean>;
   } {
@@ -197,7 +198,8 @@ export default class EvervaultClient {
         ...config,
       },
       true,
-      request
+      request,
+      onCopy
     );
 
     return {
