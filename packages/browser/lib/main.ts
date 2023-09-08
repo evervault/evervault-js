@@ -19,9 +19,11 @@ export interface EvervaultRequestProps {
   cache?: RequestCache;
   credentials?: RequestCredentials;
   destination?: RequestDestination;
-  headers?: Headers;
+  headers?: {
+    [key: string]: string;
+  };
   integrity?: string;
-  keepalive?: string;
+  keepalive?: boolean;
   method?: string;
   mode?: RequestMode;
   referrer?: string;

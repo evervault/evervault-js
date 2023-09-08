@@ -48,22 +48,27 @@ export default function Inputs(config: Config) {
               if (!request) {
                 throw new Error("Request is required for Evervault Reveal");
               }
-              const requestStr = JSON.stringify(request, [
-                "bodyUsed",
-                "cache",
-                "credentials",
-                "destination",
-                "headers",
-                "integrity",
-                "isHistoryNavigation",
-                "keepalive",
-                "method",
-                "mode",
-                "redirect",
-                "referrer",
-                "referrerPolicy",
-                "url",
-              ]);
+
+              let requestSerializable: EvervaultRequestProps = {
+                cache: request.cache,
+                credentials: request.credentials,
+                destination: request.destination,
+                integrity: request.integrity,
+                keepalive: request.keepalive,
+                method: request.method,
+                mode: request.mode,
+                referrer: request.referrer,
+                referrerPolicy: request.referrerPolicy,
+                url: request.url,
+              };
+
+              if (request.headers instanceof Headers) {
+                requestSerializable.headers = Object.fromEntries(request.headers.entries());
+              } else if (request.headers instanceof Object) {
+                requestSerializable.headers = request.headers;
+              }
+
+              const requestStr = JSON.stringify(requestSerializable);
 
               const channel = new MessageChannel();
               (
