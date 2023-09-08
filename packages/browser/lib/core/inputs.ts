@@ -63,7 +63,9 @@ export default function Inputs(config: Config) {
               };
 
               if (request.headers instanceof Headers) {
-                requestSerializable.headers = Object.fromEntries(request.headers.entries());
+                requestSerializable.headers = Object.fromEntries(
+                  request.headers.entries()
+                );
               } else if (request.headers instanceof Object) {
                 requestSerializable.headers = request.headers;
               }
