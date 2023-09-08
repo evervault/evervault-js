@@ -1,5 +1,11 @@
 # @evervault/inputs
 
+## 2.12.1
+
+### Patch Changes
+
+- d32bd4a: remove color scheme
+
 ## 2.12.0
 
 ### Minor Changes
