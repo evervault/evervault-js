@@ -40,7 +40,7 @@ export default function Inputs(config: Config) {
         }
       });
 
-      const isInputsLoaded = new Promise<boolean>((resolve) => {
+      const isInputsLoaded = new Promise<boolean>((resolve, reject) => {
         window.addEventListener("message", (event) => {
           if (event.origin !== config.input.inputsOrigin) return;
           if (event.data?.type === "EV_INPUTS_LOADED") {
@@ -91,7 +91,13 @@ export default function Inputs(config: Config) {
               onCopyCallback();
             }
           }
-          if (event.data?.type === "EV_REVEAL_LOADED") {
+          if (event.data?.type === "EV_REVEAL_ERROR_EVENT") {
+            reject(event.data?.error);
+          }
+          if (
+            event.data?.type === "EV_REVEAL_LOADED" ||
+            event.data?.type === "EV_REVEAL_ERROR_EVENT"
+          ) {
             if (isReveal) {
               resolve(true);
             }
@@ -125,6 +131,7 @@ export default function Inputs(config: Config) {
                 if (event.data?.type === "EV_FRAME_READY") return;
                 if (event.data?.type === "EV_REVEAL_COPY_EVENT") return;
                 if (event.data?.type === "EV_REVEAL_LOADED") return;
+                if (event.data?.type === "EV_REVEAL_ERROR_EVENT") return;
                 fn(event.data);
               },
               false

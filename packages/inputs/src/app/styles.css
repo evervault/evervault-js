@@ -195,6 +195,10 @@ textarea {
       cursor: pointer;
     }
 
+    &:active {
+      opacity: 0.6;
+    }
+
     & svg {
       color: var(--reveal-color);
       height: var(--reveal-font-size);

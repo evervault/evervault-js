@@ -4,37 +4,60 @@ interface CardData {
   cvv: string;
 }
 
-export async function setupReveal(request: string): Promise<void> {
-  const cardData = await makeRequest(request);
-  setRevealContent(cardData);
-  setupClipboardCopyButton();
-
-  // Overwrite the default copy action to remove spaces from card number
-  // when user highlights and copies as opposed to clicking the button
-  overwriteCopyAction();
+interface WrappedError {
+  code: string;
+  error: Error;
 }
 
-async function makeRequest(requestJson: string): Promise<CardData> {
+export async function setupReveal(request: string): Promise<void> {
+  try {
+    const cardData = await makeRequestAndValidateResponse(request);
+    setRevealContent(cardData);
+    setupClipboardCopyButton();
+
+    // Overwrite the default copy action to remove spaces from card number
+    // when user highlights and copies as opposed to clicking the button
+    overwriteCopyAction();
+  } catch (e) {
+    throw e;
+  }
+}
+
+async function makeRequestAndValidateResponse(
+  requestJson: string
+): Promise<CardData> {
   const requestData = JSON.parse(requestJson);
   const request = new Request(requestData.url, {
     ...requestData,
   });
-  let req = await fetch(request);
-  let response = await req.json();
+  try {
+    let req = await makeRequest(request);
+    let response = await req.json();
 
-  if (!response.cardNumber) {
-    throw new Error("No card number found in response");
+    if (!response.cardNumber) {
+      throw new Error("No card number found in response");
+    }
+
+    if (!response.expiry) {
+      throw new Error("No expiration date found in response");
+    }
+
+    if (!response.cvv) {
+      throw new Error("No cvv found in response");
+    }
+
+    return response;
+  } catch (e: any) {
+    throw e;
   }
+}
 
-  if (!response.expiry) {
-    throw new Error("No expiration date found in response");
+async function makeRequest(request: Request): Promise<Response> {
+  try {
+    return await fetch(request);
+  } catch (e: any) {
+    throw e;
   }
-
-  if (!response.cvv) {
-    throw new Error("No cvv found in response");
-  }
-
-  return response;
 }
 
 function setRevealContent(cardData: CardData) {

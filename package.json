@@ -16,7 +16,7 @@
     "version": "changeset version && pnpm install --no-frozen-lockfile"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.26.1",
+    "@changesets/cli": "^2.26.2",
     "@peculiar/webcrypto": "^1.4.3",
     "@playwright/test": "^1.33.0",
     "@small-tech/vite-plugin-sri": "^1.0.1",

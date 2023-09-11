@@ -320,8 +320,8 @@ function setFrameHeight() {
 }
 
 const onLoad = function () {
-  watchSDKStatus();
   if (!isReveal) {
+    watchSDKStatus();
     inputElementsManager = new InputElementsManager(postToParent, {
       ...formOverrides,
       reveal: isReveal,
@@ -334,7 +334,7 @@ const onLoad = function () {
 
   setFrameHeight();
 
-  let revealRequestReceived = new Promise((resolve) => {
+  let revealRequestReceived = new Promise((resolve, reject) => {
     window.addEventListener(
       "message",
       async (event) => {
@@ -346,7 +346,7 @@ const onLoad = function () {
 
             resolve(true);
           } catch (e) {
-            console.error(e);
+            reject(e);
           }
         } else {
           updateInputLabels(event.data);
@@ -364,17 +364,24 @@ const onLoad = function () {
 
   parent.postMessage({ type: "EV_INPUTS_LOADED" }, "*");
 
-  revealRequestReceived.then(() => {
-    if (isReveal) {
-      document.getElementById("reveal-group")?.classList.remove("hide");
+  revealRequestReceived
+    .then(() => {
+      if (isReveal) {
+        document.getElementById("reveal-group")?.classList.remove("hide");
 
-      setFrameHeight();
+        setFrameHeight();
 
-      parent.postMessage({ type: "EV_REVEAL_LOADED" }, "*");
-    } else {
-      setFrameHeight();
-    }
-  });
+        parent.postMessage({ type: "EV_REVEAL_LOADED" }, "*");
+      } else {
+        setFrameHeight();
+      }
+    })
+    .catch((e) => {
+      const test = parent.postMessage(
+        { type: "EV_REVEAL_ERROR_EVENT", error: e },
+        "*"
+      );
+    });
 };
 
 window.addEventListener("load", onLoad);

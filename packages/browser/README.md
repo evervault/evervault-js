@@ -236,6 +236,26 @@ your Relay you can add the component to your React app.
 | config    | Object                                                              | no       | A config object for custom styling.                                                   |
 | onCopy    | Function                                                            | no       | A callback Function that is called when the user clicks the Copy button in the iFrame |
 
+#### isRevealLoaded
+
+This is a `Promise` that resolves when the iFrame is loaded. You can listen for the iFrame load event by `await`ing this `Promise`, or using `then`, if the Reveal iFrame errors then it the promise will reject, you can handle this with a `catch`:
+
+```javascript
+let request = new Request("https://example-com.relay.evervault.com/card-details", {
+  method: "GET",
+  headers: {
+    Authorization: "Bearer ey...",
+  },
+});
+
+const reveal = evervault.reveal("reveal", request);
+
+reveal.isRevealLoaded.then(() => {
+  handleRevealLoaded();
+}).catch((e) => {
+  handleRevealError(e);
+});
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/evervault/evervault-js.
@@ -243,3 +263,4 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/everva
 ## Feedback
 
 Questions or feedback? [Let us know](mailto:support@evervault.com).
+```
