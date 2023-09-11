@@ -364,19 +364,24 @@ const onLoad = function () {
 
   parent.postMessage({ type: "EV_INPUTS_LOADED" }, "*");
 
-  revealRequestReceived.then(() => {
-    if (isReveal) {
-      document.getElementById("reveal-group")?.classList.remove("hide");
+  revealRequestReceived
+    .then(() => {
+      if (isReveal) {
+        document.getElementById("reveal-group")?.classList.remove("hide");
 
-      setFrameHeight();
+        setFrameHeight();
 
-      parent.postMessage({ type: "EV_REVEAL_LOADED" }, "*");
-    } else {
-      setFrameHeight();
-    }
-  }).catch((e) => {
-    const test = parent.postMessage({ type: "EV_REVEAL_ERROR_EVENT", error: e }, "*");
-  });
+        parent.postMessage({ type: "EV_REVEAL_LOADED" }, "*");
+      } else {
+        setFrameHeight();
+      }
+    })
+    .catch((e) => {
+      const test = parent.postMessage(
+        { type: "EV_REVEAL_ERROR_EVENT", error: e },
+        "*"
+      );
+    });
 };
 
 window.addEventListener("load", onLoad);

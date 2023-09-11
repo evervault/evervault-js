@@ -242,15 +242,17 @@ export const EvervaultReveal = ({
         encryptedInput?.isRevealLoaded != null &&
         encryptedInput.isRevealLoaded instanceof Promise
       ) {
-        encryptedInput.isRevealLoaded.then(() => {
-          if (onRevealLoad) {
-            onRevealLoad();
-          }
-        }).catch(e => {
-          if (onRevealError) {
-            onRevealError(e);
-          }
-        });
+        encryptedInput.isRevealLoaded
+          .then(() => {
+            if (onRevealLoad) {
+              onRevealLoad();
+            }
+          })
+          .catch((e) => {
+            if (onRevealError) {
+              onRevealError(e);
+            }
+          });
       }
     });
   }, [evervault]);

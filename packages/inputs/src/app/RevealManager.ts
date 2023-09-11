@@ -23,7 +23,9 @@ export async function setupReveal(request: string): Promise<void> {
   }
 }
 
-async function makeRequestAndValidateResponse(requestJson: string): Promise<CardData> {
+async function makeRequestAndValidateResponse(
+  requestJson: string
+): Promise<CardData> {
   const requestData = JSON.parse(requestJson);
   const request = new Request(requestData.url, {
     ...requestData,

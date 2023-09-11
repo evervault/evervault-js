@@ -289,18 +289,18 @@ Relay you configured earlier.
 
 ### Props
 
-| Parameter                 | Type             | Description                                                                                     |
-| ------------------------- | ---------------- | ----------------------------------------------------------------------------------------------- |
-| `onRevealLoad`            | Function         | A function that is called when the iFrame that serves Reveal has loaded.                        |
-| `onRevealError`            | Function(Error)         | A function that is called when the iFrame that serves Reveal errors, it is called with the error as its first parameter.                        |
-| `onCopy`                  | Function         | A function that is called when user clicks the copy button inside the Reveal component.         |
-| `config`                  | String \| Object | A theme string (supported: default, minimal or material), or a config object for custom styles. |
-| `config.height`           | String           | The height of the Evervault Inputs iframe.                                                      |
-| `config.fontUrl`          | String           | Load a custom font with the Google Fonts API                                                    |
-| `config.fontFamily`       | String           | Set the font-family for the fontUrl                                                             |
-| `config.revealFontSize`   | String           | Set the font-size property of the reveal text fields                                            |
-| `config.revealFontWeight` | String           | Set the font-weight property of the reveal text fields                                          |
-| `config.revealTextColor`  | String           | Set the font-color property of the reveal text fields                                           |
+| Parameter                 | Type             | Description                                                                                                              |
+| ------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `onRevealLoad`            | Function         | A function that is called when the iFrame that serves Reveal has loaded.                                                 |
+| `onRevealError`           | Function(Error)  | A function that is called when the iFrame that serves Reveal errors, it is called with the error as its first parameter. |
+| `onCopy`                  | Function         | A function that is called when user clicks the copy button inside the Reveal component.                                  |
+| `config`                  | String \| Object | A theme string (supported: default, minimal or material), or a config object for custom styles.                          |
+| `config.height`           | String           | The height of the Evervault Inputs iframe.                                                                               |
+| `config.fontUrl`          | String           | Load a custom font with the Google Fonts API                                                                             |
+| `config.fontFamily`       | String           | Set the font-family for the fontUrl                                                                                      |
+| `config.revealFontSize`   | String           | Set the font-size property of the reveal text fields                                                                     |
+| `config.revealFontWeight` | String           | Set the font-weight property of the reveal text fields                                                                   |
+| `config.revealTextColor`  | String           | Set the font-color property of the reveal text fields                                                                    |
 
 ## Contributing
 
