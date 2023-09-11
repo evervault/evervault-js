@@ -320,8 +320,8 @@ function setFrameHeight() {
 }
 
 const onLoad = function () {
-  watchSDKStatus();
   if (!isReveal) {
+    watchSDKStatus();
     inputElementsManager = new InputElementsManager(postToParent, {
       ...formOverrides,
       reveal: isReveal,
@@ -334,7 +334,7 @@ const onLoad = function () {
 
   setFrameHeight();
 
-  let revealRequestReceived = new Promise((resolve) => {
+  let revealRequestReceived = new Promise((resolve, reject) => {
     window.addEventListener(
       "message",
       async (event) => {
@@ -346,7 +346,7 @@ const onLoad = function () {
 
             resolve(true);
           } catch (e) {
-            console.error(e);
+            reject(e);
           }
         } else {
           updateInputLabels(event.data);
@@ -374,6 +374,8 @@ const onLoad = function () {
     } else {
       setFrameHeight();
     }
+  }).catch((e) => {
+    const test = parent.postMessage({ type: "EV_REVEAL_ERROR_EVENT", error: e }, "*");
   });
 };
 

@@ -20,6 +20,7 @@ export interface EvervaultRevealProps {
   config?: any;
   onCopy?: () => void;
   onRevealLoad?: () => void;
+  onRevealError?: (e: any) => void;
 }
 
 export class PromisifiedEvervaultClient extends Promise<EvervaultClient> {
@@ -211,6 +212,7 @@ export const EvervaultReveal = ({
   config,
   onCopy,
   onRevealLoad,
+  onRevealError,
 }: EvervaultRevealProps) => {
   const id = React.useId();
 
@@ -237,11 +239,18 @@ export const EvervaultReveal = ({
       const encryptedInput = ev.reveal(id, request, cfg, onCopy);
 
       if (
-        onRevealLoad &&
         encryptedInput?.isRevealLoaded != null &&
         encryptedInput.isRevealLoaded instanceof Promise
       ) {
-        encryptedInput.isRevealLoaded.then(() => onRevealLoad());
+        encryptedInput.isRevealLoaded.then(() => {
+          if (onRevealLoad) {
+            onRevealLoad();
+          }
+        }).catch(e => {
+          if (onRevealError) {
+            onRevealError(e);
+          }
+        });
       }
     });
   }, [evervault]);
