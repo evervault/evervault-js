@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.2.0
+
+### Minor Changes
+
+- def1ba2: Add error handling to Reveal. Performance improvement by not loading Evervault SDK on Reveal, as it is not required
+
 ## 2.1.0
 
 ### Minor Changes
