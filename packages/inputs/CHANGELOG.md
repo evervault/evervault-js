@@ -1,5 +1,16 @@
 # @evervault/inputs
 
+## 2.13.0
+
+### Minor Changes
+
+- def1ba2: Add error handling to Reveal. Performance improvement by not loading Evervault SDK on Reveal, as it is not required
+
+### Patch Changes
+
+- Updated dependencies [def1ba2]
+  - @evervault/browser@2.13.0
+
 ## 2.12.1
 
 ### Patch Changes

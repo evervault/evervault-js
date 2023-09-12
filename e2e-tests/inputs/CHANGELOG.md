@@ -4,6 +4,13 @@
 
 ### Patch Changes
 
+- Updated dependencies [def1ba2]
+  - @evervault/inputs@2.13.0
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [d32bd4a]
   - @evervault/inputs@2.12.1
 
