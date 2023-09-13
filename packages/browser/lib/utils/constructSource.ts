@@ -19,9 +19,11 @@ export default function constructSource(
 
   // TODO: use URLSearchParams
   if (settings) {
-    Object.keys(settings).map((key) => {
-      settingsQuery += `&${key}=${encodeURIComponent(settings[key])}`;
-    });
+    Object.keys(settings)
+      .filter((k) => k !== "customStyles")
+      .map((key) => {
+        settingsQuery += `&${key}=${encodeURIComponent(settings[key])}`;
+      });
   }
 
   let { inputsOrigin } = config.input;

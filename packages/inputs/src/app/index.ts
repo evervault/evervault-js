@@ -1,6 +1,6 @@
 import Evervault from "@evervault/browser";
 
-import customStylesHandler from "./customStylesHandler";
+import { customStyles, urlStyles } from "./customStylesHandler";
 import "./styles.css";
 import {
   setInputLabels,
@@ -101,9 +101,9 @@ if (fontUrl) {
 }
 
 // Custom Styles
-customStylesHandler(urlParams);
+urlStyles(urlParams);
 // Custom Labels
-setInputLabels(theme, urlParams);
+setInputLabels(theme, urlParams, isReveal);
 // Custom Form Overrides
 const formOverrides = setFormOverrides(urlParams);
 
@@ -342,7 +342,11 @@ const onLoad = function () {
           event.ports[0]?.postMessage(await getData());
         } else if (event.data?.type == "revealRequestConfig") {
           try {
-            await setupReveal(event.data.request);
+            let revealRequestPromise = await setupReveal(event.data.request);
+            if (event.data.customStyles) {
+              customStyles(event.data.customStyles);
+            }
+            await revealRequestPromise;
 
             resolve(true);
           } catch (e) {

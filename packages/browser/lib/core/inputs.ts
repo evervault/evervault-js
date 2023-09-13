@@ -72,6 +72,10 @@ export default function Inputs(config: Config) {
 
               const requestStr = JSON.stringify(requestSerializable);
 
+              // filter any urls from the custom styles
+              const customStyles = settings?.customStyles
+                ? removeUrlsFromStyles(settings?.customStyles)
+                : undefined;
               const channel = new MessageChannel();
               (
                 document.getElementById("ev-iframe") as HTMLIFrameElement
@@ -79,6 +83,7 @@ export default function Inputs(config: Config) {
                 {
                   type: "revealRequestConfig",
                   request: requestStr,
+                  customStyles,
                 },
                 "*",
                 [channel.port2]
@@ -147,4 +152,18 @@ export default function Inputs(config: Config) {
       };
     },
   };
+}
+
+function removeUrlsFromStyles(customStyles: any) {
+  const newStyles = { ...customStyles };
+  for (const group in newStyles) {
+    for (const key in newStyles[group]) {
+      if (typeof newStyles[group][key] === "string") {
+        if (newStyles[group][key].match(/url\([^)]+\)/g, "none")) {
+          delete newStyles[group][key];
+        }
+      }
+    }
+  }
+  return newStyles;
 }
