@@ -62,7 +62,6 @@ export interface RevealConfig {
   customStyles?: CustomStyles;
 }
 
-
 export default class EvervaultClient {
   /** @deprecated */
   forms;
