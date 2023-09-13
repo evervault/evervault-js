@@ -1,5 +1,11 @@
 # @evervault/inputs
 
+## 2.15.0
+
+### Minor Changes
+
+- aff5a7f: change how custom styles are applied in Inputs
+
 ## 2.14.0
 
 ### Minor Changes
