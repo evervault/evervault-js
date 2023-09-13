@@ -1,3 +1,5 @@
+type CustomRevealStyles = { [key: string]: CSSStyleDeclaration };
+
 const supportedProperties = [
   {
     name: "primaryColor",
@@ -69,7 +71,7 @@ const supportedProperties = [
   },
 ];
 
-export default function (urlParams: URLSearchParams) {
+export function urlStyles(urlParams: URLSearchParams) {
   let root = document.documentElement;
   supportedProperties.forEach(({ name, variable }) => {
     const paramValue = urlParams.get(name);
@@ -77,4 +79,55 @@ export default function (urlParams: URLSearchParams) {
       root.style.setProperty(variable, paramValue);
     }
   });
+}
+
+export function customStyles(styles: CustomRevealStyles) {
+  if (!styles) {
+    return;
+  }
+
+  Object.entries(styles).forEach(([name, value]) => {
+    const id = getHtmlIdForRevealStyleProperty(name);
+    if (id) {
+      const element = document.getElementById(id);
+      if (element) {
+        for (const [styleName, styleValue] of Object.entries(value)) {
+          if (Object.hasOwn(element.style, styleName)) {
+            element.style.setProperty(styleName, styleValue);
+          }
+        }
+      }
+    }
+  });
+}
+
+function getHtmlIdForRevealStyleProperty(propertyName: string) {
+  switch (propertyName) {
+    case "cardNumberText":
+      return "cardnumber";
+    case "cardNumberLabel":
+      return "cardnumber-label";
+    case "cardNumberGroup":
+      return "cardnumbergroup";
+    case "securityCodeText":
+      return "securitycodelabelgroup";
+    case "securityCodeLabel":
+      return "securitycode-label";
+    case "securityCodeGroup":
+      return "securitycode";
+    case "expirationDateText":
+      return "expirationdate";
+    case "expirationDateLabel":
+      return "expirationdate-label";
+    case "expirationDateGroup":
+      return "expirationdategroup";
+    case "topRow":
+      return "toprow";
+    case "bottomRow":
+      return "bottomrow";
+    case "copyButton":
+      return "copybutton";
+    default:
+      return undefined;
+  }
 }

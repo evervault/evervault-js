@@ -182,6 +182,13 @@ textarea {
     display: flex;
     flex-direction: row;
     gap: calc(var(--reveal-font-size) * 0.5);
+    align-items: flex-end;
+  }
+
+  & .reveal-label {
+    font-size: var(--label-font-size);
+    font-weight: var(--label-weight);
+    color: var(--label-color);
   }
 
   & .reveal-row-bottom {

@@ -7,12 +7,15 @@ const defaultInputLabels = {
 
 export function setInputLabels(
   theme: string | null,
-  urlParams: URLSearchParams
+  urlParams: URLSearchParams,
+  isReveal: boolean
 ) {
   for (let [key, value] of Object.entries(defaultInputLabels)) {
     let param = urlParams.get(key);
     if (param) {
       value = param;
+    } else if (isReveal) {
+      value = "";
     } else if (key === "cardNumberLabel" && theme === "minimal") {
       value = "Card information";
     }

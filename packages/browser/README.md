@@ -227,6 +227,10 @@ your Relay you can add the component to your React app.
 
   evervault.reveal("reveal", request, config, () => alert("Copied from Clipboard!"));
 </script>
+
+For customising the style of the iframe and to set labels on the fields, Evervault Reveal can take an optional config
+object. For a full list of all the options and to see some examples, please read [our styling
+docs](https://docs.evervault.com/products/inputs#styling).
 ```
 
 | Parameter | Type                                                                | Required | Description                                                                           |

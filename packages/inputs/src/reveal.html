@@ -14,16 +14,20 @@
 
   <body>
     <div id="reveal-group" class="hide reveal-group">
-      <div class="reveal-row">
-        <div
-          class="reveal-string"
-          id="cardnumber"
-          name="cardnumber"
-          data-element="cardnumber"
-          data-testid="cardnumber"
-        >
-          0000 0000 0000 0000
+      <div class="reveal-row" id="toprow">
+        <div id="cardnumbergroup" class="reveal-label-group">
+          <div class="reveal-label cardNumberLabel" id="cardnumber-label"></div>
+          <div
+            class="reveal-string"
+            id="cardnumber"
+            name="cardnumber"
+            data-element="cardnumber"
+            data-testid="cardnumber"
+          >
+            0000 0000 0000 0000
+          </div>
         </div>
+
         <button id="copybutton">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -42,24 +46,36 @@
           </svg>
         </button>
       </div>
-      <div class="reveal-row reveal-row-bottom">
-        <div
-          class="reveal-string"
-          id="expirationdate"
-          name="expirationdate"
-          data-element="expirationdate"
-          data-testid="expirationdate"
-        >
-          00 / 00
+      <div class="reveal-row reveal-row-bottom" id="bottomrow">
+        <div id="expirationdategroup" class="reveal-label-group">
+          <div
+            class="reveal-label expirationDateLabel"
+            id="expirationdate-label"
+          ></div>
+          <div
+            class="reveal-string"
+            id="expirationdate"
+            name="expirationdate"
+            data-element="expirationdate"
+            data-testid="expirationdate"
+          >
+            00 / 00
+          </div>
         </div>
-        <div
-          class="reveal-string"
-          id="securitycode"
-          name="securitycode"
-          data-element="securitycode"
-          data-testid="securitycode"
-        >
-          000
+        <div id="securitycodelabelgroup" class="reveal-label-group">
+          <div
+            class="reveal-label securityCodeLabel"
+            id="securitycode-label"
+          ></div>
+          <div
+            class="reveal-string"
+            id="securitycode"
+            name="securitycode"
+            data-element="securitycode"
+            data-testid="securitycode"
+          >
+            000
+          </div>
         </div>
       </div>
     </div>
