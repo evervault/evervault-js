@@ -1,5 +1,16 @@
 # @evervault/inputs
 
+## 2.14.0
+
+### Minor Changes
+
+- a7df413: feat: added Labels and Custom Styles to Evervault Reveal
+
+### Patch Changes
+
+- Updated dependencies [a7df413]
+  - @evervault/browser@2.14.0
+
 ## 2.13.0
 
 ### Minor Changes
