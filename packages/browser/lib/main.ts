@@ -31,6 +31,38 @@ export interface EvervaultRequestProps {
   url?: string;
 }
 
+export interface CustomStyles {
+  cardNumberText?: CSSStyleDeclaration;
+  cardNumberLabel?: CSSStyleDeclaration;
+  cardNumberGroup?: CSSStyleDeclaration;
+  securityCodeText?: CSSStyleDeclaration;
+  securityCodeLabel?: CSSStyleDeclaration;
+  securityCodeGroup?: CSSStyleDeclaration;
+  expirationDateText?: CSSStyleDeclaration;
+  expirationDateLabel?: CSSStyleDeclaration;
+  expirationDateGroup?: CSSStyleDeclaration;
+  topRow?: CSSStyleDeclaration;
+  bottomRow?: CSSStyleDeclaration;
+  copyButton?: CSSStyleDeclaration;
+}
+
+export interface RevealConfig {
+  height?: string | "auto";
+  revealFontSize?: string;
+  revealFontWeight?: string;
+  revealTextColor?: string;
+  fontUrl?: string;
+  fontFamily?: string;
+  cardNumberLabel?: string;
+  expirationDateLabel?: string;
+  securityCodeLabel?: string;
+  labelFontSize?: string;
+  labelFontWeight?: string;
+  labelColor?: string;
+  customStyles?: CustomStyles;
+}
+
+
 export default class EvervaultClient {
   /** @deprecated */
   forms;
@@ -188,7 +220,7 @@ export default class EvervaultClient {
   reveal(
     elementId: string,
     request: Request | EvervaultRequestProps,
-    config?: Record<string, any>,
+    config?: RevealConfig,
     onCopy?: () => void
   ): {
     isRevealLoaded: Promise<boolean>;
