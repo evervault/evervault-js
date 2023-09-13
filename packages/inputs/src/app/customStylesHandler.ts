@@ -86,16 +86,14 @@ export function customStyles(styles: CustomRevealStyles) {
     return;
   }
 
+  styles = removeUrlsFromStyles(styles);
+
   Object.entries(styles).forEach(([name, value]) => {
     const id = getHtmlIdForRevealStyleProperty(name);
     if (id) {
       const element = document.getElementById(id);
       if (element) {
-        for (const [styleName, styleValue] of Object.entries(value)) {
-          if (Object.hasOwn(element.style, styleName)) {
-            element.style.setProperty(styleName, styleValue);
-          }
-        }
+        Object.assign(element.style, value);
       }
     }
   });
@@ -130,4 +128,18 @@ function getHtmlIdForRevealStyleProperty(propertyName: string) {
     default:
       return undefined;
   }
+}
+
+function removeUrlsFromStyles(customStyles: any) {
+  const newStyles = { ...customStyles };
+  for (const group in newStyles) {
+    for (const key in newStyles[group]) {
+      if (typeof newStyles[group][key] === "string") {
+        if (newStyles[group][key].match(/url\([^)]+\)/g, "none")) {
+          delete newStyles[group][key];
+        }
+      }
+    }
+  }
+  return newStyles;
 }

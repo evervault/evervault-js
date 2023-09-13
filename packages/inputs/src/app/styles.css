@@ -197,6 +197,7 @@ textarea {
 
   & button {
     background: none transparent;
+    height: var(--reveal-font-size);
 
     &:hover {
       cursor: pointer;
