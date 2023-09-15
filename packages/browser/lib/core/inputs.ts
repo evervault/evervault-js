@@ -97,7 +97,22 @@ export default function Inputs(config: Config) {
             }
           }
           if (event.data?.type === "EV_REVEAL_ERROR_EVENT") {
-            reject(event.data?.error);
+            let errorStr = event.data?.error;
+            if (errorStr) {
+              try {
+                const error = JSON.parse(errorStr);
+                try {
+                  // @ts-ignore
+                  // Try and reconstruct the exact error type if available in this window context.
+                  // TS despises this but we catch and throw a generic error so its fine.
+                  reject(new window[error.type](error.message));
+                } catch (e) {
+                  reject(new Error(error.message));
+                }
+              } catch (e) {
+                reject(`Failed to parse Error: ${e}, Unparsed: ${errorStr}`);
+              }
+            }
           }
           if (
             event.data?.type === "EV_REVEAL_LOADED" ||
