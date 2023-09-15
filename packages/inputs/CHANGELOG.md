@@ -1,5 +1,13 @@
 # @evervault/inputs
 
+## 2.15.1
+
+### Patch Changes
+
+- 4a1ac83: fix error serialization in safari
+- Updated dependencies [4a1ac83]
+  - @evervault/browser@2.14.1
+
 ## 2.15.0
 
 ### Minor Changes
