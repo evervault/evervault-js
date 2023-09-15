@@ -381,8 +381,15 @@ const onLoad = function () {
       }
     })
     .catch((e) => {
-      const test = parent.postMessage(
-        { type: "EV_REVEAL_ERROR_EVENT", error: e },
+      const serializedError = JSON.stringify({
+        type: e.name,
+        message: e.message,
+        cause: e.cause,
+      });
+      parent.postMessage(
+        {
+          type: "EV_REVEAL_ERROR_EVENT", error: serializedError
+        },
         "*"
       );
     });
