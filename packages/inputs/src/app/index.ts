@@ -388,7 +388,8 @@ const onLoad = function () {
       });
       parent.postMessage(
         {
-          type: "EV_REVEAL_ERROR_EVENT", error: serializedError
+          type: "EV_REVEAL_ERROR_EVENT",
+          error: serializedError,
         },
         "*"
       );
