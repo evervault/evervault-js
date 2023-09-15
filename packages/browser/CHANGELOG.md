@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.14.1
+
+### Patch Changes
+
+- 4a1ac83: fix error serialization in safari
+
 ## 2.14.0
 
 ### Minor Changes
