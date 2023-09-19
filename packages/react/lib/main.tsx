@@ -141,7 +141,7 @@ export const EvervaultProvider = ({
   const ev = React.useMemo<PromisifiedEvervaultClient>(
     () =>
       new PromisifiedEvervaultClient((resolve, reject) => {
-        loadEvervault(customConfig.jsSdkUrl).then((evervault) => {
+        loadEvervault(customConfig?.jsSdkUrl).then((evervault) => {
           if (evervault !== undefined) {
             resolve(new evervault(teamId, appId, customConfig));
           } else {
