@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.2.1
+
+### Patch Changes
+
+- 2326ad6: fix: handle undefined custom config
+
 ## 2.2.0
 
 ### Minor Changes
