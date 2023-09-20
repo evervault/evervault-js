@@ -21,7 +21,7 @@ export const setupCrypto = () => {
 
   class FileReaderPolyfill {
     constructor() {
-      this.readAsArrayBuffer = (file) => {
+      this.readAsArrayBuffer = () => {
         this.result = Buffer.from([0x00]);
         this.onloadend({});
       };

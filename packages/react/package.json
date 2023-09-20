@@ -33,6 +33,7 @@
     "react": ">=18.0.0"
   },
   "devDependencies": {
-    "@evervault/browser": "workspace:^"
+    "@evervault/browser": "workspace:^",
+    "tsconfig": "workspace:^"
   }
 }

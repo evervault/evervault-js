@@ -31,6 +31,8 @@
     "coverage": "vitest --coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "typecheck": "tsc --noEmit",
     "build": "vite build",
     "dev": "vite"
@@ -40,6 +42,12 @@
     "events": "^3.3.0"
   },
   "devDependencies": {
-    "msw": "^1.2.3"
+    "@peculiar/webcrypto": "^1.4.3",
+    "msw": "^1.2.3",
+    "nock": "^13.3.0",
+    "tsconfig": "workspace:^",
+    "vite-plugin-dts": "^2.3.0",
+    "vitest": "^0.29.8",
+    "web-file-polyfill": "^1.0.4"
   }
 }

@@ -4,13 +4,13 @@
 
 // Almost every ASN.1 type that's important for CSR
 // can be represented generically with only a few rules.
-function ASN1(/*type, hexstrings...*/) {
-  var args = Array.prototype.slice.call(arguments);
-  var typ = args.shift();
-  var str = args.join("").replace(/\s+/g, "").toLowerCase();
-  var len = str.length / 2;
-  var lenlen = 0;
-  var hex = typ;
+function ASN1(/* type, hexstrings... */) {
+  const args = Array.prototype.slice.call(arguments);
+  const typ = args.shift();
+  const str = args.join("").replace(/\s+/g, "").toLowerCase();
+  let len = str.length / 2;
+  let lenlen = 0;
+  let hex = typ;
 
   // We can't have an odd number of hex chars
   if (len !== Math.round(len)) {
@@ -27,7 +27,7 @@ function ASN1(/*type, hexstrings...*/) {
     lenlen += 1;
     while (len > 255) {
       lenlen += 1;
-      len = len >> 8;
+      len >>= 8;
     }
   }
 
@@ -39,13 +39,13 @@ function ASN1(/*type, hexstrings...*/) {
 
 // The Integer type has some special rules
 ASN1.UInt = function UINT() {
-  var str = Array.prototype.slice.call(arguments).join("");
-  var first = parseInt(str.slice(0, 2), 16);
+  let str = Array.prototype.slice.call(arguments).join("");
+  const first = parseInt(str.slice(0, 2), 16);
 
   // If the first byte is 0x80 or greater, the number is considered negative
   // Therefore we add a '00' prefix if the 0x80 bit is set
   if (0x80 & first) {
-    str = "00" + str;
+    str = `00${str}`;
   }
 
   return ASN1("02", str);
@@ -53,15 +53,15 @@ ASN1.UInt = function UINT() {
 
 // The Bit String type also has a special rule
 ASN1.BitStr = function BITSTR() {
-  var str = Array.prototype.slice.call(arguments).join("");
+  const str = Array.prototype.slice.call(arguments).join("");
   // '00' is a mask of how many bits of the next byte to ignore
-  return ASN1("03", "00" + str);
+  return ASN1("03", `00${str}`);
 };
 
 ASN1.numToHex = function (d) {
   d = d.toString(16);
   if (d.length % 2) {
-    return "0" + d;
+    return `0${d}`;
   }
   return d;
 };

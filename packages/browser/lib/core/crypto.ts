@@ -1,38 +1,37 @@
+import { EncryptionSubConfig } from "../config";
+import { uint8ArrayToBase64String, utf8StringToUint8Array } from "../encoding";
 import {
   Datatypes,
   errors,
   concatUint8Arrays,
   ecPointCompress,
+  crc32,
 } from "../utils";
-import { uint8ArrayToBase64String, utf8StringToUint8Array } from "../encoding";
-import { crc32 } from "../utils";
-import { EncryptionSubConfig } from "../config";
 
-const generateBytes = async (byteLength: number) => {
-  let randomBytes = new Uint8Array(byteLength);
+function generateBytes(byteLength: number): Uint8Array {
+  const randomBytes = new Uint8Array(byteLength);
   if (window.crypto) {
     window.crypto.getRandomValues(randomBytes);
     return randomBytes;
-  } else {
-    throw new errors.CryptoError(
-      "Your browser is outdated and does not support the Web Crypto API. Please upgrade it."
-    );
   }
-};
+  throw new errors.CryptoError(
+    "Your browser is outdated and does not support the Web Crypto API. Please upgrade it."
+  );
+}
 
-function base64RemovePadding(str: string) {
+function base64RemovePadding(str: string): string {
   return str.replace(/={1,2}$/, "");
 }
 
 async function formatEncryptedData(
   evVersion: string,
-  datatype = "string",
+  datatype: string,
   keyIv: string,
   ecdhPublicKey: CryptoKey,
   encryptedData: string,
   isDebug: boolean
-) {
-  const _evVersionPrefix = base64RemovePadding(
+): Promise<string> {
+  const evVersionPrefix = base64RemovePadding(
     uint8ArrayToBase64String(utf8StringToUint8Array(evVersion))
   );
 
@@ -41,8 +40,8 @@ async function formatEncryptedData(
     ecdhPublicKey
   );
   const compressedKey = ecPointCompress(exportableEcdhPublicKey);
-  return `ev:${isDebug ? "debug:" : ""}${_evVersionPrefix}${
-    datatype !== "string" ? ":" + datatype : ""
+  return `ev:${isDebug ? "debug:" : ""}${evVersionPrefix}${
+    datatype !== "string" ? `:${datatype}` : ""
   }:${base64RemovePadding(keyIv)}:${base64RemovePadding(
     uint8ArrayToBase64String(compressedKey)
   )}:${base64RemovePadding(encryptedData)}:$`;
@@ -107,11 +106,10 @@ async function formatEncryptedFileOrBlob(
     return new File([finalData], fileName, {
       type: "application/octet-stream",
     });
-  } else {
-    return new Blob([finalData], {
-      type: "application/octet-stream",
-    });
   }
+  return new Blob([finalData], {
+    type: "application/octet-stream",
+  });
 }
 
 export class CoreCrypto {
@@ -135,8 +133,10 @@ export class CoreCrypto {
     this.#config = config;
   }
 
-  async #encryptObject(data: Record<string, unknown>): Promise<unknown> {
-    return await this.#traverseObject({
+  async #encryptObject(
+    data: Datatypes.EncryptableObject
+  ): Promise<Record<string, string | string[] | Record<string, string>>> {
+    return this.#traverseObject({
       ...data,
     });
   }
@@ -149,7 +149,7 @@ export class CoreCrypto {
         `File size must be less than ${this.#config.maxFileSizeInMB}MB`
       );
     }
-    const keyIv = await generateBytes(this.#config.ivLength);
+    const keyIv = generateBytes(this.#config.ivLength);
 
     const derivedSecretImported = await window.crypto.subtle.importKey(
       "raw",
@@ -212,8 +212,8 @@ export class CoreCrypto {
     });
   }
 
-  async #encryptString(str: string, datatype: string) {
-    const keyIv = await generateBytes(this.#config.ivLength);
+  async #encryptString(str: string, datatype: string): Promise<string> {
+    const keyIv = generateBytes(this.#config.ivLength);
 
     const derivedSecretImported = await window.crypto.subtle.importKey(
       "raw",
@@ -236,7 +236,7 @@ export class CoreCrypto {
       utf8StringToUint8Array(str)
     );
 
-    return await formatEncryptedData(
+    return formatEncryptedData(
       this.#config.evVersion,
       datatype,
       uint8ArrayToBase64String(keyIv),
@@ -247,53 +247,65 @@ export class CoreCrypto {
   }
 
   // Use unknown in interal methods
-  async #traverseObject(data: unknown): Promise<unknown> {
+  async #traverseObject(
+    data: Datatypes.EncryptableObject
+  ): Promise<Record<string, string | string[] | Record<string, string>>>;
+
+  async #traverseObject(
+    data: Datatypes.EncryptableAsString[]
+  ): Promise<string[]>;
+
+  async #traverseObject(data: Datatypes.EncryptableAsString): Promise<string>;
+  async #traverseObject(data: unknown) {
     if (Datatypes.isEncryptableAsString(data)) {
-      return await this.#encryptString(
+      return this.#encryptString(
         Datatypes.ensureString(data),
         Datatypes.getHeaderType(data)
       );
-    } else if (Datatypes.isObjectStrict(data)) {
+    }
+    if (Datatypes.isObjectStrict(data)) {
       const encryptedObject = { ...data };
-      for (let [key, value] of Object.entries(encryptedObject)) {
+      /* eslint-disable no-await-in-loop */
+      for (const [key, value] of Object.entries(encryptedObject)) {
         encryptedObject[key] = await this.#traverseObject(value);
       }
+      /* eslint-enable no-await-in-loop */
       return encryptedObject;
-    } else if (Datatypes.isArray(data)) {
-      const encryptedArray = [...data];
-      return await Promise.all(
-        encryptedArray.map(async (value) => {
-          return await this.#traverseObject(value);
-        })
-      );
-    } else {
-      return data;
     }
+    if (Datatypes.isArray(data)) {
+      const encryptedArray = [...data];
+      return Promise.all(
+        encryptedArray.map(async (value) => this.#traverseObject(value))
+      );
+    }
+    return data;
   }
 
-  // Use any in public methods
-  async encrypt(data: any): Promise<any> {
+  async encrypt(data: File): Promise<File>;
+  async encrypt(data: Blob): Promise<Blob>;
+  async encrypt(data: Datatypes.EncryptableAsString): Promise<string>;
+  async encrypt(data: unknown) {
     if (!Datatypes.isDefined(data)) {
       throw new Error("Data must not be undefined");
     }
 
     if (Datatypes.isFile(data)) {
-      return await this.#encryptFile(data);
+      return this.#encryptFile(data);
     }
 
     if (Datatypes.isObjectStrict(data)) {
-      return await this.#encryptObject(data);
+      return this.#encryptObject(data);
     }
 
     if (Datatypes.isArray(data)) {
-      return await this.#traverseObject([...data]);
-    } else if (Datatypes.isEncryptableAsString(data)) {
-      return await this.#encryptString(
+      return this.#traverseObject([...data]);
+    }
+    if (Datatypes.isEncryptableAsString(data)) {
+      return this.#encryptString(
         Datatypes.ensureString(data),
         Datatypes.getHeaderType(data)
       );
-    } else {
-      throw new Error("Data supplied is not encryptable");
     }
+    throw new Error("Data supplied is not encryptable");
   }
 }

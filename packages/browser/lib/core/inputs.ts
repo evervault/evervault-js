@@ -1,14 +1,13 @@
+import { constructSource, calculateHeight } from "../utils";
 import type { Config } from "../config";
 import type { EvervaultRequestProps } from "../main";
 
-import { constructSource, calculateHeight } from "../utils";
-
 export default function Inputs(config: Config) {
   return {
-    generate: function (
+    generate(
       id: string,
-      settings: Record<string, any>,
-      isReveal: boolean = false,
+      settings: Record<string, unknown>,
+      isReveal = false,
       request?: Request | EvervaultRequestProps,
       onCopyCallback?: () => void
     ) {
@@ -49,7 +48,7 @@ export default function Inputs(config: Config) {
                 throw new Error("Request is required for Evervault Reveal");
               }
 
-              let requestSerializable: EvervaultRequestProps = {
+              const requestSerializable: EvervaultRequestProps = {
                 cache: request.cache,
                 credentials: request.credentials,
                 destination: request.destination,
@@ -97,7 +96,7 @@ export default function Inputs(config: Config) {
             }
           }
           if (event.data?.type === "EV_REVEAL_ERROR_EVENT") {
-            let errorStr = event.data?.error;
+            const errorStr = event.data?.error;
             if (errorStr) {
               try {
                 const error = JSON.parse(errorStr);
@@ -140,7 +139,7 @@ export default function Inputs(config: Config) {
               document.getElementById("ev-iframe") as HTMLIFrameElement
             ).contentWindow?.postMessage("message", "*", [channel.port2]);
           }),
-        on: (event: "change" | unknown, fn: (data: any) => void) => {
+        on: (event: "change" | unknown, fn: (data: unknown) => void) => {
           if (event === "change") {
             window.addEventListener(
               "message",
@@ -158,7 +157,7 @@ export default function Inputs(config: Config) {
             );
           }
         },
-        setLabels: (labels: Record<string, any>) => {
+        setLabels: (labels: Record<string, unknown>) => {
           const channel = new MessageChannel();
           (
             document.getElementById("ev-iframe") as HTMLIFrameElement
@@ -169,7 +168,7 @@ export default function Inputs(config: Config) {
   };
 }
 
-function removeUrlsFromStyles(customStyles: any) {
+function removeUrlsFromStyles(customStyles: unknown) {
   const newStyles = { ...customStyles };
   for (const group in newStyles) {
     for (const key in newStyles[group]) {

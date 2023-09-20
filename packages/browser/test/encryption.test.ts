@@ -1,10 +1,10 @@
 import { Buffer } from "node:buffer";
 
+import crc32 from "crc-32";
 import { describe, assert, it, beforeEach, expect } from "vitest";
 
 import Evervault from "../lib/main";
 import { setupCrypto } from "./setup";
-import crc32 from "crc-32";
 
 const encryptedStringRegex =
   /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;

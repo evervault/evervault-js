@@ -1,7 +1,7 @@
 import Evervault from "./lib/main";
 
 (async () => {
-  var evervault = new Evervault(
+  const evervault = new Evervault(
     import.meta.env.VITE_EV_TEAM_UUID,
     import.meta.env.VITE_EV_APP_UUID
   );

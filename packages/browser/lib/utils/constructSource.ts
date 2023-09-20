@@ -1,19 +1,19 @@
 const INPUTS_URL_SLUG = "/v2/index.html";
 const REVEAL_URL_SLUG = "/v2/reveal.html";
 
-type ConstructSourceConfig = {
+interface ConstructSourceConfig {
   teamId: string;
   appId: string;
   input: {
     inputsOrigin: string;
   };
-};
+}
 
 // Settings will become more specific in future
 export default function constructSource(
   config: ConstructSourceConfig,
   isReveal: boolean,
-  settings?: Record<string, any>
+  settings?: Record<string, unknown>
 ) {
   let settingsQuery = "";
 
@@ -21,12 +21,12 @@ export default function constructSource(
   if (settings) {
     Object.keys(settings)
       .filter((k) => k !== "customStyles")
-      .map((key) => {
+      .forEach((key) => {
         settingsQuery += `&${key}=${encodeURIComponent(settings[key])}`;
       });
   }
 
-  let { inputsOrigin } = config.input;
+  const { inputsOrigin } = config.input;
   const { teamId, appId } = config;
 
   let inputsUrl = inputsOrigin + INPUTS_URL_SLUG;

@@ -1,12 +1,12 @@
-type CalculateHeightSettings = {
+interface CalculateHeightSettings {
   height?: string;
   theme?: "minimal" | "material";
-};
+}
 
 export default function calculateHeight(
   settings?: CalculateHeightSettings,
   isReveal = false
-) {
+): string {
   if (settings != null) {
     if (settings.height) {
       return settings.height;

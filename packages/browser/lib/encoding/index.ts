@@ -28,7 +28,7 @@ export function uint8ArrayToHexString(arr: Uint8Array): string {
 
 export function base64StringToUint8Array(base64: string): Uint8Array {
   const binaryStr = window.atob(base64);
-  const length = binaryStr.length;
+  const { length } = binaryStr;
   const result = new Uint8Array(length);
 
   for (let i = 0; i < length; i++) {

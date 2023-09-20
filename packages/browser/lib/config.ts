@@ -2,40 +2,27 @@ const KEYS_URL = "https://keys.evervault.com";
 const INPUTS_ORIGIN = "https://inputs.evervault.com";
 const API_URL = "https://api.evervault.com";
 
-export type ConfigUrls = {
+export interface ConfigUrls {
   keysUrl?: string;
   inputsUrl?: string;
   inputsOrigin?: string;
   apiUrl?: string;
-};
+}
 
-export type EncryptionSubConfig = typeof encryptionConstants & {
-  publicKey?: string;
-};
-
-export type HttpConfig = {
+export interface HttpConfig {
   keysUrl: string;
   apiUrl: string;
-};
+}
 
-export type InputConfig = {
+export interface InputConfig {
   inputsOrigin: string;
-};
+}
 
-export type KeyConfig = {
+export interface KeyConfig {
   ecdhP256KeyUncompressed: string;
   ecdhP256Key: string;
   isDebugMode: boolean;
-};
-
-export type Config = {
-  teamId: string;
-  appId: string;
-  encryption: EncryptionSubConfig;
-  http: HttpConfig;
-  input: InputConfig;
-  debugKey: typeof debugKey;
-};
+}
 
 export type SdkContext = "inputs" | "default";
 
@@ -62,6 +49,10 @@ const encryptionConstants = {
   maxFileSizeInBytes: MAX_FILE_SIZE_IN_MB * 1024 * 1024,
 };
 
+export type EncryptionSubConfig = typeof encryptionConstants & {
+  publicKey?: string;
+};
+
 const createEncryptionConfig = (publicKey?: string) =>
   ({
     ...encryptionConstants,
@@ -75,6 +66,15 @@ const debugKey = {
   isDebugMode: true,
 } as const satisfies KeyConfig;
 
+export interface Config {
+  teamId: string;
+  appId: string;
+  encryption: EncryptionSubConfig;
+  http: HttpConfig;
+  input: InputConfig;
+  debugKey: typeof debugKey;
+}
+
 export default function Config(
   teamId: string,
   appId: string,
@@ -86,12 +86,12 @@ export default function Config(
     appId,
     encryption: createEncryptionConfig(publicKey),
     http: {
-      keysUrl: customUrls?.keysUrl || DEFAULT_CONFIG_URLS.keysUrl,
-      apiUrl: customUrls?.apiUrl || API_URL,
+      keysUrl: customUrls?.keysUrl ?? DEFAULT_CONFIG_URLS.keysUrl,
+      apiUrl: customUrls?.apiUrl ?? API_URL,
     },
     input: {
       inputsOrigin:
-        customUrls?.inputsOrigin || DEFAULT_CONFIG_URLS.inputsOrigin,
+        customUrls?.inputsOrigin ?? DEFAULT_CONFIG_URLS.inputsOrigin,
     },
     debugKey,
   };
