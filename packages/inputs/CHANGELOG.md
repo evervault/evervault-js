@@ -1,5 +1,11 @@
 # @evervault/inputs
 
+## 2.15.2
+
+### Patch Changes
+
+- 56a0752: Prevent material theme from overriding disableCVV config
+
 ## 2.15.1
 
 ### Patch Changes
