@@ -262,7 +262,7 @@ textarea {
     padding: 0.5rem 0;
   }
 
-  & .input-group {
+  & .input-group:not(.hide) {
     display: flex;
     align-items: center;
     justify-content: flex-start;
