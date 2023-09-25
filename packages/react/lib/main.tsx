@@ -1,11 +1,11 @@
-import * as React from "react";
 import type EvervaultClient from "@evervault/browser";
 import type {
   EvervaultRequestProps,
   CustomConfig as BrowserConfig,
-  RevealConfig,
-  InputConfig,
+  RevealSettings,
+  InputSettings,
 } from "@evervault/browser";
+import * as React from "react";
 
 export interface CustomConfig extends BrowserConfig {
   jsSdkUrl: string;
@@ -20,25 +20,22 @@ export interface EvervaultProviderProps {
 
 export interface EvervaultInputProps {
   onChange?: (cardData: unknown) => void;
-  config?: InputConfig;
+  config?: InputSettings;
   onInputsLoad?: () => void;
 }
 
 export interface EvervaultRevealProps {
   request: Request | EvervaultRequestProps;
-  config?: RevealConfig;
+  config?: RevealSettings;
   onCopy?: () => void;
   onRevealLoad?: () => void;
   onRevealError?: (e: unknown) => void;
 }
 
 export class PromisifiedEvervaultClient extends Promise<EvervaultClient> {
-  constructor(...args: ConstructorParameters<typeof Promise<EvervaultClient>>) {
-    super(...args);
-  }
-
-  public encrypt(data: unknown): Promise<string> {
-    return this.then((ev) => ev.encrypt(data));
+  public async encrypt(data: unknown) {
+    const ev = await this;
+    return ev.encrypt(data);
   }
 }
 
@@ -46,7 +43,7 @@ export const EvervaultContext =
   React.createContext<PromisifiedEvervaultClient | null>(null);
 
 const EVERVAULT_URL = "https://js.evervault.com/v2";
-const injectScript = (overrideUrl?: string) => {
+function injectScript(overrideUrl?: string) {
   const script = document.createElement("script");
 
   if (overrideUrl) {
@@ -66,11 +63,12 @@ const injectScript = (overrideUrl?: string) => {
   headOrBody.appendChild(script);
 
   return script;
-};
+}
 
-let evervaultPromise: Promise<unknown> | null = null;
+type EvervaultClientPromise = Promise<typeof EvervaultClient | undefined>;
+let evervaultPromise: EvervaultClientPromise | null = null;
 
-const loadScript = (overrideUrl?: string) => {
+function loadScript(overrideUrl?: string): EvervaultClientPromise | null {
   // Ensure that we only attempt to load Evervault.js at most once
   if (evervaultPromise !== null) {
     return evervaultPromise;
@@ -78,7 +76,7 @@ const loadScript = (overrideUrl?: string) => {
 
   evervaultPromise = new Promise((resolve, reject) => {
     if (typeof window === "undefined") {
-      resolve(null);
+      resolve(undefined);
       return;
     }
 
@@ -104,33 +102,29 @@ const loadScript = (overrideUrl?: string) => {
       });
     } catch (error) {
       reject(error);
-      return;
     }
   });
 
   return evervaultPromise;
-};
+}
 
-const loadEvervault = (
-  overrideUrl?: string
-): Promise<typeof EvervaultClient | undefined> => {
-  const evervaultPromise = Promise.resolve().then(() =>
-    loadScript(overrideUrl)
-  );
+function loadEvervault(overrideUrl?: string): EvervaultClientPromise {
+  const evPromise = Promise.resolve().then(() => loadScript(overrideUrl));
 
   let loadCalled = false;
 
-  evervaultPromise.catch((err) => {
+  evPromise.catch((err) => {
     if (!loadCalled) {
       console.warn(err);
     }
   });
 
   loadCalled = true;
-  return evervaultPromise.then(() => {
+  return evPromise.then((ev) => {
     if (typeof window !== "undefined") return window.Evervault;
+    return ev ?? undefined;
   });
-};
+}
 
 export const EvervaultProvider = ({
   teamId,
@@ -150,9 +144,9 @@ export const EvervaultProvider = ({
   const ev = React.useMemo<PromisifiedEvervaultClient>(
     () =>
       new PromisifiedEvervaultClient((resolve, reject) => {
-        loadEvervault(customConfig?.jsSdkUrl).then((evervault) => {
-          if (evervault !== undefined) {
-            resolve(new evervault(teamId, appId, customConfig));
+        void loadEvervault(customConfig?.jsSdkUrl).then((Evervault) => {
+          if (Evervault !== undefined) {
+            resolve(new Evervault(teamId, appId, customConfig));
           } else {
             console.error("Evervault.js not available");
             reject("Evervault.js not available");
@@ -182,21 +176,12 @@ export function EvervaultInput({
 
   const evervault = useEvervault();
 
-  let cfg = config;
-  if (!cfg) {
-    cfg = {
-      height: "auto",
-    };
-  } else if (!cfg.height) {
-    cfg = {
-      height: "auto",
-      ...cfg,
-    };
-  }
+  const { height = "auto", ...cfg } = config ?? {};
+  const conf: InputSettings = !cfg ? { height } : { height, ...cfg };
 
   React.useEffect(() => {
-    evervault?.then((ev) => {
-      const encryptedInput = ev.inputs(id, cfg);
+    void evervault?.then((ev) => {
+      const encryptedInput = ev.inputs(id, conf);
       encryptedInput?.on("change", (cardData: unknown) => {
         if (typeof onChange === "function") {
           onChange(cardData);
@@ -208,7 +193,7 @@ export function EvervaultInput({
         encryptedInput?.isInputsLoaded != null &&
         encryptedInput.isInputsLoaded instanceof Promise
       ) {
-        encryptedInput.isInputsLoaded.then(() => onInputsLoad());
+        void encryptedInput.isInputsLoaded.then(() => onInputsLoad());
       }
     });
   }, [evervault]);
@@ -216,13 +201,13 @@ export function EvervaultInput({
   return <div id={id} />;
 }
 
-export const EvervaultReveal = ({
+export function EvervaultReveal({
   request,
   config,
   onCopy,
   onRevealLoad,
   onRevealError,
-}: EvervaultRevealProps) => {
+}: EvervaultRevealProps) {
   const id = React.useId();
 
   if (typeof window === "undefined") {
@@ -231,21 +216,12 @@ export const EvervaultReveal = ({
 
   const evervault = useEvervault();
 
-  let cfg = config;
-  if (!cfg) {
-    cfg = {
-      height: "auto",
-    };
-  } else if (!cfg.height) {
-    cfg = {
-      height: "auto",
-      ...cfg,
-    };
-  }
+  const { height = "auto", ...cfg } = config ?? {};
+  const conf: RevealSettings = !cfg ? { height } : { height, ...cfg };
 
   React.useEffect(() => {
-    evervault?.then((ev) => {
-      const encryptedInput = ev.reveal(id, request, cfg, onCopy);
+    void evervault?.then((ev) => {
+      const encryptedInput = ev.reveal(id, request, conf, onCopy);
 
       if (
         encryptedInput?.isRevealLoaded != null &&
@@ -267,7 +243,7 @@ export const EvervaultReveal = ({
   }, [evervault]);
 
   return <div id={id} />;
-};
+}
 
 export function useEvervault(): PromisifiedEvervaultClient | null {
   if (typeof window === "undefined") {

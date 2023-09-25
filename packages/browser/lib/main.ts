@@ -12,7 +12,7 @@ import type { InputSettings, RevealSettings } from "./types";
 
 export type * from "./config";
 export type * from "./types";
-export type { EncryptableAsString } from "./utils/datatypes";
+export type { Datatypes };
 
 export interface CustomConfig {
   isDebugMode?: boolean;
@@ -150,7 +150,6 @@ export default class EvervaultClient {
   async encrypt(
     data: Datatypes.EncryptableValue[]
   ): Promise<Datatypes.EncryptedValue[]>;
-
   async encrypt(
     data: Datatypes.EncryptableObject
   ): Promise<NonNullable<unknown>>;

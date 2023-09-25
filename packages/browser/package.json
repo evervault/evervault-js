@@ -25,17 +25,17 @@
     }
   },
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "build": "vite build",
     "coverage": "vitest --coverage",
+    "dev": "vite",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "typecheck": "tsc --noEmit",
-    "build": "vite build",
-    "dev": "vite"
+    "preinstall": "npx only-allow pnpm",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "license": "MIT",
   "dependencies": {
