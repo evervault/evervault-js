@@ -9,13 +9,12 @@ import Evervault from "./lib/main";
 
   const inputs = evervault.inputs("ev-inputs");
 
-  const hook = inputs.on("change", async (encryptedCardData) => {
+  inputs.on("change", (encryptedCardData) => {
     console.log(encryptedCardData);
   });
 
-  inputs.isInputsLoaded.then((isLoaded) => {
-    if (isLoaded) {
-      console.log("Inputs loaded");
-    }
-  });
-})();
+  const isLoaded = await inputs.isInputsLoaded;
+  if (isLoaded) {
+    console.log("Inputs loaded");
+  }
+})().catch(console.error);

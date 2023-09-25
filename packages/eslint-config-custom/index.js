@@ -42,7 +42,7 @@ module.exports = {
       {
         devDependencies: [
           "**/vite.config.mts",
-          "**/test/*.js",
+          "**/test/*",
           "**/*.test.*",
           "**/*.spec.*",
         ],
@@ -100,10 +100,11 @@ module.exports = {
   overrides: [
     {
       files: ["*.js", "*.jsx"],
+      extends: ["plugin:@typescript-eslint/disable-type-checked"],
       rules: { "@typescript-eslint/no-var-requires": "off" },
     },
     {
-      files: ["scaffold.js", "*.spec.*", "*.test.*"],
+      files: ["scaffold.js", "*.spec.*", "*.test.*", "test/*"],
       rules: { "no-console": "off" },
     },
   ],

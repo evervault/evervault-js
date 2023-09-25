@@ -8,8 +8,10 @@ import {
   buildCageKeyFromSuppliedPublicKey,
   deriveSharedSecret,
 } from "./utils";
+import type { InputSettings, RevealSettings } from "./types";
 
 export type * from "./config";
+export type * from "./types";
 export type { EncryptableAsString } from "./utils/datatypes";
 
 export interface CustomConfig {
@@ -30,38 +32,6 @@ export interface EvervaultRequestProps {
   referrer?: string;
   referrerPolicy?: ReferrerPolicy;
   url?: string;
-}
-
-export interface CustomStyles {
-  cardNumberText?: CSSStyleDeclaration;
-  cardNumberLabel?: CSSStyleDeclaration;
-  cardNumberGroup?: CSSStyleDeclaration;
-  securityCodeText?: CSSStyleDeclaration;
-  securityCodeLabel?: CSSStyleDeclaration;
-  securityCodeGroup?: CSSStyleDeclaration;
-  expirationDateText?: CSSStyleDeclaration;
-  expirationDateLabel?: CSSStyleDeclaration;
-  expirationDateGroup?: CSSStyleDeclaration;
-  topRow?: CSSStyleDeclaration;
-  bottomRow?: CSSStyleDeclaration;
-  copyButton?: CSSStyleDeclaration;
-}
-
-export type InputConfig = string | Record<string, unknown>;
-export interface RevealConfig {
-  height?: string;
-  revealFontSize?: string;
-  revealFontWeight?: string;
-  revealTextColor?: string;
-  fontUrl?: string;
-  fontFamily?: string;
-  cardNumberLabel?: string;
-  expirationDateLabel?: string;
-  securityCodeLabel?: string;
-  labelFontSize?: string;
-  labelFontWeight?: string;
-  labelColor?: string;
-  customStyles?: CustomStyles;
 }
 
 export default class EvervaultClient {
@@ -173,8 +143,19 @@ export default class EvervaultClient {
    * We also support themes and custom styles so you can customise how Inputs looks in your UI.
    * @param data - The data to encrypt.
    * @returns The encrypted data.
-   * */
-  async encrypt<T>(data: T): Promise<T> {
+   */
+  async encrypt(data: File): Promise<File>;
+  async encrypt(data: Blob): Promise<Blob>;
+  async encrypt(data: Datatypes.EncryptableAsString): Promise<string>;
+  async encrypt(
+    data: Datatypes.EncryptableValue[]
+  ): Promise<Datatypes.EncryptedValue[]>;
+
+  async encrypt(
+    data: Datatypes.EncryptableObject
+  ): Promise<NonNullable<unknown>>;
+
+  async encrypt(data: unknown) {
     // Ignore empty strings — encrypting an empty string in Safari causes an Operation Specific Error.
     if (Datatypes.isEmptyString(data)) {
       return data;
@@ -195,7 +176,7 @@ export default class EvervaultClient {
    */
   inputs(
     elementId: string,
-    config?: InputConfig
+    config?: string | InputSettings
   ): {
     isInputsLoaded: Promise<boolean>;
     getData: () => Promise<unknown>;
@@ -211,7 +192,7 @@ export default class EvervaultClient {
   reveal(
     elementId: string,
     request: Request | EvervaultRequestProps,
-    config?: RevealConfig,
+    config?: RevealSettings,
     onCopy?: () => void
   ): {
     isRevealLoaded: Promise<boolean>;
@@ -236,8 +217,8 @@ export default class EvervaultClient {
    * @deprecated
    */
   auto(fieldsToEncrypt = []) {
-    /* eslint-disable @typescript-eslint/ban-ts-comment */
-    // I am NOT typechecking any of this.
+    /* eslint-disable */
+    // This is deprecated and should just be removed so disabling types and lint.
     // @ts-ignore
     if (!global.oldFetch) {
       // @ts-ignore
@@ -271,10 +252,10 @@ export default class EvervaultClient {
         return global.oldFetch(url, options);
       };
     }
-    /* eslint-enable @typescript-eslint/ban-ts-comment */
+    /* eslint-enable */
   }
 
-  decrypt(token: string, data: unknown): Promise<unknown> {
+  decrypt<T>(token: string, data: T): Promise<{ value: T }> {
     return this.http.decryptWithToken(token, data);
   }
 

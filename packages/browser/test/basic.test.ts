@@ -1,6 +1,5 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-import * as nock from "nock";
 import { describe, assert, it, beforeAll, afterAll, afterEach } from "vitest";
 
 import EvervaultClient from "../lib/main";
@@ -11,9 +10,8 @@ const encryptedStringRegex =
   /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
 
 describe("customConfig", () => {
-  beforeAll(async () => {
+  beforeAll(() => {
     setupCrypto();
-    // nock.disableNetConnect();
   });
   it("does not call out to api when publicKey is present", async () => {
     const ev = new EvervaultClient(
@@ -73,7 +71,7 @@ export const restHandlers = [
 const server = setupServer(...restHandlers);
 
 describe("decrypt", () => {
-  beforeAll(async () => {
+  beforeAll(() => {
     setupCrypto();
     server.listen();
   });
@@ -90,7 +88,7 @@ describe("decrypt", () => {
     it("decrypts correctly", async () => {
       const ev = new EvervaultClient("abcdefg", "uppa");
       const result = await ev.decrypt(execToken, "encryptedString");
-      assert(result.value == decrypted.data.value);
+      assert(result.value === decrypted.data.value);
     });
   });
 
@@ -98,7 +96,7 @@ describe("decrypt", () => {
     it("errors", async () => {
       const ev = new EvervaultClient("abcdefg", "uppa");
       try {
-        const response = await ev.decrypt("invalid", "encryptedString");
+        await ev.decrypt("invalid", "encryptedString");
         assert(false); // should not reach here
       } catch (err) {
         assert(err instanceof DecryptError);

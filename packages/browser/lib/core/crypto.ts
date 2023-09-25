@@ -135,7 +135,7 @@ export class CoreCrypto {
 
   async #encryptObject(
     data: Datatypes.EncryptableObject
-  ): Promise<Record<string, string | string[] | Record<string, string>>> {
+  ): Promise<Datatypes.EncrypedObject> {
     return this.#traverseObject({
       ...data,
     });
@@ -167,6 +167,8 @@ export class CoreCrypto {
       reader.onloadend = (_event) => {
         const readerResult = reader.result;
         if (readerResult == null || typeof readerResult === "string") {
+          // No idea why we dont just reject an error
+          // eslint-disable-next-line prefer-promise-reject-errors
           reject({
             error: "Failed to read file to be encrypted",
           });
@@ -249,13 +251,17 @@ export class CoreCrypto {
   // Use unknown in interal methods
   async #traverseObject(
     data: Datatypes.EncryptableObject
-  ): Promise<Record<string, string | string[] | Record<string, string>>>;
+  ): Promise<Datatypes.EncrypedObject>;
 
   async #traverseObject(
-    data: Datatypes.EncryptableAsString[]
-  ): Promise<string[]>;
+    data: Datatypes.EncryptableValue[]
+  ): Promise<Datatypes.EncryptedValue[]>;
 
   async #traverseObject(data: Datatypes.EncryptableAsString): Promise<string>;
+  async #traverseObject(
+    data: Datatypes.EncryptableValue
+  ): Promise<Datatypes.EncryptedValue>;
+
   async #traverseObject(data: unknown) {
     if (Datatypes.isEncryptableAsString(data)) {
       return this.#encryptString(
@@ -281,10 +287,16 @@ export class CoreCrypto {
     return data;
   }
 
-  async encrypt(data: File): Promise<File>;
-  async encrypt(data: Blob): Promise<Blob>;
-  async encrypt(data: Datatypes.EncryptableAsString): Promise<string>;
-  async encrypt(data: unknown) {
+  async encrypt(
+    data: unknown
+  ): Promise<
+    | string
+    | Blob
+    | File
+    | Datatypes.EncryptedValue
+    | Datatypes.EncryptedValue[]
+    | Datatypes.EncrypedObject
+  > {
     if (!Datatypes.isDefined(data)) {
       throw new Error("Data must not be undefined");
     }

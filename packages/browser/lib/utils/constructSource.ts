@@ -1,19 +1,21 @@
+import type { InputConfig } from "../config";
+import type { InputSettings, RevealSettings } from "../types";
+
 const INPUTS_URL_SLUG = "/v2/index.html";
 const REVEAL_URL_SLUG = "/v2/reveal.html";
 
+type Key = keyof (InputSettings | RevealSettings);
 interface ConstructSourceConfig {
   teamId: string;
   appId: string;
-  input: {
-    inputsOrigin: string;
-  };
+  input: InputConfig;
 }
 
 // Settings will become more specific in future
 export default function constructSource(
   config: ConstructSourceConfig,
   isReveal: boolean,
-  settings?: Record<string, unknown>
+  settings?: InputSettings | RevealSettings
 ) {
   let settingsQuery = "";
 
@@ -22,7 +24,10 @@ export default function constructSource(
     Object.keys(settings)
       .filter((k) => k !== "customStyles")
       .forEach((key) => {
-        settingsQuery += `&${key}=${encodeURIComponent(settings[key])}`;
+        const value = settings[key as Key];
+        if (value !== undefined) {
+          settingsQuery += `&${key}=${encodeURIComponent(value)}`;
+        }
       });
   }
 

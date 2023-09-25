@@ -1,15 +1,22 @@
+// eslint-disable-next-line @typescript-eslint/ban-types -- we need to allow Function, its fine as we just convert it to a string
 export type EncryptableAsString = string | number | boolean | bigint | Function;
-export type EncryptableObject = Record<
-  string,
-  EncryptableAsString | EncryptableAsString[] | EncryptableObject
->;
+export type EncryptableValue =
+  | EncryptableAsString
+  | EncryptableValue[]
+  | { [key: string]: EncryptableValue };
+export type EncryptableObject = Record<string, EncryptableValue>;
+export type EncryptedValue =
+  | string
+  | EncryptedValue[]
+  | { [key: string]: EncryptedValue };
+export type EncrypedObject = Record<string, EncryptedValue>;
 
 // TODO: Replace with zod
 export const isDefined = <T>(
   data: T | null | undefined
 ): data is NonNullable<T> => typeof data !== "undefined" && data !== null;
 
-export const isArray = (data: unknown): data is EncryptableAsString[] =>
+export const isArray = (data: unknown): data is EncryptableValue[] =>
   data != null && typeof data === "object" && data instanceof Array;
 
 export const isArrayBuffer = (data: unknown): data is ArrayBuffer =>
@@ -20,9 +27,7 @@ export const isArrayBuffer = (data: unknown): data is ArrayBuffer =>
 export const isObject = (data: unknown): data is object =>
   typeof data === "object";
 
-export const isObjectStrict = (
-  data: unknown
-): data is Record<string, unknown> =>
+export const isObjectStrict = (data: unknown): data is EncryptableObject =>
   isDefined(data) && isObject(data) && !isArray(data) && !isArrayBuffer(data);
 
 export const isString = (data: unknown): data is string =>
@@ -60,7 +65,7 @@ export const ensureString = (data: EncryptableAsString): string => {
   if (typeof data === "bigint" || typeof data === "function") {
     return data.toString();
   }
-  throw new Error(`Cannot ensure string for ${data}`);
+  throw new Error(`Cannot ensure string for ${typeof data}`);
 };
 
 export const utf8ToBase64URL = (str: string): string => {

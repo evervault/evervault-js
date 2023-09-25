@@ -1,10 +1,7 @@
-interface CalculateHeightSettings {
-  height?: string;
-  theme?: "minimal" | "material";
-}
+import type { InputSettings, RevealSettings } from "../types";
 
 export default function calculateHeight(
-  settings?: CalculateHeightSettings,
+  settings?: InputSettings | RevealSettings,
   isReveal = false
 ): string {
   if (settings != null) {

@@ -1,15 +1,30 @@
 import { constructSource, calculateHeight } from "../utils";
 import type { Config } from "../config";
 import type { EvervaultRequestProps } from "../main";
+import type { InputSettings, RevealSettings, CustomStyles } from "../types";
+
+interface InputMessage {
+  origin: string;
+  data?: {
+    type: string;
+    height: string;
+    error?: string;
+  };
+}
+
+interface InputError {
+  message: string;
+  type: string;
+}
 
 export default function Inputs(config: Config) {
   return {
     generate(
       id: string,
-      settings: Record<string, unknown>,
+      settings: InputSettings | RevealSettings,
       isReveal = false,
-      request?: Request | EvervaultRequestProps,
-      onCopyCallback?: () => void
+      request: Request | EvervaultRequestProps | undefined = undefined,
+      onCopyCallback: (() => void) | undefined = undefined
     ) {
       // TODO: add error check in a seperate pr (small behavour change)
       (
@@ -26,7 +41,7 @@ export default function Inputs(config: Config) {
         isReveal ? 'width="100%"' : ""
       } allowTransparency="true" allow="clipboard-write"></iframe>`;
 
-      window.addEventListener("message", (event) => {
+      window.addEventListener("message", (event: InputMessage) => {
         if (event.origin !== config.input.inputsOrigin) return;
         if (
           settings?.height === "auto" &&
@@ -40,7 +55,7 @@ export default function Inputs(config: Config) {
       });
 
       const isInputsLoaded = new Promise<boolean>((resolve, reject) => {
-        window.addEventListener("message", (event) => {
+        window.addEventListener("message", (event: InputMessage) => {
           if (event.origin !== config.input.inputsOrigin) return;
           if (event.data?.type === "EV_INPUTS_LOADED") {
             if (isReveal) {
@@ -72,9 +87,11 @@ export default function Inputs(config: Config) {
               const requestStr = JSON.stringify(requestSerializable);
 
               // filter any urls from the custom styles
-              const customStyles = settings?.customStyles
-                ? removeUrlsFromStyles(settings?.customStyles)
-                : undefined;
+              let { customStyles } = settings as RevealSettings;
+              customStyles =
+                customStyles !== undefined
+                  ? removeUrlsFromStyles(customStyles)
+                  : undefined;
               const channel = new MessageChannel();
               (
                 document.getElementById("ev-iframe") as HTMLIFrameElement
@@ -99,17 +116,24 @@ export default function Inputs(config: Config) {
             const errorStr = event.data?.error;
             if (errorStr) {
               try {
-                const error = JSON.parse(errorStr);
+                const error = JSON.parse(errorStr) as InputError;
                 try {
-                  // @ts-ignore
                   // Try and reconstruct the exact error type if available in this window context.
                   // TS despises this but we catch and throw a generic error so its fine.
-                  reject(new window[error.type](error.message));
+                  const ErrorType = window[
+                    error.type as keyof Window
+                  ] as typeof Error;
+                  reject(new ErrorType(error.message));
                 } catch (e) {
                   reject(new Error(error.message));
                 }
               } catch (e) {
-                reject(`Failed to parse Error: ${e}, Unparsed: ${errorStr}`);
+                // eslint-disable-next-line prefer-promise-reject-errors
+                reject(
+                  `Failed to parse Error: ${
+                    (e as Error).message
+                  }, Unparsed: ${errorStr}`
+                );
               }
             }
           }
@@ -127,7 +151,7 @@ export default function Inputs(config: Config) {
       return {
         isInputsLoaded,
         getData: () =>
-          new Promise((res, rej) => {
+          new Promise((res) => {
             const channel = new MessageChannel();
 
             channel.port1.onmessage = ({ data }) => {
@@ -139,11 +163,11 @@ export default function Inputs(config: Config) {
               document.getElementById("ev-iframe") as HTMLIFrameElement
             ).contentWindow?.postMessage("message", "*", [channel.port2]);
           }),
-        on: (event: "change" | unknown, fn: (data: unknown) => void) => {
-          if (event === "change") {
+        on: (e: unknown, fn: (data: unknown) => void) => {
+          if (e === "change") {
             window.addEventListener(
               "message",
-              (event) => {
+              (event: InputMessage) => {
                 if (event.origin !== config.input.inputsOrigin) return;
                 if (event.data?.type === "EV_FRAME_HEIGHT") return;
                 if (event.data?.type === "EV_INPUTS_LOADED") return;
@@ -168,14 +192,14 @@ export default function Inputs(config: Config) {
   };
 }
 
-function removeUrlsFromStyles(customStyles: unknown) {
+function removeUrlsFromStyles(customStyles: CustomStyles) {
   const newStyles = { ...customStyles };
-  for (const group in newStyles) {
-    for (const key in newStyles[group]) {
-      if (typeof newStyles[group][key] === "string") {
-        if (newStyles[group][key].match(/url\([^)]+\)/g, "none")) {
-          delete newStyles[group][key];
-        }
+  for (const [groupKey, group] of Object.entries(newStyles)) {
+    for (const [keyKey, key] of Object.entries(group)) {
+      if (typeof key === "string" && key.match(/url\([^)]+\)/g)) {
+        delete newStyles[groupKey as keyof CustomStyles]![
+          keyKey as keyof CSSStyleDeclaration
+        ];
       }
     }
   }

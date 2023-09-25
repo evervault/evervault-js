@@ -1,7 +1,7 @@
 import { Crypto } from "@peculiar/webcrypto";
-import { File, Blob } from "web-file-polyfill";
+import { File, Blob } from "@web-std/file";
 
-export const setupCrypto = () => {
+export function setupCrypto(): void {
   const crypto = new Crypto();
 
   Object.defineProperty(window, "crypto", {
@@ -19,12 +19,13 @@ export const setupCrypto = () => {
     writable: true,
   });
 
+  /* eslint-disable  class-methods-use-this */
   class FileReaderPolyfill {
-    constructor() {
-      this.readAsArrayBuffer = () => {
-        this.result = Buffer.from([0x00]);
-        this.onloadend({});
-      };
+    result?: Buffer;
+    onloadend = (_: unknown) => ({});
+    readAsArrayBuffer() {
+      this.result = Buffer.from([0x00]);
+      this.onloadend({});
     }
   }
 
@@ -32,4 +33,4 @@ export const setupCrypto = () => {
     value: FileReaderPolyfill,
     writable: true,
   });
-};
+}

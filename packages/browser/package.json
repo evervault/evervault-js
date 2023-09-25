@@ -43,11 +43,12 @@
   },
   "devDependencies": {
     "@peculiar/webcrypto": "^1.4.3",
+    "@web-std/file": "^3.0.3",
+    "crc-32": "^1.2.2",
     "msw": "^1.2.3",
     "nock": "^13.3.0",
     "tsconfig": "workspace:^",
     "vite-plugin-dts": "^2.3.0",
-    "vitest": "^0.29.8",
-    "web-file-polyfill": "^1.0.4"
+    "vitest": "^0.29.8"
   }
 }

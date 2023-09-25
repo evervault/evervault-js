@@ -59,7 +59,10 @@ export default function Http(
     }
   }
 
-  async function decryptWithToken<T>(token: string, data: T): Promise<T> {
+  async function decryptWithToken<T>(
+    token: string,
+    data: T
+  ): Promise<{ value: T }> {
     try {
       const response = await fetch(`${config.apiUrl}/decrypt`, {
         method: "POST",
@@ -76,7 +79,7 @@ export default function Http(
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const body = (await response.json()) as { data: T };
+      const body = (await response.json()) as { data: { value: T } };
 
       return body.data;
     } catch (err) {
