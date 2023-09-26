@@ -66,6 +66,9 @@ jobs:
       - name: Typescript check
         run: pnpm run typecheck
 
+      - name: eslint check
+        run: pnpm run lint
+
       - name: E2E test
         run: pnpm run e2e:test
 
@@ -80,7 +83,7 @@ jobs:
         with:
           name: inputs-sdk-build
           path: packages/inputs/dist
-      
+
       - name: Upload react build
         uses: actions/upload-artifact@v3
         with:
