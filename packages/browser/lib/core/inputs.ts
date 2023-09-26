@@ -7,7 +7,7 @@ import type {
   InputError,
   EvFrameHeight,
   EvRevealErrorEvent,
-} from "@evervault/inputs";
+} from "../messages";
 
 const isFrameEvent = (event: InputMessage): event is EvFrameHeight =>
   event.data?.type === "EV_FRAME_HEIGHT";
@@ -132,10 +132,7 @@ export default function Inputs(config: Config) {
               }
             }
           }
-          if (
-            event.data?.type === "EV_REVEAL_LOADED" ||
-            isRevealError("EV_REVEAL_ERROR_EVENT")
-          ) {
+          if (event.data?.type === "EV_REVEAL_LOADED" || isRevealError(event)) {
             if (isReveal) {
               resolve(true);
             }

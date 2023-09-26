@@ -14,7 +14,7 @@ import {
 import { customStyles, urlStyles } from "./customStylesHandler";
 import type { Labels } from "./customLabelsHandler";
 import type { CustomRevealStyles } from "./customStylesHandler";
-import type { InputsData, CardData } from "../types";
+import type { InputsData, CardData } from "@evervault/browser";
 
 const DEFAULT_CARD_CONFIG = ["cardNumber", "cardExpiry", "cardCVV"];
 

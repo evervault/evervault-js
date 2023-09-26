@@ -97,6 +97,7 @@ module.exports = {
     ],
     "no-shadow": "off",
     "no-use-before-define": ["error", { functions: false }],
+    "no-void": ["error", { allowAsStatement: true }],
   },
   overrides: [
     {

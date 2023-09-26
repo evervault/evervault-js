@@ -32,14 +32,12 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "preinstall": "npx only-allow pnpm",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "license": "MIT",
   "dependencies": {
-    "@evervault/inputs": "workspace:^",
     "events": "^3.3.0"
   },
   "devDependencies": {

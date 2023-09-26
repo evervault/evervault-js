@@ -4,6 +4,5 @@ module.exports = {
   rules: {
     // bitwise is needed for crypto ops
     "no-bitwise": "off",
-    "no-void": ["error", { allowAsStatement: true }],
   },
 };
