@@ -1,15 +1,15 @@
 import { constructSource, calculateHeight } from "../utils";
 import type { Config } from "../config";
 import type { EvervaultRequestProps } from "../main";
-import type { InputSettings, RevealSettings, CustomStyles } from "../types";
 import type {
   InputMessage,
   InputError,
   EvFrameHeight,
   EvRevealErrorEvent,
 } from "../messages";
+import type { InputSettings, RevealSettings } from "../types";
 
-const isFrameEvent = (event: InputMessage): event is EvFrameHeight =>
+const isFrameHeightEvent = (event: InputMessage): event is EvFrameHeight =>
   event.data?.type === "EV_FRAME_HEIGHT";
 
 const isRevealError = (event: InputMessage): event is EvRevealErrorEvent =>
@@ -41,7 +41,7 @@ export default function Inputs(config: Config) {
 
       window.addEventListener("message", (event: InputMessage) => {
         if (event.origin !== config.input.inputsOrigin) return;
-        if (settings?.height === "auto" && isFrameEvent(event)) {
+        if (settings?.height === "auto" && isFrameHeightEvent(event)) {
           (
             (document.getElementById(id) as HTMLDivElement)
               .firstChild as HTMLIFrameElement
@@ -82,11 +82,7 @@ export default function Inputs(config: Config) {
               const requestStr = JSON.stringify(requestSerializable);
 
               // filter any urls from the custom styles
-              let { customStyles } = settings as RevealSettings;
-              customStyles =
-                customStyles !== undefined
-                  ? removeUrlsFromStyles(customStyles)
-                  : undefined;
+              const { customStyles } = settings as RevealSettings;
               const channel = new MessageChannel();
               (
                 document.getElementById("ev-iframe") as HTMLIFrameElement
@@ -182,18 +178,4 @@ export default function Inputs(config: Config) {
       };
     },
   };
-}
-
-function removeUrlsFromStyles(customStyles: CustomStyles) {
-  const newStyles = { ...customStyles };
-  for (const [groupKey, group] of Object.entries(newStyles)) {
-    for (const [keyKey, key] of Object.entries(group)) {
-      if (typeof key === "string" && key.match(/url\([^)]+\)/g)) {
-        delete newStyles[groupKey as keyof CustomStyles]![
-          keyKey as keyof CSSStyleDeclaration
-        ];
-      }
-    }
-  }
-  return newStyles;
 }

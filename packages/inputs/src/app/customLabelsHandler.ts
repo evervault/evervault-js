@@ -11,8 +11,7 @@ const defaultErrorLabels = {
   invalidSecurityCodeLabel: "Your CVC is invalid",
 };
 
-export type Labels = Partial<typeof defaultErrorLabels> &
-  Record<string, string>;
+export type Labels = typeof defaultErrorLabels & Record<string, string>;
 
 export function setInputLabels(
   theme: string | null,

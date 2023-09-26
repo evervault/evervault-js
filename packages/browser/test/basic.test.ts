@@ -22,7 +22,7 @@ describe("customConfig", () => {
           "BDeIKmwjqB35+tnMzQFEvXIvM2kyK6DX75NBEhSZxCR5CQZYnh1fwWsXMEqqKihmEGfMX0+EDHtmZNP/TK7mqMc=",
       }
     );
-    const encryptedString: string = await ev.encrypt("Big Secret");
+    const encryptedString = await ev.encrypt("Big Secret");
     assert(encryptedStringRegex.test(encryptedString));
   });
 });

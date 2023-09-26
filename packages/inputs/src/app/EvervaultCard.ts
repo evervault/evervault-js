@@ -1,5 +1,6 @@
 import cardValidator from "card-validator";
 import creditCardType, { types as CardType } from "credit-card-type";
+import type { Labels } from "./customLabelsHandler";
 
 const isAmexCard = (v: string): boolean =>
   creditCardType(v).some((value) => value.type === CardType.AMERICAN_EXPRESS);
@@ -53,11 +54,7 @@ export default class EvervaultCard {
     return validator;
   }
 
-  generateError = (errorLabels: {
-    invalidCardNumberLabel: string;
-    invalidExpirationDateLabel: string;
-    invalidSecurityCodeLabel: string;
-  }) => {
+  generateError = (errorLabels: Labels) => {
     const error = [];
     if (!this.cardNumberVerification.isPotentiallyValid) {
       error.push({

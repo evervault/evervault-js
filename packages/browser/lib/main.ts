@@ -151,9 +151,12 @@ export default class EvervaultClient {
   async encrypt(
     data: Datatypes.EncryptableValue[]
   ): Promise<Datatypes.EncryptedValue[]>;
+
   async encrypt(
     data: Datatypes.EncryptableObject
   ): Promise<NonNullable<unknown>>;
+
+  async encrypt(data: unknown): Promise<string>;
 
   async encrypt(data: unknown) {
     // Ignore empty strings — encrypting an empty string in Safari causes an Operation Specific Error.

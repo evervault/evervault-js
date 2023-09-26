@@ -1,5 +1,7 @@
 import { Crypto } from "@peculiar/webcrypto";
-import { File, Blob } from "@web-std/file";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { File as WebFile, Blob as WebBlob } from "@web-std/file";
 
 export function setupCrypto(): void {
   const crypto = new Crypto();
@@ -10,12 +12,12 @@ export function setupCrypto(): void {
   });
 
   Object.defineProperty(window, "File", {
-    value: File,
+    value: WebFile as File,
     writable: true,
   });
 
   Object.defineProperty(window, "Blob", {
-    value: Blob,
+    value: WebBlob as Blob,
     writable: true,
   });
 

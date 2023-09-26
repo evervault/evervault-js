@@ -34,10 +34,31 @@
         "^build"
       ]
     },
-    "format": {},
+    "format": {
+      "outputs": [
+        "lib/**",
+        "*.[m][tj]s",
+        "*.html",
+        "*.json",
+        "*.md"
+      ]
+    },
     "format:check": {},
-    "lint": {},
-    "lint:fix": {},
+    "lint": {
+      "dependsOn": [
+        "typecheck"
+      ]
+    },
+    "lint:fix": {
+      "dependsOn": [
+        "^build",
+        "format"
+      ],
+      "outputs": [
+        "lib/**",
+        "*.ts"
+      ]
+    },
     "test": {
       "dependsOn": [
         "^build"

@@ -1,9 +1,9 @@
 import type EvervaultClient from "@evervault/browser";
 import type {
-  EvervaultRequestProps,
   CustomConfig as BrowserConfig,
-  RevealSettings,
+  EvervaultRequestProps,
   InputSettings,
+  RevealSettings,
 } from "@evervault/browser";
 import * as React from "react";
 
@@ -144,14 +144,16 @@ export const EvervaultProvider = ({
   const ev = React.useMemo<PromisifiedEvervaultClient>(
     () =>
       new PromisifiedEvervaultClient((resolve, reject) => {
-        void loadEvervault(customConfig?.jsSdkUrl).then((Evervault) => {
-          if (Evervault !== undefined) {
-            resolve(new Evervault(teamId, appId, customConfig));
-          } else {
-            console.error("Evervault.js not available");
-            reject("Evervault.js not available");
-          }
-        });
+        loadEvervault(customConfig?.jsSdkUrl)
+          .then((Evervault) => {
+            if (Evervault !== undefined) {
+              resolve(new Evervault(teamId, appId, customConfig));
+            } else {
+              console.error("Evervault.js not available");
+              reject("Evervault.js not available");
+            }
+          })
+          .catch((e) => reject(e));
       }),
     []
   );

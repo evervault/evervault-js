@@ -9,6 +9,8 @@
     "test": "dotenv -- turbo run test",
     "format": "turbo run format",
     "format:check": "turbo run format:check",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck",
     "e2e:test": "dotenv -- turbo run e2e:test",
     "e2e:test:browser": "dotenv -- turbo run e2e:test --filter=browser",
