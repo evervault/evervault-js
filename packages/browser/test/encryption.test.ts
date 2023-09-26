@@ -1,8 +1,6 @@
 import { Buffer } from "node:buffer";
-
 import crc32 from "crc-32";
 import { describe, assert, it, beforeEach, expect } from "vitest";
-
 import Evervault from "../lib/main";
 import { setupCrypto } from "./setup";
 
