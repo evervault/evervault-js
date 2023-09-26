@@ -5,13 +5,23 @@ const defaultInputLabels = {
   expirationDatePlaceholder: "MM/YY",
 };
 
+const defaultErrorLabels = {
+  invalidCardNumberLabel: "Your card number is invalid",
+  invalidExpirationDateLabel: "Your expiration date is invalid",
+  invalidSecurityCodeLabel: "Your CVC is invalid",
+};
+
+export type Labels = Partial<typeof defaultErrorLabels> &
+  Record<string, string>;
+
 export function setInputLabels(
   theme: string | null,
   urlParams: URLSearchParams,
   isReveal: boolean
-) {
-  for (let [key, value] of Object.entries(defaultInputLabels)) {
-    let param = urlParams.get(key);
+): void {
+  for (const [key, v] of Object.entries(defaultInputLabels)) {
+    const param = urlParams.get(key);
+    let value = v;
     if (param) {
       value = param;
     } else if (isReveal) {
@@ -28,19 +38,19 @@ export function setInputLabels(
   }
 }
 
-export function updateInputLabels(labelUpdates: Record<string, string>) {
+export function updateInputLabels(labelUpdates: Labels): void {
   for (const [key, value] of Object.entries(labelUpdates)) {
     setLabel(key, value);
     setPlaceholder(key, value);
   }
 }
 
-function setPlaceholder(key: string, value: string) {
-  if (key == "expirationDateLabel") {
+function setPlaceholder(key: string, value: string): void {
+  if (key === "expirationDateLabel") {
     return;
   }
   const elementId =
-    key == "expirationDatePlaceholder"
+    key === "expirationDatePlaceholder"
       ? "expirationdate"
       : key.slice(0, -5).toLowerCase();
   const input = document.getElementById(elementId);
@@ -49,8 +59,8 @@ function setPlaceholder(key: string, value: string) {
   }
 }
 
-function setLabel(key: string, value: string) {
-  let elements = document.getElementsByClassName(key);
+function setLabel(key: string, value: string): void {
+  const elements = document.getElementsByClassName(key);
   for (const element of elements) {
     if (!(element instanceof HTMLElement)) {
       continue;
@@ -59,13 +69,7 @@ function setLabel(key: string, value: string) {
   }
 }
 
-const defaultErrorLabels = {
-  invalidCardNumberLabel: "Your card number is invalid",
-  invalidExpirationDateLabel: "Your expiration date is invalid",
-  invalidSecurityCodeLabel: "Your CVC is invalid",
-};
-
-export function getErrorLabels(urlParams: URLSearchParams) {
+export function getErrorLabels(urlParams: URLSearchParams): Labels {
   return {
     invalidCardNumberLabel:
       urlParams.get("invalidCardNumberLabel") ??
@@ -81,12 +85,9 @@ export function getErrorLabels(urlParams: URLSearchParams) {
 
 export function updateErrorLabels(
   existingLabels: typeof defaultErrorLabels,
-  newLabels: Partial<typeof defaultErrorLabels>
-) {
-  return {
-    ...existingLabels,
-    ...newLabels,
-  };
+  newLabels: Labels
+): Labels {
+  return { ...existingLabels, ...newLabels };
 }
 
 const defaultFormOverrides = {
@@ -94,7 +95,9 @@ const defaultFormOverrides = {
   disableExpiry: false,
 };
 
-export function setFormOverrides(urlParams: URLSearchParams) {
+export function setFormOverrides(
+  urlParams: URLSearchParams
+): typeof defaultFormOverrides {
   return {
     disableCVV: Boolean(
       urlParams.get("disableCVV") ?? defaultFormOverrides.disableCVV

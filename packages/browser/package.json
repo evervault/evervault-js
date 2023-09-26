@@ -39,6 +39,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@evervault/inputs": "workspace:^",
     "events": "^3.3.0"
   },
   "devDependencies": {
@@ -48,6 +49,7 @@
     "msw": "^1.2.3",
     "nock": "^13.3.0",
     "tsconfig": "workspace:^",
+    "vite": "^4.2.1",
     "vite-plugin-dts": "^2.3.0",
     "vitest": "^0.29.8"
   }

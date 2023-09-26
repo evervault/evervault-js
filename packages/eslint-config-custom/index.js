@@ -41,6 +41,7 @@ module.exports = {
       "error",
       {
         devDependencies: [
+          "**/postcss.config.js",
           "**/vite.config.mts",
           "**/test/*",
           "**/*.test.*",

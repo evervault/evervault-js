@@ -2,20 +2,18 @@ import { constructSource, calculateHeight } from "../utils";
 import type { Config } from "../config";
 import type { EvervaultRequestProps } from "../main";
 import type { InputSettings, RevealSettings, CustomStyles } from "../types";
+import type {
+  InputMessage,
+  InputError,
+  EvFrameHeight,
+  EvRevealErrorEvent,
+} from "@evervault/inputs";
 
-interface InputMessage {
-  origin: string;
-  data?: {
-    type: string;
-    height: string;
-    error?: string;
-  };
-}
+const isFrameEvent = (event: InputMessage): event is EvFrameHeight =>
+  event.data?.type === "EV_FRAME_HEIGHT";
 
-interface InputError {
-  message: string;
-  type: string;
-}
+const isRevealError = (event: InputMessage): event is EvRevealErrorEvent =>
+  event.data?.type === "EV_REVEAL_ERROR_EVENT";
 
 export default function Inputs(config: Config) {
   return {
@@ -43,10 +41,7 @@ export default function Inputs(config: Config) {
 
       window.addEventListener("message", (event: InputMessage) => {
         if (event.origin !== config.input.inputsOrigin) return;
-        if (
-          settings?.height === "auto" &&
-          event.data?.type === "EV_FRAME_HEIGHT"
-        ) {
+        if (settings?.height === "auto" && isFrameEvent(event)) {
           (
             (document.getElementById(id) as HTMLDivElement)
               .firstChild as HTMLIFrameElement
@@ -112,8 +107,8 @@ export default function Inputs(config: Config) {
               onCopyCallback();
             }
           }
-          if (event.data?.type === "EV_REVEAL_ERROR_EVENT") {
-            const errorStr = event.data?.error;
+          if (isRevealError(event)) {
+            const errorStr = event.data.error;
             if (errorStr) {
               try {
                 const error = JSON.parse(errorStr) as InputError;
@@ -139,7 +134,7 @@ export default function Inputs(config: Config) {
           }
           if (
             event.data?.type === "EV_REVEAL_LOADED" ||
-            event.data?.type === "EV_REVEAL_ERROR_EVENT"
+            isRevealError("EV_REVEAL_ERROR_EVENT")
           ) {
             if (isReveal) {
               resolve(true);

@@ -1,10 +1,8 @@
 import cardValidator from "card-validator";
 import creditCardType, { types as CardType } from "credit-card-type";
 
-const isAmexCard = (value: string) =>
-  creditCardType(value).some(
-    (value) => value.type === CardType["AMERICAN_EXPRESS"]
-  );
+const isAmexCard = (v: string): boolean =>
+  creditCardType(v).some((value) => value.type === CardType.AMERICAN_EXPRESS);
 
 export default class EvervaultCard {
   #disableCVV: boolean;

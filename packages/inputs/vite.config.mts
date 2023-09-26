@@ -1,6 +1,6 @@
-import { defineConfig } from "vite";
+import { resolve } from "node:path";
 import sri from "rollup-plugin-sri";
-import { resolve } from "path";
+import { defineConfig } from "vite";
 
 export default defineConfig({
   root: "src",

@@ -1,7 +1,9 @@
 import Evervault from "@evervault/browser";
-
-import { customStyles, urlStyles } from "./customStylesHandler";
 import "./styles.css";
+import EvervaultCard from "./EvervaultCard";
+import { InputElementsManager } from "./InputElementsManager";
+import { MagStripe } from "./MagStripe";
+import { setupReveal } from "./RevealManager";
 import {
   setInputLabels,
   updateInputLabels,
@@ -9,11 +11,10 @@ import {
   updateErrorLabels,
   setFormOverrides,
 } from "./customLabelsHandler";
-import EvervaultCard from "./EvervaultCard";
-
-import { InputElementsManager } from "./InputElementsManager";
-import { MagStripe } from "./MagStripe";
-import { setupReveal } from "./RevealManager";
+import { customStyles, urlStyles } from "./customStylesHandler";
+import type { Labels } from "./customLabelsHandler";
+import type { CustomRevealStyles } from "./customStylesHandler";
+import type { InputsData, CardData } from "../types";
 
 const DEFAULT_CARD_CONFIG = ["cardNumber", "cardExpiry", "cardCVV"];
 
@@ -36,7 +37,7 @@ function insertLinkTag(
   rel: string,
   href: string,
   options: { crossOrigin?: string; type?: string; media?: string } = {}
-) {
+): void {
   if (!document.getElementById(id)) {
     const head = document.getElementsByTagName("head")[0];
     const link = document.createElement("link");
@@ -145,11 +146,11 @@ if (!isReveal) {
   document.getElementById("form")?.classList.remove("hide");
 }
 
-const postToParent = async () => {
-  window.parent.postMessage(await getData(), "*");
-};
+function postToParent(): void {
+  void getData().then((data) => window.parent.postMessage(data, "*"));
+}
 
-const getData = async () => {
+async function getData(): Promise<InputsData> {
   const helper = document.getElementById("helper")!;
   const track = {
     fullTrack: inputElementsManager?.elements.trackData.value,
@@ -201,7 +202,7 @@ const getData = async () => {
     inputElementsManager.elements.cvv?.classList.add("input-invalid");
   }
 
-  let card = {
+  const card = {
     type: evCard.cardNumberVerification?.card?.type ?? "",
     number: cardNumberValue,
     expMonth: formOverrides.disableExpiry
@@ -212,7 +213,7 @@ const getData = async () => {
       : evCard.cardExpiryVerification.year ?? "",
     track,
     name,
-    swipe: track.fullTrack.length > 0 ? true : false,
+    swipe: track.fullTrack.length > 0,
     // We mispelled this in the our public interface, so we need to keep it for backwards compatibility
     cvc: formOverrides.disableCVV ? undefined : cvvValue,
   };
@@ -236,16 +237,15 @@ const getData = async () => {
     isEmpty,
     error,
   };
-};
+}
 
 // Formatting of BIN taken from https://www.pcisecuritystandards.org/faq/articles/Frequently_Asked_Question/What-are-acceptable-formats-for-truncation-of-primary-account-numbers/
-function binNumber(cardNumber: string, cardType: string | undefined) {
+function binNumber(cardNumber: string, cardType: string | undefined): string {
   if (cardType) {
     if (cardType === "amex") {
       return cardNumber.substring(0, 6);
-    } else {
-      return cardNumber.substring(0, 8);
     }
+    return cardNumber.substring(0, 8);
   }
   return "";
 }
@@ -258,7 +258,7 @@ async function encryptSensitiveCardDetails(card: {
     trackOne: string;
     trackTwo: string;
   };
-}) {
+}): Promise<Partial<CardData>> {
   const encryptedCard = card;
   if (card.number) {
     const strippedCardNumber = card.number.replace(/\s/g, "");
@@ -286,11 +286,11 @@ function cardIsEmpty(card: {
   cvv?: string;
   expMonth?: string;
   expYear?: string;
-}) {
+}): boolean {
   return !card.number && !card.cvv && !card.expMonth && !card.expYear;
 }
 
-function mountWarningBanner() {
+function mountWarningBanner(): void {
   const bodyElem = document.querySelector("body")!;
   const warningBanner = document.createElement("div");
   warningBanner.id = "warning-banner-holder";
@@ -298,9 +298,8 @@ function mountWarningBanner() {
   bodyElem.appendChild(warningBanner);
 }
 
-function watchSDKStatus() {
-  let intervalRef: NodeJS.Timeout;
-  intervalRef = setInterval(() => {
+function watchSDKStatus(): void {
+  const intervalRef: ReturnType<typeof setTimeout> = setInterval(() => {
     const sdkState = evervault.isInDebugMode();
     if (sdkState) {
       mountWarningBanner();
@@ -311,15 +310,53 @@ function watchSDKStatus() {
   }, 750);
 }
 
-function setFrameHeight() {
+function setFrameHeight(): void {
   const height = urlParams.get("height");
   if (height !== "auto") return;
 
-  const scrollHeight = document.body.scrollHeight;
-  parent.postMessage({ type: "EV_FRAME_HEIGHT", height: scrollHeight }, "*");
+  const { scrollHeight } = document.body;
+  window.parent.postMessage(
+    { type: "EV_FRAME_HEIGHT", height: scrollHeight },
+    "*"
+  );
 }
 
-const onLoad = function () {
+interface RevealRequestConfigMessageData {
+  type: "revealRequestConfig";
+  request: string;
+  customStyles: CustomRevealStyles;
+}
+
+interface RevealMessage {
+  data?: "message" | RevealRequestConfigMessageData | Labels;
+}
+
+interface LabelsMessage extends RevealMessage {
+  data: Labels;
+}
+
+interface RevealRequestConfigMessage extends RevealMessage {
+  data: RevealRequestConfigMessageData;
+}
+
+interface RevealDataRequest extends RevealMessage {
+  data: "message";
+  ports: { postMessage: (data: InputsData) => void }[];
+}
+
+const isLabels = (event: RevealMessage): event is LabelsMessage =>
+  event.data !== "message" && event.data?.type !== "revealRequestConfig";
+
+const isRevealDataRequest = (
+  event: RevealMessage
+): event is RevealDataRequest => event.data === "message";
+
+const isRevealRequestConfigMessage = (
+  event: RevealMessage
+): event is RevealRequestConfigMessage =>
+  event.data !== "message" && event.data?.type === "revealRequestConfig";
+
+function onLoad(): void {
   if (!isReveal) {
     watchSDKStatus();
     inputElementsManager = new InputElementsManager(postToParent, {
@@ -334,28 +371,26 @@ const onLoad = function () {
 
   setFrameHeight();
 
-  let revealRequestReceived = new Promise((resolve, reject) => {
+  const revealRequestReceived = new Promise((resolve, reject) => {
     window.addEventListener(
       "message",
-      async (event) => {
-        if (event.data == "message") {
-          event.ports[0]?.postMessage(await getData());
-        } else if (event.data?.type == "revealRequestConfig") {
-          try {
-            let revealRequestPromise = await setupReveal(event.data.request);
-            if (event.data.customStyles) {
-              customStyles(event.data.customStyles);
-            }
-            await revealRequestPromise;
-
-            resolve(true);
-          } catch (e) {
-            reject(e);
+      (event: RevealMessage): void => {
+        if (isRevealDataRequest(event)) {
+          getData()
+            .then((data) => event.ports[0]?.postMessage(data))
+            .catch((e) => reject(e));
+        } else if (isRevealRequestConfigMessage(event)) {
+          const revealRequestPromise = setupReveal(event.data.request);
+          if (event.data.customStyles) {
+            customStyles(event.data.customStyles);
           }
-        } else {
+          revealRequestPromise
+            .then(() => resolve(true))
+            .catch((e) => reject(e));
+        } else if (isLabels(event)) {
           updateInputLabels(event.data);
           errorLabels = updateErrorLabels(errorLabels, event.data);
-          getData();
+          getData().catch((e) => reject(e));
         }
       },
       false
@@ -366,7 +401,7 @@ const onLoad = function () {
     }
   });
 
-  parent.postMessage({ type: "EV_INPUTS_LOADED" }, "*");
+  window.parent.postMessage({ type: "EV_INPUTS_LOADED" }, "*");
 
   revealRequestReceived
     .then(() => {
@@ -375,18 +410,18 @@ const onLoad = function () {
 
         setFrameHeight();
 
-        parent.postMessage({ type: "EV_REVEAL_LOADED" }, "*");
+        window.parent.postMessage({ type: "EV_REVEAL_LOADED" }, "*");
       } else {
         setFrameHeight();
       }
     })
-    .catch((e) => {
+    .catch((e: Error) => {
       const serializedError = JSON.stringify({
         type: e.name,
         message: e.message,
         cause: e.cause,
       });
-      parent.postMessage(
+      window.parent.postMessage(
         {
           type: "EV_REVEAL_ERROR_EVENT",
           error: serializedError,
@@ -394,6 +429,6 @@ const onLoad = function () {
         "*"
       );
     });
-};
+}
 
 window.addEventListener("load", onLoad);
