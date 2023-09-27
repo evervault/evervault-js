@@ -1,5 +1,7 @@
-export * as Datatypes from "./datatypes";
-export * as errors from "./errors";
+import * as Datatypes from "./datatypes";
+import * as errors from "./errors";
+
+export { Datatypes, errors };
 
 export { default as extractDomain } from "./extractDomain";
 export { default as calculateHeight } from "./calculateHeight";

@@ -1,35 +1,37 @@
 import type { InputElementsManager } from "./InputElementsManager";
 
-type TrackOneAndTwo = {
-  __typename: "TrackOneAndTwo";
+interface Track {
+  number: string;
+  expMonth: string;
+  expYear: string;
+}
+
+interface TrackOne extends Track {
+  name: string;
+}
+
+interface TrackOneAndTwo extends TrackOne {
+  typename: "TrackOneAndTwo";
   trackOne: string;
   trackTwo: string;
-  number: string;
-  name: string;
-  expMonth: string;
-  expYear: string;
-};
+}
 
-type TrackTwoOnly = {
-  __typename: "TrackTwoOnly";
+interface TrackTwoOnly extends Track {
+  typename: "TrackTwoOnly";
   trackTwo: string;
-  number: string;
-  expMonth: string;
-  expYear: string;
-};
+}
 
-const toTitleCase = (name: string) => {
-  return name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
-};
+const toTitleCase = (name: string): string =>
+  name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
 
-const parseName = (nameData: string) => {
+function parseName(nameData: string): string {
   const splitName = nameData.split("/");
   const surname = toTitleCase(splitName[0]);
   const firstName = toTitleCase(splitName[1].split(".")[0]);
   return `${firstName} ${surname}`;
-};
+}
 
-const parseTrackOne = (trackOneData: string) => {
+function parseTrackOne(trackOneData: string): TrackOne {
   const data = trackOneData.split("^");
   const number = data[0];
   const name = parseName(data[1]);
@@ -41,9 +43,9 @@ const parseTrackOne = (trackOneData: string) => {
     expMonth,
     expYear,
   };
-};
+}
 
-const parseTrackTwo = (trackOneData: string) => {
+function parseTrackTwo(trackOneData: string): Track {
   const data = trackOneData.split("=");
   const number = data[0];
   const expYear = data[1].substring(0, 2);
@@ -53,29 +55,29 @@ const parseTrackTwo = (trackOneData: string) => {
     expMonth,
     expYear,
   };
-};
+}
 
-const parseCard = (cardString: string): TrackOneAndTwo | TrackTwoOnly => {
-  if (cardString.substring(0, 2).toLowerCase() == "%B".toLowerCase()) {
+function parseCard(cardString: string): TrackOneAndTwo | TrackTwoOnly {
+  if (cardString.substring(0, 2).toLowerCase() === "%B".toLowerCase()) {
     const tracks = cardString.split("?;");
     const trackOne = tracks[1] ? `${tracks[0]}?` : tracks[0];
     const trackTwo = tracks[1] ? `;${tracks[1]}` : "";
     return {
-      __typename: "TrackOneAndTwo",
+      typename: "TrackOneAndTwo",
       trackOne,
       trackTwo,
       ...parseTrackOne(trackOne.substring(2)),
     };
-  } else if (cardString.substring(0, 1) == ";") {
+  }
+  if (cardString.startsWith(";")) {
     return {
-      __typename: "TrackTwoOnly",
+      typename: "TrackTwoOnly",
       trackTwo: cardString,
       ...parseTrackTwo(cardString.substring(1)),
     };
-  } else {
-    throw new Error("Invalid card string");
   }
-};
+  throw new Error("Invalid card string");
+}
 
 export class MagStripe {
   #inputsManager: InputElementsManager;
@@ -87,7 +89,7 @@ export class MagStripe {
     this.#mostRecentPresses = [];
   }
 
-  swipeCapture = (event: KeyboardEvent) => {
+  swipeCapture = (event: KeyboardEvent): void => {
     this.#mostRecentPresses.push(event.key);
     if (this.#mostRecentPresses.slice(-2).join("") === "%B") {
       this.#mostRecentPresses.splice(0, this.#mostRecentPresses.length - 2);
@@ -99,9 +101,9 @@ export class MagStripe {
       this.#mostRecentPresses.splice(0, this.#mostRecentPresses.length - 1);
     }
     if (
-      (this.#mostRecentPresses.slice(0, 2).join("") == "%B" ||
+      (this.#mostRecentPresses.slice(0, 2).join("") === "%B" ||
         this.#mostRecentPresses[0] === ";") &&
-      JSON.stringify(this.#mostRecentPresses.slice(-2)) ==
+      JSON.stringify(this.#mostRecentPresses.slice(-2)) ===
         JSON.stringify(["?", "Enter"])
     ) {
       // If track one and track two are present
@@ -110,7 +112,7 @@ export class MagStripe {
 
       const parsedTrackData = parseCard(trackData);
 
-      if (parsedTrackData.__typename === "TrackOneAndTwo") {
+      if (parsedTrackData.typename === "TrackOneAndTwo") {
         console.debug("Card swipe: Track 1 and 2 present");
         const { number, name, expMonth, expYear, trackOne, trackTwo } =
           parsedTrackData;
@@ -129,7 +131,7 @@ export class MagStripe {
         this.#inputsManager.elements.expirationDate.disabled = true;
 
         this.#mostRecentPresses.length = 0;
-      } else if (parsedTrackData.__typename === "TrackTwoOnly") {
+      } else if (parsedTrackData.typename === "TrackTwoOnly") {
         console.debug("Card swipe: Track 2 present");
         // If just track two is present
         const { number, expMonth, expYear, trackTwo } = parsedTrackData;

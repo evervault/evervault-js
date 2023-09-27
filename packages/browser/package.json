@@ -25,21 +25,30 @@
     }
   },
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "build": "vite build",
     "coverage": "vitest --coverage",
+    "dev": "vite",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit",
-    "build": "vite build",
-    "dev": "vite"
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "license": "MIT",
   "dependencies": {
     "events": "^3.3.0"
   },
   "devDependencies": {
-    "msw": "^1.2.3"
+    "@peculiar/webcrypto": "^1.4.3",
+    "@web-std/file": "^1.0.4",
+    "crc-32": "^1.2.2",
+    "msw": "^1.2.3",
+    "nock": "^13.3.0",
+    "tsconfig": "workspace:^",
+    "vite": "^4.2.1",
+    "vite-plugin-dts": "^2.3.0",
+    "vitest": "^0.29.8"
   }
 }

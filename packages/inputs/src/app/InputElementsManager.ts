@@ -1,6 +1,6 @@
 import IMask from "imask";
 
-type InputElements = {
+interface InputElements {
   cardNumber: HTMLInputElement;
   expirationDate: HTMLInputElement;
   cvv?: HTMLInputElement;
@@ -8,13 +8,13 @@ type InputElements = {
   trackData: HTMLInputElement;
   trackOne: HTMLInputElement;
   trackTwo: HTMLInputElement;
-};
+}
 
-type InputMasks = {
+interface InputMasks {
   cardNumber: IMask.InputMask<{ mask: string }>;
   expirationDate: IMask.InputMask<{ mask: string }>;
   cvv?: IMask.InputMask<{ mask: string }>;
-};
+}
 
 type ElementId =
   | "cardnumber"
@@ -25,14 +25,13 @@ type ElementId =
   | "trackone"
   | "tracktwo";
 
-const createGetInputElementOrThow = (key: ElementId) => {
+function createGetInputElementOrThow(key: ElementId): HTMLInputElement {
   const nameElement = document.getElementById(key);
   if (nameElement instanceof HTMLInputElement) {
     return nameElement;
-  } else {
-    throw new TypeError(`Element with id ${key} is not an input element`);
   }
-};
+  throw new TypeError(`Element with id ${key} is not an input element`);
+}
 
 /**
  * Provides type safety and a single place to manage the input elements.
@@ -43,7 +42,7 @@ export class InputElementsManager {
   masks: InputMasks;
 
   constructor(
-    postToParent: (message: any) => void,
+    postToParent: (message: unknown) => void,
     { disableCVV = false, reveal = false }
   ) {
     this.elements = {

@@ -23,16 +23,24 @@
     }
   },
   "scripts": {
+    "build": "vite build",
+    "coverage": "vitest --coverage",
+    "dev": "vite",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit",
-    "build": "vite build",
-    "dev": "vite"
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "preinstall": "npx only-allow pnpm",
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "react": ">=18.0.0"
   },
   "devDependencies": {
-    "@evervault/browser": "workspace:^"
+    "@evervault/browser": "workspace:^",
+    "@vitejs/plugin-react": "^4.0.0",
+    "tsconfig": "workspace:^",
+    "vite": "^4.2.1",
+    "vite-plugin-dts": "^2.3.0"
   }
 }

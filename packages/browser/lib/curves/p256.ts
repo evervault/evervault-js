@@ -1,7 +1,5 @@
 import createCurve from "./createCurve";
 
-export type TP256Constants = typeof P256_CONSTANTS;
-
 const P256_CONSTANTS = {
   p: "FF FF FF FF 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 FF FF FF FF FF FF FF FF FF FF FF FF",
   a: "FF FF FF FF 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 FF FF FF FF FF FF FF FF FF FF FF FC",
@@ -12,6 +10,8 @@ const P256_CONSTANTS = {
   n: "FF FF FF FF 00 00 00 00 FF FF FF FF FF FF FF FF BC E6 FA AD A7 17 9E 84 F3 B9 CA C2 FC 63 25 51",
   h: "01",
 };
+
+export type TP256Constants = typeof P256_CONSTANTS;
 
 export const encodePublicKey: (decompressedPublicKey: string) => Uint8Array =
   createCurve(P256_CONSTANTS);

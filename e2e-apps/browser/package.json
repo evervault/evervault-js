@@ -14,5 +14,9 @@
   "license": "MIT",
   "dependencies": {
     "@evervault/browser": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^4.2.1",
+    "vitest": "^0.29.8"
   }
 }

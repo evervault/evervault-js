@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { EventEmitter } from "events";
 
 /**
@@ -7,18 +8,18 @@ import { EventEmitter } from "events";
 function Forms(evervault) {
   const formEmitter = new EventEmitter();
   return {
-    handleForm: async function (form) {
-      let currentInput = undefined;
+    async handleForm(form) {
+      let currentInput;
       const inputs = form.querySelectorAll("input");
-      let formPayload = {};
+      const formPayload = {};
       for (let i = 0; i < inputs.length; i++) {
         currentInput = inputs[i];
-        let { id, name, value } = currentInput;
+        const { id, name, value } = currentInput;
         if (id || name) {
           if (currentInput.hasAttribute("data-encrypt")) {
             const encryptedValue = await evervault.encrypt(value);
 
-            let input = document.createElement("input");
+            const input = document.createElement("input");
             input.type = "hidden";
             input.value = encryptedValue;
             input.setAttribute("data-evervault-created", "yes");
@@ -31,7 +32,7 @@ function Forms(evervault) {
             }
             form.appendChild(input);
 
-            if (currentInput.id && currentInput.id.startsWith("ev-hidden-")) {
+            if (currentInput.id?.startsWith("ev-hidden-")) {
               currentInput.id = `ev-hidden-${id}`;
             }
             currentInput.name = "";
@@ -49,10 +50,10 @@ function Forms(evervault) {
       return formPayload;
     },
 
-    register: function () {
+    register() {
       const forms = document.querySelectorAll("[data-evervault-form]");
 
-      let form = undefined;
+      let form;
 
       if (forms.length != 0) {
         // Dear lord, there actually using forms
@@ -65,7 +66,7 @@ function Forms(evervault) {
 
       for (let i = 0; i < forms.length; i++) {
         form = forms[i];
-        let prevOnSubmit = form.onsubmit;
+        const prevOnSubmit = form.onsubmit;
         form.onsubmit = async (e) => {
           e.preventDefault();
           const processedPayload = await this.handleForm(form);

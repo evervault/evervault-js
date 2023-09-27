@@ -1,16 +1,28 @@
+import { constructSource, calculateHeight } from "../utils";
 import type { Config } from "../config";
 import type { EvervaultRequestProps } from "../main";
+import type {
+  InputMessage,
+  InputError,
+  EvFrameHeight,
+  EvRevealErrorEvent,
+} from "../messages";
+import type { InputSettings, RevealSettings } from "../types";
 
-import { constructSource, calculateHeight } from "../utils";
+const isFrameHeightEvent = (event: InputMessage): event is EvFrameHeight =>
+  event.data?.type === "EV_FRAME_HEIGHT";
+
+const isRevealError = (event: InputMessage): event is EvRevealErrorEvent =>
+  event.data?.type === "EV_REVEAL_ERROR_EVENT";
 
 export default function Inputs(config: Config) {
   return {
-    generate: function (
+    generate(
       id: string,
-      settings: Record<string, any>,
-      isReveal: boolean = false,
-      request?: Request | EvervaultRequestProps,
-      onCopyCallback?: () => void
+      settings: InputSettings | RevealSettings,
+      isReveal = false,
+      request: Request | EvervaultRequestProps | undefined = undefined,
+      onCopyCallback: (() => void) | undefined = undefined
     ) {
       // TODO: add error check in a seperate pr (small behavour change)
       (
@@ -27,12 +39,9 @@ export default function Inputs(config: Config) {
         isReveal ? 'width="100%"' : ""
       } allowTransparency="true" allow="clipboard-write"></iframe>`;
 
-      window.addEventListener("message", (event) => {
+      window.addEventListener("message", (event: InputMessage) => {
         if (event.origin !== config.input.inputsOrigin) return;
-        if (
-          settings?.height === "auto" &&
-          event.data?.type === "EV_FRAME_HEIGHT"
-        ) {
+        if (settings?.height === "auto" && isFrameHeightEvent(event)) {
           (
             (document.getElementById(id) as HTMLDivElement)
               .firstChild as HTMLIFrameElement
@@ -41,7 +50,7 @@ export default function Inputs(config: Config) {
       });
 
       const isInputsLoaded = new Promise<boolean>((resolve, reject) => {
-        window.addEventListener("message", (event) => {
+        window.addEventListener("message", (event: InputMessage) => {
           if (event.origin !== config.input.inputsOrigin) return;
           if (event.data?.type === "EV_INPUTS_LOADED") {
             if (isReveal) {
@@ -49,7 +58,7 @@ export default function Inputs(config: Config) {
                 throw new Error("Request is required for Evervault Reveal");
               }
 
-              let requestSerializable: EvervaultRequestProps = {
+              const requestSerializable: EvervaultRequestProps = {
                 cache: request.cache,
                 credentials: request.credentials,
                 destination: request.destination,
@@ -73,9 +82,7 @@ export default function Inputs(config: Config) {
               const requestStr = JSON.stringify(requestSerializable);
 
               // filter any urls from the custom styles
-              const customStyles = settings?.customStyles
-                ? removeUrlsFromStyles(settings?.customStyles)
-                : undefined;
+              const { customStyles } = settings as RevealSettings;
               const channel = new MessageChannel();
               (
                 document.getElementById("ev-iframe") as HTMLIFrameElement
@@ -96,28 +103,32 @@ export default function Inputs(config: Config) {
               onCopyCallback();
             }
           }
-          if (event.data?.type === "EV_REVEAL_ERROR_EVENT") {
-            let errorStr = event.data?.error;
+          if (isRevealError(event)) {
+            const errorStr = event.data.error;
             if (errorStr) {
               try {
-                const error = JSON.parse(errorStr);
+                const error = JSON.parse(errorStr) as InputError;
                 try {
-                  // @ts-ignore
                   // Try and reconstruct the exact error type if available in this window context.
                   // TS despises this but we catch and throw a generic error so its fine.
-                  reject(new window[error.type](error.message));
+                  const ErrorType = window[
+                    error.type as keyof Window
+                  ] as typeof Error;
+                  reject(new ErrorType(error.message));
                 } catch (e) {
                   reject(new Error(error.message));
                 }
               } catch (e) {
-                reject(`Failed to parse Error: ${e}, Unparsed: ${errorStr}`);
+                // eslint-disable-next-line prefer-promise-reject-errors
+                reject(
+                  `Failed to parse Error: ${
+                    (e as Error).message
+                  }, Unparsed: ${errorStr}`
+                );
               }
             }
           }
-          if (
-            event.data?.type === "EV_REVEAL_LOADED" ||
-            event.data?.type === "EV_REVEAL_ERROR_EVENT"
-          ) {
+          if (event.data?.type === "EV_REVEAL_LOADED" || isRevealError(event)) {
             if (isReveal) {
               resolve(true);
             }
@@ -128,7 +139,7 @@ export default function Inputs(config: Config) {
       return {
         isInputsLoaded,
         getData: () =>
-          new Promise((res, rej) => {
+          new Promise((res) => {
             const channel = new MessageChannel();
 
             channel.port1.onmessage = ({ data }) => {
@@ -140,11 +151,11 @@ export default function Inputs(config: Config) {
               document.getElementById("ev-iframe") as HTMLIFrameElement
             ).contentWindow?.postMessage("message", "*", [channel.port2]);
           }),
-        on: (event: "change" | unknown, fn: (data: any) => void) => {
-          if (event === "change") {
+        on: (e: unknown, fn: (data: unknown) => void) => {
+          if (e === "change") {
             window.addEventListener(
               "message",
-              (event) => {
+              (event: InputMessage) => {
                 if (event.origin !== config.input.inputsOrigin) return;
                 if (event.data?.type === "EV_FRAME_HEIGHT") return;
                 if (event.data?.type === "EV_INPUTS_LOADED") return;
@@ -158,7 +169,7 @@ export default function Inputs(config: Config) {
             );
           }
         },
-        setLabels: (labels: Record<string, any>) => {
+        setLabels: (labels: Record<string, unknown>) => {
           const channel = new MessageChannel();
           (
             document.getElementById("ev-iframe") as HTMLIFrameElement
@@ -167,18 +178,4 @@ export default function Inputs(config: Config) {
       };
     },
   };
-}
-
-function removeUrlsFromStyles(customStyles: any) {
-  const newStyles = { ...customStyles };
-  for (const group in newStyles) {
-    for (const key in newStyles[group]) {
-      if (typeof newStyles[group][key] === "string") {
-        if (newStyles[group][key].match(/url\([^)]+\)/g, "none")) {
-          delete newStyles[group][key];
-        }
-      }
-    }
-  }
-  return newStyles;
 }

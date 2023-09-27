@@ -5,7 +5,7 @@ for (let i = 0; i < 256; i++) {
     if (c & 1) {
       c = 0xedb88320 ^ (c >>> 1);
     } else {
-      c = c >>> 1;
+      c >>>= 1;
     }
   }
   crcTable[i] = c;

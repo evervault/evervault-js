@@ -1,4 +1,4 @@
-type CustomRevealStyles = { [key: string]: CSSStyleDeclaration };
+export type CustomRevealStyles = Record<string, CSSStyleDeclaration>;
 
 const supportedProperties = [
   {
@@ -71,8 +71,8 @@ const supportedProperties = [
   },
 ];
 
-export function urlStyles(urlParams: URLSearchParams) {
-  let root = document.documentElement;
+export function urlStyles(urlParams: URLSearchParams): void {
+  const root = document.documentElement;
   supportedProperties.forEach(({ name, variable }) => {
     const paramValue = urlParams.get(name);
     if (paramValue) {
@@ -81,14 +81,12 @@ export function urlStyles(urlParams: URLSearchParams) {
   });
 }
 
-export function customStyles(styles: CustomRevealStyles) {
+export function customStyles(styles: CustomRevealStyles): void {
   if (!styles) {
     return;
   }
 
-  styles = removeUrlsFromStyles(styles);
-
-  Object.entries(styles).forEach(([name, value]) => {
+  Object.entries(removeUrlsFromStyles(styles)).forEach(([name, value]) => {
     const id = getHtmlIdForRevealStyleProperty(name);
     if (id) {
       const element = document.getElementById(id);
@@ -130,14 +128,12 @@ function getHtmlIdForRevealStyleProperty(propertyName: string) {
   }
 }
 
-function removeUrlsFromStyles(customStyles: any) {
-  const newStyles = { ...customStyles };
-  for (const group in newStyles) {
-    for (const key in newStyles[group]) {
-      if (typeof newStyles[group][key] === "string") {
-        if (newStyles[group][key].match(/url\([^)]+\)/g, "none")) {
-          delete newStyles[group][key];
-        }
+function removeUrlsFromStyles(customRevealStyles: CustomRevealStyles) {
+  const newStyles = { ...customRevealStyles };
+  for (const [groupKey, group] of Object.entries(newStyles)) {
+    for (const [keyKey, key] of Object.entries(group)) {
+      if (typeof key === "string" && key.match(/url\([^)]+\)/g)) {
+        delete newStyles[groupKey]![keyKey as keyof CSSStyleDeclaration];
       }
     }
   }

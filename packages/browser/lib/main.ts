@@ -1,3 +1,6 @@
+import getConfig, { ConfigUrls, SdkContext } from "./config";
+import { CoreCrypto, Http, Forms, Input } from "./core";
+import { base64StringToUint8Array } from "./encoding";
 import {
   Datatypes,
   errors,
@@ -5,11 +8,14 @@ import {
   buildCageKeyFromSuppliedPublicKey,
   deriveSharedSecret,
 } from "./utils";
-import Config, { ConfigUrls, SdkContext } from "./config";
-import { CoreCrypto, Http, Forms, Input } from "./core";
-import { base64StringToUint8Array } from "./encoding";
+import type { InputSettings, RevealSettings } from "./types";
 
-interface CustomConfig {
+export type * from "./config";
+export type * from "./types";
+export type * from "./messages";
+export type { Datatypes };
+
+export interface CustomConfig {
   isDebugMode?: boolean;
   urls?: ConfigUrls;
   publicKey?: string;
@@ -19,9 +25,7 @@ export interface EvervaultRequestProps {
   cache?: RequestCache;
   credentials?: RequestCredentials;
   destination?: RequestDestination;
-  headers?: {
-    [key: string]: string;
-  };
+  headers?: Record<string, string>;
   integrity?: string;
   keepalive?: boolean;
   method?: string;
@@ -29,37 +33,6 @@ export interface EvervaultRequestProps {
   referrer?: string;
   referrerPolicy?: ReferrerPolicy;
   url?: string;
-}
-
-export interface CustomStyles {
-  cardNumberText?: CSSStyleDeclaration;
-  cardNumberLabel?: CSSStyleDeclaration;
-  cardNumberGroup?: CSSStyleDeclaration;
-  securityCodeText?: CSSStyleDeclaration;
-  securityCodeLabel?: CSSStyleDeclaration;
-  securityCodeGroup?: CSSStyleDeclaration;
-  expirationDateText?: CSSStyleDeclaration;
-  expirationDateLabel?: CSSStyleDeclaration;
-  expirationDateGroup?: CSSStyleDeclaration;
-  topRow?: CSSStyleDeclaration;
-  bottomRow?: CSSStyleDeclaration;
-  copyButton?: CSSStyleDeclaration;
-}
-
-export interface RevealConfig {
-  height?: string | "auto";
-  revealFontSize?: string;
-  revealFontWeight?: string;
-  revealTextColor?: string;
-  fontUrl?: string;
-  fontFamily?: string;
-  cardNumberLabel?: string;
-  expirationDateLabel?: string;
-  securityCodeLabel?: string;
-  labelFontSize?: string;
-  labelFontWeight?: string;
-  labelColor?: string;
-  customStyles?: CustomStyles;
 }
 
 export default class EvervaultClient {
@@ -91,7 +64,7 @@ export default class EvervaultClient {
 
     this.#debugMode = customConfig.isDebugMode === true;
 
-    this.config = Config(
+    this.config = getConfig(
       teamId,
       appId,
       customConfig?.urls,
@@ -119,11 +92,10 @@ export default class EvervaultClient {
 
   // TODO: make this private
   async loadKeys() {
-    const cageKey = this.config.encryption.publicKey
-      ? await buildCageKeyFromSuppliedPublicKey(
-          this.config.encryption.publicKey
-        )
-      : this.isInDebugMode()
+    const debugMode = this.config.encryption.publicKey
+      ? buildCageKeyFromSuppliedPublicKey(this.config.encryption.publicKey)
+      : this.isInDebugMode();
+    const cageKey = debugMode
       ? this.config.debugKey
       : await this.http.getCageKey();
 
@@ -156,12 +128,13 @@ export default class EvervaultClient {
     );
   }
 
+  // TODO: make this private and static
+  // eslint-disable-next-line class-methods-use-this
   getContext(origin: string, inputsUrl: string): SdkContext {
     if (origin === inputsUrl) {
       return "inputs";
-    } else {
-      return "default";
     }
+    return "default";
   }
 
   /**
@@ -171,20 +144,28 @@ export default class EvervaultClient {
    * We also support themes and custom styles so you can customise how Inputs looks in your UI.
    * @param data - The data to encrypt.
    * @returns The encrypted data.
-   * */
-  async encrypt(data: any): Promise<any> {
+   */
+  async encrypt(data: File): Promise<File>;
+  async encrypt(data: Blob): Promise<Blob>;
+  async encrypt(data: Datatypes.EncryptableAsString): Promise<string>;
+  async encrypt(
+    data: Datatypes.EncryptableValue[]
+  ): Promise<Datatypes.EncryptedValue[]>;
+
+  async encrypt(
+    data: Datatypes.EncryptableObject
+  ): Promise<NonNullable<unknown>>;
+
+  async encrypt(data: unknown): Promise<string>;
+
+  async encrypt(data: unknown) {
     // Ignore empty strings — encrypting an empty string in Safari causes an Operation Specific Error.
     if (Datatypes.isEmptyString(data)) {
       return data;
     }
 
     const crypto = await this.#cryptoPromise;
-
-    try {
-      return await crypto.encrypt(data);
-    } catch (err) {
-      throw err;
-    }
+    return crypto.encrypt(data);
   }
 
   /**
@@ -198,33 +179,28 @@ export default class EvervaultClient {
    */
   inputs(
     elementId: string,
-    config?: string | Record<string, any>
+    config?: string | InputSettings
   ): {
     isInputsLoaded: Promise<boolean>;
     getData: () => Promise<unknown>;
-    on: (event: unknown, fn: (data: any) => void) => void;
-    setLabels: (labels: Record<string, any>) => void;
+    on: (event: unknown, fn: (data: unknown) => void) => void;
+    setLabels: (labels: Record<string, unknown>) => void;
   } {
-    try {
-      if (typeof config === "string") {
-        return this.input.generate(elementId, { theme: config });
-      } else {
-        return this.input.generate(elementId, config ?? {});
-      }
-    } catch (err) {
-      throw err;
+    if (typeof config === "string") {
+      return this.input.generate(elementId, { theme: config });
     }
+    return this.input.generate(elementId, config ?? {});
   }
 
   reveal(
     elementId: string,
     request: Request | EvervaultRequestProps,
-    config?: RevealConfig,
+    config?: RevealSettings,
     onCopy?: () => void
   ): {
     isRevealLoaded: Promise<boolean>;
   } {
-    let reveal = this.input.generate(
+    const reveal = this.input.generate(
       elementId,
       {
         theme: "reveal",
@@ -242,9 +218,10 @@ export default class EvervaultClient {
 
   /**
    * @deprecated
-   **/
+   */
   auto(fieldsToEncrypt = []) {
-    // I am NOT typechecking any of this.
+    /* eslint-disable */
+    // This is deprecated and should just be removed so disabling types and lint.
     // @ts-ignore
     if (!global.oldFetch) {
       // @ts-ignore
@@ -278,9 +255,10 @@ export default class EvervaultClient {
         return global.oldFetch(url, options);
       };
     }
+    /* eslint-enable */
   }
 
-  decrypt(token: string, data: any): Promise<any> {
+  decrypt<T>(token: string, data: T): Promise<{ value: T }> {
     return this.http.decryptWithToken(token, data);
   }
 

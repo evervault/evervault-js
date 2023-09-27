@@ -4,17 +4,15 @@
  * @returns
  */
 export default function extractDomain(url: string): string | undefined {
-  var result;
-  var match;
-  url = url.trim();
-  if (
-    (match = url.match(
-      /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n\?\=]+)/im
-    ))
-  ) {
-    result = match[1];
-    if ((match = result.match(/^[^\.]+\.(.+\..+)$/))) {
-      result = match[1];
+  let result;
+  let match = url
+    .trim()
+    .match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:/\n?=]+)/im);
+  if (match) {
+    [, result] = match;
+    match = result.match(/^[^.]+\.(.+\..+)$/);
+    if (match) {
+      [, result] = match;
     }
   }
   return result;

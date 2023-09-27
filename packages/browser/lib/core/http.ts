@@ -1,6 +1,15 @@
+import { errors } from "../utils";
 import type { HttpConfig, SdkContext } from "../config";
 
-import { errors } from "../utils";
+export interface CageKey {
+  teamUuid: string;
+  appUuid: string;
+  key: string;
+  ecdhKey: string;
+  ecdhP256Key: string;
+  ecdhP256KeyUncompressed: string;
+  isDebugMode: boolean;
+}
 
 export default function Http(
   config: HttpConfig,
@@ -20,7 +29,7 @@ export default function Http(
     );
   }
 
-  const getCageKey = async () => {
+  async function getCageKey(): Promise<CageKey> {
     try {
       const keyEndpoint = new URL(
         `${teamId}/apps/${appId}?context=${context}`,
@@ -35,8 +44,8 @@ export default function Http(
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const body = await response.json();
-      const headers = response.headers;
+      const body = (await response.json()) as CageKey;
+      const { headers } = response;
 
       return {
         ...body,
@@ -48,18 +57,21 @@ export default function Http(
         { cause: err }
       );
     }
-  };
+  }
 
-  const decryptWithToken = async (token: string, data: any) => {
+  async function decryptWithToken<T>(
+    token: string,
+    data: T
+  ): Promise<{ value: T }> {
     try {
       const response = await fetch(`${config.apiUrl}/decrypt`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Token " + token,
+          Authorization: `Token ${token}`,
         },
         body: JSON.stringify({
-          data: data,
+          data,
         }),
       });
 
@@ -67,7 +79,7 @@ export default function Http(
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const body = await response.json();
+      const body = (await response.json()) as { data: { value: T } };
 
       return body.data;
     } catch (err) {
@@ -76,7 +88,7 @@ export default function Http(
         { cause: err }
       );
     }
-  };
+  }
 
   return { getCageKey, decryptWithToken };
 }

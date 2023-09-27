@@ -4,60 +4,43 @@ interface CardData {
   cvv: string;
 }
 
-interface WrappedError {
-  code: string;
-  error: Error;
-}
-
 export async function setupReveal(request: string): Promise<void> {
-  try {
-    const cardData = await makeRequestAndValidateResponse(request);
-    setRevealContent(cardData);
-    setupClipboardCopyButton();
+  const cardData = await makeRequestAndValidateResponse(request);
+  setRevealContent(cardData);
+  setupClipboardCopyButton();
 
-    // Overwrite the default copy action to remove spaces from card number
-    // when user highlights and copies as opposed to clicking the button
-    overwriteCopyAction();
-  } catch (e) {
-    throw e;
-  }
+  // Overwrite the default copy action to remove spaces from card number
+  // when user highlights and copies as opposed to clicking the button
+  overwriteCopyAction();
 }
 
 async function makeRequestAndValidateResponse(
   requestJson: string
 ): Promise<CardData> {
-  const requestData = JSON.parse(requestJson);
+  const requestData = JSON.parse(requestJson) as Request;
   const request = new Request(requestData.url, {
     ...requestData,
   });
-  try {
-    let req = await makeRequest(request);
-    let response = await req.json();
+  const req = await makeRequest(request);
+  const response = (await req.json()) as CardData;
 
-    if (!response.cardNumber) {
-      throw new Error("No card number found in response");
-    }
-
-    if (!response.expiry) {
-      throw new Error("No expiration date found in response");
-    }
-
-    if (!response.cvv) {
-      throw new Error("No cvv found in response");
-    }
-
-    return response;
-  } catch (e: any) {
-    throw e;
+  if (!response.cardNumber) {
+    throw new Error("No card number found in response");
   }
+
+  if (!response.expiry) {
+    throw new Error("No expiration date found in response");
+  }
+
+  if (!response.cvv) {
+    throw new Error("No cvv found in response");
+  }
+
+  return response;
 }
 
-async function makeRequest(request: Request): Promise<Response> {
-  try {
-    return await fetch(request);
-  } catch (e: any) {
-    throw e;
-  }
+function makeRequest(request: Request): Promise<Response> {
+  return fetch(request);
 }
 
 function setRevealContent(cardData: CardData) {
@@ -84,7 +67,7 @@ function formatAmexCardNumber(cardNumber: string): string {
   const formattedCardNumberWithSpaces = formattedCardNumberArray
     .map((char, index) => {
       if (index === 4 || index === 10) {
-        return " " + char;
+        return ` ${char}`;
       }
       return char;
     })
@@ -95,7 +78,7 @@ function formatAmexCardNumber(cardNumber: string): string {
 
 function formatAnyLengthCardNumber(cardNumber: string): string {
   const rawCardNumber = cardNumber.toString().replace(/ /g, "");
-  if (rawCardNumber.length == 15) {
+  if (rawCardNumber.length === 15) {
     return formatAmexCardNumber(rawCardNumber);
   }
 
@@ -103,7 +86,7 @@ function formatAnyLengthCardNumber(cardNumber: string): string {
   const formattedCardNumberWithSpaces = formattedCardNumberArray
     .map((char, index) => {
       if (index % 4 === 0 && index !== 0) {
-        return " " + char;
+        return ` ${char}`;
       }
       return char;
     })
@@ -117,7 +100,7 @@ function formatExpiryDate(expiryDate: string): string {
   const formattedExpiryDateWithSlash = formattedExpiryDateArray
     .map((char, index) => {
       if (index === 2) {
-        return " / " + char;
+        return ` / ${char}`;
       }
       return char;
     })
@@ -137,7 +120,9 @@ function setupClipboardCopyButton() {
       const cardNumberElement = document.getElementById("cardnumber");
       if (cardNumberElement) {
         const cardNumber = removeFormatting(cardNumberElement.innerHTML);
-        navigator.clipboard.writeText(cardNumber);
+        navigator.clipboard.writeText(cardNumber).catch(() => {
+          console.error("failed to copy card number to clipboard");
+        });
         window.parent.postMessage({ type: "EV_REVEAL_COPY_EVENT" }, "*");
       }
     });
@@ -147,7 +132,7 @@ function setupClipboardCopyButton() {
 function overwriteCopyAction() {
   const cardNumberElement = document.getElementById("cardnumber");
   if (cardNumberElement) {
-    cardNumberElement.addEventListener("copy", function (event) {
+    cardNumberElement.addEventListener("copy", (event) => {
       // Prevent the default copy action
       event.preventDefault();
 
@@ -155,7 +140,9 @@ function overwriteCopyAction() {
       if (selection) {
         const selectedText = selection.toString();
         const cleanedText = removeFormatting(selectedText);
-        navigator.clipboard.writeText(cleanedText);
+        navigator.clipboard.writeText(cleanedText).catch(() => {
+          console.error("failed to overwrite clipboard");
+        });
       }
     });
   }
