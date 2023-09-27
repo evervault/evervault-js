@@ -31,7 +31,7 @@ importers:
         version: 18.2.4
       '@vitejs/plugin-react':
         specifier: ^4.0.0
-        version: 4.0.0(vite@4.2.1)
+        version: 4.0.0(vite@4.2.3)
       crc-32:
         specifier: ^1.2.2
         version: 1.2.2
@@ -97,8 +97,8 @@ importers:
         version: link:../../packages/browser
     devDependencies:
       vite:
-        specifier: ^4.2.1
-        version: 4.2.1(@types/node@18.15.11)
+        specifier: ^4.2.3
+        version: 4.2.3(@types/node@18.15.11)
       vitest:
         specifier: ^0.29.8
         version: 0.29.8(jsdom@21.1.1)
@@ -161,11 +161,11 @@ importers:
         specifier: workspace:^
         version: link:../tsconfig
       vite:
-        specifier: ^4.2.1
-        version: 4.2.1(@types/node@18.15.11)
+        specifier: ^4.2.3
+        version: 4.2.3(@types/node@18.15.11)
       vite-plugin-dts:
         specifier: ^2.3.0
-        version: 2.3.0(@types/node@18.15.11)(rollup@3.20.1)(vite@4.2.1)
+        version: 2.3.0(@types/node@18.15.11)(rollup@3.20.1)(vite@4.2.3)
       vitest:
         specifier: ^0.29.8
         version: 0.29.8(jsdom@21.1.1)
@@ -231,11 +231,11 @@ importers:
         specifier: workspace:^
         version: link:../tsconfig
       vite:
-        specifier: ^4.2.1
-        version: 4.2.1(@types/node@18.15.11)
+        specifier: ^4.2.3
+        version: 4.2.3(@types/node@18.15.11)
       vite-plugin-dts:
         specifier: ^2.3.0
-        version: 2.3.0(@types/node@18.15.11)(rollup@3.20.1)(vite@4.2.1)
+        version: 2.3.0(@types/node@18.15.11)(rollup@3.20.1)(vite@4.2.3)
 
   packages/react:
     dependencies:
@@ -248,16 +248,16 @@ importers:
         version: link:../browser
       '@vitejs/plugin-react':
         specifier: ^4.0.0
-        version: 4.0.0(vite@4.2.1)
+        version: 4.0.0(vite@4.2.3)
       tsconfig:
         specifier: workspace:^
         version: link:../tsconfig
       vite:
-        specifier: ^4.2.1
-        version: 4.2.1(@types/node@18.15.11)
+        specifier: ^4.2.3
+        version: 4.2.3(@types/node@18.15.11)
       vite-plugin-dts:
         specifier: ^2.3.0
-        version: 2.3.0(@types/node@18.15.11)(rollup@3.20.1)(vite@4.2.1)
+        version: 2.3.0(@types/node@18.15.11)(rollup@3.20.1)(vite@4.2.3)
 
   packages/tsconfig: {}
 
@@ -1450,7 +1450,7 @@ packages:
       '@rushstack/ts-command-line': 4.13.3
       colors: 1.2.5
       lodash: 4.17.21
-      resolve: 1.22.1
+      resolve: 1.22.6
       semver: 7.3.8
       source-map: 0.6.1
       typescript: 5.0.4
@@ -2022,7 +2022,7 @@ packages:
       eslint-visitor-keys: 3.4.3
     dev: false
 
-  /@vitejs/plugin-react@4.0.0(vite@4.2.1):
+  /@vitejs/plugin-react@4.0.0(vite@4.2.3):
     resolution: {integrity: sha512-HX0XzMjL3hhOYm+0s95pb0Z7F8O81G7joUHgfDd/9J/ZZf5k4xX6QAMFkKsHFxaHlf6X7GD7+XuaZ66ULiJuhQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -2032,7 +2032,7 @@ packages:
       '@babel/plugin-transform-react-jsx-self': 7.22.5(@babel/core@7.22.6)
       '@babel/plugin-transform-react-jsx-source': 7.22.5(@babel/core@7.22.6)
       react-refresh: 0.14.0
-      vite: 4.2.1(@types/node@18.15.11)
+      vite: 4.2.3(@types/node@18.15.11)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -5999,15 +5999,6 @@ packages:
       path-parse: 1.0.7
     dev: true
 
-  /resolve@1.22.1:
-    resolution: {integrity: sha512-nBpuuYuY5jFsli/JIs1oldw6fOQCBioohqWZg/2hiaOybXOft4lonv85uDOKXdf8rhyK159cxU5cDcK/NKk8zw==}
-    hasBin: true
-    dependencies:
-      is-core-module: 2.13.0
-      path-parse: 1.0.7
-      supports-preserve-symlinks-flag: 1.0.0
-    dev: true
-
   /resolve@1.22.6:
     resolution: {integrity: sha512-njhxM7mV12JfufShqGy3Rz8j11RPdLy4xi15UurGJeoHLfJpVXKdh3ueuOqbYUcDZnffr6X739JBo5LzyahEsw==}
     hasBin: true
@@ -6946,7 +6937,7 @@ packages:
       mlly: 1.2.0
       pathe: 1.1.0
       picocolors: 1.0.0
-      vite: 4.2.1(@types/node@18.15.11)
+      vite: 4.2.3(@types/node@18.15.11)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -6957,7 +6948,7 @@ packages:
       - terser
     dev: true
 
-  /vite-plugin-dts@2.3.0(@types/node@18.15.11)(rollup@3.20.1)(vite@4.2.1):
+  /vite-plugin-dts@2.3.0(@types/node@18.15.11)(rollup@3.20.1)(vite@4.2.3):
     resolution: {integrity: sha512-WbJgGtsStgQhdm3EosYmIdTGbag5YQpZ3HXWUAPCDyoXI5qN6EY0V7NXq0lAmnv9hVQsvh0htbYcg0Or5Db9JQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -6973,15 +6964,15 @@ packages:
       kolorist: 1.8.0
       magic-string: 0.29.0
       ts-morph: 18.0.0
-      vite: 4.2.1(@types/node@18.15.11)
+      vite: 4.2.3(@types/node@18.15.11)
     transitivePeerDependencies:
       - '@types/node'
       - rollup
       - supports-color
     dev: true
 
-  /vite@4.2.1(@types/node@18.15.11):
-    resolution: {integrity: sha512-7MKhqdy0ISo4wnvwtqZkjke6XN4taqQ2TBaTccLIpOKv7Vp2h4Y+NpmWCnGDeSvvn45KxvWgGyb0MkHvY1vgbg==}
+  /vite@4.2.3(@types/node@18.15.11):
+    resolution: {integrity: sha512-kLU+m2q0Y434Y1kCy3TchefAdtFso0ILi0dLyFV8Us3InXTU11H/B5ZTqCKIQHzSKNxVG/yEx813EA9f1imQ9A==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -7067,7 +7058,7 @@ packages:
       tinybench: 2.4.0
       tinypool: 0.4.0
       tinyspy: 1.1.1
-      vite: 4.2.1(@types/node@18.15.11)
+      vite: 4.2.3(@types/node@18.15.11)
       vite-node: 0.29.8(@types/node@18.15.11)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
