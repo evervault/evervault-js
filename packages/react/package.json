@@ -40,7 +40,7 @@
     "@evervault/browser": "workspace:^",
     "@vitejs/plugin-react": "^4.0.0",
     "tsconfig": "workspace:^",
-    "vite": "^4.2.1",
+    "vite": "^4.2.3",
     "vite-plugin-dts": "^2.3.0"
   }
 }
