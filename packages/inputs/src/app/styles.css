@@ -320,6 +320,101 @@ textarea {
   }
 }
 
+/* THEME: material-sling */
+
+.form-material-sling {
+  & .form-group {
+    padding: 0.5rem 0;
+  }
+
+  & .input-group {
+    position: relative;
+  }
+
+  & .input-group:not(.hide) {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--input-radius);
+    background-color: var(--input-background);
+    width: 100%;
+    position: relative;
+    padding-inline: 1.5rem;
+    padding-block: 1rem;
+
+    &[data-element="cardnumber"] {
+      margin-bottom: 1rem;
+    }
+  }
+
+  & .input-group:focus-within .absoluteLabel {
+    color: var(--color-primary);
+    font-size: 0.8125rem;
+    line-height: 1rem;
+    top: 1rem;
+    transform: none;
+  }
+
+  & .label {
+    display: none;
+  }
+
+  & .absoluteLabel {
+    background-color: transparent;
+    color: var(--input-placeholder);
+    display: flex;
+    font-size: 1rem;
+    font-weight: 400;
+    left: 1.5rem;
+    line-height: 1.2;
+    margin: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    -webkit-transform: translateY(26px) scale(1);
+    -ms-transform: translateY(26px) scale(1);
+    transform: translateY(26px) scale(1);
+    -webkit-transform-origin: top left;
+    -ms-transform-origin: top left;
+    transform-origin: top left;
+    -webkit-transition: all 0.2s ease-in-out;
+    -o-transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+  }
+
+  & .input {
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+    width: 100%;
+    line-height: 1.2;
+    -webkit-padding-before: 0.25rem;
+    padding-block-start: 0.25rem;
+    -webkit-padding-after: 0;
+    padding-block-end: 0;
+    padding-inline: 0;
+    -webkit-margin-before: 1rem;
+    margin-block-start: 1rem;
+    min-height: 0;
+    border-radius: 0;
+
+    &::placeholder {
+      opacity: 0;
+    }
+
+    &:focus {
+      border-color: var(--color-primary);
+      box-shadow: none;
+    }
+
+    &:not(:placeholder-shown) + .absoluteLabel {
+      font-size: 0.8125rem;
+      line-height: 1rem;
+      top: 1rem;
+      transform: none;
+    }
+  }
+}
+
 /* THEME: bg-1 */
 
 .form-bg-1 {
