@@ -348,7 +348,7 @@ textarea {
 
   & .input-group:focus-within .absoluteLabel {
     color: var(--color-primary);
-    font-size: .8125rem;
+    font-size: 0.8125rem;
     line-height: 1rem;
     top: 1rem;
     transform: none;
@@ -376,9 +376,9 @@ textarea {
     -webkit-transform-origin: top left;
     -ms-transform-origin: top left;
     transform-origin: top left;
-    -webkit-transition: all .2s ease-in-out;
-    -o-transition: all .2s ease-in-out;
-    transition: all .2s ease-in-out;
+    -webkit-transition: all 0.2s ease-in-out;
+    -o-transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
   }
 
   & .input {
@@ -407,7 +407,7 @@ textarea {
     }
 
     &:not(:placeholder-shown) + .absoluteLabel {
-      font-size: .8125rem;
+      font-size: 0.8125rem;
       line-height: 1rem;
       top: 1rem;
       transform: none;
