@@ -200,7 +200,7 @@ importers:
   packages/inputs:
     dependencies:
       '@evervault/browser':
-        specifier: workspace:^2.14.1
+        specifier: workspace:^2.14.2
         version: link:../browser
       card-validator:
         specifier: ^8.1.1

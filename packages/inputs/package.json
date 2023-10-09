@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@evervault/inputs",
-  "version": "2.15.2",
+  "version": "2.16.0",
   "description": "Repo for the backend for Evervault Inputs",
   "types": "./src/types.d.ts",
   "scripts": {
@@ -31,7 +31,7 @@
     "vite-plugin-dts": "^2.3.0"
   },
   "dependencies": {
-    "@evervault/browser": "workspace:^2.14.1",
+    "@evervault/browser": "workspace:^2.14.2",
     "card-validator": "^8.1.1",
     "credit-card-type": "^9.1.0",
     "imask": "^6.6.1"
