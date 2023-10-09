@@ -320,7 +320,7 @@ textarea {
   }
 }
 
-/* THEME: material-custom */
+/* THEME: material-sling */
 
 .form-material-sling {
   & .form-group {
@@ -353,7 +353,6 @@ textarea {
     top: 1rem;
     transform: none;
   }
-  
 
   & .label {
     display: none;
