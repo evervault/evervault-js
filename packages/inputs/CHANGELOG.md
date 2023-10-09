@@ -1,5 +1,17 @@
 # @evervault/inputs
 
+## 2.16.0
+
+### Minor Changes
+
+- 9d242de: Add new material-sling template
+
+### Patch Changes
+
+- 5c39813: Add detailed type annotation so SDK to ensure correct types in testing and allow for users to have types when using typescript
+- Updated dependencies [5c39813]
+  - @evervault/browser@2.14.2
+
 ## 2.15.2
 
 ### Patch Changes
