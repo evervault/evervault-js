@@ -4,6 +4,13 @@
 
 ### Patch Changes
 
+- Updated dependencies [11e1f9d]
+  - @evervault/inputs@2.17.1
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [584f76e]
   - @evervault/inputs@2.17.0
 

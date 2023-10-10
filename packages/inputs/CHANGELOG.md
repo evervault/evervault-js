@@ -1,5 +1,11 @@
 # @evervault/inputs
 
+## 2.17.1
+
+### Patch Changes
+
+- 11e1f9d: support up to 19 digit pans
+
 ## 2.17.0
 
 ### Minor Changes
