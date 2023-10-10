@@ -1,5 +1,11 @@
 # @evervault/inputs
 
+## 2.17.0
+
+### Minor Changes
+
+- 584f76e: Added various improvements to the material-sling theme
+
 ## 2.16.0
 
 ### Minor Changes
