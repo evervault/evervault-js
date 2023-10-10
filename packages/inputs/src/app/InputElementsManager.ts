@@ -56,7 +56,7 @@ export class InputElementsManager {
 
     this.masks = {
       cardNumber: IMask(this.elements.cardNumber, {
-        mask: "0000 0000 0000 0000",
+        mask: "0000 0000 0000 0000 000",
       }),
       expirationDate: IMask(this.elements.expirationDate, {
         mask: "MM / YY",
