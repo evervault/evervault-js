@@ -65,7 +65,8 @@ async function formatEncryptedFileOrBlob(
   ecdhPublicKey: CryptoKey,
   encryptedData: ArrayBuffer,
   isDebug: boolean,
-  fileName?: string
+  fileName?: string,
+  metadata?: Uint8Array
 ) {
   const exportableEcdhPublicKey = await window.crypto.subtle.exportKey(
     "raw",
@@ -77,7 +78,13 @@ async function formatEncryptedFileOrBlob(
     0x25, 0x45, 0x56, 0x45, 0x4e, 0x43,
   ]);
   const versionNumber = new Uint8Array([0x03]);
-  const offsetToData = new Uint8Array([0x37, 0x00]);
+  let offsetToData = new Uint8Array([0x37, 0x00]);
+  if (metadata) {
+    let offset = 55 + 2 + metadata.length; // 55 bytes for the header, 2 bytes for the metadata size, metadata length
+    offsetToData = new Uint8Array([0x37, 0x00 + metadata.length]);
+  } else {
+    
+  }
   const flags = isDebug ? new Uint8Array([0x01]) : new Uint8Array([0x00]);
 
   const data = concatUint8Arrays([
@@ -141,9 +148,9 @@ export class CoreCrypto {
     });
   }
 
-  async #encryptFile(dataContainer: File): Promise<File>;
-  async #encryptFile(dataContainer: Blob): Promise<Blob>;
-  async #encryptFile(dataContainer: File | Blob) {
+  async #encryptFile(dataContainer: File, role?: string): Promise<File>;
+  async #encryptFile(dataContainer: Blob, role?: string): Promise<Blob>;
+  async #encryptFile(dataContainer: File | Blob, role?: string) {
     if (dataContainer.size > this.#config.maxFileSizeInBytes) {
       throw new errors.ExceededMaxFileSizeError(
         `File size must be less than ${this.#config.maxFileSizeInMB}MB`
@@ -160,6 +167,10 @@ export class CoreCrypto {
       true,
       ["encrypt"]
     );
+
+    if (role != null) {
+      const metadataBytes = this.#buildMetadata(Math.floor(Date.now() / 1000), role);
+    }
 
     return new Promise((resolve, reject) => {
       const reader = new window.FileReader();
@@ -214,7 +225,7 @@ export class CoreCrypto {
     });
   }
 
-  async #encryptString(str: string, datatype: string): Promise<string> {
+  async #encryptString(str: string, datatype: string, role?: string): Promise<string> {
     const keyIv = generateBytes(this.#config.ivLength);
 
     const derivedSecretImported = await window.crypto.subtle.importKey(
@@ -227,6 +238,23 @@ export class CoreCrypto {
       ["encrypt"]
     );
 
+    let version: string;
+    let dataToEncrypt: Uint8Array;
+    if (role != null) {
+      version = this.#config.versions.LCY;
+      const metadataBytes = this.#buildMetadata(
+        Math.floor(Date.now() / 1000),
+        role
+      );
+      const metadataOffset = new Uint8Array(2); // Metadata size as a 2 bytes little-endian unsigned integer
+      metadataOffset[0] = metadataBytes.length & 0xff;
+      metadataOffset[1] = (metadataBytes.length >> 8) & 0xff;
+      dataToEncrypt = concatUint8Arrays([metadataOffset, metadataBytes, utf8StringToUint8Array(str)]);
+    } else {
+      version =  this.#config.versions.NOC;
+      dataToEncrypt = utf8StringToUint8Array(str);
+    }
+
     const encryptedBuffer = await window.crypto.subtle.encrypt(
       {
         name: "AES-GCM",
@@ -235,17 +263,57 @@ export class CoreCrypto {
         additionalData: this.#ecdhTeamKey,
       },
       derivedSecretImported,
-      utf8StringToUint8Array(str)
+      dataToEncrypt
     );
 
     return formatEncryptedData(
-      this.#config.evVersion,
+      version,
       datatype,
       uint8ArrayToBase64String(keyIv),
       this.#ecdhPublicKey,
       uint8ArrayToBase64String(new Uint8Array(encryptedBuffer)),
       this.#isDebug
     );
+  }
+
+  #buildMetadata(encryptionTimestamp: number, role?: string): Uint8Array {
+    const bufferArray = [];
+
+    // Binary representation of a fixed map with 2 or 3 items, followed by the key-value pairs.
+    bufferArray.push(0x80 | (!role ? 2 : 3));
+  
+    if (role) {
+      // `dr` (data role) => role_name
+      // Binary representation for a fixed string of length 2, followed by `dr`
+      bufferArray.push(0xa2);
+      bufferArray.push(...Array.from('dr').map(c => c.charCodeAt(0)));
+  
+      // Binary representation for a fixed string of role name length, followed by the role name itself.
+      bufferArray.push(0xa0 | role.length);
+      bufferArray.push(...Array.from(role).map(c => c.charCodeAt(0)));
+    }
+  
+    // "eo" (encryption origin) => 5 (Node SDK)
+    // Binary representation for a fixed string of length 2, followed by `eo`
+    bufferArray.push(0xa2);
+    bufferArray.push(...Array.from('eo').map(c => c.charCodeAt(0)));
+  
+    // Binary representation for the integer 5
+    bufferArray.push(5);
+  
+    // "et" (encryption timestamp) => current time
+    // Binary representation for a fixed string of length 2, followed by `et`
+    bufferArray.push(0xa2);
+    bufferArray.push(...Array.from('et').map(c => c.charCodeAt(0)));
+  
+    // Binary representation for a 4-byte unsigned integer (uint 32), followed by the epoch time
+    bufferArray.push(0xce);
+    bufferArray.push((encryptionTimestamp >> 24) & 0xff);
+    bufferArray.push((encryptionTimestamp >> 16) & 0xff);
+    bufferArray.push((encryptionTimestamp >> 8) & 0xff);
+    bufferArray.push(encryptionTimestamp & 0xff);
+  
+    return new Uint8Array(bufferArray);
   }
 
   // Use unknown in interal methods
@@ -288,7 +356,8 @@ export class CoreCrypto {
   }
 
   async encrypt(
-    data: unknown
+    data: unknown,
+    role?: string
   ): Promise<
     | string
     | Blob
@@ -301,23 +370,29 @@ export class CoreCrypto {
       throw new Error("Data must not be undefined");
     }
 
+    const dataRoleRegex = /^[a-z0-9-]{1,20}$/;
+    if (role != null && !dataRoleRegex.test(role)) {
+      throw new Error('The provided Data Role slug is invalid. The slug can be retrieved in the Evervault dashboard (Data Roles section).');
+    }
+
     if (Datatypes.isFile(data)) {
-      return this.#encryptFile(data);
+      return this.#encryptFile(data, role);
     }
 
     if (Datatypes.isObjectStrict(data)) {
-      return this.#encryptObject(data);
+      return this.#encryptObject(data, role);
     }
 
     if (Datatypes.isArray(data)) {
-      return this.#traverseObject([...data]);
+      return this.#traverseObject([...data], role);
     }
     if (Datatypes.isEncryptableAsString(data)) {
       return this.#encryptString(
         Datatypes.ensureString(data),
-        Datatypes.getHeaderType(data)
+        Datatypes.getHeaderType(data),
+        role
       );
     }
-    throw new Error("Data supplied is not encryptable");
+    throw new Error("The provided data to be encrypted is invalid.");
   }
 }

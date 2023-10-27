@@ -40,7 +40,10 @@ const encryptionConstants = {
   ivLength: 12 as const, // bytes
   authTagLength: 128 as const, // bits
   publicHash: "sha256" as const,
-  evVersion: "NOC" as const, // (Tk9D) NIST-P256 KDF
+  versions: {
+    "NOC": "NOC" as const, // (Tk9D) NIST-P256 KDF
+    "LCY": "LCY" as const, // (TENZ) NIST-P256 KDF with metadata
+  },
   header: {
     iss: "evervault" as const,
     version: 1 as const,
