@@ -9,6 +9,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@playwright/test": "^1.33.0",
     "start-server-and-test": "^2.0.0",
     "@evervault/e2e-decrypt-backend": "workspace:*",
     "@evervault/browser-e2e-app": "workspace:*"
