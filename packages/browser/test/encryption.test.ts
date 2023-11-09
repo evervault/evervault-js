@@ -3,6 +3,7 @@ import crc32 from "crc-32";
 import { describe, assert, it, beforeEach, expect } from "vitest";
 import Evervault from "../lib/main";
 import { setupCrypto } from "./setup";
+import fs from "fs";
 
 const encryptedStringRegex =
   /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
@@ -170,6 +171,29 @@ describe("File Encryption", () => {
     const crc32FromFileContents = crc32.buf(Buffer.from(data.slice(0, -4)));
 
     assert(crc32FromFile === crc32FromFileContents);
+  });
+
+  it("it encrypts a file with metadata", async (context) => {
+    const file = new File(["Hello world"], "hello.txt");
+
+    const encryptedFile = await context.ev.encrypt(file, "permit-all");
+
+
+    assert(encryptedFile instanceof File);
+    assert(encryptedFile.name === "hello.txt");
+
+    const data = Buffer.from(await encryptedFile.arrayBuffer());
+    assert(
+      Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) === 0
+    );
+
+    console.log(data.subarray(0, data.length));
+    
+    // Test that the debug flag is not set
+    assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x00])) === 0);
+    fs.writeFile('output.txt', data, (err) => {
+      if (err) throw err;
+    });
   });
 
   it("throws an error if the blob is too large", async (context) => {

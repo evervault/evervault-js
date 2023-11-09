@@ -47,6 +47,22 @@ async function formatEncryptedData(
   )}:${base64RemovePadding(encryptedData)}:$`;
 }
 
+/**
+ * Helper function to convert an offset size to a 2 byte little endian Uint8Array 
+ * @param number 
+ * @returns 2 byte little endian Uint8Array 
+ */
+function numberToLittleEndianUint8Array(number) {
+  // Create a Uint8Array with a length of 2 (assuming 16-bit integer).
+  const byteArray = new Uint8Array(2);
+
+  // Use bitwise operations to extract the bytes from the number.
+  byteArray[0] = number & 0xFF;           // Least significant byte
+  byteArray[1] = (number >> 8) & 0xFF;
+
+  return byteArray;
+}
+
 async function formatEncryptedFileOrBlob(
   keyIv: Uint8Array,
   ecdhPublicKey: CryptoKey,
@@ -67,6 +83,14 @@ async function formatEncryptedFileOrBlob(
   isDebug: boolean,
   fileName?: string,
   metadata?: Uint8Array
+): Promise<File>;
+async function formatEncryptedFileOrBlob(
+  keyIv: Uint8Array,
+  ecdhPublicKey: CryptoKey,
+  encryptedData: ArrayBuffer,
+  isDebug: boolean,
+  fileName?: string,
+  metadata?: Uint8Array
 ) {
   const exportableEcdhPublicKey = await window.crypto.subtle.exportKey(
     "raw",
@@ -77,27 +101,39 @@ async function formatEncryptedFileOrBlob(
   const evEncryptedFileIdentifier = new Uint8Array([
     0x25, 0x45, 0x56, 0x45, 0x4e, 0x43,
   ]);
-  const versionNumber = new Uint8Array([0x03]);
+  const versionNumber = new Uint8Array(metadata ? [0x05] : [0x03]);
   let offsetToData = new Uint8Array([0x37, 0x00]);
   if (metadata) {
     let offset = 55 + 2 + metadata.length; // 55 bytes for the header, 2 bytes for the metadata size, metadata length
-    offsetToData = new Uint8Array([0x37, 0x00 + metadata.length]);
+    offsetToData = numberToLittleEndianUint8Array(offset);
   } else {
     
   }
   const flags = isDebug ? new Uint8Array([0x01]) : new Uint8Array([0x00]);
 
-  const data = concatUint8Arrays([
+  const fileHeaders = concatUint8Arrays([
     evEncryptedFileIdentifier,
     versionNumber,
     offsetToData,
     compressedKey,
     keyIv,
     flags,
-    new Uint8Array(encryptedData),
   ]);
 
-  const crc32Hash = crc32(data);
+  let fileContents: Uint8Array;
+  if (metadata) {
+    const metadataOffsetBuffer = numberToLittleEndianUint8Array(metadata.length);
+    fileContents = concatUint8Arrays([
+      fileHeaders,
+      metadataOffsetBuffer,
+      metadata,
+      new Uint8Array(encryptedData),
+    ]);
+  } else {
+    fileContents = concatUint8Arrays([fileHeaders, new Uint8Array(encryptedData)]);
+  }
+
+  const crc32Hash = crc32(fileContents);
 
   // Convert crc32Hash to little endian Uint8Array
   const crc32HashArray = new Uint8Array([
@@ -107,7 +143,7 @@ async function formatEncryptedFileOrBlob(
     (crc32Hash >> 24) & 0xff,
   ]);
 
-  const finalData = concatUint8Arrays([data, crc32HashArray]);
+  const finalData = concatUint8Arrays([fileContents, crc32HashArray]);
 
   if (fileName != null) {
     return new File([finalData], fileName, {
@@ -168,8 +204,20 @@ export class CoreCrypto {
       ["encrypt"]
     );
 
-    if (role != null) {
+    let encryptedMetadataBytes: Uint8Array;
+    if (role) {
       const metadataBytes = this.#buildMetadata(Math.floor(Date.now() / 1000), role);
+      const encryptedMetadataByteBuffer = await window.crypto.subtle.encrypt(
+        {
+          name: "AES-GCM",
+          iv: keyIv,
+          tagLength: this.#config.authTagLength,
+          additionalData: this.#ecdhTeamKey
+        },
+        derivedSecretImported,
+        metadataBytes
+      );
+      encryptedMetadataBytes = new Uint8Array(encryptedMetadataByteBuffer);
     }
 
     return new Promise((resolve, reject) => {
@@ -205,7 +253,8 @@ export class CoreCrypto {
                   this.#ecdhPublicKey,
                   encrypted,
                   this.#isDebug,
-                  dataContainer.name
+                  dataContainer.name,
+                  encryptedMetadataBytes,
                 )
               );
             } else {
@@ -220,7 +269,6 @@ export class CoreCrypto {
             }
           });
       };
-
       reader.readAsArrayBuffer(dataContainer);
     });
   }

@@ -145,27 +145,28 @@ export default class EvervaultClient {
    * @param data - The data to encrypt.
    * @returns The encrypted data.
    */
-  async encrypt(data: File, role: String?): Promise<File>;
-  async encrypt(data: Blob): Promise<Blob>;
-  async encrypt(data: Datatypes.EncryptableAsString): Promise<string>;
+  async encrypt(data: File, role?: String): Promise<File>;
+  async encrypt(data: Blob, role?: String): Promise<Blob>;
+  async encrypt(data: Datatypes.EncryptableAsString, role?: String): Promise<string>;
   async encrypt(
-    data: Datatypes.EncryptableValue[]
+    data: Datatypes.EncryptableValue[],
+    role?: String
   ): Promise<Datatypes.EncryptedValue[]>;
 
   async encrypt(
-    data: Datatypes.EncryptableObject
+    data: Datatypes.EncryptableObject,
+    role?: String
   ): Promise<NonNullable<unknown>>;
 
-  async encrypt(data: unknown): Promise<string>;
-
-  async encrypt(data: unknown) {
+  async encrypt(data: unknown, role?: String): Promise<string>;
+  async encrypt(data: unknown, role?: String) {
     // Ignore empty strings — encrypting an empty string in Safari causes an Operation Specific Error.
     if (Datatypes.isEmptyString(data)) {
       return data;
     }
 
     const crypto = await this.#cryptoPromise;
-    return crypto.encrypt(data);
+    return crypto.encrypt(data, role);
   }
 
   /**
