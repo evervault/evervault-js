@@ -12,7 +12,7 @@ For full installation support, [book time here](https://calendly.com/evervault/s
 
 ## Documentation
 
-See the Evervault [React.js SDK documentation](https://docs.evervault.com/sdks/react-sdk).
+See the Evervault [React.js SDK documentation](https://docs.evervault.com/sdks/reactjs).
 
 ## Installation
 
