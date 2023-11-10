@@ -52,7 +52,7 @@ async function formatEncryptedData(
  * @param number
  * @returns 2 byte little endian Uint8Array
  */
-function numberToLittleEndianUint8Array(number) {
+function numberToLittleEndianUint8Array(number: number) {
   // Create a Uint8Array with a length of 2 (assuming 16-bit integer).
   const byteArray = new Uint8Array(2);
 
@@ -181,11 +181,10 @@ export class CoreCrypto {
   }
 
   async #encryptObject(
-    data: Datatypes.EncryptableObject
+    data: Datatypes.EncryptableObject,
+    role?: string
   ): Promise<Datatypes.EncrypedObject> {
-    return this.#traverseObject({
-      ...data,
-    });
+    return this.#traverseObject({ ...data }, role);
   }
 
   async #encryptFile(dataContainer: File, role?: string): Promise<File>;
@@ -381,19 +380,25 @@ export class CoreCrypto {
 
   // Use unknown in interal methods
   async #traverseObject(
-    data: Datatypes.EncryptableObject
+    data: Datatypes.EncryptableObject,
+    role?: string
   ): Promise<Datatypes.EncrypedObject>;
 
   async #traverseObject(
-    data: Datatypes.EncryptableValue[]
+    data: Datatypes.EncryptableValue[],
+    role?: string
   ): Promise<Datatypes.EncryptedValue[]>;
 
-  async #traverseObject(data: Datatypes.EncryptableAsString): Promise<string>;
   async #traverseObject(
-    data: Datatypes.EncryptableValue
+    data: Datatypes.EncryptableAsString,
+    role?: string
+  ): Promise<string>;
+  async #traverseObject(
+    data: Datatypes.EncryptableValue,
+    role?: string
   ): Promise<Datatypes.EncryptedValue>;
 
-  async #traverseObject(data: unknown) {
+  async #traverseObject(data: unknown, role?: string) {
     if (Datatypes.isEncryptableAsString(data)) {
       return this.#encryptString(
         Datatypes.ensureString(data),
@@ -404,7 +409,7 @@ export class CoreCrypto {
       const encryptedObject = { ...data };
       /* eslint-disable no-await-in-loop */
       for (const [key, value] of Object.entries(encryptedObject)) {
-        encryptedObject[key] = await this.#traverseObject(value);
+        encryptedObject[key] = await this.#traverseObject(value, role);
       }
       /* eslint-enable no-await-in-loop */
       return encryptedObject;
@@ -412,7 +417,7 @@ export class CoreCrypto {
     if (Datatypes.isArray(data)) {
       const encryptedArray = [...data];
       return Promise.all(
-        encryptedArray.map(async (value) => this.#traverseObject(value))
+        encryptedArray.map(async (value) => this.#traverseObject(value, role))
       );
     }
     return data;
