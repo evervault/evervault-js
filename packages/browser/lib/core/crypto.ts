@@ -337,7 +337,10 @@ export class CoreCrypto {
     );
   }
 
-  static #buildMetadata(encryptionTimestamp: number, role?: string): Uint8Array {
+  static #buildMetadata(
+    encryptionTimestamp: number,
+    role?: string
+  ): Uint8Array {
     const bufferArray = [];
 
     // Binary representation of a fixed map with 2 or 3 items, followed by the key-value pairs.
