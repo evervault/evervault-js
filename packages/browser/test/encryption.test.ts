@@ -1,4 +1,3 @@
-import fs from "fs";
 import { Buffer } from "node:buffer";
 import crc32 from "crc-32";
 import { describe, assert, it, beforeEach, expect } from "vitest";
@@ -188,9 +187,6 @@ describe("File Encryption", () => {
 
     // Test that the debug flag is not set
     assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x00])) === 0);
-    fs.writeFile("output.txt", data, (err) => {
-      if (err) throw err;
-    });
   });
 
   it("throws an error if the blob is too large", async (context) => {
