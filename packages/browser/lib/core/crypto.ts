@@ -48,17 +48,17 @@ async function formatEncryptedData(
 }
 
 /**
- * Helper function to convert an offset size to a 2 byte little endian Uint8Array 
- * @param number 
- * @returns 2 byte little endian Uint8Array 
+ * Helper function to convert an offset size to a 2 byte little endian Uint8Array
+ * @param number
+ * @returns 2 byte little endian Uint8Array
  */
 function numberToLittleEndianUint8Array(number) {
   // Create a Uint8Array with a length of 2 (assuming 16-bit integer).
   const byteArray = new Uint8Array(2);
 
   // Use bitwise operations to extract the bytes from the number.
-  byteArray[0] = number & 0xFF;           // Least significant byte
-  byteArray[1] = (number >> 8) & 0xFF;
+  byteArray[0] = number & 0xff; // Least significant byte
+  byteArray[1] = (number >> 8) & 0xff;
 
   return byteArray;
 }
@@ -107,7 +107,6 @@ async function formatEncryptedFileOrBlob(
     let offset = 55 + 2 + metadata.length; // 55 bytes for the header, 2 bytes for the metadata size, metadata length
     offsetToData = numberToLittleEndianUint8Array(offset);
   } else {
-    
   }
   const flags = isDebug ? new Uint8Array([0x01]) : new Uint8Array([0x00]);
 
@@ -122,7 +121,9 @@ async function formatEncryptedFileOrBlob(
 
   let fileContents: Uint8Array;
   if (metadata) {
-    const metadataOffsetBuffer = numberToLittleEndianUint8Array(metadata.length);
+    const metadataOffsetBuffer = numberToLittleEndianUint8Array(
+      metadata.length
+    );
     fileContents = concatUint8Arrays([
       fileHeaders,
       metadataOffsetBuffer,
@@ -130,7 +131,10 @@ async function formatEncryptedFileOrBlob(
       new Uint8Array(encryptedData),
     ]);
   } else {
-    fileContents = concatUint8Arrays([fileHeaders, new Uint8Array(encryptedData)]);
+    fileContents = concatUint8Arrays([
+      fileHeaders,
+      new Uint8Array(encryptedData),
+    ]);
   }
 
   const crc32Hash = crc32(fileContents);
@@ -206,13 +210,16 @@ export class CoreCrypto {
 
     let encryptedMetadataBytes: Uint8Array;
     if (role) {
-      const metadataBytes = this.#buildMetadata(Math.floor(Date.now() / 1000), role);
+      const metadataBytes = this.#buildMetadata(
+        Math.floor(Date.now() / 1000),
+        role
+      );
       const encryptedMetadataByteBuffer = await window.crypto.subtle.encrypt(
         {
           name: "AES-GCM",
           iv: keyIv,
           tagLength: this.#config.authTagLength,
-          additionalData: this.#ecdhTeamKey
+          additionalData: this.#ecdhTeamKey,
         },
         derivedSecretImported,
         metadataBytes
@@ -254,7 +261,7 @@ export class CoreCrypto {
                   encrypted,
                   this.#isDebug,
                   dataContainer.name,
-                  encryptedMetadataBytes,
+                  encryptedMetadataBytes
                 )
               );
             } else {
@@ -273,7 +280,11 @@ export class CoreCrypto {
     });
   }
 
-  async #encryptString(str: string, datatype: string, role?: string): Promise<string> {
+  async #encryptString(
+    str: string,
+    datatype: string,
+    role?: string
+  ): Promise<string> {
     const keyIv = generateBytes(this.#config.ivLength);
 
     const derivedSecretImported = await window.crypto.subtle.importKey(
@@ -297,9 +308,13 @@ export class CoreCrypto {
       const metadataOffset = new Uint8Array(2); // Metadata size as a 2 bytes little-endian unsigned integer
       metadataOffset[0] = metadataBytes.length & 0xff;
       metadataOffset[1] = (metadataBytes.length >> 8) & 0xff;
-      dataToEncrypt = concatUint8Arrays([metadataOffset, metadataBytes, utf8StringToUint8Array(str)]);
+      dataToEncrypt = concatUint8Arrays([
+        metadataOffset,
+        metadataBytes,
+        utf8StringToUint8Array(str),
+      ]);
     } else {
-      version =  this.#config.versions.NOC;
+      version = this.#config.versions.NOC;
       dataToEncrypt = utf8StringToUint8Array(str);
     }
 
@@ -329,38 +344,38 @@ export class CoreCrypto {
 
     // Binary representation of a fixed map with 2 or 3 items, followed by the key-value pairs.
     bufferArray.push(0x80 | (!role ? 2 : 3));
-  
+
     if (role) {
       // `dr` (data role) => role_name
       // Binary representation for a fixed string of length 2, followed by `dr`
       bufferArray.push(0xa2);
-      bufferArray.push(...Array.from('dr').map(c => c.charCodeAt(0)));
-  
+      bufferArray.push(...Array.from("dr").map((c) => c.charCodeAt(0)));
+
       // Binary representation for a fixed string of role name length, followed by the role name itself.
       bufferArray.push(0xa0 | role.length);
-      bufferArray.push(...Array.from(role).map(c => c.charCodeAt(0)));
+      bufferArray.push(...Array.from(role).map((c) => c.charCodeAt(0)));
     }
-  
+
     // "eo" (encryption origin) => 5 (Node SDK)
     // Binary representation for a fixed string of length 2, followed by `eo`
     bufferArray.push(0xa2);
-    bufferArray.push(...Array.from('eo').map(c => c.charCodeAt(0)));
-  
+    bufferArray.push(...Array.from("eo").map((c) => c.charCodeAt(0)));
+
     // Binary representation for the integer 5
     bufferArray.push(5);
-  
+
     // "et" (encryption timestamp) => current time
     // Binary representation for a fixed string of length 2, followed by `et`
     bufferArray.push(0xa2);
-    bufferArray.push(...Array.from('et').map(c => c.charCodeAt(0)));
-  
+    bufferArray.push(...Array.from("et").map((c) => c.charCodeAt(0)));
+
     // Binary representation for a 4-byte unsigned integer (uint 32), followed by the epoch time
     bufferArray.push(0xce);
     bufferArray.push((encryptionTimestamp >> 24) & 0xff);
     bufferArray.push((encryptionTimestamp >> 16) & 0xff);
     bufferArray.push((encryptionTimestamp >> 8) & 0xff);
     bufferArray.push(encryptionTimestamp & 0xff);
-  
+
     return new Uint8Array(bufferArray);
   }
 
@@ -420,7 +435,9 @@ export class CoreCrypto {
 
     const dataRoleRegex = /^[a-z0-9-]{1,20}$/;
     if (role != null && !dataRoleRegex.test(role)) {
-      throw new Error('The provided Data Role slug is invalid. The slug can be retrieved in the Evervault dashboard (Data Roles section).');
+      throw new Error(
+        "The provided Data Role slug is invalid. The slug can be retrieved in the Evervault dashboard (Data Roles section)."
+      );
     }
 
     if (Datatypes.isFile(data)) {

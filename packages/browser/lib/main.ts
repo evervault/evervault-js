@@ -147,7 +147,10 @@ export default class EvervaultClient {
    */
   async encrypt(data: File, role?: String): Promise<File>;
   async encrypt(data: Blob, role?: String): Promise<Blob>;
-  async encrypt(data: Datatypes.EncryptableAsString, role?: String): Promise<string>;
+  async encrypt(
+    data: Datatypes.EncryptableAsString,
+    role?: String
+  ): Promise<string>;
   async encrypt(
     data: Datatypes.EncryptableValue[],
     role?: String

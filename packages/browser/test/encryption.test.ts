@@ -177,7 +177,7 @@ describe("File Encryption", () => {
     const file = new File(["Hello world"], "hello.txt");
 
     const encryptedFile = await context.ev.encrypt(file, "permit-all");
-    
+
     assert(encryptedFile instanceof File);
     assert(encryptedFile.name === "hello.txt");
 
@@ -185,10 +185,10 @@ describe("File Encryption", () => {
     assert(
       Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) === 0
     );
-    
+
     // Test that the debug flag is not set
     assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x00])) === 0);
-    fs.writeFile('output.txt', data, (err) => {
+    fs.writeFile("output.txt", data, (err) => {
       if (err) throw err;
     });
   });
