@@ -104,9 +104,8 @@ async function formatEncryptedFileOrBlob(
   const versionNumber = new Uint8Array(metadata ? [0x05] : [0x03]);
   let offsetToData = new Uint8Array([0x37, 0x00]);
   if (metadata) {
-    let offset = 55 + 2 + metadata.length; // 55 bytes for the header, 2 bytes for the metadata size, metadata length
+    const offset = 55 + 2 + metadata.length; // 55 bytes for the header, 2 bytes for the metadata size, metadata length
     offsetToData = numberToLittleEndianUint8Array(offset);
-  } else {
   }
   const flags = isDebug ? new Uint8Array([0x01]) : new Uint8Array([0x00]);
 
@@ -209,7 +208,7 @@ export class CoreCrypto {
 
     let encryptedMetadataBytes: Uint8Array;
     if (role) {
-      const metadataBytes = this.#buildMetadata(
+      const metadataBytes = CoreCrypto.#buildMetadata(
         Math.floor(Date.now() / 1000),
         role
       );
@@ -300,7 +299,7 @@ export class CoreCrypto {
     let dataToEncrypt: Uint8Array;
     if (role != null) {
       version = this.#config.versions.LCY;
-      const metadataBytes = this.#buildMetadata(
+      const metadataBytes = CoreCrypto.#buildMetadata(
         Math.floor(Date.now() / 1000),
         role
       );
@@ -338,7 +337,7 @@ export class CoreCrypto {
     );
   }
 
-  #buildMetadata(encryptionTimestamp: number, role?: string): Uint8Array {
+  static #buildMetadata(encryptionTimestamp: number, role?: string): Uint8Array {
     const bufferArray = [];
 
     // Binary representation of a fixed map with 2 or 3 items, followed by the key-value pairs.
@@ -393,6 +392,7 @@ export class CoreCrypto {
     data: Datatypes.EncryptableAsString,
     role?: string
   ): Promise<string>;
+
   async #traverseObject(
     data: Datatypes.EncryptableValue,
     role?: string

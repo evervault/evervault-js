@@ -151,6 +151,7 @@ export default class EvervaultClient {
     data: Datatypes.EncryptableAsString,
     role?: string
   ): Promise<string>;
+
   async encrypt(
     data: Datatypes.EncryptableValue[],
     role?: string
