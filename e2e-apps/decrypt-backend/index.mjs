@@ -9,7 +9,7 @@ import Evervault from "@evervault/sdk";
 (await import("dotenv")).config();
 
 // Uses a key scoped only to the decryption function
-const evervault = new Evervault(process.env.EV_DECRYPT_FN_KEY);
+const evervault = new Evervault(process.env.EV_APP_UUID, process.env.EV_DECRYPT_FN_KEY);
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
