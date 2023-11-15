@@ -45,7 +45,6 @@ encryptForm.addEventListener("submit", async (e) => {
   const data2 = await resultToken.json();
   const decryptTokenResponse = await ev.decrypt(data2, tokenPayload);
   if (result.ok) {
-    const data2 = await resultToken.json();
     const data = await result.json();
     if (data.success) {
       document.getElementById("ev-test-t").innerHTML = data2;
