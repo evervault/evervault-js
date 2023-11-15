@@ -15,6 +15,26 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 const server = createServer(async (request, response) => {
   switch (request.url) {
+    case "/api/create-decrypt-token":
+      if (
+        request.method === "POST" &&
+        request.headers["content-type"] === "application/json"
+      ) {
+        let body = [];
+        request
+          .on("data", (chunk) => {
+            body.push(chunk);
+          })
+          .on("end", async () => {
+            body = Buffer.concat(body).toString();
+            body = JSON.parse(body);
+            const token = await evervault.createClientSideDecryptToken(body);
+            response.setHeader("Content-Type", "application/json");
+            response.writeHead(200);
+            response.end(JSON.stringify(token.token));
+          });
+      }
+      return;
     case "/api/test_decryption":
       if (
         request.method === "POST" &&
