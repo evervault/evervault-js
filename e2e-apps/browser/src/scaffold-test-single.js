@@ -42,14 +42,11 @@ encryptForm.addEventListener("submit", async (e) => {
     },
     body: JSON.stringify(tokenPayload),
   });
-  const data2 = await resultToken.json();
-  const decryptTokenResponse = await ev.decrypt(data2, tokenPayload);
-  if (result.ok) {
+  const parsedTokenResponse = await resultToken.json();
+  const decryptTokenResponse = await ev.decrypt(parsedTokenResponse, tokenPayload);
+  if (result.ok && decryptTokenResponse === value) {
     const data = await result.json();
     if (data.success) {
-      document.getElementById("ev-test-t").innerHTML = data2;
-      document.getElementById("ev-test-string").innerHTML =
-        decryptTokenResponse;
       document.getElementById("ev-encrypt-output").innerHTML = encryptedValue;
       document.getElementById("ev-encrypt-success").innerHTML = "Success!";
     }
