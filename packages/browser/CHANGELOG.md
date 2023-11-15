@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.15.0
+
+### Minor Changes
+
+- 5a2c188: Patch a bug caused by wrapping the payload in the `decrypt()` function in an object.
+
 ## 2.14.2
 
 ### Patch Changes
