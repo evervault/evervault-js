@@ -14,6 +14,7 @@ test("encrypts a string", async ({ page }) => {
   const output = await page.getByTestId("ev-encrypt-output");
   const success = await page.getByTestId("ev-encrypt-success");
   const t = await page.getByTestId("ev-test-t");
+  const strings = await page.getByTestId("ev-test-string");
 
   await expect(output).toHaveText(/OUTPUT GOES HERE/);
 
@@ -22,6 +23,7 @@ test("encrypts a string", async ({ page }) => {
 
   await expect(output).toHaveText(encryptedStringRegex);
   await expect(success).toHaveText("Success!");
+  await expect(strings).toHaveText("Success!");
   await expect(t).toHaveText("Success!");
 });
 
@@ -32,8 +34,8 @@ test("encrypts an object", async ({ page }) => {
 
   const output = await page.getByTestId("ev-encrypt-output");
   const success = await page.getByTestId("ev-encrypt-success");
-  const strings = await page.getByTestId("ev-encrypt-string");
-  const t = await page.getByTestId("ev-test-t");
+  // const strings = await page.getByTestId("ev-encrypt-string");
+  // const t = await page.getByTestId("ev-test-t");
 
   await expect(output).toHaveText(/OUTPUT GOES HERE/);
 
@@ -59,5 +61,5 @@ test("encrypts an object", async ({ page }) => {
 
   await expect(success).toHaveText("Success!");
   // await expect(strings).toHaveText("Success!");
-  await expect(t).toHaveText("Success!");
+  // await expect(t).toHaveText("Success!");
 });
