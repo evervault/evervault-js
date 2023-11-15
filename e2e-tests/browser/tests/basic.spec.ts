@@ -31,7 +31,7 @@ test("encrypts an object", async ({ page }) => {
   const output = await page.getByTestId("ev-encrypt-output");
   const success = await page.getByTestId("ev-encrypt-success");
   const strings = await page.getByTestId("ev-encrypt-string");
-  const t = await page.getByTestId("ev-encrypt-t");
+  const t = await page.getByTestId("ev-test-t");
 
   await expect(output).toHaveText(/OUTPUT GOES HERE/);
 
