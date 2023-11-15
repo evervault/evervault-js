@@ -12,7 +12,7 @@
   "license": "MIT",
   "dependencies": {
     "@evervault/browser-e2e-app": "workspace:*",
-    "@evervault/sdk": "^3.10.1",
+    "@evervault/sdk": "^4.2.0",
     "serve-handler": "^6.1.5"
   }
 }
