@@ -20,6 +20,6 @@
     },
     "homepage": "https://github.com/evervault/hello-function#readme",
     "devDependencies": {
-        "@evervault/sdk": "^3.10.1"
+        "@evervault/sdk": "^4.2.0"
     }
 }
