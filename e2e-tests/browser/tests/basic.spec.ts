@@ -30,6 +30,8 @@ test("encrypts an object", async ({ page }) => {
 
   const output = await page.getByTestId("ev-encrypt-output");
   const success = await page.getByTestId("ev-encrypt-success");
+  const strings = await page.getByTestId("ev-encrypt-string");
+  const t = await page.getByTestId("ev-encrypt-t");
 
   await expect(output).toHaveText(/OUTPUT GOES HERE/);
 
@@ -54,4 +56,6 @@ test("encrypts an object", async ({ page }) => {
   await expect(json.employer.current).toMatch(encryptedStringRegex);
 
   await expect(success).toHaveText("Success!");
+  await expect(strings).toHaveText("Success!");
+  await expect(t).toHaveText("Success!");
 });
