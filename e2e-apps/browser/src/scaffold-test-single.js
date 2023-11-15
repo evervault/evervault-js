@@ -17,7 +17,7 @@ encryptForm.addEventListener("submit", async (e) => {
   const encryptedValue = await ev.encrypt(value);
 
   const tokenPayload = {
-    data: encryptedValue
+    data: encryptedValue,
   };
 
   const fnPlayload = {
