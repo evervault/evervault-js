@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.15.1
+
+### Patch Changes
+
+- 84ee172: Fix casting issue in the response of the `decrypt()` function
+
 ## 2.15.0
 
 ### Minor Changes
