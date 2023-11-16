@@ -16,9 +16,7 @@ encryptForm.addEventListener("submit", async (e) => {
   const value = formData.get("ev-encrypt-input");
   const encryptedValue = await ev.encrypt(value);
 
-  const tokenPayload = {
-    data: encryptedValue,
-  };
+  const tokenPayload = encryptedValue;
 
   const fnPlayload = {
     encrypted: encryptedValue,
