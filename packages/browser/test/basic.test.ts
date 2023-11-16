@@ -54,7 +54,7 @@ describe("Resolving SDK Context", () => {
 
 const execToken = "abcdefg";
 const decrypted = {
-  value: "Big Secret"
+  value: "Big Secret",
 };
 
 export const restHandlers = [
