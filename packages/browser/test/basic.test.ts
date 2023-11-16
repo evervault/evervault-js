@@ -54,9 +54,7 @@ describe("Resolving SDK Context", () => {
 
 const execToken = "abcdefg";
 const decrypted = {
-  data: {
-    value: "Big Secret",
-  },
+  value: "Big Secret",
 };
 
 export const restHandlers = [
@@ -88,7 +86,7 @@ describe("decrypt", () => {
     it("decrypts correctly", async () => {
       const ev = new EvervaultClient("abcdefg", "uppa");
       const result = await ev.decrypt(execToken, "encryptedString");
-      assert(result.value === decrypted.data.value);
+      assert(result.value === decrypted.value);
     });
   });
 

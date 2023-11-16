@@ -77,9 +77,8 @@ export default function Http(
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const body = (await response.json()) as { data: { value: T } };
-
-      return body.data;
+      const body = (await response.json()) as { value: T };
+      return body;
     } catch (err) {
       throw new errors.DecryptError(
         "An error occurred while decrypting the data",
