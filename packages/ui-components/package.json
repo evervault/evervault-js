@@ -7,7 +7,7 @@
     "dev": "wait-on ../browser/dist && vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint .",
     "clean": "rm -rf .turbo && rm -rf dist",
     "typecheck": "tsc --noEmit"
   },
@@ -23,6 +23,7 @@
     "types": "workspace:*"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.6",
     "@types/jsonpath": "^0.2.4",
     "@types/react": "^18.2.41",
     "@types/react-dom": "^18.2.17",
@@ -34,6 +35,7 @@
     "eslint-plugin-react-refresh": "^0.4.3",
     "jsdom": "^22.1.0",
     "postcss-preset-env": "^8.3.0",
+    "tsconfig": "workspace:^",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
     "vite-plugin-istanbul": "^5.0.0",

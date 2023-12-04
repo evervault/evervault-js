@@ -1,24 +1,13 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { resize } from "../utilities/resize";
-import { useMessaging } from "../utilities/useMessaging";
-import { useBroadcastChannel } from "../utilities/useBroadcastChannel";
 import {
-  ThemeObject,
-  RevealFormat,
   RevealConsumerClientMessages,
   EvervaultFrameHostMessages,
 } from "types";
-import { RevealBroadcastMessages } from "./RevealRequest";
+import { resize } from "../utilities/resize";
+import { useBroadcastChannel } from "../utilities/useBroadcastChannel";
+import { useMessaging } from "../utilities/useMessaging";
 import { resolveJSONPath } from "./utils";
-
-type RevealCopyButtonConfig = {
-  channel: string;
-  path: string;
-  text?: string;
-  icon?: string;
-  theme?: ThemeObject;
-  format?: RevealFormat;
-};
+import type { RevealBroadcastMessages, RevealCopyButtonConfig } from "./types";
 
 export function RevealCopyButton({
   config,
@@ -57,8 +46,12 @@ export function RevealCopyButton({
     if (config.format) {
       value = text.replace(config.format.regex, config.format.replace);
     }
-    navigator.clipboard.writeText(value);
-    messages.send("EV_COPY");
+    navigator.clipboard
+      .writeText(value)
+      .then(() => {
+        messages.send("EV_COPY");
+      })
+      .catch(console.error); // eslint-disable-line no-console
   };
 
   if (!text) return null;

@@ -1,5 +1,6 @@
-import jsdom from "jsdom";
 import { createHash } from "crypto";
+import jsdom from "jsdom";
+import { IndexHtmlTransformContext } from "vite";
 
 // custom vite plugin to add integrity attribute to scripts and stylesheets
 export function integrity() {
@@ -8,23 +9,24 @@ export function integrity() {
     enforce: "post" as const,
     apply: "build" as const,
 
-    async transformIndexHtml(html, ctx) {
+    transformIndexHtml(html: string, ctx: IndexHtmlTransformContext) {
       const parsed = new jsdom.JSDOM(html);
 
-      async function addIntegrityToNode(node: jsdom.Node, src: string) {
+      function addIntegrityToNode(node: Element, src: string) {
         // only add integrity to local scripts
         if (src.startsWith("http")) return;
-        src = src.startsWith("/") ? src.slice(1) : src;
-        const resource = ctx.bundle[src];
-        const code = resource?.code || resource?.source;
-        const integrity = await generateIntegrity(code);
-        node.setAttribute("integrity", integrity);
+        const cleaned = src.startsWith("/") ? src.slice(1) : src;
+        const resource = ctx.bundle?.[cleaned] as { code?: string };
+
+        if (!resource?.code) return;
+        const hash = generateIntegrity(resource.code);
+        node.setAttribute("integrity", hash);
       }
 
       const scripts = parsed.window.document.querySelectorAll("script");
       for (const script of scripts) {
         const src = script.getAttribute("src");
-        await addIntegrityToNode(script, src);
+        if (src) addIntegrityToNode(script, src);
       }
 
       const links = parsed.window.document.querySelectorAll(
@@ -32,7 +34,7 @@ export function integrity() {
       );
       for (const link of links) {
         const href = link.getAttribute("href");
-        await addIntegrityToNode(link, href);
+        if (href) addIntegrityToNode(link, href);
       }
 
       return parsed.serialize();
@@ -40,7 +42,7 @@ export function integrity() {
   };
 }
 
-async function generateIntegrity(code: string) {
+function generateIntegrity(code: string) {
   const hash = createHash("sha512");
   hash.update(code);
   return `sha512-${hash.digest("base64")}`;

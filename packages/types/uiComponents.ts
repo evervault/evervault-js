@@ -4,6 +4,11 @@ export type TranslationsObject = string | { [key: string]: TranslationsObject };
 
 export type ThemeStyles = Partial<Styles>;
 
+export interface UIComponentMessageDetail {
+  type: string;
+  payload: unknown;
+}
+
 export type ThemeObject = {
   fonts?: string[];
   styles?: ThemeStyles;

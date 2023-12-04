@@ -1,24 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useMessaging } from "../utilities/useMessaging";
-import { useBroadcastChannel } from "../utilities/useBroadcastChannel";
 import {
   type EvervaultFrameHostMessages,
   type RevealRequestClientMessages,
 } from "types";
-
-type RevealRequestConfig = {
-  channel: string;
-  request: Request;
-};
-
-export type RevealBroadcastMessages = {
-  DATA_RECEIVED: JSON;
-  REVEAL_CONSUMER_READY: null;
-};
+import { useBroadcastChannel } from "../utilities/useBroadcastChannel";
+import { useMessaging } from "../utilities/useMessaging";
+import type { RevealBroadcastMessages, RevealRequestConfig } from "./types";
 
 export function RevealRequest({ config }: { config: RevealRequestConfig }) {
   const called = useRef(false);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<JSON | null>(null);
   const messages = useMessaging<
     EvervaultFrameHostMessages,
     RevealRequestClientMessages
@@ -52,18 +43,17 @@ export function RevealRequest({ config }: { config: RevealRequestConfig }) {
           body: config.request.body ? config.request.body : undefined,
         });
 
-        const d = await response.json();
+        const d = (await response.json()) as JSON;
         if (!response.ok) throw new Error("Request failed");
 
         setData(d);
         messages.send("EV_REVEAL_REQUEST_READY");
       } catch (e) {
-        console.error(e);
         messages.send("EV_ERROR");
       }
     }
 
-    makeRequest();
+    void makeRequest();
   }, [config.request, messages]);
 
   useEffect(() => {

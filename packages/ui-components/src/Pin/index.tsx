@@ -1,3 +1,4 @@
+import { useEvervault } from "@evervault/react";
 import {
   ClipboardEvent,
   useCallback,
@@ -8,14 +9,10 @@ import {
   useState,
 } from "react";
 import { Field } from "../Common/Field";
-import type {
-  ThemeObject,
-  EvervaultFrameHostMessages,
-  PinFrameClientMessages,
-} from "types";
-import { useMessaging } from "../utilities/useMessaging";
-import { useEvervault } from "@evervault/react";
 import { useMask } from "../utilities/useMask";
+import { useMessaging } from "../utilities/useMessaging";
+import type { PinConfig } from "./types";
+import type { EvervaultFrameHostMessages, PinFrameClientMessages } from "types";
 
 const MODES = {
   numeric: {
@@ -26,24 +23,16 @@ const MODES = {
   },
 };
 
-type PinConfig = {
-  autoFocus?: boolean;
-  theme?: ThemeObject;
-  length?: number;
-  mode?: "numeric" | "alphanumeric";
-  inputType?: "number" | "text" | "password";
-};
-
 export function Pin({ config }: { config: PinConfig }) {
   const ev = useEvervault();
   const ref = useRef<HTMLFieldSetElement | null>(null);
   const [pin, setPin] = useState("");
-  const length = config?.length || 4;
+  const length = config?.length ?? 4;
   const messages = useMessaging<
     EvervaultFrameHostMessages,
     PinFrameClientMessages
   >();
-  const mode = useMemo(() => MODES[config?.mode || "numeric"], [config]);
+  const mode = useMemo(() => MODES[config?.mode ?? "numeric"], [config]);
 
   const focus = useCallback(() => {
     if (!ref.current) return;
@@ -82,7 +71,7 @@ export function Pin({ config }: { config: PinConfig }) {
       }
     };
 
-    publishChange();
+    void publishChange();
     setPin(newPin);
   };
 
@@ -104,13 +93,13 @@ export function Pin({ config }: { config: PinConfig }) {
       {Array.from({ length }).map((_, i) => (
         <Field key={i} hasValue={pin[i] !== undefined}>
           <PinInput
-            value={pin[i] || ""}
+            value={pin[i] ?? ""}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             disabled={!config}
             mask={mode.mask}
             name={`pin-${i}`}
-            type={config?.inputType || "text"}
+            type={config?.inputType ?? "text"}
             autoFocus={config?.autoFocus && i === 0}
             ariaLabel={`Pin character ${i + 1}`}
           />

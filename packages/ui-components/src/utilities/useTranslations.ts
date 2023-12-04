@@ -9,7 +9,7 @@ export function useTranslations(
     (key: string): string => {
       const custom = getTranslation(customTranslations, key);
       const value = getTranslation(translations, key);
-      return custom || value || key;
+      return custom ?? value ?? key;
     },
     [customTranslations, translations]
   );

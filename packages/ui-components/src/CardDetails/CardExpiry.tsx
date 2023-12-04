@@ -1,15 +1,32 @@
 import IMask from "imask";
-import { CardDetailsForm } from ".";
 import { FocusEvent, useEffect, useRef } from "react";
 import { useMask } from "../utilities/useMask";
+import type { CardDetailsForm } from "./types";
 
-type CardExpiryProps = {
+interface CardExpiryProps {
   onChange: (value: CardDetailsForm["expiry"]) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
   disabled: boolean;
   placeholder?: string;
   value: string;
   readOnly?: boolean;
+}
+
+const EXPIRY_BLOCKS = {
+  MM: {
+    mask: IMask.MaskedRange,
+    placeholderChar: "MM",
+    from: 1,
+    to: 12,
+    maxLength: 2,
+  },
+  YY: {
+    mask: IMask.MaskedRange,
+    placeholderChar: "YY",
+    from: 0,
+    to: 99,
+    maxLength: 2,
+  },
 };
 
 export function CardExpiry({
@@ -49,20 +66,3 @@ export function CardExpiry({
     />
   );
 }
-
-const EXPIRY_BLOCKS = {
-  MM: {
-    mask: IMask.MaskedRange,
-    placeholderChar: "MM",
-    from: 1,
-    to: 12,
-    maxLength: 2,
-  },
-  YY: {
-    mask: IMask.MaskedRange,
-    placeholderChar: "YY",
-    from: 0,
-    to: 99,
-    maxLength: 2,
-  },
-};

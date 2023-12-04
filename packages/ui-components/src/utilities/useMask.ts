@@ -11,7 +11,7 @@ export function useMask(
   const mask = useRef<ReturnType<typeof IMask>>();
 
   useEffect(() => {
-    if (!ref.current) return;
+    if (!ref.current) return undefined;
     mask.current = IMask(ref.current, config);
 
     const handleAccept = () => {
@@ -27,9 +27,9 @@ export function useMask(
     };
   }, [config]);
 
-  const updateValue = useCallback((value: string) => {
+  const updateValue = useCallback((newValue: string) => {
     if (!mask.current) return;
-    mask.current.value = value;
+    mask.current.value = newValue;
   }, []);
 
   return [value, updateValue];

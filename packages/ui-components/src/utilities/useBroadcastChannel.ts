@@ -1,4 +1,5 @@
 import { useCallback, useRef } from "react";
+import { UIComponentMessageDetail } from "types";
 
 // Uses broadcast channels to allow communication between multiple Evervault iframes.
 // If you want to do messaging with the parent window use the useMessaging hook instead.
@@ -9,24 +10,24 @@ export function useBroadcastChannel<MessageMap>(name: string) {
     <T extends keyof MessageMap>(type: T, payload?: MessageMap[T]) => {
       channel.current.postMessage({ type, payload });
     },
-    [],
+    []
   );
 
   const on = useCallback(
     <T extends keyof MessageMap>(
       type: T,
-      callback: (payload: MessageMap[T]) => void,
+      callback: (payload: MessageMap[T]) => void
     ) => {
-      const handler = (event: MessageEvent) => {
+      const handler = (event: MessageEvent<UIComponentMessageDetail>) => {
         if (event.data.type === type) {
-          callback(event.data.payload);
+          callback(event.data.payload as MessageMap[T]);
         }
       };
 
       channel.current.addEventListener("message", handler);
       return () => channel.current.removeEventListener("message", handler);
     },
-    [],
+    []
   );
 
   return { on, send };

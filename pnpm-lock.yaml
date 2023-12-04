@@ -47,6 +47,9 @@ importers:
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@swc/core@1.3.51)(@types/node@18.15.11)(typescript@5.0.3)
+      tsconfig:
+        specifier: workspace:^
+        version: link:packages/tsconfig
       tslib:
         specifier: ^2.5.2
         version: 2.5.2
@@ -281,6 +284,9 @@ importers:
         specifier: workspace:*
         version: link:../types
     devDependencies:
+      '@types/jsdom':
+        specifier: ^21.1.6
+        version: 21.1.6
       '@types/jsonpath':
         specifier: ^0.2.4
         version: 0.2.4
@@ -314,6 +320,9 @@ importers:
       postcss-preset-env:
         specifier: ^8.3.0
         version: 8.3.0(postcss@8.4.31)
+      tsconfig:
+        specifier: workspace:^
+        version: link:../tsconfig
       typescript:
         specifier: ^5.0.2
         version: 5.3.2
@@ -1842,6 +1851,14 @@ packages:
     resolution: {integrity: sha512-qC4bCqYGy1y/NP7dDVr7KJarn+PbX1nSpwA7JXdu0HxT3QYjO8MJ+cntENtHFVy2dRAyBV23OZ6MxsW1AM1L8g==}
     dev: true
 
+  /@types/jsdom@21.1.6:
+    resolution: {integrity: sha512-/7kkMsC+/kMs7gAYmmBR9P0vGTnOoLhQhyhQJSlXGI5bzTHp6xdo0TtKWQAsz6pmSAeVqKSbqeyP6hytqr9FDw==}
+    dependencies:
+      '@types/node': 18.15.11
+      '@types/tough-cookie': 4.0.5
+      parse5: 7.1.2
+    dev: true
+
   /@types/json-schema@7.0.13:
     resolution: {integrity: sha512-RbSSoHliUbnXj3ny0CNFOoxrIDV6SUGyStHsvDqosw6CkdPV8TtWGlfecuK4ToyMEAql6pzNxgCFKanovUzlgQ==}
 
@@ -1921,6 +1938,10 @@ packages:
     resolution: {integrity: sha512-ZPmztaAQ4rbnW/WTUnT1dwSENQo4bjGqxCSeyK+gZxmd+zJl/QAeF6dpEXcS5UEJX22HwiggFSaY8nE1nRmkbg==}
     dependencies:
       '@types/node': 18.15.11
+    dev: true
+
+  /@types/tough-cookie@4.0.5:
+    resolution: {integrity: sha512-/Ad8+nIOV7Rl++6f1BdKxFSMgmoqEoYbHRpPcx3JEfv8VRsQe9Z4mCXeJBzxs7mbHY/XOZZuXlRNfhpVPbs6ZA==}
     dev: true
 
   /@typescript-eslint/eslint-plugin@6.7.0(@typescript-eslint/parser@6.7.0)(eslint@8.49.0)(typescript@5.3.2):

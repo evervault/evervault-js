@@ -1,11 +1,11 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 
-type FieldProps = {
+interface FieldProps {
   name?: string;
   hasValue?: boolean;
-  error?: false | string;
+  error?: string | null;
   children: React.ReactNode;
-};
+}
 
 export function Field({ name, error, children, hasValue }: FieldProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -18,7 +18,7 @@ export function Field({ name, error, children, hasValue }: FieldProps) {
     const inputs = ref.current.querySelectorAll("input");
     inputs.forEach((input) => {
       input.setAttribute("aria-invalid", isValid ? "false" : "true");
-      input.setCustomValidity(error || "");
+      input.setCustomValidity(error ?? "");
     });
   }, [error, isValid]);
 

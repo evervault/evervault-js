@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-export type UseFormReturn<T> = {
+export interface UseFormReturn<T> {
   values: T;
   setValue: <K extends keyof T>(field: K, value: T[K]) => void;
   setValues: React.Dispatch<React.SetStateAction<T>>;
@@ -14,13 +14,13 @@ export type UseFormReturn<T> = {
     onChange: (value: T[K]) => void;
     onBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
   };
-};
+}
 
-type UseFormOptions<T> = {
+interface UseFormOptions<T> {
   initialValues: T;
   validate: Record<keyof T, (values: T) => string | undefined>;
   onChange?: (values: UseFormReturn<T>) => void;
-};
+}
 
 export function useForm<T extends object>({
   initialValues,
@@ -84,9 +84,10 @@ export function useForm<T extends object>({
     [values, errors, setError]
   );
 
-  const isValid = useMemo(() => {
-    return Object.keys(errors || {}).length === 0;
-  }, [errors]);
+  const isValid = useMemo(
+    () => Object.keys(errors ?? {}).length === 0,
+    [errors]
+  );
 
   const validateForm = useCallback(() => {
     const nextErrors = Object.keys(values).reduce((acc, key) => {
@@ -149,8 +150,8 @@ export function useForm<T extends object>({
     [setValue, validateField]
   );
 
-  const form = useMemo(() => {
-    return {
+  const form = useMemo(
+    () => ({
       values,
       setValue,
       errors,
@@ -159,8 +160,9 @@ export function useForm<T extends object>({
       register,
       setValues,
       validate: validateForm,
-    };
-  }, [values, setValue, errors, setError, isValid, register, validateForm]);
+    }),
+    [values, setValue, errors, setError, isValid, register, validateForm]
+  );
 
   useEffect(() => {
     if (!triggerChange.current) return;

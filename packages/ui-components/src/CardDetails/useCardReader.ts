@@ -3,13 +3,13 @@ import { useLayoutEffect, useRef, useState } from "react";
 const TRACK_ONE = /^%B(\d{1,19})\^([A-Z\s/]{2,26})\^(\d{2})(\d{2})\d{3}.+\?/;
 const TRACK_TWO = /^;(\d{1,19})=(\d{2})(\d{2})\d{3}(.+)\?/;
 
-export type MagStripeData = {
+export interface MagStripeData {
   number: string;
   year: string;
   month: string;
   firstName?: string;
   lastName?: string;
-};
+}
 
 // Some readers will emit meta keys that we want to ignore.
 const IGNORED_KEYS = ["Meta", "Shift", "Enter"];

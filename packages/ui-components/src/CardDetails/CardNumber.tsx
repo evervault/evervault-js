@@ -1,7 +1,7 @@
 import { FocusEvent, useEffect, useRef } from "react";
 import { useMask } from "../utilities/useMask";
 
-type CardNumberProps = {
+interface CardNumberProps {
   disabled?: boolean;
   autoFocus?: boolean;
   onChange: (v: string) => void;
@@ -9,7 +9,7 @@ type CardNumberProps = {
   placeholder: string;
   value: string;
   readOnly?: boolean;
-};
+}
 
 export function CardNumber({
   autoFocus,

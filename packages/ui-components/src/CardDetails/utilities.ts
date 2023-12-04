@@ -1,9 +1,9 @@
-import cardValidator from "card-validator";
-import { CardDetailsForm } from ".";
-import { UseFormReturn } from "../utilities/useForm";
-import type { CardDetailsPayload, SwipedCardDetails } from "types";
-import { MagStripeData } from "./useCardReader";
 import { PromisifiedEvervaultClient } from "@evervault/react";
+import cardValidator from "card-validator";
+import { UseFormReturn } from "../utilities/useForm";
+import { MagStripeData } from "./useCardReader";
+import type { CardDetailsForm } from "./types";
+import type { CardDetailsPayload, SwipedCardDetails } from "types";
 
 export async function changePayload(
   ev: PromisifiedEvervaultClient,
@@ -22,7 +22,7 @@ export async function changePayload(
       expiry: formatExpiry(expiry),
       cvc: await encryptedCVC(ev, cvc, brand),
     },
-    errors: Object.keys(form.errors || {}).length > 0 ? form.errors : null,
+    errors: Object.keys(form.errors ?? {}).length > 0 ? form.errors : null,
   };
 }
 
@@ -37,8 +37,8 @@ export async function swipePayload(
       month: values.month,
       year: values.year,
     },
-    firstName: values.firstName || null,
-    lastName: values.lastName || null,
+    firstName: values.firstName ?? null,
+    lastName: values.lastName ?? null,
     last4: last4(values.number),
     bin: binNumber(values.number),
   };
@@ -74,7 +74,7 @@ function last4(card: string) {
 async function encryptedNumber(ev: PromisifiedEvervaultClient, number: string) {
   const { isValid } = cardValidator.number(number);
   if (!isValid) return null;
-  return await ev.encrypt(number);
+  return ev.encrypt(number);
 }
 
 async function encryptedCVC(
@@ -83,7 +83,7 @@ async function encryptedCVC(
   brand?: string
 ) {
   if (!isCVCValid(cvc, brand)) return null;
-  return await ev.encrypt(cvc);
+  return ev.encrypt(cvc);
 }
 
 export function isCVCValid(cvc: string, brand?: string) {

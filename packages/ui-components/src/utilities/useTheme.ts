@@ -1,7 +1,7 @@
-import preset from "jss-preset-default";
-import { ThemeObject } from "types";
 import jss, { JssStyle, StyleSheet } from "jss";
+import preset from "jss-preset-default";
 import { useEffect, useRef, useState } from "react";
+import { ThemeObject } from "types";
 import { resize } from "./resize";
 
 jss.setup(preset());
@@ -14,7 +14,7 @@ export function useTheme() {
     if (!theme) return;
 
     const opts = {
-      "@import": (theme.fonts || []).map((url) => `url(${url})`) as JssStyle[],
+      "@import": (theme.fonts ?? []).map((url) => `url(${url})`) as JssStyle[],
       "@global": theme.styles,
     };
 

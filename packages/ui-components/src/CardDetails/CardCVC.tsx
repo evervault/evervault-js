@@ -7,14 +7,14 @@ import {
 } from "react";
 import { useMask } from "../utilities/useMask";
 
-type CVCProps = {
+interface CVCProps {
   onChange: (v: string) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
   disabled: boolean;
   placeholder?: string;
   value: string;
   readOnly?: boolean;
-};
+}
 
 export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
   (

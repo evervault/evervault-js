@@ -1,8 +1,9 @@
 import { useCallback } from "react";
 import { useSearchParams } from "./useSearchParams";
-import {
+import type {
   EvervaultFrameClientMessages,
   EvervaultFrameHostMessages,
+  UIComponentMessageDetail,
 } from "types";
 
 export function useMessaging<
@@ -16,9 +17,9 @@ export function useMessaging<
       type: T,
       callback: (payload: ReceivableMessages[T]) => void
     ) => {
-      const handler = (event: MessageEvent) => {
+      const handler = (event: MessageEvent<UIComponentMessageDetail>) => {
         if (event.data.type === type) {
-          callback(event.data.payload);
+          callback(event.data.payload as ReceivableMessages[T]);
         }
       };
 

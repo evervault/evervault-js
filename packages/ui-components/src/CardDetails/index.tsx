@@ -1,38 +1,23 @@
+import { useEvervault } from "@evervault/react";
 import cardValidator from "card-validator";
 import { useEffect, useLayoutEffect, useRef } from "react";
+import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
+import { resize } from "../utilities/resize";
 import { useForm } from "../utilities/useForm";
+import { useMessaging } from "../utilities/useMessaging";
+import { useTranslations } from "../utilities/useTranslations";
 import { CardCVC } from "./CardCVC";
 import { CardExpiry } from "./CardExpiry";
 import { CardNumber } from "./CardNumber";
-import { resize } from "../utilities/resize";
-import { Error } from "../Common/Error";
-import { changePayload, isCVCValid, swipePayload } from "./utilities";
-import { useTranslations } from "../utilities/useTranslations";
 import { DEFAULT_TRANSLATIONS } from "./translations";
-import { useEvervault } from "@evervault/react";
-import { useMessaging } from "../utilities/useMessaging";
+import { useCardReader } from "./useCardReader";
+import { changePayload, isCVCValid, swipePayload } from "./utilities";
+import type { CardDetailsForm, CardDetailsConfig } from "./types";
 import type {
-  ThemeObject,
-  CardDetailsField,
-  CardDetailsTranslations,
   CardDetailsFrameClientMessages,
   CardDetailsFrameHostMessages,
 } from "types";
-import { useCardReader } from "./useCardReader";
-
-export type CardDetailsForm = {
-  number: string;
-  cvc: string;
-  expiry: string;
-};
-
-type CardDetailsConfig = {
-  theme?: ThemeObject;
-  autoFocus?: boolean;
-  hiddenFields?: CardDetailsField[];
-  translations?: Partial<CardDetailsTranslations>;
-};
 
 export function CardDetails({ config }: { config: CardDetailsConfig }) {
   const cvc = useRef<HTMLInputElement | null>(null);
@@ -43,7 +28,7 @@ export function CardDetails({ config }: { config: CardDetailsConfig }) {
   const ev = useEvervault();
   const { t } = useTranslations(DEFAULT_TRANSLATIONS, config?.translations);
 
-  const hidden = String(config?.hiddenFields || "").split(",");
+  const hidden = String(config?.hiddenFields ?? "").split(",");
 
   const form = useForm<CardDetailsForm>({
     initialValues: {
@@ -57,12 +42,16 @@ export function CardDetails({ config }: { config: CardDetailsConfig }) {
         if (!cardValidation.isValid) {
           return "invalid";
         }
+
+        return undefined;
       },
       expiry: (values) => {
         const expiry = cardValidator.expirationDate(values.expiry);
         if (!expiry.isValid) {
           return "invalid";
         }
+
+        return undefined;
       },
       cvc: (values) => {
         const cardValidation = cardValidator.number(values.number);
@@ -70,16 +59,18 @@ export function CardDetails({ config }: { config: CardDetailsConfig }) {
         if (!validCVC) {
           return "invalid";
         }
+
+        return undefined;
       },
     },
-    onChange: (form) => {
+    onChange: (formState) => {
       const triggerChange = async () => {
         if (!ev) return;
-        const cardData = await changePayload(ev, form);
+        const cardData = await changePayload(ev, formState);
         send("EV_CHANGE", cardData);
       };
 
-      triggerChange();
+      void triggerChange();
     },
   });
 
@@ -96,27 +87,29 @@ export function CardDetails({ config }: { config: CardDetailsConfig }) {
       send("EV_SWIPE", swipeData);
     }
 
-    triggerSwipe();
     cvc.current?.focus();
+    void triggerSwipe();
   });
 
   useLayoutEffect(() => {
     resize();
   });
 
-  useEffect(() => {
-    return on("EV_VALIDATE", () => {
-      form.validate();
-    });
-  }, [on, form]);
+  useEffect(
+    () =>
+      on("EV_VALIDATE", () => {
+        form.validate();
+      }),
+    [on, form]
+  );
 
-  const hasErrors = Object.keys(form.errors || {}).length > 0;
+  const hasErrors = Object.keys(form.errors ?? {}).length > 0;
 
   return (
     <fieldset
       ev-component="cardDetails"
       ev-valid={hasErrors ? "false" : "true"}
-      ev-hidden-fields={config.hiddenFields || null}
+      ev-hidden-fields={config.hiddenFields ?? null}
     >
       {!hidden.includes("number") && (
         <Field
