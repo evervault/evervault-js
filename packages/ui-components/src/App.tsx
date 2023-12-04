@@ -18,6 +18,14 @@ const COMPONENTS = {
   CardDetails,
 };
 
+const customConfig = {
+  jsSdkUrl: import.meta.env.VITE_EVERVAULT_JS_URL,
+  urls: {
+    keysUrl: import.meta.env.VITE_KEYS_URL,
+    apiUrl: import.meta.env.VITE_API_URL,
+  },
+};
+
 export default function App() {
   const setTheme = useTheme();
   const initialized = useRef(false);
@@ -66,7 +74,7 @@ export default function App() {
   }
 
   return (
-    <EvervaultProvider teamId={team} appId={app}>
+    <EvervaultProvider teamId={team} appId={app} customConfig={customConfig}>
       <Component config={config} />
     </EvervaultProvider>
   );
