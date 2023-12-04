@@ -33,20 +33,25 @@ export default function App() {
   const { on, send } = useMessaging();
   const { team, app, component } = useSearchParams();
 
+  // Throw an error if team, app or component isn't set.
   if (!team || !app || !component) {
     throw new Error("Missing team, app or component");
   }
 
+  // Trigger a resize any time there is an app rerender.
   useLayoutEffect(resize);
 
+  // Send a message to the parent window to let it know that the frame is ready
+  // to recieve messages. This will trigger the parent to send an EV_INIT event
+  // with the configuration for the component.
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
-    // Send a message to the parent window to let it know that the frame is ready
-    // to recieve configuration.
     send("EV_FRAME_HANDSHAKE");
   }, [send]);
 
+  // Wait for the parent frame to fire an EV_INIT event and store the passed
+  // theme and config.
   useEffect(() => {
     return on("EV_INIT", (payload) => {
       setTheme(payload.theme || null);
@@ -55,6 +60,7 @@ export default function App() {
     });
   }, [on, send, setTheme]);
 
+  // update the theme and config any time the parent frame fires EV_UPDATE
   useEffect(() => {
     return on("EV_UPDATE", (payload) => {
       setTheme(payload.theme || null);
@@ -64,10 +70,12 @@ export default function App() {
     });
   }, [on, setTheme]);
 
+  // Return null until the parent frame has passed a config
   if (!config) return null;
 
+  // Use the component query param to determine which component from the
+  // COMPONENTS map to render.
   const Component = COMPONENTS[component as keyof typeof COMPONENTS];
-
   if (!Component) {
     console.warn("Unknown component", component);
     return null;
