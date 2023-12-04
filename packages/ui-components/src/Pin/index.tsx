@@ -1,7 +1,7 @@
-import { IMaskInput } from "react-imask";
 import {
   ClipboardEvent,
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -15,6 +15,7 @@ import type {
 } from "types";
 import { useMessaging } from "../utilities/useMessaging";
 import { useEvervault } from "@evervault/react";
+import { useMask } from "../utilities/useMask";
 
 const MODES = {
   numeric: {
@@ -140,16 +141,26 @@ function PinInput({
   autoFocus?: boolean;
   type: "number" | "text" | "password";
 }) {
+  const ref = useRef<HTMLInputElement>(null);
+  const [unmasked, setValue] = useMask(ref, {
+    mask,
+    prepareChar: (c) => c.toUpperCase(),
+  });
+
+  useEffect(() => {
+    onChange(unmasked);
+  }, [unmasked]);
+
+  useEffect(() => {
+    setValue(value);
+  }, [setValue, value]);
+
   return (
-    <IMaskInput
-      unmask
-      mask={mask}
+    <input
+      ref={ref}
       name={name}
       type={type}
-      prepareChar={(char) => char.toUpperCase()}
       placeholder="•"
-      value={value}
-      onAccept={onChange}
       onKeyDown={onKeyDown}
       inputMode="numeric"
       disabled={disabled}

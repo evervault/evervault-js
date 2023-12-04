@@ -1,7 +1,7 @@
 import IMask from "imask";
-import { IMaskInput } from "react-imask";
 import { CardDetailsForm } from ".";
-import { FocusEvent } from "react";
+import { FocusEvent, useEffect, useRef } from "react";
+import { useMask } from "../utilities/useMask";
 
 type CardExpiryProps = {
   onChange: (value: CardDetailsForm["expiry"]) => void;
@@ -20,19 +20,29 @@ export function CardExpiry({
   value,
   readOnly,
 }: CardExpiryProps) {
+  const ref = useRef<HTMLInputElement>(null);
+  const [unmasked, setValue] = useMask(ref, {
+    mask: "MM / YY",
+    blocks: EXPIRY_BLOCKS,
+  });
+
+  useEffect(() => {
+    onChange(unmasked);
+  }, [unmasked]);
+
+  useEffect(() => {
+    setValue(value);
+  }, [setValue, value]);
+
   return (
-    <IMaskInput
-      unmask
-      value={value}
+    <input
+      ref={ref}
       type="text"
       id="expiry"
       name="expiry"
-      mask="MM / YY"
       disabled={disabled}
       onBlur={onBlur}
-      onAccept={onChange}
       placeholder={placeholder}
-      blocks={EXPIRY_BLOCKS}
       pattern="[0-9]*"
       autoComplete="billing cc-exp"
       readOnly={readOnly}

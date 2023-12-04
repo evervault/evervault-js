@@ -1,5 +1,5 @@
-import { FocusEvent } from "react";
-import { IMaskInput } from "react-imask";
+import { FocusEvent, useEffect, useRef } from "react";
+import { useMask } from "../utilities/useMask";
 
 type CardNumberProps = {
   disabled?: boolean;
@@ -20,17 +20,27 @@ export function CardNumber({
   value,
   readOnly,
 }: CardNumberProps) {
+  const ref = useRef<HTMLInputElement>(null);
+  const [unmasked, setValue] = useMask(ref, {
+    mask: "0000 0000 0000 0000 000",
+  });
+
+  useEffect(() => {
+    onChange(unmasked);
+  }, [unmasked]);
+
+  useEffect(() => {
+    setValue(value);
+  }, [setValue, value]);
+
   return (
-    <IMaskInput
-      unmask
+    <input
+      ref={ref}
       type="text"
       id="number"
       name="number"
-      value={value}
       readOnly={readOnly}
-      mask="0000 0000 0000 0000 000"
       inputMode="numeric"
-      onAccept={onChange}
       onBlur={onBlur}
       autoFocus={autoFocus}
       disabled={disabled}

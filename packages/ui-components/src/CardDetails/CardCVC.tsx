@@ -1,5 +1,11 @@
-import { FocusEvent, forwardRef } from "react";
-import { IMaskInput } from "react-imask";
+import {
+  FocusEvent,
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from "react";
+import { useMask } from "../utilities/useMask";
 
 type CVCProps = {
   onChange: (v: string) => void;
@@ -11,22 +17,38 @@ type CVCProps = {
 };
 
 export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
-  ({ onChange, onBlur, disabled, placeholder, value, readOnly }, ref) => {
+  (
+    { onChange, onBlur, disabled, placeholder, value, readOnly },
+    forwardedRef
+  ) => {
+    const innerRef = useRef<HTMLInputElement>(null);
+
+    useImperativeHandle(forwardedRef, () => innerRef.current!);
+
+    const [unmasked, setValue] = useMask(innerRef, {
+      mask: "0000",
+    });
+
+    useEffect(() => {
+      onChange(unmasked);
+    }, [unmasked]);
+
+    useEffect(() => {
+      setValue(value);
+    }, [setValue, value]);
+
     return (
-      <IMaskInput
-        unmask
-        value={value}
+      <input
+        ref={innerRef}
         id="cvc"
         name="cvc"
         type="text"
-        mask="0000"
+        value={value}
         disabled={disabled}
-        onAccept={onChange}
         onBlur={onBlur}
         placeholder={placeholder}
         pattern="[0-9]*"
         autoComplete="billing cc-cvc"
-        inputRef={ref}
         readOnly={readOnly}
       />
     );
