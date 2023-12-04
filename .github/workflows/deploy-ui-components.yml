@@ -48,8 +48,11 @@ jobs:
       VITE_API_URL: ${{ inputs.vite-api-url }}
 
     steps:
+      - name: Install Dependencies
+        run: pnpm --filter @evervault/ui-components install
+
       - name: Build
-        run: pnpm build
+        run: pnpm --filter @evervault/ui-components build
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
