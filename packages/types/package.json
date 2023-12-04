@@ -1,0 +1,9 @@
+{
+  "name": "types",
+  "main": "index.ts",
+  "types": "index.ts",
+  "dependencies": {
+    "jss": "^10.10.0",
+    "typescript": "latest"
+  }
+}
