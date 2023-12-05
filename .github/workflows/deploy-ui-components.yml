@@ -63,10 +63,10 @@ jobs:
           cache: "pnpm"
 
       - name: Install Dependencies
-        run: pnpm --filter @evervault/ui-components install
+        run: pnpm install
 
       - name: Build
-        run: pnpm --filter @evervault/ui-components build
+        run: pnpm --filter @evervault/ui-components... build
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
