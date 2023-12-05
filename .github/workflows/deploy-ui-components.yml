@@ -48,6 +48,11 @@ jobs:
       VITE_API_URL: ${{ inputs.vite-api-url }}
 
     steps:
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          cache: "pnpm"
+
       - name: Install Dependencies
         run: pnpm --filter @evervault/ui-components install
 
