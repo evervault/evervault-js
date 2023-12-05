@@ -1,6 +1,8 @@
 import type { Styles } from "jss";
 
-export type TranslationsObject = string | { [key: string]: TranslationsObject };
+export interface TranslationsObject {
+  [key: string]: string | TranslationsObject | undefined;
+}
 
 export type ThemeStyles = Partial<Styles>;
 
@@ -9,28 +11,28 @@ export interface UIComponentMessageDetail {
   payload: unknown;
 }
 
-export type ThemeObject = {
+export interface ThemeObject {
   fonts?: string[];
   styles?: ThemeStyles;
-};
-
-export type ThemeUtilities = {
-  media: (property: string, styles: ThemeStyles) => {};
-  extend: (theme: ThemeDefinition) => {};
-};
+}
 
 export type ThemeFunction = (utilities: ThemeUtilities) => ThemeObject;
 
 export type ThemeDefinition = ThemeObject | ThemeFunction;
 
+export interface ThemeUtilities {
+  media: (property: string, styles: ThemeStyles) => object;
+  extend: (theme: ThemeDefinition) => object;
+}
+
 export type SelectorType = string | HTMLElement;
 
-type CardExpiry = {
+interface CardExpiry {
   month: string | null;
   year: string | null;
-};
+}
 
-export type CardDetailsPayload = {
+export interface CardDetailsPayload {
   isValid: boolean;
   card: {
     brand: string | undefined;
@@ -45,16 +47,31 @@ export type CardDetailsPayload = {
     cvc?: string;
     expiry?: string;
   }>;
-};
+}
 
-export type CardDetailsOptions = {
+export type CardDetailsField = "number" | "expiry" | "cvc";
+
+interface CardFieldTranslations<E extends TranslationsObject>
+  extends TranslationsObject {
+  label?: string;
+  placeholder?: string;
+  errors?: E;
+}
+
+export interface CardDetailsTranslations extends TranslationsObject {
+  number: CardFieldTranslations<{ invalid?: string }>;
+  expiry: CardFieldTranslations<{ invalid?: string }>;
+  cvc: CardFieldTranslations<{ invalid?: string }>;
+}
+
+export interface CardDetailsOptions {
   theme?: ThemeDefinition;
   autoFocus?: boolean;
   hiddenFields?: CardDetailsField[];
   translations?: Partial<CardDetailsTranslations>;
-};
+}
 
-export type SwipedCardDetails = {
+export interface SwipedCardDetails {
   brand: string | undefined;
   number: string | null;
   expiry: CardExpiry | null;
@@ -62,7 +79,7 @@ export type SwipedCardDetails = {
   lastName: string | null;
   last4: string | null;
   bin: string | null;
-};
+}
 
 export interface EvervaultFrameClientMessages {
   EV_RESIZE: { height: number };
@@ -73,11 +90,11 @@ export interface EvervaultFrameClientMessages {
 export interface EvervaultFrameHostMessages {
   EV_INIT: {
     theme?: ThemeObject;
-    config?: Object;
+    config?: unknown;
   };
   EV_UPDATE: {
     theme?: ThemeObject;
-    config?: Object;
+    config?: unknown;
   };
 }
 
@@ -92,32 +109,18 @@ export interface CardDetailsFrameHostMessages
   EV_VALIDATE: undefined;
 }
 
-export type CardDetailsField = "number" | "expiry" | "cvc";
-
-type CardFieldTranslations<E> = {
-  label?: string;
-  placeholder?: string;
-  errors?: E;
-};
-
-export type CardDetailsTranslations = {
-  number: CardFieldTranslations<{ invalid?: string }>;
-  expiry: CardFieldTranslations<{ invalid?: string }>;
-  cvc: CardFieldTranslations<{ invalid?: string }>;
-};
-
-export type PinOptions = {
+export interface PinOptions {
   theme?: ThemeDefinition;
   length?: number;
   autoFocus?: boolean;
   mode?: "numeric" | "alphanumeric";
   inputType?: "number" | "text" | "password";
-};
+}
 
-export type PinPayload = {
+export interface PinPayload {
   isComplete: boolean;
   value: string | null;
-};
+}
 
 export interface PinFrameClientMessages extends EvervaultFrameClientMessages {
   EV_CHANGE: PinPayload;
@@ -137,7 +140,7 @@ export interface RevealConsumerClientMessages
   EV_REVEAL_CONSUMER_ERROR: string;
 }
 
-export type RevealFormat = {
+export interface RevealFormat {
   regex: RegExp;
   replace: string;
-};
+}

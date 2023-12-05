@@ -26,7 +26,7 @@ function getTranslation(
 
   for (const key of keys) {
     if (value && typeof value === "object" && key in value) {
-      value = value[key];
+      value = value[key] as TranslationsObject;
     } else {
       return undefined;
     }
