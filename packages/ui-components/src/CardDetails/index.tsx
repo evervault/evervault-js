@@ -109,7 +109,7 @@ export function CardDetails({ config }: { config: CardDetailsConfig }) {
     <fieldset
       ev-component="cardDetails"
       ev-valid={hasErrors ? "false" : "true"}
-      ev-hidden-fields={config.hiddenFields ?? null}
+      ev-hidden-fields={config.hiddenFields ? config.hiddenFields : undefined}
     >
       {!hidden.includes("number") && (
         <Field

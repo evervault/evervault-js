@@ -44,6 +44,7 @@ export function CardExpiry({
   });
 
   useEffect(() => {
+    if (!unmasked) return;
     onChange(unmasked);
   }, [unmasked]);
 

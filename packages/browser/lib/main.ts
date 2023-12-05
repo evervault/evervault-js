@@ -1,6 +1,7 @@
 import getConfig, { ConfigUrls, SdkContext } from "./config";
 import { CoreCrypto, Http, Forms, Input } from "./core";
 import { base64StringToUint8Array } from "./encoding";
+import UIComponents from "./ui";
 import {
   Datatypes,
   errors,
@@ -45,6 +46,7 @@ export default class EvervaultClient {
 
   #debugMode;
   #cryptoPromise: Promise<CoreCrypto>;
+  ui: UIComponents;
 
   /**
    * The SDK constructor accepts two parameters:
@@ -88,6 +90,7 @@ export default class EvervaultClient {
     this.input = Input(this.config);
 
     this.#cryptoPromise = this.loadKeys();
+    this.ui = new UIComponents(this);
   }
 
   // TODO: make this private

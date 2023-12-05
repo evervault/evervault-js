@@ -30,6 +30,7 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
     });
 
     useEffect(() => {
+      if (!unmasked) return;
       onChange(unmasked);
     }, [unmasked]);
 
@@ -43,7 +44,6 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
         id="cvc"
         name="cvc"
         type="text"
-        value={value}
         disabled={disabled}
         onBlur={onBlur}
         placeholder={placeholder}

@@ -1,0 +1,9 @@
+{
+  "name": "themes",
+  "main": "index.ts",
+  "types": "index.ts",
+  "dependencies": {
+    "types": "workspace:*",
+    "typescript": "latest"
+  }
+}

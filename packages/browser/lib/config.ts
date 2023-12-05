@@ -1,6 +1,8 @@
-const KEYS_URL = "https://keys.evervault.com";
+const KEYS_URL =
+  (import.meta.env.VITE_KEYS_URL as string) || "https://keys.evervault.com";
 const INPUTS_ORIGIN = "https://inputs.evervault.com";
-const API_URL = "https://api.evervault.com";
+const API_URL =
+  (import.meta.env.VITE_API_URL as string) || "https://api.evervault.com";
 
 export interface ConfigUrls {
   keysUrl?: string;
