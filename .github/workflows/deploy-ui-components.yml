@@ -48,6 +48,15 @@ jobs:
       VITE_API_URL: ${{ inputs.vite-api-url }}
 
     steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8.6
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
         with:
