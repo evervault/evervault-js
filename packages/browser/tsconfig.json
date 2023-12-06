@@ -6,5 +6,8 @@
   },
   "compilerOptions": {
     "rootDir": "."
-  }
+  },
+  "exclude": [
+    "test/*.test.ts"
+  ]
 }
