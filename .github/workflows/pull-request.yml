@@ -15,4 +15,5 @@ jobs:
       TESTS_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
       TESTS_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
       TESTS_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      TESTS_API_KEY: ${{ secrets.TESTS_API_KEY }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
