@@ -31,6 +31,8 @@ jobs:
       VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
       TURBO_TEAM: ${{ inputs.TURBO_TEAM }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      EV_API_KEY: ${{ secrets.TESTS_API_KEY }}
+      VITE_API_URL: https://api.evervault.com
 
     steps:
       - name: Check out code

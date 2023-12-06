@@ -7,17 +7,20 @@ test.describe("reveal", () => {
     // Create a window function for creating a decrypt request inside of the page. This is just a
     // helper to prevent having to have this code in every test.
     const auth = btoa(process.env.EV_APP_UUID + ":" + process.env.EV_API_KEY);
-    await page.evaluate((authToken) => {
-      window.decryptRequest = (data) =>
-        new Request("https://api.evervault.io/decrypt", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Basic ${authToken}`,
-          },
-          body: JSON.stringify(data),
-        });
-    }, auth);
+    await page.evaluate(
+      ([authToken, apiUrl]) => {
+        window.decryptRequest = (data) =>
+          new Request(`${apiUrl}/decrypt`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Basic ${authToken}`,
+            },
+            body: JSON.stringify(data),
+          });
+      },
+      [auth, process.env.VITE_API_URL]
+    );
   });
 
   test("can reveal text", async ({ page }) => {
@@ -139,7 +142,7 @@ test.describe("reveal", () => {
 
 async function encryptWithAPI(data) {
   const auth = btoa(process.env.EV_APP_UUID + ":" + process.env.EV_API_KEY);
-  const response = await fetch("https://api.evervault.io/encrypt", {
+  const response = await fetch(`${process.env.VITE_API_URL}/encrypt`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
