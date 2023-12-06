@@ -12,7 +12,6 @@
       "dependsOn": ["^build"]
     },
     "e2e:test": {
-      "dotEnv": [".env"],
       "dependsOn": ["build"],
       "outputs": ["playwright-report/**", "test-results/**"]
     },

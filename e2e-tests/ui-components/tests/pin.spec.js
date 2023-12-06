@@ -4,12 +4,6 @@ test.describe("pin component", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("http://localhost:4005");
     await page.waitForFunction(() => window.Evervault);
-    await page.evaluate(
-      ([team, app]) => {
-        window.evervault = new window.Evervault(team, app);
-      },
-      [process.env.VITE_EV_TEAM_UUID, process.env.VITE_EV_APP_UUID]
-    );
   });
 
   test("can capture valid pin", async ({ page }) => {
@@ -27,7 +21,10 @@ test.describe("pin component", () => {
 
     const frame = page.frameLocator("iframe[data-evervault]");
     await frame.getByLabel("Pin character 1").focus();
-    await page.keyboard.type("1234");
+    await page.keyboard.type("1");
+    await page.keyboard.type("2");
+    await page.keyboard.type("3");
+    await page.keyboard.type("4");
     await expect.poll(async () => values.value).toBeEncrypted();
     await expect.poll(async () => values.isComplete).toBeTruthy();
   });
@@ -47,7 +44,9 @@ test.describe("pin component", () => {
 
     const frame = page.frameLocator("iframe[data-evervault]");
     await frame.getByLabel("Pin character 1").focus();
-    await page.keyboard.type("123");
+    await page.keyboard.type("1");
+    await page.keyboard.type("2");
+    await page.keyboard.type("3");
     await expect.poll(async () => values.isComplete).toBeFalsy();
     await page.keyboard.type("4");
     await expect.poll(async () => values.isComplete).toBeTruthy();
@@ -68,7 +67,11 @@ test.describe("pin component", () => {
 
     const frame = page.frameLocator("iframe[data-evervault]");
     await frame.getByLabel("Pin character 6").focus();
-    await page.keyboard.type("12345");
+    await page.keyboard.type("1");
+    await page.keyboard.type("2");
+    await page.keyboard.type("3");
+    await page.keyboard.type("4");
+    await page.keyboard.type("5");
     await expect.poll(async () => values.isComplete).toBeFalsy();
     await page.keyboard.type("6");
     await expect.poll(async () => values.isComplete).toBeTruthy();
@@ -90,9 +93,15 @@ test.describe("pin component", () => {
     const frame = page.frameLocator("iframe[data-evervault]");
     const input = frame.getByLabel("Pin character 1");
     await input.focus();
-    await page.keyboard.type("AAAA");
+    await page.keyboard.type("A");
+    await page.keyboard.type("A");
+    await page.keyboard.type("A");
+    await page.keyboard.type("A");
     await expect.poll(async () => values.isComplete).toBeFalsy();
-    await page.keyboard.type("4321");
+    await page.keyboard.type("4");
+    await page.keyboard.type("3");
+    await page.keyboard.type("2");
+    await page.keyboard.type("1");
     await expect.poll(async () => values.isComplete).toBeTruthy();
   });
 
@@ -112,9 +121,15 @@ test.describe("pin component", () => {
     const frame = page.frameLocator("iframe[data-evervault]");
     const input = frame.getByLabel("Pin character 1");
     await input.focus();
-    await page.keyboard.type("!@$#");
+    await page.keyboard.type("!");
+    await page.keyboard.type("@");
+    await page.keyboard.type("#");
+    await page.keyboard.type(")");
     await expect.poll(async () => values.isComplete).toBeFalsy();
-    await page.keyboard.type("ABCD");
+    await page.keyboard.type("A");
+    await page.keyboard.type("B");
+    await page.keyboard.type("C");
+    await page.keyboard.type("D");
     await expect.poll(async () => values.isComplete).toBeTruthy();
   });
 

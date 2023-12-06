@@ -48,9 +48,7 @@ export class PromisifiedEvervaultClient extends Promise<EvervaultClient> {
   }
 }
 
-const EVERVAULT_URL =
-  (import.meta.env.VITE_EVERVAULT_JS_URL as string) ||
-  "https://js.evervault.com/v2";
+const EVERVAULT_URL = "https://js.evervault.com/v2";
 function injectScript(overrideUrl?: string) {
   const script = document.createElement("script");
 

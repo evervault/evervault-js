@@ -4,13 +4,6 @@ test.describe("reveal", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("http://localhost:4005");
     await page.waitForFunction(() => window.Evervault);
-    // Create an Evervault instance in the page context.
-    await page.evaluate(
-      ([team, app]) => {
-        window.evervault = new window.Evervault(team, app);
-      },
-      [process.env.VITE_EV_TEAM_UUID, process.env.VITE_EV_APP_UUID]
-    );
     // Create a window function for creating a decrypt request inside of the page. This is just a
     // helper to prevent having to have this code in every test.
     const auth = btoa(process.env.EV_APP_UUID + ":" + process.env.EV_API_KEY);

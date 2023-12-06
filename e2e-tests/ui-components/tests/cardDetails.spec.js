@@ -4,12 +4,6 @@ test.describe("cardDetails component", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("http://localhost:4005");
     await page.waitForFunction(() => window.Evervault);
-    await page.evaluate(
-      ([team, app]) => {
-        window.evervault = new window.Evervault(team, app);
-      },
-      [process.env.VITE_EV_TEAM_UUID, process.env.VITE_EV_APP_UUID]
-    );
   });
 
   Object.values(VALID_CARDS).forEach((card) => {

@@ -9,8 +9,6 @@ import type {
   ThemeDefinition,
 } from "types";
 
-const FRAME_URL = import.meta.env.VITE_EVERVAULT_UI_COMPONENTS_URL as string;
-
 interface FrameConfiguration {
   theme?: ThemeDefinition;
   config?: unknown;
@@ -146,15 +144,19 @@ export class EvervaultFrame<
     }
 
     const data = { type, payload };
-    this.iframe.contentWindow.postMessage(data, FRAME_URL);
+    this.iframe.contentWindow.postMessage(data, this.url);
   }
 
   get isMounted() {
     return !!this.iframe.parentNode;
   }
 
+  get url() {
+    return this.#client.config.components.url;
+  }
+
   #generateUrl(component: string) {
-    const url = new URL(FRAME_URL);
+    const url = new URL(this.url);
     url.searchParams.set("id", this.#id);
     url.searchParams.set("app", this.#client.config.appId);
     url.searchParams.set("team", this.#client.config.teamId);

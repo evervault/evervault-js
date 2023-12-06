@@ -13,6 +13,15 @@ const theme = themes.clean({
   },
 });
 
+const customConfig = {
+  jsSdkUrl: import.meta.env.VITE_EVERVAULT_JS_URL as string,
+  urls: {
+    keysUrl: import.meta.env.VITE_KEYS_URL as string,
+    apiUrl: import.meta.env.VITE_API_URL as string,
+    componentsUrl: import.meta.env.VITE_UI_COMPONENTS_URL as string,
+  },
+};
+
 function App() {
   const handleChange = (payload: CardDetailsPayload) => {
     console.log(payload);
@@ -22,6 +31,7 @@ function App() {
     <EvervaultProvider
       teamId={import.meta.env.VITE_EV_TEAM_UUID}
       appId={import.meta.env.VITE_EV_APP_UUID}
+      customConfig={customConfig}
     >
       <h1>Example React app</h1>
       <CardDetails onChange={handleChange} theme={theme} />

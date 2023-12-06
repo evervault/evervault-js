@@ -9,5 +9,17 @@
   <body>
     Test Vanilla Server
     <div id="form"></div>
+    <script>
+      window.evervault = new Evervault(
+        "%VITE_EV_TEAM_UUID%",
+        "%VITE_EV_APP_UUID%",
+        {
+          urls: {
+            keysUrl: "https://keys.evervault.io",
+            componentsUrl: "http://localhost:4001",
+          },
+        }
+      );
+    </script>
   </body>
 </html>

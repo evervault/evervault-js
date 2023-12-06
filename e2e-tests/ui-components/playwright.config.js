@@ -43,12 +43,12 @@ export default defineConfig({
   webServer: [
     {
       command: "pnpm --filter=@evervault/browser dev:preview",
-      url: process.env.VITE_EVERVAULT_JS_URL,
+      url: "http://localhost:4002/evervault-browser.main.umd.cjs",
       timeout: 10 * 1000,
     },
     {
       command: "pnpm --filter @evervault/ui-components dev",
-      url: process.env.VITE_EVERVAULT_UI_COMPONENTS_URL,
+      url: "http://localhost:4001",
       timeout: 10 * 1000,
     },
     {
