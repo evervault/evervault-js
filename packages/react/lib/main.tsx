@@ -6,6 +6,14 @@ import type {
   RevealSettings,
 } from "@evervault/browser";
 import * as React from "react";
+import { EvervaultContext } from "./context";
+import { useEvervault } from "./useEvervault";
+
+export { Reveal } from "./ui/Reveal";
+export { CardDetails } from "./ui/CardDetails";
+export { Pin } from "./ui/Pin";
+export { default as themes } from "themes";
+export { useEvervault };
 
 export interface CustomConfig extends BrowserConfig {
   jsSdkUrl: string;
@@ -39,10 +47,9 @@ export class PromisifiedEvervaultClient extends Promise<EvervaultClient> {
   }
 }
 
-export const EvervaultContext =
-  React.createContext<PromisifiedEvervaultClient | null>(null);
-
-const EVERVAULT_URL = "https://js.evervault.com/v2";
+const EVERVAULT_URL =
+  (import.meta.env.VITE_EVERVAULT_JS_URL as string) ||
+  "https://js.evervault.com/v2";
 function injectScript(overrideUrl?: string) {
   const script = document.createElement("script");
 
@@ -245,24 +252,4 @@ export function EvervaultReveal({
   }, [evervault]);
 
   return <div id={id} />;
-}
-
-export function useEvervault(): PromisifiedEvervaultClient | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  if (typeof React.useContext !== "function") {
-    throw new Error(
-      "You must use React >= 18.0 in order to use useEvervault()"
-    );
-  }
-
-  const evervault = React.useContext(EvervaultContext);
-  if (!evervault) {
-    throw new Error(
-      "You must wrap your app in an <EvervaultProvider> to use useEvervault()"
-    );
-  }
-  return evervault;
 }

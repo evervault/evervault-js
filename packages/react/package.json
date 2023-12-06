@@ -25,7 +25,7 @@
   "scripts": {
     "build": "vite build",
     "coverage": "vitest --coverage",
-    "dev": "vite",
+    "dev": "vite build --watch",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
@@ -33,10 +33,14 @@
     "preinstall": "npx only-allow pnpm",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "themes": "workspace:^"
+  },
   "peerDependencies": {
     "react": ">=18.0.0"
   },
   "devDependencies": {
+    "types": "workspace:^",
     "@evervault/browser": "workspace:^",
     "@types/react": "^18.2.8",
     "@types/react-dom": "^18.2.4",
