@@ -27,8 +27,9 @@
   "scripts": {
     "build": "vite build",
     "coverage": "vitest --coverage",
-    "dev": "vite build --watch & pnpm preview",
-    "preview": "wait-on dist/ && vite preview",
+    "dev": "concurrently --kill-others --success first \"pnpm dev:build\" \"pnpm dev:preview\"",
+    "dev:build": "vite build --watch",
+    "dev:preview": "wait-on dist/ && vite preview",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
@@ -39,14 +40,15 @@
   },
   "license": "MIT",
   "dependencies": {
-    "events": "^3.3.0",
     "deepmerge": "^4.3.1",
-    "types": "workspace:^",
-    "themes": "workspace:^"
+    "events": "^3.3.0",
+    "themes": "workspace:^",
+    "types": "workspace:^"
   },
   "devDependencies": {
     "@peculiar/webcrypto": "^1.4.3",
     "@web-std/file": "^1.0.4",
+    "concurrently": "^8.2.2",
     "crc-32": "^1.2.2",
     "msw": "1.3.2",
     "nock": "^13.3.0",

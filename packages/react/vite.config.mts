@@ -28,7 +28,7 @@ export default defineConfig({
   plugins: [
     react({ jsxRuntime: "classic" }),
     dts({
-      insertTypesEntry: true,
+      rollupTypes: true,
     }),
   ],
 });
