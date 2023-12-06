@@ -3,7 +3,6 @@ import {
   ClipboardEvent,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -42,12 +41,12 @@ export function Pin({ config }: { config: PinConfig }) {
     input.focus();
   }, []);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!ref.current) return;
     const isFocused = ref.current.contains(document.activeElement);
     if (!isFocused) return;
     focus();
-  });
+  }, [focus, pin]);
 
   const handlePaste = (e: ClipboardEvent<HTMLFieldSetElement>) => {
     e.preventDefault();
@@ -56,30 +55,38 @@ export function Pin({ config }: { config: PinConfig }) {
     setPin(text);
   };
 
+  const updatePin = useCallback(
+    (newPin: string) => {
+      if (newPin.length > length) return;
+
+      const publishChange = async () => {
+        if (!ev) return;
+        const encrypted = await ev.encrypt(newPin);
+        const isComplete = newPin.length === length;
+        const payload = { isComplete, value: encrypted };
+        messages.send("EV_CHANGE", payload);
+        if (isComplete) {
+          messages.send("EV_COMPLETE", payload);
+        }
+      };
+
+      void publishChange();
+      setPin(newPin);
+    },
+    [length, pin, focus]
+  );
+
   const handleChange = (value: string) => {
     if (pin.length >= length) return;
     const newPin = pin + value;
-
-    const publishChange = async () => {
-      if (!ev) return;
-      const encrypted = await ev.encrypt(newPin);
-      const isComplete = newPin.length === length;
-      const payload = { isComplete, value: encrypted };
-      messages.send("EV_CHANGE", payload);
-      if (isComplete) {
-        messages.send("EV_COMPLETE", payload);
-      }
-    };
-
-    void publishChange();
-    setPin(newPin);
+    updatePin(newPin);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace") {
       e.preventDefault();
       const newPin = pin.slice(0, -1);
-      setPin(newPin);
+      updatePin(newPin);
     }
   };
 
@@ -137,6 +144,7 @@ function PinInput({
   });
 
   useEffect(() => {
+    if (!unmasked) return;
     onChange(unmasked);
   }, [unmasked]);
 
