@@ -121,7 +121,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ui-components
       '@playwright/test':
-        specifier: ^1.40.1
+        specifier: ^1.33.0
         version: 1.40.1
 
   e2e-tests/ui-components/vanilla-test-server:
@@ -8883,7 +8883,7 @@ packages:
     dependencies:
       '@types/node': 20.8.10
       esbuild: 0.18.20
-      postcss: 8.4.32
+      postcss: 8.4.31
       rollup: 3.29.4
     optionalDependencies:
       fsevents: 2.3.3
