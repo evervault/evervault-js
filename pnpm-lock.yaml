@@ -18,8 +18,8 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0
       '@playwright/test':
-        specifier: ^1.33.0
-        version: 1.33.0
+        specifier: ^1.40.1
+        version: 1.40.1
       '@swc/core':
         specifier: ^1.3.51
         version: 1.3.51
@@ -97,8 +97,8 @@ importers:
         specifier: workspace:*
         version: link:../../e2e-apps/decrypt-backend
       '@playwright/test':
-        specifier: ^1.33.0
-        version: 1.33.0
+        specifier: ^1.40.1
+        version: 1.40.1
       start-server-and-test:
         specifier: ^2.0.0
         version: 2.0.0
@@ -109,8 +109,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/inputs
       '@playwright/test':
-        specifier: ^1.33.0
-        version: 1.33.0
+        specifier: ^1.40.1
+        version: 1.40.1
       start-server-and-test:
         specifier: ^2.0.0
         version: 2.0.0
@@ -121,7 +121,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ui-components
       '@playwright/test':
-        specifier: ^1.33.0
+        specifier: ^1.40.1
         version: 1.40.1
 
   e2e-tests/ui-components/vanilla-test-server:
@@ -273,7 +273,7 @@ importers:
         version: 2.28.1(@typescript-eslint/parser@6.7.0)(eslint@8.49.0)
       eslint-plugin-prettier:
         specifier: ^5.0.0
-        version: 5.0.0(eslint-config-prettier@9.0.0)(eslint@8.49.0)(prettier@3.0.3)
+        version: 5.0.0(eslint-config-prettier@9.0.0)(eslint@8.49.0)(prettier@3.1.0)
 
   packages/inputs:
     dependencies:
@@ -2444,23 +2444,12 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /@playwright/test@1.33.0:
-    resolution: {integrity: sha512-YunBa2mE7Hq4CfPkGzQRK916a4tuZoVx/EpLjeWlTVOnD4S2+fdaQZE0LJkbfhN5FTSKNLdcl7MoT5XB37bTkg==}
-    engines: {node: '>=14'}
-    hasBin: true
-    dependencies:
-      '@types/node': 18.15.11
-      playwright-core: 1.33.0
-    optionalDependencies:
-      fsevents: 2.3.2
-
   /@playwright/test@1.40.1:
     resolution: {integrity: sha512-EaaawMTOeEItCRvfmkI9v6rBkF1svM8wjl/YPRrg2N2Wmp+4qJYkWtJsbew1szfKKDm6fPLy4YAanBhIlf9dWw==}
     engines: {node: '>=16'}
     hasBin: true
     dependencies:
       playwright: 1.40.1
-    dev: false
 
   /@rollup/pluginutils@5.0.5:
     resolution: {integrity: sha512-6aEYR910NyP73oHiJglti74iRyOwgFU4x3meH/H8OJx6Ry0j6cOVZ5X/wTvub7G7Ao6qaHBEaNsV3GLJkSsF+Q==}
@@ -2866,6 +2855,7 @@ packages:
 
   /@types/node@18.15.11:
     resolution: {integrity: sha512-E5Kwq2n4SbMzQOn6wnmBjuK9ouqlURrcZDVfbo9ftDDTFt3nk7ZKK4GMOzoYgnpQJKcxwQw+lGaBvvlMo0qN/Q==}
+    dev: true
 
   /@types/node@20.10.3:
     resolution: {integrity: sha512-XJavIpZqiXID5Yxnxv3RUDKTN5b81ddNC3ecsA0SoFXz/QU8OGBwZGMomiq0zw+uuqbL/krztv/DINAQ/EV4gg==}
@@ -4712,7 +4702,7 @@ packages:
       - supports-color
     dev: false
 
-  /eslint-plugin-prettier@5.0.0(eslint-config-prettier@9.0.0)(eslint@8.49.0)(prettier@3.0.3):
+  /eslint-plugin-prettier@5.0.0(eslint-config-prettier@9.0.0)(eslint@8.49.0)(prettier@3.1.0):
     resolution: {integrity: sha512-AgaZCVuYDXHUGxj/ZGu1u8H8CYgDY3iG6w5kUFw4AzMVXzB7VvbKgYR4nATIN+OvUrghMbiDLeimVjVY5ilq3w==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -4728,7 +4718,7 @@ packages:
     dependencies:
       eslint: 8.49.0
       eslint-config-prettier: 9.0.0(eslint@8.49.0)
-      prettier: 3.0.3
+      prettier: 3.1.0
       prettier-linter-helpers: 1.0.0
       synckit: 0.8.5
     dev: false
@@ -6854,16 +6844,10 @@ packages:
       pathe: 1.1.1
     dev: true
 
-  /playwright-core@1.33.0:
-    resolution: {integrity: sha512-aizyPE1Cj62vAECdph1iaMILpT0WUDCq3E6rW6I+dleSbBoGbktvJtzS6VHkZ4DKNEOG9qJpiom/ZxO+S15LAw==}
-    engines: {node: '>=14'}
-    hasBin: true
-
   /playwright-core@1.40.1:
     resolution: {integrity: sha512-+hkOycxPiV534c4HhpfX6yrlawqVUzITRKwHAmYfmsVreltEl6fAZJ3DPfLMOODw0H3s1Itd6MDCWmP1fl/QvQ==}
     engines: {node: '>=16'}
     hasBin: true
-    dev: false
 
   /playwright@1.40.1:
     resolution: {integrity: sha512-2eHI7IioIpQ0bS1Ovg/HszsN/XKNwEG1kbzSDDmADpclKc7CyqkHw7Mg2JCz/bbCxg25QUPcjksoMW7JcIFQmw==}
@@ -6873,7 +6857,6 @@ packages:
       playwright-core: 1.40.1
     optionalDependencies:
       fsevents: 2.3.2
-    dev: false
 
   /postcss-attribute-case-insensitive@6.0.2(postcss@8.4.31):
     resolution: {integrity: sha512-IRuCwwAAQbgaLhxQdQcIIK0dCVXg3XDUnzgKD8iwdiYdwU4rMWRWyl/W9/0nA4ihVpq5pyALiHB2veBJ0292pw==}
@@ -7610,8 +7593,8 @@ packages:
     hasBin: true
     dev: true
 
-  /prettier@3.0.3:
-    resolution: {integrity: sha512-L/4pUDMxcNa8R/EthV08Zt42WBO4h1rarVtK0K+QJG0X187OLo7l699jWw0GKuwzkPQ//jMFA/8Xm6Fh3J/DAg==}
+  /prettier@3.1.0:
+    resolution: {integrity: sha512-TQLvXjq5IAibjh8EpBIkNKxO749UEWABoiIZehEPiY4GNpVdhaFKqSTu+QrlU6D2dPAfubRmtJTi4K4YkQ5eXw==}
     engines: {node: '>=14'}
     hasBin: true
     dev: false

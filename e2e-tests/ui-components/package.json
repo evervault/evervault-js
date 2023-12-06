@@ -6,7 +6,7 @@
     "e2e:test": "playwright test"
   },
   "dependencies": {
-    "@playwright/test": "^1.33.0",
-    "@evervault/ui-components": "workspace:*"
+    "@evervault/ui-components": "workspace:*",
+    "@playwright/test": "^1.40.1"
   }
 }

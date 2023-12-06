@@ -1,6 +1,5 @@
 import * as crypto from "crypto";
-import { test as baseTest } from "@playwright/test";
-import { expect as baseExpect } from "@playwright/test";
+import { test as baseTest, expect as baseExpect } from "@playwright/test";
 
 const EV_STRING_REGEX =
   /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
