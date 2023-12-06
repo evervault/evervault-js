@@ -14,6 +14,8 @@ on:
         required: true
       TESTS_DECRYPT_FN_KEY:
         required: true
+      TESTS_API_KEY:
+        required: true
       TURBO_TOKEN:
         required: true
 
