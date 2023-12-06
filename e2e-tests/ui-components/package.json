@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "version": null,
+  "name": "e2e-tests-ui-components",
+  "scripts": {
+    "e2e:test": "playwright test"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.40.1",
+    "@evervault/ui-components": "workspace:*"
+  }
+}
