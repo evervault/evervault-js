@@ -49,6 +49,7 @@ jobs:
       aws-cloudfront-distribution-id: ${{ secrets.INPUTS_CLOUDFRONT_DISTRIBUTION_ID }}
 
   deploy-ui-components:
+    if: contains(github.event.release.tag_name, '@evervault/ui-components')
     uses: ./.github/workflows/deploy-ui-components.yml
     with:
       environment: "production"
@@ -57,8 +58,8 @@ jobs:
       vite-keys-url: "https://keys.evervault.com"
       vite-api-url: "https://api.evervault.com"
     secrets:
-      aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
-      aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
+      aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
       aws-s3-bucket: ${{ secrets.UI_COMPONENTS_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID }}
 
