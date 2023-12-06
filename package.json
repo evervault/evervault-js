@@ -3,7 +3,7 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "dev": "dotenv -- node ./examples/index.js",
-    "build": "turbo run build",
+    "build": "turbo run build --filter=@evervault/*...",
     "build:browser": "dotenv -- turbo run build --filter=browser",
     "build:inputs": "dotenv -- turbo run build --filter=inputs",
     "test": "dotenv -- turbo run test",

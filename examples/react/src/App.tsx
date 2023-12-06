@@ -1,4 +1,9 @@
-import { CardDetails, EvervaultProvider, themes } from "@evervault/react";
+import {
+  CardDetails,
+  CardDetailsPayload,
+  EvervaultProvider,
+  themes,
+} from "@evervault/react";
 
 const theme = themes.clean({
   styles: {
@@ -9,7 +14,7 @@ const theme = themes.clean({
 });
 
 function App() {
-  const handleChange = (payload) => {
+  const handleChange = (payload: CardDetailsPayload) => {
     console.log(payload);
   };
 

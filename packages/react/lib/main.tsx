@@ -9,6 +9,7 @@ import * as React from "react";
 import { EvervaultContext } from "./context";
 import { useEvervault } from "./useEvervault";
 
+export type * from "types";
 export { Reveal } from "./ui/Reveal";
 export { CardDetails } from "./ui/CardDetails";
 export { Pin } from "./ui/Pin";

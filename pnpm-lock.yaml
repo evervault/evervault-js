@@ -295,6 +295,9 @@ importers:
       themes:
         specifier: workspace:^
         version: link:../themes
+      types:
+        specifier: workspace:^
+        version: link:../types
     devDependencies:
       '@evervault/browser':
         specifier: workspace:^
@@ -317,9 +320,6 @@ importers:
       tsconfig:
         specifier: workspace:^
         version: link:../tsconfig
-      types:
-        specifier: workspace:^
-        version: link:../types
       vite:
         specifier: ^4.5.1
         version: 4.5.1(@types/node@18.15.11)
