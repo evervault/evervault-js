@@ -1,9 +1,9 @@
 import themes from "themes";
-import CardDetails from "./cardDetails";
+import Card from "./card";
 import Pin from "./pin";
 import Reveal from "./reveal";
 import type EvervaultClient from "../main";
-import type { PinOptions, CardDetailsOptions } from "types";
+import type { PinOptions, CardOptions } from "types";
 
 export default class UIComponents {
   client: EvervaultClient;
@@ -13,8 +13,8 @@ export default class UIComponents {
     this.client = client;
   }
 
-  cardDetails(opts?: CardDetailsOptions) {
-    return new CardDetails(this.client, opts);
+  card(opts?: CardOptions) {
+    return new Card(this.client, opts);
   }
 
   pin(opts?: PinOptions) {

@@ -75,7 +75,7 @@ export function material(extended?: ThemeDefinition): ThemeDefinition {
         color: "#0a2540",
       },
 
-      "[ev-component=cardDetails]": {
+      "[ev-component=card]": {
         gap: 16,
       },
       ...(extended ? utils.extend(extended) : {}),

@@ -3,35 +3,35 @@ import * as React from "react";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useEvervault } from "../useEvervault";
 import type {
-  CardDetailsPayload,
-  CardDetailsTranslations,
-  SwipedCardDetails,
+  CardPayload,
+  CardTranslations,
+  SwipedCard,
   ThemeDefinition,
 } from "types";
 
-export interface CardDetailsProps {
+export interface CardProps {
   theme?: ThemeDefinition;
-  translations?: CardDetailsTranslations;
+  translations?: CardTranslations;
   onReady?: () => void;
   onError?: () => void;
-  onSwipe?: (data: SwipedCardDetails) => void;
-  onChange?: (data: CardDetailsPayload) => void;
+  onSwipe?: (data: SwipedCard) => void;
+  onChange?: (data: CardPayload) => void;
 }
 
-type CardDetailsClass = ReturnType<Evervault["ui"]["cardDetails"]>;
+type CardClass = ReturnType<Evervault["ui"]["card"]>;
 
-export function CardDetails({
+export function Card({
   theme,
   onSwipe,
   onReady,
   onError,
   onChange,
   translations,
-}: CardDetailsProps) {
+}: CardProps) {
   const ev = useEvervault();
   const initialized = useRef(false);
   const ref = useRef<HTMLDivElement>(null);
-  const [instance, setInstance] = React.useState<CardDetailsClass | null>(null);
+  const [instance, setInstance] = React.useState<CardClass | null>(null);
 
   // setup ready event listener
   useEffect(() => {
@@ -73,7 +73,7 @@ export function CardDetails({
       initialized.current = true;
       const evervault = await ev;
       if (!evervault) return;
-      const inst = evervault.ui.cardDetails(config);
+      const inst = evervault.ui.card(config);
       inst.mount(ref.current);
       setInstance(inst);
     }

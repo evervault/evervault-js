@@ -31,7 +31,7 @@ input {
   background: transparent;
 }
 
-[ev-component="cardDetails"] {
+[ev-component="card"] {
   gap: 10px;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -45,8 +45,8 @@ input {
   }
 }
 
-[ev-component="cardDetails"]:not([ev-hidden-fields]) .field:nth-child(2),
-[ev-component="cardDetails"]:not([ev-hidden-fields]) .field:nth-child(3) {
+[ev-component="card"]:not([ev-hidden-fields]) .field:nth-child(2),
+[ev-component="card"]:not([ev-hidden-fields]) .field:nth-child(3) {
   grid-column: auto;
 }
 

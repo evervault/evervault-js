@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { CardDetails } from "./CardDetails";
+import { Card } from "./Card";
 import { Pin } from "./Pin";
 import { RevealCopyButton } from "./Reveal/RevealCopyButton";
 import { RevealRequest } from "./Reveal/RevealRequest";
@@ -8,7 +8,7 @@ import { resize } from "./utilities/resize";
 import { useMessaging } from "./utilities/useMessaging";
 import { useSearchParams } from "./utilities/useSearchParams";
 import { useTheme } from "./utilities/useTheme";
-import type { CardDetailsConfig } from "./CardDetails/types";
+import type { CardConfig } from "./Card/types";
 import type { PinConfig } from "./Pin/types";
 import type {
   RevealCopyButtonConfig,
@@ -63,8 +63,8 @@ export function UIComponent() {
   // Return null until the parent frame has passed a config
   if (!config) return null;
 
-  if (component === "CardDetails") {
-    return <CardDetails config={config as CardDetailsConfig} />;
+  if (component === "Card") {
+    return <Card config={config as CardConfig} />;
   }
 
   if (component === "Pin") {

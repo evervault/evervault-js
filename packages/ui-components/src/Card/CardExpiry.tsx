@@ -1,10 +1,10 @@
 import IMask from "imask";
 import { FocusEvent, useEffect, useRef } from "react";
 import { useMask } from "../utilities/useMask";
-import type { CardDetailsForm } from "./types";
+import type { CardForm } from "./types";
 
 interface CardExpiryProps {
-  onChange: (value: CardDetailsForm["expiry"]) => void;
+  onChange: (value: CardForm["expiry"]) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
   disabled: boolean;
   placeholder?: string;

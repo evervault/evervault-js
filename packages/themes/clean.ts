@@ -42,7 +42,7 @@ export function clean(extended?: ThemeDefinition): ThemeDefinition {
         fontSize: "0.75rem",
         padding: "0.25rem 0",
       },
-      "[ev-component=cardDetails]": {
+      "[ev-component=card]": {
         gap: 16,
       },
       "[ev-component=pin] input": {

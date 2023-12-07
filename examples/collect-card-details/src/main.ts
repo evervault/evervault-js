@@ -12,7 +12,7 @@ const evervault = new window.Evervault(
   }
 );
 
-const card = evervault.ui.cardDetails({
+const card = evervault.ui.card({
   theme: evervault.ui.themes.clean(),
 });
 

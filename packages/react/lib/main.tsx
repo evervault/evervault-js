@@ -11,7 +11,7 @@ import { useEvervault } from "./useEvervault";
 
 export type * from "types";
 export { Reveal } from "./ui/Reveal";
-export { CardDetails } from "./ui/CardDetails";
+export { Card } from "./ui/Card";
 export { Pin } from "./ui/Pin";
 export { default as themes } from "themes";
 export { useEvervault };

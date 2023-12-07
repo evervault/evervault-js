@@ -2,34 +2,34 @@ import EventManager from "./eventManager";
 import { EvervaultFrame } from "./evervaultFrame";
 import type EvervaultClient from "../main";
 import type {
-  CardDetailsPayload,
-  CardDetailsOptions,
-  SwipedCardDetails,
-  CardDetailsFrameClientMessages,
-  CardDetailsFrameHostMessages,
+  CardPayload,
+  CardOptions,
+  SwipedCard,
+  CardFrameClientMessages,
+  CardFrameHostMessages,
   SelectorType,
 } from "types";
 
-interface CardDetailsEvents {
+interface CardEvents {
   ready: () => void;
   error: () => void;
-  change: (payload: CardDetailsPayload) => void;
-  swipe: (payload: SwipedCardDetails) => void;
+  change: (payload: CardPayload) => void;
+  swipe: (payload: SwipedCard) => void;
 }
 
-export default class CardDetails {
-  values?: CardDetailsPayload;
-  #options: CardDetailsOptions;
+export default class Card {
+  values?: CardPayload;
+  #options: CardOptions;
   #frame: EvervaultFrame<
-    CardDetailsFrameClientMessages,
-    CardDetailsFrameHostMessages
+    CardFrameClientMessages,
+    CardFrameHostMessages
   >;
 
-  #events = new EventManager<CardDetailsEvents>();
+  #events = new EventManager<CardEvents>();
 
-  constructor(client: EvervaultClient, options?: CardDetailsOptions) {
+  constructor(client: EvervaultClient, options?: CardOptions) {
     this.#options = options ?? {};
-    this.#frame = new EvervaultFrame(client, "CardDetails");
+    this.#frame = new EvervaultFrame(client, "Card");
 
     // update the values when the frame sends a change event and dispatch
     // a change event.
@@ -69,7 +69,7 @@ export default class CardDetails {
     return this;
   }
 
-  update(options?: CardDetailsOptions) {
+  update(options?: CardOptions) {
     if (options) {
       this.#options = { ...this.#options, ...options };
     }
@@ -82,9 +82,9 @@ export default class CardDetails {
     return this;
   }
 
-  on<T extends keyof CardDetailsEvents>(
+  on<T extends keyof CardEvents>(
     event: T,
-    callback: CardDetailsEvents[T]
+    callback: CardEvents[T]
   ) {
     return this.#events.on(event, callback);
   }

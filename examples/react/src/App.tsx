@@ -1,6 +1,6 @@
 import {
-  CardDetails,
-  CardDetailsPayload,
+  Card,
+  CardPayload,
   EvervaultProvider,
   themes,
 } from "@evervault/react";
@@ -23,7 +23,7 @@ const customConfig = {
 };
 
 function App() {
-  const handleChange = (payload: CardDetailsPayload) => {
+  const handleChange = (payload: CardPayload) => {
     console.log(payload);
   };
 
@@ -34,7 +34,7 @@ function App() {
       customConfig={customConfig}
     >
       <h1>Example React app</h1>
-      <CardDetails onChange={handleChange} theme={theme} />
+      <Card onChange={handleChange} theme={theme} />
     </EvervaultProvider>
   );
 }

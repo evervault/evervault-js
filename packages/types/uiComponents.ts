@@ -32,7 +32,7 @@ interface CardExpiry {
   year: string | null;
 }
 
-export interface CardDetailsPayload {
+export interface CardPayload {
   isValid: boolean;
   card: {
     brand: string | undefined;
@@ -49,7 +49,7 @@ export interface CardDetailsPayload {
   }>;
 }
 
-export type CardDetailsField = "number" | "expiry" | "cvc";
+export type CardField = "number" | "expiry" | "cvc";
 
 interface CardFieldTranslations<E extends TranslationsObject>
   extends TranslationsObject {
@@ -58,20 +58,20 @@ interface CardFieldTranslations<E extends TranslationsObject>
   errors?: E;
 }
 
-export interface CardDetailsTranslations extends TranslationsObject {
+export interface CardTranslations extends TranslationsObject {
   number: CardFieldTranslations<{ invalid?: string }>;
   expiry: CardFieldTranslations<{ invalid?: string }>;
   cvc: CardFieldTranslations<{ invalid?: string }>;
 }
 
-export interface CardDetailsOptions {
+export interface CardOptions {
   theme?: ThemeDefinition;
   autoFocus?: boolean;
-  hiddenFields?: CardDetailsField[];
-  translations?: Partial<CardDetailsTranslations>;
+  hiddenFields?: CardField[];
+  translations?: Partial<CardTranslations>;
 }
 
-export interface SwipedCardDetails {
+export interface SwipedCard {
   brand: string | undefined;
   number: string | null;
   expiry: CardExpiry | null;
@@ -98,13 +98,13 @@ export interface EvervaultFrameHostMessages {
   };
 }
 
-export interface CardDetailsFrameClientMessages
+export interface CardFrameClientMessages
   extends EvervaultFrameClientMessages {
-  EV_SWIPE: SwipedCardDetails;
-  EV_CHANGE: CardDetailsPayload;
+  EV_SWIPE: SwipedCard;
+  EV_CHANGE: CardPayload;
 }
 
-export interface CardDetailsFrameHostMessages
+export interface CardFrameHostMessages
   extends EvervaultFrameHostMessages {
   EV_VALIDATE: undefined;
 }

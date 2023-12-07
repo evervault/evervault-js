@@ -13,24 +13,21 @@ import { CardNumber } from "./CardNumber";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useCardReader } from "./useCardReader";
 import { changePayload, isCVCValid, swipePayload } from "./utilities";
-import type { CardDetailsForm, CardDetailsConfig } from "./types";
-import type {
-  CardDetailsFrameClientMessages,
-  CardDetailsFrameHostMessages,
-} from "types";
+import type { CardForm, CardConfig } from "./types";
+import type { CardFrameClientMessages, CardFrameHostMessages } from "types";
 
-export function CardDetails({ config }: { config: CardDetailsConfig }) {
+export function Card({ config }: { config: CardConfig }) {
   const cvc = useRef<HTMLInputElement | null>(null);
   const { on, send } = useMessaging<
-    CardDetailsFrameHostMessages,
-    CardDetailsFrameClientMessages
+    CardFrameHostMessages,
+    CardFrameClientMessages
   >();
   const ev = useEvervault();
   const { t } = useTranslations(DEFAULT_TRANSLATIONS, config?.translations);
 
   const hidden = String(config?.hiddenFields ?? "").split(",");
 
-  const form = useForm<CardDetailsForm>({
+  const form = useForm<CardForm>({
     initialValues: {
       cvc: "",
       expiry: "",
@@ -107,7 +104,7 @@ export function CardDetails({ config }: { config: CardDetailsConfig }) {
 
   return (
     <fieldset
-      ev-component="cardDetails"
+      ev-component="card"
       ev-valid={hasErrors ? "false" : "true"}
       ev-hidden-fields={config.hiddenFields ? config.hiddenFields : undefined}
     >

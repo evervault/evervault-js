@@ -67,7 +67,7 @@ export function minimal(extended?: ThemeDefinition): ThemeDefinition {
         zIndex: 5,
       },
 
-      "[ev-component=cardDetails]": {
+      "[ev-component=card]": {
         gap: 0,
 
         "& .field[ev-valid=false]:nth-child(1) .error": {

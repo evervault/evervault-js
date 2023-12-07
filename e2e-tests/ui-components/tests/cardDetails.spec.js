@@ -1,6 +1,6 @@
 import { test, expect, VALID_CARDS, INVALID_CARDS } from "../utils";
 
-test.describe("cardDetails component", () => {
+test.describe("card component", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("http://localhost:4005");
     await page.waitForFunction(() => window.Evervault);
@@ -15,7 +15,7 @@ test.describe("cardDetails component", () => {
       });
 
       await page.evaluate(() => {
-        const comp = window.evervault.ui.cardDetails();
+        const comp = window.evervault.ui.card();
         comp.on("change", window.handleChange);
         comp.mount("#form");
       });
@@ -51,7 +51,7 @@ test.describe("cardDetails component", () => {
     });
 
     await page.evaluate(() => {
-      const card = window.evervault.ui.cardDetails();
+      const card = window.evervault.ui.card();
       card.on("change", window.handleChange);
       card.mount("#form");
     });
@@ -73,7 +73,7 @@ test.describe("cardDetails component", () => {
     page,
   }) => {
     await page.evaluate(() => {
-      const card = window.evervault.ui.cardDetails();
+      const card = window.evervault.ui.card();
       card.mount("#form");
     });
 
@@ -97,7 +97,7 @@ test.describe("cardDetails component", () => {
     });
 
     await page.evaluate(() => {
-      const card = window.evervault.ui.cardDetails();
+      const card = window.evervault.ui.card();
       card.on("change", window.handleChange);
       card.mount("#form");
     });
@@ -123,7 +123,7 @@ test.describe("cardDetails component", () => {
     });
 
     await page.evaluate(() => {
-      const card = window.evervault.ui.cardDetails();
+      const card = window.evervault.ui.card();
       card.on("change", window.handleChange);
       card.mount("#form");
     });
@@ -144,7 +144,7 @@ test.describe("cardDetails component", () => {
     });
 
     await page.evaluate(() => {
-      const card = window.evervault.ui.cardDetails();
+      const card = window.evervault.ui.card();
       card.on("ready", window.handleReady);
       card.mount("#form");
     });
@@ -156,7 +156,7 @@ test.describe("cardDetails component", () => {
 
   test("can customize the component copy", async ({ page }) => {
     await page.evaluate(() => {
-      const card = window.evervault.ui.cardDetails({
+      const card = window.evervault.ui.card({
         translations: {
           number: {
             label: "Numéro de carte",
@@ -199,7 +199,7 @@ test.describe("cardDetails component", () => {
 
   test("can hide CVC field", async ({ page }) => {
     await page.evaluate(() => {
-      const card = window.evervault.ui.cardDetails({
+      const card = window.evervault.ui.card({
         hiddenFields: ["cvc"],
       });
 
@@ -213,7 +213,7 @@ test.describe("cardDetails component", () => {
 
   test("can hide the expiration field", async ({ page }) => {
     await page.evaluate(() => {
-      const card = window.evervault.ui.cardDetails({
+      const card = window.evervault.ui.card({
         hiddenFields: ["expiry"],
       });
 
@@ -227,7 +227,7 @@ test.describe("cardDetails component", () => {
 
   test("can manually trigger validation", async ({ page }) => {
     await page.evaluate(() => {
-      const card = window.evervault.ui.cardDetails();
+      const card = window.evervault.ui.card();
 
       card.on("ready", () => {
         card.validate();
@@ -243,7 +243,7 @@ test.describe("cardDetails component", () => {
 
   test("can update config after mount", async ({ page }) => {
     await page.evaluate(() => {
-      window.card = window.evervault.ui.cardDetails();
+      window.card = window.evervault.ui.card();
       window.card.mount("#form");
     });
 
@@ -274,7 +274,7 @@ test.describe("cardDetails component", () => {
     });
 
     await page.evaluate(() => {
-      const card = window.evervault.ui.cardDetails();
+      const card = window.evervault.ui.card();
       card.on("swipe", window.handleSwipe);
       card.mount("#form");
     });
@@ -301,7 +301,7 @@ test.describe("cardDetails component", () => {
     });
 
     await page.evaluate(() => {
-      const card = window.evervault.ui.cardDetails();
+      const card = window.evervault.ui.card();
       card.on("swipe", window.handleSwipe);
       card.mount("#form");
     });
@@ -321,7 +321,7 @@ test.describe("cardDetails component", () => {
 
   test("can be unmounted", async ({ page }) => {
     await page.evaluate(() => {
-      window.card = window.evervault.ui.cardDetails();
+      window.card = window.evervault.ui.card();
       window.card.mount("#form");
     });
 
