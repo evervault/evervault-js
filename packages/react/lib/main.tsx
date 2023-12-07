@@ -6,6 +6,7 @@ import type {
   RevealSettings,
 } from "@evervault/browser";
 import * as React from "react";
+import * as themes from "themes";
 import { EvervaultContext } from "./context";
 import { useEvervault } from "./useEvervault";
 
@@ -13,8 +14,7 @@ export type * from "types";
 export { Reveal } from "./ui/Reveal";
 export { Card } from "./ui/Card";
 export { Pin } from "./ui/Pin";
-export { default as themes } from "themes";
-export { useEvervault };
+export { useEvervault, themes };
 
 export interface CustomConfig extends BrowserConfig {
   jsSdkUrl: string;

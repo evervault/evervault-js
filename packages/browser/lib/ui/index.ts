@@ -1,4 +1,4 @@
-import themes from "themes";
+import * as themes from "themes";
 import Card from "./card";
 import Pin from "./pin";
 import Reveal from "./reveal";
