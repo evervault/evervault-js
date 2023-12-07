@@ -1,16 +1,4 @@
 {
-  "compilerOptions": {
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "preserveWatchOutput": true,
-    "skipLibCheck": true,
-    "noEmit": true,
-    "strict": true
-  },
-  "exclude": [
-    "node_modules"
-  ]
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "tsconfig/browser.json"
 }
