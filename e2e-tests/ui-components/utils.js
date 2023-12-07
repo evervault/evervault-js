@@ -36,7 +36,7 @@ export const VALID_CARDS = {
     year: "35",
     cvc: "123",
     brand: "visa",
-    last4: "4242",
+    lastFour: "4242",
     bin: "42424242",
   },
   mastercard: {
@@ -45,7 +45,7 @@ export const VALID_CARDS = {
     year: "35",
     cvc: "123",
     brand: "mastercard",
-    last4: "4444",
+    lastFour: "4444",
     bin: "55555555",
   },
   amex: {
@@ -54,7 +54,7 @@ export const VALID_CARDS = {
     year: "35",
     cvc: "1234",
     brand: "american-express",
-    last4: "0005",
+    lastFour: "0005",
     bin: "37828224",
   },
   discover: {
@@ -63,7 +63,7 @@ export const VALID_CARDS = {
     year: "35",
     cvc: "123",
     brand: "discover",
-    last4: "1117",
+    lastFour: "1117",
     bin: "60111111",
   },
   diners: {
@@ -72,7 +72,7 @@ export const VALID_CARDS = {
     year: "35",
     cvc: "123",
     brand: "diners-club",
-    last4: "5904",
+    lastFour: "5904",
     bin: "30569309",
   },
   jcb: {
@@ -81,7 +81,7 @@ export const VALID_CARDS = {
     year: "35",
     cvc: "123",
     brand: "jcb",
-    last4: "0000",
+    lastFour: "0000",
     bin: "35301113",
   },
   unionpay: {
@@ -90,7 +90,7 @@ export const VALID_CARDS = {
     year: "35",
     cvc: "123",
     brand: "unionpay",
-    last4: "0005",
+    lastFour: "0005",
     bin: "62000000",
   },
   maestro: {
@@ -99,7 +99,7 @@ export const VALID_CARDS = {
     year: "35",
     cvc: "123",
     brand: "maestro",
-    last4: "8453",
+    lastFour: "8453",
     bin: "67596498",
   },
 };
@@ -111,7 +111,7 @@ export const INVALID_CARDS = {
     year: "35",
     cvc: "123",
     brand: "visa",
-    last4: "4241",
+    lastFour: "4241",
     bin: "42424242",
   },
   invalidExpiry: {
@@ -120,7 +120,7 @@ export const INVALID_CARDS = {
     year: "20",
     cvc: "123",
     brand: "visa",
-    last4: "4242",
+    lastFour: "4242",
     bin: "42424242",
   },
   invalidCVC: {
@@ -129,7 +129,7 @@ export const INVALID_CARDS = {
     year: "35",
     cvc: "12",
     brand: "visa",
-    last4: "4242",
+    lastFour: "4242",
     bin: "42424242",
   },
 };

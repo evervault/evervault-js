@@ -34,7 +34,9 @@ test.describe("card component", () => {
         .poll(async () => values.card?.expiry?.year)
         .toEqual(card.year);
       await expect.poll(async () => values.isValid).toBeTruthy();
-      await expect.poll(async () => values.card.last4).toEqual(card.last4);
+      await expect
+        .poll(async () => values.card.lastFour)
+        .toEqual(card.lastFour);
       await expect.poll(async () => values.errors).toBeNull();
       await expect.poll(async () => values.card.bin).toEqual(card.bin);
       await expect.poll(async () => values.errors).toBeNull();
@@ -290,7 +292,7 @@ test.describe("card component", () => {
     await expect.poll(async () => swipeData?.firstName).toEqual("JOHN A");
     await expect.poll(async () => swipeData?.lastName).toEqual("DOE");
     await expect.poll(async () => swipeData?.brand).toEqual("visa");
-    await expect.poll(async () => swipeData?.last4).toEqual("4242");
+    await expect.poll(async () => swipeData?.lastFour).toEqual("4242");
     await expect.poll(async () => swipeData?.bin).toEqual("42424242");
   });
 
@@ -315,7 +317,7 @@ test.describe("card component", () => {
     await expect.poll(async () => swipeData?.expiry.month).toEqual("05");
     await expect.poll(async () => swipeData?.expiry.year).toEqual("26");
     await expect.poll(async () => swipeData?.brand).toEqual("mastercard");
-    await expect.poll(async () => swipeData?.last4).toEqual("0191");
+    await expect.poll(async () => swipeData?.lastFour).toEqual("0191");
     await expect.poll(async () => swipeData?.bin).toEqual("53012500");
   });
 

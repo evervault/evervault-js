@@ -37,7 +37,7 @@ export interface CardPayload {
   card: {
     brand: string | undefined;
     number: string | null;
-    last4: string | null;
+    lastFour: string | null;
     bin: string | null;
     expiry: CardExpiry;
     cvc: string | null;
@@ -77,7 +77,7 @@ export interface SwipedCard {
   expiry: CardExpiry | null;
   firstName: string | null;
   lastName: string | null;
-  last4: string | null;
+  lastFour: string | null;
   bin: string | null;
 }
 
