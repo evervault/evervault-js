@@ -3,6 +3,10 @@
   "extends": "tsconfig/browser.json",
   "compilerOptions": {
     "rootDir": ".",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true
   }
 }
