@@ -20,10 +20,7 @@ interface CardEvents {
 export default class Card {
   values?: CardPayload;
   #options: CardOptions;
-  #frame: EvervaultFrame<
-    CardFrameClientMessages,
-    CardFrameHostMessages
-  >;
+  #frame: EvervaultFrame<CardFrameClientMessages, CardFrameHostMessages>;
 
   #events = new EventManager<CardEvents>();
 
@@ -82,10 +79,7 @@ export default class Card {
     return this;
   }
 
-  on<T extends keyof CardEvents>(
-    event: T,
-    callback: CardEvents[T]
-  ) {
+  on<T extends keyof CardEvents>(event: T, callback: CardEvents[T]) {
     return this.#events.on(event, callback);
   }
 
