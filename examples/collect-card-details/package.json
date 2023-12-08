@@ -7,8 +7,7 @@
     "dev": "vite --port 4000"
   },
   "dependencies": {
-    "@evervault/browser": "workspace:*",
-    "@evervault/ui-components": "workspace:*"
+    "@evervault/browser": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.0.2",
