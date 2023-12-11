@@ -28,6 +28,19 @@ export function UIComponent() {
   // Trigger a resize any time there is an app rerender.
   useLayoutEffect(resize);
 
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        resize();
+      }, 50);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // Send a message to the parent window to let it know that the frame is ready
   // to recieve messages. This will trigger the parent to send an EV_INIT event
   // with the configuration for the component.
