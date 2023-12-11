@@ -142,9 +142,6 @@ importers:
       '@evervault/browser':
         specifier: workspace:*
         version: link:../../packages/browser
-      '@evervault/ui-components':
-        specifier: workspace:*
-        version: link:../../packages/ui-components
     devDependencies:
       typescript:
         specifier: ^5.0.2
@@ -158,9 +155,6 @@ importers:
       '@evervault/react':
         specifier: workspace:*
         version: link:../../packages/react
-      '@evervault/ui-components':
-        specifier: workspace:*
-        version: link:../../packages/ui-components
       react:
         specifier: ^18.2.0
         version: 18.2.0
