@@ -31,6 +31,7 @@ export class EvervaultFrame<
   #id = generateID();
   #theme: Theme | null = null;
   #client: EvervaultClient;
+  #ready = false;
 
   // The constructor accepts an EV client and component name and generates the URL
   // for the iframe. The component param is used to determine which component to render
@@ -78,6 +79,8 @@ export class EvervaultFrame<
         theme: this.#theme?.compile(),
         config: opts.config,
       });
+
+      this.#ready = true;
     });
 
     this.iframe.onerror = opts.onError ?? null;
@@ -94,11 +97,7 @@ export class EvervaultFrame<
 
   // Takes an update configuration object and posts it into the iframe via an
   // EV_UPDATE event.
-  update(opts?: FrameConfiguration) {
-    if (!this.isMounted) {
-      throw new Error("Evervault frame not mounted");
-    }
-
+  update(opts?: FrameConfiguration): this {
     if (opts?.theme) {
       if (!this.#theme) {
         this.#theme = new Theme(this, opts.theme);
@@ -106,6 +105,8 @@ export class EvervaultFrame<
         this.#theme?.update(opts.theme);
       }
     }
+
+    if (!this.#ready) return this;
 
     this.send("EV_UPDATE", {
       theme: this.#theme?.compile(),
