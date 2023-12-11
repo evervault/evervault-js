@@ -153,7 +153,7 @@ test.describe("card component", () => {
 
     const frame = page.frameLocator("iframe[data-evervault]");
     await expect(frame.getByLabel("Number")).toBeVisible();
-    expect(called).toEqual(1);
+    await expect.poll(async () => called).toEqual(1);
   });
 
   test("can customize the component copy", async ({ page }) => {
@@ -267,6 +267,23 @@ test.describe("card component", () => {
     });
 
     await expect(frame.getByText("Bad card number")).toBeVisible();
+  });
+
+  test("allows 4 digit CVCs for Amex cards", async ({ page }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card();
+      card.mount("#form");
+    });
+
+    const visa = "4242424242424242";
+    const amex = "378282246310005";
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill(visa);
+    await frame.getByLabel("CVC").fill("1234");
+    await expect(frame.getByLabel("CVC")).not.toHaveValue("1234");
+    await frame.getByLabel("Number").fill(amex);
+    await frame.getByLabel("CVC").fill("1234");
+    await expect(frame.getByLabel("CVC")).toHaveValue("1234");
   });
 
   test("supports card readers with track 1 mag stripes", async ({ page }) => {

@@ -1,8 +1,10 @@
+import cardValidator from "card-validator";
 import {
   FocusEvent,
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
 } from "react";
 import { useMask } from "../utilities/useMask";
@@ -14,20 +16,25 @@ interface CVCProps {
   placeholder?: string;
   value: string;
   readOnly?: boolean;
+  cardNumber: string;
 }
 
 export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
   (
-    { onChange, onBlur, disabled, placeholder, value, readOnly },
+    { cardNumber, onChange, onBlur, disabled, placeholder, value, readOnly },
     forwardedRef
   ) => {
     const innerRef = useRef<HTMLInputElement>(null);
 
     useImperativeHandle(forwardedRef, () => innerRef.current!);
 
-    const [unmasked, setValue] = useMask(innerRef, {
-      mask: "0000",
-    });
+    const mask = useMemo(() => {
+      const type = cardValidator.number(cardNumber).card?.type;
+      if (type === "american-express") return "0000";
+      return "000";
+    }, [cardNumber]);
+
+    const [unmasked, setValue] = useMask(innerRef, { mask });
 
     useEffect(() => {
       if (!unmasked) return;

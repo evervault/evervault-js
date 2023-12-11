@@ -164,6 +164,7 @@ export function Card({ config }: { config: CardConfig }) {
             ref={cvc}
             value={form.values.cvc}
             disabled={!config}
+            cardNumber={form.values.number}
             readOnly={cardReaderListening}
             placeholder={t("cvc.placeholder")}
             {...form.register("cvc")}
