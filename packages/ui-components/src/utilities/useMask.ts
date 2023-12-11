@@ -5,7 +5,8 @@ type UseMaskReturn = [string, (value: string) => void];
 
 export function useMask(
   ref: RefObject<HTMLInputElement>,
-  config: FactoryOpts
+  config: FactoryOpts,
+  onAccept?: (value: string) => void
 ): UseMaskReturn {
   const [value, setValue] = useState("");
   const mask = useRef<ReturnType<typeof IMask>>();
@@ -17,6 +18,7 @@ export function useMask(
     const handleAccept = () => {
       if (!mask.current) return;
       setValue(mask.current.unmaskedValue);
+      if (onAccept) onAccept(mask.current.unmaskedValue);
     };
 
     mask.current.on("accept", handleAccept);
