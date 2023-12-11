@@ -1,5 +1,9 @@
 import { test, expect } from "../utils";
 
+function typingDelay(min = 20, max = 100) {
+  return Math.floor(Math.random() * (max - min) + min);
+}
+
 test.describe("pin component", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("http://localhost:4005");
@@ -21,10 +25,10 @@ test.describe("pin component", () => {
 
     const frame = page.frameLocator("iframe[data-evervault]");
     await frame.getByLabel("Pin character 1").focus();
-    await page.keyboard.type("1");
-    await page.keyboard.type("2");
-    await page.keyboard.type("3");
-    await page.keyboard.type("4");
+    await page.keyboard.type("1", { delay: typingDelay() });
+    await page.keyboard.type("2", { delay: typingDelay() });
+    await page.keyboard.type("3", { delay: typingDelay() });
+    await page.keyboard.type("4", { delay: typingDelay() });
     await expect.poll(async () => values.value).toBeEncrypted();
     await expect.poll(async () => values.isComplete).toBeTruthy();
   });
@@ -44,11 +48,11 @@ test.describe("pin component", () => {
 
     const frame = page.frameLocator("iframe[data-evervault]");
     await frame.getByLabel("Pin character 1").focus();
-    await page.keyboard.type("1");
-    await page.keyboard.type("2");
-    await page.keyboard.type("3");
+    await page.keyboard.type("1", { delay: typingDelay() });
+    await page.keyboard.type("2", { delay: typingDelay() });
+    await page.keyboard.type("3", { delay: typingDelay() });
     await expect.poll(async () => values.isComplete).toBeFalsy();
-    await page.keyboard.type("4");
+    await page.keyboard.type("4", { delay: typingDelay() });
     await expect.poll(async () => values.isComplete).toBeTruthy();
   });
 
@@ -67,11 +71,11 @@ test.describe("pin component", () => {
 
     const frame = page.frameLocator("iframe[data-evervault]");
     await frame.getByLabel("Pin character 6").focus();
-    await page.keyboard.type("1");
-    await page.keyboard.type("2");
-    await page.keyboard.type("3");
-    await page.keyboard.type("4");
-    await page.keyboard.type("5");
+    await page.keyboard.type("1", { delay: typingDelay() });
+    await page.keyboard.type("2", { delay: typingDelay() });
+    await page.keyboard.type("3", { delay: typingDelay() });
+    await page.keyboard.type("4", { delay: typingDelay() });
+    await page.keyboard.type("5", { delay: typingDelay() });
     await expect.poll(async () => values.isComplete).toBeFalsy();
     await page.keyboard.type("6");
     await expect.poll(async () => values.isComplete).toBeTruthy();
@@ -93,15 +97,15 @@ test.describe("pin component", () => {
     const frame = page.frameLocator("iframe[data-evervault]");
     const input = frame.getByLabel("Pin character 1");
     await input.focus();
-    await page.keyboard.type("A");
-    await page.keyboard.type("A");
-    await page.keyboard.type("A");
-    await page.keyboard.type("A");
+    await page.keyboard.type("A", { delay: typingDelay() });
+    await page.keyboard.type("A", { delay: typingDelay() });
+    await page.keyboard.type("A", { delay: typingDelay() });
+    await page.keyboard.type("A", { delay: typingDelay() });
     await expect.poll(async () => values.isComplete).toBeFalsy();
-    await page.keyboard.type("4");
-    await page.keyboard.type("3");
-    await page.keyboard.type("2");
-    await page.keyboard.type("1");
+    await page.keyboard.type("4", { delay: typingDelay() });
+    await page.keyboard.type("3", { delay: typingDelay() });
+    await page.keyboard.type("2", { delay: typingDelay() });
+    await page.keyboard.type("1", { delay: typingDelay() });
     await expect.poll(async () => values.isComplete).toBeTruthy();
   });
 
@@ -121,15 +125,15 @@ test.describe("pin component", () => {
     const frame = page.frameLocator("iframe[data-evervault]");
     const input = frame.getByLabel("Pin character 1");
     await input.focus();
-    await page.keyboard.type("!");
-    await page.keyboard.type("@");
-    await page.keyboard.type("#");
-    await page.keyboard.type(")");
+    await page.keyboard.type("!", { delay: typingDelay() });
+    await page.keyboard.type("@", { delay: typingDelay() });
+    await page.keyboard.type("#", { delay: typingDelay() });
+    await page.keyboard.type(")", { delay: typingDelay() });
     await expect.poll(async () => values.isComplete).toBeFalsy();
-    await page.keyboard.type("A");
-    await page.keyboard.type("B");
-    await page.keyboard.type("C");
-    await page.keyboard.type("D");
+    await page.keyboard.type("A", { delay: typingDelay() });
+    await page.keyboard.type("B", { delay: typingDelay() });
+    await page.keyboard.type("C", { delay: typingDelay() });
+    await page.keyboard.type("D", { delay: typingDelay() });
     await expect.poll(async () => values.isComplete).toBeTruthy();
   });
 

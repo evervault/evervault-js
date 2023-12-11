@@ -21,6 +21,7 @@ export function UIComponent() {
   const setTheme = useTheme();
   const initialized = useRef(false);
   const { on, send } = useMessaging();
+  const readyFired = useRef(false);
   const [config, setConfig] = useState<unknown>(null);
   const { component } = useSearchParams();
 
@@ -43,10 +44,15 @@ export function UIComponent() {
       on("EV_INIT", (payload) => {
         setTheme(payload.theme ?? null);
         setConfig(payload.config);
-        send("EV_FRAME_READY");
       }),
     [on, send, setTheme]
   );
+
+  useEffect(() => {
+    if (!config || readyFired.current) return;
+    send("EV_FRAME_READY");
+    readyFired.current = true;
+  }, [send, config]);
 
   // update the theme and config any time the parent frame fires EV_UPDATE
   useEffect(

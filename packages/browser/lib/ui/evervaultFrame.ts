@@ -79,7 +79,9 @@ export class EvervaultFrame<
         theme: this.#theme?.compile(),
         config: opts.config,
       });
+    });
 
+    this.on("EV_FRAME_READY", () => {
       this.#ready = true;
     });
 
@@ -139,13 +141,12 @@ export class EvervaultFrame<
     type: K,
     payload?: SendableMessages[K]
   ) {
-    if (!this.iframe?.contentWindow) {
-      console.error("iframe not loaded");
+    if (!this.iframe.contentWindow) {
       return;
     }
 
     const data = { type, payload };
-    this.iframe.contentWindow.postMessage(data, this.url);
+    this.iframe.contentWindow?.postMessage(data, this.url);
   }
 
   get isMounted() {

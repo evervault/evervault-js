@@ -28,15 +28,30 @@ export default defineConfig({
     // baseURL: 'http://127.0.0.1:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: "on-first-retry",
+    trace: "retain-on-failure",
+    video: "retain-on-failure",
   },
 
   projects: [
     {
       name: "chromium",
-      use: {
-        ...devices["Desktop Chrome"],
-      },
+      use: devices["Desktop Chrome"],
+    },
+    {
+      name: "firefox",
+      use: devices["Desktop Firefox"],
+    },
+    {
+      name: "webkit",
+      use: devices["Desktop Safari"],
+    },
+    {
+      name: "iPhone 12",
+      use: devices["iPhone 12"],
+    },
+    {
+      name: "Pixel 7",
+      use: devices["Pixel 7"],
     },
   ],
 
