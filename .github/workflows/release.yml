@@ -1,14 +1,10 @@
----
 # Deploy package to production envrionment on release
 # The tag names created by `changeset tag` include the name of the package we want to release
-
 name: Main Release Workflow
 on:
   release:
     types: [published]
-
 concurrency: ${{ github.workflow }}-${{ github.ref }}
-
 jobs:
   build:
     uses: ./.github/workflows/build-and-test.yml
@@ -19,7 +15,6 @@ jobs:
       TESTS_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
       TESTS_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-
   deploy-js:
     if: contains(github.event.release.tag_name, '@evervault/browser')
     needs: build
@@ -33,7 +28,6 @@ jobs:
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
       aws-s3-bucket: ${{ secrets.BROWSER_SDK_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }}
-
   deploy-inputs:
     if: contains(github.event.release.tag_name, '@evervault/inputs')
     needs: build
@@ -47,7 +41,6 @@ jobs:
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
       aws-s3-bucket: ${{ secrets.INPUTS_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.INPUTS_CLOUDFRONT_DISTRIBUTION_ID }}
-
   deploy-ui-components:
     if: contains(github.event.release.tag_name, '@evervault/ui-components')
     uses: ./.github/workflows/deploy-ui-components.yml
@@ -62,7 +55,6 @@ jobs:
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
       aws-s3-bucket: ${{ secrets.UI_COMPONENTS_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID }}
-
   publish-react:
     if: contains(github.event.release.tag_name, '@evervault/react')
     needs: build
@@ -71,5 +63,4 @@ jobs:
       package: "@evervault/react"
       artifact: "react-sdk-build"
       repo_path: "packages/react/dist"
-    secrets:
-      NPM_TOKEN: ${{ secrets.REACT_SDK_NPM_TOKEN }}
+    secrets: inherit
