@@ -1,5 +1,12 @@
 import preset from "postcss-preset-env";
 
 export default {
-  plugins: [preset()],
+  plugins: [
+    preset({
+      stage: 2,
+      features: {
+        "nesting-rules": true,
+      },
+    }),
+  ],
 };

@@ -49,6 +49,7 @@ module.exports = {
           "**/*.test.*",
           "**/*.spec.*",
           "**/vite/integrity.ts",
+          "**/examples/index.js",
         ],
       },
     ],

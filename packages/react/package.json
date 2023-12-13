@@ -25,13 +25,17 @@
   "scripts": {
     "build": "vite build",
     "coverage": "vitest --coverage",
-    "dev": "vite",
+    "dev": "vite build --watch",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "preinstall": "npx only-allow pnpm",
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "types": "workspace:^",
+    "themes": "workspace:^"
   },
   "peerDependencies": {
     "react": ">=18.0.0"

@@ -2,72 +2,41 @@
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "dist/**"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "dotEnv": [".env"],
+      "dependsOn": ["^build"]
     },
     "e2e:test": {
-      "dependsOn": [
-        "build"
-      ],
-      "outputs": [
-        "playwright-report/**",
-        "test-results/**"
-      ]
+      "dependsOn": ["build"],
+      "outputs": ["playwright-report/**", "test-results/**"]
     },
     "deploy": {
-      "dependsOn": [
-        "build",
-        "test",
-        "lint"
-      ]
+      "dependsOn": ["build", "test", "lint"]
     },
     "typecheck": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "format": {
-      "outputs": [
-        "lib/**",
-        "*.[m][tj]s",
-        "*.html",
-        "*.json",
-        "*.md"
-      ]
+      "outputs": ["lib/**", "*.[m][tj]s", "*.html", "*.json", "*.md"]
     },
     "format:check": {},
     "lint": {
-      "dependsOn": [
-        "typecheck"
-      ]
+      "dependsOn": ["typecheck"]
     },
     "lint:fix": {
-      "dependsOn": [
-        "^build",
-        "format"
-      ],
-      "outputs": [
-        "lib/**",
-        "*.ts"
-      ]
+      "dependsOn": ["^build", "format"],
+      "outputs": ["lib/**", "*.ts"]
     },
     "test": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "preview": {
-      "dependsOn": [
-        "build"
-      ]
+      "dependsOn": ["build"]
     }
   }
 }

@@ -1,6 +1,6 @@
-import { CardDetailsTranslations } from "types";
+import { CardTranslations } from "types";
 
-export const DEFAULT_TRANSLATIONS: CardDetailsTranslations = {
+export const DEFAULT_TRANSLATIONS: CardTranslations = {
   number: {
     label: "Card number",
     placeholder: "0000 0000 0000 0000",

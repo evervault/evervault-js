@@ -3,7 +3,6 @@ import {
   ClipboardEvent,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -25,6 +24,7 @@ const MODES = {
 
 export function Pin({ config }: { config: PinConfig }) {
   const ev = useEvervault();
+  const triggerChange = useRef(false);
   const ref = useRef<HTMLFieldSetElement | null>(null);
   const [pin, setPin] = useState("");
   const length = config?.length ?? 4;
@@ -42,28 +42,14 @@ export function Pin({ config }: { config: PinConfig }) {
     input.focus();
   }, []);
 
-  useLayoutEffect(() => {
-    if (!ref.current) return;
-    const isFocused = ref.current.contains(document.activeElement);
-    if (!isFocused) return;
-    focus();
-  });
-
-  const handlePaste = (e: ClipboardEvent<HTMLFieldSetElement>) => {
-    e.preventDefault();
-    const text = e.clipboardData?.getData("text/plain");
-    if (text?.length !== length) return;
-    setPin(text);
-  };
-
-  const handleChange = (value: string) => {
-    if (pin.length >= length) return;
-    const newPin = pin + value;
+  useEffect(() => {
+    if (!triggerChange.current) return;
+    triggerChange.current = false;
 
     const publishChange = async () => {
       if (!ev) return;
-      const encrypted = await ev.encrypt(newPin);
-      const isComplete = newPin.length === length;
+      const encrypted = await ev.encrypt(pin);
+      const isComplete = pin.length === length;
       const payload = { isComplete, value: encrypted };
       messages.send("EV_CHANGE", payload);
       if (isComplete) {
@@ -72,14 +58,39 @@ export function Pin({ config }: { config: PinConfig }) {
     };
 
     void publishChange();
-    setPin(newPin);
+  }, [pin]);
+
+  const handlePaste = (e: ClipboardEvent<HTMLFieldSetElement>) => {
+    e.preventDefault();
+    const text = e.clipboardData?.getData("text/plain");
+    if (text?.length !== length) return;
+    setPin(text);
+    triggerChange.current = true;
+    setTimeout(focus, 0);
+  };
+
+  const updatePin = useCallback(
+    (newPin: string) => {
+      if (newPin.length > length) return;
+      setPin(newPin);
+      triggerChange.current = true;
+    },
+    [length, pin]
+  );
+
+  const handleChange = (value: string) => {
+    if (pin.length >= length) return;
+    const newPin = pin + value;
+    updatePin(newPin);
+    focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace") {
       e.preventDefault();
+      e.stopPropagation();
       const newPin = pin.slice(0, -1);
-      setPin(newPin);
+      updatePin(newPin);
     }
   };
 
@@ -131,14 +142,16 @@ function PinInput({
   type: "number" | "text" | "password";
 }) {
   const ref = useRef<HTMLInputElement>(null);
-  const [unmasked, setValue] = useMask(ref, {
-    mask,
-    prepareChar: (c) => c.toUpperCase(),
-  });
-
-  useEffect(() => {
-    onChange(unmasked);
-  }, [unmasked]);
+  const [_, setValue] = useMask(
+    ref,
+    {
+      mask,
+      prepareChar: (c) => c.toUpperCase(),
+    },
+    (char) => {
+      onChange(char);
+    }
+  );
 
   useEffect(() => {
     setValue(value);

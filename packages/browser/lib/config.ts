@@ -1,12 +1,14 @@
 const KEYS_URL = "https://keys.evervault.com";
 const INPUTS_ORIGIN = "https://inputs.evervault.com";
 const API_URL = "https://api.evervault.com";
+const UI_COMPONENTS_URL = "https://ui-components.evervault.com";
 
 export interface ConfigUrls {
   keysUrl?: string;
   inputsUrl?: string;
   inputsOrigin?: string;
   apiUrl?: string;
+  componentsUrl?: string;
 }
 
 export interface HttpConfig {
@@ -16,6 +18,10 @@ export interface HttpConfig {
 
 export interface InputConfig {
   inputsOrigin: string;
+}
+
+export interface ComponentsConfig {
+  url: string;
 }
 
 export interface KeyConfig {
@@ -30,6 +36,7 @@ const DEFAULT_CONFIG_URLS = {
   keysUrl: KEYS_URL,
   apiUrl: API_URL,
   inputsOrigin: INPUTS_ORIGIN,
+  componentsUrl: UI_COMPONENTS_URL,
 } satisfies ConfigUrls;
 
 const MAX_FILE_SIZE_IN_MB = 25 as const;
@@ -72,6 +79,7 @@ export interface Config {
   encryption: EncryptionSubConfig;
   http: HttpConfig;
   input: InputConfig;
+  components: ComponentsConfig;
   debugKey: typeof debugKey;
 }
 
@@ -88,6 +96,9 @@ export default function Config(
     http: {
       keysUrl: customUrls?.keysUrl ?? DEFAULT_CONFIG_URLS.keysUrl,
       apiUrl: customUrls?.apiUrl ?? API_URL,
+    },
+    components: {
+      url: customUrls?.componentsUrl ?? DEFAULT_CONFIG_URLS.componentsUrl,
     },
     input: {
       inputsOrigin:

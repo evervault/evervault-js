@@ -26,6 +26,7 @@ export function CardNumber({
   });
 
   useEffect(() => {
+    if (!unmasked) return;
     onChange(unmasked);
   }, [unmasked]);
 

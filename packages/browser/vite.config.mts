@@ -3,6 +3,12 @@ import dts from "vite-plugin-dts";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  server: {
+    port: 4002,
+  },
+  preview: {
+    port: 4002,
+  },
   test: {
     environment: "jsdom",
     include: ["**/test/**/*.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],

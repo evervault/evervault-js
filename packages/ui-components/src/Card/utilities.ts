@@ -2,13 +2,13 @@ import { PromisifiedEvervaultClient } from "@evervault/react";
 import cardValidator from "card-validator";
 import { UseFormReturn } from "../utilities/useForm";
 import { MagStripeData } from "./useCardReader";
-import type { CardDetailsForm } from "./types";
-import type { CardDetailsPayload, SwipedCardDetails } from "types";
+import type { CardForm } from "./types";
+import type { CardPayload, SwipedCard } from "types";
 
 export async function changePayload(
   ev: PromisifiedEvervaultClient,
-  form: UseFormReturn<CardDetailsForm>
-): Promise<CardDetailsPayload> {
+  form: UseFormReturn<CardForm>
+): Promise<CardPayload> {
   const { number, expiry, cvc } = form.values;
   const brand = cardBrand(number);
 
@@ -17,7 +17,7 @@ export async function changePayload(
     card: {
       brand,
       number: await encryptedNumber(ev, number),
-      last4: last4(number),
+      lastFour: lastFour(number),
       bin: binNumber(number, brand),
       expiry: formatExpiry(expiry),
       cvc: await encryptedCVC(ev, cvc, brand),
@@ -29,7 +29,7 @@ export async function changePayload(
 export async function swipePayload(
   ev: PromisifiedEvervaultClient,
   values: MagStripeData
-): Promise<SwipedCardDetails> {
+): Promise<SwipedCard> {
   return {
     brand: cardBrand(values.number),
     number: await encryptedNumber(ev, values.number),
@@ -39,7 +39,7 @@ export async function swipePayload(
     },
     firstName: values.firstName ?? null,
     lastName: values.lastName ?? null,
-    last4: last4(values.number),
+    lastFour: lastFour(values.number),
     bin: binNumber(values.number),
   };
 }
@@ -65,7 +65,7 @@ function binNumber(card: string, brand?: string) {
   return card.substring(0, 8);
 }
 
-function last4(card: string) {
+function lastFour(card: string) {
   const { isValid } = cardValidator.number(card);
   if (!isValid) return null;
   return card.substring(card.length - 4);
