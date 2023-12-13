@@ -4,6 +4,12 @@
 
 ### Patch Changes
 
+- @evervault/ui-components@1.0.3
+
+## null
+
+### Patch Changes
+
 - @evervault/ui-components@1.0.2
 
 ## null
