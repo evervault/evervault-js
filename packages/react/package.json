@@ -36,7 +36,6 @@
   "peerDependencies": {
     "react": ">=18.0.0"
   },
-	"bundledDependencies": ["types", "themes"],
   "devDependencies": {
     "types": "workspace:^",
     "themes": "workspace:^",

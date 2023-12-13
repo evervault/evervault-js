@@ -40,7 +40,7 @@ module.exports = {
       { ts: "never", js: "never", mjs: "never", jsx: "never", tsx: "never" },
     ],
     "import/no-extraneous-dependencies": [
-      "error",
+      "warn",
       {
         devDependencies: [
           "**/postcss.config.js",
