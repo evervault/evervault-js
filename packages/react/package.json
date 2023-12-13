@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@evervault/react",
-  "version": "2.2.2",
+  "version": "2.3.0",
   "description": "React package for the Evervault SDK",
   "license": "MIT",
   "type": "module",
