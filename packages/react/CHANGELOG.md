@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.3.2
+
+### Patch Changes
+
+- 8aef7ed: Improved type definitions
+
 ## 2.3.1
 
 ### Patch Changes
