@@ -33,14 +33,13 @@
     "preinstall": "npx only-allow pnpm",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-    "types": "workspace:^",
-    "themes": "workspace:^"
-  },
   "peerDependencies": {
     "react": ">=18.0.0"
   },
+	"bundledDependencies": ["types", "themes"],
   "devDependencies": {
+    "types": "workspace:^",
+    "themes": "workspace:^",
     "@evervault/browser": "workspace:^",
     "@types/react": "^18.2.8",
     "@types/react-dom": "^18.2.4",
