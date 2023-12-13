@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.3.1
+
+### Patch Changes
+
+- 334052a: Remove bundledDependencies from package.json
+
 ## 2.3.0
 
 ### Minor Changes
