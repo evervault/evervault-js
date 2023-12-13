@@ -1,5 +1,13 @@
 # @evervault/browser
 
+## 2.17.0
+
+### Minor Changes
+
+- df5d317: Adds UI Components
+
+  You can read more about UI Components, and how to upgrade from Inputs here: https://docs.evervault.com/primitives/ui-components
+
 ## 2.16.0
 
 ### Minor Changes
