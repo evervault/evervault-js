@@ -310,13 +310,6 @@ importers:
         version: 3.6.3(@types/node@18.15.11)(typescript@5.3.3)(vite@4.5.1)
 
   packages/react:
-    dependencies:
-      themes:
-        specifier: workspace:^
-        version: link:../themes
-      types:
-        specifier: workspace:^
-        version: link:../types
     devDependencies:
       '@evervault/browser':
         specifier: workspace:^
@@ -336,9 +329,15 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
+      themes:
+        specifier: workspace:^
+        version: link:../themes
       tsconfig:
         specifier: workspace:^
         version: link:../tsconfig
+      types:
+        specifier: workspace:^
+        version: link:../types
       vite:
         specifier: ^4.5.1
         version: 4.5.1(@types/node@18.15.11)
