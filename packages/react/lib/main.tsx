@@ -46,6 +46,11 @@ export class PromisifiedEvervaultClient extends Promise<EvervaultClient> {
     const ev = await this;
     return ev.encrypt(data);
   }
+
+  public async decrypt(token: string, data: unknown) {
+    const ev = await this;
+    return ev.decrypt(token, data);
+  }
 }
 
 const EVERVAULT_URL = "https://js.evervault.com/v2";
