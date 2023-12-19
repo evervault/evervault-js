@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.4.0
+
+### Minor Changes
+
+- 3cb8eca: Adds decrypt function to React SDK
+
 ## 2.3.2
 
 ### Patch Changes
