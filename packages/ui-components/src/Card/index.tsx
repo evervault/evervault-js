@@ -1,6 +1,6 @@
 import { useEvervault } from "@evervault/react";
 import cardValidator from "card-validator";
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
 import { resize } from "../utilities/resize";
@@ -9,6 +9,7 @@ import { useMessaging } from "../utilities/useMessaging";
 import { useTranslations } from "../utilities/useTranslations";
 import { CardCVC } from "./CardCVC";
 import { CardExpiry } from "./CardExpiry";
+import { CardHolder } from "./CardHolder";
 import { CardNumber } from "./CardNumber";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useCardReader } from "./useCardReader";
@@ -25,16 +26,38 @@ export function Card({ config }: { config: CardConfig }) {
   const ev = useEvervault();
   const { t } = useTranslations(DEFAULT_TRANSLATIONS, config?.translations);
 
-  const hidden = String(config?.hiddenFields ?? "").split(",");
+  const fields = useMemo(() => {
+    let result = config.fields ?? ["number", "expiry", "cvc"];
+
+    if (config.hiddenFields) {
+      result = (result as typeof config.hiddenFields).filter(
+        (field) => !config.hiddenFields?.includes(field)
+      );
+    }
+
+    return result;
+  }, [config]);
 
   const form = useForm<CardForm>({
     initialValues: {
       cvc: "",
       expiry: "",
       number: "",
+      name: "",
     },
     validate: {
+      name: (values) => {
+        if (!fields.includes("name")) return undefined;
+
+        if (values.name.length === 0) {
+          return "invalid";
+        }
+
+        return undefined;
+      },
       number: (values) => {
+        if (!fields.includes("number")) return undefined;
+
         const cardValidation = cardValidator.number(values.number);
         if (!cardValidation.isValid) {
           return "invalid";
@@ -43,6 +66,8 @@ export function Card({ config }: { config: CardConfig }) {
         return undefined;
       },
       expiry: (values) => {
+        if (!fields.includes("expiry")) return undefined;
+
         const expiry = cardValidator.expirationDate(values.expiry);
         if (!expiry.isValid) {
           return "invalid";
@@ -51,6 +76,8 @@ export function Card({ config }: { config: CardConfig }) {
         return undefined;
       },
       cvc: (values) => {
+        if (!fields.includes("cvc")) return undefined;
+
         const cardValidation = cardValidator.number(values.number);
         const validCVC = isCVCValid(values.cvc, cardValidation.card?.type);
         if (!validCVC) {
@@ -63,7 +90,12 @@ export function Card({ config }: { config: CardConfig }) {
     onChange: (formState) => {
       const triggerChange = async () => {
         if (!ev) return;
-        const cardData = await changePayload(ev, formState);
+        const cardData = await changePayload(ev, formState, fields);
+
+        if (cardData.isComplete) {
+          send("EV_COMPLETE", cardData);
+        }
+
         send("EV_CHANGE", cardData);
       };
 
@@ -73,6 +105,7 @@ export function Card({ config }: { config: CardConfig }) {
 
   const cardReaderListening = useCardReader((card) => {
     form.setValues({
+      name: `${card.firstName} ${card.lastName}`,
       number: card.number,
       expiry: `${card.month}/${card.year}`,
       cvc: "",
@@ -106,9 +139,30 @@ export function Card({ config }: { config: CardConfig }) {
     <fieldset
       ev-component="card"
       ev-valid={hasErrors ? "false" : "true"}
-      ev-hidden-fields={config.hiddenFields ? config.hiddenFields : undefined}
+      ev-fields={fields}
     >
-      {!hidden.includes("number") && (
+      {fields.includes("name") && (
+        <Field
+          name="name"
+          hasValue={form.values.name.length > 0}
+          error={form.errors?.name && t(`name.errors.${form.errors.name}`)}
+        >
+          <label htmlFor="name">{t("name.label")}</label>
+          <CardHolder
+            disabled={!config}
+            readOnly={cardReaderListening}
+            autoFocus={config.autoFocus}
+            placeholder={t("name.placeholder")}
+            value={form.values.name}
+            {...form.register("name")}
+          />
+          {form.errors?.name && (
+            <Error>{t(`name.errors.${form.errors.name}`)}</Error>
+          )}
+        </Field>
+      )}
+
+      {fields.includes("number") && (
         <Field
           name="number"
           hasValue={form.values.number.length > 0}
@@ -131,7 +185,7 @@ export function Card({ config }: { config: CardConfig }) {
         </Field>
       )}
 
-      {!hidden.includes("expiry") && (
+      {fields.includes("expiry") && (
         <Field
           name="expiry"
           hasValue={form.values.expiry.length > 0}
@@ -153,7 +207,7 @@ export function Card({ config }: { config: CardConfig }) {
         </Field>
       )}
 
-      {!hidden.includes("cvc") && (
+      {fields.includes("cvc") && (
         <Field
           name="cvc"
           hasValue={form.values.cvc.length > 0}

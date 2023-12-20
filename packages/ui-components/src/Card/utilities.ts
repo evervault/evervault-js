@@ -3,18 +3,19 @@ import cardValidator from "card-validator";
 import { UseFormReturn } from "../utilities/useForm";
 import { MagStripeData } from "./useCardReader";
 import type { CardForm } from "./types";
-import type { CardPayload, SwipedCard } from "types";
+import type { CardField, CardPayload, SwipedCard } from "types";
 
 export async function changePayload(
   ev: PromisifiedEvervaultClient,
-  form: UseFormReturn<CardForm>
+  form: UseFormReturn<CardForm>,
+  fields: CardField[]
 ): Promise<CardPayload> {
-  const { number, expiry, cvc } = form.values;
+  const { name, number, expiry, cvc } = form.values;
   const brand = cardBrand(number);
 
   return {
-    isValid: form.isValid,
     card: {
+      name,
       brand,
       number: await encryptedNumber(ev, number),
       lastFour: lastFour(number),
@@ -22,8 +23,34 @@ export async function changePayload(
       expiry: formatExpiry(expiry),
       cvc: await encryptedCVC(ev, cvc, brand),
     },
+    isValid: form.isValid,
+    isComplete: isComplete(form, fields),
     errors: Object.keys(form.errors ?? {}).length > 0 ? form.errors : null,
   };
+}
+
+function isComplete(form: UseFormReturn<CardForm>, fields: CardField[]) {
+  if (fields.includes("name")) {
+    if (form.values.name.length === 0) return false;
+  }
+
+  if (fields.includes("number")) {
+    const cardValidation = cardValidator.number(form.values.number);
+    if (!cardValidation.isValid) return false;
+  }
+
+  if (fields.includes("expiry")) {
+    const expiryValidation = cardValidator.expirationDate(form.values.expiry);
+    if (!expiryValidation.isValid) return false;
+  }
+
+  if (fields.includes("cvc")) {
+    const cardValidation = cardValidator.number(form.values.number);
+    const validCVC = isCVCValid(form.values.cvc, cardValidation.card?.type);
+    if (!validCVC) return false;
+  }
+
+  return true;
 }
 
 export async function swipePayload(
