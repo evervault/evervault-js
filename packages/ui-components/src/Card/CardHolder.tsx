@@ -1,5 +1,4 @@
-import { FocusEvent, useEffect, useRef } from "react";
-import { useMask } from "../utilities/useMask";
+import { FocusEvent } from "react";
 
 interface CardHolderProps {
   disabled?: boolean;
