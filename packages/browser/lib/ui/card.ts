@@ -14,6 +14,7 @@ interface CardEvents {
   ready: () => void;
   error: () => void;
   change: (payload: CardPayload) => void;
+  complete: (payload: CardPayload) => void;
   swipe: (payload: SwipedCard) => void;
 }
 
@@ -35,6 +36,10 @@ export default class Card {
       this.#events.dispatch("change", payload);
     });
 
+    this.#frame.on("EV_COMPLETE", (payload) => {
+      this.#events.dispatch("complete", payload);
+    });
+
     this.#frame.on("EV_SWIPE", (payload) => {
       this.#events.dispatch("swipe", payload);
     });
@@ -51,6 +56,7 @@ export default class Card {
         autoFocus: this.#options.autoFocus,
         translations: this.#options.translations,
         hiddenFields: (this.#options.hiddenFields ?? [])?.join(","),
+        fields: this.#options.fields,
       },
     };
   }

@@ -3,6 +3,7 @@ import * as React from "react";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useEvervault } from "../useEvervault";
 import type {
+  CardField,
   CardPayload,
   CardTranslations,
   SwipedCard,
@@ -12,20 +13,24 @@ import type {
 export interface CardProps {
   theme?: ThemeDefinition;
   translations?: CardTranslations;
+  fields?: CardField[];
   onReady?: () => void;
   onError?: () => void;
   onSwipe?: (data: SwipedCard) => void;
   onChange?: (data: CardPayload) => void;
+  onComplete?: (data: CardPayload) => void;
 }
 
 type CardClass = ReturnType<Evervault["ui"]["card"]>;
 
 export function Card({
   theme,
+  fields,
   onSwipe,
   onReady,
   onError,
   onChange,
+  onComplete,
   translations,
 }: CardProps) {
   const ev = useEvervault();
@@ -57,12 +62,19 @@ export function Card({
     return instance?.on("change", onChange);
   }, [instance, onChange]);
 
+  // setup complete event listener
+  useEffect(() => {
+    if (!instance || !onComplete) return undefined;
+    return instance?.on("complete", onComplete);
+  }, [instance, onComplete]);
+
   const config = useMemo(
     () => ({
       theme,
+      fields,
       translations,
     }),
-    [theme, translations]
+    [theme, translations, fields]
   );
 
   useLayoutEffect(() => {

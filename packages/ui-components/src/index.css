@@ -45,9 +45,11 @@ input {
   }
 }
 
-[ev-component="card"]:not([ev-hidden-fields]) .field:nth-child(2),
-[ev-component="card"]:not([ev-hidden-fields]) .field:nth-child(3) {
-  grid-column: auto;
+[ev-component="card"][ev-fields*="cvc"][ev-fields*="expiry"] {
+  & .field[ev-name="expiry"],
+  & .field[ev-name="cvc"] {
+    grid-column: auto;
+  }
 }
 
 [ev-component="pin"] {

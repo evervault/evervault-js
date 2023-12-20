@@ -132,10 +132,8 @@ export function useForm<T extends object>({
 
   const register = useCallback(
     <K extends keyof T>(name: K) => {
-      const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        if (e.target.value) {
-          validateField(name);
-        }
+      const handleBlur = () => {
+        validateField(name);
       };
 
       const handleChange = (value: T[K]) => {

@@ -83,25 +83,43 @@ export function minimal(extended?: ThemeDefinition): ThemeDefinition {
             display: "block",
           },
 
-        "& [ev-name=number]": {
-          marginBottom: "-1px",
+        "& [ev-valid=true]:nth-child(1) + [ev-valid=true]:nth-child(2) + [ev-valid=true]:nth-child(3) + [ev-valid=false] .error":
+          {
+            display: "block",
+          },
 
+        "& .field:not(:last-child)": {
+          marginBottom: "-1px",
+        },
+
+        "& .field:first-child": {
           "& input": {
             borderTopLeftRadius: 6,
             borderTopRightRadius: 6,
           },
         },
 
-        "& .field:nth-child(2) input": {
-          borderBottomLeftRadius: 6,
+        "& .field:last-child": {
+          "& input": {
+            borderBottomRightRadius: 6,
+            borderBottomLeftRadius: 6,
+          },
+        },
+      },
+
+      "[ev-component=card][ev-fields*=cvc][ev-fields*=expiry]": {
+        "& .field[ev-name=expiry]": {
+          "& input": {
+            borderBottomLeftRadius: 6,
+          },
         },
 
-        "& .field:nth-child(3)": {
+        "& .field[ev-name=cvc]": {
           marginLeft: "-1px",
-        },
 
-        "& .field:last-child input": {
-          borderBottomRightRadius: 6,
+          "& input": {
+            borderBottomLeftRadius: 0,
+          },
         },
       },
 
