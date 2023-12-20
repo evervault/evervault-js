@@ -1,5 +1,16 @@
 # @evervault/ui-components
 
+## 1.1.0
+
+### Minor Changes
+
+- 352e74b: Adds a new 'fields' option for Card components that can be used to configure which fields should be shown inside of the component. By default the number, expiry and cvc fields will be shown. The available options for fields are 'name', 'number', 'expiry' and 'cvc'
+
+### Patch Changes
+
+- Updated dependencies [352e74b]
+  - @evervault/react@2.5.0
+
 ## 1.0.4
 
 ### Patch Changes
