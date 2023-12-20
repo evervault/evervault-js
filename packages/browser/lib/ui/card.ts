@@ -55,7 +55,7 @@ export default class Card {
       config: {
         autoFocus: this.#options.autoFocus,
         translations: this.#options.translations,
-        hiddenFields: this.#options.hiddenFields,
+        hiddenFields: (this.#options.hiddenFields ?? [])?.join(","),
         fields: this.#options.fields,
       },
     };

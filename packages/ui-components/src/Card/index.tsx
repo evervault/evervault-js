@@ -28,11 +28,10 @@ export function Card({ config }: { config: CardConfig }) {
 
   const fields = useMemo(() => {
     let result = config.fields ?? ["number", "expiry", "cvc"];
+    const hidden = String(config?.hiddenFields ?? "").split(",");
 
-    if (config.hiddenFields) {
-      result = (result as typeof config.hiddenFields).filter(
-        (field) => !config.hiddenFields?.includes(field)
-      );
+    if (hidden.length > 0) {
+      result = result.filter((field) => !hidden?.includes(field));
     }
 
     return result;
