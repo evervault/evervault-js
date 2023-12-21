@@ -12,7 +12,16 @@ export type PinProps = PinOptions & {
 
 type PinClass = ReturnType<Evervault["ui"]["pin"]>;
 
-export function Pin({ theme, onReady, onChange, onError, length }: PinProps) {
+export function Pin({
+  theme,
+  autoFocus,
+  mode,
+  inputType,
+  length,
+  onReady,
+  onChange,
+  onError,
+}: PinProps) {
   const ev = useEvervault();
   const initialized = useRef(false);
   const [instance, setInstance] = React.useState<PinClass | null>(null);
@@ -40,8 +49,11 @@ export function Pin({ theme, onReady, onChange, onError, length }: PinProps) {
     () => ({
       theme,
       length,
+      autoFocus,
+      mode,
+      inputType,
     }),
-    [theme, length]
+    [theme, length, autoFocus, mode, inputType]
   );
 
   useLayoutEffect(() => {

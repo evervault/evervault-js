@@ -11,6 +11,7 @@ import type {
 } from "types";
 
 export interface CardProps {
+  autoFocus?: boolean;
   theme?: ThemeDefinition;
   translations?: CardTranslations;
   fields?: CardField[];
@@ -26,12 +27,13 @@ type CardClass = ReturnType<Evervault["ui"]["card"]>;
 export function Card({
   theme,
   fields,
+  autoFocus,
+  translations,
   onSwipe,
   onReady,
   onError,
   onChange,
   onComplete,
-  translations,
 }: CardProps) {
   const ev = useEvervault();
   const initialized = useRef(false);
@@ -72,9 +74,10 @@ export function Card({
     () => ({
       theme,
       fields,
+      autoFocus,
       translations,
     }),
-    [theme, translations, fields]
+    [theme, translations, fields, autoFocus]
   );
 
   useLayoutEffect(() => {
