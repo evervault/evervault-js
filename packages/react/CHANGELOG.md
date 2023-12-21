@@ -1,5 +1,15 @@
 # @evervault/react
 
+## 2.5.1
+
+### Patch Changes
+
+- 6e836fe: Some UI component options weren't available as React props.
+
+  - Adds autoFocus prop for Card and Pin Component.
+  - Adds mode prop for Pin component.
+  - Adds inputType prop for Pin component.
+
 ## 2.5.0
 
 ### Minor Changes

@@ -4,6 +4,12 @@
 
 ### Patch Changes
 
+- @evervault/ui-components@1.1.1
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [352e74b]
   - @evervault/ui-components@1.1.0
 

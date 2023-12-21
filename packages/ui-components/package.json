@@ -1,7 +1,7 @@
 {
   "name": "@evervault/ui-components",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "type": "module",
   "scripts": {
     "dev": "wait-on ../browser/dist && vite",
