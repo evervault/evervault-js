@@ -115,28 +115,6 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
 
-  e2e-tests/ui-components:
-    dependencies:
-      '@evervault/ui-components':
-        specifier: workspace:*
-        version: link:../../packages/ui-components
-      '@playwright/test':
-        specifier: ^1.40.1
-        version: 1.40.1
-
-  e2e-tests/ui-components/vanilla-test-server:
-    dependencies:
-      '@evervault/browser':
-        specifier: workspace:*
-        version: link:../../../packages/browser
-    devDependencies:
-      typescript:
-        specifier: ^5.0.2
-        version: 5.3.2
-      vite:
-        specifier: ^4.4.5
-        version: 4.5.1(@types/node@18.15.11)
-
   examples/collect-card-details:
     dependencies:
       '@evervault/browser':
@@ -446,6 +424,28 @@ importers:
       wait-on:
         specifier: ^7.2.0
         version: 7.2.0
+
+  packages/ui-components/tests:
+    dependencies:
+      '@evervault/ui-components':
+        specifier: workspace:*
+        version: link:..
+      '@playwright/test':
+        specifier: ^1.40.1
+        version: 1.40.1
+
+  packages/ui-components/tests/vanilla-test-server:
+    dependencies:
+      '@evervault/browser':
+        specifier: workspace:*
+        version: link:../../../browser
+    devDependencies:
+      typescript:
+        specifier: ^5.0.2
+        version: 5.3.3
+      vite:
+        specifier: ^4.4.5
+        version: 4.5.1(@types/node@18.15.11)
 
 packages:
 
@@ -8989,7 +8989,7 @@ packages:
     dependencies:
       '@types/node': 20.8.10
       esbuild: 0.18.20
-      postcss: 8.4.31
+      postcss: 8.4.32
       rollup: 3.29.4
     optionalDependencies:
       fsevents: 2.3.3
