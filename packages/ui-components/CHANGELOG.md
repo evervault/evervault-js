@@ -1,5 +1,12 @@
 # @evervault/ui-components
 
+## 1.1.2
+
+### Patch Changes
+
+- fcab244: Fix incorrect attribute values for card holder input
+- 9bb29c7: Prevent race condition when setting form values
+
 ## 1.1.1
 
 ### Patch Changes
