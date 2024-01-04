@@ -373,6 +373,9 @@ importers:
         specifier: workspace:*
         version: link:../types
     devDependencies:
+      '@playwright/test':
+        specifier: ^1.40.1
+        version: 1.40.1
       '@types/jsdom':
         specifier: ^21.1.6
         version: 21.1.6
@@ -424,15 +427,6 @@ importers:
       wait-on:
         specifier: ^7.2.0
         version: 7.2.0
-
-  packages/ui-components/tests:
-    dependencies:
-      '@evervault/ui-components':
-        specifier: workspace:*
-        version: link:..
-      '@playwright/test':
-        specifier: ^1.40.1
-        version: 1.40.1
 
   packages/ui-components/tests/vanilla-test-server:
     dependencies:
@@ -8989,7 +8983,7 @@ packages:
     dependencies:
       '@types/node': 20.8.10
       esbuild: 0.18.20
-      postcss: 8.4.32
+      postcss: 8.4.31
       rollup: 3.29.4
     optionalDependencies:
       fsevents: 2.3.3
