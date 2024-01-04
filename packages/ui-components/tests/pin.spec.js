@@ -1,4 +1,4 @@
-import { test, expect } from "../utils";
+import { test, expect } from "./utils";
 
 function typingDelay(min = 20, max = 100) {
   return Math.floor(Math.random() * (max - min) + min);
