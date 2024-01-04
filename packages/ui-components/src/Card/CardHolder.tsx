@@ -22,16 +22,14 @@ export function CardHolder({
   return (
     <input
       type="text"
-      id="number"
-      name="number"
+      id="name"
+      name="name"
       value={value}
       readOnly={readOnly}
-      inputMode="numeric"
       onBlur={onBlur}
       autoFocus={autoFocus}
       disabled={disabled}
       placeholder={placeholder}
-      pattern="[0-9]*"
       autoComplete="billing cc-name"
       onChange={(e) => onChange(e.target.value)}
     />
