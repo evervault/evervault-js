@@ -115,28 +115,6 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
 
-  e2e-tests/ui-components:
-    dependencies:
-      '@evervault/ui-components':
-        specifier: workspace:*
-        version: link:../../packages/ui-components
-      '@playwright/test':
-        specifier: ^1.40.1
-        version: 1.40.1
-
-  e2e-tests/ui-components/vanilla-test-server:
-    dependencies:
-      '@evervault/browser':
-        specifier: workspace:*
-        version: link:../../../packages/browser
-    devDependencies:
-      typescript:
-        specifier: ^5.0.2
-        version: 5.3.2
-      vite:
-        specifier: ^4.4.5
-        version: 4.5.1(@types/node@18.15.11)
-
   examples/collect-card-details:
     dependencies:
       '@evervault/browser':
@@ -395,6 +373,9 @@ importers:
         specifier: workspace:*
         version: link:../types
     devDependencies:
+      '@playwright/test':
+        specifier: ^1.40.1
+        version: 1.40.1
       '@types/jsdom':
         specifier: ^21.1.6
         version: 21.1.6
@@ -446,6 +427,19 @@ importers:
       wait-on:
         specifier: ^7.2.0
         version: 7.2.0
+
+  packages/ui-components/tests/vanilla-test-server:
+    dependencies:
+      '@evervault/browser':
+        specifier: workspace:*
+        version: link:../../../browser
+    devDependencies:
+      typescript:
+        specifier: ^5.0.2
+        version: 5.3.3
+      vite:
+        specifier: ^4.4.5
+        version: 4.5.1(@types/node@18.15.11)
 
 packages:
 

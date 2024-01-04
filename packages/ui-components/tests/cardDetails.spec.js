@@ -1,4 +1,4 @@
-import { test, expect, VALID_CARDS, INVALID_CARDS } from "../utils";
+import { test, expect, VALID_CARDS, INVALID_CARDS } from "./utils";
 
 test.describe("card component", () => {
   test.beforeEach(async ({ page }) => {

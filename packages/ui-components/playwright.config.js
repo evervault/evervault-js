@@ -67,7 +67,7 @@ export default defineConfig({
       timeout: 10 * 1000,
     },
     {
-      command: "pnpm -C ./vanilla-test-server dev --port 4005",
+      command: "pnpm -C ./tests/vanilla-test-server dev --port 4005",
       url: "http://localhost:4005",
       timeout: 10 * 1000,
     },
