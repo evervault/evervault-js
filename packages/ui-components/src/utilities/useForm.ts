@@ -69,19 +69,18 @@ export function useForm<T extends object>({
 
   const setValue = useCallback(
     <K extends keyof T>(field: K, value: T[K]) => {
-      const newValues = {
-        ...values,
-        [field]: value,
-      };
-
       if (errors?.[field]) {
         setError(field, undefined);
       }
 
-      setValues(newValues);
+      setValues((previous) => ({
+        ...previous,
+        [field]: value,
+      }));
+
       triggerChange.current = true;
     },
-    [values, errors, setError]
+    [errors, setError]
   );
 
   const isValid = useMemo(
