@@ -6,7 +6,7 @@ test.describe("reveal", () => {
     await page.waitForFunction(() => window.Evervault);
     // Create a window function for creating a decrypt request inside of the page. This is just a
     // helper to prevent having to have this code in every test.
-    const auth = btoa(process.env.EV_APP_UUID + ":" + process.env.EV_API_KEY);
+    const auth = btoa(`${process.env.EV_APP_UUID  }:${  process.env.EV_API_KEY}`);
     await page.evaluate(
       ([authToken, apiUrl]) => {
         window.decryptRequest = (data) =>
@@ -141,7 +141,7 @@ test.describe("reveal", () => {
 });
 
 async function encryptWithAPI(data) {
-  const auth = btoa(process.env.EV_APP_UUID + ":" + process.env.EV_API_KEY);
+  const auth = btoa(`${process.env.EV_APP_UUID  }:${  process.env.EV_API_KEY}`);
   const response = await fetch(`${process.env.VITE_API_URL}/encrypt`, {
     method: "POST",
     headers: {
