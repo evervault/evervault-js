@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["CI"],
+  "globalEnv": ["CI", "EV_APP_UUID", "EV_API_KEY", "VITE_API_URL"],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
