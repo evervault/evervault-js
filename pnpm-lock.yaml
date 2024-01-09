@@ -150,6 +150,19 @@ importers:
         specifier: ^4.4.5
         version: 4.5.1(@types/node@18.15.11)
 
+  examples/custom-theme:
+    dependencies:
+      '@evervault/browser':
+        specifier: workspace:*
+        version: link:../../packages/browser
+    devDependencies:
+      typescript:
+        specifier: ^5.0.2
+        version: 5.3.3
+      vite:
+        specifier: ^4.4.5
+        version: 4.5.1(@types/node@18.15.11)
+
   examples/react:
     dependencies:
       '@evervault/react':
@@ -8989,7 +9002,7 @@ packages:
     dependencies:
       '@types/node': 20.8.10
       esbuild: 0.18.20
-      postcss: 8.4.31
+      postcss: 8.4.32
       rollup: 3.29.4
     optionalDependencies:
       fsevents: 2.3.3

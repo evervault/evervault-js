@@ -1,0 +1,293 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Inter, sans-serif;
+}
+
+body {
+  padding: 200px 0;
+  background: #f5f5f5;
+}
+
+.container {
+  gap: 200px;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+}
+
+.left {
+  width: 100%;
+}
+
+.left h1 {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.left p {
+  color: #222;
+  font-size: 16px;
+  line-height: 1.75;
+  margin-bottom: 30px;
+}
+
+.left button {
+  color: white;
+  border: none;
+  font-size: 16px;
+  background: #63e;
+  appearance: none;
+  padding: 15px 20px;
+  border-radius: 10px;
+}
+
+.field {
+  margin-bottom: 20px;
+}
+
+.field input {
+  width: 100%;
+  padding: 15px;
+  outline: none;
+  font-size: 18px;
+  border: 2px solid #ccc;
+  background: transparent;
+}
+
+.field input:focus {
+  border-color: #63e;
+}
+
+.field input::placeholder {
+  color: #aaa;
+}
+
+.field label {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.right {
+  position: relative;
+}
+
+.background {
+  flex-shrink: 0;
+  position: relative;
+  transform: skew(-8deg, 4deg) rotate(5deg);
+}
+
+.block {
+  width: 320px;
+  height: 460px;
+  background: #63e;
+}
+
+.stripe:nth-child(1) {
+  top: -50px;
+  width: 30px;
+  left: -40px;
+  height: 380px;
+  background: #e5e5e5;
+  position: absolute;
+}
+
+.stripe:nth-child(3) {
+  bottom: -50px;
+  width: 30px;
+  right: -40px;
+  height: 380px;
+  background: #e5e5e5;
+  position: absolute;
+}
+
+.ticket {
+  top: 50%;
+  left: 50%;
+  width: 350px;
+  padding: 25px;
+  background: white;
+  position: absolute;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transform: scale(0.5) translate(-50%, -50%) rotate(-10deg);
+  opacity: 0;
+}
+
+.flight {
+  gap: 20px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #eee;
+  justify-content: space-between;
+}
+
+.path {
+  height: 1px;
+  width: 100%;
+  background: #eee;
+  position: relative;
+}
+
+.path img {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  top: -15px;
+  left: calc(50% - 15px);
+}
+
+.path .duration {
+  color: #999;
+  font-size: 11px;
+  position: absolute;
+  text-align: center;
+  left: 0;
+  right: 0;
+  bottom: -32px;
+}
+
+.airport {
+  flex-shrink: 0;
+  padding-top: 20px;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.airport h4 {
+  top: 0;
+  color: #999;
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 400;
+  width: 100px;
+  position: absolute;
+}
+
+.airport h3 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+
+.airport .date {
+  color: #999;
+  font-size: 12px;
+  bottom: 0;
+  width: 100px;
+  position: absolute;
+}
+
+.destination h4,
+.destination .date {
+  right: 0;
+  text-align: right;
+}
+
+.details {
+  gap: 10px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.detail:nth-child(3n) {
+  text-align: right;
+}
+
+.detail h5,
+.passenger h5,
+.price h5 {
+  color: #999;
+  font-size: 12px;
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+
+.detail h4,
+.passenger h4 {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.passengers {
+  gap: 10px;
+  display: flex;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  flex-direction: column;
+  border-bottom: 1px solid #eee;
+}
+
+.price {
+  text-align: right;
+}
+
+.price h4 {
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+
+.logo {
+  left: 25px;
+  bottom: 25px;
+  opacity: 0.25;
+  position: absolute;
+}
+
+body.ready .container {
+  opacity: 1;
+  transition: opacity 1s ease;
+}
+
+body.ready .ticket {
+  opacity: 1;
+  transition: 0.5s ease;
+  transition-delay: 0.1s;
+  transform: scale(1) translate(-50%, -50%) rotate(0deg);
+}
+
+#card {
+  width: 100%;
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.card-icon {
+  top: 16px;
+  right: 15px;
+  width: 35px;
+  height: 24px;
+  background: #ddd;
+  position: absolute;
+  border-radius: 3px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(10px);
+  transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+}
+
+.card-icon.show {
+  opacity: 1;
+  transform: translateX(0px);
+}
+
+.card-icon[data-type="visa"] {
+  background-image: url("data:image/svg+xml,%3Csvg width='35' height='24' viewBox='0 0 35 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg clip-path='url(%23clip0_9_36)'%3E%3Cg filter='url(%23filter0_d_9_36)'%3E%3Crect x='0.5' y='0.5' width='34' height='23' rx='1.5' fill='white' stroke='%23D9D9D9'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10.6252 16.2583H8.50491L6.91492 10.1924C6.83946 9.91335 6.67922 9.66667 6.44351 9.55041C5.85528 9.25823 5.20709 9.02571 4.49997 8.90844V8.6749H7.91564C8.38705 8.6749 8.74061 9.02571 8.79954 9.43313L9.62451 13.8087L11.7438 8.6749H13.8052L10.6252 16.2583ZM14.9838 16.2583H12.9813L14.6302 8.6749H16.6327L14.9838 16.2583ZM19.2233 10.7757C19.2822 10.3673 19.6358 10.1337 20.0483 10.1337C20.6965 10.0751 21.4026 10.1924 21.9918 10.4835L22.3454 8.85082C21.7561 8.61728 21.1079 8.50001 20.5197 8.50001C18.5761 8.50001 17.1619 9.55041 17.1619 11.0082C17.1619 12.1173 18.1637 12.6996 18.8708 13.0504C19.6358 13.4002 19.9304 13.6338 19.8715 13.9836C19.8715 14.5083 19.2822 14.7418 18.694 14.7418C17.9869 14.7418 17.2798 14.5669 16.6326 14.2747L16.279 15.9085C16.9862 16.1996 17.7512 16.3169 18.4583 16.3169C20.6375 16.3745 21.9918 15.3251 21.9918 13.75C21.9918 11.7665 19.2233 11.6502 19.2233 10.7757V10.7757ZM29 16.2583L27.41 8.6749H25.7022C25.3486 8.6749 24.995 8.90844 24.8772 9.25823L21.9329 16.2583H23.9943L24.4058 15.1502H26.9386L27.1743 16.2583H29ZM25.9968 10.7171L26.585 13.5751H24.9361L25.9968 10.7171Z' fill='%23172B85'/%3E%3C/g%3E%3C/g%3E%3Cdefs%3E%3Cfilter id='filter0_d_9_36' x='-20' y='-20' width='75' height='64' filterUnits='userSpaceOnUse' color-interpolation-filters='sRGB'%3E%3CfeFlood flood-opacity='0' result='BackgroundImageFix'/%3E%3CfeColorMatrix in='SourceAlpha' type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0' result='hardAlpha'/%3E%3CfeOffset/%3E%3CfeGaussianBlur stdDeviation='10'/%3E%3CfeComposite in2='hardAlpha' operator='out'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0'/%3E%3CfeBlend mode='normal' in2='BackgroundImageFix' result='effect1_dropShadow_9_36'/%3E%3CfeBlend mode='normal' in='SourceGraphic' in2='effect1_dropShadow_9_36' result='shape'/%3E%3C/filter%3E%3CclipPath id='clip0_9_36'%3E%3Crect width='35' height='24' fill='white'/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E%0A");
+}
+
+.card-icon[data-type="mastercard"] {
+  background-image: url("data:image/svg+xml,%3Csvg width='35' height='24' viewBox='0 0 35 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg clip-path='url(%23clip0_9_36)'%3E%3Crect x='0.5' y='0.5' width='34' height='23' rx='1.5' fill='white' stroke='%23D9D9D9'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M17.75 17.1569C16.5584 18.1852 15.0128 18.806 13.3238 18.806C9.55511 18.806 6.5 15.7154 6.5 11.903C6.5 8.09057 9.55511 5 13.3238 5C15.0128 5 16.5584 5.62075 17.75 6.64903C18.9416 5.62075 20.4872 5 22.1762 5C25.9449 5 29 8.09057 29 11.903C29 15.7154 25.9449 18.806 22.1762 18.806C20.4872 18.806 18.9416 18.1852 17.75 17.1569Z' fill='%23ED0006'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M17.75 17.1569C19.2172 15.8908 20.1475 14.0068 20.1475 11.903C20.1475 9.79917 19.2172 7.91516 17.75 6.64903C18.9416 5.62075 20.4872 5 22.1762 5C25.9449 5 29 8.09057 29 11.903C29 15.7154 25.9449 18.806 22.1762 18.806C20.4872 18.806 18.9416 18.1852 17.75 17.1569Z' fill='%23F9A000'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M17.75 17.1569C19.2172 15.8908 20.1475 14.0068 20.1475 11.903C20.1475 9.79919 19.2172 7.9152 17.75 6.64906C16.2828 7.9152 15.3525 9.79919 15.3525 11.903C15.3525 14.0068 16.2828 15.8908 17.75 17.1569Z' fill='%23FF5E00'/%3E%3C/g%3E%3Cdefs%3E%3CclipPath id='clip0_9_36'%3E%3Crect width='35' height='24' fill='white'/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E%0A");
+}
