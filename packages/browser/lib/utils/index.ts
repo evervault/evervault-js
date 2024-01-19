@@ -11,3 +11,4 @@ export { default as ecPointCompress } from "./ecPointCompress";
 export { default as buildCageKeyFromSuppliedPublicKey } from "./buildCageKeyFromSuppliedPublicKey";
 export { default as deriveSharedSecret } from "./deriveSharedSecret";
 export { default as crc32 } from "./crc32";
+export { default as getContext } from "./getContext";

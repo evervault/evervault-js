@@ -1,5 +1,6 @@
-import getConfig, { ConfigUrls, SdkContext } from "./config";
+import getConfig, { ConfigUrls } from "./config";
 import { CoreCrypto, Http, Forms, Input } from "./core";
+import { CageKey } from "./core/http";
 import { base64StringToUint8Array } from "./encoding";
 import UIComponents from "./ui";
 import {
@@ -8,6 +9,7 @@ import {
   extractDomain,
   buildCageKeyFromSuppliedPublicKey,
   deriveSharedSecret,
+  getContext,
 } from "./utils";
 import type { InputSettings, RevealSettings } from "./types";
 
@@ -21,6 +23,7 @@ export interface CustomConfig {
   isDebugMode?: boolean;
   urls?: ConfigUrls;
   publicKey?: string;
+  appKey?: CageKey;
 }
 
 export interface EvervaultRequestProps {
@@ -74,7 +77,7 @@ export default class EvervaultClient {
       customConfig?.publicKey
     );
 
-    const context = this.getContext(
+    const context = getContext(
       window?.location?.origin ?? "",
       this.config.input.inputsOrigin
     );
@@ -89,19 +92,59 @@ export default class EvervaultClient {
     this.forms = Forms(this);
     this.forms.register();
     this.input = Input(this.config);
-
-    this.#cryptoPromise = this.loadKeys();
+    this.#cryptoPromise = this.loadKeys(customConfig.appKey);
     this.ui = new UIComponents(this);
   }
 
+  static async init(
+    teamUuid: string,
+    appUuid: string,
+    customConfig: CustomConfig = {}
+  ): Promise<EvervaultClient> {
+    if (!Datatypes.isString(teamUuid)) {
+      throw new errors.InitializationError("teamId must be a string");
+    }
+    if (!Datatypes.isString(appUuid)) {
+      throw new errors.InitializationError("appId must be a string");
+    }
+
+    const config = getConfig(
+      teamUuid,
+      appUuid,
+      customConfig?.urls,
+      customConfig?.publicKey
+    );
+
+    const context = getContext(
+      window?.location?.origin ?? "",
+      config.input.inputsOrigin
+    );
+
+    const http = Http(config.http, config.teamId, config.appId, context);
+
+    const appKey = await http.getCageKey();
+
+    return new EvervaultClient(teamUuid, appUuid, {
+      ...customConfig,
+      appKey,
+    });
+  }
+
   // TODO: make this private
-  async loadKeys() {
-    const debugMode = this.config.encryption.publicKey
-      ? buildCageKeyFromSuppliedPublicKey(this.config.encryption.publicKey)
-      : this.isInDebugMode();
-    const cageKey = debugMode
-      ? this.config.debugKey
-      : await this.http.getCageKey();
+  async loadKeys(appPublicKey: CageKey | undefined) {
+    let appKey;
+    if (this.config.encryption.publicKey) {
+      appKey = buildCageKeyFromSuppliedPublicKey(
+        this.config.encryption.publicKey
+      );
+    } else if (this.isInDebugMode()) {
+      // debug mode being set true will override the public key
+      appKey = this.config.debugKey;
+    } else if (appPublicKey) {
+      appKey = appPublicKey;
+    } else {
+      appKey = await this.http.getCageKey();
+    }
 
     const keyPair = await window.crypto.subtle.generateKey(
       {
@@ -112,33 +155,19 @@ export default class EvervaultClient {
       ["deriveBits", "deriveKey"]
     );
 
-    // If config forced debug mode don't overwrite
-    if (!this.isInDebugMode()) {
-      this.#debugMode = cageKey.isDebugMode;
-    }
-
     const derivedAesKey = await deriveSharedSecret(
       keyPair,
-      cageKey.ecdhP256KeyUncompressed,
+      appKey.ecdhP256KeyUncompressed,
       keyPair.publicKey
     );
 
     return new CoreCrypto(
-      base64StringToUint8Array(cageKey.ecdhP256Key),
+      base64StringToUint8Array(appKey.ecdhP256Key),
       keyPair.publicKey,
       derivedAesKey,
       this.config.encryption,
       this.isInDebugMode()
     );
-  }
-
-  // TODO: make this private and static
-  // eslint-disable-next-line class-methods-use-this
-  getContext(origin: string, inputsUrl: string): SdkContext {
-    if (origin === inputsUrl) {
-      return "inputs";
-    }
-    return "default";
   }
 
   /**
