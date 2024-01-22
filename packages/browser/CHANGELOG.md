@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.19.0
+
+### Minor Changes
+
+- 36b1cda: Add async init function to initialize the SDK
+
 ## 2.18.0
 
 ### Minor Changes
