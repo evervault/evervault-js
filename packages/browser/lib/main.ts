@@ -178,10 +178,7 @@ export default class EvervaultClient {
   }
 
   /**
-   * Initializes Evervault Inputs. Evervault Inputs makes it easy to collect encrypted cardholder data in a completely PCI-compliant environment.
-   * Evervault Inputs are served within an iFrame retrieved directly from Evervault’s PCI-compliant infrastructure, which can reduce your PCI DSS compliance scope to the simplest form (SAQ A).
-   * Simply pass the ID of the element in which the iFrame should be embedded.
-   * We also support themes and custom styles so you can customise how Inputs looks in your UI.
+   * Encrypts data using Evervaults encryption scheme.
    * @param data - The data to encrypt.
    * @returns The encrypted data.
    */
