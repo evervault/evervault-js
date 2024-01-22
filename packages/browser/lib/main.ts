@@ -102,10 +102,10 @@ export default class EvervaultClient {
     customConfig: CustomConfig = {}
   ): Promise<EvervaultClient> {
     if (!Datatypes.isString(teamUuid)) {
-      throw new errors.InitializationError("teamId must be a string");
+      throw new errors.InitializationError("teamUuid must be a string");
     }
     if (!Datatypes.isString(appUuid)) {
-      throw new errors.InitializationError("appId must be a string");
+      throw new errors.InitializationError("appUuid must be a string");
     }
 
     const config = getConfig(
