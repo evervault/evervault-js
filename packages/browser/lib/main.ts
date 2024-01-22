@@ -1,4 +1,4 @@
-import getConfig, { ConfigUrls } from "./config";
+import getConfig, { ConfigUrls, SdkContext } from "./config";
 import { CoreCrypto, Http, Forms, Input } from "./core";
 import { CageKey } from "./core/http";
 import { base64StringToUint8Array } from "./encoding";
@@ -128,6 +128,13 @@ export default class EvervaultClient {
       ...customConfig,
       appKey,
     });
+  }
+
+  getContext(origin: string, inputsUrl: string): SdkContext {
+    if (origin === inputsUrl) {
+      return "inputs";
+    }
+    return "default";
   }
 
   // TODO: make this private
