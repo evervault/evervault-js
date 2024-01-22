@@ -53,7 +53,7 @@ export default function Http(
       };
     } catch (err) {
       throw new errors.CageKeyError(
-        "An error occurred while retrieving the cage's key",
+        "An error occurred while retrieving the apps key",
         { cause: err }
       );
     }
