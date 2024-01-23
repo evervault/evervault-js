@@ -6,18 +6,19 @@ Evervault JavaScript SDK.
 
 This is a monorepo managed with [Turborepo](https://turbo.fyi/) and [pnpm workspaces](https://pnpm.io/workspaces).
 
-Top level folders are as such:
-
-- `packages` - Public packages. Detailed below.
+- `packages/browser` - [Evervault JavaScript SDK for the browser.](https://docs.evervault.com/sdks/javascript).
+- `packages/react` - [The React SDK](https://docs.evervault.com/sdks/react)
+- `packages/inputs` - The codebase for Inputs
+- `packages/ui-components` - The codebase for UI Components.
+- `packages/themes` - An internal package for UI Component themes
+- `packages/types` - An internal package for types that are shared between multiple packages
+- `packages/eslint-config-custom` - A project wide custom eslint config
+- `packages/tsconfig` - A project wide tsconfig
 - `e2e-tests` - End to end tests for the packages.
 - `e2e-apps` - Skeleton apps using packages that are then targed by the e2e tests.
 - `ev-functions` - [Evervault Functions](https://docs.evervault.com/products/functions) that are used by the e2e tests. Mostly to test decryption.
+- `examples` - A folder of different examples using the JS and React SDK.
 - `statics` - Contains a few static JSON files served from the browser endpoint that barely change.
-
-## Packages
-
-- `@evervault/browser` - [Evervault JavaScript SDK for the browser.](https://docs.evervault.com/sdks/javascript) Lives under `packages/browser`.
-- `@evervault/inputs` - [Our simple and secure way to collect cardholder data.](https://docs.evervault.com/products/inputs) This packages included the HTML and JS that Evervault hosts that is embedded in an iframe by clients. Lives under`packages/inputs`
 
 ## Setup
 
@@ -28,7 +29,7 @@ First get a node version manager to install node. Any version manager that suppo
 
 Install node with your version manager and ensure `node -v` maches the version in `.nvmrc`.
 
-Set up `pnpm` with:
+Set up [pnpm](https://pnpm.io/) with:
 
 ```bash
 # Corepack is recommended for local setup but is still in beta
@@ -55,6 +56,14 @@ Install the dependencies with:
 ```bash
 pnpm install
 ```
+
+Create a .env file in the project root. You can use the [`.env.example`](.env.example) file as a template for the variables you will need to set.
+
+## Development
+
+The best way to work on the SDK's is by using one of the example projects. If you run `pnpm dev` in the project root you will be prompted to choose which example project you want to work with. After selecting one, it and all of its dependendies will be run in development mode and any changes you make will be updated immediately.
+
+The example project will be available on [localhost:4000](https://localhost:4000) after it has started up.
 
 ## Remote caching
 

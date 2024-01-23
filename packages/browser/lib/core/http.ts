@@ -53,7 +53,7 @@ export default function Http(
       };
     } catch (err) {
       throw new errors.CageKeyError(
-        "An error occurred while retrieving the cage's key",
+        "An error occurred while retrieving the apps key",
         { cause: err }
       );
     }
@@ -70,18 +70,15 @@ export default function Http(
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
         },
-        body: JSON.stringify({
-          data,
-        }),
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const body = (await response.json()) as { data: { value: T } };
-
-      return body.data;
+      const body = (await response.json()) as { value: T };
+      return body;
     } catch (err) {
       throw new errors.DecryptError(
         "An error occurred while decrypting the data",

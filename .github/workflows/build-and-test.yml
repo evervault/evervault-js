@@ -31,6 +31,8 @@ jobs:
       VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
       TURBO_TEAM: ${{ inputs.TURBO_TEAM }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      EV_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      VITE_API_URL: https://api.evervault.com
 
     steps:
       - name: Check out code
@@ -52,13 +54,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: pnpm exec playwright install --with-deps
 
       - name: Build
         run: pnpm build
-
-      - name: Unit test
-        run: pnpm test
 
       - name: Formats check
         run: pnpm run format:check
@@ -68,6 +67,9 @@ jobs:
 
       - name: eslint check
         run: pnpm run lint
+
+      - name: Unit test
+        run: pnpm test
 
       - name: E2E test
         run: pnpm run e2e:test

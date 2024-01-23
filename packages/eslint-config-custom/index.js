@@ -21,7 +21,9 @@ module.exports = {
     // Apply special parsing for TypeScript files
     "import/parsers": { "@typescript-eslint/parser": [".ts", ".tsx", ".d.ts"] },
     "import/resolver": {
-      node: { extensions: [".mjs", ".js", ".json", ".ts", ".d.ts"] },
+      node: {
+        extensions: [".jsx", ".tsx", ".mjs", ".js", ".json", ".ts", ".d.ts"],
+      },
     },
   },
   rules: {
@@ -38,14 +40,16 @@ module.exports = {
       { ts: "never", js: "never", mjs: "never", jsx: "never", tsx: "never" },
     ],
     "import/no-extraneous-dependencies": [
-      "error",
+      "warn",
       {
         devDependencies: [
           "**/postcss.config.js",
-          "**/vite.config.mts",
+          "**/vite.config.*",
           "**/test/*",
           "**/*.test.*",
           "**/*.spec.*",
+          "**/vite/integrity.ts",
+          "**/examples/index.js",
         ],
       },
     ],

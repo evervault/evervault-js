@@ -1,5 +1,47 @@
 # @evervault/react
 
+## 2.5.1
+
+### Patch Changes
+
+- 6e836fe: Some UI component options weren't available as React props.
+
+  - Adds autoFocus prop for Card and Pin Component.
+  - Adds mode prop for Pin component.
+  - Adds inputType prop for Pin component.
+
+## 2.5.0
+
+### Minor Changes
+
+- 352e74b: Adds a new 'fields' option for Card components that can be used to configure which fields should be shown inside of the component. By default the number, expiry and cvc fields will be shown. The available options for fields are 'name', 'number', 'expiry' and 'cvc'
+
+## 2.4.0
+
+### Minor Changes
+
+- 3cb8eca: Adds decrypt function to React SDK
+
+## 2.3.2
+
+### Patch Changes
+
+- 8aef7ed: Improved type definitions
+
+## 2.3.1
+
+### Patch Changes
+
+- 334052a: Remove bundledDependencies from package.json
+
+## 2.3.0
+
+### Minor Changes
+
+- 2b86a33: Adds UI Components
+
+  You can read more about UI Components, and how to upgrade from Inputs here: https://docs.evervault.com/primitives/ui-components
+
 ## 2.2.2
 
 ### Patch Changes

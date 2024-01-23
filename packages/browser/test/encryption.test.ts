@@ -6,11 +6,15 @@ import { setupCrypto } from "./setup";
 
 const encryptedStringRegex =
   /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
+const debugStringRegex =
+  /((ev(:|%3A))(debug(:|%3A))(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
 
 declare module "vitest" {
   export interface TestContext {
     ev: Evervault;
     evDebug: Evervault;
+    evClient: Evervault;
+    evCustomClient: Evervault;
   }
 }
 
@@ -30,11 +34,6 @@ describe("Encryption", () => {
     context.ev = new Evervault(
       import.meta.env.VITE_EV_TEAM_UUID,
       import.meta.env.VITE_EV_APP_UUID
-    );
-    context.evDebug = new Evervault(
-      import.meta.env.VITE_EV_TEAM_UUID,
-      import.meta.env.VITE_EV_APP_UUID,
-      { isDebugMode: true }
     );
   });
 
@@ -69,6 +68,58 @@ describe("Encryption", () => {
     assert(encryptedStringRegex.test(encryptedObject.employer.location));
     assert(encryptedStringRegex.test(encryptedObject.employer.current));
     assert(encryptedStringRegex.test(encryptedObject.yearOfBirth));
+  });
+});
+
+describe("Encryption with debug mode", () => {
+  beforeEach((context) => {
+    setupCrypto();
+    context.evDebug = new Evervault(
+      import.meta.env.VITE_EV_TEAM_UUID,
+      import.meta.env.VITE_EV_APP_UUID,
+      {
+        isDebugMode: true,
+        publicKey:
+          "BBbnMmMn9F/X7ukiRZLvOArwcSQjjpp+o++f3+J11TSHO5FCS69aBrgwax+AfJH0JApVcIH5eY/0lKkQMTa5r7c=",
+      }
+    );
+  });
+
+  it("enforces debug mode even if config contains a public key", async (context) => {
+    const string = "hello world";
+
+    const encryptedString = await context.evDebug.encrypt(string);
+    assert(debugStringRegex.test(encryptedString));
+  });
+
+  it("does not enforce debug mode when config has public key and debugMode is false", async () => {
+    const evDebug = new Evervault(
+      import.meta.env.VITE_EV_TEAM_UUID,
+      import.meta.env.VITE_EV_APP_UUID,
+      {
+        isDebugMode: false,
+        publicKey:
+          "BBbnMmMn9F/X7ukiRZLvOArwcSQjjpp+o++f3+J11TSHO5FCS69aBrgwax+AfJH0JApVcIH5eY/0lKkQMTa5r7c=",
+      }
+    );
+    const string = "hello world";
+
+    const encryptedString = await evDebug.encrypt(string);
+
+    expect(debugStringRegex.test(encryptedString)).toBe(false);
+  });
+
+  it("should use debug encryption if set in the config", async () => {
+    const evDebug = new Evervault(
+      import.meta.env.VITE_EV_TEAM_UUID,
+      import.meta.env.VITE_EV_APP_UUID,
+      { isDebugMode: true }
+    );
+    const string = "hello world";
+
+    const encryptedString = await evDebug.encrypt(string);
+
+    expect(debugStringRegex.test(encryptedString)).toBe(true);
   });
 });
 
@@ -195,5 +246,57 @@ describe("File Encryption", () => {
     await expect(() => context.ev.encrypt(blob)).rejects.toThrowError(
       /File size must be less than 25MB/
     );
+  });
+});
+
+describe("Encryption with evervault async initailization", () => {
+  beforeEach(async (context) => {
+    setupCrypto();
+    context.evClient = await Evervault.init(
+      import.meta.env.VITE_EV_TEAM_UUID,
+      import.meta.env.VITE_EV_APP_UUID
+    );
+    context.evDebug = await Evervault.init(
+      import.meta.env.VITE_EV_TEAM_UUID,
+      import.meta.env.VITE_EV_APP_UUID,
+      { isDebugMode: true }
+    );
+    context.evCustomClient = await Evervault.init(
+      import.meta.env.VITE_EV_TEAM_UUID,
+      import.meta.env.VITE_EV_APP_UUID,
+      {
+        publicKey:
+          "BBbnMmMn9F/X7ukiRZLvOArwcSQjjpp+o++f3+J11TSHO5FCS69aBrgwax+AfJH0JApVcIH5eY/0lKkQMTa5r7c=",
+      }
+    );
+  });
+
+  it("encrypts a string", async (context) => {
+    const encryptedString = await context.evClient.encrypt("Big Secret");
+    assert(encryptedStringRegex.test(encryptedString));
+  });
+
+  it("encrypts a string in debug mode", async (context) => {
+    const encryptedString = await context.evDebug.encrypt("Big Secret");
+    assert(debugStringRegex.test(encryptedString));
+  });
+
+  it("encrypts with a user defined key", async (context) => {
+    const encryptedString = await context.evCustomClient.encrypt("Big Secret");
+    assert(encryptedStringRegex.test(encryptedString));
+  });
+
+  it("throws an error if getting app key fails", async () => {
+    await expect(
+      Evervault.init(
+        import.meta.env.VITE_EV_TEAM_UUID,
+        import.meta.env.VITE_EV_APP_UUID,
+        {
+          urls: {
+            keysUrl: "http://maformed.",
+          },
+        }
+      )
+    ).rejects.toThrowError("An error occurred while retrieving the apps key");
   });
 });

@@ -16,6 +16,8 @@ encryptForm.addEventListener("submit", async (e) => {
   const value = formData.get("ev-encrypt-input");
   const encryptedValue = await ev.encrypt(value);
 
+  const tokenPayload = encryptedValue;
+
   const fnPlayload = {
     encrypted: encryptedValue,
     unencrypted: value,
@@ -30,7 +32,20 @@ encryptForm.addEventListener("submit", async (e) => {
     body: JSON.stringify(fnPlayload),
   });
 
-  if (result.ok) {
+  const resultToken = await fetch("/api/create-decrypt-token", {
+    method: "POST",
+    mode: "cors",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(tokenPayload),
+  });
+  const parsedTokenResponse = await resultToken.json();
+  const decryptTokenResponse = await ev.decrypt(
+    parsedTokenResponse,
+    tokenPayload
+  );
+  if (result.ok && decryptTokenResponse === value) {
     const data = await result.json();
     if (data.success) {
       document.getElementById("ev-encrypt-output").innerHTML = encryptedValue;

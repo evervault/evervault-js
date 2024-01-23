@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="http://localhost:4002/evervault-browser.main.umd.cjs"></script>
+  </head>
+
+  <body>
+    Test Vanilla Server
+    <div id="form"></div>
+    <script>
+      window.evervault = new Evervault(
+        "%VITE_EV_TEAM_UUID%",
+        "%VITE_EV_APP_UUID%",
+        {
+          urls: {
+            keysUrl: "https://keys.evervault.com",
+            componentsUrl: "http://localhost:4001",
+          },
+        }
+      );
+    </script>
+  </body>
+</html>

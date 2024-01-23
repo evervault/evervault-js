@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>Everair</title>
+    <script src="%VITE_EVERVAULT_JS_URL%"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="left">
+        <h1>Confirm your flight</h1>
+        <p>
+          Please enter your payment details to confirm your flight. By clicking
+          submit you agree to some stuff.
+        </p>
+        <div class="field">
+          <label>Card Holder</label>
+          <input id="holder" placeholder="Card Holder" />
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input placeholder="Email Address" />
+        </div>
+        <div class="field">
+          <label>Card Details</label>
+          <div id="card">
+            <div class="card-icon"></div>
+          </div>
+        </div>
+        <button>Pay & Confirm</button>
+      </div>
+
+      <div class="right">
+        <div class="background">
+          <div class="stripe"></div>
+          <div class="block"></div>
+          <div class="stripe"></div>
+        </div>
+        <div class="ticket">
+          <div class="flight">
+            <div class="airport">
+              <h4>Dublin</h4>
+              <h3>DUB</h3>
+              <div class="date">24 Dec, 2023</div>
+            </div>
+
+            <div class="path">
+              <img src="/plane.png" />
+              <div class="duration">11:00h</div>
+            </div>
+
+            <div class="airport destination">
+              <h4>San Francisco</h4>
+              <h3>SFO</h3>
+              <div class="date">24 Dec, 2023</div>
+            </div>
+          </div>
+
+          <div class="details">
+            <div class="detail">
+              <h5>Departure Time</h5>
+              <h4>12:00</h4>
+            </div>
+
+            <div class="detail">
+              <h5>Flight</h5>
+              <h4>EV 256</h4>
+            </div>
+
+            <div class="detail">
+              <h5>Seat</h5>
+              <h4>12C</h4>
+            </div>
+
+            <div class="detail">
+              <h5>Arrival Time</h5>
+              <h4>15:00</h4>
+            </div>
+
+            <div class="detail">
+              <h5>Terminal</h5>
+              <h4>T5</h4>
+            </div>
+
+            <div class="detail">
+              <h5>Gate</h5>
+              <h4>A12</h4>
+            </div>
+          </div>
+
+          <div class="passengers">
+            <div class="passenger">
+              <h5>Passenger 1</h5>
+              <h4>Whitfield Diffie</h4>
+            </div>
+            <div class="passenger">
+              <h5>Passenger 2</h5>
+              <h4>Adi Shamir</h4>
+            </div>
+          </div>
+
+          <div class="price">
+            <h5>Total Price</h5>
+            <h4>€ 1,200</h4>
+          </div>
+
+          <svg
+            class="logo"
+            width="30"
+            height="32"
+            viewBox="0 0 30 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M1.14862 4.19974C0.496279 4.55579 0.0698722 5.21436 0.00740762 5.94869C0.0032819 5.89293 0.000798848 5.83679 0 5.78033V12.8921C0.00103049 12.8457 0.00351081 12.7996 0.00740746 12.7538C0.0909295 13.8828 0.847708 14.8587 1.9342 15.2145L3.25664 15.6476L1.14862 16.7982C0.496279 17.1542 0.0698722 17.8128 0.00740762 18.5472C0.0032819 18.4914 0.000798848 18.4352 0 18.3788V25.4905C0.00103049 25.4442 0.00351081 25.3981 0.00740746 25.3523C0.0909295 26.4813 0.847708 27.4571 1.9342 27.8129L12.5677 31.2954C16.2869 32.5135 20.3443 32.1409 23.7794 30.2659L28.2966 27.8003C28.949 27.4442 29.3754 26.7856 29.4378 26.0513C29.4419 26.1071 29.4444 26.1632 29.4452 26.2197V19.1079C29.4442 19.1543 29.4417 19.2004 29.4378 19.2462C29.3543 18.1172 28.5975 17.1414 27.511 16.7855L26.1886 16.3524L28.2966 15.2018C28.949 14.8457 29.3754 14.1872 29.4378 13.4529C29.4419 13.5086 29.4444 13.5647 29.4452 13.6212V6.50945C29.4442 6.5558 29.4417 6.60191 29.4378 6.64772C29.3543 5.51875 28.5975 4.5429 27.511 4.18705L16.8776 0.7046C13.1583 -0.513462 9.10096 -0.140893 5.6658 1.73411L1.14862 4.19974ZM4.40325 16.0231L1.56974 17.5697C1.15528 17.7959 0.892468 18.2251 0.878962 18.6964V18.8977C0.89492 19.9683 1.6256 20.9112 2.69769 21.2445L3.29518 21.4303L7.82865 18.9558C8.68608 18.4878 9.6101 18.1806 10.5566 18.0383L4.40325 16.0231ZM17.5136 19.3916C19.6855 19.3102 21.8324 18.7302 23.7794 17.6674L25.1296 16.9305L27.2375 17.6208C28.0191 17.8768 28.5523 18.5998 28.5663 19.4214V19.5485C28.5498 20.2531 28.1379 20.8955 27.4862 21.2332L25.8018 22.106L17.5136 19.3916ZM12.6963 11.7546L4.46402 9.19521L8.24977 7.12884C10.0361 6.15383 12.1458 5.96006 14.0799 6.59349L24.7081 10.0743L23.2387 10.8357C20.0087 12.5094 16.1935 12.8419 12.6963 11.7546ZM14.3534 5.75818L25.8018 9.50753L27.4862 8.63472C28.1379 8.29704 28.5498 7.6546 28.5663 6.95008V6.8229C28.5523 6.00136 28.0191 5.27838 27.2375 5.02235L16.604 1.53991C13.1152 0.397316 9.30922 0.746802 6.08692 2.50563L1.56974 4.97125C1.15528 5.19747 0.892468 5.6266 0.878962 6.09795V6.29923C0.89492 7.36988 1.6256 8.31274 2.69769 8.64606L3.29518 8.83182L7.82865 6.35733C9.82778 5.26614 12.189 5.04928 14.3534 5.75818ZM12.6963 24.3531L4.46402 21.7937L8.24977 19.7273C10.0361 18.7523 12.1458 18.5585 14.0799 19.1919L24.7081 22.6727L23.2387 23.4341C20.0087 25.1078 16.1935 25.4404 12.6963 24.3531Z"
+              fill="black"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

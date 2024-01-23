@@ -1,5 +1,45 @@
 # @evervault/browser
 
+## 2.19.0
+
+### Minor Changes
+
+- 36b1cda: Add async init function to initialize the SDK
+
+## 2.18.0
+
+### Minor Changes
+
+- 352e74b: Adds a new 'fields' option for Card components that can be used to configure which fields should be shown inside of the component. By default the number, expiry and cvc fields will be shown. The available options for fields are 'name', 'number', 'expiry' and 'cvc'
+
+## 2.17.0
+
+### Minor Changes
+
+- df5d317: Adds UI Components
+
+  You can read more about UI Components, and how to upgrade from Inputs here: https://docs.evervault.com/primitives/ui-components
+
+## 2.16.0
+
+### Minor Changes
+
+- 2b86a33: Adds UI Components
+
+  You can read more about UI Components, and how to upgrade from Inputs here: https://docs.evervault.com/primitives/ui-components
+
+## 2.15.1
+
+### Patch Changes
+
+- 84ee172: Fix casting issue in the response of the `decrypt()` function
+
+## 2.15.0
+
+### Minor Changes
+
+- 5a2c188: Patch a bug caused by wrapping the payload in the `decrypt()` function in an object.
+
 ## 2.14.2
 
 ### Patch Changes

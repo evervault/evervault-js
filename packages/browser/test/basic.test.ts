@@ -1,8 +1,8 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import { describe, assert, it, beforeAll, afterAll, afterEach } from "vitest";
-
 import EvervaultClient from "../lib/main";
+import { getContext } from "../lib/utils";
 import { DecryptError } from "../lib/utils/errors";
 import { setupCrypto } from "./setup";
 
@@ -29,24 +29,16 @@ describe("customConfig", () => {
 
 describe("Resolving SDK Context", () => {
   it("Is able to correctly resolve the SDK context", () => {
-    const ev = new EvervaultClient(
-      import.meta.env.VITE_EV_TEAM_UUID,
-      import.meta.env.VITE_EV_APP_UUID,
-      {
-        publicKey:
-          "BDeIKmwjqB35+tnMzQFEvXIvM2kyK6DX75NBEhSZxCR5CQZYnh1fwWsXMEqqKihmEGfMX0+EDHtmZNP/TK7mqMc=",
-      }
-    );
     // SDK in an inputs iFrame should always resolve `inputs` context
     assert(
-      ev.getContext(
+      getContext(
         "https://inputs.evervault.com",
         "https://inputs.evervault.com"
       ) === "inputs"
     );
     // SDK on a non-inputs iFrame should always resolve `default` context
     assert(
-      ev.getContext("https://app.acme.com", "https://inputs.evervault.com") ===
+      getContext("https://app.acme.com", "https://inputs.evervault.com") ===
         "default"
     );
   });
@@ -54,9 +46,7 @@ describe("Resolving SDK Context", () => {
 
 const execToken = "abcdefg";
 const decrypted = {
-  data: {
-    value: "Big Secret",
-  },
+  value: "Big Secret",
 };
 
 export const restHandlers = [
@@ -88,7 +78,7 @@ describe("decrypt", () => {
     it("decrypts correctly", async () => {
       const ev = new EvervaultClient("abcdefg", "uppa");
       const result = await ev.decrypt(execToken, "encryptedString");
-      assert(result.value === decrypted.data.value);
+      assert(result.value === decrypted.value);
     });
   });
 

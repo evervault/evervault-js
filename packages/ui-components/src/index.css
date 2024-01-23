@@ -1,0 +1,62 @@
+* {
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
+  box-sizing: border-box;
+  font-family: inherit;
+  line-height: inherit;
+}
+
+html,
+body {
+  font-size: 16px;
+  overflow: hidden;
+  background: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+fieldset {
+  border: none;
+  position: relative;
+}
+
+input {
+  width: 100%;
+  border: none;
+  outline: none;
+  line-height: 1;
+  appearance: none;
+  font-size: inherit;
+  background: transparent;
+}
+
+[ev-component="card"] {
+  gap: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  @media (max-width: 250px) {
+    grid-template-columns: 1fr;
+  }
+
+  & .field {
+    grid-column: 1 / -1;
+  }
+}
+
+[ev-component="card"][ev-fields*="cvc"][ev-fields*="expiry"] {
+  & .field[ev-name="expiry"],
+  & .field[ev-name="cvc"] {
+    grid-column: auto;
+  }
+}
+
+[ev-component="pin"] {
+  gap: 10px;
+  display: flex;
+
+  & input {
+    text-align: center;
+  }
+}
