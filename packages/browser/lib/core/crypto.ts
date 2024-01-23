@@ -293,26 +293,19 @@ export class CoreCrypto {
       ["encrypt"]
     );
 
-    let version: string;
-    let dataToEncrypt: Uint8Array;
-    if (role != null) {
-      version = this.#config.versions.LCY;
-      const metadataBytes = CoreCrypto.#buildMetadata(
-        Math.floor(Date.now() / 1000),
-        role
-      );
-      const metadataOffset = new Uint8Array(2); // Metadata size as a 2 bytes little-endian unsigned integer
-      metadataOffset[0] = metadataBytes.length & 0xff;
-      metadataOffset[1] = (metadataBytes.length >> 8) & 0xff;
-      dataToEncrypt = concatUint8Arrays([
-        metadataOffset,
-        metadataBytes,
-        utf8StringToUint8Array(str),
-      ]);
-    } else {
-      version = this.#config.versions.NOC;
-      dataToEncrypt = utf8StringToUint8Array(str);
-    }
+    const version = this.#config.versions.LCY;
+    const metadataBytes = CoreCrypto.#buildMetadata(
+      Math.floor(Date.now() / 1000),
+      role
+    );
+    const metadataOffset = new Uint8Array(2); // Metadata size as a 2 bytes little-endian unsigned integer
+    metadataOffset[0] = metadataBytes.length & 0xff;
+    metadataOffset[1] = (metadataBytes.length >> 8) & 0xff;
+    const dataToEncrypt: Uint8Array = concatUint8Arrays([
+      metadataOffset,
+      metadataBytes,
+      utf8StringToUint8Array(str),
+    ]);
 
     const encryptedBuffer = await window.crypto.subtle.encrypt(
       {
