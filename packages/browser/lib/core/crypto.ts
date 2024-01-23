@@ -207,23 +207,21 @@ export class CoreCrypto {
     );
 
     let encryptedMetadataBytes: Uint8Array;
-    if (role) {
-      const metadataBytes = CoreCrypto.#buildMetadata(
-        Math.floor(Date.now() / 1000),
-        role
-      );
-      const encryptedMetadataByteBuffer = await window.crypto.subtle.encrypt(
-        {
-          name: "AES-GCM",
-          iv: keyIv,
-          tagLength: this.#config.authTagLength,
-          additionalData: this.#ecdhTeamKey,
-        },
-        derivedSecretImported,
-        metadataBytes
-      );
-      encryptedMetadataBytes = new Uint8Array(encryptedMetadataByteBuffer);
-    }
+    const metadataBytes = CoreCrypto.#buildMetadata(
+      Math.floor(Date.now() / 1000),
+      role
+    );
+    const encryptedMetadataByteBuffer = await window.crypto.subtle.encrypt(
+      {
+        name: "AES-GCM",
+        iv: keyIv,
+        tagLength: this.#config.authTagLength,
+        additionalData: this.#ecdhTeamKey,
+      },
+      derivedSecretImported,
+      metadataBytes
+    );
+    encryptedMetadataBytes = new Uint8Array(encryptedMetadataByteBuffer);
 
     return new Promise((resolve, reject) => {
       const reader = new window.FileReader();
@@ -405,7 +403,8 @@ export class CoreCrypto {
     if (Datatypes.isEncryptableAsString(data)) {
       return this.#encryptString(
         Datatypes.ensureString(data),
-        Datatypes.getHeaderType(data)
+        Datatypes.getHeaderType(data),
+        role
       );
     }
     if (Datatypes.isObjectStrict(data)) {
