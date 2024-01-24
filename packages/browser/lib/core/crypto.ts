@@ -206,7 +206,6 @@ export class CoreCrypto {
       ["encrypt"]
     );
 
-    let encryptedMetadataBytes: Uint8Array;
     const metadataBytes = CoreCrypto.#buildMetadata(
       Math.floor(Date.now() / 1000),
       role
@@ -221,7 +220,7 @@ export class CoreCrypto {
       derivedSecretImported,
       metadataBytes
     );
-    encryptedMetadataBytes = new Uint8Array(encryptedMetadataByteBuffer);
+    const encryptedMetadataBytes: Uint8Array = new Uint8Array(encryptedMetadataByteBuffer);
 
     return new Promise((resolve, reject) => {
       const reader = new window.FileReader();
