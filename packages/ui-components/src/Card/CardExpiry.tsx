@@ -38,15 +38,10 @@ export function CardExpiry({
   readOnly,
 }: CardExpiryProps) {
   const ref = useRef<HTMLInputElement>(null);
-  const [unmasked, setValue] = useMask(ref, {
+  const { setValue } = useMask(ref, onChange, {
     mask: "MM / YY",
     blocks: EXPIRY_BLOCKS,
   });
-
-  useEffect(() => {
-    if (!unmasked) return;
-    onChange(unmasked);
-  }, [unmasked]);
 
   useEffect(() => {
     setValue(value);

@@ -21,14 +21,9 @@ export function CardNumber({
   readOnly,
 }: CardNumberProps) {
   const ref = useRef<HTMLInputElement>(null);
-  const [unmasked, setValue] = useMask(ref, {
+  const { setValue } = useMask(ref, onChange, {
     mask: "0000 0000 0000 0000 000",
   });
-
-  useEffect(() => {
-    if (!unmasked) return;
-    onChange(unmasked);
-  }, [unmasked]);
 
   useEffect(() => {
     setValue(value);
