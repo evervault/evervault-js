@@ -11,7 +11,6 @@ test.describe("card component", () => {
       let values = {};
 
       await page.exposeFunction("handleChange", (newValues) => {
-        console.log("change fired");
         values = newValues;
       });
 
