@@ -1,5 +1,12 @@
 # @evervault/ui-components
 
+## 1.1.3
+
+### Patch Changes
+
+- da7f48c: Fix bug that caused the onchange event to not be fired when inputs were being cleared.
+  - @evervault/react@2.5.1
+
 ## 1.1.2
 
 ### Patch Changes
