@@ -142,16 +142,10 @@ function PinInput({
   type: "number" | "text" | "password";
 }) {
   const ref = useRef<HTMLInputElement>(null);
-  const [_, setValue] = useMask(
-    ref,
-    {
-      mask,
-      prepareChar: (c) => c.toUpperCase(),
-    },
-    (char) => {
-      onChange(char);
-    }
-  );
+  const { setValue } = useMask(ref, onChange, {
+    mask,
+    prepareChar: (c) => c.toUpperCase(),
+  });
 
   useEffect(() => {
     setValue(value);

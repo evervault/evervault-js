@@ -34,12 +34,7 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
       return "000";
     }, [cardNumber]);
 
-    const [unmasked, setValue] = useMask(innerRef, { mask });
-
-    useEffect(() => {
-      if (!unmasked) return;
-      onChange(unmasked);
-    }, [unmasked]);
+    const { setValue } = useMask(innerRef, onChange, { mask });
 
     useEffect(() => {
       setValue(value);
