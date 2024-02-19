@@ -29,7 +29,7 @@
     "coverage": "vitest --coverage",
     "dev": "concurrently --kill-others --success first \"pnpm dev:build\" \"pnpm dev:preview\"",
     "dev:build": "vite build --watch",
-    "dev:preview": "wait-on dist/ && vite preview",
+    "dev:preview": "wait-on dist/ && vite --port 4002",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
