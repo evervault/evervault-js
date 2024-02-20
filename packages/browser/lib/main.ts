@@ -1,6 +1,6 @@
 import getConfig, { ConfigUrls, SdkContext } from "./config";
 import { CoreCrypto, Http, Forms, Input } from "./core";
-import { CageKey } from "./core/http";
+import { CageKey, Form } from "./core/http";
 import { base64StringToUint8Array } from "./encoding";
 import UIComponents from "./ui";
 import {
@@ -303,42 +303,38 @@ export default class EvervaultClient {
     return this.http.decryptWithToken(token, data);
   }
 
-  hubspotFormProtection() {
-    const dummyResponsePayload = {
-      formUuid: "ce7912e8_f40e_42b0_a686_98097a5b8217",
-      fieldsToEncrypt: [
-        {
-          field_type: "textarea",
-          field_name: "message"
-        }
-      ]
-    }
+  _findFormByHiddenField(formUuid: string) {
+    const hiddenFieldSelector = `ev_form_${formUuid}`
+    const hiddenInput = document.querySelector(`input[name="${hiddenFieldSelector}"]`);
+    return hiddenInput;
+  }
 
-    const hiddenFieldSelector = `ev_form_${dummyResponsePayload.formUuid}`
-
-    dummyResponsePayload.fieldsToEncrypt.forEach((field, idx) => {
-      const hiddenInput = document.querySelector(`input[name="${hiddenFieldSelector}"]`);
+  async hubspotFormProtection() {
+    const forms: Form[] = await this.http.getAppForms();
+    forms.forEach((form: Form) => {
+      const hiddenInput = this._findFormByHiddenField(form.formUuid);
       if (hiddenInput === null) {
         return;
       }
       const parentForm = findParentOfInput(hiddenInput);
+      form.fieldsToEncrypt.forEach((field, idx) => {
+        const childToEncrypt = findChildOfForm(parentForm, field.fieldType, field.fieldName)
+        childToEncrypt.removeAttribute("name");
 
-      const childToEncrypt = findChildOfForm(parentForm, field.field_type, field.field_name)
-      childToEncrypt.removeAttribute("name");
+        const hiddenTextarea = document.createElement(field.fieldType);
+        hiddenTextarea.setAttribute('type', 'hidden');
+        hiddenTextarea.setAttribute('name', field.fieldName);
+        hiddenTextarea.setAttribute('id', `ev_enc_shadow_${idx}`);
+        hiddenTextarea.style.visibility = 'hidden';
+        parentForm.appendChild(hiddenTextarea);
 
-      const hiddenTextarea = document.createElement(field.field_type);
-      hiddenTextarea.setAttribute('type', 'hidden');
-      hiddenTextarea.setAttribute('name', field.field_name);
-      hiddenTextarea.setAttribute('id', `ev_enc_shadow_${idx}`);
-      hiddenTextarea.style.visibility = 'hidden';
-      parentForm.appendChild(hiddenTextarea);
-
-      childToEncrypt.addEventListener('input', async (event) => {
-        const target = event.target as HTMLTextAreaElement;
-        if (target && target.value) {
-          const encryptedValue = await this.encrypt(target.value);
-          hiddenTextarea.value = encryptedValue;
-        }
+        childToEncrypt.addEventListener('input', async (event) => {
+          const target = event.target as HTMLTextAreaElement;
+          if (target && target.value) {
+            const encryptedValue = await this.encrypt(target.value);
+            hiddenTextarea.value = encryptedValue;
+          }
+        });
       });
     });
   }

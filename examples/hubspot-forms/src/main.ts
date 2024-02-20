@@ -12,4 +12,4 @@ const evervault = new window.Evervault(
   }
 );
 
-evervault.hubspotFormProtection();
+await evervault.hubspotFormProtection();
