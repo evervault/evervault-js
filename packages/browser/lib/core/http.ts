@@ -12,13 +12,12 @@ export interface CageKey {
 }
 
 export interface FormField {
-  fieldType: string;
-  fieldName: string;
+  elemenetType: string;
+  elementName: string;
 }
 
 export interface Form {
   formUuid: string;
-  formName: string;
   fieldsToEncrypt: FormField[];
 }
 

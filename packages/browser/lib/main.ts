@@ -318,21 +318,21 @@ export default class EvervaultClient {
       }
       const parentForm = findParentOfInput(hiddenInput);
       form.fieldsToEncrypt.forEach((field, idx) => {
-        const childToEncrypt = findChildOfForm(parentForm, field.fieldType, field.fieldName)
+        const childToEncrypt = findChildOfForm(parentForm, field.elemenetType, field.elementName)
         childToEncrypt.removeAttribute("name");
 
-        const hiddenTextarea = document.createElement(field.fieldType);
-        hiddenTextarea.setAttribute('type', 'hidden');
-        hiddenTextarea.setAttribute('name', field.fieldName);
-        hiddenTextarea.setAttribute('id', `ev_enc_shadow_${idx}`);
-        hiddenTextarea.style.visibility = 'hidden';
-        parentForm.appendChild(hiddenTextarea);
+        const hiddenField = document.createElement(field.elemenetType);
+        hiddenField.setAttribute('type', 'hidden');
+        hiddenField.setAttribute('name', field.elementName);
+        hiddenField.setAttribute('id', `ev_enc_shadow_${idx}`);
+        hiddenField.style.visibility = 'hidden';
+        parentForm.appendChild(hiddenField);
 
         childToEncrypt.addEventListener('input', async (event) => {
           const target = event.target as HTMLTextAreaElement;
           if (target && target.value) {
             const encryptedValue = await this.encrypt(target.value);
-            hiddenTextarea.value = encryptedValue;
+            hiddenField.value = encryptedValue;
           }
         });
       });
