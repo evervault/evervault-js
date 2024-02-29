@@ -46,19 +46,19 @@ function makeRequest(request: Request): Promise<Response> {
 function setRevealContent(cardData: CardData) {
   const cardNumberElement = document.getElementById("cardnumber");
   if (cardNumberElement) {
-    cardNumberElement.innerHTML = formatAnyLengthCardNumber(
+    cardNumberElement.textContent = formatAnyLengthCardNumber(
       cardData.cardNumber
     );
   }
 
   const expiryElement = document.getElementById("expirationdate");
   if (expiryElement) {
-    expiryElement.innerHTML = formatExpiryDate(cardData.expiry.toString());
+    expiryElement.textContent = formatExpiryDate(cardData.expiry.toString());
   }
 
   const cvvElement = document.getElementById("securitycode");
   if (cvvElement) {
-    cvvElement.innerHTML = cardData.cvv.toString();
+    cvvElement.textContent = cardData.cvv.toString();
   }
 }
 
