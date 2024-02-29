@@ -309,7 +309,7 @@ export default class EvervaultClient {
     return hiddenInput;
   }
 
-  async hubspotFormProtection() {
+  async enableFormEncryption() {
     const forms: Form[] = await this.http.getAppForms();
     forms.forEach((form: Form) => {
       const hiddenInput = this._findFormByHiddenField(form.formUuid);
@@ -317,7 +317,7 @@ export default class EvervaultClient {
         return;
       }
       const parentForm = findParentOfInput(hiddenInput);
-      form.fieldsToEncrypt.forEach((field, idx) => {
+      form.targetElements.forEach((field, idx) => {
         const childToEncrypt = findChildOfForm(parentForm, field.elemenetType, field.elementName)
         childToEncrypt.removeAttribute("name");
 

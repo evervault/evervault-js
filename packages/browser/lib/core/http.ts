@@ -18,7 +18,7 @@ export interface FormField {
 
 export interface Form {
   formUuid: string;
-  fieldsToEncrypt: FormField[];
+  targetElements: FormField[];
 }
 
 export default function Http(
