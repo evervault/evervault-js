@@ -1,5 +1,11 @@
 # @evervault/inputs
 
+## 2.17.2
+
+### Patch Changes
+
+- fee00fd: Fix XSS vulnerability for Inputs Reveal
+
 ## 2.17.1
 
 ### Patch Changes
