@@ -11,6 +11,16 @@ export interface CageKey {
   isDebugMode: boolean;
 }
 
+export interface FormField {
+  elemenetType: string;
+  elementName: string;
+}
+
+export interface Form {
+  formUuid: string;
+  targetElements: FormField[];
+}
+
 export default function Http(
   config: HttpConfig,
   teamId: string,
@@ -87,5 +97,31 @@ export default function Http(
     }
   }
 
-  return { getCageKey, decryptWithToken };
+  async function getAppForms(): Promise<Form[]> {
+    try {
+      const formEndpoint = new URL(
+        `teams/${teamId}/apps/${appId}/forms`,
+        config.apiUrl
+      );
+
+      const response = await fetch(formEndpoint, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const body = (await response.json()) as Form[];
+      return body;
+    } catch (err) {
+      throw new errors.FormError(
+        "An error occurred while retrieving the apps forms",
+        { cause: err }
+      );
+    }
+  }
+
+
+  return { getCageKey, decryptWithToken, getAppForms };
 }

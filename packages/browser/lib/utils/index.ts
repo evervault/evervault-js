@@ -12,3 +12,5 @@ export { default as buildCageKeyFromSuppliedPublicKey } from "./buildCageKeyFrom
 export { default as deriveSharedSecret } from "./deriveSharedSecret";
 export { default as crc32 } from "./crc32";
 export { default as getContext } from "./getContext";
+export { default as findParentOfInput } from "./findParentOfInput";
+export { default as findChildOfForm } from "./findChildOfForm";

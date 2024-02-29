@@ -1,6 +1,6 @@
 import getConfig, { ConfigUrls, SdkContext } from "./config";
 import { CoreCrypto, Http, Forms, Input } from "./core";
-import { CageKey } from "./core/http";
+import { CageKey, Form } from "./core/http";
 import { base64StringToUint8Array } from "./encoding";
 import UIComponents from "./ui";
 import {
@@ -10,6 +10,8 @@ import {
   buildCageKeyFromSuppliedPublicKey,
   deriveSharedSecret,
   getContext,
+  findParentOfInput,
+  findChildOfForm,
 } from "./utils";
 import type { InputSettings, RevealSettings } from "./types";
 
@@ -304,6 +306,42 @@ export default class EvervaultClient {
 
   decrypt<T>(token: string, data: T): Promise<{ value: T }> {
     return this.http.decryptWithToken(token, data);
+  }
+
+  _findFormByHiddenField(formUuid: string) {
+    const hiddenFieldSelector = `ev_form_${formUuid}`
+    const hiddenInput = document.querySelector(`input[name="${hiddenFieldSelector}"]`);
+    return hiddenInput;
+  }
+
+  async enableFormEncryption() {
+    const forms: Form[] = await this.http.getAppForms();
+    forms.forEach((form: Form) => {
+      const hiddenInput = this._findFormByHiddenField(form.formUuid);
+      if (hiddenInput === null) {
+        return;
+      }
+      const parentForm = findParentOfInput(hiddenInput);
+      form.targetElements.forEach((field, idx) => {
+        const childToEncrypt = findChildOfForm(parentForm, field.elemenetType, field.elementName)
+        childToEncrypt.removeAttribute("name");
+
+        const hiddenField = document.createElement(field.elemenetType);
+        hiddenField.setAttribute('type', 'hidden');
+        hiddenField.setAttribute('name', field.elementName);
+        hiddenField.setAttribute('id', `ev_enc_shadow_${idx}`);
+        hiddenField.style.visibility = 'hidden';
+        parentForm.appendChild(hiddenField);
+
+        childToEncrypt.addEventListener('input', async (event) => {
+          const target = event.target as HTMLTextAreaElement;
+          if (target && target.value) {
+            const encryptedValue = await this.encrypt(target.value);
+            hiddenField.value = encryptedValue;
+          }
+        });
+      });
+    });
   }
 
   isInDebugMode() {
