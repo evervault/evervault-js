@@ -118,6 +118,10 @@ card.on("change", (values) => {
   }
 });
 
+card.on("complete", (values) => {
+  console.log("complete", values);
+});
+
 card.on("ready", () => {
   console.log("component is ready");
 });

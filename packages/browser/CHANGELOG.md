@@ -1,5 +1,17 @@
 # @evervault/browser
 
+## 2.20.0
+
+### Minor Changes
+
+- be782c6: The encrypt function has been enhanced to accept an optional Data Role. This role, once specified, is associated with the data upon encryption. Data Roles can be created in the Evervault Dashboard (Data Roles section) and provide a mechanism for setting clear rules that dictate how and when data, tagged with that role, can be decrypted.
+
+## 2.19.0
+
+### Minor Changes
+
+- 36b1cda: Add async init function to initialize the SDK
+
 ## 2.18.0
 
 ### Minor Changes

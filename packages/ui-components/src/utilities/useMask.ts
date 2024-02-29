@@ -1,14 +1,15 @@
 import IMask, { FactoryOpts } from "imask";
-import { RefObject, useCallback, useEffect, useRef, useState } from "react";
+import { RefObject, useCallback, useEffect, useRef } from "react";
 
-type UseMaskReturn = [string, (value: string) => void];
+interface UseMaskReturn {
+  setValue: (newValue: string) => void;
+}
 
 export function useMask(
   ref: RefObject<HTMLInputElement>,
-  config: FactoryOpts,
-  onAccept?: (value: string) => void
+  onAccept: (value: string) => void,
+  config: FactoryOpts
 ): UseMaskReturn {
-  const [value, setValue] = useState("");
   const mask = useRef<ReturnType<typeof IMask>>();
 
   useEffect(() => {
@@ -17,8 +18,7 @@ export function useMask(
 
     const handleAccept = () => {
       if (!mask.current) return;
-      setValue(mask.current.unmaskedValue);
-      if (onAccept) onAccept(mask.current.unmaskedValue);
+      onAccept(mask.current.unmaskedValue);
     };
 
     mask.current.on("accept", handleAccept);
@@ -29,10 +29,10 @@ export function useMask(
     };
   }, [config]);
 
-  const updateValue = useCallback((newValue: string) => {
+  const setValue = useCallback((newValue: string) => {
     if (!mask.current) return;
     mask.current.value = newValue;
   }, []);
 
-  return [value, updateValue];
+  return { setValue };
 }
