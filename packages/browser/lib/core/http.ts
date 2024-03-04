@@ -100,12 +100,15 @@ export default function Http(
   async function getAppForms(): Promise<Form[]> {
     try {
       const formEndpoint = new URL(
-        `teams/${teamId}/apps/${appId}/forms`,
+        `forms/`,
         config.apiUrl
       );
 
       const response = await fetch(formEndpoint, {
         method: "GET",
+        headers: {
+          "x-evervault-app-id": appId,
+        }
       });
 
       if (!response.ok) {
