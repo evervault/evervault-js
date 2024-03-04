@@ -309,7 +309,7 @@ export default class EvervaultClient {
   }
 
   _findFormByHiddenField(formUuid: string) {
-    const hiddenFieldSelector = `ev_form_${formUuid}`
+    const hiddenFieldSelector = `ev_${formUuid}`
     const hiddenInput = document.querySelector(`input[name="${hiddenFieldSelector}"]`);
     return hiddenInput;
   }

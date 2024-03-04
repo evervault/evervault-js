@@ -100,7 +100,7 @@ export default function Http(
   async function getAppForms(): Promise<Form[]> {
     try {
       const formEndpoint = new URL(
-        `forms/`,
+        `forms`,
         config.apiUrl
       );
 
