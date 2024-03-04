@@ -1,4 +1,3 @@
----
 name: Deploy UI Components
 on:
   workflow_call:
@@ -36,7 +35,6 @@ on:
       aws-cloudfront-distribution-id:
         description: "AWS Cloudfront Distribution ID"
         required: true
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -46,38 +44,30 @@ jobs:
       VITE_EVERVAULT_JS_URL: ${{ inputs.vite-evervault-js-url }}
       VITE_KEYS_URL: ${{ inputs.vite-keys-url }}
       VITE_API_URL: ${{ inputs.vite-api-url }}
-
     steps:
       - name: Check out code
         uses: actions/checkout@v3
         with:
           fetch-depth: 2
-
       - uses: pnpm/action-setup@v2
         with:
           version: 8.6
-
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
         with:
           cache: "pnpm"
-
       - name: Install Dependencies
         run: pnpm install
-
       - name: Build
         run: pnpm --filter @evervault/ui-components... build
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.aws-access-key-id }}
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
           aws-region: "us-east-1"
-
       - name: S3 Deploy
         working-directory: packages/ui-components
-        run: aws s3 rm s3://${{ secrets.aws-s3-bucket }}/assets --recursive && aws s3 cp dist s3://${{ secrets.aws-s3-bucket }}/ --recursive
-
+        run: aws s3 cp dist s3://${{ secrets.aws-s3-bucket }}/ --recursive
       - name: Cloudfront Cache Invalidation
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/index.html"
