@@ -2,12 +2,9 @@ import Evervault from "./lib/main";
 
 (async () => {
   const evervault = new Evervault(
-    "team_197bf4c38e3c",
-    "app_43740bff0824"
+    import.meta.env.VITE_EV_TEAM_UUID,
+    import.meta.env.VITE_EV_APP_UUID
   );
-
-  await evervault.enableFormEncryption();
-
   console.log(await evervault.encrypt("hello evervault"));
 
   const inputs = evervault.inputs("ev-inputs");
@@ -20,5 +17,4 @@ import Evervault from "./lib/main";
   if (isLoaded) {
     console.log("Inputs loaded");
   }
-
 })().catch(console.error);
