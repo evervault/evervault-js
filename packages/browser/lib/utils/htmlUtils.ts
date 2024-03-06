@@ -5,7 +5,7 @@ function findParentOfInput(input: Element): Element {
     return input;
   }
 
-  if (parent.tagName === 'FORM') {
+  if (parent.tagName === "FORM") {
     return parent;
   }
 
@@ -13,21 +13,25 @@ function findParentOfInput(input: Element): Element {
 }
 
 function findFormByHiddenField(uuid: string): Element | null {
-  const hiddenFieldSelector = `ev_${uuid}`
-  const hiddenInput = document.querySelector(`input[name="${hiddenFieldSelector}"]`);
+  const hiddenFieldSelector = `ev_${uuid}`;
+  const hiddenInput = document.querySelector(
+    `input[name="${hiddenFieldSelector}"]`
+  );
   return hiddenInput;
 }
 
-function findChildOfForm(form: Element, elementType: string, elementName: string): Element {
+function findChildOfForm(
+  form: Element,
+  elementType: string,
+  elementName: string
+): Element {
   const field = form.querySelector(`${elementType}[name="${elementName}"]`);
   if (field === null) {
-    throw new Error(`Could not find field with type ${elementType} and name ${elementName}`);
+    throw new Error(
+      `Could not find field with type ${elementType} and name ${elementName}`
+    );
   }
   return field;
 }
 
-export {
-  findParentOfInput,
-  findFormByHiddenField,
-  findChildOfForm
-}
+export { findParentOfInput, findFormByHiddenField, findChildOfForm };
