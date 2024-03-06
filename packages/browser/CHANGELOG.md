@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.21.0
+
+### Minor Changes
+
+- 7d527ee: Adding enableFormEncryption to protect forms on websites
+
 ## 2.20.0
 
 ### Minor Changes
