@@ -12,6 +12,7 @@ import {
   getContext,
   findParentOfInput,
   findChildOfForm,
+  findFormByHiddenField,
 } from "./utils";
 import type { InputSettings, RevealSettings } from "./types";
 
@@ -308,28 +309,16 @@ export default class EvervaultClient {
     return this.http.decryptWithToken(token, data);
   }
 
-  _findFormByHiddenField(uuid: string) {
-    const hiddenFieldSelector = `ev_${uuid}`
-    console.log("Hidden Field Selector", hiddenFieldSelector);
-    const hiddenInput = document.querySelector(`input[name="${hiddenFieldSelector}"]`);
-    console.log("Hidden Input", hiddenInput);
-    return hiddenInput;
-  }
-
   async enableFormEncryption() {
     const forms: Form[] = await this.http.getAppForms();
     forms.forEach((form: Form) => {
-      console.log("Form", form);
-      const hiddenInput = this._findFormByHiddenField(form.uuid);
+      const hiddenInput = findFormByHiddenField(form.uuid);
       if (hiddenInput === null) {
         return;
       }
       const parentForm = findParentOfInput(hiddenInput);
-      console.log("Parent Form", parentForm);
       form.targetElements.forEach((field, idx) => {
-        console.log("element to Encrypt", field, idx);
         const childToEncrypt = findChildOfForm(parentForm, field.elementType, field.elementName)
-        console.log("Child to Encrypt", childToEncrypt);
         childToEncrypt.removeAttribute("name");
 
         const hiddenField = document.createElement(field.elementType);
