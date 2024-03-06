@@ -21,3 +21,5 @@ export class CageKeyError extends EvervaultError {}
 export class ExceededMaxFileSizeError extends EvervaultError {}
 
 export class DecryptError extends EvervaultError {}
+
+export class FormError extends EvervaultError {}

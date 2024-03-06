@@ -1,6 +1,6 @@
 import getConfig, { ConfigUrls, SdkContext } from "./config";
 import { CoreCrypto, Http, Forms, Input } from "./core";
-import { CageKey } from "./core/http";
+import { CageKey, Form } from "./core/http";
 import { base64StringToUint8Array } from "./encoding";
 import UIComponents from "./ui";
 import {
@@ -10,6 +10,9 @@ import {
   buildCageKeyFromSuppliedPublicKey,
   deriveSharedSecret,
   getContext,
+  findParentOfInput,
+  findChildOfForm,
+  findFormByHiddenField,
 } from "./utils";
 import type { InputSettings, RevealSettings } from "./types";
 
@@ -304,6 +307,46 @@ export default class EvervaultClient {
 
   decrypt<T>(token: string, data: T): Promise<{ value: T }> {
     return this.http.decryptWithToken(token, data);
+  }
+
+  async enableFormEncryption() {
+    const forms: Form[] = await this.http.getAppForms();
+    forms.forEach((form: Form) => {
+      const hiddenInput = findFormByHiddenField(form.uuid);
+      if (hiddenInput === null) {
+        return;
+      }
+      const parentForm = findParentOfInput(hiddenInput);
+      form.targetElements.forEach((field, idx) => {
+        const childToEncrypt = findChildOfForm(
+          parentForm,
+          field.elementType,
+          field.elementName
+        );
+        childToEncrypt.removeAttribute("name");
+
+        const hiddenField = document.createElement(field.elementType);
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", field.elementName);
+        hiddenField.setAttribute("id", `ev_enc_shadow_${idx}`);
+        hiddenField.style.visibility = "hidden";
+        parentForm.appendChild(hiddenField);
+
+        childToEncrypt.addEventListener("input", (event) => {
+          const target = event.target as HTMLTextAreaElement;
+          if (target?.value) {
+            this.encrypt(target.value)
+              .then((encryptedValue) => {
+                // @ts-expect-error explict cast is needed for more then a textarea
+                hiddenField.value = encryptedValue;
+              })
+              .catch((_) => {
+                console.error("Error encrypting form value");
+              });
+          }
+        });
+      });
+    });
   }
 
   isInDebugMode() {
