@@ -1,5 +1,5 @@
 function findParentOfInput(input: Element): Element {
-  let parent = input.parentElement;
+  const parent = input.parentElement;
 
   if (parent === null || parent === undefined) {
     return input;

@@ -332,12 +332,15 @@ export default class EvervaultClient {
         hiddenField.style.visibility = "hidden";
         parentForm.appendChild(hiddenField);
 
-        childToEncrypt.addEventListener("input", async (event) => {
+        childToEncrypt.addEventListener("input", (event) => {
           const target = event.target as HTMLTextAreaElement;
-          if (target && target.value) {
-            const encryptedValue = await this.encrypt(target.value);
-            // @ts-ignore
-            hiddenField.value = encryptedValue;
+          if (target?.value) {
+            this.encrypt(target.value).then(encryptedValue => {
+              // @ts-expect-error explict cast is needed for more then a textarea
+              hiddenField.value = encryptedValue;
+            }).catch(_ => {
+              console.error("Error encrypting form value");
+            });
           }
         });
       });
