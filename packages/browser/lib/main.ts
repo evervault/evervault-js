@@ -336,6 +336,7 @@ export default class EvervaultClient {
           const target = event.target as HTMLTextAreaElement;
           if (target && target.value) {
             const encryptedValue = await this.encrypt(target.value);
+            // @ts-ignore
             hiddenField.value = encryptedValue;
           }
         });
