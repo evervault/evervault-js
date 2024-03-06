@@ -11,14 +11,18 @@ export interface CageKey {
   isDebugMode: boolean;
 }
 
-export interface FormField {
-  elemenetType: string;
+export interface TargetElement {
+  elementType: string;
   elementName: string;
 }
 
 export interface Form {
-  formUuid: string;
-  targetElements: FormField[];
+  uuid: string;
+  targetElements: TargetElement[];
+  appUuid: string;
+  createdAt: Date;
+  updatedAt: Date | null;
+  deletedAt: Date | null;
 }
 
 export default function Http(

@@ -308,25 +308,31 @@ export default class EvervaultClient {
     return this.http.decryptWithToken(token, data);
   }
 
-  _findFormByHiddenField(formUuid: string) {
-    const hiddenFieldSelector = `ev_${formUuid}`
+  _findFormByHiddenField(uuid: string) {
+    const hiddenFieldSelector = `ev_${uuid}`
+    console.log("Hidden Field Selector", hiddenFieldSelector);
     const hiddenInput = document.querySelector(`input[name="${hiddenFieldSelector}"]`);
+    console.log("Hidden Input", hiddenInput);
     return hiddenInput;
   }
 
   async enableFormEncryption() {
     const forms: Form[] = await this.http.getAppForms();
     forms.forEach((form: Form) => {
-      const hiddenInput = this._findFormByHiddenField(form.formUuid);
+      console.log("Form", form);
+      const hiddenInput = this._findFormByHiddenField(form.uuid);
       if (hiddenInput === null) {
         return;
       }
       const parentForm = findParentOfInput(hiddenInput);
+      console.log("Parent Form", parentForm);
       form.targetElements.forEach((field, idx) => {
-        const childToEncrypt = findChildOfForm(parentForm, field.elemenetType, field.elementName)
+        console.log("element to Encrypt", field, idx);
+        const childToEncrypt = findChildOfForm(parentForm, field.elementType, field.elementName)
+        console.log("Child to Encrypt", childToEncrypt);
         childToEncrypt.removeAttribute("name");
 
-        const hiddenField = document.createElement(field.elemenetType);
+        const hiddenField = document.createElement(field.elementType);
         hiddenField.setAttribute('type', 'hidden');
         hiddenField.setAttribute('name', field.elementName);
         hiddenField.setAttribute('id', `ev_enc_shadow_${idx}`);
