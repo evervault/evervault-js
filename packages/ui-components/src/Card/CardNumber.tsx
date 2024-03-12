@@ -1,3 +1,4 @@
+import cardValidator from "card-validator";
 import { FocusEvent, useEffect, useRef } from "react";
 import { useMask } from "../utilities/useMask";
 
@@ -11,6 +12,11 @@ interface CardNumberProps {
   readOnly?: boolean;
 }
 
+interface CardMask {
+  mask: string;
+  brand?: string;
+}
+
 export function CardNumber({
   autoFocus,
   disabled,
@@ -22,7 +28,30 @@ export function CardNumber({
 }: CardNumberProps) {
   const ref = useRef<HTMLInputElement>(null);
   const { setValue } = useMask(ref, onChange, {
-    mask: "0000 0000 0000 0000 000",
+    mask: [
+      {
+        mask: "0000 0000 0000 0000",
+      },
+      {
+        mask: "0000 0000 0000 0000 000",
+        brand: "unionpay",
+      },
+      {
+        mask: "0000 000000 00000",
+        brand: "american-express",
+      },
+    ] as CardMask[],
+    dispatch: (appended, dynamicMasked) => {
+      const number = dynamicMasked.value + appended;
+      const brand = cardValidator.number(number).card?.type;
+
+      const mask = dynamicMasked.compiledMasks.find((m) => {
+        const maskBrand = (m as CardMask).brand;
+        return maskBrand === brand;
+      });
+
+      return mask ?? dynamicMasked.compiledMasks[0];
+    },
   });
 
   useEffect(() => {
