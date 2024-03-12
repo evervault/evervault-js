@@ -1,4 +1,5 @@
-import IMask from "imask";
+import cardValidator from "card-validator";
+import IMask, { MaskedDynamic } from "imask";
 
 interface InputElements {
   cardNumber: HTMLInputElement;
@@ -24,6 +25,11 @@ type ElementId =
   | "trackdata"
   | "trackone"
   | "tracktwo";
+
+interface CardMask {
+  mask: string;
+  brand?: string;
+}
 
 function createGetInputElementOrThow(key: ElementId): HTMLInputElement {
   const nameElement = document.getElementById(key);
@@ -56,7 +62,30 @@ export class InputElementsManager {
 
     this.masks = {
       cardNumber: IMask(this.elements.cardNumber, {
-        mask: "0000 0000 0000 0000 000",
+        mask: [
+          {
+            mask: "0000 0000 0000 0000",
+          },
+          {
+            mask: "0000 0000 0000 0000 000",
+            brand: "unionpay",
+          },
+          {
+            mask: "0000 000000 00000",
+            brand: "american-express",
+          },
+        ] as CardMask[],
+        dispatch: (appended: string, dynamicMasked: MaskedDynamic) => {
+          const number = dynamicMasked.value + appended;
+          const brand = cardValidator.number(number).card?.type;
+
+          const mask = dynamicMasked.compiledMasks.find((m) => {
+            const maskBrand = (m as CardMask).brand;
+            return maskBrand === brand;
+          });
+
+          return mask ?? dynamicMasked.compiledMasks[0];
+        },
       }),
       expirationDate: IMask(this.elements.expirationDate, {
         mask: "MM / YY",
