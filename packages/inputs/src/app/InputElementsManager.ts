@@ -1,5 +1,5 @@
 import cardValidator from "card-validator";
-import IMask, { MaskedDynamic } from "imask";
+import IMask, { InputMask, MaskedDynamic } from "imask";
 
 interface InputElements {
   cardNumber: HTMLInputElement;
@@ -11,10 +11,15 @@ interface InputElements {
   trackTwo: HTMLInputElement;
 }
 
+interface CardMask {
+  mask: string;
+  brand?: string;
+}
+
 interface InputMasks {
-  cardNumber: IMask.InputMask<{ mask: string }>;
-  expirationDate: IMask.InputMask<{ mask: string }>;
-  cvv?: IMask.InputMask<{ mask: string }>;
+  cardNumber: InputMask<{ mask: CardMask[] }>;
+  expirationDate: InputMask<{ mask: string }>;
+  cvv?: InputMask<{ mask: string }>;
 }
 
 type ElementId =
@@ -25,11 +30,6 @@ type ElementId =
   | "trackdata"
   | "trackone"
   | "tracktwo";
-
-interface CardMask {
-  mask: string;
-  brand?: string;
-}
 
 function createGetInputElementOrThow(key: ElementId): HTMLInputElement {
   const nameElement = document.getElementById(key);
