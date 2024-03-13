@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.2.0
+
+### Minor Changes
+
+- f7f1f1e: Improve card number input formatting
+
 ## 1.1.3
 
 ### Patch Changes
