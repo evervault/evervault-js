@@ -286,6 +286,47 @@ test.describe("card component", () => {
     await expect(frame.getByLabel("CVC")).toHaveValue("1234");
   });
 
+  test("only permits 16 digits for visa", async ({ page }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card();
+      card.mount("#form");
+    });
+
+    const visa = "4242424242424242424"; // try to input 19 digit visa
+    const frame = page.frameLocator("iframe[data-evervault]");
+
+    await frame.getByLabel("Number").fill(visa);
+    await expect(frame.getByLabel("Number")).toHaveValue("4242 4242 4242 4242");
+  });
+
+  test("only permits 15 digits for amex", async ({ page }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card();
+      card.mount("#form");
+    });
+
+    const amex = "378282246310005";
+    const frame = page.frameLocator("iframe[data-evervault]");
+
+    await frame.getByLabel("Number").fill(amex);
+    await expect(frame.getByLabel("Number")).toHaveValue("3782 822463 10005");
+  });
+
+  test("allows 19 digit numbers for unionpay cards", async ({ page }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card();
+      card.mount("#form");
+    });
+
+    const unionpay = "6205500000000000004";
+    const frame = page.frameLocator("iframe[data-evervault]");
+
+    await frame.getByLabel("Number").fill(unionpay);
+    await expect(frame.getByLabel("Number")).toHaveValue(
+      "6205 5000 0000 0000 004"
+    );
+  });
+
   test("supports card readers with track 1 mag stripes", async ({ page }) => {
     let swipeData = {};
     await page.exposeFunction("handleSwipe", (data) => {
