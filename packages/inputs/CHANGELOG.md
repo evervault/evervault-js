@@ -1,5 +1,11 @@
 # @evervault/inputs
 
+## 2.18.0
+
+### Minor Changes
+
+- f7f1f1e: Improve card number input formatting
+
 ## 2.17.2
 
 ### Patch Changes
