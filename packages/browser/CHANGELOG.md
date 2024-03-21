@@ -1,5 +1,15 @@
 # @evervault/browser
 
+## 2.22.0
+
+### Minor Changes
+
+- feb39bd: feat: support thirdparty forms for evervault Form encryption
+
+### Patch Changes
+
+- 073560b: fix: specify form uuid for thirdparties
+
 ## 2.21.0
 
 ### Minor Changes

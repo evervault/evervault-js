@@ -1,5 +1,13 @@
 # example-ui-components
 
+## 0.0.7
+
+### Patch Changes
+
+- Updated dependencies [073560b]
+- Updated dependencies [feb39bd]
+  - @evervault/browser@2.22.0
+
 ## 0.0.6
 
 ### Patch Changes
