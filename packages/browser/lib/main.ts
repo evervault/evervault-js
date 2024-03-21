@@ -309,9 +309,12 @@ export default class EvervaultClient {
     return this.http.decryptWithToken(token, data);
   }
 
-  async enableFormEncryption(thirdPartyForm: HTMLFormElement | undefined) {
+  async enableFormEncryption(
+    thirdPartyForm: HTMLFormElement | undefined,
+    formUuid: string | undefined
+  ) {
     const forms: Form[] = await this.http.getAppForms();
-    if (thirdPartyForm) {
+    if (thirdPartyForm && formUuid) {
       const findSubmitButton = thirdPartyForm.querySelector("[type='submit']");
       findSubmitButton?.addEventListener(
         "click",
@@ -319,29 +322,33 @@ export default class EvervaultClient {
           const mutations = [];
           event.preventDefault();
           if (forms.length > 0) {
-            for (const form of forms) {
-              const { targetElements } = form;
-              for (let x = 0; x < targetElements.length; x++) {
-                const childToEncrypt = findChildOfForm(
-                  thirdPartyForm,
-                  form.targetElements[x].elementType,
-                  form.targetElements[x].elementName
+            const form = forms.find((f) => f.uuid === formUuid);
+            if (!form) {
+              console.error(`Unable to find form ${formUuid}`);
+              thirdPartyForm.submit();
+              return;
+            }
+            const { targetElements } = form;
+            for (let x = 0; x < targetElements.length; x++) {
+              const childToEncrypt = findChildOfForm(
+                thirdPartyForm,
+                form.targetElements[x].elementType,
+                form.targetElements[x].elementName
+              );
+              if (childToEncrypt !== undefined) {
+                mutations.push(
+                  new Promise((resolve, reject) => {
+                    // @ts-expect-error explict cast is needed for more then a textarea
+                    this.encrypt(childToEncrypt.value)
+                      .then((encValue) => {
+                        // @ts-expect-error explict cast is needed for more then a textarea
+                        resolve((childToEncrypt.value = encValue));
+                      })
+                      .catch((err) => {
+                        reject(err);
+                      });
+                  })
                 );
-                if (childToEncrypt !== undefined) {
-                  mutations.push(
-                    new Promise((resolve, reject) => {
-                      // @ts-expect-error explict cast is needed for more then a textarea
-                      this.encrypt(childToEncrypt.value)
-                        .then((encValue) => {
-                          // @ts-expect-error explict cast is needed for more then a textarea
-                          resolve((childToEncrypt.value = encValue));
-                        })
-                        .catch((err) => {
-                          reject(err);
-                        });
-                    })
-                  );
-                }
               }
             }
           }
