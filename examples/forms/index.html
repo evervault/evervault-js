@@ -14,8 +14,12 @@
       hbspt.forms.create({
         region: "eu1",
         portalId: "144130402",
-        formId: "7355e85d-cb55-4e32-a3a4-560da4c704fc"
+        formId: "7355e85d-cb55-4e32-a3a4-560da4c704fc",
+        onFormReady: function($form, e) {
+          window.evervault.enableFormEncryption($form)
+        },
       });
+
     </script>
   </body>
 </html>

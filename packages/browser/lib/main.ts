@@ -313,22 +313,26 @@ export default class EvervaultClient {
     const forms: Form[] = await this.http.getAppForms();
     if (thirdPartyForm) {
       const findSubmitButton = thirdPartyForm.querySelector("[type='submit']")
-      findSubmitButton?.addEventListener("click", (event) => {
+      findSubmitButton?.addEventListener("click", async (event) => {
         event.preventDefault();
-        forms.forEach((form: Form) => {
-          form.targetElements.forEach((field, idx) => {
-            const childToEncrypt = findChildOfForm(
-              thirdPartyForm,
-              field.elementType,
-              field.elementName
-            );
-            this.encrypt(childToEncrypt.value).then((v) => {
-              childToEncrypt.value = v;
-            });
-          });
-        }, false);
+        if (forms.length > 0) {
+          for (let i = 0; i < forms.length; i++) {
+            const targetElements = forms[i].targetElements
+            for (let x = 0; x < targetElements.length; x++) {
+              const childToEncrypt = findChildOfForm(
+                thirdPartyForm,
+                forms[i].targetElements[x].elementType,
+                forms[i].targetElements[x].elementName
+              );
+              if (childToEncrypt != undefined) {
+                const encValue = await this.encrypt(childToEncrypt.value);
+                childToEncrypt.value = encValue;
+              }
+            }
+          }
+        }
         thirdPartyForm.submit();
-      });
+      }, false);
     } else {
       forms.forEach((form: Form) => {
         const hiddenInput = findFormByHiddenField(form.uuid);
