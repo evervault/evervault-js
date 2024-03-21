@@ -309,44 +309,86 @@ export default class EvervaultClient {
     return this.http.decryptWithToken(token, data);
   }
 
-  async enableFormEncryption() {
+  async enableFormEncryption(thirdPartyForm: HTMLFormElement | undefined) {
     const forms: Form[] = await this.http.getAppForms();
-    forms.forEach((form: Form) => {
-      const hiddenInput = findFormByHiddenField(form.uuid);
-      if (hiddenInput === null) {
-        return;
-      }
-      const parentForm = findParentOfInput(hiddenInput);
-      form.targetElements.forEach((field, idx) => {
-        const childToEncrypt = findChildOfForm(
-          parentForm,
-          field.elementType,
-          field.elementName
-        );
-        childToEncrypt.removeAttribute("name");
-
-        const hiddenField = document.createElement(field.elementType);
-        hiddenField.setAttribute("type", "hidden");
-        hiddenField.setAttribute("name", field.elementName);
-        hiddenField.setAttribute("id", `ev_enc_shadow_${idx}`);
-        hiddenField.style.visibility = "hidden";
-        parentForm.appendChild(hiddenField);
-
-        childToEncrypt.addEventListener("input", (event) => {
-          const target = event.target as HTMLTextAreaElement;
-          if (target?.value) {
-            this.encrypt(target.value)
-              .then((encryptedValue) => {
-                // @ts-expect-error explict cast is needed for more then a textarea
-                hiddenField.value = encryptedValue;
-              })
-              .catch((_) => {
-                console.error("Error encrypting form value");
-              });
+    if (thirdPartyForm) {
+      const findSubmitButton = thirdPartyForm.querySelector("[type='submit']");
+      findSubmitButton?.addEventListener(
+        "click",
+        (event) => {
+          const mutations = [];
+          event.preventDefault();
+          if (forms.length > 0) {
+            for (const form of forms) {
+              const { targetElements } = form;
+              for (let x = 0; x < targetElements.length; x++) {
+                const childToEncrypt = findChildOfForm(
+                  thirdPartyForm,
+                  form.targetElements[x].elementType,
+                  form.targetElements[x].elementName
+                );
+                if (childToEncrypt !== undefined) {
+                  mutations.push(
+                    new Promise((resolve, reject) => {
+                      // @ts-expect-error explict cast is needed for more then a textarea
+                      this.encrypt(childToEncrypt.value)
+                        .then((encValue) => {
+                          // @ts-expect-error explict cast is needed for more then a textarea
+                          resolve((childToEncrypt.value = encValue));
+                        })
+                        .catch((err) => {
+                          reject(err);
+                        });
+                    })
+                  );
+                }
+              }
+            }
           }
+          Promise.all(mutations)
+            .then(() => thirdPartyForm.submit())
+            .catch(() => console.error("Error encrypting form value"));
+        },
+        false
+      );
+    } else {
+      forms.forEach((form: Form) => {
+        const hiddenInput = findFormByHiddenField(form.uuid);
+        if (hiddenInput === null) {
+          return;
+        }
+        const parentForm = findParentOfInput(hiddenInput);
+        form.targetElements.forEach((field, idx) => {
+          const childToEncrypt = findChildOfForm(
+            parentForm,
+            field.elementType,
+            field.elementName
+          );
+          childToEncrypt.removeAttribute("name");
+
+          const hiddenField = document.createElement(field.elementType);
+          hiddenField.setAttribute("type", "hidden");
+          hiddenField.setAttribute("name", field.elementName);
+          hiddenField.setAttribute("id", `ev_enc_shadow_${idx}`);
+          hiddenField.style.visibility = "hidden";
+          parentForm.appendChild(hiddenField);
+
+          childToEncrypt.addEventListener("input", (event) => {
+            const target = event.target as HTMLTextAreaElement;
+            if (target?.value) {
+              this.encrypt(target.value)
+                .then((encryptedValue) => {
+                  // @ts-expect-error explict cast is needed for more then a textarea
+                  hiddenField.value = encryptedValue;
+                })
+                .catch((_) => {
+                  console.error("Error encrypting form value");
+                });
+            }
+          });
         });
       });
-    });
+    }
   }
 
   isInDebugMode() {
