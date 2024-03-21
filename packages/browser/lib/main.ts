@@ -323,7 +323,10 @@ export default class EvervaultClient {
           event.preventDefault();
           if (forms.length > 0) {
             const form = forms.find((f) => f.uuid === formUuid);
-            if (!form) return;
+            if (!form) {
+              thirdPartyForm.submit();
+              return;
+            }
             const { targetElements } = form;
             for (let x = 0; x < targetElements.length; x++) {
               const childToEncrypt = findChildOfForm(
