@@ -324,6 +324,7 @@ export default class EvervaultClient {
           if (forms.length > 0) {
             const form = forms.find((f) => f.uuid === formUuid);
             if (!form) {
+              console.error(`Unable to find form ${formUuid}`);
               thirdPartyForm.submit();
               return;
             }
