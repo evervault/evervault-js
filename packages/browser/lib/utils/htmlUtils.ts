@@ -21,21 +21,17 @@ function findFormByHiddenField(uuid: string): Element | null {
 }
 
 function findChildOfForm(
-  form: HTMLFormElement | Element,
+  form: Element,
   elementType: string,
   elementName: string
-): HTMLInputElement | HTMLTextAreaElement {
+): Element {
   const field = form.querySelector(`${elementType}[name="${elementName}"]`);
-
   if (field === null) {
-    throw new Error(`Could not find field with type ${elementType} and name ${elementName}`);
+    throw new Error(
+      `Could not find field with type ${elementType} and name ${elementName}`
+    );
   }
-
-  if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) {
-    return field;
-  } else {
-    throw new Error(`Element found is not an input or textarea element.`);
-  }
+  return field;
 }
 
 export { findParentOfInput, findFormByHiddenField, findChildOfForm };

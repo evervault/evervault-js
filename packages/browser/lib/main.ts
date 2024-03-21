@@ -312,27 +312,33 @@ export default class EvervaultClient {
   async enableFormEncryption(thirdPartyForm: HTMLFormElement | undefined) {
     const forms: Form[] = await this.http.getAppForms();
     if (thirdPartyForm) {
-      const findSubmitButton = thirdPartyForm.querySelector("[type='submit']")
-      findSubmitButton?.addEventListener("click", async (event) => {
-        event.preventDefault();
-        if (forms.length > 0) {
-          for (let i = 0; i < forms.length; i++) {
-            const targetElements = forms[i].targetElements
-            for (let x = 0; x < targetElements.length; x++) {
-              const childToEncrypt = findChildOfForm(
-                thirdPartyForm,
-                forms[i].targetElements[x].elementType,
-                forms[i].targetElements[x].elementName
-              );
-              if (childToEncrypt != undefined) {
-                const encValue = await this.encrypt(childToEncrypt.value);
-                childToEncrypt.value = encValue;
+      const findSubmitButton = thirdPartyForm.querySelector("[type='submit']");
+      findSubmitButton?.addEventListener(
+        "click",
+        async (event) => {
+          event.preventDefault();
+          if (forms.length > 0) {
+            for (let i = 0; i < forms.length; i++) {
+              const targetElements = forms[i].targetElements;
+              for (let x = 0; x < targetElements.length; x++) {
+                const childToEncrypt = findChildOfForm(
+                  thirdPartyForm,
+                  forms[i].targetElements[x].elementType,
+                  forms[i].targetElements[x].elementName
+                );
+                if (childToEncrypt != undefined) {
+                  // @ts-expect-error explict cast is needed for more then a textarea
+                  const encValue = await this.encrypt(childToEncrypt.value);
+                  // @ts-expect-error explict cast is needed for more then a textarea
+                  childToEncrypt.value = encValue;
+                }
               }
             }
           }
-        }
-        thirdPartyForm.submit();
-      }, false);
+          thirdPartyForm.submit();
+        },
+        false
+      );
     } else {
       forms.forEach((form: Form) => {
         const hiddenInput = findFormByHiddenField(form.uuid);
