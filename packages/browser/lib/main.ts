@@ -315,22 +315,25 @@ export default class EvervaultClient {
       const findSubmitButton = thirdPartyForm.querySelector("[type='submit']");
       findSubmitButton?.addEventListener(
         "click",
-        async (event) => {
+        (event) => {
           event.preventDefault();
           if (forms.length > 0) {
-            for (let i = 0; i < forms.length; i++) {
-              const targetElements = forms[i].targetElements;
+            for (const form of forms) {
+              const { targetElements } = form
               for (let x = 0; x < targetElements.length; x++) {
                 const childToEncrypt = findChildOfForm(
                   thirdPartyForm,
-                  forms[i].targetElements[x].elementType,
-                  forms[i].targetElements[x].elementName
+                  form.targetElements[x].elementType,
+                  form.targetElements[x].elementName
                 );
-                if (childToEncrypt != undefined) {
+                if (childToEncrypt !== undefined) {
                   // @ts-expect-error explict cast is needed for more then a textarea
-                  const encValue = await this.encrypt(childToEncrypt.value);
-                  // @ts-expect-error explict cast is needed for more then a textarea
-                  childToEncrypt.value = encValue;
+                  this.encrypt(childToEncrypt.value).then((encValue) => {
+                    // @ts-expect-error explict cast is needed for more then a textarea
+                    childToEncrypt.value = encValue
+                  }).catch((_) => {
+                    console.error("Error encrypting form value");
+                  });
                 }
               }
             }
