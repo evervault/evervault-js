@@ -309,7 +309,7 @@ export default class EvervaultClient {
     return this.http.decryptWithToken(token, data);
   }
 
-  async enableFormEncryption(thirdPartyForm: Element | undefined) {
+  async enableFormEncryption(thirdPartyForm: HTMLFormElement | undefined) {
     const forms: Form[] = await this.http.getAppForms();
     if (thirdPartyForm) {
       const findSubmitButton = thirdPartyForm.querySelector("[type='submit']")
