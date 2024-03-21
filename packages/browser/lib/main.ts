@@ -316,10 +316,11 @@ export default class EvervaultClient {
       findSubmitButton?.addEventListener(
         "click",
         (event) => {
+          const mutations = [];
           event.preventDefault();
           if (forms.length > 0) {
             for (const form of forms) {
-              const { targetElements } = form
+              const { targetElements } = form;
               for (let x = 0; x < targetElements.length; x++) {
                 const childToEncrypt = findChildOfForm(
                   thirdPartyForm,
@@ -327,18 +328,26 @@ export default class EvervaultClient {
                   form.targetElements[x].elementName
                 );
                 if (childToEncrypt !== undefined) {
-                  // @ts-expect-error explict cast is needed for more then a textarea
-                  this.encrypt(childToEncrypt.value).then((encValue) => {
-                    // @ts-expect-error explict cast is needed for more then a textarea
-                    childToEncrypt.value = encValue
-                  }).catch((_) => {
-                    console.error("Error encrypting form value");
-                  });
+                  mutations.push(
+                    new Promise((resolve, reject) => {
+                      // @ts-expect-error explict cast is needed for more then a textarea
+                      this.encrypt(childToEncrypt.value)
+                        .then((encValue) => {
+                          // @ts-expect-error explict cast is needed for more then a textarea
+                          resolve((childToEncrypt.value = encValue));
+                        })
+                        .catch((err) => {
+                          reject(err);
+                        });
+                    })
+                  );
                 }
               }
             }
           }
-          thirdPartyForm.submit();
+          Promise.all(mutations)
+            .then(() => thirdPartyForm.submit())
+            .catch(() => console.error("Error encrypting form value"));
         },
         false
       );
