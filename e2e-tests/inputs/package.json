@@ -7,8 +7,6 @@
     "e2e:test": "start-server-and-test \"(cd ../../packages/inputs && pnpm run preview)\" http://localhost:4173/v2/ \"playwright test\""
   },
   "dependencies": {
-    "@evervault/inputs": "workspace:*",
-    "@playwright/test": "^1.40.1",
-    "start-server-and-test": "^2.0.0"
+    "@evervault/inputs": "workspace:*"
   }
 }
