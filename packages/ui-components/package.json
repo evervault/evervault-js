@@ -37,7 +37,7 @@
     "postcss-preset-env": "^8.3.0",
     "tsconfig": "workspace:^",
     "typescript": "^5.0.2",
-    "vite": "^4.5.2",
+    "vite": "^4.5.3",
     "vite-plugin-istanbul": "^5.0.0"
   }
 }
