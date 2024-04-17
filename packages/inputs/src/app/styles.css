@@ -339,11 +339,11 @@ textarea {
     background-color: var(--input-background);
     width: 100%;
     position: relative;
-    padding-inline: 1.5rem;
+    padding-inline: 1rem;
     padding-block: 1rem;
 
     &[data-element="cardnumber"] {
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
     }
   }
 
@@ -365,7 +365,7 @@ textarea {
     display: flex;
     font-size: 1rem;
     font-weight: 400;
-    left: 1.5rem;
+    left: 1rem;
     line-height: 1.2;
     margin: 0;
     pointer-events: none;
