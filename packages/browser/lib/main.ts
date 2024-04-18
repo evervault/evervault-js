@@ -336,19 +336,42 @@ export default class EvervaultClient {
                 form.targetElements[x].elementName
               );
               if (childToEncrypt !== undefined) {
-                mutations.push(
-                  new Promise((resolve, reject) => {
-                    // @ts-expect-error explict cast is needed for more then a textarea
-                    this.encrypt(childToEncrypt.value)
-                      .then((encValue) => {
-                        // @ts-expect-error explict cast is needed for more then a textarea
-                        resolve((childToEncrypt.value = encValue));
-                      })
-                      .catch((err) => {
-                        reject(err);
-                      });
-                  })
-                );
+                if (childToEncrypt.tagName === "SELECT") {
+                  const select = childToEncrypt as HTMLSelectElement;
+                  const optionsSelected = select.options.selectedIndex;
+                  if (optionsSelected !== 0) {
+                    const selectedOption = select.options[optionsSelected];
+                    if (selectedOption.value) {
+                      mutations.push(
+                        new Promise((resolve, reject) => {
+                          this.encrypt(selectedOption.value)
+                            .then((encValue) => {
+                              resolve((selectedOption.value = encValue));
+                            })
+                            .catch((err) => {
+                              reject(err);
+                            });
+                        })
+                      );
+                    }
+                  }
+                } else {
+                  mutations.push(
+                    new Promise((resolve, reject) => {
+                      // @ts-expect-error explict cast is needed for more then a element
+                      console.log("value", childToEncrypt.value);
+                      // @ts-expect-error explict cast is needed for more then an element
+                      this.encrypt(childToEncrypt.value)
+                        .then((encValue) => {
+                          // @ts-expect-error explict cast is needed for more then a element
+                          resolve((childToEncrypt.value = encValue));
+                        })
+                        .catch((err) => {
+                          reject(err);
+                        });
+                    })
+                  );
+                }
               }
             }
           }
@@ -381,12 +404,13 @@ export default class EvervaultClient {
           parentForm.appendChild(hiddenField);
 
           childToEncrypt.addEventListener("input", (event) => {
-            const target = event.target as HTMLTextAreaElement;
+            const target = event.target as any; // eslint-disable-line
             if (target?.value) {
-              this.encrypt(target.value)
+              // eslint-disable-line
+              this.encrypt(target.value) // eslint-disable-line
                 .then((encryptedValue) => {
                   // @ts-expect-error explict cast is needed for more then a textarea
-                  hiddenField.value = encryptedValue;
+                  hiddenField.value = encryptedValue; // eslint-disable-line
                 })
                 .catch((_) => {
                   console.error("Error encrypting form value");
