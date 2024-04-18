@@ -323,9 +323,21 @@ textarea {
 /* THEME: material-sling */
 
 .form-material-sling {
+  letter-spacing: -0.02em;
   & .form-group {
     padding: 0;
     -webkit-font-smoothing: antialiased;
+  }
+
+  & .input-row {
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    gap: calc(var(--spacing-unit) * 2);
+
+    & .input-group {
+      margin-bottom: 0;
+    }
   }
 
   & .input-group {
