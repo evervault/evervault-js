@@ -1,3 +1,4 @@
+import { CardBrandName } from "card-validator/types";
 import type { ThemeObject, CardField, CardTranslations } from "types";
 
 export interface CardConfig {
@@ -5,6 +6,7 @@ export interface CardConfig {
   autoFocus?: boolean;
   hiddenFields?: ("number" | "expiry" | "cvc")[];
   fields?: CardField[];
+  acceptedBrands?: CardBrandName[];
   translations?: Partial<CardTranslations>;
 }
 

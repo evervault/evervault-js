@@ -1,6 +1,6 @@
-import cardValidator from "card-validator";
 import { FocusEvent, useEffect, useRef } from "react";
 import { useMask } from "../utilities/useMask";
+import { validateNumber } from "card-validator";
 
 interface CardNumberProps {
   disabled?: boolean;
@@ -43,7 +43,7 @@ export function CardNumber({
     ] as CardMask[],
     dispatch: (appended, dynamicMasked) => {
       const number = dynamicMasked.value + appended;
-      const brand = cardValidator.number(number).card?.type;
+      const brand = validateNumber(number).brand;
 
       const mask = dynamicMasked.compiledMasks.find((m) => {
         const maskBrand = (m as CardMask).brand;

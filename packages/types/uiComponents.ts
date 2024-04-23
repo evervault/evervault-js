@@ -1,4 +1,5 @@
 import type { Styles } from "jss";
+import { CardBrandName } from "../card-validator/types";
 
 export interface TranslationsObject {
   [key: string]: string | TranslationsObject | undefined;
@@ -35,7 +36,8 @@ interface CardExpiry {
 export interface CardPayload {
   card: {
     name: string | null;
-    brand: string | undefined;
+    brand: string | null;
+    localBrands: string[] | null;
     number: string | null;
     lastFour: string | null;
     bin: string | null;
@@ -71,11 +73,13 @@ export interface CardOptions {
   autoFocus?: boolean;
   hiddenFields?: ("number" | "expiry" | "cvc")[]; // deprecated
   fields?: CardField[];
+  acceptedBrands?: CardBrandName[];
   translations?: Partial<CardTranslations>;
 }
 
 export interface SwipedCard {
-  brand: string | undefined;
+  brand: string | null;
+  localBrands: string[] | null;
   number: string | null;
   expiry: CardExpiry | null;
   firstName: string | null;

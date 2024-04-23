@@ -1,4 +1,4 @@
-import cardValidator from "card-validator";
+import {validateNumber} from "card-validator";
 import {
   FocusEvent,
   forwardRef,
@@ -29,7 +29,7 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
     useImperativeHandle(forwardedRef, () => innerRef.current!);
 
     const mask = useMemo(() => {
-      const type = cardValidator.number(cardNumber).card?.type;
+      const type = validateNumber(cardNumber).brand;
       if (type === "american-express") return "0000";
       return "000";
     }, [cardNumber]);
