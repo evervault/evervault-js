@@ -4,7 +4,6 @@ import { UseFormReturn } from "../utilities/useForm";
 import { MagStripeData } from "./useCardReader";
 import type { CardForm } from "./types";
 import type { CardField, CardPayload, SwipedCard } from "types";
-import { CardNumber } from "./CardNumber";
 
 export async function changePayload(
   ev: PromisifiedEvervaultClient,
@@ -19,9 +18,9 @@ export async function changePayload(
       name,
       brand,
       localBrands,
+      bin,
+      lastFour,
       number: await encryptedNumber(ev, number),
-      lastFour: lastFour,
-      bin: bin,
       expiry: formatExpiry(expiry),
       cvc: await encryptedCVC(ev, cvc, number),
     },
@@ -61,17 +60,17 @@ export async function swipePayload(
   const { brand, localBrands, bin, lastFour } = validateNumber(values.number);
 
   return {
+    firstName: values.firstName ?? null,
+    lastName: values.lastName ?? null,
     brand,
     localBrands,
+    bin,
+    lastFour,
     number: await encryptedNumber(ev, values.number),
     expiry: {
       month: values.month,
       year: values.year,
     },
-    firstName: values.firstName ?? null,
-    lastName: values.lastName ?? null,
-    lastFour: lastFour,
-    bin: bin,
   };
 }
 
