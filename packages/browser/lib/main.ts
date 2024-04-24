@@ -360,39 +360,52 @@ export default class EvervaultClient {
       );
     } else {
       forms.forEach((form: Form) => {
-        const hiddenInput = findFormByHiddenField(form.uuid);
+        const hiddenInput = findFormByHiddenField(
+          form.uuid,
+        );
         if (hiddenInput === null) {
           return;
         }
+
         const parentForm = findParentOfInput(hiddenInput);
-        form.targetElements.forEach((field, idx) => {
-          const childToEncrypt = findChildOfForm(
-            parentForm,
-            field.elementType,
-            field.elementName
-          );
-          childToEncrypt.removeAttribute("name");
+        if (parentForm === null) {
+          return;
+        }
 
-          const hiddenField = document.createElement(field.elementType);
-          hiddenField.setAttribute("type", "hidden");
-          hiddenField.setAttribute("name", field.elementName);
-          hiddenField.setAttribute("id", `ev_enc_shadow_${idx}`);
-          hiddenField.style.visibility = "hidden";
-          parentForm.appendChild(hiddenField);
+        const actionAttr = parentForm.getAttribute("action");
+        if (actionAttr === null) {
+          return;
+        }
+        parentForm.removeAttribute("action");
 
-          childToEncrypt.addEventListener("input", (event) => {
-            const target = event.target as HTMLTextAreaElement;
-            if (target?.value) {
-              this.encrypt(target.value)
-                .then((encryptedValue) => {
-                  // @ts-expect-error explict cast is needed for more then a textarea
-                  hiddenField.value = encryptedValue;
-                })
-                .catch((_) => {
-                  console.error("Error encrypting form value");
-                });
-            }
+        const formSubmitButton = parentForm.querySelector("[type='submit']");
+        formSubmitButton?.addEventListener("click", (event) => {
+          event.preventDefault();
+          const mutations: Promise<string>[] = [];
+          form.targetElements.forEach((field) => {
+            const childToEncrypt = findChildOfForm(
+              parentForm,
+              field.elementType,
+              field.elementName
+            ) as HTMLInputElement | HTMLTextAreaElement;
+            mutations.push(
+              new Promise((resolve, reject) => {
+                this.encrypt(childToEncrypt.value)
+                  .then((encValue) => {
+                    resolve((childToEncrypt.value = encValue));
+                  })
+                  .catch((err) => {
+                    reject(err);
+                  });
+              })
+            );
           });
+          Promise.all(mutations)
+            .then(() => {
+              parentForm.setAttribute("action", actionAttr);
+              parentForm.submit();
+            })
+            .catch(() => console.error("Error encrypting form value"));
         });
       });
     }
