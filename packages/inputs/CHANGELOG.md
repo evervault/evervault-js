@@ -1,5 +1,17 @@
 # @evervault/inputs
 
+## 2.18.2
+
+### Patch Changes
+
+- bcd1b48: Sling: Update material-sling spacing for redesign 2, the paddening
+
+## 2.18.1
+
+### Patch Changes
+
+- 592a77a: Sling: Update material-sling spacing for redesign
+
 ## 2.18.0
 
 ### Minor Changes
