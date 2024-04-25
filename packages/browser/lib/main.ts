@@ -360,9 +360,7 @@ export default class EvervaultClient {
       );
     } else {
       forms.forEach((form: Form) => {
-        const hiddenInput = findFormByHiddenField(
-          form.uuid,
-        );
+        const hiddenInput = findFormByHiddenField(form.uuid);
         if (hiddenInput === null) {
           return;
         }

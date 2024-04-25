@@ -12,9 +12,7 @@ function findParentOfInput(input: Element): HTMLFormElement | null {
   return findParentOfInput(parent);
 }
 
-function findFormByHiddenField(
-  uuid: string,
-): Element | null {
+function findFormByHiddenField(uuid: string): Element | null {
   const hiddenFieldSelectors = [`ev_${uuid}`, uuid];
   let hiddenInput = null;
   hiddenFieldSelectors.forEach((selector) => {
