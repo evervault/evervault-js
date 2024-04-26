@@ -9,6 +9,10 @@ function matchesRange(cardNumber: string, min: number, max: number): boolean {
   const substr = cardNumber.substring(0, maxLengthToCheck);
   const integerRepresentationOfCardNumber = parseInt(substr, 10);
 
+  if (substr.length < maxLengthToCheck) {
+    return false;
+  }
+
   min = parseInt(String(min).substring(0, substr.length), 10);
   max = parseInt(String(max).substring(0, substr.length), 10);
 
@@ -36,7 +40,7 @@ export function validateNumber(cardNumber: string): CardNumberValidationResult {
   if (!/^\d*$/.test(sanitizedCardNumber)) {
     return {
       brand: null,
-      localBrands: null,
+      localBrands: [],
       bin: null,
       lastFour: null,
       isValid: false,
@@ -54,40 +58,29 @@ export function validateNumber(cardNumber: string): CardNumberValidationResult {
     });
   });
 
-  // Filter out brands based on the card length
-  potentialBrands = potentialBrands.filter(brand => {
-    return brand.numberValidationRules.lengths.includes(sanitizedCardNumber.length);
-  });
-
-  // Filter out brands based on whether card number passes the Luhn check (e.g. Union Pay does not require Luhn check on certain ranges)
-  potentialBrands = potentialBrands.filter(brand => {
-    if (brand.numberValidationRules.luhnCheck) {
-      return luhn10(sanitizedCardNumber);
-    }
-
-    return true;
-  });
-
-  // If no brands are left, the card number is invalid
-  if (potentialBrands.length === 0) {
-    return {
-      brand: null,
-      localBrands: null,
-      bin: null,
-      lastFour: null,
-      isValid: false
-    }
-  }
-
   const globalBrands = potentialBrands.filter(brand => !brand.isLocal);
   const localBrands = potentialBrands.filter(brand => brand.isLocal);
+
+  let isValid = potentialBrands.length > 0 && potentialBrands.every(creditCardBrand => {
+    const { lengths, luhnCheck } = creditCardBrand.numberValidationRules;
+    
+    // Check if the length of the sanitized card number is supported
+    const isLengthValid = lengths.includes(sanitizedCardNumber.length);
+    
+    // If a Luhn check is required, perform the check
+    // Otherwise, if no Luhn check is required, consider it valid
+    const isLuhnValid = !luhnCheck || luhn10(sanitizedCardNumber);
+  
+    // Return true if both length and Luhn check conditions are met
+    return isLengthValid && isLuhnValid;
+  });
 
   return {
     brand: globalBrands.length > 0 ? globalBrands[0].name : null,
     localBrands: localBrands.map(brand => brand.name),
-    bin: sanitizedCardNumber.substring(0, 8),
-    lastFour: sanitizedCardNumber.substring(sanitizedCardNumber.length - 4),
-    isValid: true
+    bin: isValid ? sanitizedCardNumber.substring(0, 8) : null,
+    lastFour: isValid ? sanitizedCardNumber.substring(sanitizedCardNumber.length - 4) : null,
+    isValid: isValid
   }
 }
 
