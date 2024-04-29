@@ -1,5 +1,146 @@
 import { hexStringToUint8Array } from "../encoding";
-import ASN1 from "./asn1";
+import ASN1 from "asn1js";
+
+const PUBLIC_KEY_TYPE = '1.2.840.10045.2.1';
+const PRIME_FIELD = '1.2.840.10045.1.1';
+const VERSION = '01';
+
+/**
+ * @param {import { ./p256 }.TP256Constants} curveParams 
+ * @returns ASN1.Sequence
+ */
+const FieldId = (curveParams) => {
+  return new ASN1.Sequence({
+    name: 'fieldID',
+    value: [
+      new ASN1.ObjectIdentifier({
+        name: 'fieldType',
+        value: PRIME_FIELD,
+      }),
+      new ASN1.Integer({
+        name: 'parameters',
+        // Theres a specific rule this library doesn't seem to implement for Integer:
+        // If the first byte is 0x80 or greater, the number is considered negative so we add a '00' prefix if the 0x80 bit is set
+        // We need to manually add the 0x00 prefix to the value to make the library work as the first byte of 'p' is > 0x80
+        valueHex: new Uint8Array([0, ...hexStringToUint8Array(curveParams.p)])
+          .buffer,
+      }),
+    ],
+  });
+};
+
+/**
+ * @param {import { ./p256 }.TP256Constants} curveParams 
+ * @returns ASN1.Sequence
+ */
+const Curve = (curveParams) => {
+  return new ASN1.Sequence({
+    name: 'curve',
+    value: curveParams.seed
+      ? [
+          new ASN1.OctetString({
+            name: 'a',
+            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.a))
+              .buffer,
+          }),
+          new ASN1.OctetString({
+            name: 'b',
+            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.b))
+              .buffer,
+          }),
+          new ASN1.BitString({
+            optional: true,
+            name: 'seed',
+            valueHex: curveParams.seed
+              ? new Uint8Array(hexStringToUint8Array(curveParams.seed)).buffer
+              : curveParams.seed,
+          }),
+        ]
+      : [
+          new ASN1.OctetString({
+            name: 'a',
+            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.a))
+              .buffer,
+          }),
+          new ASN1.OctetString({
+            name: 'b',
+            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.b))
+              .buffer,
+          }),
+        ],
+  });
+};
+
+/**
+ * @param {import { ./p256 }.TP256Constants} curveParams 
+ * @returns ASN1.Sequence
+ */
+const ECParameters = (curveParams) => {
+  return new ASN1.Sequence({
+    name: 'ecParameters',
+    value: [
+      new ASN1.Integer({
+        name: 'version',
+        valueHex: new Uint8Array(hexStringToUint8Array(VERSION)).buffer,
+      }),
+      FieldId(curveParams),
+      Curve(curveParams),
+      new ASN1.OctetString({
+        name: 'base',
+        valueHex: new Uint8Array(hexStringToUint8Array(curveParams.generator))
+          .buffer,
+      }),
+      new ASN1.Integer({
+        name: 'order',
+        // Theres a specific rule this library doesn't seem to implement for Integer:
+        // If the first byte is 0x80 or greater, the number is considered negative so we add a '00' prefix if the 0x80 bit is set
+        // We need to manually add the 0x00 prefix to the value to make the library work as the first byte of 'n' is > 0x80
+        valueHex: new Uint8Array([0, ...hexStringToUint8Array(curveParams.n)])
+          .buffer,
+      }),
+      new ASN1.Integer({
+        optional: true,
+        name: 'cofactor',
+        valueHex: new Uint8Array(hexStringToUint8Array(curveParams.h)).buffer,
+      }),
+    ],
+  });
+};
+
+/**
+ * @param {import { ./p256 }.TP256Constants} curveParams 
+ * @returns ASN1.Sequence
+ */
+const AlgorithmIdentifier = (curveParams) => {
+  return new ASN1.Sequence({
+    name: 'algorithm',
+    value: [
+      new ASN1.ObjectIdentifier({
+        name: 'algorithm',
+        value: PUBLIC_KEY_TYPE,
+      }),
+      ECParameters(curveParams),
+    ],
+  });
+};
+
+/**
+ * @param {import { ./p256 }.TP256Constants} curveParams
+ * @param {string} decompressedKey
+ * @returns ASN1.Sequence
+ */
+const SubjectPublicKeyInfo = (curveParams, decompressedKey) => {
+  return new ASN1.Sequence({
+    name: 'SubjectPublicKeyInfo',
+    value: [
+      AlgorithmIdentifier(curveParams),
+      new ASN1.BitString({
+        name: 'subjectPublicKey',
+        valueHex: new Uint8Array(hexStringToUint8Array(decompressedKey)).buffer,
+      }),
+    ],
+  });
+};
 
 /**
  * @param {import("./p256").TP256Constants} curveValues
@@ -9,45 +150,7 @@ export default function buildEncoder({ p, a, b, seed, generator, n, h }) {
    * @param {string} decompressedKey
    * */
   return (decompressedKey) => {
-    const hexEncodedKey = ASN1(
-      "30",
-      ASN1(
-        "30",
-        // 1.2.840.10045.2.1 ecPublicKey
-        // (ANSI X9.62 public key type)
-        ASN1("06", "2A 86 48 CE 3D 02 01"),
-        ASN1(
-          "30",
-          // ECParameters Version
-          ASN1.UInt("01"),
-          ASN1(
-            "30",
-            // X9.62 Prime Field
-            ASN1("06", "2A 86 48 CE 3D 01 01"),
-            // curve p value
-            ASN1.UInt(p)
-          ),
-          ASN1(
-            "30",
-            // curve a value
-            ASN1("04", a),
-            // curve b value
-            ASN1("04", b),
-            // curve seed value
-            ASN1.BitStr(seed)
-          ),
-          // curve generate point in decompressed form
-          ASN1("04", generator),
-          // curve n value
-          ASN1.UInt(n),
-          // curve h value
-          ASN1.UInt(h)
-        )
-      ),
-      // decompressed public key
-      ASN1.BitStr(decompressedKey)
-    );
-
-    return hexStringToUint8Array(hexEncodedKey);
+    const spki = SubjectPublicKeyInfo({ p, a, b, seed, generator, n, h }, decompressedKey);
+    return Buffer.from(spki.toString('hex'), 'hex');
   };
 }
