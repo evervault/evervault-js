@@ -36,38 +36,25 @@ const FieldId = (curveParams) => {
 const Curve = (curveParams) => {
   return new ASN1.Sequence({
     name: 'curve',
-    value: curveParams.seed
-      ? [
-          new ASN1.OctetString({
-            name: 'a',
-            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.a))
-              .buffer,
-          }),
-          new ASN1.OctetString({
-            name: 'b',
-            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.b))
-              .buffer,
-          }),
-          new ASN1.BitString({
-            optional: true,
-            name: 'seed',
-            valueHex: curveParams.seed
-              ? new Uint8Array(hexStringToUint8Array(curveParams.seed)).buffer
-              : curveParams.seed,
-          }),
-        ]
-      : [
-          new ASN1.OctetString({
-            name: 'a',
-            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.a))
-              .buffer,
-          }),
-          new ASN1.OctetString({
-            name: 'b',
-            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.b))
-              .buffer,
-          }),
-        ],
+    value: [
+      new ASN1.OctetString({
+        name: 'a',
+        valueHex: new Uint8Array(hexStringToUint8Array(curveParams.a))
+          .buffer,
+      }),
+      new ASN1.OctetString({
+        name: 'b',
+        valueHex: new Uint8Array(hexStringToUint8Array(curveParams.b))
+          .buffer,
+      }),
+      new ASN1.BitString({
+        optional: true,
+        name: 'seed',
+        valueHex: curveParams.seed
+          ? new Uint8Array(hexStringToUint8Array(curveParams.seed)).buffer
+          : curveParams.seed,
+      }),
+    ],
   });
 };
 
