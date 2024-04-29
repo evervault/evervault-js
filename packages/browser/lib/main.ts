@@ -354,7 +354,7 @@ export default class EvervaultClient {
           }
           Promise.all(mutations)
             .then(() => thirdPartyForm.submit())
-            .catch(() => console.error("Error encrypting form value"));
+            .catch((err) => console.error("Error encrypting form value", err));
         },
         false
       );
