@@ -1,5 +1,5 @@
 import { hexStringToUint8Array } from "../encoding";
-import ASN1 from "asn1js";
+import { Integer, ObjectIdentifier, Sequence, BitString, OctetString } from "asn1js";
 
 const PUBLIC_KEY_TYPE = '1.2.840.10045.2.1';
 const PRIME_FIELD = '1.2.840.10045.1.1';
@@ -7,17 +7,17 @@ const VERSION = '01';
 
 /**
  * @param {import { ./p256 }.TP256Constants} curveParams 
- * @returns ASN1.Sequence
+ * @returns Sequence
  */
 const FieldId = (curveParams) => {
-  return new ASN1.Sequence({
+  return new Sequence({
     name: 'fieldID',
     value: [
-      new ASN1.ObjectIdentifier({
+      new ObjectIdentifier({
         name: 'fieldType',
         value: PRIME_FIELD,
       }),
-      new ASN1.Integer({
+      new Integer({
         name: 'parameters',
         // Theres a specific rule this library doesn't seem to implement for Integer:
         // If the first byte is 0x80 or greater, the number is considered negative so we add a '00' prefix if the 0x80 bit is set
@@ -31,23 +31,23 @@ const FieldId = (curveParams) => {
 
 /**
  * @param {import { ./p256 }.TP256Constants} curveParams 
- * @returns ASN1.Sequence
+ * @returns Sequence
  */
 const Curve = (curveParams) => {
-  return new ASN1.Sequence({
+  return new Sequence({
     name: 'curve',
     value: [
-      new ASN1.OctetString({
+      new OctetString({
         name: 'a',
         valueHex: new Uint8Array(hexStringToUint8Array(curveParams.a))
           .buffer,
       }),
-      new ASN1.OctetString({
+      new OctetString({
         name: 'b',
         valueHex: new Uint8Array(hexStringToUint8Array(curveParams.b))
           .buffer,
       }),
-      new ASN1.BitString({
+      new BitString({
         optional: true,
         name: 'seed',
         valueHex: curveParams.seed
@@ -60,24 +60,24 @@ const Curve = (curveParams) => {
 
 /**
  * @param {import { ./p256 }.TP256Constants} curveParams 
- * @returns ASN1.Sequence
+ * @returns Sequence
  */
 const ECParameters = (curveParams) => {
-  return new ASN1.Sequence({
+  return new Sequence({
     name: 'ecParameters',
     value: [
-      new ASN1.Integer({
+      new Integer({
         name: 'version',
         valueHex: new Uint8Array(hexStringToUint8Array(VERSION)).buffer,
       }),
       FieldId(curveParams),
       Curve(curveParams),
-      new ASN1.OctetString({
+      new OctetString({
         name: 'base',
         valueHex: new Uint8Array(hexStringToUint8Array(curveParams.generator))
           .buffer,
       }),
-      new ASN1.Integer({
+      new Integer({
         name: 'order',
         // Theres a specific rule this library doesn't seem to implement for Integer:
         // If the first byte is 0x80 or greater, the number is considered negative so we add a '00' prefix if the 0x80 bit is set
@@ -85,7 +85,7 @@ const ECParameters = (curveParams) => {
         valueHex: new Uint8Array([0, ...hexStringToUint8Array(curveParams.n)])
           .buffer,
       }),
-      new ASN1.Integer({
+      new Integer({
         optional: true,
         name: 'cofactor',
         valueHex: new Uint8Array(hexStringToUint8Array(curveParams.h)).buffer,
@@ -96,13 +96,13 @@ const ECParameters = (curveParams) => {
 
 /**
  * @param {import { ./p256 }.TP256Constants} curveParams 
- * @returns ASN1.Sequence
+ * @returns Sequence
  */
 const AlgorithmIdentifier = (curveParams) => {
-  return new ASN1.Sequence({
+  return new Sequence({
     name: 'algorithm',
     value: [
-      new ASN1.ObjectIdentifier({
+      new ObjectIdentifier({
         name: 'algorithm',
         value: PUBLIC_KEY_TYPE,
       }),
@@ -114,14 +114,14 @@ const AlgorithmIdentifier = (curveParams) => {
 /**
  * @param {import { ./p256 }.TP256Constants} curveParams
  * @param {string} decompressedKey
- * @returns ASN1.Sequence
+ * @returns Sequence
  */
 const SubjectPublicKeyInfo = (curveParams, decompressedKey) => {
-  return new ASN1.Sequence({
+  return new Sequence({
     name: 'SubjectPublicKeyInfo',
     value: [
       AlgorithmIdentifier(curveParams),
-      new ASN1.BitString({
+      new BitString({
         name: 'subjectPublicKey',
         valueHex: new Uint8Array(hexStringToUint8Array(decompressedKey)).buffer,
       }),
