@@ -14,7 +14,6 @@ const evervault = new window.Evervault(
 
 const card = evervault.ui.card({
   theme: evervault.ui.themes.clean(),
-  acceptedBrands: ["szep"],
 });
 
 card.on("change", (values) => {
