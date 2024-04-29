@@ -1,5 +1,12 @@
 # example-custom-theme
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies [43d5607]
+  - @evervault/browser@2.22.1
+
 ## 0.0.4
 
 ### Patch Changes
