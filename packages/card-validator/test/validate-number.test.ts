@@ -12,26 +12,53 @@ interface CardTestData {
   testCases: TestCase[];
 }
 
-// ["411", "visa"],
-// ["4111111111111111", "visa"],
-// ["4012888888881881", "visa"],
-// ["4222222222222", "visa"],
-// ["4462030000000000", "visa"],
-// ["4484070000000000", "visa"],
-// ["411111111111111111", "visa"],
-// ["4111111111111111110", "visa"],
-
 const testData: CardTestData[] = [
   {
     scope: "Visa cards",
     testCases: [
       {
-        cardNumber: "4012888888881881",
-        expectedResult: { brand: 'visa', localBrands: [], bin: '40128888', lastFour: '1881', isValid: true },
+        cardNumber: "4",
+        expectedResult: { brand: 'visa', localBrands: [], bin: null, lastFour: null, isValid: false },
+      },
+      {
+        cardNumber: "411",
+        expectedResult: { brand: 'visa', localBrands: [], bin: null, lastFour: null, isValid: false },
+      },
+      {
+        cardNumber: "4111111111111111",
+        expectedResult: { brand: 'visa', localBrands: [], bin: '41111111', lastFour: '1111', isValid: true },
       },
       {
         cardNumber: "4012888888881881",
         expectedResult: { brand: 'visa', localBrands: [], bin: '40128888', lastFour: '1881', isValid: true },
+      },
+      {
+        cardNumber: "4222222222222",
+        expectedResult: { brand: 'visa', localBrands: [], bin: null, lastFour: null, isValid: false },
+      },
+      {
+        cardNumber: "4462030000000000",
+        expectedResult: { brand: 'visa', localBrands: [], bin: '44620300', lastFour: '0000', isValid: true },
+      },
+      {
+        cardNumber: "44620300000000002", // 17-digit card number
+        expectedResult: { brand: 'visa', localBrands: [], bin: null, lastFour: null, isValid: false },
+      },
+      {
+        cardNumber: "446203000000000026",
+        expectedResult: { brand: 'visa', localBrands: [], bin: '44620300', lastFour: '0026', isValid: true },
+      },
+      {
+        cardNumber: "4462030000000000267",
+        expectedResult: { brand: 'visa', localBrands: [], bin: '44620300', lastFour: '0267', isValid: true },
+      },
+      {
+        cardNumber: "4462030000000000266", // Invalid luhn check
+        expectedResult: { brand: 'visa', localBrands: [], bin: null, lastFour: null, isValid: false },
+      },
+      {
+        cardNumber: "44620300000000002675", // 20-digit card number
+        expectedResult: { brand: 'visa', localBrands: [], bin: null, lastFour: null, isValid: false },
       },
     ],
   },
@@ -171,12 +198,105 @@ const testData: CardTestData[] = [
     scope: "Discover cards",
     testCases: [
       {
+        cardNumber: "6011",
+        expectedResult: { brand: 'discover', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "644",
+        expectedResult: { brand: 'discover', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "645",
+        expectedResult: { brand: 'discover', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "646",
+        expectedResult: { brand: 'discover', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "647",
+        expectedResult: { brand: 'discover', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "648",
+        expectedResult: { brand: 'discover', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "649",
+        expectedResult: { brand: 'discover', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
         cardNumber: "6011111",
         expectedResult: { brand: 'discover', localBrands: [], bin: null, lastFour: null, isValid: false }
       },
       {
         cardNumber: "6011111111111117",
         expectedResult: { brand: 'discover', localBrands: [], bin: '60111111', lastFour: '1117', isValid: true }
+      },
+      {
+        cardNumber: "6011000400000000",
+        expectedResult: { brand: 'discover', localBrands: [], bin: '60110004', lastFour: '0000', isValid: true }
+      },
+      {
+        cardNumber: "6011111111111117",
+        expectedResult: { brand: 'discover', localBrands: [], bin: '60111111', lastFour: '1117', isValid: true }
+      },
+      {
+        cardNumber: "6011000990139424",
+        expectedResult: { brand: 'discover', localBrands: [], bin: '60110009', lastFour: '9424', isValid: true }
+      },
+    ]
+  },
+  {
+    scope: "JCB cards",
+    testCases: [
+      {
+        cardNumber: "1",
+        expectedResult: { brand: null, localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "35",
+        expectedResult: { brand: null, localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "3528",
+        expectedResult: { brand: 'jcb', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "2131",
+        expectedResult: { brand: 'jcb', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "21312",
+        expectedResult: { brand: 'jcb', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "1800",
+        expectedResult: { brand: 'jcb', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "18002",
+        expectedResult: { brand: 'jcb', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "3530111333300000",
+        expectedResult: { brand: 'jcb', localBrands: [], bin: '35301113', lastFour: '0000', isValid: true }
+      },
+      {
+        cardNumber: "3566002020360505",
+        expectedResult: { brand: 'jcb', localBrands: [], bin: '35660020', lastFour: '0505', isValid: true }
+      },
+      {
+        cardNumber: "35308796121637357",
+        expectedResult: { brand: 'jcb', localBrands: [], bin: '35308796', lastFour: '7357', isValid: true }
+      },
+      {
+        cardNumber: "353445444300732639",
+        expectedResult: { brand: 'jcb', localBrands: [], bin: '35344544', lastFour: '2639', isValid: true }
+      },
+      {
+        cardNumber: "3537286818376838569",
+        expectedResult: { brand: 'jcb', localBrands: [], bin: '35372868', lastFour: '8569', isValid: true }
       }
     ]
   },
@@ -206,6 +326,75 @@ const testData: CardTestData[] = [
       {
         cardNumber: "610131701712", // 12 characters
         expectedResult: { brand: 'maestro', localBrands: ['szep'], bin: null, lastFour: null, isValid: false }
+      }
+    ]
+  },
+  {
+    scope: "Elo cards",
+    testCases: [
+      {
+        cardNumber: "431274",
+        expectedResult: { brand: "visa", localBrands: ['elo'], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "451416",
+        expectedResult: { brand: "visa", localBrands: ['elo'], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "457393",
+        expectedResult: { brand: "visa", localBrands: ['elo'], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "401178",
+        expectedResult: { brand: "visa", localBrands: ['elo'], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "401179",
+        expectedResult: { brand: "visa", localBrands: ['elo'], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "438935",
+        expectedResult: { brand: "visa", localBrands: ['elo'], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "457631",
+        expectedResult: { brand: "visa", localBrands: ['elo'], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "457632",
+        expectedResult: { brand: "visa", localBrands: ['elo'], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "4576321111111111", // Invalid lunh check
+        expectedResult: { brand: "visa", localBrands: ['elo'], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "4576321111111114",
+        expectedResult: { brand: "visa", localBrands: ['elo'], bin: '45763211', lastFour: '1114', isValid: true }
+      },
+      {
+        cardNumber: "5066991111111118",
+        expectedResult: { brand: null, localBrands: ['elo'], bin: '50669911', lastFour: '1118', isValid: true }
+      },
+      {
+        cardNumber: "504175",
+        expectedResult: { brand: null, localBrands: ['elo'], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "6277809",
+        expectedResult: { brand: null, localBrands: ['elo'], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "6277809990229178",
+        expectedResult: { brand: null, localBrands: ['elo'], bin: '62778099', lastFour: '9178', isValid: true }
+      },
+      {
+        cardNumber: "650033",
+        expectedResult: { brand: "discover", localBrands: ['elo'], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "6500331111111111", // Invalid lunh check
+        expectedResult: { brand: "discover", localBrands: ['elo'], bin: null, lastFour: null, isValid: false }
       }
     ]
   }
