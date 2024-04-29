@@ -12,6 +12,15 @@ interface CardTestData {
   testCases: TestCase[];
 }
 
+// ["411", "visa"],
+// ["4111111111111111", "visa"],
+// ["4012888888881881", "visa"],
+// ["4222222222222", "visa"],
+// ["4462030000000000", "visa"],
+// ["4484070000000000", "visa"],
+// ["411111111111111111", "visa"],
+// ["4111111111111111110", "visa"],
+
 const testData: CardTestData[] = [
   {
     scope: "Visa cards",
@@ -59,7 +68,92 @@ const testData: CardTestData[] = [
       },
     ]
   },
-
+  {
+    scope: "American Express cards",
+    testCases: [
+      {
+        cardNumber: "34",
+        expectedResult: { brand: 'american-express', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "37",
+        expectedResult: { brand: 'american-express', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "341",
+        expectedResult: { brand: 'american-express', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "34343434343434", // too short
+        expectedResult: { brand: 'american-express', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "343434343434344", // invalid luhn check
+        expectedResult: { brand: 'american-express', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "343434343434343",
+        expectedResult: { brand: 'american-express', localBrands: [], bin: '34343434', lastFour: '4343', isValid: true }
+      },
+      {
+        cardNumber: "378282246310005",
+        expectedResult: { brand: 'american-express', localBrands: [], bin: '37828224', lastFour: '0005', isValid: true }
+      },
+      {
+        cardNumber: "371449635398431",
+        expectedResult: { brand: 'american-express', localBrands: [], bin: '37144963', lastFour: '8431', isValid: true }
+      },
+      {
+        cardNumber: "378734493671000",
+        expectedResult: { brand: 'american-express', localBrands: [], bin: '37873449', lastFour: '1000', isValid: true }
+      }
+    ]
+  },
+  {
+    scope: "Diners Club cards",
+    testCases: [
+      {
+        cardNumber: "30",
+        expectedResult: { brand: null, localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "300",
+        expectedResult: { brand: 'diners-club', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "36",
+        expectedResult: { brand: 'diners-club', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "38",
+        expectedResult: { brand: 'diners-club', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "39",
+        expectedResult: { brand: 'diners-club', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+      {
+        cardNumber: "30569309025904",
+        expectedResult: { brand: 'diners-club', localBrands: [], bin: '30569309', lastFour: '5904', isValid: true }
+      },
+      {
+        cardNumber: "38520000023237",
+        expectedResult: { brand: 'diners-club', localBrands: [], bin: '38520000', lastFour: '3237', isValid: true }
+      },
+      {
+        cardNumber: "36700102000000",
+        expectedResult: { brand: 'diners-club', localBrands: [], bin: '36700102', lastFour: '0000', isValid: true }
+      },
+      {
+        cardNumber: "36148900647913",
+        expectedResult: { brand: 'diners-club', localBrands: [], bin: '36148900', lastFour: '7913', isValid: true }
+      },
+      {
+        cardNumber: "36148900647914",
+        expectedResult: { brand: 'diners-club', localBrands: [], bin: null, lastFour: null, isValid: false }
+      },
+    ]
+  },
   {
     scope: "UnionPay cards",
     testCases: [

@@ -47,8 +47,8 @@ export function validateNumber(cardNumber: string): CardNumberValidationResult {
     }
   }
 
-  // Filter out brands based on whether card number matches the accepted ranges
-  let potentialBrands = acceptedBrands.filter(brand => {
+  // Filter out brands where the card number does not match any of the ranges
+  const cardBrands = defaultBrands.filter(brand => {
     return brand.numberValidationRules.ranges.some(range => {
       if (Array.isArray(range)) {
         return matchesRange(sanitizedCardNumber, range[0], range[1]);
@@ -58,10 +58,15 @@ export function validateNumber(cardNumber: string): CardNumberValidationResult {
     });
   });
 
-  const globalBrands = potentialBrands.filter(brand => !brand.isLocal);
-  const localBrands = potentialBrands.filter(brand => brand.isLocal);
+  const globalBrands = cardBrands.filter(brand => !brand.isLocal);
+  const localBrands = cardBrands.filter(brand => brand.isLocal);
 
-  let isValid = potentialBrands.length > 0 && potentialBrands.every(creditCardBrand => {
+  // Check if the card number is valid based on:
+  // 1. The card number belongs to at least one card brand range
+  // 2. The length of the card number is supported, based on all supported card brands
+  // 3. The Luhn check passes, based on all supported card brands
+  // 4. The card brand is accepted (`acceptedBrands` config option)
+  let isValid = cardBrands.length > 0 && cardBrands.every(creditCardBrand => {
     const { lengths, luhnCheck } = creditCardBrand.numberValidationRules;
     
     // Check if the length of the sanitized card number is supported
@@ -73,7 +78,7 @@ export function validateNumber(cardNumber: string): CardNumberValidationResult {
   
     // Return true if both length and Luhn check conditions are met
     return isLengthValid && isLuhnValid;
-  });
+  }) && acceptedBrands.some(acceptedBrand => cardBrands.find(cardBrand => cardBrand.name === acceptedBrand.name));
 
   return {
     brand: globalBrands.length > 0 ? globalBrands[0].name : null,
