@@ -71,6 +71,34 @@ test.describe("card component", () => {
     await expect(frame.getByText("Your CVC is invalid")).not.toBeVisible();
   });
 
+  test("shows an error message for an unsupported card brand", async ({
+    page,
+  }) => {
+    let values = {};
+
+    await page.exposeFunction("handleChange", (newValues) => {
+      values = newValues;
+    });
+
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card({acceptedBrand: ["visa"]});
+      card.on("change", window.handleChange);
+      card.mount("#form");
+    });
+
+    const testCard = VALID_CARDS.amex;
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill(testCard.number);
+    await frame.getByLabel("Number").blur();
+    await expect(frame.getByText("This card brand is not supported")).toBeVisible();
+    await expect.poll(async () => values.errors.number).toEqual("invalid");
+    await expect.poll(async () => values.isValid).toBeFalsy();
+    await expect(
+      frame.getByText("Your expiration date is invalid")
+    ).not.toBeVisible();
+    await expect(frame.getByText("Your CVC is invalid")).not.toBeVisible();
+  });
+
   test("Does not show an error message until the user has blurred away from the input", async ({
     page,
   }) => {
