@@ -1,5 +1,5 @@
 import { useEvervault } from "@evervault/react";
-import { updateAcceptedBrands, validateNumber, validateCVC, validateExpiry } from "card-validator";
+import { validateNumber, validateCVC, validateExpiry } from "card-validator";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
@@ -13,7 +13,7 @@ import { CardHolder } from "./CardHolder";
 import { CardNumber } from "./CardNumber";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useCardReader } from "./useCardReader";
-import { changePayload, swipePayload } from "./utilities";
+import { changePayload, isAcceptedBrand, swipePayload } from "./utilities";
 import type { CardForm, CardConfig } from "./types";
 import type { CardFrameClientMessages, CardFrameHostMessages } from "types";
 
@@ -26,9 +26,7 @@ export function Card({ config }: { config: CardConfig }) {
   const ev = useEvervault();
   const { t } = useTranslations(DEFAULT_TRANSLATIONS, config?.translations);
 
-  if (config.acceptedBrands) {
-    updateAcceptedBrands(config.acceptedBrands);
-  }  
+  const acceptedBrands = config.acceptedBrands;
 
   const fields = useMemo(() => {
     let result = config.fields ?? ["number", "expiry", "cvc"];
@@ -64,6 +62,10 @@ export function Card({ config }: { config: CardConfig }) {
         const cardValidation = validateNumber(values.number);
         if (!cardValidation.isValid) {
           return "invalid";
+        }
+
+        if (!isAcceptedBrand(acceptedBrands, cardValidation)) {
+          return "unsupportedBrand";
         }
 
         return undefined;

@@ -4,6 +4,7 @@ import { UseFormReturn } from "../utilities/useForm";
 import { MagStripeData } from "./useCardReader";
 import type { CardForm } from "./types";
 import type { CardField, CardPayload, SwipedCard } from "types";
+import { CardBrandName, CardNumberValidationResult } from "card-validator/types";
 
 export async function changePayload(
   ev: PromisifiedEvervaultClient,
@@ -11,7 +12,7 @@ export async function changePayload(
   fields: CardField[]
 ): Promise<CardPayload> {
   const { name, number, expiry, cvc } = form.values;
-  const { brand, localBrands, bin, lastFour } = validateNumber(number);
+  const { brand, localBrands, bin, lastFour, isValid: isValidCardNumber } = validateNumber(number);
 
   return {
     card: {
@@ -20,7 +21,7 @@ export async function changePayload(
       localBrands,
       bin,
       lastFour,
-      number: await encryptedNumber(ev, number),
+      number: isValidCardNumber ? await encryptedNumber(ev, number) : null,
       expiry: formatExpiry(expiry),
       cvc: await encryptedCVC(ev, cvc, number),
     },
@@ -72,6 +73,16 @@ export async function swipePayload(
       year: values.year,
     },
   };
+}
+
+export function isAcceptedBrand(
+  acceptedBrands: CardBrandName[] | undefined,
+  cardNumberValidationResult: CardNumberValidationResult,
+) {
+  if (!acceptedBrands) return true;
+  const { brand, localBrands } = cardNumberValidationResult;
+
+  return (brand && acceptedBrands.includes(brand)) || localBrands.some((localBrand) => acceptedBrands.includes(localBrand));
 }
 
 function formatExpiry(expiry: string) {

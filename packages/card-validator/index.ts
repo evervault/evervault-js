@@ -26,10 +26,12 @@ function matchesPrefix(cardNumber: string, prefix: number): boolean {
   return cardNumber.startsWith(String(prefix));
 }
 
-export function updateAcceptedBrands(brands: CardBrandName[]): void {
-  acceptedBrands = defaultBrands.filter(brand => {
-    return brands.includes(brand.name);
-  });
+function getBin(cardNumber: string): string {
+  if (cardNumber.length < 16) {
+    return cardNumber.substring(0, 6);
+  } else {
+    return cardNumber.substring(0, 8);
+  }
 }
 
 export function validateNumber(cardNumber: string): CardNumberValidationResult {
@@ -65,7 +67,6 @@ export function validateNumber(cardNumber: string): CardNumberValidationResult {
   // 1. The card number belongs to at least one card brand range
   // 2. The length of the card number is supported, based on all supported card brands
   // 3. The Luhn check passes, based on all supported card brands
-  // 4. The card brand is accepted (`acceptedBrands` config option)
   let isValid = cardBrands.length > 0 && cardBrands.every(creditCardBrand => {
     const { lengths, luhnCheck } = creditCardBrand.numberValidationRules;
     
@@ -78,12 +79,12 @@ export function validateNumber(cardNumber: string): CardNumberValidationResult {
   
     // Return true if both length and Luhn check conditions are met
     return isLengthValid && isLuhnValid;
-  }) && acceptedBrands.some(acceptedBrand => cardBrands.find(cardBrand => cardBrand.name === acceptedBrand.name));
+  });
 
   return {
     brand: globalBrands.length > 0 ? globalBrands[0].name : null,
     localBrands: localBrands.map(brand => brand.name),
-    bin: isValid ? sanitizedCardNumber.substring(0, 8) : null,
+    bin: isValid ? getBin(cardNumber) : null,
     lastFour: isValid ? sanitizedCardNumber.substring(sanitizedCardNumber.length - 4) : null,
     isValid: isValid
   }

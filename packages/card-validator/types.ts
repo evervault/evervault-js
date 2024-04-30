@@ -36,7 +36,7 @@ export type CardValidationOptions = {
 
 export type CardNumberValidationResult = {
   brand: CardBrandName | null;
-  localBrands: CardBrandName[] | null;
+  localBrands: CardBrandName[];
   bin: string | null;
   lastFour: string | null;
   isValid: boolean;

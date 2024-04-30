@@ -63,7 +63,7 @@ interface CardFieldTranslations<E extends TranslationsObject>
 }
 
 export interface CardTranslations extends TranslationsObject {
-  number: CardFieldTranslations<{ invalid?: string }>;
+  number: CardFieldTranslations<{ invalid?: string, unsupportedBrand?: string }>;
   expiry: CardFieldTranslations<{ invalid?: string }>;
   cvc: CardFieldTranslations<{ invalid?: string }>;
 }
