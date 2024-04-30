@@ -82,7 +82,10 @@ export function isAcceptedBrand(
   if (!acceptedBrands) return true;
   const { brand, localBrands } = cardNumberValidationResult;
 
-  return (brand && acceptedBrands.includes(brand)) || localBrands.some((localBrand) => acceptedBrands.includes(localBrand));
+  const isBrandAccepted = brand && acceptedBrands.includes(brand);
+  const isLocalBrandAccepted = localBrands.some(localBrand => acceptedBrands.includes(localBrand));
+
+  return isBrandAccepted || isLocalBrandAccepted;
 }
 
 function formatExpiry(expiry: string) {
