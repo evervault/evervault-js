@@ -26,7 +26,7 @@ export function Card({ config }: { config: CardConfig }) {
   const ev = useEvervault();
   const { t } = useTranslations(DEFAULT_TRANSLATIONS, config?.translations);
 
-  const acceptedBrands = config.acceptedBrands;
+  const { acceptedBrands } = config;
 
   const fields = useMemo(() => {
     let result = config.fields ?? ["number", "expiry", "cvc"];

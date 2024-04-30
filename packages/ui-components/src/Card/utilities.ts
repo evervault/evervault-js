@@ -1,10 +1,10 @@
 import { PromisifiedEvervaultClient } from "@evervault/react";
 import { validateNumber, validateExpiry, validateCVC } from "card-validator";
+import { CardBrandName, CardNumberValidationResult } from "card-validator/types";
 import { UseFormReturn } from "../utilities/useForm";
 import { MagStripeData } from "./useCardReader";
 import type { CardForm } from "./types";
 import type { CardField, CardPayload, SwipedCard } from "types";
-import { CardBrandName, CardNumberValidationResult } from "card-validator/types";
 
 export async function changePayload(
   ev: PromisifiedEvervaultClient,
@@ -78,7 +78,7 @@ export async function swipePayload(
 export function isAcceptedBrand(
   acceptedBrands: CardBrandName[] | undefined,
   cardNumberValidationResult: CardNumberValidationResult,
-) {
+): boolean {
   if (!acceptedBrands) return true;
   const { brand, localBrands } = cardNumberValidationResult;
 
