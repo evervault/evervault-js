@@ -7,7 +7,7 @@ test.describe("card component", () => {
   });
 
   Object.values(VALID_CARDS).forEach((card) => {
-    test(`can capture valid ${card.brand} card details`, async ({ page }) => {
+    test(`can capture valid card details for ${card.number} (${card.brand})`, async ({ page }) => {
       let values = {};
 
       await page.exposeFunction("handleChange", (newValues) => {
