@@ -120,19 +120,19 @@ const testData: CardTestData[] = [
       },
       {
         cardNumber: "343434343434343",
-        expectedResult: { brand: 'american-express', localBrands: [], bin: '34343434', lastFour: '4343', isValid: true }
+        expectedResult: { brand: 'american-express', localBrands: [], bin: '343434', lastFour: '4343', isValid: true }
       },
       {
         cardNumber: "378282246310005",
-        expectedResult: { brand: 'american-express', localBrands: [], bin: '37828224', lastFour: '0005', isValid: true }
+        expectedResult: { brand: 'american-express', localBrands: [], bin: '378282', lastFour: '0005', isValid: true }
       },
       {
         cardNumber: "371449635398431",
-        expectedResult: { brand: 'american-express', localBrands: [], bin: '37144963', lastFour: '8431', isValid: true }
+        expectedResult: { brand: 'american-express', localBrands: [], bin: '371449', lastFour: '8431', isValid: true }
       },
       {
         cardNumber: "378734493671000",
-        expectedResult: { brand: 'american-express', localBrands: [], bin: '37873449', lastFour: '1000', isValid: true }
+        expectedResult: { brand: 'american-express', localBrands: [], bin: '378734', lastFour: '1000', isValid: true }
       }
     ]
   },
@@ -161,19 +161,19 @@ const testData: CardTestData[] = [
       },
       {
         cardNumber: "30569309025904",
-        expectedResult: { brand: 'diners-club', localBrands: [], bin: '30569309', lastFour: '5904', isValid: true }
+        expectedResult: { brand: 'diners-club', localBrands: [], bin: '305693', lastFour: '5904', isValid: true }
       },
       {
         cardNumber: "38520000023237",
-        expectedResult: { brand: 'diners-club', localBrands: [], bin: '38520000', lastFour: '3237', isValid: true }
+        expectedResult: { brand: 'diners-club', localBrands: [], bin: '385200', lastFour: '3237', isValid: true }
       },
       {
         cardNumber: "36700102000000",
-        expectedResult: { brand: 'diners-club', localBrands: [], bin: '36700102', lastFour: '0000', isValid: true }
+        expectedResult: { brand: 'diners-club', localBrands: [], bin: '367001', lastFour: '0000', isValid: true }
       },
       {
         cardNumber: "36148900647913",
-        expectedResult: { brand: 'diners-club', localBrands: [], bin: '36148900', lastFour: '7913', isValid: true }
+        expectedResult: { brand: 'diners-club', localBrands: [], bin: '361489', lastFour: '7913', isValid: true }
       },
       {
         cardNumber: "36148900647914",
