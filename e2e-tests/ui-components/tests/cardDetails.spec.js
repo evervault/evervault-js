@@ -26,6 +26,7 @@ test.describe("card component", () => {
       await frame.getByLabel("CVC").fill(card.cvc);
       await expect.poll(async () => values.card?.number).toBeEncrypted();
       await expect.poll(async () => values.card?.brand).toEqual(card.brand);
+      await expect.poll(async () => values.card?.localBrands).toEqual(card.localBrands);
       await expect.poll(async () => values.card?.cvc).toBeEncrypted();
       await expect
         .poll(async () => values.card?.expiry?.month)
