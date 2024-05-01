@@ -92,7 +92,7 @@ test.describe("card component", () => {
     await frame.getByLabel("Number").fill(testCard.number);
     await frame.getByLabel("Number").blur();
     await expect(frame.getByText("This card brand is not supported")).toBeVisible();
-    await expect.poll(async () => values.errors.number).toEqual("invalid");
+    await expect.poll(async () => values.errors.number).toEqual("unsupportedBrand");
     await expect.poll(async () => values.isValid).toBeFalsy();
     await expect(
       frame.getByText("Your expiration date is invalid")
