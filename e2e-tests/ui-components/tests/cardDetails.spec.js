@@ -82,7 +82,7 @@ test.describe("card component", () => {
     });
 
     await page.evaluate(() => {
-      const card = window.evervault.ui.card({acceptedBrand: ["visa"]});
+      const card = window.evervault.ui.card({acceptedBrands: ["visa"]});
       card.on("change", window.handleChange);
       card.mount("#form");
     });
