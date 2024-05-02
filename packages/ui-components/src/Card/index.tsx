@@ -1,5 +1,5 @@
-import { useEvervault } from "@evervault/react";
 import { validateNumber, validateCVC, validateExpiry } from "@evervault/card-validator";
+import { useEvervault } from "@evervault/react";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";

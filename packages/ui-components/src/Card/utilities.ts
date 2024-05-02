@@ -1,5 +1,5 @@
-import { PromisifiedEvervaultClient } from "@evervault/react";
 import { validateNumber, validateExpiry, validateCVC } from "@evervault/card-validator";
+import { PromisifiedEvervaultClient } from "@evervault/react";
 import { CardNumberValidationResult } from "@evervault/card-validator/types";
 import { UseFormReturn } from "../utilities/useForm";
 import { MagStripeData } from "./useCardReader";
