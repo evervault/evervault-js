@@ -384,9 +384,6 @@ importers:
 
   packages/types:
     dependencies:
-      '@evervault/card-validator':
-        specifier: workspace:^
-        version: link:../card-validator
       jss:
         specifier: ^10.10.0
         version: 10.10.0
