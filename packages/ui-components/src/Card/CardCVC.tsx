@@ -1,4 +1,4 @@
-import {validateNumber} from "card-validator";
+import {validateNumber} from "@evervault/card-validator";
 import {
   FocusEvent,
   forwardRef,

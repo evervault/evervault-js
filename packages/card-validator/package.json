@@ -1,5 +1,5 @@
 {
-  "name": "card-validator",
+  "name": "@evervault/card-validator",
   "version": "0.0.0",
   "main": "index.ts",
   "types": "index.ts",

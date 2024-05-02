@@ -1,8 +1,6 @@
 import { luhn10 } from "./lunh";
-import { CardBrand, CardBrandName, CardCVCValidationResult, CardExpiryValidationResult, CardNumberValidationResult, CardValidationOptions } from "./types";
+import { CardBrandName, CardCVCValidationResult, CardExpiryValidationResult, CardNumberValidationResult } from "./types";
 import defaultBrands from "./brands";
-
-let acceptedBrands: CardBrand[] = defaultBrands; 
 
 function matchesRange(cardNumber: string, min: number, max: number): boolean {
   const maxLengthToCheck = String(min).length;
@@ -114,9 +112,11 @@ export function validateCVC(cvc: string, cardNumber: string): CardCVCValidationR
   if (validatedCard.localBrands) {
     brands.push(...validatedCard.localBrands);
   }
-  const isCVCValid = acceptedBrands.filter(brand => brands.includes(brand.name)).some(brand => {
+
+  const isCVCValid = defaultBrands.filter(brand => brands.includes(brand.name)).some(brand => {
     return brand.securityCodeValidationRules.length === cvc.length;
   });
+
   return {
     cvc: isCVCValid ? cvc : null,
     isValid: isCVCValid

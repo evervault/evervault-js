@@ -1,5 +1,5 @@
 import type { Styles } from "jss";
-import { CardBrandName } from "../card-validator/types";
+import { CardBrandName } from "@evervault/card-validator/types";
 
 export interface TranslationsObject {
   [key: string]: string | TranslationsObject | undefined;

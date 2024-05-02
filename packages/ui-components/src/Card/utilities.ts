@@ -1,6 +1,6 @@
 import { PromisifiedEvervaultClient } from "@evervault/react";
-import { validateNumber, validateExpiry, validateCVC } from "card-validator";
-import { CardBrandName, CardNumberValidationResult } from "card-validator/types";
+import { validateNumber, validateExpiry, validateCVC } from "@evervault/card-validator";
+import { CardBrandName, CardNumberValidationResult } from "@evervault/card-validator/types";
 import { UseFormReturn } from "../utilities/useForm";
 import { MagStripeData } from "./useCardReader";
 import type { CardForm } from "./types";
@@ -48,7 +48,7 @@ function isComplete(form: UseFormReturn<CardForm>, fields: CardField[]) {
 
   if (fields.includes("cvc")) {
     const cvcValidation = validateCVC(form.values.cvc, form.values.number);
-    if (!cvcValidation) return false;
+    if (!cvcValidation.isValid) return false;
   }
 
   return true;
@@ -107,6 +107,7 @@ async function encryptedCVC(
   cardNumber: string
 ) {
   const { isValid } = validateCVC(cvc, cardNumber);
+  
   if (!isValid) return null;
   return ev.encrypt(cvc);
 }
