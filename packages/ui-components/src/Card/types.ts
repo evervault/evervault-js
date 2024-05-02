@@ -1,5 +1,4 @@
-import { CardBrandName } from "@evervault/card-validator/types";
-import type { ThemeObject, CardField, CardTranslations } from "types";
+import type { ThemeObject, CardField, CardTranslations, CardBrandName } from "types";
 
 export interface CardConfig {
   theme?: ThemeObject;

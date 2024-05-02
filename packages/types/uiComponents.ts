@@ -1,5 +1,4 @@
 import type { Styles } from "jss";
-import { CardBrandName } from "@evervault/card-validator/types";
 
 export interface TranslationsObject {
   [key: string]: string | TranslationsObject | undefined;
@@ -27,6 +26,21 @@ export interface ThemeUtilities {
 }
 
 export type SelectorType = string | HTMLElement;
+
+export type CardBrandName = 
+  "american-express" | 
+  "visa" | 
+  "mastercard" | 
+  "discover" | 
+  "jcb" | 
+  "diners-club" | 
+  "unionpay" | 
+  "maestro" | 
+  "mir" | 
+  "elo" | 
+  "hipercard" | 
+  "hiper" |
+  "szep";
 
 interface CardExpiry {
   month: string | null;

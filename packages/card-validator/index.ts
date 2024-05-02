@@ -1,6 +1,7 @@
 import { luhn10 } from "./lunh";
-import { CardBrandName, CardCVCValidationResult, CardExpiryValidationResult, CardNumberValidationResult } from "./types";
+import { CardCVCValidationResult, CardExpiryValidationResult, CardNumberValidationResult } from "./types";
 import defaultBrands from "./brands";
+import { CardBrandName } from "types";
 
 function matchesRange(cardNumber: string, min: number, max: number): boolean {
   const maxLengthToCheck = String(min).length;

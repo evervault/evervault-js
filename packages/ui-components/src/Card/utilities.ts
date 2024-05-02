@@ -1,10 +1,10 @@
 import { PromisifiedEvervaultClient } from "@evervault/react";
 import { validateNumber, validateExpiry, validateCVC } from "@evervault/card-validator";
-import { CardBrandName, CardNumberValidationResult } from "@evervault/card-validator/types";
+import { CardNumberValidationResult } from "@evervault/card-validator/types";
 import { UseFormReturn } from "../utilities/useForm";
 import { MagStripeData } from "./useCardReader";
 import type { CardForm } from "./types";
-import type { CardField, CardPayload, SwipedCard } from "types";
+import type { CardBrandName, CardField, CardPayload, SwipedCard } from "types";
 
 export async function changePayload(
   ev: PromisifiedEvervaultClient,

@@ -1,17 +1,4 @@
-export type CardBrandName = 
-  "american-express" | 
-  "visa" | 
-  "mastercard" | 
-  "discover" | 
-  "jcb" | 
-  "diners-club" | 
-  "unionpay" | 
-  "maestro" | 
-  "mir" | 
-  "elo" | 
-  "hipercard" | 
-  "hiper" |
-  "szep";
+import { CardBrandName } from "types";
 
 export type NumberValidationRules = {
   luhnCheck: boolean;
