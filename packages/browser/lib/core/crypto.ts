@@ -31,16 +31,12 @@ async function formatEncryptedData(
   encryptedData: string,
   isDebug: boolean
 ): Promise<string> {
-  const evVersionPrefix = base64RemovePadding(
-    uint8ArrayToBase64String(utf8StringToUint8Array(evVersion))
-  );
-
   const exportableEcdhPublicKey = await window.crypto.subtle.exportKey(
     "raw",
     ecdhPublicKey
   );
   const compressedKey = ecPointCompress(exportableEcdhPublicKey);
-  return `ev:${isDebug ? "debug:" : ""}${evVersionPrefix}${
+  return `ev:${isDebug ? "debug:" : ""}${evVersion}${
     datatype !== "string" ? `:${datatype}` : ""
   }:${base64RemovePadding(keyIv)}:${base64RemovePadding(
     uint8ArrayToBase64String(compressedKey)
@@ -179,6 +175,55 @@ export class CoreCrypto {
     this.#config = config;
   }
 
+  async #createV2Aad(dataType: string): Promise<ArrayBufferLike> {
+    let dataTypeNumber = 0; // Default to String
+
+    if (dataType === "number") {
+      dataTypeNumber = 1;
+    } else if (dataType === "boolean") {
+      dataTypeNumber = 2;
+    }
+
+    const versionNumber = 1; // browser sdk only has QkTC
+
+    if (versionNumber === undefined) {
+      throw new Error(
+        "This encryption version does not have a version number for AAD"
+      );
+    }
+
+    const exportableEcdhPublicKeyUncompressed =
+      await window.crypto.subtle.exportKey("raw", this.#ecdhPublicKey);
+
+    const exportableEcdhPublicKey = ecPointCompress(
+      exportableEcdhPublicKeyUncompressed
+    );
+
+    const configByteSize = 1;
+    const totalSize =
+      configByteSize +
+      exportableEcdhPublicKey.byteLength +
+      this.#ecdhTeamKey.length;
+    const aad = new Uint8Array(totalSize);
+
+    // Set the configuration byte
+    const b = this.#isDebug
+      ? 0x80
+      : 0x00 | (dataTypeNumber << 4) | versionNumber;
+    aad[0] = b;
+
+    // Set the ECDH team key
+    aad.set(new Uint8Array(exportableEcdhPublicKey), configByteSize);
+
+    // Set the derived secret
+    aad.set(
+      this.#ecdhTeamKey,
+      configByteSize + exportableEcdhPublicKey.byteLength
+    );
+
+    return aad.buffer;
+  }
+
   async #encryptObject(
     data: Datatypes.EncryptableObject,
     role?: string
@@ -189,6 +234,11 @@ export class CoreCrypto {
   async #encryptFile(dataContainer: File, role?: string): Promise<File>;
   async #encryptFile(dataContainer: Blob, role?: string): Promise<Blob>;
   async #encryptFile(dataContainer: File | Blob, role?: string) {
+    if (role !== undefined) {
+      throw new errors.DataRolesNotSupportedError(
+        "Data roles are not supported for files."
+      );
+    }
     if (dataContainer.size > this.#config.maxFileSizeInBytes) {
       throw new errors.ExceededMaxFileSizeError(
         `File size must be less than ${this.#config.maxFileSizeInMB}MB`
@@ -294,7 +344,7 @@ export class CoreCrypto {
       ["encrypt"]
     );
 
-    const version = this.#config.versions.LCY;
+    const version = this.#config.versions.BFS;
     const metadataBytes = CoreCrypto.#buildMetadata(
       Math.floor(Date.now() / 1000),
       role
@@ -313,7 +363,7 @@ export class CoreCrypto {
         name: "AES-GCM",
         iv: keyIv,
         tagLength: this.#config.authTagLength,
-        additionalData: this.#ecdhTeamKey,
+        additionalData: await this.#createV2Aad(datatype),
       },
       derivedSecretImported,
       dataToEncrypt
