@@ -13,6 +13,7 @@ export const DEFAULT_TRANSLATIONS: CardTranslations = {
     placeholder: "0000 0000 0000 0000",
     errors: {
       invalid: "Your card number is invalid",
+      unsupportedBrand: "This card brand is not supported",
     },
   },
   expiry: {

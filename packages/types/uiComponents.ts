@@ -27,6 +27,21 @@ export interface ThemeUtilities {
 
 export type SelectorType = string | HTMLElement;
 
+export type CardBrandName = 
+  "american-express" | 
+  "visa" | 
+  "mastercard" | 
+  "discover" | 
+  "jcb" | 
+  "diners-club" | 
+  "unionpay" | 
+  "maestro" | 
+  "mir" | 
+  "elo" | 
+  "hipercard" | 
+  "hiper" |
+  "szep";
+
 interface CardExpiry {
   month: string | null;
   year: string | null;
@@ -35,7 +50,8 @@ interface CardExpiry {
 export interface CardPayload {
   card: {
     name: string | null;
-    brand: string | undefined;
+    brand: string | null;
+    localBrands: string[] | null;
     number: string | null;
     lastFour: string | null;
     bin: string | null;
@@ -61,7 +77,7 @@ interface CardFieldTranslations<E extends TranslationsObject>
 }
 
 export interface CardTranslations extends TranslationsObject {
-  number: CardFieldTranslations<{ invalid?: string }>;
+  number: CardFieldTranslations<{ invalid?: string, unsupportedBrand?: string }>;
   expiry: CardFieldTranslations<{ invalid?: string }>;
   cvc: CardFieldTranslations<{ invalid?: string }>;
 }
@@ -71,11 +87,13 @@ export interface CardOptions {
   autoFocus?: boolean;
   hiddenFields?: ("number" | "expiry" | "cvc")[]; // deprecated
   fields?: CardField[];
+  acceptedBrands?: CardBrandName[];
   translations?: Partial<CardTranslations>;
 }
 
 export interface SwipedCard {
-  brand: string | undefined;
+  brand: string | null;
+  localBrands: string[] | null;
   number: string | null;
   expiry: CardExpiry | null;
   firstName: string | null;
