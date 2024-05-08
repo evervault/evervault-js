@@ -1,9 +1,10 @@
+import { validateNumber, validateExpiry, validateCVC } from "@evervault/card-validator";
+import { CardNumberValidationResult } from "@evervault/card-validator/types";
 import { PromisifiedEvervaultClient } from "@evervault/react";
-import cardValidator from "card-validator";
 import { UseFormReturn } from "../utilities/useForm";
 import { MagStripeData } from "./useCardReader";
 import type { CardForm } from "./types";
-import type { CardField, CardPayload, SwipedCard } from "types";
+import type { CardBrandName, CardField, CardPayload, SwipedCard } from "types";
 
 export async function changePayload(
   ev: PromisifiedEvervaultClient,
@@ -11,17 +12,18 @@ export async function changePayload(
   fields: CardField[]
 ): Promise<CardPayload> {
   const { name, number, expiry, cvc } = form.values;
-  const brand = cardBrand(number);
+  const { brand, localBrands, bin, lastFour, isValid: isValidCardNumber } = validateNumber(number);
 
   return {
     card: {
       name,
       brand,
-      number: await encryptedNumber(ev, number),
-      lastFour: lastFour(number),
-      bin: binNumber(number, brand),
+      localBrands,
+      bin,
+      lastFour,
+      number: isValidCardNumber ? await encryptedNumber(ev, number) : null,
       expiry: formatExpiry(expiry),
-      cvc: await encryptedCVC(ev, cvc, brand),
+      cvc: await encryptedCVC(ev, cvc, number),
     },
     isValid: form.isValid,
     isComplete: isComplete(form, fields),
@@ -35,19 +37,18 @@ function isComplete(form: UseFormReturn<CardForm>, fields: CardField[]) {
   }
 
   if (fields.includes("number")) {
-    const cardValidation = cardValidator.number(form.values.number);
+    const cardValidation = validateNumber(form.values.number);
     if (!cardValidation.isValid) return false;
   }
 
   if (fields.includes("expiry")) {
-    const expiryValidation = cardValidator.expirationDate(form.values.expiry);
+    const expiryValidation = validateExpiry(form.values.expiry);
     if (!expiryValidation.isValid) return false;
   }
 
   if (fields.includes("cvc")) {
-    const cardValidation = cardValidator.number(form.values.number);
-    const validCVC = isCVCValid(form.values.cvc, cardValidation.card?.type);
-    if (!validCVC) return false;
+    const cvcValidation = validateCVC(form.values.cvc, form.values.number);
+    if (!cvcValidation.isValid) return false;
   }
 
   return true;
@@ -57,22 +58,38 @@ export async function swipePayload(
   ev: PromisifiedEvervaultClient,
   values: MagStripeData
 ): Promise<SwipedCard> {
+  const { brand, localBrands, bin, lastFour } = validateNumber(values.number);
+
   return {
-    brand: cardBrand(values.number),
+    firstName: values.firstName ?? null,
+    lastName: values.lastName ?? null,
+    brand,
+    localBrands,
+    bin,
+    lastFour,
     number: await encryptedNumber(ev, values.number),
     expiry: {
       month: values.month,
       year: values.year,
     },
-    firstName: values.firstName ?? null,
-    lastName: values.lastName ?? null,
-    lastFour: lastFour(values.number),
-    bin: binNumber(values.number),
   };
 }
 
+export function isAcceptedBrand(
+  acceptedBrands: CardBrandName[] | undefined,
+  cardNumberValidationResult: CardNumberValidationResult,
+): boolean {
+  if (!acceptedBrands) return true;
+  const { brand, localBrands } = cardNumberValidationResult;
+
+  const isBrandAccepted = brand !== null && acceptedBrands.includes(brand);
+  const isLocalBrandAccepted = localBrands.some(localBrand => acceptedBrands.includes(localBrand));
+
+  return isBrandAccepted || isLocalBrandAccepted;
+}
+
 function formatExpiry(expiry: string) {
-  const parsedExpiry = cardValidator.expirationDate(expiry);
+  const parsedExpiry = validateExpiry(expiry);
 
   return {
     month: parsedExpiry.month,
@@ -80,43 +97,17 @@ function formatExpiry(expiry: string) {
   };
 }
 
-function cardBrand(number: string) {
-  const { card } = cardValidator.number(number);
-  return card?.type;
-}
-
-function binNumber(card: string, brand?: string) {
-  const { isValid } = cardValidator.number(card);
-  if (!isValid) return null;
-  if (brand === "amex") return card.substring(0, 6);
-  return card.substring(0, 8);
-}
-
-function lastFour(card: string) {
-  const { isValid } = cardValidator.number(card);
-  if (!isValid) return null;
-  return card.substring(card.length - 4);
-}
-
 async function encryptedNumber(ev: PromisifiedEvervaultClient, number: string) {
-  const { isValid } = cardValidator.number(number);
-  if (!isValid) return null;
   return ev.encrypt(number);
 }
 
 async function encryptedCVC(
   ev: PromisifiedEvervaultClient,
   cvc: string,
-  brand?: string
+  cardNumber: string
 ) {
-  if (!isCVCValid(cvc, brand)) return null;
+  const { isValid } = validateCVC(cvc, cardNumber);
+  
+  if (!isValid) return null;
   return ev.encrypt(cvc);
-}
-
-export function isCVCValid(cvc: string, brand?: string) {
-  const { isValid } = cardValidator.cvv(
-    cvc,
-    brand === "american-express" ? 4 : 3
-  );
-  return isValid;
 }

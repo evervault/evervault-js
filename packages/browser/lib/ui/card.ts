@@ -57,6 +57,7 @@ export default class Card {
         translations: this.#options.translations,
         hiddenFields: (this.#options.hiddenFields ?? [])?.join(","),
         fields: this.#options.fields,
+        acceptedBrands: this.#options.acceptedBrands,
       },
     };
   }

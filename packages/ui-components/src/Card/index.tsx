@@ -1,5 +1,5 @@
+import { validateNumber, validateCVC, validateExpiry } from "@evervault/card-validator";
 import { useEvervault } from "@evervault/react";
-import cardValidator from "card-validator";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
@@ -13,7 +13,7 @@ import { CardHolder } from "./CardHolder";
 import { CardNumber } from "./CardNumber";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useCardReader } from "./useCardReader";
-import { changePayload, isCVCValid, swipePayload } from "./utilities";
+import { changePayload, isAcceptedBrand, swipePayload } from "./utilities";
 import type { CardForm, CardConfig } from "./types";
 import type { CardFrameClientMessages, CardFrameHostMessages } from "types";
 
@@ -26,6 +26,8 @@ export function Card({ config }: { config: CardConfig }) {
   const ev = useEvervault();
   const { t } = useTranslations(DEFAULT_TRANSLATIONS, config?.translations);
 
+  const { acceptedBrands } = config;
+
   const fields = useMemo(() => {
     let result = config.fields ?? ["number", "expiry", "cvc"];
     const hidden = String(config?.hiddenFields ?? "").split(",");
@@ -36,7 +38,7 @@ export function Card({ config }: { config: CardConfig }) {
 
     return result;
   }, [config]);
-
+  
   const form = useForm<CardForm>({
     initialValues: {
       cvc: "",
@@ -57,9 +59,13 @@ export function Card({ config }: { config: CardConfig }) {
       number: (values) => {
         if (!fields.includes("number")) return undefined;
 
-        const cardValidation = cardValidator.number(values.number);
+        const cardValidation = validateNumber(values.number);
         if (!cardValidation.isValid) {
           return "invalid";
+        }
+
+        if (!isAcceptedBrand(acceptedBrands, cardValidation)) {
+          return "unsupportedBrand";
         }
 
         return undefined;
@@ -67,8 +73,8 @@ export function Card({ config }: { config: CardConfig }) {
       expiry: (values) => {
         if (!fields.includes("expiry")) return undefined;
 
-        const expiry = cardValidator.expirationDate(values.expiry);
-        if (!expiry.isValid) {
+        const expiryValidation = validateExpiry(values.expiry);
+        if (!expiryValidation.isValid) {
           return "invalid";
         }
 
@@ -77,9 +83,8 @@ export function Card({ config }: { config: CardConfig }) {
       cvc: (values) => {
         if (!fields.includes("cvc")) return undefined;
 
-        const cardValidation = cardValidator.number(values.number);
-        const validCVC = isCVCValid(values.cvc, cardValidation.card?.type);
-        if (!validCVC) {
+        const cvcValidation = validateCVC(values.cvc, values.number);
+        if (!cvcValidation.isValid) {
           return "invalid";
         }
 

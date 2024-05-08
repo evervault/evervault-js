@@ -1,5 +1,17 @@
 # @evervault/browser
 
+## 2.23.0
+
+### Minor Changes
+
+- a96e24b: Add acceptedBrands option
+
+## 2.22.1
+
+### Patch Changes
+
+- 43d5607: bugfix: add support for required HTML fields
+
 ## 2.22.0
 
 ### Minor Changes
