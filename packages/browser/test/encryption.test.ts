@@ -223,21 +223,11 @@ describe("File Encryption", () => {
     assert(crc32FromFile === crc32FromFileContents);
   });
 
-  it("it encrypts a file with metadata", async (context) => {
+  it("it doesnt encrypt a file with metadata", async (context) => {
     const file = new File(["Hello world"], "hello.txt");
-
-    const encryptedFile = await context.ev.encrypt(file, "permit-all");
-
-    assert(encryptedFile instanceof File);
-    assert(encryptedFile.name === "hello.txt");
-
-    const data = Buffer.from(await encryptedFile.arrayBuffer());
-    assert(
-      Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) === 0
+    await expect(() => context.ev.encrypt(file, "role")).rejects.toThrowError(
+      /Data roles are not supported for files./
     );
-
-    // Test that the debug flag is not set
-    assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x00])) === 0);
   });
 
   it("throws an error if the blob is too large", async (context) => {
