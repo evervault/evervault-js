@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.23.1
+
+### Patch Changes
+
+- 8fe5c04: Removed Data Role Encryption for Files
+
 ## 2.23.0
 
 ### Minor Changes
