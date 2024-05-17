@@ -102,5 +102,9 @@ export function UIComponent() {
     return <RevealCopyButton config={config as RevealCopyButtonConfig} />;
   }
 
+  if (component === "Form") {
+    return <div>Form</div>
+  }
+
   throw new Error(`Unknown component ${component}`);
 }

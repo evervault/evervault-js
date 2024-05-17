@@ -91,6 +91,11 @@ export interface CardOptions {
   translations?: Partial<CardTranslations>;
 }
 
+export interface FormOptions {
+  theme?: ThemeDefinition;
+  formUuid: string;
+}
+
 export interface SwipedCard {
   brand: string | null;
   localBrands: string[] | null;
@@ -163,4 +168,14 @@ export interface RevealConsumerClientMessages
 export interface RevealFormat {
   regex: RegExp;
   replace: string;
+}
+
+export interface FormPayload {
+  value: string;
+  isComplete: boolean;
+}
+
+export interface FormFrameClientMessages extends EvervaultFrameClientMessages {
+  EV_CHANGE: FormPayload;
+  EV_COMPLETE: FormPayload;
 }
