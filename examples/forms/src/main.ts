@@ -9,7 +9,7 @@ const evervault = new window.Evervault(
     },
   }
 );
-
+console.log("Evervault", evervault)
 const form = evervault.ui.form({
   theme: evervault.ui.themes.clean(),
 });
@@ -17,3 +17,5 @@ const form = evervault.ui.form({
 form.on("change", (values) => {
   console.log("change", values);
 });
+
+form.mount("#form");

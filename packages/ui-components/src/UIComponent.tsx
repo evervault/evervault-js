@@ -15,6 +15,8 @@ import type {
   RevealRequestConfig,
   RevealTextConfig,
 } from "./Reveal/types";
+import {FormConfig} from "./Form/types";
+import {Form} from "./Form";
 
 // Use the component query param to determine which component to render
 export function UIComponent() {
@@ -103,7 +105,7 @@ export function UIComponent() {
   }
 
   if (component === "Form") {
-    return <div>Form</div>
+    return <Form config={config as FormConfig} />;
   }
 
   throw new Error(`Unknown component ${component}`);

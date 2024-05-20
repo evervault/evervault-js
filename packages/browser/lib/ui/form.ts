@@ -28,7 +28,7 @@ export default class Form {
 
   constructor(client: EvervaultClient, options?: FormOptions) {
     this.#options = options ?? {};
-    this.#frame = new EvervaultFrame(client, "Pin");
+    this.#frame = new EvervaultFrame(client, "Form");
 
     this.#frame.on("EV_CHANGE", (payload) => {
       this.values = payload;
