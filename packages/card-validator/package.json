@@ -2,9 +2,9 @@
   "name": "@evervault/card-validator",
   "version": "1.0.0",
   "description": "Evervault Card Validator",
-  "main": "dist/evervault-card-validator.main.js",
-  "module": "dist/evervault-card-validator.umd.mjs",
-  "types": "dist/index.d.ts",
+  "main": "./dist/evervault-card-validator.main.js",
+  "module": "./dist/evervault-card-validator.umd.mjs",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -15,8 +15,14 @@
   },
   "exports": {
     ".": {
-      "import": "./dist/evervault-card-validator.main.mjs",
-      "require": "./dist/evervault-card-validator.main.umd.js"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/evervault-card-validator.main.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/evervault-card-validator.main.umd.js"
+      }
     }
   },
   "scripts": {

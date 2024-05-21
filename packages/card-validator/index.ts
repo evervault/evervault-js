@@ -3,6 +3,8 @@ import { CardCVCValidationResult, CardExpiryValidationResult, CardNumberValidati
 import defaultBrands from "./brands";
 import { CardBrandName } from "types";
 
+export * from "./types";
+
 function matchesRange(cardNumber: string, min: number, max: number): boolean {
   const maxLengthToCheck = String(min).length;
   const substr = cardNumber.substring(0, maxLengthToCheck);
@@ -68,14 +70,14 @@ export function validateNumber(cardNumber: string): CardNumberValidationResult {
   // 3. The Luhn check passes, based on all supported card brands
   let isValid = cardBrands.length > 0 && cardBrands.every(creditCardBrand => {
     const { lengths, luhnCheck } = creditCardBrand.numberValidationRules;
-    
+
     // Check if the length of the sanitized card number is supported
     const isLengthValid = lengths.includes(sanitizedCardNumber.length);
-    
+
     // If a Luhn check is required, perform the check
     // Otherwise, if no Luhn check is required, consider it valid
     const isLuhnValid = !luhnCheck || luhn10(sanitizedCardNumber);
-  
+
     // Return true if both length and Luhn check conditions are met
     return isLengthValid && isLuhnValid;
   });

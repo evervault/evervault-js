@@ -1,5 +1,4 @@
-import { validateNumber, validateExpiry, validateCVC } from "@evervault/card-validator";
-import { CardNumberValidationResult } from "@evervault/card-validator/types";
+import { validateNumber, validateExpiry, validateCVC, CardNumberValidationResult } from "@evervault/card-validator";
 import { PromisifiedEvervaultClient } from "@evervault/react";
 import { UseFormReturn } from "../utilities/useForm";
 import { MagStripeData } from "./useCardReader";
@@ -107,7 +106,7 @@ async function encryptedCVC(
   cardNumber: string
 ) {
   const { isValid } = validateCVC(cvc, cardNumber);
-  
+
   if (!isValid) return null;
   return ev.encrypt(cvc);
 }
