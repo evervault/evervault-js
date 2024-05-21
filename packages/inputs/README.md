@@ -4,7 +4,7 @@ Repo for the backend for Evervault Inputs.
 
 Setup node with a node version manager like `fnm` or `nvm`.
 
-Install pnpm version 8 with `corepack enable && corepack prepare --activate pnpm@latest-8`
+Install pnpm version 9 with `corepack enable && corepack prepare --activate pnpm@latest-9`
 
 To build: `pnpm build`
 To run locally: `pnpm run dev` for development or `pnpm run preview` for production
