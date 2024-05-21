@@ -4,11 +4,14 @@
   "main": "index.ts",
   "types": "index.ts",
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "build": "vite build"
   },
   "dependencies": {
     "types": "workspace:*",
-    "typescript": "latest"
+    "typescript": "latest",
+    "vite": "^4.5.3",
+    "vite-plugin-dts": "^3.6.3"
   },
   "devDependencies": {
     "vitest": "^0.29.8"
