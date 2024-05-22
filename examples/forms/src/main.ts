@@ -9,9 +9,11 @@ const evervault = new window.Evervault(
     },
   }
 );
-console.log("Evervault", evervault)
+
 const form = evervault.ui.form({
   theme: evervault.ui.themes.clean(),
+  formUuid: "form_1af0d91c566c",
+  formSubmissionUrl: "http://api.localhost:3000/forms",
 });
 
 form.on("change", (values) => {

@@ -94,6 +94,7 @@ export interface CardOptions {
 export interface FormOptions {
   theme?: ThemeDefinition;
   formUuid: string;
+  formSubmissionUrl: string;
 }
 
 export interface SwipedCard {
