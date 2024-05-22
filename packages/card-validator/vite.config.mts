@@ -17,6 +17,6 @@ export default defineConfig({
     },
   },
   plugins: [
-    dts(),
+    dts({ rollupTypes: true }),
   ],
 });
