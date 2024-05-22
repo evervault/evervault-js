@@ -147,6 +147,8 @@
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",
+    "exclude": "example-usage/**",
+    "typescript": [{ "project": "tsconfig.build.json" }],
     "targets": [
       "commonjs",
       "module",

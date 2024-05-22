@@ -24,18 +24,18 @@ export type CardValidationOptions = {
 export type CardNumberValidationResult = {
   brand: CardBrandName | null;
   localBrands: CardBrandName[];
-  bin: string | null;
-  lastFour: string | null;
+  bin: string | null | undefined;
+  lastFour: string | null | undefined;
   isValid: boolean;
 }
 
 export type CardExpiryValidationResult = {
-  month: string | null;
-  year: string | null;
+  month: string | null | undefined;
+  year: string | null | undefined;
   isValid: boolean;
 }
 
 export type CardCVCValidationResult = {
-  cvc: String | null;
+  cvc: string | null | undefined;
   isValid: boolean;
 }
