@@ -20,7 +20,8 @@
     "jss-preset-default": "^10.10.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "types": "workspace:*"
+    "types": "workspace:*",
+    "shared": "workspace:*"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.6",

@@ -1,6 +1,11 @@
-import { validateNumber, validateExpiry, validateCVC, CardNumberValidationResult } from "@evervault/card-validator";
+import {
+  validateNumber,
+  validateExpiry,
+  validateCVC,
+  CardNumberValidationResult,
+} from "@evervault/card-validator";
 import { PromisifiedEvervaultClient } from "@evervault/react";
-import { UseFormReturn } from "../utilities/useForm";
+import { UseFormReturn } from "shared";
 import { MagStripeData } from "./useCardReader";
 import type { CardForm } from "./types";
 import type { CardBrandName, CardField, CardPayload, SwipedCard } from "types";
@@ -11,7 +16,13 @@ export async function changePayload(
   fields: CardField[]
 ): Promise<CardPayload> {
   const { name, number, expiry, cvc } = form.values;
-  const { brand, localBrands, bin, lastFour, isValid: isValidCardNumber } = validateNumber(number);
+  const {
+    brand,
+    localBrands,
+    bin,
+    lastFour,
+    isValid: isValidCardNumber,
+  } = validateNumber(number);
 
   return {
     card: {
@@ -76,13 +87,15 @@ export async function swipePayload(
 
 export function isAcceptedBrand(
   acceptedBrands: CardBrandName[] | undefined,
-  cardNumberValidationResult: CardNumberValidationResult,
+  cardNumberValidationResult: CardNumberValidationResult
 ): boolean {
   if (!acceptedBrands) return true;
   const { brand, localBrands } = cardNumberValidationResult;
 
   const isBrandAccepted = brand !== null && acceptedBrands.includes(brand);
-  const isLocalBrandAccepted = localBrands.some(localBrand => acceptedBrands.includes(localBrand));
+  const isLocalBrandAccepted = localBrands.some((localBrand) =>
+    acceptedBrands.includes(localBrand)
+  );
 
   return isBrandAccepted || isLocalBrandAccepted;
 }

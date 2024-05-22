@@ -1,12 +1,15 @@
-import { validateNumber, validateCVC, validateExpiry } from "@evervault/card-validator";
+import {
+  validateNumber,
+  validateCVC,
+  validateExpiry,
+} from "@evervault/card-validator";
 import { useEvervault } from "@evervault/react";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
 import { resize } from "../utilities/resize";
-import { useForm } from "../utilities/useForm";
+import { useForm, useTranslations } from "shared";
 import { useMessaging } from "../utilities/useMessaging";
-import { useTranslations } from "../utilities/useTranslations";
 import { CardCVC } from "./CardCVC";
 import { CardExpiry } from "./CardExpiry";
 import { CardHolder } from "./CardHolder";
@@ -38,7 +41,7 @@ export function Card({ config }: { config: CardConfig }) {
 
     return result;
   }, [config]);
-  
+
   const form = useForm<CardForm>({
     initialValues: {
       cvc: "",
