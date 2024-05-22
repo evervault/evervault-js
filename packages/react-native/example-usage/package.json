@@ -1,6 +1,6 @@
 {
   "name": "example-usage",
-  "main": "expo-router/entry",
+  "main": "index.js",
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
@@ -28,6 +28,7 @@
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "~3.0.4",
     "expo-web-browser": "~13.0.3",
+    "metro-cache": "^0.80.9",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.1",
