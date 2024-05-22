@@ -1,7 +1,7 @@
 import { luhn10 } from "./lunh";
-import { CardCVCValidationResult, CardExpiryValidationResult, CardNumberValidationResult } from "./types";
+import type { CardCVCValidationResult, CardExpiryValidationResult, CardNumberValidationResult } from "./types";
 import defaultBrands from "./brands";
-import { CardBrandName } from "types";
+import { type CardBrandName } from "types";
 
 export * from "./types";
 

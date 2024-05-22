@@ -1,0 +1,15 @@
+{
+  "originHash" : "3b99939cc0debc9465d8ac35ea0d4e7d02644f3e8058881e68f38e12ac114078",
+  "pins" : [
+    {
+      "identity" : "evervault-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/evervault/evervault-ios.git",
+      "state" : {
+        "revision" : "4aab2607e82449e8bc574e9300e071566f7a05f4",
+        "version" : "1.1.6"
+      }
+    }
+  ],
+  "version" : 3
+}

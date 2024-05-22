@@ -1,4 +1,4 @@
-import { CardBrand } from "./types";
+import { type CardBrand } from "./types";
 
 const brands = [
   {
