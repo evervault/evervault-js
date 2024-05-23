@@ -1,32 +1,28 @@
 import { validateNumber } from '@evervault/card-validator';
 import { useMemo, useRef } from 'react';
-import { NativeSyntheticEvent, TextInputFocusEventData } from 'react-native';
 import { TextInputMask } from 'react-native-masked-text';
 import { MASKS } from 'shared';
+import { useCardContext } from './context';
 
 interface CardNumberProps {
   disabled?: boolean;
   autoFocus?: boolean;
-  onChange: (v: string) => void;
-  onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
-  placeholder: string;
-  value: string;
+  placeholder?: string;
   readOnly?: boolean;
 }
-
 
 export function CardNumber({
   autoFocus,
   disabled,
-  onChange,
-  onBlur,
   placeholder,
-  value,
   readOnly,
 }: CardNumberProps) {
+  const context = useCardContext();
   const ref = useRef<TextInputMask>(null);
 
   const [innerValue, mask] = useMemo(() => {
+    const value = context.values.number;
+
     const { brand } = validateNumber(value);
 
     if (brand) {
@@ -34,7 +30,9 @@ export function CardNumber({
       return [value, MASKS.native.number[brand] ?? MASKS.native.number.default];
     }
     return [value, MASKS.native.number.unionpay];
-  }, [value]);
+  }, [context.values.number]);
+
+  const { onBlur, onChange } = context.registerFn('number');
 
   return (
     <TextInputMask
@@ -44,9 +42,9 @@ export function CardNumber({
       id="number"
       value={innerValue}
       onChangeText={onChange}
+      onBlur={onBlur}
       readOnly={readOnly}
       inputMode="numeric"
-      onBlur={onBlur}
       autoFocus={autoFocus}
       placeholder={placeholder}
       editable={disabled}

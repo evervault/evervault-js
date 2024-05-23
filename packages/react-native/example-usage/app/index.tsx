@@ -3,9 +3,8 @@ import { Image, StyleSheet, Platform } from 'react-native';
 import {
   init,
   encrypt,
-  CardCVC,
-  CardExpiry,
-  CardNumber,
+  Card,
+  type CardPayload
 } from '@evervault/evervault-react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -61,6 +60,10 @@ export default function HomeScreen() {
     initEvervault();
   }, []);
 
+  const handleChange = (payload: CardPayload) => {
+    console.log(payload)
+  };
+
   return (
     <ParallaxScrollView
       backgroundColor={'#A1CEDC'}
@@ -71,18 +74,13 @@ export default function HomeScreen() {
         />
       }
     >
-      <CardExpiry value={expiry} onChange={(v) => setExpiry(v)} />
-      <CardNumber value={number} onChange={(v) => setNumber(v)} />
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="subtitle">evervault-react-native</ThemedText>
       </ThemedView>
-      <CardCVC
-        readOnly={false}
-        disabled={false}
-        style={{ borderWidth: 2 }}
-        value={cvc}
-        onChange={(v) => setCVC(v)}
-      />
+      <Card onChange={handleChange}>
+        <Card.Number value={number} />
+      </Card>
+
       <ThemedText type="default">Encrypted Data:</ThemedText>
       <ThemedText style={{ fontFamily: monoFont }}>
         {JSON.stringify(encryptedData, null, '  ')}
