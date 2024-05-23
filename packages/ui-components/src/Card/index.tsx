@@ -5,10 +5,10 @@ import {
 } from "@evervault/card-validator";
 import { useEvervault } from "@evervault/react";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useForm, useTranslations } from "shared";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
 import { resize } from "../utilities/resize";
-import { useForm, useTranslations } from "shared";
 import { useMessaging } from "../utilities/useMessaging";
 import { CardCVC } from "./CardCVC";
 import { CardExpiry } from "./CardExpiry";
