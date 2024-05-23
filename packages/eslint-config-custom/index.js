@@ -27,6 +27,7 @@ module.exports = {
     },
   },
   rules: {
+    "react/react-in-jsx-scope": 0,
     "@typescript-eslint/no-explicit-any": ["error", { fixToUnknown: true }],
     "@typescript-eslint/no-shadow": "error",
     "@typescript-eslint/no-unused-vars": [

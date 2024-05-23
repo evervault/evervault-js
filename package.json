@@ -43,6 +43,9 @@
       "follow-redirects@<=1.15.5": ">=1.15.6",
       "follow-redirects@<1.15.4": ">=1.15.4",
       "axios@<=1.6.2": ">=1.6.8"
+    },
+    "peerDependencyRules": {
+      "ignoreMissing": true
     }
   }
 }

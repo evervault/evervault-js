@@ -1,7 +1,11 @@
 import { luhn10 } from "./lunh";
-import { CardCVCValidationResult, CardExpiryValidationResult, CardNumberValidationResult } from "./types";
+import type {
+  CardCVCValidationResult,
+  CardExpiryValidationResult,
+  CardNumberValidationResult,
+} from "./types";
 import defaultBrands from "./brands";
-import { CardBrandName } from "types";
+import { type CardBrandName } from "types";
 
 export * from "./types";
 
@@ -47,56 +51,67 @@ export function validateNumber(cardNumber: string): CardNumberValidationResult {
       bin: null,
       lastFour: null,
       isValid: false,
-    }
+    };
   }
 
   // Filter out brands where the card number does not match any of the ranges
-  const cardBrands = defaultBrands.filter(brand => {
-    return brand.numberValidationRules.ranges.some(range => {
+  const cardBrands = defaultBrands.filter((brand) => {
+    return brand.numberValidationRules.ranges.some((range) => {
       if (Array.isArray(range)) {
-        return matchesRange(sanitizedCardNumber, range[0], range[1]);
+        if (range[0] && range[1]) {
+          return matchesRange(sanitizedCardNumber, range[0], range[1]);
+        }
+      } else {
+        return matchesPrefix(sanitizedCardNumber, range);
       }
 
-      return matchesPrefix(sanitizedCardNumber, range);
+      return false;
     });
   });
 
-  const globalBrands = cardBrands.filter(brand => !brand.isLocal);
-  const localBrands = cardBrands.filter(brand => brand.isLocal);
+  const globalBrands = cardBrands.filter((brand) => !brand.isLocal);
+  const localBrands = cardBrands.filter((brand) => brand.isLocal);
 
   // Check if the card number is valid based on:
   // 1. The card number belongs to at least one card brand range
   // 2. The length of the card number is supported, based on all supported card brands
   // 3. The Luhn check passes, based on all supported card brands
-  let isValid = cardBrands.length > 0 && cardBrands.every(creditCardBrand => {
-    const { lengths, luhnCheck } = creditCardBrand.numberValidationRules;
+  let isValid =
+    cardBrands.length > 0 &&
+    cardBrands.every((creditCardBrand) => {
+      const { lengths, luhnCheck } = creditCardBrand.numberValidationRules;
 
-    // Check if the length of the sanitized card number is supported
-    const isLengthValid = lengths.includes(sanitizedCardNumber.length);
+      // Check if the length of the sanitized card number is supported
+      const isLengthValid = lengths.includes(sanitizedCardNumber.length);
 
-    // If a Luhn check is required, perform the check
-    // Otherwise, if no Luhn check is required, consider it valid
-    const isLuhnValid = !luhnCheck || luhn10(sanitizedCardNumber);
+      // If a Luhn check is required, perform the check
+      // Otherwise, if no Luhn check is required, consider it valid
+      const isLuhnValid = !luhnCheck || luhn10(sanitizedCardNumber);
 
-    // Return true if both length and Luhn check conditions are met
-    return isLengthValid && isLuhnValid;
-  });
+      // Return true if both length and Luhn check conditions are met
+      return isLengthValid && isLuhnValid;
+    });
 
   return {
     brand: globalBrands.length > 0 ? globalBrands[0].name : null,
-    localBrands: localBrands.map(brand => brand.name),
+    localBrands: localBrands.map((brand) => brand.name),
     bin: isValid ? getBin(cardNumber) : null,
-    lastFour: isValid ? sanitizedCardNumber.substring(sanitizedCardNumber.length - 4) : null,
-    isValid: isValid
-  }
+    lastFour: isValid
+      ? sanitizedCardNumber.substring(sanitizedCardNumber.length - 4)
+      : null,
+    isValid: isValid,
+  };
 }
 
-export function validateCVC(cvc: string, cardNumber: string): CardCVCValidationResult {
+export function validateCVC(
+  cvc: string,
+  cardNumber: string
+): CardCVCValidationResult {
   const validatedCard = validateNumber(cardNumber);
   if (!validatedCard.isValid) {
     return {
       cvc: null,
-      isValid: false
+      isValid: false,
     };
   }
 
@@ -104,8 +119,8 @@ export function validateCVC(cvc: string, cardNumber: string): CardCVCValidationR
   if (!/^\d*$/.test(cvc)) {
     return {
       cvc: null,
-      isValid: false
-    }
+      isValid: false,
+    };
   }
 
   let brands: CardBrandName[] = [];
@@ -116,13 +131,15 @@ export function validateCVC(cvc: string, cardNumber: string): CardCVCValidationR
     brands.push(...validatedCard.localBrands);
   }
 
-  const isCVCValid = defaultBrands.filter(brand => brands.includes(brand.name)).some(brand => {
-    return brand.securityCodeValidationRules.length === cvc.length;
-  });
+  const isCVCValid = defaultBrands
+    .filter((brand) => brands.includes(brand.name))
+    .some((brand) => {
+      return brand.securityCodeValidationRules.length === cvc.length;
+    });
 
   return {
     cvc: isCVCValid ? cvc : null,
-    isValid: isCVCValid
+    isValid: isCVCValid,
   };
 }
 
@@ -132,30 +149,30 @@ export function validateExpiry(expiry: string): CardExpiryValidationResult {
   const match = expiry.match(regex);
 
   if (match) {
-    const month = parseInt(match[1], 10);
-    const year = parseInt(match[2], 10);
+    const month = parseInt(match[1]?.toString(), 10);
+    const year = parseInt(match[2]?.toString(), 10);
 
-    const currentYear = (new Date().getFullYear()) % 100;
+    const currentYear = new Date().getFullYear() % 100;
     const currentMonth = new Date().getMonth() + 1;
 
     if (year < currentYear || (year === currentYear && month < currentMonth)) {
       return {
         month: null,
         year: null,
-        isValid: false
+        isValid: false,
       };
     }
 
     return {
-      month: match[1],
-      year: match[2],
-      isValid: true
+      month: match[1]?.toString(),
+      year: match[2]?.toString(),
+      isValid: true,
     };
   }
 
   return {
     month: null,
     year: null,
-    isValid: false
+    isValid: false,
   };
 }

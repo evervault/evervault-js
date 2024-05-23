@@ -1,5 +1,6 @@
 packages:
   - "packages/*"
+  - "packages/react-native/**"
   - "examples/*"
   - "e2e-apps/*"
   - "e2e-tests/**"

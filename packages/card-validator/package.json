@@ -2,29 +2,7 @@
   "name": "@evervault/card-validator",
   "version": "1.0.1",
   "description": "Evervault Card Validator",
-  "main": "./dist/evervault-card-validator.main.js",
-  "module": "./dist/evervault-card-validator.umd.mjs",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/evervault/evervault-js.git",
-    "directory": "packages/react"
-  },
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/evervault-card-validator.main.mjs"
-      },
-      "require": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/evervault-card-validator.main.umd.js"
-      }
-    }
-  },
+  "main": "index.ts",
   "scripts": {
     "test": "vitest run",
     "build": "vite build"
