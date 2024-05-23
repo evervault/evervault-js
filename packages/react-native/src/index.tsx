@@ -9,13 +9,13 @@ const LINKING_ERROR =
 const EvervaultSdk = NativeModules.EvervaultSdk
   ? NativeModules.EvervaultSdk
   : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
+    {},
+    {
+      get() {
+        throw new Error(LINKING_ERROR);
+      },
+    }
+  );
 
 export async function init(teamUuid: string, appUuid: string): Promise<void> {
   return EvervaultSdk.initialize(teamUuid, appUuid);
@@ -25,4 +25,4 @@ export async function encrypt(data: any): Promise<string> {
   return EvervaultSdk.encrypt(data);
 }
 
-export * from './components';
+// export * from './components';
