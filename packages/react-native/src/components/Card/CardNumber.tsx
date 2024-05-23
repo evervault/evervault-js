@@ -1,77 +1,57 @@
-// import { validateNumber } from "@evervault/card-validator";
-// import { FocusEvent, useEffect, useRef } from "react";
-// import { useMask } from "../utilities/useMask";
+import { validateNumber } from '@evervault/card-validator';
+import { useMemo, useRef } from 'react';
+import { NativeSyntheticEvent, TextInputFocusEventData } from 'react-native';
+import { TextInputMask } from 'react-native-masked-text';
+import { MASKS } from 'shared';
 
-// interface CardNumberProps {
-//   disabled?: boolean;
-//   autoFocus?: boolean;
-//   onChange: (v: string) => void;
-//   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
-//   placeholder: string;
-//   value: string;
-//   readOnly?: boolean;
-// }
+interface CardNumberProps {
+  disabled?: boolean;
+  autoFocus?: boolean;
+  onChange: (v: string) => void;
+  onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
+  placeholder: string;
+  value: string;
+  readOnly?: boolean;
+}
 
-// interface CardMask {
-//   mask: string;
-//   brand?: string;
-// }
 
-// export function CardNumber({
-//   autoFocus,
-//   disabled,
-//   onChange,
-//   onBlur,
-//   placeholder,
-//   value,
-//   readOnly,
-// }: CardNumberProps) {
-//   const ref = useRef<HTMLInputElement>(null);
-//   const { setValue } = useMask(ref, onChange, {
-//     mask: [
-//       {
-//         mask: "0000 0000 0000 0000",
-//       },
-//       {
-//         mask: "0000 0000 0000 0000 000",
-//         brand: "unionpay",
-//       },
-//       {
-//         mask: "0000 000000 00000",
-//         brand: "american-express",
-//       },
-//     ] as CardMask[],
-//     dispatch: (appended, dynamicMasked) => {
-//       const number = dynamicMasked.value + appended;
-//       const { brand } = validateNumber(number);
+export function CardNumber({
+  autoFocus,
+  disabled,
+  onChange,
+  onBlur,
+  placeholder,
+  value,
+  readOnly,
+}: CardNumberProps) {
+  const ref = useRef<TextInputMask>(null);
 
-//       const mask = dynamicMasked.compiledMasks.find((m) => {
-//         const maskBrand = (m as CardMask).brand;
-//         return maskBrand === brand;
-//       });
+  const [innerValue, mask] = useMemo(() => {
+    const { brand } = validateNumber(value);
 
-//       return mask ?? dynamicMasked.compiledMasks[0];
-//     },
-//   });
+    if (brand) {
+      //@ts-ignore
+      return [value, MASKS.native.number[brand] ?? MASKS.native.number.default];
+    }
+    return [value, MASKS.native.number.unionpay];
+  }, [value]);
 
-//   useEffect(() => {
-//     setValue(value);
-//   }, [setValue, value]);
-
-//   return (
-//     <input
-//       ref={ref}
-//       type="text"
-//       id="number"
-//       name="number"
-//       readOnly={readOnly}
-//       inputMode="numeric"
-//       onBlur={onBlur}
-//       autoFocus={autoFocus}
-//       disabled={disabled}
-//       placeholder={placeholder}
-//       pattern="[0-9]*"
-//       autoComplete="billing cc-number"
-//     />
-//   );
-// }
+  return (
+    <TextInputMask
+      ref={ref}
+      type="custom"
+      options={{ mask }}
+      id="number"
+      value={innerValue}
+      onChangeText={onChange}
+      readOnly={readOnly}
+      inputMode="numeric"
+      onBlur={onBlur}
+      autoFocus={autoFocus}
+      placeholder={placeholder}
+      editable={disabled}
+      selectTextOnFocus={disabled}
+      autoComplete="cc-number"
+    />
+  );
+}

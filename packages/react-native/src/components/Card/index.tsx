@@ -1,4 +1,11 @@
-export * from './CardCVC';
+import CardCVC from "./CardCVC";
+import CardExpiry from "./CardExpiry";
+import CardHolder from "./CardHolder";
+import CardNumber from "./CardNumber";
+export * from "./CardCVC";
+export * from "./CardExpiry";
+export * from "./CardHolder";
+export * from "./CardNumber";
 // import { validateNumber, validateCVC, validateExpiry } from "@evervault/card-validator";
 // import { useEvervault } from "@evervault/react";
 // import { useEffect, useLayoutEffect, useMemo, useRef } from "react";

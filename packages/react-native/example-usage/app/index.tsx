@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Platform } from 'react-native';
-import { init, encrypt } from '@evervault/evervault-react-native';
+import {
+  init,
+  encrypt,
+  CardCVC,
+  CardExpiry,
+  CardNumber,
+} from '@evervault/evervault-react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -27,7 +33,9 @@ export default function HomeScreen() {
   const [encryptedArr, setEncryptedArr] = useState<string | undefined>(
     undefined
   );
-
+  const [cvc, setCVC] = useState('');
+  const [expiry, setExpiry] = useState('');
+  const [number, setNumber] = useState('4242 4242 4242 4242 424');
   useEffect(() => {
     async function initEvervault() {
       try {
@@ -63,9 +71,18 @@ export default function HomeScreen() {
         />
       }
     >
+      <CardExpiry value={expiry} onChange={(v) => setExpiry(v)} />
+      <CardNumber value={number} onChange={(v) => setNumber(v)} />
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="subtitle">evervault-react-native</ThemedText>
       </ThemedView>
+      <CardCVC
+        readOnly={false}
+        disabled={false}
+        style={{ borderWidth: 2 }}
+        value={cvc}
+        onChange={(v) => setCVC(v)}
+      />
       <ThemedText type="default">Encrypted Data:</ThemedText>
       <ThemedText style={{ fontFamily: monoFont }}>
         {JSON.stringify(encryptedData, null, '  ')}

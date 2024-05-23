@@ -1,15 +1,16 @@
-import MaskInput from 'react-native-mask-input';
+import { TextInputMask } from 'react-native-masked-text';
+import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
+import { MASKS } from 'shared';
 import {
-  forwardRef,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-} from "react";
-import { MASKS } from "shared";
-import type { NativeSyntheticEvent, TextInput, TextInputFocusEventData } from "react-native";
+  NativeSyntheticEvent,
+  StyleProp,
+  TextInputFocusEventData,
+  TextStyle,
+} from 'react-native';
 import { validateNumber } from '@evervault/card-validator';
 
 interface CVCProps {
+  styles: StyleProp<TextStyle>;
   onChange: (v: string) => void;
   onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
   disabled: boolean;
@@ -19,27 +20,38 @@ interface CVCProps {
   cardNumber: string;
 }
 
-export const CardCVC = forwardRef<TextInput, CVCProps>(
+export const CardCVC = forwardRef<TextInputMask, CVCProps>(
   (
-    { cardNumber, onChange, onBlur, disabled, placeholder, value, readOnly },
+    {
+      styles,
+      cardNumber,
+      onChange,
+      onBlur,
+      disabled,
+      placeholder,
+      value,
+      readOnly,
+    },
     forwardedRef
   ) => {
-    const innerRef = useRef<TextInput>(null);
+    const innerRef = useRef<TextInputMask>(null);
 
     useImperativeHandle(forwardedRef, () => innerRef.current!);
 
     const mask = useMemo(() => {
       const type = validateNumber(cardNumber).brand;
-      if (type === "american-express") return MASKS.native.cvc.americanExpress;
+      if (type === 'american-express')
+        return MASKS.native.cvc['american-express'];
       return MASKS.native.cvc.default;
     }, [cardNumber]);
 
-
     return (
-      <MaskInput
-        mask={mask}
+      <TextInputMask
+        type="custom"
+        options={{ mask }}
+        style={styles}
         value={value}
-        onChangeText={(masked) => onChange(masked)}
+        onChangeText={(t) => onChange(t)}
         ref={innerRef}
         id="cvc"
         editable={disabled}

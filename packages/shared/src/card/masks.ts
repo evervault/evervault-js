@@ -10,24 +10,20 @@ export const MASK_TYPE = {
 export const MASKS = {
   native: {
     cvc: {
-      americanExpress: ["/d", "/d", "/d", "/d"],
-      default: ["/d", "/d", "/d"],
-    }
-  },
-  imask: {
-    cvc: {
-      americanExpress: {
-        mask: "0000",
-      },
-      default: {
-        mask: "000",
-      },
+      "american-express": "9999",
+      default: "999",
     },
-  }
-}
+    expiry: "99 / 99",
+    number: {
+      default: "9999 9999 9999 9999",
+      unionpay: "9999 9999 9999 9999 999",
+      "american-express": "9999 999999 99999",
+    },
+  },
+};
 
 export const cvcMask = (cardNumber: string, maskType: MaskType) => {
   const type = validateNumber(cardNumber).brand;
-  if (type === "american-express") return MASKS.native.cvc.americanExpress;
+  if (type === "american-express") return MASKS.native.cvc["american-express"];
   return MASKS.native.cvc.default;
-}
+};
