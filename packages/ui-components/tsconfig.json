@@ -6,6 +6,5 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "rootDir": "."
-  },
-  "exclude": ["./example-usage"]
+  }
 }
