@@ -26,7 +26,6 @@
     "!**/.*"
   ],
   "scripts": {
-    "test": "jest",
     "prepare": "bob build",
     "typecheck": "tsc --noEmit",
     "clean": "del-cli android/build example-usage/android/build example-usage/android/app/build example-usage/ios/build lib",
