@@ -49,10 +49,8 @@ export default class Form {
     return {
       theme: this.#options.theme,
       config: {
-        length: Math.min(this.#options.length ?? 4, 10),
-        mode: this.#options.mode ?? "numeric",
-        autoFocus: this.#options.autoFocus,
-        inputType: this.#options.inputType,
+        formSubmissionUrl: this.#options.formSubmissionUrl,
+        formUuid: this.#options.formUuid,
       },
     };
   }

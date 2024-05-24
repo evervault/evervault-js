@@ -80,7 +80,7 @@ export function Form({config}: { config: FormConfig }) {
     }
     void makeRequest();
   }, []);
-
+  console.log("ID", config);
   return (
     <div>
       <form id={config.formUuid} action={config.formSubmissionUrl}>
