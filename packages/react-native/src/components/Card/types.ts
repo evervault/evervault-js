@@ -1,9 +1,8 @@
-import type { CardTranslations, CardBrandName } from 'types';
+import type { CardBrandName } from 'types';
 
 export interface CardConfig {
   autoFocus?: boolean;
   acceptedBrands?: CardBrandName[];
-  translations?: Partial<CardTranslations>;
 }
 
 export interface CardForm {
@@ -12,3 +11,5 @@ export interface CardForm {
   cvc: string;
   expiry: string;
 }
+
+export { CardBrandName };

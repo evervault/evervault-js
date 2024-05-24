@@ -1,3 +1,3 @@
-export * from './components/Card';
-export * from './sdk';
-export { type CardPayload } from 'types';
+export { type CardProps, Card } from './components/Card/Card';
+export { init, encrypt } from './sdk';
+export type { CardPayload, CardExpiry } from 'types';

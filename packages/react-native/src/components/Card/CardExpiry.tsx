@@ -1,31 +1,31 @@
-import type { CardForm } from './types';
 import { TextInputMask } from 'react-native-masked-text';
-import { NativeSyntheticEvent, TextInputFocusEventData } from 'react-native';
+import { useCardContext } from './context';
+import { useEffect } from 'react';
+import { BaseProps } from './Card';
 
-interface CardExpiryProps {
-  onChange: (value: CardForm['expiry']) => void;
-  onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
-  disabled: boolean;
-  placeholder?: string;
-  value: string;
-  readOnly?: boolean;
-}
+export interface CardExpiryProps extends BaseProps {}
 
 export function CardExpiry({
-  onChange,
-  onBlur,
   disabled,
   placeholder,
-  value,
   readOnly,
 }: CardExpiryProps) {
+  const context = useCardContext();
+
+  const { onBlur, onChange } = context.register('expiry');
+
+  useEffect(() => {
+    context.setRegisteredFields((prev) => new Set(prev).add('expiry'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <TextInputMask
       type="datetime"
-      value={value}
+      value={context.values.expiry}
       editable={disabled}
       selectTextOnFocus={disabled}
-      onChangeText={(t) => onChange(t)}
+      onChangeText={onChange}
       options={{
         format: '99 / 99',
       }}

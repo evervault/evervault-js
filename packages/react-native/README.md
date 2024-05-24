@@ -1,43 +1,46 @@
 # react-native-evervault-sdk
 
-Evervault react native sdk
 
 ## Installation
 
 ```sh
 npm install @evervault/evervault-react-native
 ```
-or 
+or
 ```sh
 yarn add @evervault/evervault-react-native
-```
-## Setup iOS + React Native v0.60
-```
-cd ios
-pod install
-cd ..
 ```
 
 ## Usage
 ```typescript
 // .tsx
-import { init, encrypt } from '@evervault/evervault-react-native';
+import { init } from '@evervault/evervault-react-native';
+
 
 export default function Component() {
-  const [encObject, setEncObject] = React.useState<string | undefined>();
-  const testEncObject = { key: 'value', boolKey: true, number: 123};
+  const [cardData, setCardData] = useState<CardPayload | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function initEvervault() {
       try {
-        await init('TEAM_UUID', 'APP_UUID');
+        await init(
+          process.env.EV_TEAM_UUID as string,
+          process.env.EV_APP_UUID as string
+        );
       } catch (error) {
         console.error(error);
       }
     }
     initEvervault();
-    encrypt(testEncObject).then(setEncObject);
   }, []);
+
+  return (
+    <Card onChange={setCardData} onComplete={() => console.log("Form Complete!")} style={{ gap: 24 }}>
+      <Card.Number placeholder="4242 4242 4242 4242" style={{ padding: 24 }}/>
+      <Card.CVC placeholder="123" />
+      <Card.Holder placeholder="Mark Doyle" />
+    </Card>
+  );
 }
 ```
 
@@ -48,25 +51,25 @@ Initialize the Evervault SDK, this must be called before `encrypt` to set your A
 
 ### Options
 
-| Type    | Type        | Required |
-| ------- | --------    | -------- |
-| teamUuid| string |yes        |
-| appUuid| string |yes        |
+| Type     | Type   | Required |
+| -------- | ------ | -------- |
+| teamUuid | string | yes      |
+| appUuid  | string | yes      |
 
 ### Returns
 
 `Promise<void>`
 
 ### `encrypt(data)`
-Encrypts data using [Evervault Encryption](https://docs.evervault.com/security/evervault-encryption). 
+Encrypts data using [Evervault Encryption](https://docs.evervault.com/security/evervault-encryption).
 
 To encrypt strings using the React Native SDK, simply pass a String or an Object into the `encrypt()` function.
 
 ### Options
 
-| Type    | Type        | Required |
-| ------- | --------    | -------- |
-| data| String, Number, Object, Array |yes        |
+| Type | Type                          | Required |
+| ---- | ----------------------------- | -------- |
+| data | String, Number, Object, Array | yes      |
 
 ### Returns
 

@@ -39,7 +39,7 @@ export async function changePayload(
   };
 }
 
-function isComplete(form: UseFormReturn<CardForm>, fields: CardField[]) {
+export function isComplete(form: UseFormReturn<CardForm>, fields: CardField[]) {
   if (fields.includes('name')) {
     if (form.values.name.length === 0) return false;
   }

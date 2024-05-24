@@ -1,14 +1,11 @@
 import { validateNumber } from '@evervault/card-validator';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { TextInputMask } from 'react-native-masked-text';
-import { MASKS } from 'shared';
 import { useCardContext } from './context';
+import { BaseProps } from './Card';
 
-interface CardNumberProps {
-  disabled?: boolean;
+interface CardNumberProps extends BaseProps {
   autoFocus?: boolean;
-  placeholder?: string;
-  readOnly?: boolean;
 }
 
 export function CardNumber({
@@ -16,6 +13,7 @@ export function CardNumber({
   disabled,
   placeholder,
   readOnly,
+  style,
 }: CardNumberProps) {
   const context = useCardContext();
   const ref = useRef<TextInputMask>(null);
@@ -25,17 +23,28 @@ export function CardNumber({
 
     const { brand } = validateNumber(value);
 
-    if (brand) {
-      //@ts-ignore
-      return [value, MASKS.native.number[brand] ?? MASKS.native.number.default];
+    const masks = {
+      'default': '9999 9999 9999 9999',
+      'unionpay': '9999 9999 9999 9999 999',
+      'american-express': '9999 999999 99999',
+    } as Record<string, string>;
+
+    if (brand && !!masks[brand]) {
+      return [value, masks[brand]];
     }
-    return [value, MASKS.native.number.unionpay];
+    return [value, masks.default];
   }, [context.values.number]);
 
-  const { onBlur, onChange } = context.registerFn('number');
+  const { onBlur, onChange } = context.register('number');
+
+  useEffect(() => {
+    context.setRegisteredFields((prev) => new Set(prev).add('number'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <TextInputMask
+      style={style}
       ref={ref}
       type="custom"
       options={{ mask }}

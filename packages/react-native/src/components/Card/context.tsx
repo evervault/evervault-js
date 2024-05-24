@@ -1,10 +1,12 @@
 import { UseFormReturn } from 'shared';
-import { createContext, useContext } from 'react';
+import { Dispatch, SetStateAction, createContext, useContext } from 'react';
 import { CardForm } from './types';
+import { CardField } from 'types';
 
 type Context<T> = {
   values: CardForm;
-  registerFn: UseFormReturn<T>['register'];
+  register: UseFormReturn<T>['register'];
+  setRegisteredFields: Dispatch<SetStateAction<Set<CardField>>>;
 };
 
 export const CardContext = createContext<Context<CardForm>>({
@@ -14,10 +16,11 @@ export const CardContext = createContext<Context<CardForm>>({
     cvc: '',
     expiry: '',
   },
-  registerFn: () => ({
-    onChange: () => {},
-    onBlur: () => {},
+  register: () => ({
+    onChange: () => { },
+    onBlur: () => { },
   }),
+  setRegisteredFields: () => { },
 });
 
 export const useCardContext = () => useContext(CardContext);
