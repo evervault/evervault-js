@@ -1,66 +1,47 @@
-import { TextInputMask } from 'react-native-masked-text';
-import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
-import { MASKS } from 'shared';
-import {
-  NativeSyntheticEvent,
-  StyleProp,
-  TextInputFocusEventData,
-  TextStyle,
-} from 'react-native';
 import { validateNumber } from '@evervault/card-validator';
+import React, { useEffect, useMemo } from 'react';
+import { TextInputMask } from 'react-native-masked-text';
+import { useCardContext } from './context';
+import { BaseProps } from './Card';
 
-interface CVCProps {
-  styles: StyleProp<TextStyle>;
-  onChange: (v: string) => void;
-  onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
-  disabled: boolean;
-  placeholder?: string;
-  value: string;
-  readOnly?: boolean;
-  cardNumber: string;
-}
+export interface CVCProps extends BaseProps {}
 
-export const CardCVC = forwardRef<TextInputMask, CVCProps>(
-  (
-    {
-      styles,
-      cardNumber,
-      onChange,
-      onBlur,
-      disabled,
-      placeholder,
-      value,
-      readOnly,
-    },
-    forwardedRef
-  ) => {
-    const innerRef = useRef<TextInputMask>(null);
+export const CardCVC = ({
+  style,
+  disabled,
+  placeholder,
+  readOnly,
+}: CVCProps) => {
+  const context = useCardContext();
+  const mask = useMemo(() => {
+    const type = validateNumber(context.values.number).brand;
+    if (type === 'american-express') {
+      return '9999';
+    }
+    return '999';
+  }, [context.values.number]);
 
-    useImperativeHandle(forwardedRef, () => innerRef.current!);
+  const { onChange, onBlur } = context.register('cvc');
 
-    const mask = useMemo(() => {
-      const type = validateNumber(cardNumber).brand;
-      if (type === 'american-express')
-        return MASKS.native.cvc['american-express'];
-      return MASKS.native.cvc.default;
-    }, [cardNumber]);
+  useEffect(() => {
+    context.setRegisteredFields((prev) => new Set(prev).add('cvc'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    return (
-      <TextInputMask
-        type="custom"
-        options={{ mask }}
-        style={styles}
-        value={value}
-        onChangeText={(t) => onChange(t)}
-        ref={innerRef}
-        id="cvc"
-        editable={disabled}
-        selectTextOnFocus={disabled}
-        onBlur={onBlur}
-        placeholder={placeholder}
-        autoComplete="cc-csc"
-        readOnly={readOnly}
-      />
-    );
-  }
-);
+  return (
+    <TextInputMask
+      type="custom"
+      options={{ mask }}
+      style={style}
+      value={context.values.cvc}
+      onChangeText={(t) => onChange(t)}
+      id="cvc"
+      editable={disabled}
+      selectTextOnFocus={disabled}
+      onBlur={onBlur}
+      placeholder={placeholder}
+      autoComplete="cc-csc"
+      readOnly={readOnly}
+    />
+  );
+};

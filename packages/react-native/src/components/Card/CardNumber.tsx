@@ -1,52 +1,59 @@
 import { validateNumber } from '@evervault/card-validator';
-import { useMemo, useRef } from 'react';
-import { NativeSyntheticEvent, TextInputFocusEventData } from 'react-native';
+import { useEffect, useMemo, useRef } from 'react';
 import { TextInputMask } from 'react-native-masked-text';
-import { MASKS } from 'shared';
+import { useCardContext } from './context';
+import { BaseProps } from './Card';
 
-interface CardNumberProps {
-  disabled?: boolean;
+interface CardNumberProps extends BaseProps {
   autoFocus?: boolean;
-  onChange: (v: string) => void;
-  onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
-  placeholder: string;
-  value: string;
-  readOnly?: boolean;
 }
-
 
 export function CardNumber({
   autoFocus,
   disabled,
-  onChange,
-  onBlur,
   placeholder,
-  value,
   readOnly,
+  style,
 }: CardNumberProps) {
+  const context = useCardContext();
   const ref = useRef<TextInputMask>(null);
 
   const [innerValue, mask] = useMemo(() => {
+    const value = context.values.number;
+
     const { brand } = validateNumber(value);
 
-    if (brand) {
-      //@ts-ignore
-      return [value, MASKS.native.number[brand] ?? MASKS.native.number.default];
+    const masks = {
+      'default': '9999 9999 9999 9999',
+      'unionpay': '9999 9999 9999 9999 999',
+      'american-express': '9999 999999 99999',
+    } as Record<string, string>;
+
+    if (brand && !!masks[brand]) {
+      return [value, masks[brand]];
     }
-    return [value, MASKS.native.number.unionpay];
-  }, [value]);
+    return [value, masks.default];
+  }, [context.values.number]);
+
+  const { onBlur, onChange } = context.register('number');
+
+  useEffect(() => {
+    context.setRegisteredFields((prev) => new Set(prev).add('number'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <TextInputMask
+      style={style}
       ref={ref}
       type="custom"
       options={{ mask }}
       id="number"
       value={innerValue}
       onChangeText={onChange}
+      onBlur={onBlur}
       readOnly={readOnly}
       inputMode="numeric"
-      onBlur={onBlur}
       autoFocus={autoFocus}
       placeholder={placeholder}
       editable={disabled}

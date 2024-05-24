@@ -27,22 +27,22 @@ export interface ThemeUtilities {
 
 export type SelectorType = string | HTMLElement;
 
-export type CardBrandName = 
-  "american-express" | 
-  "visa" | 
-  "mastercard" | 
-  "discover" | 
-  "jcb" | 
-  "diners-club" | 
-  "unionpay" | 
-  "maestro" | 
-  "mir" | 
-  "elo" | 
-  "hipercard" | 
-  "hiper" |
-  "szep";
+export type CardBrandName =
+  | "american-express"
+  | "visa"
+  | "mastercard"
+  | "discover"
+  | "jcb"
+  | "diners-club"
+  | "unionpay"
+  | "maestro"
+  | "mir"
+  | "elo"
+  | "hipercard"
+  | "hiper"
+  | "szep";
 
-interface CardExpiry {
+export interface CardExpiry {
   month: string | null;
   year: string | null;
 }
@@ -77,7 +77,10 @@ interface CardFieldTranslations<E extends TranslationsObject>
 }
 
 export interface CardTranslations extends TranslationsObject {
-  number: CardFieldTranslations<{ invalid?: string, unsupportedBrand?: string }>;
+  number: CardFieldTranslations<{
+    invalid?: string;
+    unsupportedBrand?: string;
+  }>;
   expiry: CardFieldTranslations<{ invalid?: string }>;
   cvc: CardFieldTranslations<{ invalid?: string }>;
 }

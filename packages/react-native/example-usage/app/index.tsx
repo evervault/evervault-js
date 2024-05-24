@@ -1,16 +1,11 @@
+/* eslint-disable react-native/no-inline-styles */
 import { useEffect, useState } from 'react';
-import { Image, StyleSheet, Platform } from 'react-native';
+import { ScrollView, View, Text } from 'react-native';
 import {
   init,
-  encrypt,
-  CardCVC,
-  CardExpiry,
-  CardNumber,
+  Card,
+  type CardPayload,
 } from '@evervault/evervault-react-native';
-
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 
 if (
   !process.env.EXPO_PUBLIC_EV_TEAM_UUID ||
@@ -21,21 +16,9 @@ if (
   );
 }
 
-const monoFont = Platform.select({
-  ios: 'Menlo', // Common monospace font for iOS
-  android: 'monospace', // Generic monospace font family for Android
-});
-
 export default function HomeScreen() {
-  const [encryptedData, setEncrypytedData] = useState<string | undefined>(
-    undefined
-  );
-  const [encryptedArr, setEncryptedArr] = useState<string | undefined>(
-    undefined
-  );
-  const [cvc, setCVC] = useState('');
-  const [expiry, setExpiry] = useState('');
-  const [number, setNumber] = useState('4242 4242 4242 4242 424');
+  const [cardData, setCardData] = useState<CardPayload | null>(null);
+
   useEffect(() => {
     async function initEvervault() {
       try {
@@ -43,17 +26,6 @@ export default function HomeScreen() {
           process.env.EXPO_PUBLIC_EV_TEAM_UUID as string,
           process.env.EXPO_PUBLIC_EV_APP_UUID as string
         );
-
-        const encObject = await encrypt({
-          key: 'value',
-          boolKey: true,
-          numberKey: 123,
-        });
-
-        const encArray = await encrypt(['encrypt', 'me', 'please']);
-
-        setEncrypytedData(encObject);
-        setEncryptedArr(encArray);
       } catch (error) {
         console.error(error);
       }
@@ -62,54 +34,20 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <ParallaxScrollView
-      backgroundColor={'#A1CEDC'}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <CardExpiry value={expiry} onChange={(v) => setExpiry(v)} />
-      <CardNumber value={number} onChange={(v) => setNumber(v)} />
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="subtitle">evervault-react-native</ThemedText>
-      </ThemedView>
-      <CardCVC
-        readOnly={false}
-        disabled={false}
-        style={{ borderWidth: 2 }}
-        value={cvc}
-        onChange={(v) => setCVC(v)}
-      />
-      <ThemedText type="default">Encrypted Data:</ThemedText>
-      <ThemedText style={{ fontFamily: monoFont }}>
-        {JSON.stringify(encryptedData, null, '  ')}
-      </ThemedText>
-      <ThemedText type="default">Encrypted Array:</ThemedText>
-      <ThemedText style={{ fontFamily: monoFont }}>
-        {JSON.stringify(encryptedArr, null, '  ')}
-      </ThemedText>
-    </ParallaxScrollView>
+    <ScrollView style={{ paddingHorizontal: 24 }}>
+      <View style={{ paddingVertical: 36 }}>
+        <Text style={{ fontWeight: 600, fontSize: 24 }}>
+          evervault-react-native
+        </Text>
+      </View>
+      <View style={{ gap: 12 }}>
+        <Card onChange={setCardData} style={{ gap: 24 }}>
+          <Card.Number placeholder="4242 4242 4242 4242" />
+          <Card.CVC placeholder="123" />
+          <Card.Holder placeholder="Mark Doyle" />
+        </Card>
+      </View>
+      <Text>{JSON.stringify(cardData, null, '   ')}</Text>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});

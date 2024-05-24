@@ -1,32 +1,31 @@
-import {
-  NativeSyntheticEvent,
-  TextInput,
-  TextInputFocusEventData,
-} from 'react-native';
+import { useEffect } from 'react';
+import { TextInput } from 'react-native';
+import { useCardContext } from './context';
+import { BaseProps } from './Card';
 
-interface CardHolderProps {
-  disabled?: boolean;
+export interface CardHolderProps extends BaseProps {
   autoFocus?: boolean;
-  onChange: (v: string) => void;
-  onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
-  placeholder: string;
-  value: string;
-  readOnly?: boolean;
 }
 
 export function CardHolder({
   autoFocus,
   disabled,
-  onChange,
-  onBlur,
   placeholder,
-  value,
   readOnly,
 }: CardHolderProps) {
+  const context = useCardContext();
+
+  const { onBlur, onChange } = context.register('name');
+
+  useEffect(() => {
+    context.setRegisteredFields((prev) => new Set(prev).add('name'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <TextInput
       id="name"
-      value={value}
+      value={context.values.name}
       readOnly={readOnly}
       onBlur={onBlur}
       autoFocus={autoFocus}
