@@ -144,7 +144,6 @@ export function validateCVC(
 }
 
 export function validateExpiry(expiry: string): CardExpiryValidationResult {
-  expiry = expiry.replace(" / ", "");
   // Validate that the expiry is in the format MMYY
   const regex = /^(0[1-9]|1[0-2])(\d{2})$/;
   const match = expiry.match(regex);
