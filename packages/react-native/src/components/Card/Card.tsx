@@ -6,10 +6,9 @@ import {
 import { ReactNode, useEffect, useState } from 'react';
 import { useForm } from '../useForm';
 import { changePayload, isAcceptedBrand, isComplete } from './utilities';
-import type { CardForm, CardConfig } from './types';
+import type { CardForm, CardConfig, CardField, CardPayload } from './types';
 import { CardNumber } from './CardNumber';
 import { CardContext } from './context';
-import { CardField, CardPayload } from 'types';
 import { encrypt } from '../../sdk';
 import { CardCVC } from './CardCVC';
 import { CardHolder } from './CardHolder';

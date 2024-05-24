@@ -1,4 +1,4 @@
-export { type CardProps, Card } from './components/Card/Card';
+export { type CardProps, Card } from './components/Card';
 export { init, encrypt } from './sdk';
 export type {
   CardPayload,

@@ -4,9 +4,8 @@ import {
   validateCVC,
   CardNumberValidationResult,
 } from '@evervault/card-validator';
-import type { CardForm } from './types';
-import type { CardBrandName, CardField, CardPayload } from 'types';
-import { UseFormReturn } from 'shared';
+import type { CardForm, CardBrandName, CardField, CardPayload } from './types';
+import { UseFormReturn } from '../useForm';
 
 export async function changePayload(
   encrypt: (value: string) => Promise<string>,

@@ -1,7 +1,6 @@
-import { UseFormReturn } from 'shared';
+import { UseFormReturn } from '../useForm';
 import { Dispatch, SetStateAction, createContext, useContext } from 'react';
-import { CardForm } from './types';
-import { CardField } from 'types';
+import { CardForm, CardField } from './types';
 
 type Context<T> = {
   values: CardForm;
@@ -18,9 +17,9 @@ export const CardContext = createContext<Context<CardForm>>({
   },
   register: () => ({
     onChange: () => {},
-    onBlur: () => {},
-  }),
+      onBlur: () => {},
+      }),
   setRegisteredFields: () => {},
-});
+  });
 
 export const useCardContext = () => useContext(CardContext);
