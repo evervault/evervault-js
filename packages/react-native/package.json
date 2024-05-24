@@ -1,6 +1,6 @@
 {
   "name": "@evervault/evervault-react-native",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Evervault react native sdk",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -38,14 +38,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/evervault/evervault-react-native-sdk.git"
+    "url": "git+https://github.com/evervault/evervault-js.git"
   },
   "author": "Eoin Boylan <eoin@evervault.com> (https://evervault.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/evervault/evervault-react-native-sdk/issues"
+    "url": "https://github.com/evervault/evervault-js/issues"
   },
-  "homepage": "https://github.com/evervault/evervault-react-native-sdk",
+  "homepage": "https://github.com/evervault/evervault-js",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
