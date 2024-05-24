@@ -35,7 +35,7 @@ Set up [pnpm](https://pnpm.io/) with:
 # Corepack is recommended for local setup but is still in beta
 corepack enable
 
-corepack prepare pnpm@latest-8 --activate
+corepack prepare pnpm@latest-9 --activate
 ```
 
 or
