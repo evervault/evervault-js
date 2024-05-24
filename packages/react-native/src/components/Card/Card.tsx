@@ -27,8 +27,8 @@ export interface CardProps {
   initialValue?: CardForm;
   config?: CardConfig;
   children: ReactNode;
-  onChange: (payload: CardPayload) => void;
-  onComplete: (payload: CardPayload) => void;
+  onChange?: (payload: CardPayload) => void;
+  onComplete?: (payload: CardPayload) => void;
   style?: StyleProp<TextStyle>;
 }
 
@@ -108,7 +108,9 @@ function Card({
           formState,
           Array.from(registeredFields)
         );
-        onChange(cardData);
+        if (onChange) {
+          onChange(cardData);
+        }
       };
 
       triggerChange();
@@ -122,7 +124,9 @@ function Card({
         form,
         Array.from(registeredFields)
       );
-      onComplete(cardData);
+      if (onComplete) {
+        onComplete(cardData);
+      }
     };
     if (isComplete(form, Array.from(registeredFields))) {
       getCardData();
