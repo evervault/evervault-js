@@ -17,10 +17,10 @@ export const CardContext = createContext<Context<CardForm>>({
     expiry: '',
   },
   register: () => ({
-    onChange: () => { },
-    onBlur: () => { },
+    onChange: () => {},
+    onBlur: () => {},
   }),
-  setRegisteredFields: () => { },
+  setRegisteredFields: () => {},
 });
 
 export const useCardContext = () => useContext(CardContext);

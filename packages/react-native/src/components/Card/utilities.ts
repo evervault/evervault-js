@@ -50,7 +50,9 @@ export function isComplete(form: UseFormReturn<CardForm>, fields: CardField[]) {
   }
 
   if (fields.includes('expiry')) {
-    const expiryValidation = validateExpiry(form.values.expiry.replace(" / ", ""));
+    const expiryValidation = validateExpiry(
+      form.values.expiry.replace(' / ', '')
+    );
     if (!expiryValidation.isValid) return false;
   }
 
@@ -78,7 +80,7 @@ export function isAcceptedBrand(
 }
 
 function formatExpiry(expiry: string) {
-  const parsedExpiry = validateExpiry(expiry.replace(" / ", ""));
+  const parsedExpiry = validateExpiry(expiry.replace(' / ', ''));
 
   return {
     month: parsedExpiry.month,

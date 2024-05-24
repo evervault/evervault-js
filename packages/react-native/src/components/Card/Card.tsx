@@ -4,7 +4,7 @@ import {
   validateExpiry,
 } from '@evervault/card-validator';
 import { ReactNode, useEffect, useState } from 'react';
-import { useForm } from 'shared';
+import { useForm } from '../useForm';
 import { changePayload, isAcceptedBrand, isComplete } from './utilities';
 import type { CardForm, CardConfig } from './types';
 import { CardNumber } from './CardNumber';
