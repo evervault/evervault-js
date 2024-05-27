@@ -537,8 +537,8 @@ importers:
   packages/shared:
     dependencies:
       '@evervault/card-validator':
-        specifier: ^1.0.3
-        version: 1.0.3(@types/node@20.11.30)(rollup@3.29.4)(terser@5.31.0)
+        specifier: workspace:*
+        version: link:../card-validator
       types:
         specifier: workspace:*
         version: link:../types
@@ -566,8 +566,8 @@ importers:
   packages/ui-components:
     dependencies:
       '@evervault/card-validator':
-        specifier: ^1.0.3
-        version: 1.0.3(@types/node@20.11.30)(rollup@3.29.4)(terser@5.31.0)
+        specifier: workspace:*
+        version: link:../card-validator
       '@evervault/react':
         specifier: workspace:*
         version: link:../react
@@ -11767,23 +11767,6 @@ snapshots:
       typescript: 5.4.5
       vite: 4.5.3(@types/node@18.19.26)(terser@5.31.0)
       vite-plugin-dts: 3.6.3(@types/node@18.19.26)(rollup@3.29.4)(typescript@5.4.5)(vite@4.5.3(@types/node@18.19.26)(terser@5.31.0))
-    transitivePeerDependencies:
-      - '@types/node'
-      - less
-      - lightningcss
-      - rollup
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-
-  '@evervault/card-validator@1.0.3(@types/node@20.11.30)(rollup@3.29.4)(terser@5.31.0)':
-    dependencies:
-      types: 0.0.1
-      typescript: 5.4.5
-      vite: 4.5.3(@types/node@20.11.30)(terser@5.31.0)
-      vite-plugin-dts: 3.6.3(@types/node@20.11.30)(rollup@3.29.4)(typescript@5.4.5)(vite@4.5.3(@types/node@20.11.30)(terser@5.31.0))
     transitivePeerDependencies:
       - '@types/node'
       - less
