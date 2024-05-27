@@ -4,9 +4,8 @@ import {
   validateCVC,
   CardNumberValidationResult,
 } from '@evervault/card-validator';
-import type { CardForm } from './types';
-import type { CardBrandName, CardField, CardPayload } from 'types';
-import { UseFormReturn } from 'shared';
+import type { CardForm, CardBrandName, CardField, CardPayload } from './types';
+import { UseFormReturn } from '../useForm';
 
 export async function changePayload(
   encrypt: (value: string) => Promise<string>,
@@ -50,7 +49,9 @@ export function isComplete(form: UseFormReturn<CardForm>, fields: CardField[]) {
   }
 
   if (fields.includes('expiry')) {
-    const expiryValidation = validateExpiry(form.values.expiry.replace(" / ", ""));
+    const expiryValidation = validateExpiry(
+      form.values.expiry.replace(' / ', '')
+    );
     if (!expiryValidation.isValid) return false;
   }
 
@@ -78,7 +79,7 @@ export function isAcceptedBrand(
 }
 
 function formatExpiry(expiry: string) {
-  const parsedExpiry = validateExpiry(expiry.replace(" / ", ""));
+  const parsedExpiry = validateExpiry(expiry.replace(' / ', ''));
 
   return {
     month: parsedExpiry.month,

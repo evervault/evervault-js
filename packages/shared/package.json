@@ -1,6 +1,7 @@
 {
   "name": "shared",
-  "version": "1.0.0",
+  "private": true,
+  "version": "1.0.1",
   "main": "src/index.ts",
   "dependencies": {
     "types": "workspace:*",

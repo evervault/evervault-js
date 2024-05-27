@@ -96,3 +96,8 @@ jobs:
         with:
           name: card-validator-build
           path: packages/card-validator/dist
+      - name: Upload react native build
+        uses: actions/upload-artifact@v3
+        with:
+          name: react-native-build
+          path: packages/react-native/dist
