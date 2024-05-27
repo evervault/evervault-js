@@ -13,5 +13,5 @@ export async function encrypt(data: any): Promise<string> {
       type being returned in it's stringified form when decryption occurs.`);
   }
 
-  return EvervaultSdk.encrypt(data.toString());
+  return EvervaultSdk.encrypt(data);
 }
