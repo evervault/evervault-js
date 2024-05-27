@@ -1,5 +1,11 @@
 # example-forms
 
+## 0.0.6
+
+### Patch Changes
+
+- @evervault/browser@2.23.2
+
 ## 0.0.5
 
 ### Patch Changes
