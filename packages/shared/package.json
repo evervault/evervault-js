@@ -5,6 +5,6 @@
   "main": "src/index.ts",
   "dependencies": {
     "types": "workspace:*",
-    "@evervault/card-validator": "^1.0.3"
+    "@evervault/card-validator": "workspace:*",
   }
 }
