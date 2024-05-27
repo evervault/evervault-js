@@ -7,13 +7,9 @@ class EvervaultSdk: NSObject {
     @objc(initialize:withAppUuid:withResolver:withRejecter:)
     func initialize(teamUuid: String, appUuid: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         Task {
-            do {
-                let evervault = Evervault(teamId: teamUuid, appId: appUuid)
-                self.ev = evervault
-                resolve(nil)
-            } catch {
-                reject("Error", "Failed to initialize: \(error.localizedDescription)", error)
-            }
+          let evervault = Evervault(teamId: teamUuid, appId: appUuid)
+          self.ev = evervault
+          resolve(nil)
         }
     }
 

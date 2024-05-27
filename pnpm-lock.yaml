@@ -449,7 +449,7 @@ importers:
   packages/react-native-example:
     dependencies:
       '@evervault/evervault-react-native':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../react-native
       expo:
         specifier: ~51.0.8
