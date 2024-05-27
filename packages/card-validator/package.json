@@ -1,5 +1,6 @@
 {
   "name": "@evervault/card-validator",
+  "private": false,
   "version": "1.0.3",
   "description": "Evervault Card Validator",
   "main": "./dist/evervault-card-validator.main.js",
@@ -30,12 +31,12 @@
     "build": "vite build"
   },
   "dependencies": {
+  },
+  "devDependencies": {
+    "vitest": "^0.29.8",
     "types": "workspace:*",
     "typescript": "latest",
     "vite": "^4.5.3",
     "vite-plugin-dts": "^3.6.3"
-  },
-  "devDependencies": {
-    "vitest": "^0.29.8"
   }
 }

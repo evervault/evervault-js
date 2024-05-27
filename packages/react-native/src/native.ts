@@ -9,10 +9,10 @@ const LINKING_ERROR =
 export const EvervaultSdk = NativeModules.EvervaultSdk
   ? NativeModules.EvervaultSdk
   : new Proxy(
-    {},
-    {
-      get() {
-        throw new Error(LINKING_ERROR);
-      },
-    }
-  );
+      {},
+      {
+        get() {
+          throw new Error(LINKING_ERROR);
+        },
+      }
+    );

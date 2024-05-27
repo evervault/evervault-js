@@ -259,7 +259,7 @@ importers:
         version: 0.29.8(jsdom@22.1.0)(playwright@1.42.1)(terser@5.31.0)
 
   packages/card-validator:
-    dependencies:
+    devDependencies:
       types:
         specifier: workspace:*
         version: link:../types
@@ -272,7 +272,6 @@ importers:
       vite-plugin-dts:
         specifier: ^3.6.3
         version: 3.6.3(@types/node@18.19.26)(rollup@3.29.4)(typescript@5.4.5)(vite@4.5.3(@types/node@18.19.26)(terser@5.31.0))
-    devDependencies:
       vitest:
         specifier: ^0.29.8
         version: 0.29.8(jsdom@22.1.0)(playwright@1.42.1)(terser@5.31.0)
@@ -387,8 +386,8 @@ importers:
         specifier: ^17.0.2
         version: 17.8.1
       '@evervault/card-validator':
-        specifier: workspace:*
-        version: link:../card-validator
+        specifier: ^1.0.3
+        version: 1.0.3(@types/node@18.19.26)(rollup@3.29.4)(terser@5.31.0)
       '@react-native/eslint-config':
         specifier: ^0.72.2
         version: 0.72.2(eslint@8.55.0)(jest@28.1.3(@types/node@18.19.26)(ts-node@10.9.2(@swc/core@1.4.11)(@types/node@20.5.1)(typescript@5.4.5)))(prettier@2.8.8)(typescript@5.4.5)
@@ -440,15 +439,9 @@ importers:
       release-it:
         specifier: ^16.1.3
         version: 16.3.0(typescript@5.4.5)
-      shared:
-        specifier: workspace:*
-        version: link:../shared
       turbo:
         specifier: ^1.10.7
         version: 1.13.0
-      types:
-        specifier: workspace:*
-        version: link:../types
       typescript:
         specifier: ^5.3.3
         version: 5.4.5
@@ -573,7 +566,7 @@ importers:
   packages/ui-components:
     dependencies:
       '@evervault/card-validator':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../card-validator
       '@evervault/react':
         specifier: workspace:*
@@ -2044,6 +2037,9 @@ packages:
   '@eslint/js@8.55.0':
     resolution: {integrity: sha512-qQfo2mxH5yVom1kacMtZZJFVdW+E70mqHMJvVg6WTLo+VBuQJ4TojZlfWBjK0ve5BdEeNAVxOsl/nvNMpJOaJA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@evervault/card-validator@1.0.3':
+    resolution: {integrity: sha512-OC4tpKt7Z8UNmWzt9vqHHee/9YGXInrBfQDzLWIMrmvEA9jIywIRa1O/xcxxS75u6UYUhdt1A2FdOc0WjxR0Eg==}
 
   '@evervault/sdk@4.2.0':
     resolution: {integrity: sha512-BxvPiDEtJeq0zerwOAtLZIpuS1617aaFnj7ZE2GS7IqGLox8MFIPqjUhYGTD2exwQkIQdd7Uh7WKYsdwbYWiWQ==}
@@ -5558,16 +5554,20 @@ packages:
 
   glob@6.0.4:
     resolution: {integrity: sha512-MKZeRNyYZAVVVG1oZeLaWie1uweH40m9AZwIwxyPbTSX4hHrVYSzLg0Ro5Z5R7XKkIX+Cc6oD1rqeDJnwsB8/A==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   glob@7.1.6:
     resolution: {integrity: sha512-LwaxwyZ72Lk7vZINtNNrywX0ZuLyStrdDtabefZKAY5ZGJhVtgdznluResxNmPitE0SAO+O26sWTHeKSI2wMBA==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   global-dirs@0.1.1:
     resolution: {integrity: sha512-NknMLn7F2J7aflwFOlGdNIuCDpN3VGoSoB+aap3KABFWbHVn1TCgFC+np23J8W2BiZbjfEw3BFBycSMv1AFblg==}
@@ -5839,6 +5839,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -8427,18 +8428,22 @@ packages:
 
   rimraf@2.4.5:
     resolution: {integrity: sha512-J5xnxTyqaiw06JjMftq7L9ouA448dw/E7dKghkP9WpKNuwmARNNg+Gk8/u5ryb9N/Yo2+z3MCwuqFK/+qPOPfQ==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rimraf@2.6.3:
     resolution: {integrity: sha512-mwqeW5XsA2qAejG46gYdENaxXjx9onRNCfn7L0duuP4hCuTIi/QO7PDK07KJfp1d+izWPrzEJDcSqBa0OZQriA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rimraf@2.7.1:
     resolution: {integrity: sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rollup-plugin-sri@1.3.4:
@@ -9317,6 +9322,10 @@ packages:
 
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
+
+  types@0.0.1:
+    resolution: {integrity: sha512-gRjSpq1EP9rPxzK6DQd1RcfTw6VRyiypsFH98EuSeLgOhzwQGpZekVr1AIPxefuZ8TwI9JBU1WAMKFzq4yfoNw==}
+    engines: {node: '>= 0.6.0'}
 
   typescript@5.0.4:
     resolution: {integrity: sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==}
@@ -11752,6 +11761,23 @@ snapshots:
 
   '@eslint/js@8.55.0': {}
 
+  '@evervault/card-validator@1.0.3(@types/node@18.19.26)(rollup@3.29.4)(terser@5.31.0)':
+    dependencies:
+      types: 0.0.1
+      typescript: 5.4.5
+      vite: 4.5.3(@types/node@18.19.26)(terser@5.31.0)
+      vite-plugin-dts: 3.6.3(@types/node@18.19.26)(rollup@3.29.4)(typescript@5.4.5)(vite@4.5.3(@types/node@18.19.26)(terser@5.31.0))
+    transitivePeerDependencies:
+      - '@types/node'
+      - less
+      - lightningcss
+      - rollup
+      - sass
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+
   '@evervault/sdk@4.2.0':
     dependencies:
       agent-base: 6.0.2
@@ -12665,7 +12691,7 @@ snapshots:
       '@rushstack/ts-command-line': 4.17.1
       colors: 1.2.5
       lodash: 4.17.21
-      resolve: 1.22.6
+      resolve: 1.22.8
       semver: 7.5.4
       source-map: 0.6.1
       typescript: 5.0.4
@@ -13309,7 +13335,7 @@ snapshots:
       fs-extra: 7.0.1
       import-lazy: 4.0.0
       jju: 1.4.0
-      resolve: 1.22.6
+      resolve: 1.22.8
       semver: 7.5.4
       z-schema: 5.0.5
     optionalDependencies:
@@ -13321,7 +13347,7 @@ snapshots:
       fs-extra: 7.0.1
       import-lazy: 4.0.0
       jju: 1.4.0
-      resolve: 1.22.6
+      resolve: 1.22.8
       semver: 7.5.4
       z-schema: 5.0.5
     optionalDependencies:
@@ -21770,6 +21796,8 @@ snapshots:
       typed-array-byte-offset: 1.0.2
 
   typedarray@0.0.6: {}
+
+  types@0.0.1: {}
 
   typescript@5.0.4: {}
 
