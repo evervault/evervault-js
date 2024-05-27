@@ -16,12 +16,12 @@ const fieldRenderers: Record<string, FieldRenderer> = {
       <textarea name={name} id={name}></textarea>
     </div>
   ),
-  select: (name: string, options?: { value: string; label: string }[]) => (
+  select: (name: string, options?: { value: string }[]) => (
     <div key={name}>
       <label htmlFor={name}>{name}</label>
       <select name={name} id={name}>
         {options?.map((option) => (
-          <option key={option.value} value={option.value}>{option.label}</option>
+          <option key={option.value} value={option.value}>{option.value}</option>
         ))}
       </select>
     </div>
@@ -35,9 +35,9 @@ export function Form({config}: { config: FormConfig }) {
   useEffect(() => {
     async function makeRequest() {
       try {
-        const response = await fetch(`http://api.localhost:3000/forms/${config.formUuid}`);
-        const data: FormApiResponse = await response.json() as FormApiResponse;
-        setFormElements(data.targetElements);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/forms/${config.formUuid}`);
+        const {targetElements}: FormApiResponse = await response.json() as FormApiResponse;
+        setFormElements(targetElements);
       } catch (e) {
         console.error(e);
       }
@@ -48,7 +48,7 @@ export function Form({config}: { config: FormConfig }) {
   return (
     <div>
       <form id={config.formUuid} action={config.formSubmissionUrl}>
-        {formElements.map((element) => {
+        {formElements?.map((element) => {
           const renderField = fieldRenderers[element.elementType];
           return renderField ? renderField(element.elementName, element.options) : null;
         })}
