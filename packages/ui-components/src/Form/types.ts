@@ -17,7 +17,7 @@ export interface FormApiResponse {
     id: number;
     uuid: string;
     appUuid: string;
-    elements: FormElement[];
+    targetElements: FormElement[];
     createdAt: string;
     updatedAt: string;
     deletedAt: string | null;

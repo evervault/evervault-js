@@ -35,52 +35,16 @@ export function Form({config}: { config: FormConfig }) {
   useEffect(() => {
     async function makeRequest() {
       try {
-        // const response = await fetch("https://api.evervault.com/forms", {
-        //   headers: {
-        //     'X-EVERVAULT-APP-ID': 'app_f4877d5d1d6a'
-        //   }
-        // });
-        // console.log("response", response.status);
-        const response: FormApiResponse = {
-          "id": 14,
-          "uuid": "form_1af0d91c566c",
-          "appUuid": "app_f4877d5d1d6a",
-          "elements": [
-            {
-              "elementName": "firstname",
-              "elementType": "input"
-            },
-            {
-              "elementName": "lastname",
-              "elementType": "input"
-            },
-            {
-              "elementName": "message",
-              "elementType": "textarea"
-            },
-            {
-              "elementName": "category",
-              "elementType": "select",
-              "options": [
-                { "value": "option1", "label": "Option 1" },
-                { "value": "option2", "label": "Option 2" },
-                { "value": "option3", "label": "Option 3" }
-              ]
-            }
-          ],
-          "createdAt": "2024-04-18T16:07:59.411Z",
-          "updatedAt": "2024-04-30T15:00:19.766Z",
-          "deletedAt": null
-        };
-
-        setFormElements(response.elements);
+        const response = await fetch(`http://api.localhost:3000/forms/${config.formUuid}`);
+        const data: FormApiResponse = await response.json() as FormApiResponse;
+        setFormElements(data.targetElements);
       } catch (e) {
         console.error(e);
       }
     }
     void makeRequest();
-  }, []);
-  console.log("ID", config);
+  }, [config.formUuid]);
+
   return (
     <div>
       <form id={config.formUuid} action={config.formSubmissionUrl}>

@@ -12,8 +12,8 @@ const evervault = new window.Evervault(
 
 const form = evervault.ui.form({
   theme: evervault.ui.themes.clean(),
-  formUuid: "form_1af0d91c566c",
-  formSubmissionUrl: "http://api.localhost:3000/forms/submission",
+  formUuid: "form_2126f2b14c12",
+  formSubmissionUrl: "http://api.localhost:3000/forms/form_2126f2b14c12/submission",
 });
 
 form.on("change", (values) => {
