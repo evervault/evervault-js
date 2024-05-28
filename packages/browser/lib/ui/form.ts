@@ -44,7 +44,7 @@ export default class Form {
     });
 
     this.#frame.on("EV_SUBMITTED", () => {
-      this.#events.dispatch("submitted")
+      this.#events.dispatch("submitted");
     });
   }
 
