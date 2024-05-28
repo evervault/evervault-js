@@ -40,6 +40,7 @@ export function CardExpiry({
       id="expiry"
       onBlur={onBlur}
       placeholder={placeholder ?? 'MM / YY'}
+      inputMode="numeric"
       autoComplete="cc-exp"
       readOnly={readOnly}
     />

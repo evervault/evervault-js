@@ -45,6 +45,7 @@ export const CardCVC = ({
       selectTextOnFocus={disabled}
       onBlur={onBlur}
       placeholder={placeholder}
+      inputMode="numeric"
       autoComplete="cc-csc"
       readOnly={readOnly}
     />
