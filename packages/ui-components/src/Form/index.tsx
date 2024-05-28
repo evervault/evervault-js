@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
-import type {FormConfig, FormApiResponse, FormElement} from "./types";
 import {useMessaging} from "../utilities/useMessaging";
-import type {EvervaultFrameHostMessages, FormFrameClientMessages, PinFrameClientMessages} from "types";
+import type {FormConfig, FormApiResponse, FormElement} from "./types";
+import type {EvervaultFrameHostMessages, FormFrameClientMessages} from "types";
 
 type FieldRenderer = (name: string, options?: { value: string; label: string }[]) => JSX.Element;
 
