@@ -1,5 +1,7 @@
 # react-native-evervault-sdk
 
+## [Documentation]("https://docs.evervault.com/sdks/react-native")
+Please see our documentation site for a full guide and reference.
 
 ## Installation
 
@@ -12,65 +14,52 @@ yarn add @evervault/evervault-react-native
 ```
 
 ## Usage
-```typescript
-// .tsx
-import { init } from '@evervault/evervault-react-native';
+```tsx
+import { init, Card, type CardPayload } from "@evervault/evervault-react-native"
 
-
-export default function Component() {
-  const [cardData, setCardData] = useState<CardPayload | null>(null);
+export default function App() {
+  const [cardData, setCardData] = useState<CardPayload | undefined>(undefined);
 
   useEffect(() => {
-    async function initEvervault() {
+    async function setupEvervault() {
       try {
-        await init(
-          process.env.EV_TEAM_UUID as string,
-          process.env.EV_APP_UUID as string
-        );
-      } catch (error) {
-        console.error(error);
+        await init(process.env.EXPO_PUBLIC_EV_TEAM_UUID, process.env.EXPO_PUBLIC_EV_APP_UUID);
+      } catch (err) {
+        throw new Error("Failed to initialize Evervault", err);
       }
     }
-    initEvervault();
+    setupEvervault();
   }, []);
 
   return (
-    <Card onChange={setCardData} onComplete={() => console.log("Form Complete!")} style={{ gap: 24 }}>
-      <Card.Number placeholder="4242 4242 4242 4242" style={{ padding: 24 }}/>
-      <Card.CVC placeholder="123" />
-      <Card.Holder placeholder="Mark Doyle" />
-    </Card>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>evervault react native</Text>
+      <Card
+        onChange={setCardData}
+        onComplete={(payload) => console.log("Card Complete!", payload)}
+        style={styles.card}
+      >
+        <Text>Card Number</Text>
+        <Card.Number
+          placeholder="4242 4242 4242 4242"
+          style={styles.input}
+        />
+        <Card.Expiry
+          placeholder="MM / YY"
+          style={styles.input}
+        />
+        <Card.Holder
+          placeholder="John Doe"
+          style={styles.input}
+        />
+        <Card.CVC
+          placeholder="523"
+          style={styles.input}
+        />
+      </Card>
+      <Text style={styles.details}>{JSON.stringify(cardData, null, 2)}</Text>
+      <StatusBar style="auto" />
+    </ScrollView>
   );
 }
 ```
-
-## Reference
-### `init(teamUuid, appUuid)`
-
-Initialize the Evervault SDK, this must be called before `encrypt` to set your Apps keys on the device.
-
-### Options
-
-| Type     | Type   | Required |
-| -------- | ------ | -------- |
-| teamUuid | string | yes      |
-| appUuid  | string | yes      |
-
-### Returns
-
-`Promise<void>`
-
-### `encrypt(data)`
-Encrypts data using [Evervault Encryption](https://docs.evervault.com/security/evervault-encryption).
-
-To encrypt strings using the React Native SDK, simply pass a String or an Object into the `encrypt()` function.
-
-### Options
-
-| Type | Type                          | Required |
-| ---- | ----------------------------- | -------- |
-| data | String, Number, Object, Array | yes      |
-
-### Returns
-
-`Promise<string>`
