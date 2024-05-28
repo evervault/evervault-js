@@ -8,5 +8,6 @@
     "skipLibCheck": true,
     "rootDir": "."
   },
-  "exclude": ["examples", "packages/react-native/example-usage"]
+  "exclude": ["examples"]
+
 }

@@ -3,8 +3,8 @@
   "private": false,
   "version": "1.0.3",
   "description": "Evervault Card Validator",
-  "main": "./dist/evervault-card-validator.main.js",
-  "module": "./dist/evervault-card-validator.umd.mjs",
+  "main": "./dist/evervault-card-validator.main.mjs",
+  "module": "./dist/evervault-card-validator.umd.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
