@@ -30,9 +30,10 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>evervault react native</Text>
-      <Card onChange={setCardData} style={styles.card}>
+      <Card onChange={setCardData} onComplete={(payload) => console.log("Card Complete!", payload)} style={styles.card}>
         <Card.Number style={styles.input} />
         <Card.Expiry style={styles.input} />
+        <Card.Holder style={styles.input} />
         <Card.CVC style={styles.input} />
       </Card>
       <Text style={styles.details}>{JSON.stringify(cardData, null, 2)}</Text>
