@@ -22,6 +22,4 @@ export class ExceededMaxFileSizeError extends EvervaultError {}
 
 export class DecryptError extends EvervaultError {}
 
-export class FormError extends EvervaultError {}
-
 export class DataRolesNotSupportedError extends EvervaultError {}
