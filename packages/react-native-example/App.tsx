@@ -35,6 +35,7 @@ export default function App() {
         onComplete={(payload) => console.log("Card Complete!", payload)}
         style={styles.card}
       >
+        <Text>Card Number</Text>
         <Card.Number
           placeholder="4242 4242 4242 4242"
           style={styles.input}

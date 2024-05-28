@@ -449,8 +449,8 @@ importers:
   packages/react-native-example:
     dependencies:
       '@evervault/evervault-react-native':
-        specifier: 0.3.0
-        version: 0.3.0(react-native@0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
+        specifier: workspace:*
+        version: link:../react-native
       expo:
         specifier: ~51.0.8
         version: 51.0.8(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))
@@ -1967,13 +1967,6 @@ packages:
   '@eslint/js@8.55.0':
     resolution: {integrity: sha512-qQfo2mxH5yVom1kacMtZZJFVdW+E70mqHMJvVg6WTLo+VBuQJ4TojZlfWBjK0ve5BdEeNAVxOsl/nvNMpJOaJA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-
-  '@evervault/evervault-react-native@0.3.0':
-    resolution: {integrity: sha512-4tMLrboSsKMCFTo2+Rzgu/ks5HmXpq+JXJC5/QEVz4XRMk0UHNsgZiD4ZvZlacqqVaVetUjwrWT93CcHYYojiQ==}
-    engines: {node: '>= 18.0.0'}
-    peerDependencies:
-      react: '*'
-      react-native: '*'
 
   '@evervault/sdk@4.2.0':
     resolution: {integrity: sha512-BxvPiDEtJeq0zerwOAtLZIpuS1617aaFnj7ZE2GS7IqGLox8MFIPqjUhYGTD2exwQkIQdd7Uh7WKYsdwbYWiWQ==}
@@ -11067,12 +11060,6 @@ snapshots:
   '@eslint/js@8.49.0': {}
 
   '@eslint/js@8.55.0': {}
-
-  '@evervault/evervault-react-native@0.3.0(react-native@0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)':
-    dependencies:
-      react: 18.2.0
-      react-native: 0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0)
-      react-native-masked-text: 1.13.0
 
   '@evervault/sdk@4.2.0':
     dependencies:
