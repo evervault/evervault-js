@@ -54,7 +54,7 @@ export function Form({config}: { config: FormConfig }) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-    const formJson: { [key: string]: string } = {};
+    const formJson: Record<string, string> = {};
 
     formData.forEach((value, key) => {
       formJson[key] = value as string;
@@ -72,8 +72,9 @@ export function Form({config}: { config: FormConfig }) {
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-
-      response.json().then(() => messages.send("EV_SUBMITTED"))
+      // @ts-ignore
+      await response.json();
+      messages.send("EV_SUBMITTED")
     } catch (error) {
       messages.send("EV_ERROR");
       console.error('Error submitting form:', error);
