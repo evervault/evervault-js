@@ -73,8 +73,7 @@ export function Form({config}: { config: FormConfig }) {
         throw new Error('Network response was not ok');
       }
 
-      await response.json();
-      messages.send("EV_SUBMITTED")
+      response.json().then(() => messages.send("EV_SUBMITTED"))
     } catch (error) {
       messages.send("EV_ERROR");
       console.error('Error submitting form:', error);
