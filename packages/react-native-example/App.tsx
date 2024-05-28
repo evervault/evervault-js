@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text } from 'react-native';
 import { registerRootComponent } from 'expo';
 import { Card, CardPayload, init } from '@evervault/evervault-react-native';
 import { useEffect, useState } from 'react';
@@ -28,17 +28,33 @@ export default function App() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>evervault react native</Text>
-      <Card onChange={setCardData} onComplete={(payload) => console.log("Card Complete!", payload)} style={styles.card}>
-        <Card.Number style={styles.input} />
-        <Card.Expiry style={styles.input} />
-        <Card.Holder style={styles.input} />
-        <Card.CVC style={styles.input} />
+      <Card
+        onChange={setCardData}
+        onComplete={(payload) => console.log("Card Complete!", payload)}
+        style={styles.card}
+      >
+        <Card.Number
+          placeholder="4242 4242 4242 4242"
+          style={styles.input}
+        />
+        <Card.Expiry
+          placeholder="MM / YY"
+          style={styles.input}
+        />
+        <Card.Holder
+          placeholder="John Doe"
+          style={styles.input}
+        />
+        <Card.CVC
+          placeholder="523"
+          style={styles.input}
+        />
       </Card>
       <Text style={styles.details}>{JSON.stringify(cardData, null, 2)}</Text>
       <StatusBar style="auto" />
-    </View>
+    </ScrollView>
   );
 }
 

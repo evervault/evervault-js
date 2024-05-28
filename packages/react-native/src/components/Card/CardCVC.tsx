@@ -4,7 +4,7 @@ import { TextInputMask } from 'react-native-masked-text';
 import { useCardContext } from './context';
 import { BaseProps } from './Card';
 
-export interface CVCProps extends BaseProps {}
+export interface CVCProps extends BaseProps { }
 
 export const CardCVC = ({
   style,
@@ -25,6 +25,11 @@ export const CardCVC = ({
 
   useEffect(() => {
     context.setRegisteredFields((prev) => new Set(prev).add('cvc'));
+    return () => context.setRegisteredFields((prev) => {
+      const next = new Set(prev);
+      next.delete('cvc');
+      return next;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

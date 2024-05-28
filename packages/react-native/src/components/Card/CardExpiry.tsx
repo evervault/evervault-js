@@ -17,6 +17,11 @@ export function CardExpiry({
 
   useEffect(() => {
     context.setRegisteredFields((prev) => new Set(prev).add('expiry'));
+    return () => context.setRegisteredFields((prev) => {
+      const next = new Set(prev);
+      next.delete('expiry');
+      return next;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
