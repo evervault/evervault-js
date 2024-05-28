@@ -20,4 +20,11 @@ form.on("change", (values) => {
   console.log("change", values);
 });
 
+form.on("error", () => {
+  console.error("error submitting form");
+});
+
+form.on("submitted", () => {
+  console.log("form has been submitted");
+});
 form.mount("#form");

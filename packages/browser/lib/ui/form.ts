@@ -35,13 +35,16 @@ export default class Form {
       this.#events.dispatch("change", payload);
     });
 
-    this.#frame.on("EV_COMPLETE", (payload) => {
-      this.values = payload;
-      this.#events.dispatch("complete", payload);
-    });
-
     this.#frame.on("EV_FRAME_READY", () => {
       this.#events.dispatch("ready");
+    });
+
+    this.#frame.on("EV_ERROR", () => {
+      this.#events.dispatch("error");
+    });
+
+    this.#frame.on("EV_SUBMITTED", () => {
+      this.#events.dispatch("submitted")
     });
   }
 
