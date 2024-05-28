@@ -5,6 +5,9 @@
   "extends": "tsconfig/browser.json",
   "compilerOptions": {
     "jsx": "react-jsx",
+    "skipLibCheck": true,
     "rootDir": "."
-  }
+  },
+  "exclude": ["examples"]
+
 }

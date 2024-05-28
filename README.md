@@ -2,7 +2,7 @@
 
 Evervault JavaScript SDK.
 
-## Repositary structure
+## Repository structure
 
 This is a monorepo managed with [Turborepo](https://turbo.fyi/) and [pnpm workspaces](https://pnpm.io/workspaces).
 
@@ -35,7 +35,7 @@ Set up [pnpm](https://pnpm.io/) with:
 # Corepack is recommended for local setup but is still in beta
 corepack enable
 
-corepack prepare pnpm@latest-8 --activate
+corepack prepare pnpm@latest-9 --activate
 ```
 
 or
@@ -95,9 +95,9 @@ Formatting is done with [Prettier](https://prettier.io). The `format` task will 
 
 The CI will block PR's if `format:check` fails. If this occurs, run `pnpm run format` to update the formatting on all files. I also recommend using [Editor integrations](https://prettier.io/docs/en/editors.html) with Prettier to format as you write code.
 
-## Release managment
+## Release management
 
-We use [changsets](https://github.com/changesets/changesets) to version manage the packages in this repo.
+We use [changesets](https://github.com/changesets/changesets) to version manage the packages in this repo.
 
 When creating a pr that needs to be rolled into a version release, do `npx changeset`, select the level of the version bump required and describe the changes for the change logs. DO NOT select `major` for releasing breaking changes without team approval.
 

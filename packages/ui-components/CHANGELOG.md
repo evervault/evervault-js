@@ -1,5 +1,28 @@
 # @evervault/ui-components
 
+## 1.3.1
+
+### Patch Changes
+
+- Updated dependencies [1ff4434]
+- Updated dependencies [ce4f4c2]
+  - shared@1.0.1
+  - types@0.0.1
+  - @evervault/card-validator@1.0.3
+  - @evervault/react@2.6.1
+
+## 1.3.0
+
+### Minor Changes
+
+- e694b3b: Add ability to restrict accepted brands
+
+### Patch Changes
+
+- e694b3b: Return 6-digit bin when card length is < 16 digits
+- Updated dependencies [4b67fc7]
+  - @evervault/react@2.6.0
+
 ## 1.2.0
 
 ### Minor Changes

@@ -49,7 +49,7 @@ const encryptionConstants = {
   publicHash: "sha256" as const,
   versions: {
     NOC: "NOC" as const, // (Tk9D) NIST-P256 KDF
-    LCY: "LCY" as const, // (TENZ) NIST-P256 KDF with metadata
+    BFS: "QkTC" as const, // (TENZ) NIST-P256 KDF with metadata
   },
   header: {
     iss: "evervault" as const,

@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { TranslationsObject } from "types";
+import { type TranslationsObject } from "types";
 
 export function useTranslations(
   translations: TranslationsObject,

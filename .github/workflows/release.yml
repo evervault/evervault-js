@@ -64,3 +64,21 @@ jobs:
       artifact: "react-sdk-build"
       repo_path: "packages/react/dist"
     secrets: inherit
+  publish-card-validator:
+    if: contains(github.event.release.tag_name, '@evervault/card-validator')
+    needs: build
+    uses: ./.github/workflows/npm-publish.yml
+    with:
+      package: "@evervault/card-validator"
+      artifact: "card-validator-build"
+      repo_path: "packages/card-validator/dist"
+    secrets: inherit
+  publish-react-native:
+    if: contains(github.event.release.tag_name, '@evervault/evervault-react-native')
+    needs: build
+    uses: ./.github/workflows/npm-publish.yml
+    with:
+      package: "@evervault/evervault-react-native"
+      artifact: "react-native-build"
+      repo_path: "packages/react-native/lib"
+    secrets: inherit

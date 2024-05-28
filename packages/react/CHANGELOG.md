@@ -1,5 +1,17 @@
 # @evervault/react
 
+## 2.6.1
+
+### Patch Changes
+
+- 1ff4434: make internal packages private
+
+## 2.6.0
+
+### Minor Changes
+
+- 4b67fc7: Add acceptedBrands option to the Card component
+
 ## 2.5.1
 
 ### Patch Changes

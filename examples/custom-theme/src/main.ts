@@ -96,7 +96,9 @@ const evervault = new window.Evervault(
   }
 );
 
-const card = evervault.ui.card({ theme: theme() });
+const card = evervault.ui.card({ 
+  theme: theme()
+});
 
 card.on("ready", () => {
   document.body.classList.add("ready");

@@ -1,10 +1,10 @@
 {
   "private": false,
   "name": "@evervault/browser",
-  "version": "2.22.1",
+  "version": "2.23.2",
   "engines": {
     "node": "~18",
-    "pnpm": "~8"
+    "pnpm": "~9"
   },
   "repository": {
     "type": "git",

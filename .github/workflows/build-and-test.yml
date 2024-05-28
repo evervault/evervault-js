@@ -42,7 +42,7 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 8.6
+          version: 9.0
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
@@ -91,3 +91,13 @@ jobs:
         with:
           name: react-sdk-build
           path: packages/react/dist
+      - name: Upload card validator build
+        uses: actions/upload-artifact@v3
+        with:
+          name: card-validator-build
+          path: packages/card-validator/dist
+      - name: Upload react native build
+        uses: actions/upload-artifact@v3
+        with:
+          name: react-native-build
+          path: packages/react-native/dist

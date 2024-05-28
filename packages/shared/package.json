@@ -1,0 +1,10 @@
+{
+  "name": "shared",
+  "private": true,
+  "version": "1.0.1",
+  "main": "src/index.ts",
+  "dependencies": {
+    "types": "workspace:*",
+    "@evervault/card-validator": "workspace:*"
+  }
+}
