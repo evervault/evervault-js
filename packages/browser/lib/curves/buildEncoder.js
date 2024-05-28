@@ -1,24 +1,30 @@
 import { hexStringToUint8Array } from "../encoding";
-import { Integer, ObjectIdentifier, Sequence, BitString, OctetString } from "asn1js";
+import {
+  Integer,
+  ObjectIdentifier,
+  Sequence,
+  BitString,
+  OctetString,
+} from "asn1js";
 
-const PUBLIC_KEY_TYPE = '1.2.840.10045.2.1';
-const PRIME_FIELD = '1.2.840.10045.1.1';
-const VERSION = '01';
+const PUBLIC_KEY_TYPE = "1.2.840.10045.2.1";
+const PRIME_FIELD = "1.2.840.10045.1.1";
+const VERSION = "01";
 
 /**
- * @param {import { ./p256 }.TP256Constants} curveParams 
+ * @param {import { ./p256 }.TP256Constants} curveParams
  * @returns Sequence
  */
 const FieldId = (curveParams) => {
   return new Sequence({
-    name: 'fieldID',
+    name: "fieldID",
     value: [
       new ObjectIdentifier({
-        name: 'fieldType',
+        name: "fieldType",
         value: PRIME_FIELD,
       }),
       new Integer({
-        name: 'parameters',
+        name: "parameters",
         // Theres a specific rule this library doesn't seem to implement for Integer:
         // If the first byte is 0x80 or greater, the number is considered negative so we add a '00' prefix if the 0x80 bit is set
         // We need to manually add the 0x00 prefix to the value to make the library work as the first byte of 'p' is > 0x80
@@ -30,26 +36,24 @@ const FieldId = (curveParams) => {
 };
 
 /**
- * @param {import { ./p256 }.TP256Constants} curveParams 
+ * @param {import { ./p256 }.TP256Constants} curveParams
  * @returns Sequence
  */
 const Curve = (curveParams) => {
   return new Sequence({
-    name: 'curve',
+    name: "curve",
     value: [
       new OctetString({
-        name: 'a',
-        valueHex: new Uint8Array(hexStringToUint8Array(curveParams.a))
-          .buffer,
+        name: "a",
+        valueHex: new Uint8Array(hexStringToUint8Array(curveParams.a)).buffer,
       }),
       new OctetString({
-        name: 'b',
-        valueHex: new Uint8Array(hexStringToUint8Array(curveParams.b))
-          .buffer,
+        name: "b",
+        valueHex: new Uint8Array(hexStringToUint8Array(curveParams.b)).buffer,
       }),
       new BitString({
         optional: true,
-        name: 'seed',
+        name: "seed",
         valueHex: curveParams.seed
           ? new Uint8Array(hexStringToUint8Array(curveParams.seed)).buffer
           : curveParams.seed,
@@ -59,26 +63,26 @@ const Curve = (curveParams) => {
 };
 
 /**
- * @param {import { ./p256 }.TP256Constants} curveParams 
+ * @param {import { ./p256 }.TP256Constants} curveParams
  * @returns Sequence
  */
 const ECParameters = (curveParams) => {
   return new Sequence({
-    name: 'ecParameters',
+    name: "ecParameters",
     value: [
       new Integer({
-        name: 'version',
+        name: "version",
         valueHex: new Uint8Array(hexStringToUint8Array(VERSION)).buffer,
       }),
       FieldId(curveParams),
       Curve(curveParams),
       new OctetString({
-        name: 'base',
+        name: "base",
         valueHex: new Uint8Array(hexStringToUint8Array(curveParams.generator))
           .buffer,
       }),
       new Integer({
-        name: 'order',
+        name: "order",
         // Theres a specific rule this library doesn't seem to implement for Integer:
         // If the first byte is 0x80 or greater, the number is considered negative so we add a '00' prefix if the 0x80 bit is set
         // We need to manually add the 0x00 prefix to the value to make the library work as the first byte of 'n' is > 0x80
@@ -87,7 +91,7 @@ const ECParameters = (curveParams) => {
       }),
       new Integer({
         optional: true,
-        name: 'cofactor',
+        name: "cofactor",
         valueHex: new Uint8Array(hexStringToUint8Array(curveParams.h)).buffer,
       }),
     ],
@@ -95,15 +99,15 @@ const ECParameters = (curveParams) => {
 };
 
 /**
- * @param {import { ./p256 }.TP256Constants} curveParams 
+ * @param {import { ./p256 }.TP256Constants} curveParams
  * @returns Sequence
  */
 const AlgorithmIdentifier = (curveParams) => {
   return new Sequence({
-    name: 'algorithm',
+    name: "algorithm",
     value: [
       new ObjectIdentifier({
-        name: 'algorithm',
+        name: "algorithm",
         value: PUBLIC_KEY_TYPE,
       }),
       ECParameters(curveParams),
@@ -118,11 +122,11 @@ const AlgorithmIdentifier = (curveParams) => {
  */
 const SubjectPublicKeyInfo = (curveParams, decompressedKey) => {
   return new Sequence({
-    name: 'SubjectPublicKeyInfo',
+    name: "SubjectPublicKeyInfo",
     value: [
       AlgorithmIdentifier(curveParams),
       new BitString({
-        name: 'subjectPublicKey',
+        name: "subjectPublicKey",
         valueHex: new Uint8Array(hexStringToUint8Array(decompressedKey)).buffer,
       }),
     ],
@@ -137,7 +141,10 @@ export default function buildEncoder({ p, a, b, seed, generator, n, h }) {
    * @param {string} decompressedKey
    * */
   return (decompressedKey) => {
-    const spki = SubjectPublicKeyInfo({ p, a, b, seed, generator, n, h }, decompressedKey);
-    return Buffer.from(spki.toString('hex'), 'hex');
+    const spki = SubjectPublicKeyInfo(
+      { p, a, b, seed, generator, n, h },
+      decompressedKey,
+    );
+    return Buffer.from(spki.toString("hex"), "hex");
   };
 }
