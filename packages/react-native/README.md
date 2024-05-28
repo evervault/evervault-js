@@ -1,6 +1,6 @@
 # react-native-evervault-sdk
 
-## [Documentation]("https://docs.evervault.com/sdks/react-native")
+## [Documentation](https://docs.evervault.com/sdks/react-native)
 Please see our documentation site for a full guide and reference.
 
 ## Installation
