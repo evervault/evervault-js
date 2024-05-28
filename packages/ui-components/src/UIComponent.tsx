@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Card } from "./Card";
-import {FormConfig} from "./Form/types";
 import {Form} from "./Form";
+import {FormConfig} from "./Form/types";
 import { Pin } from "./Pin";
 import { RevealCopyButton } from "./Reveal/RevealCopyButton";
 import { RevealRequest } from "./Reveal/RevealRequest";
