@@ -72,7 +72,7 @@ export function Form({config}: { config: FormConfig }) {
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-      // eslint-disable-next-line no-floating-promises
+      // eslint-disable-next-line no-misused-promises
       await response.json();
       messages.send("EV_SUBMITTED")
     } catch (error) {
