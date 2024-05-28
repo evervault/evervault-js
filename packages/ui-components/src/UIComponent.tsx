@@ -1,5 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Card } from "./Card";
+import {FormConfig} from "./Form/types";
+import {Form} from "./Form";
 import { Pin } from "./Pin";
 import { RevealCopyButton } from "./Reveal/RevealCopyButton";
 import { RevealRequest } from "./Reveal/RevealRequest";
@@ -15,8 +17,6 @@ import type {
   RevealRequestConfig,
   RevealTextConfig,
 } from "./Reveal/types";
-import {FormConfig} from "./Form/types";
-import {Form} from "./Form";
 
 // Use the component query param to determine which component to render
 export function UIComponent() {
