@@ -6,7 +6,7 @@ import type {
   EvervaultFrameHostMessages,
   FormOptions,
   FormPayload,
-  FormFrameClientMessages
+  FormFrameClientMessages,
 } from "types";
 
 interface FormEvents {
