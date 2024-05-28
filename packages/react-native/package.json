@@ -29,7 +29,7 @@
     "build": "bob build",
     "prepare": "bob build",
     "typecheck": "tsc --noEmit",
-    "clean": "del-cli android/build example-usage/android/build example-usage/android/app/build example-usage/ios/build lib",
+    "clean": "del-cli android/build lib",
     "release": "release-it"
   },
   "keywords": [
@@ -53,7 +53,7 @@
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.2",
-    "@evervault/card-validator": "^1.0.3",
+    "@evervault/card-validator": "workspace:*",
     "@react-native/eslint-config": "^0.72.2",
     "@release-it/conventional-changelog": "^5.0.0",
     "@types/jest": "^28.1.2",
@@ -78,16 +78,12 @@
     "react": "*",
     "react-native": "*"
   },
-  "workspaces": [
-    "example-usage"
-  ],
   "engines": {
     "node": ">= 18.0.0"
   },
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
-      "<rootDir>/example-usage/node_modules",
       "<rootDir>/lib/"
     ]
   },
@@ -147,7 +143,6 @@
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",
-    "exclude": "example-usage/**",
     "typescript": [
       {
         "project": "tsconfig.build.json"
