@@ -33,10 +33,13 @@ const fieldRenderers: Record<string, FieldRenderer> = {
 
 export function Form({config}: { config: FormConfig }): JSX.Element {
   const [formElements, setFormElements] = useState<FormElement[]>([]);
+
   const messages = useMessaging<
     EvervaultFrameHostMessages,
     FormFrameClientMessages
   >();
+
+  useLayoutEffect(resize);
 
   useEffect(() => {
     async function makeRequest() {
@@ -44,7 +47,6 @@ export function Form({config}: { config: FormConfig }): JSX.Element {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/forms/${config.formUuid}`);
         const {targetElements}: FormApiResponse = await response.json() as FormApiResponse;
         setFormElements(targetElements);
-        useLayoutEffect(resize);
       } catch (e) {
         console.error(e);
       }
