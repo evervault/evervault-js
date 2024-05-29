@@ -1,5 +1,17 @@
 # @evervault/browser
 
+## 2.25.0
+
+### Minor Changes
+
+- 621ca95: Add form rendering to UI components
+
+### Patch Changes
+
+- Updated dependencies [621ca95]
+  - themes@0.1.0
+  - types@0.1.0
+
 ## 2.24.0
 
 ### Minor Changes

@@ -4,6 +4,13 @@
 
 ### Patch Changes
 
+- Updated dependencies [621ca95]
+  - @evervault/browser@2.25.0
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [efcd3b0]
   - @evervault/browser@2.24.0
 
