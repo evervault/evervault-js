@@ -47,6 +47,25 @@ export function material(extended?: ThemeDefinition): ThemeDefinition {
         },
       },
 
+      textarea: {
+        height: 40,
+        fontSize: 16,
+        borderRadius: 6,
+        color: "#0a2540",
+        padding: "6 12px",
+        backgroundColor: "#fff",
+        border: "1px solid #e6ebf1",
+
+        "&::placeholder": {
+          color: "transparent",
+        },
+
+        "&:focus": {
+          outline: "none",
+          borderColor: "#63e",
+        },
+      },
+
       ".field[ev-valid=false] input": {
         color: "#df1c41",
         borderColor: "#df1c41",

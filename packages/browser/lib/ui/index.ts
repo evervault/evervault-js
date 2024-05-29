@@ -1,9 +1,10 @@
 import * as themes from "themes";
 import Card from "./card";
+import Form from "./form";
 import Pin from "./pin";
 import Reveal from "./reveal";
 import type EvervaultClient from "../main";
-import type { PinOptions, CardOptions } from "types";
+import type { PinOptions, CardOptions, FormOptions } from "types";
 
 export default class UIComponents {
   client: EvervaultClient;
@@ -23,5 +24,9 @@ export default class UIComponents {
 
   reveal(request: Request) {
     return new Reveal(this.client, request);
+  }
+
+  form(opts?: FormOptions) {
+    return new Form(this.client, opts);
   }
 }

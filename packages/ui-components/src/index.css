@@ -31,6 +31,15 @@ input {
   background: transparent;
 }
 
+textarea {
+  width: 100%;
+  outline: none;
+  line-height: 1;
+  appearance: none;
+  font-size: inherit;
+  background: transparent;
+}
+
 [ev-component="card"] {
   gap: 10px;
   display: grid;
