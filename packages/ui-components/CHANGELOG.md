@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.5.0
+
+### Minor Changes
+
+- 46e1765: Add validation to ui components forms
+
 ## 1.4.1
 
 ### Patch Changes
