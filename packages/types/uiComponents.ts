@@ -180,7 +180,6 @@ export interface FormPayload {
 }
 
 export interface FormFrameClientMessages extends EvervaultFrameClientMessages {
-  EV_CHANGE: FormPayload;
   EV_ERROR: undefined;
   EV_SUBMITTED: undefined;
 }

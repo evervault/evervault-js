@@ -1,4 +1,5 @@
-import {useEffect, useState} from "react";
+import { resize } from "../utilities/resize";
+import {useEffect, useLayoutEffect, useState} from "react";
 import {useMessaging} from "../utilities/useMessaging";
 import type {FormConfig, FormApiResponse, FormElement} from "./types";
 import type {EvervaultFrameHostMessages, FormFrameClientMessages} from "types";
@@ -43,6 +44,7 @@ export function Form({config}: { config: FormConfig }) {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/forms/${config.formUuid}`);
         const {targetElements}: FormApiResponse = await response.json() as FormApiResponse;
         setFormElements(targetElements);
+        useLayoutEffect(resize);
       } catch (e) {
         console.error(e);
       }
@@ -89,7 +91,7 @@ export function Form({config}: { config: FormConfig }) {
           return renderField ? renderField(element.elementName, element.options) : null;
         })}
         <div className={"button-container"}>
-          <button type={"submit"}>Submit</button>
+          <button type="submit">Submit</button>
         </div>
       </form>
     </div>

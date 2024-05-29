@@ -30,11 +30,6 @@ export default class Form {
     this.#options = options ?? {};
     this.#frame = new EvervaultFrame(client, "Form");
 
-    this.#frame.on("EV_CHANGE", (payload) => {
-      this.values = payload;
-      this.#events.dispatch("change", payload);
-    });
-
     this.#frame.on("EV_FRAME_READY", () => {
       this.#events.dispatch("ready");
     });
