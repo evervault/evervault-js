@@ -1,15 +1,15 @@
 {
   "name": "@evervault/evervault-react-native",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Evervault react native sdk",
-  "main": "lib/commonjs/index",
-  "module": "lib/module/index",
-  "types": "lib/typescript/src/index.d.ts",
+  "main": "dist/commonjs/index",
+  "module": "dist/module/index",
+  "types": "dist/typescript/src/index.d.ts",
   "react-native": "src/index",
   "source": "src/index",
   "files": [
     "src",
-    "lib",
+    "dist",
     "android",
     "ios",
     "cpp",
@@ -29,7 +29,7 @@
     "build": "bob build",
     "prepare": "bob build",
     "typecheck": "tsc --noEmit",
-    "clean": "del-cli android/build lib",
+    "clean": "del-cli android/build dist",
     "release": "release-it"
   },
   "keywords": [
@@ -41,7 +41,7 @@
     "type": "git",
     "url": "git+https://github.com/evervault/evervault-js.git"
   },
-  "author": "Eoin Boylan <eoin@evervault.com> (https://evervault.com)",
+  "author": "Engineering <engineering@evervault.com> (https://evervault.com)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/evervault/evervault-js/issues"
@@ -84,7 +84,7 @@
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
-      "<rootDir>/lib/"
+      "<rootDir>/dist/"
     ]
   },
   "commitlint": {
@@ -131,7 +131,7 @@
   },
   "eslintIgnore": [
     "node_modules/",
-    "lib/"
+    "dist/"
   ],
   "prettier": {
     "quoteProps": "consistent",
@@ -142,7 +142,7 @@
   },
   "react-native-builder-bob": {
     "source": "src",
-    "output": "lib",
+    "output": "dist",
     "typescript": [
       {
         "project": "tsconfig.build.json"

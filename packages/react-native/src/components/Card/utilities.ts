@@ -20,7 +20,6 @@ export async function changePayload(
     lastFour,
     isValid: isValidCardNumber,
   } = validateNumber(number);
-
   return {
     card: {
       name,
@@ -49,9 +48,7 @@ export function isComplete(form: UseFormReturn<CardForm>, fields: CardField[]) {
   }
 
   if (fields.includes('expiry')) {
-    const expiryValidation = validateExpiry(
-      form.values.expiry.replace(' / ', '')
-    );
+    const expiryValidation = validateExpiry(form.values.expiry);
     if (!expiryValidation.isValid) return false;
   }
 
@@ -79,7 +76,7 @@ export function isAcceptedBrand(
 }
 
 function formatExpiry(expiry: string) {
-  const parsedExpiry = validateExpiry(expiry.replace(' / ', ''));
+  const parsedExpiry = validateExpiry(expiry);
 
   return {
     month: parsedExpiry.month,

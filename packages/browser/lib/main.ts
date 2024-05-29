@@ -1,6 +1,6 @@
 import getConfig, { ConfigUrls, SdkContext } from "./config";
 import { CoreCrypto, Http, Forms, Input } from "./core";
-import { CageKey, Form } from "./core/http";
+import { CageKey } from "./core/http";
 import { base64StringToUint8Array } from "./encoding";
 import UIComponents from "./ui";
 import {
@@ -10,9 +10,6 @@ import {
   buildCageKeyFromSuppliedPublicKey,
   deriveSharedSecret,
   getContext,
-  findParentOfInput,
-  findChildOfForm,
-  findFormByHiddenField,
 } from "./utils";
 import type { InputSettings, RevealSettings } from "./types";
 
@@ -307,106 +304,6 @@ export default class EvervaultClient {
 
   decrypt<T>(token: string, data: T): Promise<{ value: T }> {
     return this.http.decryptWithToken(token, data);
-  }
-
-  async enableFormEncryption(
-    thirdPartyForm: HTMLFormElement | undefined,
-    formUuid: string | undefined
-  ) {
-    const forms: Form[] = await this.http.getAppForms();
-    if (thirdPartyForm && formUuid) {
-      const findSubmitButton = thirdPartyForm.querySelector("[type='submit']");
-      findSubmitButton?.addEventListener(
-        "click",
-        (event) => {
-          const mutations = [];
-          event.preventDefault();
-          if (forms.length > 0) {
-            const form = forms.find((f) => f.uuid === formUuid);
-            if (!form) {
-              console.error(`Unable to find form ${formUuid}`);
-              thirdPartyForm.submit();
-              return;
-            }
-            const { targetElements } = form;
-            for (let x = 0; x < targetElements.length; x++) {
-              const childToEncrypt = findChildOfForm(
-                thirdPartyForm,
-                form.targetElements[x].elementType,
-                form.targetElements[x].elementName
-              );
-              if (childToEncrypt !== undefined) {
-                mutations.push(
-                  new Promise((resolve, reject) => {
-                    // @ts-expect-error explict cast is needed for more then a textarea
-                    this.encrypt(childToEncrypt.value)
-                      .then((encValue) => {
-                        // @ts-expect-error explict cast is needed for more then a textarea
-                        resolve((childToEncrypt.value = encValue));
-                      })
-                      .catch((err) => {
-                        reject(err);
-                      });
-                  })
-                );
-              }
-            }
-          }
-          Promise.all(mutations)
-            .then(() => thirdPartyForm.submit())
-            .catch((err) => console.error("Error encrypting form value", err));
-        },
-        false
-      );
-    } else {
-      forms.forEach((form: Form) => {
-        const hiddenInput = findFormByHiddenField(form.uuid);
-        if (hiddenInput === null) {
-          return;
-        }
-
-        const parentForm = findParentOfInput(hiddenInput);
-        if (parentForm === null) {
-          return;
-        }
-
-        const actionAttr = parentForm.getAttribute("action");
-        if (actionAttr === null) {
-          return;
-        }
-        parentForm.removeAttribute("action");
-
-        const formSubmitButton = parentForm.querySelector("[type='submit']");
-        formSubmitButton?.addEventListener("click", (event) => {
-          event.preventDefault();
-          const mutations: Promise<string>[] = [];
-          form.targetElements.forEach((field) => {
-            const childToEncrypt = findChildOfForm(
-              parentForm,
-              field.elementType,
-              field.elementName
-            ) as HTMLInputElement | HTMLTextAreaElement;
-            mutations.push(
-              new Promise((resolve, reject) => {
-                this.encrypt(childToEncrypt.value)
-                  .then((encValue) => {
-                    resolve((childToEncrypt.value = encValue));
-                  })
-                  .catch((err) => {
-                    reject(err);
-                  });
-              })
-            );
-          });
-          Promise.all(mutations)
-            .then(() => {
-              parentForm.setAttribute("action", actionAttr);
-              parentForm.submit();
-            })
-            .catch(() => console.error("Error encrypting form value"));
-        });
-      });
-    }
   }
 
   isInDebugMode() {
