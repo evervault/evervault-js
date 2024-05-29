@@ -3,12 +3,13 @@ import { useCardContext } from './context';
 import { useEffect } from 'react';
 import { BaseProps } from './Card';
 
-export interface CardExpiryProps extends BaseProps {}
+export interface CardExpiryProps extends BaseProps { }
 
 export function CardExpiry({
   disabled,
   placeholder,
   readOnly,
+  style
 }: CardExpiryProps) {
   const context = useCardContext();
 
@@ -16,22 +17,30 @@ export function CardExpiry({
 
   useEffect(() => {
     context.setRegisteredFields((prev) => new Set(prev).add('expiry'));
+    return () => context.setRegisteredFields((prev) => {
+      const next = new Set(prev);
+      next.delete('expiry');
+      return next;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <TextInputMask
+      style={style}
       type="datetime"
       value={context.values.expiry}
       editable={disabled}
       selectTextOnFocus={disabled}
-      onChangeText={onChange}
+      // store the expiry as MMYY not MM / YY
+      onChangeText={(rawExpiry) => onChange(rawExpiry.replace(' / ', ''))}
       options={{
         format: '99 / 99',
       }}
       id="expiry"
       onBlur={onBlur}
       placeholder={placeholder ?? 'MM / YY'}
+      inputMode="numeric"
       autoComplete="cc-exp"
       readOnly={readOnly}
     />

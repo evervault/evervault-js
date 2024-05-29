@@ -12,6 +12,7 @@ export function CardHolder({
   disabled,
   placeholder,
   readOnly,
+  style
 }: CardHolderProps) {
   const context = useCardContext();
 
@@ -19,12 +20,18 @@ export function CardHolder({
 
   useEffect(() => {
     context.setRegisteredFields((prev) => new Set(prev).add('name'));
+    return () => context.setRegisteredFields((prev) => {
+      const next = new Set(prev);
+      next.delete('name');
+      return next;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <TextInput
       id="name"
+      style={style}
       value={context.values.name}
       readOnly={readOnly}
       onBlur={onBlur}

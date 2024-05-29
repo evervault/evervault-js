@@ -14,7 +14,6 @@ export type CardBrandName =
   | 'szep';
 
 export interface CardConfig {
-  autoFocus?: boolean;
   acceptedBrands?: CardBrandName[];
 }
 
