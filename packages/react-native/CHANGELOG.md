@@ -1,5 +1,11 @@
 # @evervault/evervault-react-native
 
+## 0.4.2
+
+### Patch Changes
+
+- f957619: Expiry field was being incorrectly marked as invalid
+
 ## 0.4.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.24.0
+
+### Minor Changes
+
+- efcd3b0: Remove hubspot form integration code
+
 ## 2.23.2
 
 ### Patch Changes
