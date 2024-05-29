@@ -8,10 +8,10 @@ export function uint8ArrayToUtf8String(arr: Uint8Array): string {
   return utf8Decoder.decode(arr);
 }
 
-export function hexStringToUint8Array(hexString: string): Array<number> {
-  let matches = hexString.match(/../g);
+export function hexStringToUint8Array(hexString: string): number[] {
+  const matches = hexString.match(/../g);
   if (matches === null) {
-    return [] as Array<number>;
+    return [] as number[];
   }
   return matches.map((h) => parseInt(h, 16));
 }

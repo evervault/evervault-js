@@ -1,4 +1,3 @@
-import { hexStringToUint8Array } from "../encoding";
 import {
   Integer,
   ObjectIdentifier,
@@ -6,6 +5,7 @@ import {
   BitString,
   OctetString,
 } from "asn1js";
+import { hexStringToUint8Array } from "../encoding";
 
 const PUBLIC_KEY_TYPE = "1.2.840.10045.2.1";
 const PRIME_FIELD = "1.2.840.10045.1.1";
@@ -15,8 +15,7 @@ const VERSION = "01";
  * @param {import { ./p256 }.TP256Constants} curveParams
  * @returns Sequence
  */
-const FieldId = (curveParams) => {
-  return new Sequence({
+const FieldId = (curveParams) => new Sequence({
     name: "fieldID",
     value: [
       new ObjectIdentifier({
@@ -33,14 +32,12 @@ const FieldId = (curveParams) => {
       }),
     ],
   });
-};
 
 /**
  * @param {import { ./p256 }.TP256Constants} curveParams
  * @returns Sequence
  */
-const Curve = (curveParams) => {
-  return new Sequence({
+const Curve = (curveParams) => new Sequence({
     name: "curve",
     value: [
       new OctetString({
@@ -60,14 +57,12 @@ const Curve = (curveParams) => {
       }),
     ],
   });
-};
 
 /**
  * @param {import { ./p256 }.TP256Constants} curveParams
  * @returns Sequence
  */
-const ECParameters = (curveParams) => {
-  return new Sequence({
+const ECParameters = (curveParams) => new Sequence({
     name: "ecParameters",
     value: [
       new Integer({
@@ -96,14 +91,12 @@ const ECParameters = (curveParams) => {
       }),
     ],
   });
-};
 
 /**
  * @param {import { ./p256 }.TP256Constants} curveParams
  * @returns Sequence
  */
-const AlgorithmIdentifier = (curveParams) => {
-  return new Sequence({
+const AlgorithmIdentifier = (curveParams) => new Sequence({
     name: "algorithm",
     value: [
       new ObjectIdentifier({
@@ -113,15 +106,13 @@ const AlgorithmIdentifier = (curveParams) => {
       ECParameters(curveParams),
     ],
   });
-};
 
 /**
  * @param {import { ./p256 }.TP256Constants} curveParams
  * @param {string} decompressedKey
  * @returns Sequence
  */
-const SubjectPublicKeyInfo = (curveParams, decompressedKey) => {
-  return new Sequence({
+const SubjectPublicKeyInfo = (curveParams, decompressedKey) => new Sequence({
     name: "SubjectPublicKeyInfo",
     value: [
       AlgorithmIdentifier(curveParams),
@@ -131,7 +122,6 @@ const SubjectPublicKeyInfo = (curveParams, decompressedKey) => {
       }),
     ],
   });
-};
 
 /**
  * @param {import("./p256").TP256Constants} curveValues
