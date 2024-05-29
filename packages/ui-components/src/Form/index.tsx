@@ -6,7 +6,7 @@ import type {EvervaultFrameHostMessages, FormFrameClientMessages} from "types";
 
 type InputRenderer = (name: string, type: string, required: boolean) => JSX.Element;
 type TextareaRenderer = (name: string, required: boolean) => JSX.Element;
-type SelectRenderer = (name: string, options: { value: string, label: string }[]) => JSX.Element;
+type SelectRenderer = (name: string, options: { value: string }[]) => JSX.Element;
 type FieldRenderer = InputRenderer | TextareaRenderer | SelectRenderer;
 
 const fieldRenderers: Record<string, FieldRenderer> = {
@@ -22,7 +22,7 @@ const fieldRenderers: Record<string, FieldRenderer> = {
       <textarea name={name} id={name} required={required}></textarea>
     </div>
   ),
-  select: (name: string, options: { value: string, label: string }[]) => (
+  select: (name: string, options: { value: string }[]) => (
     <div key={name}>
       <label htmlFor={name}>{name}</label>
       <select name={name} id={name}>
