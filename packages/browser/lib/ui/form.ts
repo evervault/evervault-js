@@ -5,23 +5,16 @@ import type {
   SelectorType,
   EvervaultFrameHostMessages,
   FormOptions,
-  FormPayload,
   FormFrameClientMessages,
 } from "types";
 
 interface FormEvents {
   ready: () => void;
   error: () => void;
-  change: (payload: FormPayload) => void;
-  complete: (payload: FormPayload) => void;
+  submitted: () => void;
 }
 
 export default class Form {
-  values: FormPayload = {
-    value: "",
-    isComplete: false,
-  };
-
   #options: FormOptions;
   #frame: EvervaultFrame<FormFrameClientMessages, EvervaultFrameHostMessages>;
   #events = new EventManager<FormEvents>();

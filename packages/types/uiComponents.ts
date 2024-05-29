@@ -174,11 +174,6 @@ export interface RevealFormat {
   replace: string;
 }
 
-export interface FormPayload {
-  value: string;
-  isComplete: boolean;
-}
-
 export interface FormFrameClientMessages extends EvervaultFrameClientMessages {
   EV_ERROR: undefined;
   EV_SUBMITTED: undefined;

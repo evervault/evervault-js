@@ -16,10 +16,6 @@ const form = evervault.ui.form({
   formSubmissionUrl: import.meta.env.VITE_FORM_SUBMISSION_URL,
 });
 
-form.on("change", (values) => {
-  console.log("change", values);
-});
-
 form.on("error", () => {
   console.error("error submitting form");
 });
@@ -27,4 +23,5 @@ form.on("error", () => {
 form.on("submitted", () => {
   console.log("form has been submitted");
 });
+
 form.mount("#form");
