@@ -44,6 +44,28 @@ export function minimal(extended?: ThemeDefinition): ThemeDefinition {
         },
       },
 
+      textarea: {
+        height: 40,
+        fontSize: 16,
+        borderRadius: 0,
+        color: "#0a2540",
+        padding: "6 12px",
+        backgroundColor: "#fff",
+        border: "1px solid #e6ebf1",
+
+        boxShadow:
+          "0px 1px 1px rgba(0, 0, 0, .03), 0px 3px 6px rgba(0, 0, 0, .02)",
+
+        "&::placeholder": {
+          color: "#717f96",
+        },
+
+        "&:focus": {
+          outline: "none",
+          borderColor: "#63e",
+        },
+      },
+
       ".field[ev-valid=false] input": {
         color: "#df1c41",
         borderColor: "#df1c41",

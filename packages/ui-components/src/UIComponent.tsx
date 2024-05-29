@@ -1,5 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Card } from "./Card";
+import {Form} from "./Form";
+import {FormConfig} from "./Form/types";
 import { Pin } from "./Pin";
 import { RevealCopyButton } from "./Reveal/RevealCopyButton";
 import { RevealRequest } from "./Reveal/RevealRequest";
@@ -100,6 +102,10 @@ export function UIComponent() {
 
   if (component === "RevealCopyButton") {
     return <RevealCopyButton config={config as RevealCopyButtonConfig} />;
+  }
+
+  if (component === "Form") {
+    return <Form config={config as FormConfig} />;
   }
 
   throw new Error(`Unknown component ${component}`);
