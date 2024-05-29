@@ -1,5 +1,14 @@
 # @evervault/evervault-react-native
 
+## 0.4.4
+
+### Patch Changes
+
+- e7c8697: Fix React JSX
+- Updated dependencies [e7c8697]
+- Updated dependencies [e7c8697]
+  - @evervault/card-validator@1.0.4
+
 ## 0.4.3
 
 ### Patch Changes
