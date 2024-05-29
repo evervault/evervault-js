@@ -15,7 +15,8 @@ const VERSION = "01";
  * @param {import { ./p256 }.TP256Constants} curveParams
  * @returns Sequence
  */
-const FieldId = (curveParams) => new Sequence({
+const FieldId = (curveParams) =>
+  new Sequence({
     name: "fieldID",
     value: [
       new ObjectIdentifier({
@@ -37,7 +38,8 @@ const FieldId = (curveParams) => new Sequence({
  * @param {import { ./p256 }.TP256Constants} curveParams
  * @returns Sequence
  */
-const Curve = (curveParams) => new Sequence({
+const Curve = (curveParams) =>
+  new Sequence({
     name: "curve",
     value: [
       new OctetString({
@@ -62,7 +64,8 @@ const Curve = (curveParams) => new Sequence({
  * @param {import { ./p256 }.TP256Constants} curveParams
  * @returns Sequence
  */
-const ECParameters = (curveParams) => new Sequence({
+const ECParameters = (curveParams) =>
+  new Sequence({
     name: "ecParameters",
     value: [
       new Integer({
@@ -96,7 +99,8 @@ const ECParameters = (curveParams) => new Sequence({
  * @param {import { ./p256 }.TP256Constants} curveParams
  * @returns Sequence
  */
-const AlgorithmIdentifier = (curveParams) => new Sequence({
+const AlgorithmIdentifier = (curveParams) =>
+  new Sequence({
     name: "algorithm",
     value: [
       new ObjectIdentifier({
@@ -112,7 +116,8 @@ const AlgorithmIdentifier = (curveParams) => new Sequence({
  * @param {string} decompressedKey
  * @returns Sequence
  */
-const SubjectPublicKeyInfo = (curveParams, decompressedKey) => new Sequence({
+const SubjectPublicKeyInfo = (curveParams, decompressedKey) =>
+  new Sequence({
     name: "SubjectPublicKeyInfo",
     value: [
       AlgorithmIdentifier(curveParams),
