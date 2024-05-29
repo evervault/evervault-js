@@ -9,7 +9,11 @@ export function uint8ArrayToUtf8String(arr: Uint8Array): string {
 }
 
 export function hexStringToUint8Array(hexString: string): Array<number> {
-  return hexString.match(/../g).map((h) => parseInt(h, 16));
+  let matches = hexString.match(/../g);
+  if (matches === null) {
+    return [] as Array<number>;
+  }
+  return matches.map((h) => parseInt(h, 16));
 }
 
 export function uint8ArrayToHexString(arr: Uint8Array): string {
