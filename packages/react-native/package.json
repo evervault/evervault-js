@@ -51,9 +51,12 @@
     "registry": "https://registry.npmjs.org/",
     "access": "public"
   },
+  "dependencies": {
+    "@evervault/card-validator": "workspace:*",
+    "react-native-masked-text": "^1.13.0"
+  },
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.2",
-    "@evervault/card-validator": "workspace:*",
     "@react-native/eslint-config": "^0.72.2",
     "@release-it/conventional-changelog": "^5.0.0",
     "@types/jest": "^28.1.2",
@@ -158,8 +161,5 @@
         }
       ]
     ]
-  },
-  "dependencies": {
-    "react-native-masked-text": "^1.13.0"
   }
 }
