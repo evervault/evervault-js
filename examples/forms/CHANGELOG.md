@@ -1,5 +1,16 @@
 # example-forms
 
+## 0.1.0
+
+### Minor Changes
+
+- 621ca95: Add form rendering to UI components
+
+### Patch Changes
+
+- Updated dependencies [621ca95]
+  - @evervault/browser@2.25.0
+
 ## 0.0.7
 
 ### Patch Changes

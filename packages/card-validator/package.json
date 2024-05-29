@@ -30,8 +30,7 @@
     "test": "vitest run",
     "build": "vite build"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "vitest": "^0.29.8",
     "types": "workspace:*",

@@ -1,5 +1,12 @@
 # @evervault/evervault-react-native
 
+## 0.4.3
+
+### Patch Changes
+
+- 2a2bb2f: Move card validator to direct deps
+  - @evervault/card-validator@1.0.3
+
 ## 0.4.2
 
 ### Patch Changes
