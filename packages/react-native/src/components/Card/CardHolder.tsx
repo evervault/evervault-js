@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import * as React from 'react';
 import { TextInput } from 'react-native';
 import { useCardContext } from './context';
 import { BaseProps } from './Card';
