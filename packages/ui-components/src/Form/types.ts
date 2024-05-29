@@ -11,6 +11,8 @@ export interface FormElement {
     elementName: string;
     elementType: string;
     options?: { value: string; label: string }[];
+    type?: string;
+    required: boolean;
 }
 
 export interface FormApiResponse {

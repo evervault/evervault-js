@@ -4,22 +4,25 @@ import {useMessaging} from "../utilities/useMessaging";
 import type {FormConfig, FormApiResponse, FormElement} from "./types";
 import type {EvervaultFrameHostMessages, FormFrameClientMessages} from "types";
 
-type FieldRenderer = (name: string, options?: { value: string; label: string }[]) => JSX.Element;
+type InputRenderer = (name: string, type: string, required: boolean) => JSX.Element;
+type TextareaRenderer = (name: string, required: boolean) => JSX.Element;
+type SelectRenderer = (name: string, options: { value: string, label: string }[]) => JSX.Element;
+type FieldRenderer = InputRenderer | TextareaRenderer | SelectRenderer;
 
 const fieldRenderers: Record<string, FieldRenderer> = {
-  input: (name: string) => (
+  input: (name: string, type: string, required: boolean) => (
     <div key={name}>
       <label htmlFor={name}>{name}</label>
-      <input type="text" name={name} id={name} />
+      <input type={type} name={name} id={name} required={required}/>
     </div>
   ),
-  textarea: (name: string) => (
+  textarea: (name: string, required: boolean) => (
     <div key={name}>
       <label htmlFor={name}>{name}</label>
-      <textarea name={name} id={name}></textarea>
+      <textarea name={name} id={name} required={required}></textarea>
     </div>
   ),
-  select: (name: string, options?: { value: string }[]) => (
+  select: (name: string, options: { value: string, label: string }[]) => (
     <div key={name}>
       <label htmlFor={name}>{name}</label>
       <select name={name} id={name}>
@@ -89,8 +92,22 @@ export function Form({config}: { config: FormConfig }): JSX.Element {
     <div>
       <form id={config.formUuid} onSubmit={(event) => { void handleSubmit(event); }}>
         {formElements?.map((element) => {
-          const renderField = fieldRenderers[element.elementType];
-          return renderField ? renderField(element.elementName, element.options) : null;
+          if (element.elementType === "input") {
+            const renderField = fieldRenderers.input as InputRenderer;
+            return renderField(element.elementName, element.type ? element.type : "text", element.required);
+          }
+
+          if (element.elementType === "textarea") {
+            const renderField = fieldRenderers.textarea as TextareaRenderer;
+            return renderField(element.elementName, element.required);
+          }
+
+          if (element.elementType === "select") {
+            const renderField = fieldRenderers.select as SelectRenderer;
+            return renderField(element.elementName, element.options ?? []);
+          }
+
+          return null
         })}
         <div className={"button-container"}>
           <button type="submit">Submit</button>
