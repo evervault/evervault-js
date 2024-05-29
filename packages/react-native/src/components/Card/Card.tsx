@@ -3,6 +3,7 @@ import {
   validateCVC,
   validateExpiry,
 } from '@evervault/card-validator';
+import * as React from 'react';
 import { ReactNode, useEffect, useState } from 'react';
 import { useForm } from '../useForm';
 import { changePayload, isAcceptedBrand, isComplete } from './utilities';

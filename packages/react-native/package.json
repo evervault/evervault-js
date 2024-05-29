@@ -2,10 +2,10 @@
   "name": "@evervault/evervault-react-native",
   "version": "0.4.3",
   "description": "Evervault react native sdk",
-  "main": "dist/commonjs/index",
-  "module": "dist/module/index",
-  "types": "dist/typescript/src/index.d.ts",
-  "react-native": "src/index",
+  "main": "./dist/commonjs/index.js",
+  "module": "./dist/module/index.js",
+  "types": "./dist/typescript/src/index.d.ts",
+  "react-native": "./dist/module/index.js",
   "source": "src/index",
   "files": [
     "src",
@@ -119,7 +119,6 @@
       "prettier"
     ],
     "rules": {
-      "react/react-in-jsx-scope": "off",
       "prettier/prettier": [
         "error",
         {
@@ -152,8 +151,8 @@
       }
     ],
     "targets": [
-      "commonjs",
       "module",
+      "commonjs",
       [
         "typescript",
         {

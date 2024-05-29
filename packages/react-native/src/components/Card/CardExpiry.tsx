@@ -1,5 +1,6 @@
 import { TextInputMask } from 'react-native-masked-text';
 import { useCardContext } from './context';
+import * as React from 'react';
 import { useEffect } from 'react';
 import { BaseProps } from './Card';
 
