@@ -1,5 +1,11 @@
 # @evervault/evervault-react-native
 
+## 0.4.5
+
+### Patch Changes
+
+- 171360f: Remove the onComplete method
+
 ## 0.4.4
 
 ### Patch Changes

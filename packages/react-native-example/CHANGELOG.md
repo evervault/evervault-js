@@ -1,5 +1,13 @@
 # react-native-example
 
+## 1.0.4
+
+### Patch Changes
+
+- 171360f: Remove the onComplete method
+- Updated dependencies [171360f]
+  - @evervault/evervault-react-native@0.4.5
+
 ## 1.0.3
 
 ### Patch Changes
