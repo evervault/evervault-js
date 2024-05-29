@@ -1,7 +1,7 @@
 {
   "name": "@evervault/card-validator",
   "private": false,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Evervault Card Validator",
   "main": "./dist/evervault-card-validator.main.mjs",
   "module": "./dist/evervault-card-validator.umd.js",

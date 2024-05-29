@@ -1,5 +1,12 @@
 # @evervault/card-validator
 
+## 1.0.4
+
+### Patch Changes
+
+- e7c8697: Version was not released by previou changeset
+- e7c8697: Fix React JSX
+
 ## 1.0.3
 
 ### Patch Changes
