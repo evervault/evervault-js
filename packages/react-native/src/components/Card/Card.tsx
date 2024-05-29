@@ -28,7 +28,6 @@ export interface CardProps {
   config?: CardConfig;
   children: ReactNode;
   onChange?: (payload: CardPayload) => void;
-  onComplete?: (payload: CardPayload) => void;
   style?: StyleProp<TextStyle>;
 }
 
@@ -37,7 +36,6 @@ function Card({
   config,
   children,
   onChange,
-  onComplete,
   style,
 }: CardProps) {
   const [registeredFields, setRegisteredFields] = useState<Set<CardField>>(
@@ -124,14 +122,11 @@ function Card({
         form,
         Array.from(registeredFields)
       );
-      if (onComplete) {
-        onComplete(cardData);
-      }
     };
     if (isComplete(form, Array.from(registeredFields))) {
       getCardData();
     }
-  }, [form, onComplete, registeredFields]);
+  }, [form, registeredFields]);
 
   return (
     <CardContext.Provider
