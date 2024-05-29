@@ -31,7 +31,7 @@ const fieldRenderers: Record<string, FieldRenderer> = {
   ),
 };
 
-export function Form({config}: { config: FormConfig }) {
+export function Form({config}: { config: FormConfig }): JSX.Element {
   const [formElements, setFormElements] = useState<FormElement[]>([]);
   const messages = useMessaging<
     EvervaultFrameHostMessages,
@@ -74,7 +74,7 @@ export function Form({config}: { config: FormConfig }) {
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-      // eslint-disable-next-line no-misused-promises
+      // eslint-disable-next-line
       await response.json();
       messages.send("EV_SUBMITTED")
     } catch (error) {
@@ -85,7 +85,7 @@ export function Form({config}: { config: FormConfig }) {
 
   return (
     <div>
-      <form id={config.formUuid} onSubmit={handleSubmit}>
+      <form id={config.formUuid} onSubmit={(event) => { void handleSubmit(event); }}>
         {formElements?.map((element) => {
           const renderField = fieldRenderers[element.elementType];
           return renderField ? renderField(element.elementName, element.options) : null;
