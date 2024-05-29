@@ -378,6 +378,9 @@ importers:
 
   packages/react-native:
     dependencies:
+      '@evervault/card-validator':
+        specifier: workspace:*
+        version: link:../card-validator
       react-native-masked-text:
         specifier: ^1.13.0
         version: 1.13.0
