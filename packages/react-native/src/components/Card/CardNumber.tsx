@@ -39,6 +39,11 @@ export function CardNumber({
 
   useEffect(() => {
     context.setRegisteredFields((prev) => new Set(prev).add('number'));
+    return () => context.setRegisteredFields((prev) => {
+      const next = new Set(prev);
+      next.delete('name');
+      return next;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
