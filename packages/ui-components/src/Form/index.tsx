@@ -7,26 +7,24 @@ import type {EvervaultFrameHostMessages, FormFrameClientMessages} from "types";
 
 type InputRenderer = (name: string, type: string, required: boolean) => JSX.Element;
 type TextareaRenderer = (name: string, required: boolean) => JSX.Element;
-type SelectRenderer = (name: string, options: { value: string }[]) => JSX.Element;
+type SelectRenderer = (name: string, options: { value: string }[], required: boolean) => JSX.Element;
 type FieldRenderer = InputRenderer | TextareaRenderer | SelectRenderer;
 
 const fieldRenderers: Record<string, FieldRenderer> = {
   input: (name: string, type: string, required: boolean) => (
     <div key={name} className="field-container">
-      <label htmlFor={name}>{name}</label>
-      <input type={type} name={name} id={name} required={required}/>
+      <input type={type} name={name} id={name} placeholder={name += required ? " *" : "" } required={required}/>
     </div>
   ),
   textarea: (name: string, required: boolean) => (
     <div key={name} className="field-container">
-      <label htmlFor={name}>{name}</label>
-      <textarea name={name} id={name} required={required}></textarea>
+      <textarea name={name} id={name} required={required} placeholder={name += required ? " *" : "" }></textarea>
     </div>
   ),
-  select: (name: string, options: { value: string }[]) => (
+  select: (name: string, options: { value: string }[], required: boolean) => (
     <div key={name} className="field-container">
-      <label htmlFor={name}>{name}</label>
-      <select name={name} id={name}>
+      {/* <label htmlFor={name}>{name} {required ? " *" : ""}</label> */}
+      <select name={name} id={name} value={options[0].value}>
         {options?.map((option) => (
           <option key={option.value} value={option.value}>{option.value}</option>
         ))}
@@ -105,12 +103,12 @@ export function Form({config}: { config: FormConfig }): JSX.Element {
 
           if (element.elementType === "select") {
             const renderField = fieldRenderers.select as SelectRenderer;
-            return renderField(element.elementName, element.options ?? []);
+            return renderField(element.elementName, element.options ?? [], element.required);
           }
 
           if (element.elementType === "select-states") {
             const renderField = fieldRenderers.select as SelectRenderer;
-            return renderField(element.elementName, usStates ?? []);
+            return renderField(element.elementName, usStates ?? [], element.required);
           }
 
           return null

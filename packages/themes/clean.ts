@@ -38,7 +38,7 @@ export function clean(extended?: ThemeDefinition): ThemeDefinition {
         fontSize: 16,
         borderRadius: 6,
         color: "#0a2540",
-        padding: "6 12px",
+        padding: "6px 12px",
         backgroundColor: "#fff",
         border: "1px solid #e6ebf1",
 
