@@ -1,7 +1,7 @@
+import usStates from "../utilities/usStates";
 import {useEffect, useLayoutEffect, useState} from "react";
 import { resize } from "../utilities/resize";
 import {useMessaging} from "../utilities/useMessaging";
-import usStates from "../utilities/usStates";
 import type {FormConfig, FormApiResponse, FormElement} from "./types";
 import type {EvervaultFrameHostMessages, FormFrameClientMessages} from "types";
 
