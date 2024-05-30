@@ -71,8 +71,6 @@ jobs:
         run: git fetch --tags origin
 
       - uses: pnpm/action-setup@v2
-        with:
-          version: 9
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
