@@ -11,13 +11,7 @@ const evervault = new window.Evervault(
 );
 
 const form = evervault.ui.form({
-  theme: evervault.ui.themes.clean({
-    styles: {
-      '.button-container': {
-        height: "50px",
-      }
-    }
-  }),
+  theme: evervault.ui.themes.clean(),
   formUuid: import.meta.env.VITE_FORM_UUID,
   formSubmissionUrl: import.meta.env.VITE_FORM_SUBMISSION_URL
 });
