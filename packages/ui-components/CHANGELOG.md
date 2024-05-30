@@ -1,5 +1,15 @@
 # @evervault/ui-components
 
+## 1.6.0
+
+### Minor Changes
+
+- e5a9f94: Add us states select
+
+### Patch Changes
+
+- 2fc8ccb: Add class to field names
+
 ## 1.5.0
 
 ### Minor Changes
