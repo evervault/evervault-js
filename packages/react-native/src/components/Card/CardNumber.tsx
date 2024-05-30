@@ -1,4 +1,5 @@
 import { validateNumber } from '@evervault/card-validator';
+import * as React from 'react';
 import { useEffect, useMemo, useRef } from 'react';
 import { TextInputMask } from 'react-native-masked-text';
 import { useCardContext } from './context';

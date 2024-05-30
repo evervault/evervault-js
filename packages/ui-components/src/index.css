@@ -40,6 +40,16 @@ textarea {
   background: transparent;
 }
 
+select {
+  width: 100%;
+  border: none;
+  outline: none;
+  line-height: 1;
+  appearance: none;
+  font-size: inherit;
+  background: transparent;
+}
+
 [ev-component="card"] {
   gap: 10px;
   display: grid;

@@ -31,12 +31,21 @@ export default function App() {
     setupEvervault();
   }, []);
 
+  const handleCardChange = (data: CardPayload) => {
+    setCardData(data);
+
+    if (data.isComplete) {
+      // note that the user can enter further data even when the Card is in a complete state.
+      // For example entering the remainder of their name after the first few characters.
+      console.log("Card is complete!");
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>evervault react native</Text>
       <Card
         onChange={setCardData}
-        onComplete={(payload) => console.log("Card Complete!", payload)}
         style={styles.card}
       >
         <Text>Card Number</Text>

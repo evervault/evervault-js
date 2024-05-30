@@ -1,5 +1,34 @@
 # @evervault/ui-components
 
+## 1.5.0
+
+### Minor Changes
+
+- 46e1765: Add validation to ui components forms
+
+## 1.4.1
+
+### Patch Changes
+
+- Updated dependencies [e7c8697]
+- Updated dependencies [e7c8697]
+  - @evervault/card-validator@1.0.4
+  - shared@1.0.3
+
+## 1.4.0
+
+### Minor Changes
+
+- 621ca95: Add form rendering to UI components
+
+### Patch Changes
+
+- Updated dependencies [621ca95]
+  - types@0.1.0
+  - @evervault/react@2.6.1
+  - @evervault/card-validator@1.0.3
+  - shared@1.0.2
+
 ## 1.3.1
 
 ### Patch Changes

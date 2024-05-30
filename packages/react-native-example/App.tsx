@@ -32,7 +32,6 @@ export default function App() {
       <Text style={styles.title}>evervault react native</Text>
       <Card
         onChange={setCardData}
-        onComplete={(payload) => console.log("Card Complete!", payload)}
         style={styles.card}
       >
         <Text>Card Number</Text>

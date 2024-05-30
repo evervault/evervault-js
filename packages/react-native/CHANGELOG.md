@@ -1,5 +1,27 @@
 # @evervault/evervault-react-native
 
+## 0.4.5
+
+### Patch Changes
+
+- 171360f: Remove the onComplete method
+
+## 0.4.4
+
+### Patch Changes
+
+- e7c8697: Fix React JSX
+- Updated dependencies [e7c8697]
+- Updated dependencies [e7c8697]
+  - @evervault/card-validator@1.0.4
+
+## 0.4.3
+
+### Patch Changes
+
+- 2a2bb2f: Move card validator to direct deps
+  - @evervault/card-validator@1.0.3
+
 ## 0.4.2
 
 ### Patch Changes

@@ -1,11 +1,11 @@
 {
   "name": "@evervault/evervault-react-native",
-  "version": "0.4.2",
+  "version": "0.4.5",
   "description": "Evervault react native sdk",
-  "main": "dist/commonjs/index",
-  "module": "dist/module/index",
-  "types": "dist/typescript/src/index.d.ts",
-  "react-native": "src/index",
+  "main": "./dist/commonjs/index.js",
+  "module": "./dist/module/index.js",
+  "types": "./dist/typescript/src/index.d.ts",
+  "react-native": "./dist/module/index.js",
   "source": "src/index",
   "files": [
     "src",
@@ -51,9 +51,12 @@
     "registry": "https://registry.npmjs.org/",
     "access": "public"
   },
+  "dependencies": {
+    "@evervault/card-validator": "workspace:*",
+    "react-native-masked-text": "^1.13.0"
+  },
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.2",
-    "@evervault/card-validator": "workspace:*",
     "@react-native/eslint-config": "^0.72.2",
     "@release-it/conventional-changelog": "^5.0.0",
     "@types/jest": "^28.1.2",
@@ -116,7 +119,6 @@
       "prettier"
     ],
     "rules": {
-      "react/react-in-jsx-scope": "off",
       "prettier/prettier": [
         "error",
         {
@@ -149,8 +151,8 @@
       }
     ],
     "targets": [
-      "commonjs",
       "module",
+      "commonjs",
       [
         "typescript",
         {
@@ -158,8 +160,5 @@
         }
       ]
     ]
-  },
-  "dependencies": {
-    "react-native-masked-text": "^1.13.0"
   }
 }
