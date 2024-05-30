@@ -1,5 +1,6 @@
 import {useEffect, useLayoutEffect, useState} from "react";
 import { resize } from "../utilities/resize";
+import usStates from "../utilities/usStates";
 import {useMessaging} from "../utilities/useMessaging";
 import type {FormConfig, FormApiResponse, FormElement} from "./types";
 import type {EvervaultFrameHostMessages, FormFrameClientMessages} from "types";
@@ -105,6 +106,11 @@ export function Form({config}: { config: FormConfig }): JSX.Element {
           if (element.elementType === "select") {
             const renderField = fieldRenderers.select as SelectRenderer;
             return renderField(element.elementName, element.options ?? []);
+          }
+
+          if (element.elementType === "select-states") {
+            const renderField = fieldRenderers.select as SelectRenderer;
+            return renderField(element.elementName, usStates ?? []);
           }
 
           return null
