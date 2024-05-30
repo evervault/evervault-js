@@ -12,19 +12,19 @@ type FieldRenderer = InputRenderer | TextareaRenderer | SelectRenderer;
 
 const fieldRenderers: Record<string, FieldRenderer> = {
   input: (name: string, type: string, required: boolean) => (
-    <div key={name}>
+    <div key={name} className="field-container">
       <label htmlFor={name}>{name}</label>
       <input type={type} name={name} id={name} required={required}/>
     </div>
   ),
   textarea: (name: string, required: boolean) => (
-    <div key={name}>
+    <div key={name} className="field-container">
       <label htmlFor={name}>{name}</label>
       <textarea name={name} id={name} required={required}></textarea>
     </div>
   ),
   select: (name: string, options: { value: string }[]) => (
-    <div key={name}>
+    <div key={name} className="field-container">
       <label htmlFor={name}>{name}</label>
       <select name={name} id={name}>
         {options?.map((option) => (
