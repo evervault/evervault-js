@@ -1,5 +1,15 @@
 # @evervault/ui-components
 
+## 1.7.0
+
+### Minor Changes
+
+- b300278: Set placeholder on the inputs fix textarea styling
+
+### Patch Changes
+
+- @evervault/react@2.6.1
+
 ## 1.6.0
 
 ### Minor Changes

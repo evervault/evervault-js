@@ -1,5 +1,11 @@
 # example-ui-components
 
+## 0.0.14
+
+### Patch Changes
+
+- @evervault/browser@2.25.1
+
 ## 0.0.13
 
 ### Patch Changes

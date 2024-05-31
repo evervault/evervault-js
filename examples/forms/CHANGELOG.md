@@ -1,5 +1,11 @@
 # example-forms
 
+## 0.1.1
+
+### Patch Changes
+
+- @evervault/browser@2.25.1
+
 ## 0.1.0
 
 ### Minor Changes
