@@ -1,5 +1,5 @@
 ---
-"@evervault/ui-components": patch
+"@evervault/ui-components": minor
 "themes": patch
 ---
 
