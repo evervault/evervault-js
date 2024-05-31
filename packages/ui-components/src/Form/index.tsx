@@ -23,7 +23,6 @@ const fieldRenderers: Record<string, FieldRenderer> = {
   ),
   select: (name: string, options: { value: string }[], required: boolean) => (
     <div key={name} className="field-container">
-      {/* <label htmlFor={name}>{name} {required ? " *" : ""}</label> */}
       <select name={name} id={name} value={options[0].value}>
         {options?.map((option) => (
           <option key={option.value} value={option.value}>{option.value}</option>
