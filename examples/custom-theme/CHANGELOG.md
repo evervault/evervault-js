@@ -1,5 +1,11 @@
 # example-custom-theme
 
+## 0.0.11
+
+### Patch Changes
+
+- @evervault/browser@2.25.1
+
 ## 0.0.10
 
 ### Patch Changes
