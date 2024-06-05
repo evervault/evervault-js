@@ -13,12 +13,12 @@ type FieldRenderer = InputRenderer | TextareaRenderer | SelectRenderer;
 const fieldRenderers: Record<string, FieldRenderer> = {
   input: (name: string, type: string, required: boolean) => (
     <div key={name} className="field-container">
-      <input type={type} name={name} id={name} placeholder={`${name} ${required ? " *" : "" }`} required={required}/>
+      <input type={type} name={name} id={name} placeholder={`${name} ${required ? "*" : "" }`} required={required}/>
     </div>
   ),
   textarea: (name: string, required: boolean) => (
     <div key={name} className="field-container">
-      <textarea name={name} id={name} required={required} placeholder={`${name} ${required ? " *" : "" }`}></textarea>
+      <textarea name={name} id={name} required={required} placeholder={`${name} ${required ? "*" : "" }`}></textarea>
     </div>
   ),
   select: (name: string, options: { value: string }[]) => (
