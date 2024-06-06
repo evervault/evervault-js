@@ -36,10 +36,11 @@ async function formatEncryptedData(
     ecdhPublicKey
   );
   const compressedKey = ecPointCompress(exportableEcdhPublicKey);
-  return `ev:${isDebug ? "debug:" : ""}${evVersion}${datatype !== "string" ? `:${datatype}` : ""
-    }:${base64RemovePadding(keyIv)}:${base64RemovePadding(
-      uint8ArrayToBase64String(compressedKey)
-    )}:${base64RemovePadding(encryptedData)}:$`;
+  return `ev:${isDebug ? "debug:" : ""}${evVersion}${
+    datatype !== "string" ? `:${datatype}` : ""
+  }:${base64RemovePadding(keyIv)}:${base64RemovePadding(
+    uint8ArrayToBase64String(compressedKey)
+  )}:${base64RemovePadding(encryptedData)}:$`;
 }
 
 /**
