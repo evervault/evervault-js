@@ -78,7 +78,6 @@ async function formatEncryptedFileOrBlob(
   encryptedData: ArrayBuffer,
   isDebug: boolean,
   fileName?: string,
-  metadata?: Uint8Array
 ): Promise<File>;
 async function formatEncryptedFileOrBlob(
   keyIv: Uint8Array,
@@ -86,7 +85,6 @@ async function formatEncryptedFileOrBlob(
   encryptedData: ArrayBuffer,
   isDebug: boolean,
   fileName?: string,
-  metadata?: Uint8Array
 ) {
   const exportableEcdhPublicKey = await window.crypto.subtle.exportKey(
     "raw",
@@ -97,12 +95,8 @@ async function formatEncryptedFileOrBlob(
   const evEncryptedFileIdentifier = new Uint8Array([
     0x25, 0x45, 0x56, 0x45, 0x4e, 0x43,
   ]);
-  const versionNumber = new Uint8Array(metadata ? [0x05] : [0x03]);
+  const versionNumber = new Uint8Array([0x03]);
   let offsetToData = new Uint8Array([0x37, 0x00]);
-  if (metadata) {
-    const offset = 55 + 2 + metadata.length; // 55 bytes for the header, 2 bytes for the metadata size, metadata length
-    offsetToData = numberToLittleEndianUint8Array(offset);
-  }
   const flags = isDebug ? new Uint8Array([0x01]) : new Uint8Array([0x00]);
 
   const fileHeaders = concatUint8Arrays([
@@ -114,23 +108,10 @@ async function formatEncryptedFileOrBlob(
     flags,
   ]);
 
-  let fileContents: Uint8Array;
-  if (metadata) {
-    const metadataOffsetBuffer = numberToLittleEndianUint8Array(
-      metadata.length
-    );
-    fileContents = concatUint8Arrays([
-      fileHeaders,
-      metadataOffsetBuffer,
-      metadata,
-      new Uint8Array(encryptedData),
-    ]);
-  } else {
-    fileContents = concatUint8Arrays([
+  let fileContents = concatUint8Arrays([
       fileHeaders,
       new Uint8Array(encryptedData),
     ]);
-  }
 
   const crc32Hash = crc32(fileContents);
 
@@ -256,24 +237,6 @@ export class CoreCrypto {
       ["encrypt"]
     );
 
-    const metadataBytes = CoreCrypto.#buildMetadata(
-      Math.floor(Date.now() / 1000),
-      role
-    );
-    const encryptedMetadataByteBuffer = await window.crypto.subtle.encrypt(
-      {
-        name: "AES-GCM",
-        iv: keyIv,
-        tagLength: this.#config.authTagLength,
-        additionalData: this.#ecdhTeamKey,
-      },
-      derivedSecretImported,
-      metadataBytes
-    );
-    const encryptedMetadataBytes: Uint8Array = new Uint8Array(
-      encryptedMetadataByteBuffer
-    );
-
     return new Promise((resolve, reject) => {
       const reader = new window.FileReader();
 
@@ -307,8 +270,7 @@ export class CoreCrypto {
                   this.#ecdhPublicKey,
                   encrypted,
                   this.#isDebug,
-                  dataContainer.name,
-                  encryptedMetadataBytes
+                  dataContainer.name
                 )
               );
             } else {
