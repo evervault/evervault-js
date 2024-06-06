@@ -51,9 +51,6 @@ jobs:
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
-
       - name: Build
         run: pnpm build
 
@@ -65,6 +62,9 @@ jobs:
 
       - name: eslint check
         run: pnpm run lint
+
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
 
       - name: Unit test
         run: pnpm test
