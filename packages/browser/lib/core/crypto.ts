@@ -36,11 +36,10 @@ async function formatEncryptedData(
     ecdhPublicKey
   );
   const compressedKey = ecPointCompress(exportableEcdhPublicKey);
-  return `ev:${isDebug ? "debug:" : ""}${evVersion}${
-    datatype !== "string" ? `:${datatype}` : ""
-  }:${base64RemovePadding(keyIv)}:${base64RemovePadding(
-    uint8ArrayToBase64String(compressedKey)
-  )}:${base64RemovePadding(encryptedData)}:$`;
+  return `ev:${isDebug ? "debug:" : ""}${evVersion}${datatype !== "string" ? `:${datatype}` : ""
+    }:${base64RemovePadding(keyIv)}:${base64RemovePadding(
+      uint8ArrayToBase64String(compressedKey)
+    )}:${base64RemovePadding(encryptedData)}:$`;
 }
 
 /**
@@ -77,14 +76,14 @@ async function formatEncryptedFileOrBlob(
   ecdhPublicKey: CryptoKey,
   encryptedData: ArrayBuffer,
   isDebug: boolean,
-  fileName?: string,
+  fileName?: string
 ): Promise<File>;
 async function formatEncryptedFileOrBlob(
   keyIv: Uint8Array,
   ecdhPublicKey: CryptoKey,
   encryptedData: ArrayBuffer,
   isDebug: boolean,
-  fileName?: string,
+  fileName?: string
 ) {
   const exportableEcdhPublicKey = await window.crypto.subtle.exportKey(
     "raw",
@@ -109,9 +108,9 @@ async function formatEncryptedFileOrBlob(
   ]);
 
   let fileContents = concatUint8Arrays([
-      fileHeaders,
-      new Uint8Array(encryptedData),
-    ]);
+    fileHeaders,
+    new Uint8Array(encryptedData),
+  ]);
 
   const crc32Hash = crc32(fileContents);
 
