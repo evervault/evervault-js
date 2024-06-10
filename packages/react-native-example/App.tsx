@@ -1,8 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import { Platform, ScrollView, StyleSheet, Text } from 'react-native';
+import { Platform, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { registerRootComponent } from 'expo';
 import { Card, CardPayload, init } from '@evervault/evervault-react-native';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import CardDebug from './components/CardDebug';
+import CardForm from './components/CardForm';
 
 if (
   !process.env.EXPO_PUBLIC_EV_TEAM_UUID ||
@@ -12,6 +14,9 @@ if (
     'Missing Evervault environment variables. Please ensure you have setup your .env file correctly. See .env.example for an example.'
   );
 }
+
+import { TextInput, TextInputProps } from "react-native";
+
 
 export default function App() {
   const [cardData, setCardData] = useState<CardPayload | undefined>(undefined);
@@ -28,33 +33,15 @@ export default function App() {
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>evervault react native</Text>
-      <Card
-        onChange={setCardData}
-        style={styles.card}
-      >
-        <Text>Card Number</Text>
-        <Card.Number
-          placeholder="4242 4242 4242 4242"
-          style={styles.input}
-        />
-        <Card.Expiry
-          placeholder="MM / YY"
-          style={styles.input}
-        />
-        <Card.Holder
-          placeholder="John Doe"
-          style={styles.input}
-        />
-        <Card.CVC
-          placeholder="523"
-          style={styles.input}
-        />
-      </Card>
-      <Text style={styles.details}>{JSON.stringify(cardData, null, 2)}</Text>
-      <StatusBar style="auto" />
-    </ScrollView>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scroll}>
+        <Text style={styles.title}>evervault react native</Text>
+        <CardDebug cardData={cardData} />
+        <CardForm setCardData={setCardData} />
+        <Text style={styles.details}>{JSON.stringify(cardData, null, 2)}</Text>
+        <StatusBar style="auto" />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -65,6 +52,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     justifyContent: 'center',
+  },
+  scroll: {
     margin: 44,
   },
   title: {

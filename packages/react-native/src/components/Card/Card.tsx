@@ -115,19 +115,6 @@ function Card({
     },
   });
 
-  useEffect(() => {
-    const getCardData = async () => {
-      const cardData = await changePayload(
-        encrypt,
-        form,
-        Array.from(registeredFields)
-      );
-    };
-    if (isComplete(form, Array.from(registeredFields))) {
-      getCardData();
-    }
-  }, [form, registeredFields]);
-
   return (
     <CardContext.Provider
       value={{
