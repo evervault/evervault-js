@@ -94,7 +94,7 @@ export function Form({config}: { config: FormConfig }): JSX.Element {
   return (
     <div>
       <form id={config.formUuid} onSubmit={(event) => { void handleSubmit(event); }}>
-        {formElements?.map((element, i) => {
+        {formElements?.map((element) => {
           if (element.elementType === "input") {
             const renderField = fieldRenderers.input as InputRenderer;
             return renderField(element.elementName, element.type ? element.type : "text", element.required);
