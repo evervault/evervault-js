@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.25.2
+
+### Patch Changes
+
+- 408c73e: remove dead code
+
 ## 2.25.1
 
 ### Patch Changes
