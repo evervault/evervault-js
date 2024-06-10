@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.7.2
+
+### Patch Changes
+
+- 5f1a5f2: fix: add state to select component
+
 ## 1.7.1
 
 ### Patch Changes
