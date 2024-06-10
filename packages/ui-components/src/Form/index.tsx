@@ -94,7 +94,7 @@ export function Form({config}: { config: FormConfig }): JSX.Element {
   return (
     <div>
       <form id={config.formUuid} onSubmit={(event) => { void handleSubmit(event); }}>
-        {formElements?.map((element, i) => {
+        {formElements?.map((element) => {
           if (element.elementType === "input") {
             const renderField = fieldRenderers.input as InputRenderer;
             return renderField(element.elementName, element.type ? element.type : "text", element.required);
@@ -106,11 +106,11 @@ export function Form({config}: { config: FormConfig }): JSX.Element {
           }
 
           if (element.elementType === "select") {
-            return <SelectRenderer name={`select-${i}`} key={element.elementName} options={element.options ?? []} />;
+            return <SelectRenderer name={element.elementName} key={element.elementName} options={element.options ?? []} />;
           }
 
           if (element.elementType === "select-states") {
-            return <SelectRenderer name={`select-states-${i}`} key={element.elementName} options={usStates ?? []} />;
+            return <SelectRenderer name={element.elementName} key={element.elementName} options={usStates ?? []} />;
           }
 
           return null
