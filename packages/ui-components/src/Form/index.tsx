@@ -1,4 +1,4 @@
-import {useEffect, useLayoutEffect, useState} from "react";
+import {useEffect, useLayoutEffect, useState } from "react";
 import { resize } from "../utilities/resize";
 import usStates from "../utilities/usStates";
 import {useMessaging} from "../utilities/useMessaging";
@@ -7,29 +7,34 @@ import type {EvervaultFrameHostMessages, FormFrameClientMessages} from "types";
 
 type InputRenderer = (name: string, type: string, required: boolean) => JSX.Element;
 type TextareaRenderer = (name: string, required: boolean) => JSX.Element;
-type SelectRenderer = (name: string, options: { value: string }[]) => JSX.Element;
-type FieldRenderer = InputRenderer | TextareaRenderer | SelectRenderer;
+type FieldRenderer = InputRenderer | TextareaRenderer;
+
+const SelectRenderer = ({ name, options }: { name: string, options: { value: string }[]}): JSX.Element => {
+  const [selectedFruit, setSelectedFruit] = useState(options[0]?.value || "");
+
+  return (
+    <div className="field-container">
+      <select name={name} value={selectedFruit} onChange={(e) => setSelectedFruit(e.target.value)}>
+        {options.map((option, i) => (
+          <option key={i} value={option.value}>{option.value}</option>
+        ))}
+      </select>
+    </div>
+  );
+};
+
 
 const fieldRenderers: Record<string, FieldRenderer> = {
   input: (name: string, type: string, required: boolean) => (
     <div key={name} className="field-container">
-      <input type={type} name={name} id={name} placeholder={`${name} ${required ? "*" : "" }`} required={required}/>
+      <input type={type} name={name.toLocaleLowerCase()} id={name} placeholder={`${name} ${required ? "*" : "" }`} required={required}/>
     </div>
   ),
   textarea: (name: string, required: boolean) => (
     <div key={name} className="field-container">
-      <textarea name={name} id={name} required={required} placeholder={`${name} ${required ? "*" : "" }`}></textarea>
+      <textarea name={name.toLocaleLowerCase()} id={name} required={required} placeholder={`${name} ${required ? "*" : "" }`}></textarea>
     </div>
-  ),
-  select: (name: string, options: { value: string }[]) => (
-    <div key={name} className="field-container">
-      <select name={name} id={name} value={options[0].value}>
-        {options?.map((option) => (
-          <option key={option.value} value={option.value}>{option.value}</option>
-        ))}
-      </select>
-    </div>
-  ),
+  )
 };
 
 export function Form({config}: { config: FormConfig }): JSX.Element {
@@ -89,7 +94,7 @@ export function Form({config}: { config: FormConfig }): JSX.Element {
   return (
     <div>
       <form id={config.formUuid} onSubmit={(event) => { void handleSubmit(event); }}>
-        {formElements?.map((element) => {
+        {formElements?.map((element, i) => {
           if (element.elementType === "input") {
             const renderField = fieldRenderers.input as InputRenderer;
             return renderField(element.elementName, element.type ? element.type : "text", element.required);
@@ -101,13 +106,11 @@ export function Form({config}: { config: FormConfig }): JSX.Element {
           }
 
           if (element.elementType === "select") {
-            const renderField = fieldRenderers.select as SelectRenderer;
-            return renderField(element.elementName, element.options ?? []);
+            return <SelectRenderer name={`select-${i}`} key={element.elementName} options={element.options ?? []} />;
           }
 
           if (element.elementType === "select-states") {
-            const renderField = fieldRenderers.select as SelectRenderer;
-            return renderField(element.elementName, usStates ?? []);
+            return <SelectRenderer name={`select-states-${i}`} key={element.elementName} options={usStates ?? []} />;
           }
 
           return null
