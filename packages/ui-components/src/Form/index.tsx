@@ -10,11 +10,11 @@ type TextareaRenderer = (name: string, required: boolean) => JSX.Element;
 type FieldRenderer = InputRenderer | TextareaRenderer;
 
 const SelectRenderer = ({ name, options }: { name: string, options: { value: string }[]}): JSX.Element => {
-  const [selectedFruit, setSelectedFruit] = useState(options[0]?.value || "");
+  const [selectedField, setSelectedField] = useState(options[0]?.value || "");
 
   return (
     <div className="field-container">
-      <select name={name} value={selectedFruit} onChange={(e) => setSelectedFruit(e.target.value)}>
+      <select name={name} value={selectedField} onChange={(e) => setSelectedField(e.target.value)}>
         {options.map((option, i) => (
           <option key={i} value={option.value}>{option.value}</option>
         ))}
