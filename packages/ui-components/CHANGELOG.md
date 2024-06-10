@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.7.3
+
+### Patch Changes
+
+- 9dba8c9: fix: Add name to select
+
 ## 1.7.2
 
 ### Patch Changes
