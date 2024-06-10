@@ -1,5 +1,12 @@
 # @evervault/ui-components
 
+## 1.7.1
+
+### Patch Changes
+
+- 9501860: remove spacing from asterisk
+  - @evervault/react@2.6.1
+
 ## 1.7.0
 
 ### Minor Changes
