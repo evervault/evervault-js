@@ -5,14 +5,9 @@ import { TextInputMask } from 'react-native-masked-text';
 import { useCardContext } from './context';
 import { BaseProps } from './Card';
 
-export interface CVCProps extends BaseProps { }
+export interface CVCProps extends BaseProps {}
 
-export const CardCVC = ({
-  style,
-  disabled,
-  placeholder,
-  readOnly,
-}: CVCProps) => {
+export const CardCVC = ({ disabled, readOnly, ...props }: CVCProps) => {
   const context = useCardContext();
   const mask = useMemo(() => {
     const type = validateNumber(context.values.number).brand;
@@ -26,11 +21,12 @@ export const CardCVC = ({
 
   useEffect(() => {
     context.setRegisteredFields((prev) => new Set(prev).add('cvc'));
-    return () => context.setRegisteredFields((prev) => {
-      const next = new Set(prev);
-      next.delete('cvc');
-      return next;
-    });
+    return () =>
+      context.setRegisteredFields((prev) => {
+        const next = new Set(prev);
+        next.delete('cvc');
+        return next;
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -38,17 +34,16 @@ export const CardCVC = ({
     <TextInputMask
       type="custom"
       options={{ mask }}
-      style={style}
       value={context.values.cvc}
       onChangeText={(t) => onChange(t)}
       id="cvc"
       editable={disabled}
       selectTextOnFocus={disabled}
       onBlur={onBlur}
-      placeholder={placeholder}
       inputMode="numeric"
       autoComplete="cc-csc"
       readOnly={readOnly}
+      {...props}
     />
   );
 };

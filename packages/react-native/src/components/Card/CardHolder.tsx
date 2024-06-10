@@ -4,44 +4,35 @@ import { TextInput } from 'react-native';
 import { useCardContext } from './context';
 import { BaseProps } from './Card';
 
-export interface CardHolderProps extends BaseProps {
-  autoFocus?: boolean;
-}
+export interface CardHolderProps extends BaseProps {}
 
-export function CardHolder({
-  autoFocus,
-  disabled,
-  placeholder,
-  readOnly,
-  style
-}: CardHolderProps) {
+export function CardHolder({ disabled, readOnly, ...props }: CardHolderProps) {
   const context = useCardContext();
 
   const { onBlur, onChange } = context.register('name');
 
   useEffect(() => {
     context.setRegisteredFields((prev) => new Set(prev).add('name'));
-    return () => context.setRegisteredFields((prev) => {
-      const next = new Set(prev);
-      next.delete('name');
-      return next;
-    });
+    return () =>
+      context.setRegisteredFields((prev) => {
+        const next = new Set(prev);
+        next.delete('name');
+        return next;
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <TextInput
       id="name"
-      style={style}
       value={context.values.name}
       readOnly={readOnly}
       onBlur={onBlur}
-      autoFocus={autoFocus}
       editable={disabled}
       selectTextOnFocus={disabled}
-      placeholder={placeholder}
       autoComplete="cc-name"
       onChangeText={(v) => onChange(v)}
+      {...props}
     />
   );
 }

@@ -4,13 +4,13 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import { BaseProps } from './Card';
 
-export interface CardExpiryProps extends BaseProps { }
+export interface CardExpiryProps extends BaseProps {}
 
 export function CardExpiry({
   disabled,
   placeholder,
   readOnly,
-  style
+  ...props
 }: CardExpiryProps) {
   const context = useCardContext();
 
@@ -18,17 +18,17 @@ export function CardExpiry({
 
   useEffect(() => {
     context.setRegisteredFields((prev) => new Set(prev).add('expiry'));
-    return () => context.setRegisteredFields((prev) => {
-      const next = new Set(prev);
-      next.delete('expiry');
-      return next;
-    });
+    return () =>
+      context.setRegisteredFields((prev) => {
+        const next = new Set(prev);
+        next.delete('expiry');
+        return next;
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <TextInputMask
-      style={style}
       type="datetime"
       value={context.values.expiry}
       editable={disabled}
@@ -44,6 +44,7 @@ export function CardExpiry({
       inputMode="numeric"
       autoComplete="cc-exp"
       readOnly={readOnly}
+      {...props}
     />
   );
 }
