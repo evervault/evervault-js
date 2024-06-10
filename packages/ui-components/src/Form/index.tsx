@@ -106,11 +106,11 @@ export function Form({config}: { config: FormConfig }): JSX.Element {
           }
 
           if (element.elementType === "select") {
-            return <SelectRenderer name={`select-${i}`} key={element.elementName} options={element.options ?? []} />;
+            return <SelectRenderer name={element.elementName} key={element.elementName} options={element.options ?? []} />;
           }
 
           if (element.elementType === "select-states") {
-            return <SelectRenderer name={`select-states-${i}`} key={element.elementName} options={usStates ?? []} />;
+            return <SelectRenderer name={element.elementName} key={element.elementName} options={usStates ?? []} />;
           }
 
           return null
