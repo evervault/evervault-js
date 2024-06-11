@@ -1,5 +1,11 @@
 # @evervault/evervault-react-native
 
+## 0.4.6
+
+### Patch Changes
+
+- 4fda229: Resolve vulnerabilities
+
 ## 0.4.5
 
 ### Patch Changes
