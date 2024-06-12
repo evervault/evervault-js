@@ -1,5 +1,11 @@
 # @evervault/evervault-react-native
 
+## 0.5.0
+
+### Minor Changes
+
+- 2070874: Fixed android builds on old react native versions
+
 ## 0.4.6
 
 ### Patch Changes
