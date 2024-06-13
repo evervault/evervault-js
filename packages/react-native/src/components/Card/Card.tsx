@@ -14,13 +14,11 @@ import { encrypt } from '../../sdk';
 import { CardCVC } from './CardCVC';
 import { CardHolder } from './CardHolder';
 import { CardExpiry } from './CardExpiry';
-import { StyleProp, TextStyle, View } from 'react-native';
+import { StyleProp, TextInputProps, TextStyle, View } from 'react-native';
 
-export interface BaseProps {
+export interface BaseProps extends TextInputProps {
   disabled?: boolean;
-  placeholder?: string;
   readOnly?: boolean;
-  style?: StyleProp<TextStyle>;
 }
 
 export interface CardProps {
@@ -31,13 +29,7 @@ export interface CardProps {
   style?: StyleProp<TextStyle>;
 }
 
-function Card({
-  initialValue,
-  config,
-  children,
-  onChange,
-  style,
-}: CardProps) {
+function Card({ initialValue, config, children, onChange, style }: CardProps) {
   const [registeredFields, setRegisteredFields] = useState<Set<CardField>>(
     new Set()
   );

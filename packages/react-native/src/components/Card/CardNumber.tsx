@@ -14,7 +14,6 @@ export function CardNumber({
   disabled,
   placeholder,
   readOnly,
-  style,
 }: CardNumberProps) {
   const context = useCardContext();
   const ref = useRef<TextInputMask>(null);
@@ -40,17 +39,17 @@ export function CardNumber({
 
   useEffect(() => {
     context.setRegisteredFields((prev) => new Set(prev).add('number'));
-    return () => context.setRegisteredFields((prev) => {
-      const next = new Set(prev);
-      next.delete('name');
-      return next;
-    });
+    return () =>
+      context.setRegisteredFields((prev) => {
+        const next = new Set(prev);
+        next.delete('name');
+        return next;
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <TextInputMask
-      style={style}
       ref={ref}
       type="custom"
       options={{ mask }}
