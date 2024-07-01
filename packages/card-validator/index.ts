@@ -107,16 +107,23 @@ export function validateCVC(
   cvc: string,
   cardNumber: string
 ): CardCVCValidationResult {
-  const validatedCard = validateNumber(cardNumber);
-  if (!validatedCard.isValid) {
+  // Check if the CVC only contains numbers with 3 or 4 digits
+  if (!/^\d{3,4}$/.test(cvc)) {
     return {
       cvc: null,
       isValid: false,
     };
   }
 
-  // Check if the CVC only contains numbers
-  if (!/^\d*$/.test(cvc)) {
+  if (!cardNumber) {
+    return {
+      cvc: cvc,
+      isValid: true,
+    };
+  }
+
+  const validatedCard = validateNumber(cardNumber);
+  if (!validatedCard.isValid) {
     return {
       cvc: null,
       isValid: false,
