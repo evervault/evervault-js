@@ -1,5 +1,11 @@
 # @evervault/card-validator
 
+## 1.0.5
+
+### Patch Changes
+
+- 2d22675: validate cvc when no card number is present
+
 ## 1.0.4
 
 ### Patch Changes
