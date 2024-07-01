@@ -53,14 +53,26 @@ const testCases: TestCase[] = [
     expectedResult: { cvc: "1234", isValid: true },
   },
   {
-    scope: "Valid CVC Mastercard with no card number",
+    scope: "Valid CVC Mastercard with empty card number",
     cardNumber: "",
     cvc: "123",
     expectedResult: { cvc: "123", isValid: true },
   },
   {
-    scope: "Valid CVC Amex with no card number",
+    scope: "Valid CVC Amex with empty card number",
     cardNumber: "",
+    cvc: "1234",
+    expectedResult: { cvc: "1234", isValid: true },
+  },
+  {
+    scope: "Valid CVC Mastercard with no card number",
+    cardNumber: undefined,
+    cvc: "123",
+    expectedResult: { cvc: "123", isValid: true },
+  },
+  {
+    scope: "Valid CVC Amex with no card number",
+    cardNumber: undefined,
     cvc: "1234",
     expectedResult: { cvc: "1234", isValid: true },
   },

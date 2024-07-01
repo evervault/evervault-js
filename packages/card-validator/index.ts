@@ -105,7 +105,7 @@ export function validateNumber(cardNumber: string): CardNumberValidationResult {
 
 export function validateCVC(
   cvc: string,
-  cardNumber: string
+  cardNumber?: string
 ): CardCVCValidationResult {
   // Check if the CVC only contains numbers with 3 or 4 digits
   if (!/^\d{3,4}$/.test(cvc)) {
