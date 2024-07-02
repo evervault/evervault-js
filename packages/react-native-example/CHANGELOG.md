@@ -1,5 +1,13 @@
 # react-native-example
 
+## 1.0.8
+
+### Patch Changes
+
+- 30c7f68: Fix cc-name completion on android
+- Updated dependencies [30c7f68]
+  - @evervault/evervault-react-native@0.5.2
+
 ## 1.0.7
 
 ### Patch Changes
