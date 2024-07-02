@@ -1,5 +1,11 @@
 # @evervault/evervault-react-native
 
+## 0.5.2
+
+### Patch Changes
+
+- 30c7f68: Fix cc-name completion on android
+
 ## 0.5.1
 
 ### Patch Changes
