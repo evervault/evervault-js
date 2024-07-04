@@ -67,6 +67,10 @@ export interface CardPayload {
   }>;
 }
 
+export interface ThreeDSPayload {
+  isComplete: boolean;
+}
+
 export type CardField = "name" | "number" | "expiry" | "cvc";
 
 interface CardFieldTranslations<E extends TranslationsObject>
@@ -178,3 +182,12 @@ export interface FormFrameClientMessages extends EvervaultFrameClientMessages {
   EV_ERROR: undefined;
   EV_SUBMITTED: undefined;
 }
+
+export interface ThreeDSFrameClientMessages extends EvervaultFrameClientMessages {
+  EV_CHANGE: ThreeDSPayload;
+  EV_COMPLETE: ThreeDSPayload;
+}
+
+export interface ThreeDSFrameHostMessages extends EvervaultFrameHostMessages {}
+
+export interface ThreeDSOptions { theme?: ThemeObject, session?: string; }

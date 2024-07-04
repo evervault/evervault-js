@@ -17,6 +17,8 @@ import type {
   RevealRequestConfig,
   RevealTextConfig,
 } from "./Reveal/types";
+import { ThreeDS } from "./3DS";
+import { ThreeDSConfig } from "./3DS/types";
 
 // Use the component query param to determine which component to render
 export function UIComponent() {
@@ -106,6 +108,10 @@ export function UIComponent() {
 
   if (component === "Form") {
     return <Form config={config as FormConfig} />;
+  }
+
+  if (component === "ThreeDS") {
+    return <ThreeDS config={config as ThreeDSConfig} />;
   }
 
   throw new Error(`Unknown component ${component}`);
