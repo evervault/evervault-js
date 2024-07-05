@@ -1,5 +1,52 @@
 # @evervault/ui-components
 
+## 1.7.4
+
+### Patch Changes
+
+- Updated dependencies [2d22675]
+  - @evervault/card-validator@1.0.5
+  - shared@1.0.4
+
+## 1.7.3
+
+### Patch Changes
+
+- 9dba8c9: fix: Add name to select
+
+## 1.7.2
+
+### Patch Changes
+
+- 5f1a5f2: fix: add state to select component
+
+## 1.7.1
+
+### Patch Changes
+
+- 9501860: remove spacing from asterisk
+  - @evervault/react@2.6.1
+
+## 1.7.0
+
+### Minor Changes
+
+- b300278: Set placeholder on the inputs fix textarea styling
+
+### Patch Changes
+
+- @evervault/react@2.6.1
+
+## 1.6.0
+
+### Minor Changes
+
+- e5a9f94: Add us states select
+
+### Patch Changes
+
+- 2fc8ccb: Add class to field names
+
 ## 1.5.0
 
 ### Minor Changes

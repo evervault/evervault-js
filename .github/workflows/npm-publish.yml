@@ -41,8 +41,6 @@ jobs:
           path: ${{ inputs.repo_path }}
 
       - uses: pnpm/action-setup@v2
-        with:
-          version: 9
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3

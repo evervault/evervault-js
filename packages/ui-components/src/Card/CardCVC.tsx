@@ -29,6 +29,7 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
     useImperativeHandle(forwardedRef, () => innerRef.current!);
 
     const mask = useMemo(() => {
+      if (!cardNumber) return "0000";
       const type = validateNumber(cardNumber).brand;
       if (type === "american-express") return "0000";
       return "000";

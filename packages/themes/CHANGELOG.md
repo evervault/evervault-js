@@ -1,5 +1,11 @@
 # themes
 
+## 0.1.1
+
+### Patch Changes
+
+- b300278: Set placeholder on the inputs fix textarea styling
+
 ## 0.1.0
 
 ### Minor Changes

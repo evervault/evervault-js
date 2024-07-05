@@ -1,5 +1,30 @@
 # @evervault/evervault-react-native
 
+## 0.5.2
+
+### Patch Changes
+
+- 30c7f68: Fix cc-name completion on android
+
+## 0.5.1
+
+### Patch Changes
+
+- Updated dependencies [2d22675]
+  - @evervault/card-validator@1.0.5
+
+## 0.5.0
+
+### Minor Changes
+
+- 2070874: Fixed android builds on old react native versions
+
+## 0.4.6
+
+### Patch Changes
+
+- 4fda229: Resolve vulnerabilities
+
 ## 0.4.5
 
 ### Patch Changes

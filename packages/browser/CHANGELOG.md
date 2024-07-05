@@ -1,5 +1,18 @@
 # @evervault/browser
 
+## 2.25.2
+
+### Patch Changes
+
+- 408c73e: remove dead code
+
+## 2.25.1
+
+### Patch Changes
+
+- Updated dependencies [b300278]
+  - themes@0.1.1
+
 ## 2.25.0
 
 ### Minor Changes

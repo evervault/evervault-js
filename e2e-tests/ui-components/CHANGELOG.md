@@ -4,6 +4,48 @@
 
 ### Patch Changes
 
+- @evervault/ui-components@1.7.4
+
+## null
+
+### Patch Changes
+
+- Updated dependencies [9dba8c9]
+  - @evervault/ui-components@1.7.3
+
+## null
+
+### Patch Changes
+
+- Updated dependencies [5f1a5f2]
+  - @evervault/ui-components@1.7.2
+
+## null
+
+### Patch Changes
+
+- Updated dependencies [9501860]
+  - @evervault/ui-components@1.7.1
+
+## null
+
+### Patch Changes
+
+- Updated dependencies [b300278]
+  - @evervault/ui-components@1.7.0
+
+## null
+
+### Patch Changes
+
+- Updated dependencies [2fc8ccb]
+- Updated dependencies [e5a9f94]
+  - @evervault/ui-components@1.6.0
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [46e1765]
   - @evervault/ui-components@1.5.0
 

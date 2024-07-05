@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import * as React from 'react';
-import { TextInput } from 'react-native';
+import { Platform, TextInput } from 'react-native';
 import { useCardContext } from './context';
 import { BaseProps } from './Card';
 
@@ -13,7 +13,7 @@ export function CardHolder({
   disabled,
   placeholder,
   readOnly,
-  style
+  style,
 }: CardHolderProps) {
   const context = useCardContext();
 
@@ -21,11 +21,12 @@ export function CardHolder({
 
   useEffect(() => {
     context.setRegisteredFields((prev) => new Set(prev).add('name'));
-    return () => context.setRegisteredFields((prev) => {
-      const next = new Set(prev);
-      next.delete('name');
-      return next;
-    });
+    return () =>
+      context.setRegisteredFields((prev) => {
+        const next = new Set(prev);
+        next.delete('name');
+        return next;
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -40,7 +41,10 @@ export function CardHolder({
       editable={disabled}
       selectTextOnFocus={disabled}
       placeholder={placeholder}
-      autoComplete="cc-name"
+      autoComplete={Platform.select({
+        ios: 'cc-name',
+        android: 'name',
+      })}
       onChangeText={(v) => onChange(v)}
     />
   );
