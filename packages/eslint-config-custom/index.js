@@ -112,7 +112,8 @@ module.exports = {
     },
     {
       files: ["scaffold.js", "*.spec.*", "*.test.*", "test/*"],
-      rules: { "no-console": "off", "@typescript-eslint/no-unsafe-assignment": "warn", "@typescript-eslint/no-unsafe-call": "warn", "@typescript-eslint/no-unsafe-member-access": "warn","@typescript-eslint/no-unsafe-argument": "warn" },
+      extends: ['plugin:@typescript-eslint/disable-type-checked'],
+      rules: { "no-console": "off" },
     },
   ],
 };
