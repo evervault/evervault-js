@@ -1,5 +1,12 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "VITE_EV_APP_UUID",
+    "VITE_EV_TEAM_UUID",
+    "VITE_EVERVAULT_JS_URL",
+    "VITE_KEYS_URL",
+    "VITE_API_URL"
+  ],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],

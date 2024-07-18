@@ -133,7 +133,7 @@ function removeUrlsFromStyles(customRevealStyles: CustomRevealStyles) {
   for (const [groupKey, group] of Object.entries(newStyles)) {
     for (const [keyKey, key] of Object.entries(group)) {
       if (typeof key === "string" && key.match(/url\([^)]+\)/g)) {
-        delete newStyles[groupKey]![keyKey as keyof CSSStyleDeclaration];
+        delete newStyles[groupKey][keyKey as keyof CSSStyleDeclaration];
       }
     }
   }

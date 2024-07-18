@@ -40,7 +40,7 @@ jobs:
         with:
           fetch-depth: 2
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
@@ -99,3 +99,8 @@ jobs:
         with:
           name: react-native-build
           path: packages/react-native/dist
+      - name: Upload eql build
+        uses: actions/upload-artifact@v3
+        with:
+          name: eql-build
+          path: packages/eql/dist

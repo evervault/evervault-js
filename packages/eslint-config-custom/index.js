@@ -112,6 +112,7 @@ module.exports = {
     },
     {
       files: ["scaffold.js", "*.spec.*", "*.test.*", "test/*"],
+      extends: ['plugin:@typescript-eslint/disable-type-checked'],
       rules: { "no-console": "off" },
     },
   ],
