@@ -1,6 +1,9 @@
 import { resolve } from "node:path";
+import dotenv from "dotenv";
 import dts from "vite-plugin-dts";
 import { defineConfig } from "vitest/config";
+
+dotenv.config({ path: "../../.env" });
 
 export default defineConfig({
   server: {

@@ -30,8 +30,9 @@ encryptForm.addEventListener("submit", async (e) => {
     unencrypted: objectToEncrypt,
   };
 
-  const result = await fetch("/api/test_decryption", {
+  const result = await fetch("http://localhost:3010/api/test_decryption", {
     method: "POST",
+    credentials: "omit",
     headers: {
       "Content-Type": "application/json",
     },
