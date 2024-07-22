@@ -29,10 +29,10 @@
       "dependsOn": []
     },
     "lint": {
-      "dependsOn": ["typecheck"]
+      "dependsOn": []
     },
     "lint:fix": {
-      "dependsOn": ["^build", "format"],
+      "dependsOn": [],
       "outputs": ["lib/**", "*.ts"]
     },
     "test": {
