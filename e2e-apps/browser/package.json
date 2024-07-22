@@ -1,7 +1,6 @@
 {
   "private": true,
   "name": "@evervault/browser-e2e-app",
-  "version": null,
   "engines": {
     "node": "~18",
     "pnpm": "~9"
