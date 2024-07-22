@@ -24,6 +24,7 @@ select({
       "--",
       "turbo",
       "dev",
+      "--ui=tui",
       "--filter",
       "@evervault/ui-components",
       "--filter",
