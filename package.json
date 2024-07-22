@@ -15,7 +15,8 @@
     "e2e:test": "dotenv -- turbo run e2e:test",
     "e2e:test:browser": "dotenv -- turbo run e2e:test --filter=browser",
     "ci:prune:browser": "turbo prune --scope=\"browser\" --docker",
-    "version": "changeset version && pnpm install --no-frozen-lockfile"
+    "version": "changeset version && pnpm install --no-frozen-lockfile",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
@@ -27,6 +28,7 @@
     "dotenv": "^16.4.5",
     "dotenv-cli": "^7.4.1",
     "eslint-config-custom": "workspace:^",
+    "husky": "^9.1.1",
     "jsdom": "^21.1.2",
     "nock": "^13.5.4",
     "prettier": "^2.8.8",
