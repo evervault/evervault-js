@@ -20,12 +20,14 @@
       "dependsOn": ["build", "test", "lint"]
     },
     "typecheck": {
-      "dependsOn": ["^build"]
+      "dependsOn": []
     },
     "format": {
       "outputs": ["lib/**", "*.[m][tj]s", "*.html", "*.json", "*.md"]
     },
-    "format:check": {},
+    "format:check": {
+      "dependsOn": []
+    },
     "lint": {
       "dependsOn": ["typecheck"]
     },
