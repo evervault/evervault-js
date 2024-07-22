@@ -1,6 +1,5 @@
 {
   "private": true,
-  "version": null,
   "name": "@evervault/inputs-e2e-tests",
   "scripts": {
     "dev:test": "playwright test",

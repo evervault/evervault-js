@@ -1,7 +1,6 @@
 {
   "private": true,
   "name": "@evervault/e2e-decrypt-backend",
-  "version": null,
   "engines": {
     "node": "~18",
     "pnpm": "~9"
