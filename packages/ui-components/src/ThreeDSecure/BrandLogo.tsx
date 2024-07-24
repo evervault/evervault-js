@@ -1,4 +1,4 @@
-const BRANDS = {
+export const BRANDS = {
   visa: <Visa />,
 };
 

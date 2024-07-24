@@ -1,7 +1,7 @@
-import { BrandLogo } from "./BrandLogo";
+import { BRANDS, BrandLogo } from "./BrandLogo";
 
 export function ThreeDSecureLoading({ session }: { session: string }) {
-  const brand = session.split("_")[1];
+  const brand = session.split("_")[1] as keyof typeof BRANDS;
 
   return (
     <div

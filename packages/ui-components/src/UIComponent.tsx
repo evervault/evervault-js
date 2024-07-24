@@ -7,6 +7,7 @@ import { RevealCopyButton } from "./Reveal/RevealCopyButton";
 import { RevealRequest } from "./Reveal/RevealRequest";
 import { RevealText } from "./Reveal/RevealText";
 import { ThreeDSecure } from "./ThreeDSecure";
+import { ThreeDSecureConfig } from "./ThreeDSecure/types";
 import { resize } from "./utilities/resize";
 import { useMessaging } from "./utilities/useMessaging";
 import { useSearchParams } from "./utilities/useSearchParams";
