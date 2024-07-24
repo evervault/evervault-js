@@ -85,16 +85,18 @@ const theme = (
 });
 
 const evervault = new window.Evervault(
-  import.meta.env.VITE_EV_TEAM_UUID,
-  import.meta.env.VITE_EV_APP_UUID,
+  "team_3db7422f8262",
+  "app_eead1d640d7c",
   {
     urls: {
-      keysUrl: import.meta.env.VITE_KEYS_URL as string,
-      apiUrl: import.meta.env.VITE_API_URL as string,
+      keysUrl: "https://keys.evervault.io",
+      apiUrl: "https://api.evervault.io",
       componentsUrl: import.meta.env.VITE_UI_COMPONENTS_URL as string,
     },
   }
 );
+
+window.evervault = evervault;
 
 const card = evervault.ui.card({ 
   theme: theme()

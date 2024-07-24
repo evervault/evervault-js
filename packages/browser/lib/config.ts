@@ -1,7 +1,7 @@
-const KEYS_URL = "https://keys.evervault.com";
+const KEYS_URL = "https://keys.evervault.io";
 const INPUTS_ORIGIN = "https://inputs.evervault.com";
 const API_URL = "https://api.evervault.com";
-const UI_COMPONENTS_URL = "https://ui-components.evervault.com";
+const UI_COMPONENTS_URL = "https://ui-components.evervault.io";
 
 export interface ConfigUrls {
   keysUrl?: string;

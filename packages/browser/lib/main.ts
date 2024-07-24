@@ -212,6 +212,120 @@ export default class EvervaultClient {
     return crypto.encrypt(data, role);
   }
 
+  async perform3DS(threeDSAuthenticationId: string): Promise<void> {
+    const style = document.createElement('style');
+    style.innerHTML = `
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    
+    @keyframes scaleIn {
+      from { transform: scale(0); }
+      to { transform: scale(1); }
+    }
+    
+    @keyframes scaleOut {
+      from { transform: scale(1); }
+      to { transform: scale(0); }
+    }
+    `;
+    document.head.appendChild(style);
+
+    const appId = this.config.appId;
+    const response = await fetch(`https://api.evervault.io/frontend/3ds/browser-authentications/${threeDSAuthenticationId}`, {
+      headers: {
+        'X-Evervault-App-Id': appId
+      }
+    });
+    const data = await response.json();
+    const iframe = document.createElement('iframe');
+    iframe.srcdoc = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Submit Form</title>
+    <script>
+        window.onload = function() {
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = ${data.next_action.url};
+
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'creq';
+          input.value = ${data.next_action.creq};
+
+          form.appendChild(input);
+
+          document.body.appendChild(form);
+
+          form.submit();
+        };
+    </script>
+</head>
+<body>
+</body>
+</html>
+  `;
+    iframe.width = '500';
+    iframe.height = '600';
+    iframe.style.border = '0';
+  
+    // Create modal
+    const modal = document.createElement('div');
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
+    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.style.zIndex = '1000';
+    modal.style.animation = 'fadeIn 0.3s';
+  
+    // Center the iframe in the modal
+    const iframeContainer = document.createElement('div');
+    iframeContainer.style.position = 'relative';
+    iframeContainer.style.width = '500px';
+    iframeContainer.style.height = '600px';
+    iframeContainer.style.backgroundColor = '#fff';
+    iframeContainer.style.borderRadius = '8px';
+    iframeContainer.style.overflow = 'hidden';
+    iframeContainer.style.transform = 'scale(0)';
+    iframeContainer.style.animation = 'scaleIn 0.3s forwards';
+  
+    // Append iframe to the iframe container
+    iframeContainer.appendChild(iframe);
+    // Append iframe container to the modal
+    modal.appendChild(iframeContainer);
+    // Append modal to the body
+    document.body.appendChild(modal);
+  
+    return new Promise((resolve, reject) => {
+      function receiveMessage(event: any) {  
+        iframeContainer.style.animation = 'scaleOut 0.3s forwards';
+        modal.style.animation = 'fadeOut 0.3s';
+        setTimeout(() => {
+          document.body.removeChild(modal);
+        }, 300);
+        window.removeEventListener('message', receiveMessage);
+        resolve();
+      }
+      
+      window.addEventListener('message', receiveMessage);
+    });
+  }
+  
   /**
    * Initializes Evervault Inputs. Evervault Inputs makes it easy to collect encrypted cardholder data in a completely PCI-compliant environment.
    * Evervault Inputs are served within an iFrame retrieved directly from Evervault’s PCI-compliant infrastructure, which can reduce your PCI DSS compliance scope to the simplest form (SAQ A).
