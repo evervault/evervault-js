@@ -178,3 +178,13 @@ export interface FormFrameClientMessages extends EvervaultFrameClientMessages {
   EV_ERROR: undefined;
   EV_SUBMITTED: undefined;
 }
+
+export interface ThreeDSecureOptions {
+  theme?: ThemeDefinition;
+  size?: { width: string; height: string };
+}
+
+export interface ThreeDSecureFrameClientMessages
+  extends EvervaultFrameClientMessages {
+  EV_COMPLETE: undefined;
+}

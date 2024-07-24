@@ -17,6 +17,7 @@ interface FrameConfiguration {
 
 interface FrameOptions {
   allow?: string;
+  size?: { width: string; height: string };
 }
 
 // The EvervaultFrame class is responsible for creating and managing the iframe
@@ -32,6 +33,7 @@ export class EvervaultFrame<
   #theme: Theme | null = null;
   #client: EvervaultClient;
   #ready = false;
+  #size?: { width: string; height: string };
 
   // The constructor accepts an EV client and component name and generates the URL
   // for the iframe. The component param is used to determine which component to render
@@ -50,11 +52,22 @@ export class EvervaultFrame<
     this.iframe.style.border = "none";
     this.iframe.style.width = "100%";
     this.iframe.style.display = "block";
+
+    if (options?.size) {
+      this.setSize(options.size);
+    }
+
     this.iframe.setAttribute("ev-component", component);
 
     if (options?.allow) {
       this.iframe.allow = options.allow;
     }
+  }
+
+  setSize(size: { width: string; height: string }) {
+    this.#size = size;
+    this.iframe.style.width = size.width;
+    this.iframe.style.height = size.height;
   }
 
   // After instantiating the EvervaultFrame class, it needs to be mounted
@@ -94,7 +107,24 @@ export class EvervaultFrame<
 
   unmount(): this {
     this.iframe.remove();
+
+    const overlay = document.getElementById(`ev-modal-${this.#id}`);
+    overlay?.remove();
+
     return this;
+  }
+
+  // Creates a full screen container which can then be used to mount the iframe
+  // into. This is useful when you want to render the iframe in a modal. Overlays
+  // are automatically removed when the iframe is unmounted.
+  createOverlay(): HTMLDivElement {
+    const container = document.createElement("div");
+    container.id = `ev-modal-${this.#id}`;
+    container.style.position = "fixed";
+    container.style.inset = "0px";
+    container.style.zIndex = "9999";
+    document.body.appendChild(container);
+    return container;
   }
 
   // Takes an update configuration object and posts it into the iframe via an
@@ -168,7 +198,7 @@ export class EvervaultFrame<
 
   #setupListeners() {
     this.on("EV_RESIZE", ({ height }) => {
-      if (!this.iframe) return;
+      if (!this.iframe || this.#size) return;
       this.iframe.style.height = `${height}px`;
     });
   }

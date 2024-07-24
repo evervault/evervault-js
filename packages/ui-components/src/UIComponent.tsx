@@ -1,11 +1,12 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Card } from "./Card";
-import {Form} from "./Form";
-import {FormConfig} from "./Form/types";
+import { Form } from "./Form";
+import { FormConfig } from "./Form/types";
 import { Pin } from "./Pin";
 import { RevealCopyButton } from "./Reveal/RevealCopyButton";
 import { RevealRequest } from "./Reveal/RevealRequest";
 import { RevealText } from "./Reveal/RevealText";
+import { ThreeDSecure } from "./ThreeDSecure";
 import { resize } from "./utilities/resize";
 import { useMessaging } from "./utilities/useMessaging";
 import { useSearchParams } from "./utilities/useSearchParams";
@@ -106,6 +107,10 @@ export function UIComponent() {
 
   if (component === "Form") {
     return <Form config={config as FormConfig} />;
+  }
+
+  if (component === "ThreeDSecure") {
+    return <ThreeDSecure config={config as ThreeDSecureConfig} />;
   }
 
   throw new Error(`Unknown component ${component}`);
