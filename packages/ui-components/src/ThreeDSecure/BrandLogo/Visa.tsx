@@ -1,14 +1,4 @@
-export const BRANDS = {
-  visa: <Visa />,
-};
-
-export function BrandLogo({ brand }: { brand: keyof typeof BRANDS }) {
-  const logo = BRANDS[brand];
-  if (!logo) return null;
-  return logo;
-}
-
-function Visa() {
+export function Visa() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
