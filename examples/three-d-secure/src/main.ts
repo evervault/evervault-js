@@ -1,3 +1,4 @@
+import { CardPayload } from "@evervault/browser";
 import "./style.css";
 
 const evervault = new window.Evervault(
@@ -14,7 +15,6 @@ const evervault = new window.Evervault(
 
 // First we mount a card UI Component to safely collect the users
 // payment details.
-
 const theme = evervault.ui.themes.clean();
 const card = evervault.ui.card({ theme });
 card.mount("#form");
@@ -40,12 +40,15 @@ async function handleSubmit() {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to initiate 3D Secure Session");
+    throw new Error(
+      "Failed to initiate 3D Secure Session, Please ensure you are using an API key that has the correct permissions to create 3DS sessions."
+    );
   }
 
   const { session } = (await response.json()) as { session: string };
 
-  // Once a 3DS session has be initiated,
+  // Once a 3DS session has be initiated we can use the session ID to create
+  // a 3DS UI Component to handle the 3DS process.
   const tds = evervault.ui.threeDSecure(session);
 
   // The 'complete' event is emitted when the 3DS process has finished successfully
@@ -53,21 +56,24 @@ async function handleSubmit() {
     // At this point you should submit the payment details along with the 3DS
     // session ID to your server to complete the payment. You can use the Evervault
     // API to retrieve the cryptogram for the 3DS session to authorize the payment.
-    void finalizePayment(session, card.values.card);
+    void finalizePayment(session, card.values?.card);
   });
 
   // Mount the 3DS UI Component to begin the 3DS process
   // Calling mount without providing a target will render the 3DS flow inside
-  // of a modal window ontop of the page.
+  // of a modal window on top of the page.
   tds.mount();
 }
 
-async function finalizePayment(session: string, card) {
+async function finalizePayment(
+  session: string,
+  cardDetails: CardPayload["card"]
+) {
   await fetch("http://localhost:3010/checkout", {
     method: "POST",
     body: JSON.stringify({
       session,
-      card,
+      card: cardDetails,
     }),
   });
 

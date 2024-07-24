@@ -15,7 +15,7 @@ const server = createServer(async (request, response) => {
     return;
   }
 
-  // POST /check-payment-method
+  // POST /three-d-secure
   // This is a simple endpoint that takes the encrypted card details
   // from the client and creates a 3DS session. In practice, you would
   // do some additional checks here to determine if 3DS is required.

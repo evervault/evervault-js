@@ -4,18 +4,17 @@ import {
   ThreeDSecureFrameClientMessages,
 } from "types";
 import { useMessaging } from "../utilities/useMessaging";
+import { NextAction } from "./types";
+import { isTrampolineMessage, postRedirectFrame } from "./utilities";
 
 export function ChallengeFrame({
-  url,
-  creq,
+  nextAction,
   onLoad,
 }: {
-  url: string;
-  creq: string;
+  nextAction: NextAction;
   onLoad: () => void;
 }) {
-  const frame = useRef(null);
-  const called = useRef(false);
+  const frame = useRef<HTMLIFrameElement>(null);
   const [loaded, setLoaded] = useState(false);
 
   const { send } = useMessaging<
@@ -24,25 +23,11 @@ export function ChallengeFrame({
   >();
 
   useEffect(() => {
-    if (called.current) return;
-    called.current = true;
+    if (!frame.current) return;
+    postRedirectFrame(frame.current, nextAction);
 
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = url;
-    form.target = "challengeFrame";
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = "creq";
-    input.value = creq;
-    form.appendChild(input);
-    document.body.appendChild(form);
-    form.submit();
-
-    const handleMessage = (e) => {
-      const event = e.data.event;
-
-      if (event === "ev-3ds-trampoline") {
+    const handleMessage = (e: MessageEvent) => {
+      if (isTrampolineMessage(e)) {
         send("EV_COMPLETE");
       }
     };
