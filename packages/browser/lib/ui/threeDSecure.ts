@@ -6,12 +6,13 @@ import type {
   EvervaultFrameHostMessages,
   ThreeDSecureFrameClientMessages,
   ThreeDSecureOptions,
+  ComponentError,
 } from "types";
 
 interface ThreeDSecureEvents {
   ready: () => void;
-  error: () => void;
   complete: () => void;
+  error: (error: ComponentError) => void;
 }
 
 export default class ThreeDSecure {
@@ -43,6 +44,10 @@ export default class ThreeDSecure {
     this.#frame.on("EV_FRAME_READY", () => {
       this.#events.dispatch("ready");
     });
+
+    this.#frame.on("EV_ERROR", (error) => {
+      this.#events.dispatch("error", error);
+    });
   }
 
   get config() {
@@ -67,7 +72,10 @@ export default class ThreeDSecure {
     this.#frame.mount(target, {
       ...this.config,
       onError: () => {
-        this.#events.dispatch("error");
+        this.#events.dispatch("error", {
+          code: "frame-load-error",
+          message: "The iframe required to mount this component failed to load",
+        });
       },
     });
 

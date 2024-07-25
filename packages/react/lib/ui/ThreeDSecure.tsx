@@ -1,7 +1,7 @@
 import type Evervault from "@evervault/browser";
 import * as React from "react";
 import { useEvervault } from "../useEvervault";
-import type { ThemeDefinition } from "types";
+import type { ComponentError, ThemeDefinition } from "types";
 
 export interface ThreeDSecureProps {
   session: string;
@@ -10,6 +10,7 @@ export interface ThreeDSecureProps {
   size?: { width: string; height: string };
   onReady?: () => void;
   onComplete?: () => void;
+  onError?: (error: ComponentError) => void;
 }
 
 type ThreeDSecureInstance = ReturnType<Evervault["ui"]["threeDSecure"]>;
@@ -20,6 +21,7 @@ export function ThreeDSecure({
   theme,
   size,
   onReady,
+  onError,
   onComplete,
 }: ThreeDSecureProps) {
   const ev = useEvervault();
@@ -38,6 +40,11 @@ export function ThreeDSecure({
     if (!instance || !onComplete) return undefined;
     return instance?.on("complete", onComplete);
   }, [instance, onComplete]);
+
+  React.useEffect(() => {
+    if (!instance || !onError) return undefined;
+    return instance?.on("error", onError);
+  }, [instance, onError]);
 
   const config = React.useMemo(
     () => ({

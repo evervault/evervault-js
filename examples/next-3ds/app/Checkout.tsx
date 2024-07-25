@@ -1,6 +1,11 @@
 "use client";
 
-import { Card, CardPayload, ThreeDSecure } from "@evervault/react";
+import {
+  Card,
+  CardPayload,
+  ComponentError,
+  ThreeDSecure,
+} from "@evervault/react";
 import { useState } from "react";
 import { completePayment, createThreeDSSession } from "./actons.server";
 
@@ -28,6 +33,10 @@ export function Checkout() {
     void completePayment(session!);
   };
 
+  const handleError = (error: ComponentError) => {
+    console.error(error);
+  };
+
   return (
     <div>
       <Card onChange={handleCardChange} />
@@ -38,6 +47,7 @@ export function Checkout() {
           modal
           session={session}
           onComplete={handleThreeDSecureComplete}
+          onError={handleError}
         />
       )}
     </div>

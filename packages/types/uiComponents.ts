@@ -111,7 +111,13 @@ export interface SwipedCard {
   bin: string | null;
 }
 
+export interface ComponentError {
+  code: string;
+  message: string;
+}
+
 export interface EvervaultFrameClientMessages {
+  EV_ERROR: ComponentError | undefined;
   EV_RESIZE: { height: number };
   EV_FRAME_READY: undefined;
   EV_FRAME_HANDSHAKE: undefined;

@@ -1,4 +1,9 @@
 import { useEffect, useState } from "react";
+import {
+  EvervaultFrameHostMessages,
+  ThreeDSecureFrameClientMessages,
+} from "types";
+import { useMessaging } from "../utilities/useMessaging";
 import { useSearchParams } from "../utilities/useSearchParams";
 import { NextAction, TrampolineMessage } from "./types";
 
@@ -15,6 +20,10 @@ export async function getBrowserSession(
     },
   });
 
+  if (!response.ok) {
+    throw new Error();
+  }
+
   const data = (await response.json()) as { next_action: NextAction };
   return data.next_action;
 }
@@ -23,10 +32,23 @@ export function useNextAction(session: string): NextAction | null {
   const { app } = useSearchParams();
   const [action, setAction] = useState<NextAction | null>(null);
 
+  const { send } = useMessaging<
+    EvervaultFrameHostMessages,
+    ThreeDSecureFrameClientMessages
+  >();
+
   useEffect(() => {
     const load = async () => {
-      const nextAction = await getBrowserSession(app, session);
-      setAction(nextAction);
+      try {
+        const nextAction = await getBrowserSession(app, session);
+        setAction(nextAction);
+      } catch (error) {
+        send("EV_ERROR", {
+          code: "session-not-found",
+          message:
+            "Failed to fetch 3DS Session. Please ensure you are passing a valid 3DS Session ID.",
+        });
+      }
     };
 
     void load();
