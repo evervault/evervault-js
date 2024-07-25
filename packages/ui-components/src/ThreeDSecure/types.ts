@@ -12,4 +12,7 @@ export interface ThreeDSecureConfig {
   size?: { width: number; height: number };
 }
 
-export type TrampolineMessage = MessageEvent<{ event: "ev-3ds-trampoline" }>;
+export type TrampolineMessage = MessageEvent<{
+  event: "ev-3ds-trampoline";
+  cres: string | null;
+}>;

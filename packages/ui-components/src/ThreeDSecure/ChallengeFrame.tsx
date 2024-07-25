@@ -4,7 +4,7 @@ import {
   ThreeDSecureFrameClientMessages,
 } from "types";
 import { useMessaging } from "../utilities/useMessaging";
-import { NextAction } from "./types";
+import { NextAction, TrampolineMessage } from "./types";
 import { isTrampolineMessage, postRedirectFrame } from "./utilities";
 
 export function ChallengeFrame({
@@ -28,7 +28,11 @@ export function ChallengeFrame({
 
     const handleMessage = (e: MessageEvent) => {
       if (isTrampolineMessage(e)) {
-        send("EV_SUCCESS");
+        if (check3DSSuccess(e)) {
+          send("EV_SUCCESS");
+        } else {
+          send("EV_FAILURE");
+        }
       }
     };
 
@@ -52,4 +56,14 @@ export function ChallengeFrame({
       }}
     />
   );
+}
+
+function check3DSSuccess(message: TrampolineMessage): boolean {
+  if (!message.data.cres) return false;
+  try {
+    const cres = JSON.parse(atob(message.data.cres)) as { transStatus: string };
+    return cres.transStatus === "Y";
+  } catch {
+    return false;
+  }
 }
