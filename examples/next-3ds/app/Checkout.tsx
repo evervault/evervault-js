@@ -1,0 +1,45 @@
+"use client";
+
+import { Card, CardPayload, ThreeDSecure } from "@evervault/react";
+import { useState } from "react";
+import { completePayment, createThreeDSSession } from "./actons.server";
+
+export function Checkout() {
+  const [session, setSession] = useState<string | null>(null);
+  const [cardData, setCardData] = useState<CardPayload | null>(null);
+
+  const handleCardChange = (payload: CardPayload) => {
+    console.log("change");
+    setCardData(payload);
+  };
+
+  const handleSubmit = () => {
+    const initiateSession = async () => {
+      const id = await createThreeDSSession();
+      setSession(id);
+    };
+
+    void initiateSession();
+    if (!cardData || !cardData.isValid) return;
+  };
+
+  const handleThreeDSecureComplete = () => {
+    console.log("COMPLETE!");
+    void completePayment(session!);
+  };
+
+  return (
+    <div>
+      <Card onChange={handleCardChange} />
+      <button onClick={handleSubmit}>Checkout</button>
+
+      {session && (
+        <ThreeDSecure
+          modal
+          session={session}
+          onComplete={handleThreeDSecureComplete}
+        />
+      )}
+    </div>
+  );
+}
