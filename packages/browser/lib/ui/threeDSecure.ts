@@ -41,6 +41,10 @@ export default class ThreeDSecure {
       this.unmount();
     });
 
+    this.#frame.on("EV_CANCEL", () => {
+      this.unmount();
+    });
+
     this.#frame.on("EV_FRAME_READY", () => {
       this.#events.dispatch("ready");
     });

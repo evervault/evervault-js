@@ -14,7 +14,6 @@ export function Checkout() {
   const [cardData, setCardData] = useState<CardPayload | null>(null);
 
   const handleCardChange = (payload: CardPayload) => {
-    console.log("change");
     setCardData(payload);
   };
 
@@ -45,6 +44,7 @@ export function Checkout() {
       {session && (
         <ThreeDSecure
           modal
+          key={session}
           session={session}
           onComplete={handleThreeDSecureComplete}
           onError={handleError}

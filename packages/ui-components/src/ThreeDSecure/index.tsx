@@ -1,6 +1,7 @@
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import { ChallengeFrame } from "./ChallengeFrame";
 import { ThreeDSecureLoading } from "./Loading";
+import { Overlay } from "./Overlay";
 import { ThreeDSecureConfig } from "./types";
 import { useNextAction } from "./utilities";
 
@@ -21,21 +22,5 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
         )}
       </div>
     </Overlay>
-  );
-}
-
-function Overlay({
-  enabled,
-  children,
-}: {
-  enabled: boolean;
-  children: ReactNode;
-}) {
-  if (!enabled) return children;
-
-  return (
-    <div ev-overlay="" className="overlay">
-      <div className="overlayWindow">{children}</div>
-    </div>
   );
 }
