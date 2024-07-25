@@ -14,6 +14,7 @@ export type * from "types";
 export { Reveal } from "./ui/Reveal";
 export { Card } from "./ui/Card";
 export { Pin } from "./ui/Pin";
+export { ThreeDSecure } from "./ui/ThreeDSecure";
 export { useEvervault, themes };
 
 export interface CustomConfig extends BrowserConfig {
