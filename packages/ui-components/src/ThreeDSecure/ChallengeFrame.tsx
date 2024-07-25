@@ -28,7 +28,7 @@ export function ChallengeFrame({
 
     const handleMessage = (e: MessageEvent) => {
       if (isTrampolineMessage(e)) {
-        send("EV_COMPLETE");
+        send("EV_SUCCESS");
       }
     };
 

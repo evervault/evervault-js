@@ -11,7 +11,8 @@ import type {
 
 interface ThreeDSecureEvents {
   ready: () => void;
-  complete: () => void;
+  success: () => void;
+  failure: () => void;
   error: (error: ComponentError) => void;
 }
 
@@ -36,8 +37,13 @@ export default class ThreeDSecure {
     this.#isOverlay = false;
     this.#frame = new EvervaultFrame(client, "ThreeDSecure");
 
-    this.#frame.on("EV_COMPLETE", (payload) => {
-      this.#events.dispatch("complete", payload);
+    this.#frame.on("EV_SUCCESS", () => {
+      this.#events.dispatch("success");
+      this.unmount();
+    });
+
+    this.#frame.on("EV_FAILURE", () => {
+      this.#events.dispatch("failure");
       this.unmount();
     });
 

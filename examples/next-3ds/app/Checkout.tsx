@@ -36,6 +36,10 @@ export function Checkout() {
     console.error(error);
   };
 
+  const handleFailure = () => {
+    console.log("3DS failed");
+  };
+
   return (
     <div>
       <Card onChange={handleCardChange} />
@@ -46,7 +50,8 @@ export function Checkout() {
           modal
           key={session}
           session={session}
-          onComplete={handleThreeDSecureComplete}
+          onSuccess={handleThreeDSecureComplete}
+          onFailure={handleFailure}
           onError={handleError}
         />
       )}

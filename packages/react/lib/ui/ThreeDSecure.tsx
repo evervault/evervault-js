@@ -9,7 +9,8 @@ export interface ThreeDSecureProps {
   theme?: ThemeDefinition;
   size?: { width: string; height: string };
   onReady?: () => void;
-  onComplete?: () => void;
+  onSuccess?: () => void;
+  onFailure?: () => void;
   onError?: (error: ComponentError) => void;
 }
 
@@ -22,7 +23,8 @@ export function ThreeDSecure({
   size,
   onReady,
   onError,
-  onComplete,
+  onSuccess,
+  onFailure,
 }: ThreeDSecureProps) {
   const ev = useEvervault();
   const initialized = React.useRef(false);
@@ -37,9 +39,14 @@ export function ThreeDSecure({
   }, [instance, onReady]);
 
   React.useEffect(() => {
-    if (!instance || !onComplete) return undefined;
-    return instance?.on("complete", onComplete);
-  }, [instance, onComplete]);
+    if (!instance || !onSuccess) return undefined;
+    return instance?.on("success", onSuccess);
+  }, [instance, onSuccess]);
+
+  React.useEffect(() => {
+    if (!instance || !onFailure) return undefined;
+    return instance?.on("failure", onFailure);
+  }, [instance, onFailure]);
 
   React.useEffect(() => {
     if (!instance || !onError) return undefined;
