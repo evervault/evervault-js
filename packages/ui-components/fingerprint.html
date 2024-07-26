@@ -1,0 +1,11 @@
+<html>
+    <body>
+        <script>
+            console.log("doing fingerprint check from hidden frame");
+            setTimeout(() => {
+                console.log("fingerprint check done, sending message to parent");
+                window.parent.postMessage("use-sdk", "*");
+            }, 2000);
+        </script>
+    </body>
+</html>

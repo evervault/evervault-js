@@ -4,7 +4,8 @@ import Form from "./form";
 import Pin from "./pin";
 import Reveal from "./reveal";
 import type EvervaultClient from "../main";
-import type { PinOptions, CardOptions, FormOptions } from "types";
+import type { PinOptions, CardOptions, FormOptions, ThreeDSOptions } from "types";
+import ThreeDS from "./3ds";
 
 export default class UIComponents {
   client: EvervaultClient;
@@ -28,5 +29,9 @@ export default class UIComponents {
 
   form(opts?: FormOptions) {
     return new Form(this.client, opts);
+  }
+
+  threeds(opts?: ThreeDSOptions) {
+    return new ThreeDS(this.client, opts);
   }
 }

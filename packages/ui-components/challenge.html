@@ -1,0 +1,46 @@
+<!-- html page with a centered logo and text that says to open your banking app to verify payment with a button that says "done" -->
+ <html>
+    <head>
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                font-family: Arial, sans-serif;
+            }
+
+            .container {
+                text-align: center;
+            }
+
+            .logo {
+                width: 100px;
+                height: 100px;
+                margin-bottom: 20px;
+            }
+
+            .button {
+                padding: 10px 20px;
+                background-color: #007bff;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <img class="logo" src="https://cdn.sanity.io/images/r000fwn3/production/0a2e28e22dce6eaae6a4d7eb74efd6d5bb500e5e-192x192.png?auto=format" alt="Evervault Logo" />
+            <h1>Open your banking app to verify payment</h1>
+            <button class="button" id="done">Done</button>
+        </div>
+        <script>
+            document.getElementById("done").addEventListener("click", () => {
+                window.parent.postMessage("challenge-complete", "*");
+            });
+        </script>
+    </body>
+ </html>

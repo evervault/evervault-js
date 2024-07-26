@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Load Evervault.js -->
+    <script src="%VITE_EVERVAULT_JS_URL%"></script>
+  </head>
+
+  <body>
+    <div class="card">
+      <h1 class="title">Complete Payment</h1>
+      <p class="subtext">
+        Enter your payment details below to complete your payment.
+      </p>
+      <div id="form"></div>
+      <button class="button" id="purchase">Purchase</button>
+      <div id="output"></div>
+    </div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content" id="mc">
+        <span class="close">&times;</span>
+        <div id="modal-inner"></div>
+      </div>
+    </div>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
