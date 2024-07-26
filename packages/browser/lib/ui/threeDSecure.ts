@@ -57,7 +57,9 @@ export default class ThreeDSecure {
     });
 
     this.#frame.on("EV_ERROR", (error) => {
+      this.unmount();
       this.#events.dispatch("error", error);
+      if (error) console.error(error.message);
     });
   }
 
