@@ -51,7 +51,7 @@ async function handleSubmit() {
   // a 3DS UI Component to handle the 3DS process.
   const tds = evervault.ui.threeDSecure(session);
 
-  // The 'complete' event is emitted when the 3DS process has finished successfully
+  // The 'success' event is emitted when the 3DS process has finished successfully
   tds.on("success", () => {
     // At this point you should submit the payment details along with the 3DS
     // session ID to your server to complete the payment. You can use the Evervault

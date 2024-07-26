@@ -46,6 +46,8 @@ export async function completePayment(id: string): Promise<void> {
 
   console.log("Cryptogram:", session.cryptogram); // eslint-disable-line no-console
 
+  // You can now use the cryptogram to authorize the payment with your payment provider.
+
   redirect("/success");
 }
 
