@@ -121,6 +121,7 @@ select {
   border-radius: 20px;
   align-items: center;
   font-size: 14px;
+  line-height: 1;
   background: rgb(0 0 0 / 0.6);
   backdrop-filter: blur(8px);
 
