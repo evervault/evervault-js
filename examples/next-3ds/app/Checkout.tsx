@@ -1,19 +1,14 @@
 "use client";
 
-import {
-  Card,
-  CardPayload,
-  ComponentError,
-  ThreeDSecure,
-} from "@evervault/react";
+import { Card, CardPayload, useThreeDSecure } from "@evervault/react";
 import { useState } from "react";
 import { completePayment, createThreeDSSession } from "./actons.server";
 import css from "./styles.module.css";
 import { theme } from "./theme";
 
 export function Checkout() {
-  const [session, setSession] = useState<string | null>(null);
   const [cardData, setCardData] = useState<CardPayload | null>(null);
+  const threeDSecure = useThreeDSecure();
 
   const handleCardChange = (payload: CardPayload) => {
     setCardData(payload);
@@ -24,22 +19,22 @@ export function Checkout() {
 
     const initiateSession = async () => {
       const id = await createThreeDSSession();
-      setSession(id);
+
+      const handleComplete = () => {
+        void completePayment(id);
+      };
+
+      const handleFailure = () => {
+        console.log("3DS failed");
+      };
+
+      threeDSecure.start(id, {
+        onSuccess: handleComplete,
+        onFailure: handleFailure,
+      });
     };
 
     void initiateSession();
-  };
-
-  const handleThreeDSecureComplete = () => {
-    void completePayment(session!);
-  };
-
-  const handleError = (error: ComponentError) => {
-    console.error(error);
-  };
-
-  const handleFailure = () => {
-    console.log("3DS failed");
   };
 
   return (
@@ -48,17 +43,6 @@ export function Checkout() {
       <button onClick={handleSubmit} className={css.button}>
         Checkout
       </button>
-
-      {session && (
-        <ThreeDSecure
-          modal
-          key={session}
-          session={session}
-          onSuccess={handleThreeDSecureComplete}
-          onFailure={handleFailure}
-          onError={handleError}
-        />
-      )}
     </>
   );
 }

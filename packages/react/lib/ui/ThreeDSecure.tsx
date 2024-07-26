@@ -5,7 +5,6 @@ import type { ComponentError, ThemeDefinition } from "types";
 
 export interface ThreeDSecureProps {
   session: string;
-  modal?: boolean;
   theme?: ThemeDefinition;
   size?: { width: string; height: string };
   onReady?: () => void;
@@ -18,7 +17,6 @@ type ThreeDSecureInstance = ReturnType<Evervault["ui"]["threeDSecure"]>;
 
 export function ThreeDSecure({
   session,
-  modal,
   theme,
   size,
   onReady,
@@ -68,13 +66,7 @@ export function ThreeDSecure({
       const evervault = await ev;
       if (!evervault) return;
       const inst = evervault.ui.threeDSecure(session, config);
-
-      if (modal) {
-        inst.mount();
-      } else {
-        inst.mount(ref.current as HTMLElement);
-      }
-
+      inst.mount(ref.current as HTMLElement);
       setInstance(inst);
     }
 
@@ -83,7 +75,7 @@ export function ThreeDSecure({
     } else {
       init().catch(console.error);
     }
-  }, [modal, instance, session, config]);
+  }, [instance, session, config]);
 
-  return modal ? null : <div ref={ref} />;
+  return <div ref={ref} />;
 }
