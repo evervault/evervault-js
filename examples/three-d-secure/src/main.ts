@@ -60,6 +60,10 @@ async function handleSubmit() {
     void finalizePayment(session, card.values?.card);
   });
 
+  tds.on("failure", () => {
+    console.log("Failure");
+  });
+
   // Mount the 3DS UI Component to begin the 3DS process
   // Calling mount without providing a target will render the 3DS flow inside
   // of a modal window on top of the page.

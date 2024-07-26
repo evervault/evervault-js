@@ -48,6 +48,7 @@ export default class ThreeDSecure {
     });
 
     this.#frame.on("EV_CANCEL", () => {
+      this.#events.dispatch("failure");
       this.unmount();
     });
 
