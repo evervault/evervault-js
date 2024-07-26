@@ -1,7 +1,10 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
 import { EvervaultProvider } from "@evervault/react";
+import { Inter } from "next/font/google";
+import type { Metadata } from "next";
+import "./globals.css";
+import css from "./styles.module.css";
+import plant from "./plant.png";
+import Image from "next/image";
 
 const customConfig = {
   jsSdkUrl: process.env.VITE_EVERVAULT_JS_URL as string,
@@ -31,8 +34,61 @@ export default function RootLayout({
       customConfig={customConfig}
     >
       <html lang="en">
-        <body className={inter.className}>{children}</body>
+        <body className={inter.className}>
+          <main className={css.main}>
+            <div className={css.summary}>
+              <div className={css.summaryContent}>
+                <h4 className={css.total}>$86.00</h4>
+                <Item
+                  name="Monstera Deliciosa"
+                  description="Large House Plant"
+                  price="$50.00"
+                  quantity={1}
+                />
+                <Item
+                  name="Monstera Deliciosa"
+                  description="Small House Plant"
+                  price="$12.00"
+                  quantity={2}
+                />
+                <div className={css.priceRow}>
+                  <h6>SubTotal</h6>
+                  <strong>$74.00</strong>
+                </div>
+                <div className={css.priceRow}>
+                  <h6>Shipping</h6>
+                  <strong>$12.00</strong>
+                </div>
+                <div className={css.priceRow}>
+                  <h6>Total</h6>
+                  <strong>$86.00</strong>
+                </div>
+              </div>
+            </div>
+            <div className={css.content}>
+              <div className={css.container}>{children}</div>
+            </div>
+          </main>
+        </body>
       </html>
     </EvervaultProvider>
+  );
+}
+
+function Item({ name, description, price, quantity }) {
+  return (
+    <div className={css.item}>
+      <Image
+        className={css.image}
+        src={plant}
+        alt="plant"
+        width={60}
+        height={60}
+      />
+      <span className={css.itemName}>{name}</span>
+      <span className={css.itemDescription}>{description}</span>
+      <span className={css.itemPrice}>{price}</span>
+      <span className={css.itemQuantity}>x {quantity}</span>
+    </div>
   );
 }

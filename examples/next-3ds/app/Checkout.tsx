@@ -8,6 +8,8 @@ import {
 } from "@evervault/react";
 import { useState } from "react";
 import { completePayment, createThreeDSSession } from "./actons.server";
+import css from "./styles.module.css";
+import { theme } from "./theme";
 
 export function Checkout() {
   const [session, setSession] = useState<string | null>(null);
@@ -18,17 +20,17 @@ export function Checkout() {
   };
 
   const handleSubmit = () => {
+    if (!cardData || !cardData.isValid) return;
+
     const initiateSession = async () => {
       const id = await createThreeDSSession();
       setSession(id);
     };
 
     void initiateSession();
-    if (!cardData || !cardData.isValid) return;
   };
 
   const handleThreeDSecureComplete = () => {
-    console.log("COMPLETE!");
     void completePayment(session!);
   };
 
@@ -41,9 +43,11 @@ export function Checkout() {
   };
 
   return (
-    <div>
-      <Card onChange={handleCardChange} />
-      <button onClick={handleSubmit}>Checkout</button>
+    <>
+      <Card theme={theme} onChange={handleCardChange} />
+      <button onClick={handleSubmit} className={css.button}>
+        Checkout
+      </button>
 
       {session && (
         <ThreeDSecure
@@ -55,6 +59,6 @@ export function Checkout() {
           onError={handleError}
         />
       )}
-    </div>
+    </>
   );
 }

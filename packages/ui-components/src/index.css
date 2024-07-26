@@ -121,10 +121,11 @@ select {
   border-radius: 20px;
   align-items: center;
   font-size: 14px;
-  background: rgb(0 0 0 / 0.4);
+  background: rgb(0 0 0 / 0.6);
+  backdrop-filter: blur(8px);
 
   &:hover {
-    background: rgb(0 0 0 / 0.6);
+    background: rgb(0 0 0 / 0.7);
   }
 }
 
