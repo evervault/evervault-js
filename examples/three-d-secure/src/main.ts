@@ -36,6 +36,7 @@ async function handleSubmit() {
     body: JSON.stringify({
       number: card.values.card.number,
       expiry: card.values.card.expiry,
+      cvc: card.values.card.cvc,
     }),
   });
 

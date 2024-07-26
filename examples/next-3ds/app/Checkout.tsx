@@ -21,7 +21,11 @@ export function Checkout() {
     const handleThreeDSecure = async () => {
       // First we need to create a 3DS session. This must be done on the server. Here we are
       // using a Next.JS server action to create the session.
-      const id = await createThreeDSSession();
+      const id = await createThreeDSSession({
+        number: cardData.card.number!,
+        expiry: cardData.card.expiry as { month: string; year: string },
+        cvc: cardData.card.cvc!,
+      });
 
       const handleComplete = () => {
         // When 3DS is complete we can call our backend to complete the payment. Your backend

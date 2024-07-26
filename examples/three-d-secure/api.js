@@ -67,21 +67,23 @@ async function evervaultAPI(method, path, payload) {
 }
 
 async function createThreeDSSession(payload) {
-  const merchant = "merchant_e7c918074f44";
-
   return evervaultAPI("POST", "/payments/3ds-sessions", {
-    merchant,
     card: {
-      number: "4111110116638871",
-      expiry: {
-        month: "11",
-        year: "29",
-      },
-      cvc: "455",
+      number: payload.number,
+      expiry: payload.expiry,
+      cvv: payload.cvv,
+    },
+    merchant: {
+      name: "Test Merchant",
+      website: "https://test-merchant.com",
+      categoryCode: "4011",
+      country: "ie",
     },
     payment: {
-      amount: 100,
+      type: "one-off",
+      amount: 1000,
       currency: "eur",
+      country: "ie",
     },
     acquirer: {
       bin: "444444",

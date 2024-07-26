@@ -7,25 +7,30 @@ interface SessionObject {
   cryptogram: string | null;
 }
 
-export async function createThreeDSSession(): Promise<string> {
-  const merchant = "merchant_e7c918074f44";
-
+export async function createThreeDSSession(card: {
+  cvc: string;
+  number: string;
+  expiry: {
+    month: string;
+    year: string;
+  };
+}): Promise<string> {
   const session = await evervaultAPI<SessionObject>(
     "POST",
     "/payments/3ds-sessions",
     {
-      merchant,
-      card: {
-        number: "4111110116638871",
-        expiry: {
-          month: "11",
-          year: "29",
-        },
-        cvc: "455",
+      card,
+      merchant: {
+        name: "Test Merchant",
+        website: "https://test-merchant.com",
+        categoryCode: "4011",
+        country: "ie",
       },
       payment: {
-        amount: 100,
+        type: "one-off",
+        amount: 1000,
         currency: "eur",
+        country: "ie",
       },
       acquirer: {
         bin: "444444",
