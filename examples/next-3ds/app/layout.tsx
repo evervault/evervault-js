@@ -1,17 +1,17 @@
 import { EvervaultProvider } from "@evervault/react";
 import { Inter } from "next/font/google";
+import Image from "next/image";
+import plant from "./plant.png";
+import css from "./styles.module.css";
 import type { Metadata } from "next";
 import "./globals.css";
-import css from "./styles.module.css";
-import plant from "./plant.png";
-import Image from "next/image";
 
 const customConfig = {
-  jsSdkUrl: process.env.VITE_EVERVAULT_JS_URL as string,
+  jsSdkUrl: process.env.VITE_EVERVAULT_JS_URL!,
   urls: {
-    keysUrl: process.env.VITE_KEYS_URL as string,
-    apiUrl: process.env.VITE_API_URL as string,
-    componentsUrl: process.env.VITE_UI_COMPONENTS_URL as string,
+    keysUrl: process.env.VITE_KEYS_URL!,
+    apiUrl: process.env.VITE_API_URL!,
+    componentsUrl: process.env.VITE_UI_COMPONENTS_URL!,
   },
 };
 
@@ -29,8 +29,8 @@ export default function RootLayout({
 }>) {
   return (
     <EvervaultProvider
-      teamId={process.env.VITE_EV_TEAM_UUID}
-      appId={process.env.VITE_EV_APP_UUID}
+      teamId={process.env.VITE_EV_TEAM_UUID!}
+      appId={process.env.VITE_EV_APP_UUID!}
       customConfig={customConfig}
     >
       <html lang="en">
@@ -75,7 +75,17 @@ export default function RootLayout({
   );
 }
 
-function Item({ name, description, price, quantity }) {
+function Item({
+  name,
+  description,
+  price,
+  quantity,
+}: {
+  name: string;
+  description: string;
+  price: string;
+  quantity: number;
+}) {
   return (
     <div className={css.item}>
       <Image

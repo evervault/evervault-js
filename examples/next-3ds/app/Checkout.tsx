@@ -25,7 +25,7 @@ export function Checkout() {
       };
 
       const handleFailure = () => {
-        console.log("3DS failed");
+        // 3DS failed
       };
 
       threeDSecure.start(id, {

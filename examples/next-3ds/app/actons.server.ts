@@ -2,10 +2,10 @@
 
 import { redirect } from "next/navigation";
 
-type SessionObject = {
+interface SessionObject {
   id: string;
   cryptogram: string | null;
-};
+}
 
 export async function createThreeDSSession(): Promise<string> {
   const merchant = "merchant_e7c918074f44";
@@ -44,7 +44,7 @@ export async function completePayment(id: string): Promise<void> {
     `/payments/3ds-sessions/${id}`
   );
 
-  console.log("Cryptogram:", session.cryptogram);
+  console.log("Cryptogram:", session.cryptogram); // eslint-disable-line no-console
 
   redirect("/success");
 }
