@@ -87,6 +87,7 @@ jobs:
         with:
           version: pnpm run version
         env:
+          HUSKY: 0
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Tags
