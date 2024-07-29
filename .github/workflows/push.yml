@@ -94,3 +94,5 @@ jobs:
         if: steps.changesets.outputs.hasChangesets == 'false'
         run: |
           npx changeset tag && git push origin --tags
+        env:
+          HUSKY: 0
