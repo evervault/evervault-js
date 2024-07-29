@@ -9,6 +9,16 @@ import { NextAction, TrampolineMessage } from "./types";
 
 const API = import.meta.env.VITE_API_URL as string;
 
+class SessionError extends Error {
+  code: string;
+
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "SessionError";
+    this.code = code;
+  }
+}
+
 export async function getBrowserSession(
   app: string,
   id: string
@@ -18,10 +28,23 @@ export async function getBrowserSession(
     headers: {
       "X-Evervault-App-Id": app,
     },
+    body: JSON.stringify({
+      issuerFingerprint: "timed-out",
+    }),
   });
 
   if (!response.ok) {
-    throw new Error();
+    if (response.status === 400) {
+      throw new SessionError(
+        "session-complete",
+        "The session has already been completed (either successfully or unsuccessfully). Therefore, rendering the 3DS screen is not required."
+      );
+    }
+
+    throw new SessionError(
+      "session-not-found",
+      "Failed to fetch 3DS Session. Please ensure you are passing a valid 3DS Session ID."
+    );
   }
 
   const data = (await response.json()) as { next_action: NextAction };
@@ -43,11 +66,17 @@ export function useNextAction(session: string): NextAction | null {
         const nextAction = await getBrowserSession(app, session);
         setAction(nextAction);
       } catch (error) {
-        send("EV_ERROR", {
-          code: "session-not-found",
-          message:
-            "Failed to fetch 3DS Session. Please ensure you are passing a valid 3DS Session ID.",
-        });
+        if (error instanceof SessionError) {
+          send("EV_ERROR", {
+            code: error.code,
+            message: error.message,
+          });
+        } else {
+          send("EV_ERROR", {
+            code: "something-went-wrong",
+            message: "An unexpected error occurred. Please try again.",
+          });
+        }
       }
     };
 
