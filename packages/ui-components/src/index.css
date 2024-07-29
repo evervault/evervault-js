@@ -79,3 +79,90 @@ select {
     text-align: center;
   }
 }
+
+.overlay {
+  display: flex;
+  padding: 50px 0;
+  min-width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  overflow-y: scroll;
+  align-items: center;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.3s ease;
+}
+
+.overlayWindow {
+  margin-top: auto;
+  background: white;
+  position: relative;
+  border-radius: 16px;
+  margin-bottom: auto;
+  animation: scaleIn 0.3s ease;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.05),
+    0 4px 8px -2px rgba(0, 0, 0, 0.05), 0 8px 16px -4px rgba(0, 0, 0, 0.05),
+    0 16px 32px -8px rgba(0, 0, 0, 0.05), 0 32px 64px -16px rgba(0, 0, 0, 0.05);
+}
+
+.overlayClose {
+  right: 0;
+  gap: 5px;
+  top: -40px;
+  height: 30px;
+  border: none;
+  color: white;
+  display: flex;
+  cursor: pointer;
+  padding-left: 10px;
+  padding-right: 15px;
+  appearance: none;
+  position: absolute;
+  border-radius: 20px;
+  align-items: center;
+  font-size: 14px;
+  line-height: 1;
+  background: rgb(0 0 0 / 0.6);
+  backdrop-filter: blur(8px);
+
+  &:hover {
+    background: rgb(0 0 0 / 0.7);
+  }
+}
+
+.spinner {
+  color: #5e6077;
+  transform-origin: center;
+  animation: spin 0.7s linear infinite;
+}
+
+.brand {
+  height: 24px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

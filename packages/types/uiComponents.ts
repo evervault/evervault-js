@@ -111,7 +111,13 @@ export interface SwipedCard {
   bin: string | null;
 }
 
+export interface ComponentError {
+  code: string;
+  message: string;
+}
+
 export interface EvervaultFrameClientMessages {
+  EV_ERROR: ComponentError | undefined;
   EV_RESIZE: { height: number };
   EV_FRAME_READY: undefined;
   EV_FRAME_HANDSHAKE: undefined;
@@ -177,4 +183,16 @@ export interface RevealFormat {
 export interface FormFrameClientMessages extends EvervaultFrameClientMessages {
   EV_ERROR: undefined;
   EV_SUBMITTED: undefined;
+}
+
+export interface ThreeDSecureOptions {
+  theme?: ThemeDefinition;
+  size?: { width: string; height: string };
+}
+
+export interface ThreeDSecureFrameClientMessages
+  extends EvervaultFrameClientMessages {
+  EV_SUCCESS: undefined;
+  EV_FAILURE: undefined;
+  EV_CANCEL: undefined;
 }

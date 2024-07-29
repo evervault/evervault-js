@@ -32,12 +32,15 @@ select({
     [
       "--",
       "turbo",
+      "watch",
       "dev",
       "--ui=tui",
       "--filter",
       "@evervault/ui-components",
       "--filter",
-      `${example}...`,
+      "@evervault/browser",
+      "--filter",
+      `${example}`,
     ],
     {
       stdio: "inherit",
