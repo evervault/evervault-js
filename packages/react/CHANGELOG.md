@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.7.0
+
+### Minor Changes
+
+- 05eda8e: Adds new ThreeDSecure UI Component for handling 3D Secure authentication
+
 ## 2.6.1
 
 ### Patch Changes

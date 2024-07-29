@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.26.0
+
+### Minor Changes
+
+- 05eda8e: Adds new ThreeDSecure UI Component for handling 3D Secure authentication
+
 ## 2.25.2
 
 ### Patch Changes
