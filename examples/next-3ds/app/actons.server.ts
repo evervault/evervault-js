@@ -30,7 +30,6 @@ export async function createThreeDSSession(card: {
         type: "one-off",
         amount: 1000,
         currency: "eur",
-        country: "ie",
       },
       acquirer: {
         bin: "444444",
