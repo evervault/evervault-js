@@ -20,7 +20,7 @@
       "dependsOn": ["build", "test", "lint"]
     },
     "typecheck": {
-      "dependsOn": []
+      "dependsOn": ["^build"]
     },
     "format": {
       "outputs": ["lib/**", "*.[m][tj]s", "*.html", "*.json", "*.md"]
@@ -29,10 +29,10 @@
       "dependsOn": []
     },
     "lint": {
-      "dependsOn": []
+      "dependsOn": ["typecheck"]
     },
     "lint:fix": {
-      "dependsOn": [],
+      "dependsOn": ["^build", "format"],
       "outputs": ["lib/**", "*.ts"]
     },
     "test": {
