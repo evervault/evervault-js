@@ -12,7 +12,10 @@ export async function changePayload(
   form: UseFormReturn<CardForm>,
   fields: CardField[]
 ): Promise<CardPayload> {
-  const { name, number, expiry, cvc } = form.values;
+  const { name, number: rawNumber, expiry, cvc } = form.values;
+
+  const number = rawNumber.replace(/\s/g, '');
+
   const {
     brand,
     localBrands,
