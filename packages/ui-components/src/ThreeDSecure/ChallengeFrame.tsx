@@ -1,30 +1,25 @@
 import { useEffect, useRef, useState } from "react";
+import { ChallengeNextAction, TrampolineMessage } from "./types";
 import {
-  EvervaultFrameHostMessages,
-  ThreeDSecureFrameClientMessages,
-} from "types";
-import { useMessaging } from "../utilities/useMessaging";
-import { NextAction, TrampolineMessage } from "./types";
-import { isTrampolineMessage, postRedirectFrame } from "./utilities";
+  isTrampolineMessage,
+  postRedirectFrame,
+  useThreeDSMessaging,
+} from "./utilities";
 
 export function ChallengeFrame({
   nextAction,
   onLoad,
 }: {
-  nextAction: NextAction;
+  nextAction: ChallengeNextAction;
   onLoad: () => void;
 }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [loaded, setLoaded] = useState(false);
-
-  const { send } = useMessaging<
-    EvervaultFrameHostMessages,
-    ThreeDSecureFrameClientMessages
-  >();
+  const { send } = useThreeDSMessaging();
 
   useEffect(() => {
     if (!frame.current) return;
-    postRedirectFrame(frame.current, nextAction);
+    postRedirectFrame(frame.current, nextAction.url, { creq: nextAction.creq });
 
     const handleMessage = (e: MessageEvent) => {
       if (isTrampolineMessage(e)) {

@@ -1,11 +1,17 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   EvervaultFrameHostMessages,
   ThreeDSecureFrameClientMessages,
 } from "types";
 import { useMessaging } from "../utilities/useMessaging";
 import { useSearchParams } from "../utilities/useSearchParams";
-import { NextAction, TrampolineMessage } from "./types";
+import {
+  ChallengeNextAction,
+  IssuerFingerprintNextAction,
+  NextAction,
+  SessionData,
+  TrampolineMessage,
+} from "./types";
 
 const API = import.meta.env.VITE_API_URL as string;
 
@@ -21,16 +27,15 @@ class SessionError extends Error {
 
 export async function getBrowserSession(
   app: string,
-  id: string
-): Promise<NextAction> {
+  id: string,
+  payload: object
+): Promise<SessionData> {
   const response = await fetch(`${API}/frontend/3ds/browser-sessions/${id}`, {
     method: "PATCH",
     headers: {
       "X-Evervault-App-Id": app,
     },
-    body: JSON.stringify({
-      issuerFingerprint: "timed-out",
-    }),
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
@@ -47,24 +52,31 @@ export async function getBrowserSession(
     );
   }
 
-  const data = (await response.json()) as { next_action: NextAction };
-  return data.next_action;
+  return (await response.json()) as SessionData;
 }
 
-export function useNextAction(session: string): NextAction | null {
-  const { app } = useSearchParams();
-  const [action, setAction] = useState<NextAction | null>(null);
-
-  const { send } = useMessaging<
+export function useThreeDSMessaging() {
+  return useMessaging<
     EvervaultFrameHostMessages,
     ThreeDSecureFrameClientMessages
   >();
+}
 
-  useEffect(() => {
-    const load = async () => {
+interface UseSessionReturn {
+  session: SessionData | null;
+  refetch: (payload: object) => Promise<void>;
+}
+
+export function useSession(id: string): UseSessionReturn {
+  const { app } = useSearchParams();
+  const [session, setSession] = useState<SessionData | null>(null);
+  const { send } = useThreeDSMessaging();
+
+  const fetchAction = useCallback(
+    async (payload: object) => {
       try {
-        const nextAction = await getBrowserSession(app, session);
-        setAction(nextAction);
+        const data = await getBrowserSession(app, id, payload);
+        setSession(data);
       } catch (error) {
         if (error instanceof SessionError) {
           send("EV_ERROR", {
@@ -78,27 +90,48 @@ export function useNextAction(session: string): NextAction | null {
           });
         }
       }
-    };
+    },
+    [app, id, send]
+  );
 
-    void load();
+  useEffect(() => {
+    void fetchAction({
+      browser: {
+        javaEnabled: window.navigator.javaEnabled(),
+        javaScriptEnabled: true,
+        language: navigator.language,
+        colorDepth: window.screen.colorDepth,
+        screenHeight: window.screen.height,
+        screenWidth: window.screen.width,
+        timeZone: new Date().getTimezoneOffset(),
+      },
+    });
   }, []);
 
-  return action;
+  return {
+    session,
+    refetch: fetchAction,
+  };
 }
 
 export function postRedirectFrame(
   frame: HTMLIFrameElement,
-  nextAction: NextAction
+  url: string,
+  data: Record<string, string>
 ) {
   const form = document.createElement("form");
-  form.method = "POST";
-  form.action = nextAction.url;
   form.target = frame.name;
-  const input = document.createElement("input");
-  input.type = "hidden";
-  input.name = "creq";
-  input.value = nextAction.creq;
-  form.appendChild(input);
+  form.method = "POST";
+  form.action = url;
+
+  Object.entries(data).forEach(([key, value]) => {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = key;
+    input.value = value;
+    form.appendChild(input);
+  });
+
   document.body.appendChild(form);
   form.submit();
 }
@@ -107,4 +140,16 @@ export function isTrampolineMessage(
   message: MessageEvent
 ): message is TrampolineMessage {
   return (message as TrampolineMessage).data?.event === "ev-3ds-trampoline";
+}
+
+export function isChallengeAction(
+  action?: NextAction | null
+): action is ChallengeNextAction {
+  return action?.type === "challenge";
+}
+
+export function isIssuerFingerprintAction(
+  action?: NextAction | null
+): action is IssuerFingerprintNextAction {
+  return action?.type === "issuer-fingerprint";
 }

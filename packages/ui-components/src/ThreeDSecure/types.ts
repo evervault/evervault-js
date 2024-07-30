@@ -1,8 +1,22 @@
 import type { ThemeObject } from "types";
 
-export interface NextAction {
+export interface IssuerFingerprintNextAction {
+  type: "issuer-fingerprint";
+  url: string;
+  data: string;
+}
+
+export interface ChallengeNextAction {
+  type: "challenge";
   url: string;
   creq: string;
+}
+
+export type NextAction = IssuerFingerprintNextAction | ChallengeNextAction;
+
+export interface SessionData {
+  status: "action-required" | "complete";
+  next_action: NextAction;
 }
 
 export interface ThreeDSecureConfig {
