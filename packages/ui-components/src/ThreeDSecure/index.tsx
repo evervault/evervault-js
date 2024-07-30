@@ -25,6 +25,11 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
     void refetch({ issuerFingerprint: "completed" });
   };
 
+  const handleCancel = () => {
+    void refetch({ challengeCancelled: true });
+    send("EV_CANCEL");
+  };
+
   useEffect(() => {
     if (session?.status === "complete") {
       send("EV_SUCCESS");
@@ -32,7 +37,7 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
   }, [session]);
 
   return (
-    <Overlay enabled={config.isOverlay}>
+    <Overlay enabled={config.isOverlay} onCancel={handleCancel}>
       <div style={size}>
         {(!isChallengeAction(session?.next_action) || !challengeFrameReady) && (
           <ThreeDSecureLoading session={config.session} />
