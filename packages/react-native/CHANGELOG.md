@@ -1,5 +1,11 @@
 # @evervault/evervault-react-native
 
+## 0.5.3
+
+### Patch Changes
+
+- e7d1bde: Strip spaces from card number before encryption
+
 ## 0.5.2
 
 ### Patch Changes
