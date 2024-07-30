@@ -8,6 +8,12 @@ type Context<T> = {
   setRegisteredFields: Dispatch<SetStateAction<Set<CardField>>>;
 };
 
+export const removeFieldFromSet = (prev: Set<CardField>, field: CardField) => {
+  const next = new Set(prev);
+  next.delete('name');
+  return next;
+};
+
 export const CardContext = createContext<Context<CardForm>>({
   values: {
     name: '',
@@ -17,9 +23,9 @@ export const CardContext = createContext<Context<CardForm>>({
   },
   register: () => ({
     onChange: () => {},
-      onBlur: () => {},
-      }),
+    onBlur: () => {},
+  }),
   setRegisteredFields: () => {},
-  });
+});
 
 export const useCardContext = () => useContext(CardContext);
