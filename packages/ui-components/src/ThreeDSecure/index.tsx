@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { ChallengeFrame } from "./ChallengeFrame";
 import { BrowserFingerprint } from "./BrowserFingerprint";
+import { ChallengeFrame } from "./ChallengeFrame";
 import { ThreeDSecureLoading } from "./Loading";
 import { Overlay } from "./Overlay";
 import { ThreeDSecureConfig } from "./types";
