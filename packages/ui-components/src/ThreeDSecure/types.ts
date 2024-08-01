@@ -1,7 +1,7 @@
 import type { ThemeObject } from "types";
 
-export interface IssuerFingerprintNextAction {
-  type: "issuer-fingerprint";
+export interface BrowserFingerprintNextAction {
+  type: "browser-fingerprint";
   url: string;
   data: string;
 }
@@ -12,7 +12,7 @@ export interface ChallengeNextAction {
   creq: string;
 }
 
-export type NextAction = IssuerFingerprintNextAction | ChallengeNextAction;
+export type NextAction = BrowserFingerprintNextAction | ChallengeNextAction;
 
 export interface SessionData {
   status: "action-required" | "complete";

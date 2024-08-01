@@ -7,7 +7,7 @@ import { useMessaging } from "../utilities/useMessaging";
 import { useSearchParams } from "../utilities/useSearchParams";
 import {
   ChallengeNextAction,
-  IssuerFingerprintNextAction,
+  BrowserFingerprintNextAction,
   NextAction,
   SessionData,
   TrampolineMessage,
@@ -149,8 +149,8 @@ export function isChallengeAction(
   return action?.type === "challenge";
 }
 
-export function isIssuerFingerprintAction(
+export function isBrowserFingerprintAction(
   action?: NextAction | null
-): action is IssuerFingerprintNextAction {
-  return action?.type === "issuer-fingerprint";
+): action is BrowserFingerprintNextAction {
+  return action?.type === "browser-fingerprint";
 }

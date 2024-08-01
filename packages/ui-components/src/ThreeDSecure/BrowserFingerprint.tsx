@@ -1,18 +1,18 @@
 import { useEffect, useRef } from "react";
-import { IssuerFingerprintNextAction } from "./types";
+import { BrowserFingerprintNextAction } from "./types";
 import { isTrampolineMessage, postRedirectFrame } from "./utilities";
 
-interface IssuerFingerprintProps {
-  action: IssuerFingerprintNextAction;
+interface BrowserFingerprintProps {
+  action: BrowserFingerprintNextAction;
   onComplete: () => void;
   onTimeout: () => void;
 }
 
-export function IssuerFingerprint({
+export function BrowserFingerprint({
   action,
   onComplete,
   onTimeout,
-}: IssuerFingerprintProps) {
+}: BrowserFingerprintProps) {
   const frame = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export function IssuerFingerprint({
   return (
     <iframe
       ref={frame}
-      name="issuerFingerprintFrame"
+      name="browserFingerprintFrame"
       style={{
         width: 0,
         height: 0,

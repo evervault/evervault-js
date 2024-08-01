@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { ChallengeFrame } from "./ChallengeFrame";
-import { IssuerFingerprint } from "./IssuerFingerprint";
+import { BrowserFingerprint } from "./BrowserFingerprint";
 import { ThreeDSecureLoading } from "./Loading";
 import { Overlay } from "./Overlay";
 import { ThreeDSecureConfig } from "./types";
 import {
   isChallengeAction,
-  isIssuerFingerprintAction,
+  isBrowserFingerprintAction,
   useSession,
   useThreeDSMessaging,
 } from "./utilities";
@@ -18,11 +18,11 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
   const size = config.size ?? { width: 500, height: 600 };
 
   const handleTimeout = () => {
-    void refetch({ issuerFingerprint: "timed-out" });
+    void refetch({ browserFingerprint: "timeout" });
   };
 
   const handleFingerprintComplete = () => {
-    void refetch({ issuerFingerprint: "completed" });
+    void refetch({ browserFingerprint: "complete" });
   };
 
   const handleCancel = () => {
@@ -43,8 +43,8 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
           <ThreeDSecureLoading session={config.session} />
         )}
 
-        {isIssuerFingerprintAction(session?.next_action) && (
-          <IssuerFingerprint
+        {isBrowserFingerprintAction(session?.next_action) && (
+          <BrowserFingerprint
             action={session.next_action}
             onComplete={handleFingerprintComplete}
             onTimeout={handleTimeout}
