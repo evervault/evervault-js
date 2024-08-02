@@ -16,7 +16,7 @@ export type NextAction = BrowserFingerprintNextAction | ChallengeNextAction;
 
 export interface SessionData {
   status: "action-required" | "complete";
-  next_action: NextAction;
+  nextAction: NextAction;
 }
 
 export interface ThreeDSecureConfig {

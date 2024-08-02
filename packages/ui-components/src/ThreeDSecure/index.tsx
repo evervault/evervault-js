@@ -39,21 +39,21 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
   return (
     <Overlay enabled={config.isOverlay} onCancel={handleCancel}>
       <div style={size}>
-        {(!isChallengeAction(session?.next_action) || !challengeFrameReady) && (
+        {(!isChallengeAction(session?.nextAction) || !challengeFrameReady) && (
           <ThreeDSecureLoading session={config.session} />
         )}
 
-        {isBrowserFingerprintAction(session?.next_action) && (
+        {isBrowserFingerprintAction(session?.nextAction) && (
           <BrowserFingerprint
-            action={session.next_action}
+            action={session.nextAction}
             onComplete={handleFingerprintComplete}
             onTimeout={handleTimeout}
           />
         )}
 
-        {isChallengeAction(session?.next_action) && (
+        {isChallengeAction(session?.nextAction) && (
           <ChallengeFrame
-            nextAction={session.next_action}
+            nextAction={session.nextAction}
             onLoad={() => setChallengeFrameReady(true)}
           />
         )}
