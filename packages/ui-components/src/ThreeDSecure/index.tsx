@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BrowserFingerprint } from "./BrowserFingerprint";
 import { ChallengeFrame } from "./ChallengeFrame";
 import { ThreeDSecureLoading } from "./Loading";
@@ -21,8 +21,9 @@ function defaultSize(): { width: string; height: string } {
 
 export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
   const { send } = useThreeDSMessaging();
+  const container = useRef<HTMLDivElement>(null);
   const [challengeFrameReady, setChallengeFrameReady] = useState(false);
-  const { session, refetch } = useSession(config.session);
+  const { session, refetch } = useSession(container, config.session);
   const size = config.size ?? defaultSize();
 
   const handleTimeout = () => {
@@ -46,7 +47,7 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
 
   return (
     <Overlay enabled={config.isOverlay} onCancel={handleCancel}>
-      <div style={size}>
+      <div ref={container} style={size}>
         {(!isChallengeAction(session?.nextAction) || !challengeFrameReady) && (
           <ThreeDSecureLoading session={config.session} />
         )}
