@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.8.1
+
+### Patch Changes
+
+- a23d2f5: Add content type header to request to fetch 3DS session
+
 ## 1.8.0
 
 ### Minor Changes
