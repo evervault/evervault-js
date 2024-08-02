@@ -11,11 +11,19 @@ import {
   useThreeDSMessaging,
 } from "./utilities";
 
+function defaultSize(): { width: string; height: string } {
+  if (window.innerWidth < 500 || window.innerHeight < 600) {
+    return { width: "96vw", height: "calc(100vh - 100px)" };
+  }
+
+  return { width: "500px", height: "600px" };
+}
+
 export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
   const { send } = useThreeDSMessaging();
   const [challengeFrameReady, setChallengeFrameReady] = useState(false);
   const { session, refetch } = useSession(config.session);
-  const size = config.size ?? { width: 500, height: 600 };
+  const size = config.size ?? defaultSize();
 
   const handleTimeout = () => {
     void refetch({ browserFingerprint: "timeout" });
