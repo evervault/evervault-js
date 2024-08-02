@@ -35,7 +35,6 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
   };
 
   const handleCancel = () => {
-    void refetch({ challengeCancelled: true });
     send("EV_CANCEL");
   };
 

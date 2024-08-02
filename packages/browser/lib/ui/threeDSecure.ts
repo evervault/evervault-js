@@ -50,6 +50,18 @@ export default class ThreeDSecure {
     this.#frame.on("EV_CANCEL", () => {
       this.#events.dispatch("failure");
       this.unmount();
+
+      const api = client.config.http.apiUrl;
+      void fetch(`${api}/frontend/3ds/browser-sessions/${session}`, {
+        method: "PATCH",
+        headers: {
+          "X-Evervault-App-Id": client.config.appId,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          challengeCancelled: true,
+        }),
+      });
     });
 
     this.#frame.on("EV_FRAME_READY", () => {
