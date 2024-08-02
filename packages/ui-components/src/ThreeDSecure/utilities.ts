@@ -27,6 +27,7 @@ export async function getBrowserSession(
     method: "PATCH",
     headers: {
       "X-Evervault-App-Id": app,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       issuerFingerprint: "timed-out",
