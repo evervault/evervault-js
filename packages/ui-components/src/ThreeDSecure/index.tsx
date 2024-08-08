@@ -39,8 +39,12 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
   };
 
   useEffect(() => {
-    if (session?.status === "complete") {
+    if (session?.status === "success") {
       send("EV_SUCCESS");
+    }
+
+    if (session?.status === "failure") {
+      send("EV_FAILURE");
     }
   }, [session]);
 

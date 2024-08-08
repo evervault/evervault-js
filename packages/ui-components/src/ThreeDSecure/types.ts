@@ -15,7 +15,7 @@ export interface ChallengeNextAction {
 export type NextAction = BrowserFingerprintNextAction | ChallengeNextAction;
 
 export interface SessionData {
-  status: "action-required" | "complete";
+  status: "action-required" | "success" | "failure";
   nextAction: NextAction;
 }
 
