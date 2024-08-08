@@ -20,6 +20,7 @@ export default class ThreeDSecure {
   #session: string;
   #isOverlay: boolean;
   #options: ThreeDSecureOptions;
+  #client: EvervaultClient;
   #frame: EvervaultFrame<
     ThreeDSecureFrameClientMessages,
     EvervaultFrameHostMessages
@@ -36,32 +37,24 @@ export default class ThreeDSecure {
     this.#options = options ?? {};
     this.#isOverlay = false;
     this.#frame = new EvervaultFrame(client, "ThreeDSecure");
+    this.#client = client;
 
     this.#frame.on("EV_SUCCESS", () => {
       this.#events.dispatch("success");
       this.unmount();
+      this.#updateOutcome("success");
     });
 
     this.#frame.on("EV_FAILURE", () => {
       this.#events.dispatch("failure");
       this.unmount();
+      this.#updateOutcome("failure");
     });
 
     this.#frame.on("EV_CANCEL", () => {
       this.#events.dispatch("failure");
       this.unmount();
-
-      const api = client.config.http.apiUrl;
-      void fetch(`${api}/frontend/3ds/browser-sessions/${session}`, {
-        method: "PATCH",
-        headers: {
-          "X-Evervault-App-Id": client.config.appId,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          challengeCancelled: true,
-        }),
-      });
+      this.#updateOutcome("cancelled");
     });
 
     this.#frame.on("EV_FRAME_READY", () => {
@@ -72,6 +65,20 @@ export default class ThreeDSecure {
       this.unmount();
       this.#events.dispatch("error", error);
       if (error) console.error(error.message);
+    });
+  }
+
+  #updateOutcome(outcome: string) {
+    const api = this.#client.config.http.apiUrl;
+    void fetch(`${api}/frontend/3ds/browser-sessions/${this.#session}`, {
+      method: "PATCH",
+      headers: {
+        "X-Evervault-App-Id": this.#client.config.appId,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        outcome: "cancelled",
+      }),
     });
   }
 
