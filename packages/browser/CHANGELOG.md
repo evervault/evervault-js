@@ -1,5 +1,19 @@
 # @evervault/browser
 
+## 2.27.0
+
+### Minor Changes
+
+- 1df9ba2: Add functionality to disable autoCompletion for fields in the Card component
+- e2f0721: Adds 3DS method support
+
+### Patch Changes
+
+- Updated dependencies [1df9ba2]
+- Updated dependencies [e2f0721]
+  - types@0.2.0
+  - themes@0.1.2
+
 ## 2.26.0
 
 ### Minor Changes
