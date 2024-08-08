@@ -13,12 +13,14 @@ export function ChallengeFrame({
   nextAction: ChallengeNextAction;
   onLoad: () => void;
 }) {
+  const initialized = useRef(false);
   const frame = useRef<HTMLIFrameElement>(null);
   const [loaded, setLoaded] = useState(false);
   const { send } = useThreeDSMessaging();
 
   useEffect(() => {
-    if (!frame.current) return;
+    if (!frame.current || initialized.current) return;
+    initialized.current = true;
     postRedirectFrame(frame.current, nextAction.url, { creq: nextAction.creq });
 
     const handleMessage = (e: MessageEvent) => {

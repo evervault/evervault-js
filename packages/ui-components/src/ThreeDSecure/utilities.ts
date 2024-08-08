@@ -1,4 +1,4 @@
-import { RefObject, useCallback, useEffect, useState } from "react";
+import { RefObject, useCallback, useEffect, useRef, useState } from "react";
 import {
   EvervaultFrameHostMessages,
   ThreeDSecureFrameClientMessages,
@@ -72,6 +72,7 @@ export function useSession(
   container: RefObject<HTMLDivElement>,
   id: string
 ): UseSessionReturn {
+  const initialized = useRef(false);
   const { app } = useSearchParams();
   const [session, setSession] = useState<SessionData | null>(null);
   const { send } = useThreeDSMessaging();
@@ -99,6 +100,8 @@ export function useSession(
   );
 
   useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
     const width = container.current?.clientWidth ?? null;
     const height = container.current?.clientHeight ?? null;
 
