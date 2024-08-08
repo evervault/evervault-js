@@ -39,16 +39,16 @@ export default class ThreeDSecure {
     this.#frame = new EvervaultFrame(client, "ThreeDSecure");
     this.#client = client;
 
-    this.#frame.on("EV_SUCCESS", () => {
+    this.#frame.on("EV_SUCCESS", (cres) => {
       this.#events.dispatch("success");
       this.unmount();
-      this.#updateOutcome("success");
+      this.#updateOutcome("success", cres);
     });
 
-    this.#frame.on("EV_FAILURE", () => {
+    this.#frame.on("EV_FAILURE", (cres) => {
       this.#events.dispatch("failure");
       this.unmount();
-      this.#updateOutcome("failure");
+      this.#updateOutcome("failure", cres);
     });
 
     this.#frame.on("EV_CANCEL", () => {
@@ -68,7 +68,7 @@ export default class ThreeDSecure {
     });
   }
 
-  #updateOutcome(outcome: string) {
+  #updateOutcome(outcome: string, cres?: string | null) {
     const api = this.#client.config.http.apiUrl;
     void fetch(`${api}/frontend/3ds/browser-sessions/${this.#session}`, {
       method: "PATCH",
@@ -77,7 +77,8 @@ export default class ThreeDSecure {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        outcome: "cancelled",
+        outcome,
+        cres: cres ?? null,
       }),
     });
   }

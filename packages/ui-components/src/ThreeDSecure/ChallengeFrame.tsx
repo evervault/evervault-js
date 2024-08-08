@@ -24,9 +24,9 @@ export function ChallengeFrame({
     const handleMessage = (e: MessageEvent) => {
       if (isTrampolineMessage(e)) {
         if (check3DSSuccess(e)) {
-          send("EV_SUCCESS");
+          send("EV_SUCCESS", cresForOutcome(e.data.cres));
         } else {
-          send("EV_FAILURE");
+          send("EV_FAILURE", cresForOutcome(e.data.cres));
         }
       }
     };
@@ -51,6 +51,16 @@ export function ChallengeFrame({
       }}
     />
   );
+}
+
+function cresForOutcome(cres: string | null): string | null {
+  if (!cres) return null;
+
+  try {
+    return atob(cres);
+  } catch {
+    return cres;
+  }
 }
 
 function check3DSSuccess(message: TrampolineMessage): boolean {

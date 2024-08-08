@@ -192,7 +192,7 @@ export interface ThreeDSecureOptions {
 
 export interface ThreeDSecureFrameClientMessages
   extends EvervaultFrameClientMessages {
-  EV_SUCCESS: undefined;
-  EV_FAILURE: undefined;
+  EV_SUCCESS: string | undefined | null;
+  EV_FAILURE: string | undefined | null;
   EV_CANCEL: undefined;
 }
