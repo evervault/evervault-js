@@ -161,6 +161,7 @@ export function Card({ config }: { config: CardConfig }) {
             autoFocus={config.autoFocus}
             placeholder={t("name.placeholder")}
             value={form.values.name}
+            autoComplete={config.autoComplete?.name ?? true}
             {...form.register("name")}
           />
           {form.errors?.name && (
@@ -184,6 +185,7 @@ export function Card({ config }: { config: CardConfig }) {
             autoFocus={config.autoFocus}
             placeholder={t("number.placeholder")}
             value={form.values.number}
+            autoComplete={config.autoComplete?.number ?? true}
             {...form.register("number")}
           />
           {form.errors?.number && (
@@ -206,6 +208,7 @@ export function Card({ config }: { config: CardConfig }) {
             disabled={!config}
             readOnly={cardReaderListening}
             placeholder={t("expiry.placeholder")}
+            autoComplete={config.autoComplete?.expiry ?? true}
             {...form.register("expiry")}
           />
           {form.errors?.expiry && (

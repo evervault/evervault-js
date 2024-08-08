@@ -1,4 +1,4 @@
-import {validateNumber} from "@evervault/card-validator";
+import { validateNumber } from "@evervault/card-validator";
 import {
   FocusEvent,
   forwardRef,
@@ -17,11 +17,21 @@ interface CVCProps {
   value: string;
   readOnly?: boolean;
   cardNumber: string;
+  autoComplete?: boolean;
 }
 
 export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
   (
-    { cardNumber, onChange, onBlur, disabled, placeholder, value, readOnly },
+    {
+      cardNumber,
+      onChange,
+      onBlur,
+      disabled,
+      placeholder,
+      value,
+      readOnly,
+      autoComplete,
+    },
     forwardedRef
   ) => {
     const innerRef = useRef<HTMLInputElement>(null);
@@ -51,7 +61,7 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
         onBlur={onBlur}
         placeholder={placeholder}
         pattern="[0-9]*"
-        autoComplete="billing cc-cvc"
+        autoComplete={autoComplete ? "billing cc-cvc" : "off"}
         readOnly={readOnly}
       />
     );
