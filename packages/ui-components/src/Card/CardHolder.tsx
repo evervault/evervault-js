@@ -8,6 +8,7 @@ interface CardHolderProps {
   placeholder: string;
   value: string;
   readOnly?: boolean;
+  autoComplete?: boolean;
 }
 
 export function CardHolder({
@@ -18,6 +19,7 @@ export function CardHolder({
   placeholder,
   value,
   readOnly,
+  autoComplete,
 }: CardHolderProps) {
   return (
     <input
@@ -30,7 +32,7 @@ export function CardHolder({
       autoFocus={autoFocus}
       disabled={disabled}
       placeholder={placeholder}
-      autoComplete="billing cc-name"
+      autoComplete={autoComplete ? "billing cc-name" : "off"}
       onChange={(e) => onChange(e.target.value)}
     />
   );

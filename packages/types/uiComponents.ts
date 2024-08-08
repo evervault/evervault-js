@@ -92,6 +92,12 @@ export interface CardOptions {
   fields?: CardField[];
   acceptedBrands?: CardBrandName[];
   translations?: Partial<CardTranslations>;
+  autoComplete?: {
+    name?: boolean;
+    number?: boolean;
+    expiry?: boolean;
+    cvc?: boolean;
+  };
 }
 
 export interface FormOptions {

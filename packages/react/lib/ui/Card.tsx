@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useEvervault } from "../useEvervault";
 import type {
   CardField,
+  CardOptions,
   CardPayload,
   CardTranslations,
   SwipedCard,
@@ -20,6 +21,7 @@ export interface CardProps {
   onSwipe?: (data: SwipedCard) => void;
   onChange?: (data: CardPayload) => void;
   onComplete?: (data: CardPayload) => void;
+  autoComplete?: CardOptions["autoComplete"];
 }
 
 type CardClass = ReturnType<Evervault["ui"]["card"]>;
@@ -34,6 +36,7 @@ export function Card({
   onError,
   onChange,
   onComplete,
+  autoComplete,
 }: CardProps) {
   const ev = useEvervault();
   const initialized = useRef(false);
@@ -76,8 +79,9 @@ export function Card({
       fields,
       autoFocus,
       translations,
+      autoComplete,
     }),
-    [theme, translations, fields, autoFocus]
+    [theme, translations, fields, autoFocus, autoComplete]
   );
 
   useLayoutEffect(() => {

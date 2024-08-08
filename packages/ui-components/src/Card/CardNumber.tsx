@@ -10,6 +10,7 @@ interface CardNumberProps {
   placeholder: string;
   value: string;
   readOnly?: boolean;
+  autoComplete?: boolean;
 }
 
 interface CardMask {
@@ -25,6 +26,7 @@ export function CardNumber({
   placeholder,
   value,
   readOnly,
+  autoComplete,
 }: CardNumberProps) {
   const ref = useRef<HTMLInputElement>(null);
   const { setValue } = useMask(ref, onChange, {
@@ -71,7 +73,7 @@ export function CardNumber({
       disabled={disabled}
       placeholder={placeholder}
       pattern="[0-9]*"
-      autoComplete="billing cc-number"
+      autoComplete={autoComplete ? "billing cc-number" : "off"}
     />
   );
 }

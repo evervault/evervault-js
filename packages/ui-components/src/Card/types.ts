@@ -1,4 +1,9 @@
-import type { ThemeObject, CardField, CardTranslations, CardBrandName } from "types";
+import type {
+  ThemeObject,
+  CardField,
+  CardTranslations,
+  CardBrandName,
+} from "types";
 
 export interface CardConfig {
   theme?: ThemeObject;
@@ -7,6 +12,12 @@ export interface CardConfig {
   fields?: CardField[];
   acceptedBrands?: CardBrandName[];
   translations?: Partial<CardTranslations>;
+  autoComplete?: {
+    name?: boolean;
+    number?: boolean;
+    expiry?: boolean;
+    cvc?: boolean;
+  };
 }
 
 export interface CardForm {

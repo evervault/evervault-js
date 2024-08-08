@@ -10,6 +10,7 @@ interface CardExpiryProps {
   placeholder?: string;
   value: string;
   readOnly?: boolean;
+  autoComplete?: boolean;
 }
 
 const EXPIRY_BLOCKS = {
@@ -36,6 +37,7 @@ export function CardExpiry({
   placeholder,
   value,
   readOnly,
+  autoComplete,
 }: CardExpiryProps) {
   const ref = useRef<HTMLInputElement>(null);
   const { setValue } = useMask(ref, onChange, {
@@ -57,7 +59,7 @@ export function CardExpiry({
       onBlur={onBlur}
       placeholder={placeholder}
       pattern="[0-9]*"
-      autoComplete="billing cc-exp"
+      autoComplete={autoComplete ? "billing cc-exp" : "off"}
       readOnly={readOnly}
     />
   );
