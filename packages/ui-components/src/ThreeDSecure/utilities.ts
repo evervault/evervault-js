@@ -103,7 +103,7 @@ export function useSession(
     const height = container.current?.clientHeight ?? null;
 
     void fetchAction({
-      size: { width, height },
+      frame: { width, height },
       browser: {
         javaEnabled: window.navigator.javaEnabled(),
         javaScriptEnabled: true,
