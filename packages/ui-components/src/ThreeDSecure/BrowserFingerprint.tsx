@@ -39,6 +39,8 @@ export function BrowserFingerprint({
     <iframe
       ref={frame}
       name="browserFingerprintFrame"
+      allow="payment *; publickey-credentials-get *"
+      sandbox="allow-forms allow-scripts allow-same-origin allow-pointer-lock"
       style={{
         width: 0,
         height: 0,

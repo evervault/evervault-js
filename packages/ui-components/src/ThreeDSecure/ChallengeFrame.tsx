@@ -44,6 +44,8 @@ export function ChallengeFrame({
     <iframe
       ref={frame}
       name="challengeFrame"
+      allow="payment *; publickey-credentials-get *"
+      sandbox="allow-forms allow-scripts allow-same-origin allow-pointer-lock"
       style={{
         width: loaded ? "100%" : 0,
         height: loaded ? "100%" : 0,
