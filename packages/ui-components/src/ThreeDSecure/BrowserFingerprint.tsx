@@ -17,9 +17,12 @@ export function BrowserFingerprint({
   const frame = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
-    if (!frame.current || initialized.current) return;
-    initialized.current = true;
-    postRedirectFrame(frame.current, action.url, { data: action.data });
+    if (!frame.current) return;
+
+    if (!initialized.current) {
+      initialized.current = true;
+      postRedirectFrame(frame.current, action.url, { data: action.data });
+    }
 
     const handleMessage = (e: MessageEvent) => {
       if (isTrampolineMessage(e)) {

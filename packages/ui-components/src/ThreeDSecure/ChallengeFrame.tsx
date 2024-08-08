@@ -19,9 +19,14 @@ export function ChallengeFrame({
   const { send } = useThreeDSMessaging();
 
   useEffect(() => {
-    if (!frame.current || initialized.current) return;
-    initialized.current = true;
-    postRedirectFrame(frame.current, nextAction.url, { creq: nextAction.creq });
+    if (!frame.current) return;
+
+    if (!initialized.current) {
+      initialized.current = true;
+      postRedirectFrame(frame.current, nextAction.url, {
+        creq: nextAction.creq,
+      });
+    }
 
     const handleMessage = (e: MessageEvent) => {
       if (isTrampolineMessage(e)) {
