@@ -1,5 +1,21 @@
 # @evervault/ui-components
 
+## 1.9.0
+
+### Minor Changes
+
+- 1df9ba2: Add functionality to disable autoCompletion for fields in the Card component
+- e2f0721: Adds 3DS method support
+
+### Patch Changes
+
+- Updated dependencies [1df9ba2]
+- Updated dependencies [e2f0721]
+  - @evervault/react@2.8.0
+  - types@0.2.0
+  - @evervault/card-validator@1.0.5
+  - shared@1.0.5
+
 ## 1.8.1
 
 ### Patch Changes

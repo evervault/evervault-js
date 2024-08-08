@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.8.0
+
+### Minor Changes
+
+- 1df9ba2: Add functionality to disable autoCompletion for fields in the Card component
+
 ## 2.7.0
 
 ### Minor Changes

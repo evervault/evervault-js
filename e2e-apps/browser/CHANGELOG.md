@@ -1,5 +1,13 @@
 # @evervault/browser-e2e-app
 
+## 1.0.2
+
+### Patch Changes
+
+- Updated dependencies [1df9ba2]
+- Updated dependencies [e2f0721]
+  - @evervault/browser@2.27.0
+
 ## 1.0.1
 
 ### Patch Changes
