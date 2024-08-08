@@ -13,10 +13,12 @@ export function BrowserFingerprint({
   onComplete,
   onTimeout,
 }: BrowserFingerprintProps) {
+  const initialized = useRef(false);
   const frame = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
-    if (!frame.current) return;
+    if (!frame.current || initialized.current) return;
+    initialized.current = true;
     postRedirectFrame(frame.current, action.url, { data: action.data });
 
     const handleMessage = (e: MessageEvent) => {
