@@ -138,7 +138,7 @@ export default function buildEncoder({ p, a, b, seed, generator, n, h }) {
   return (decompressedKey) => {
     const spki = SubjectPublicKeyInfo(
       { p, a, b, seed, generator, n, h },
-      decompressedKey,
+      decompressedKey
     );
     return hexStringToUint8Array(spki.toString("hex"));
   };
