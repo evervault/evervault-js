@@ -41,33 +41,38 @@ const FieldId = (curveParams) =>
 const Curve = (curveParams) =>
   new Sequence({
     name: "curve",
-    value: curveParams.seed ? 
-      [
-        new OctetString({
-          name: "a",
-          valueHex: new Uint8Array(hexStringToUint8Array(curveParams.a)).buffer,
-        }),
-        new OctetString({
-          name: "b",
-          valueHex: new Uint8Array(hexStringToUint8Array(curveParams.b)).buffer,
-        }),
-        new BitString({
-          optional: true,
-          name: "seed",
-          valueHex: curveParams.seed
-            ? new Uint8Array(hexStringToUint8Array(curveParams.seed)).buffer
-            : curveParams.seed,
-        }),
-      ] : [
-        new OctetString({
-          name: 'a',
-          valueHex: new Uint8Array(hexStringToUint8Array(curveParams.a)).buffer,
-        }),
-        new OctetString({
-          name: 'b',
-          valueHex: new Uint8Array(hexStringToUint8Array(curveParams.b)).buffer,
-        }),
-      ],
+    value: curveParams.seed
+      ? [
+          new OctetString({
+            name: "a",
+            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.a))
+              .buffer,
+          }),
+          new OctetString({
+            name: "b",
+            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.b))
+              .buffer,
+          }),
+          new BitString({
+            optional: true,
+            name: "seed",
+            valueHex: curveParams.seed
+              ? new Uint8Array(hexStringToUint8Array(curveParams.seed)).buffer
+              : curveParams.seed,
+          }),
+        ]
+      : [
+          new OctetString({
+            name: "a",
+            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.a))
+              .buffer,
+          }),
+          new OctetString({
+            name: "b",
+            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.b))
+              .buffer,
+          }),
+        ],
   });
 
 /**
@@ -148,7 +153,7 @@ export default function buildEncoder({ p, a, b, seed, generator, n, h }) {
   return (decompressedKey) => {
     const spki = SubjectPublicKeyInfo(
       { p, a, b, seed, generator, n, h },
-      decompressedKey
+      decompressedKey,
     );
     return hexStringToUint8Array(spki.toString("hex"));
   };
