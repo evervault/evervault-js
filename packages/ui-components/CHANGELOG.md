@@ -1,5 +1,19 @@
 # @evervault/ui-components
 
+## 1.10.0
+
+### Minor Changes
+
+- 3156568: Add autoProgress option to Card component to automatically progress to the next input when an input becomes valid.
+
+### Patch Changes
+
+- Updated dependencies [3156568]
+  - @evervault/react@2.9.0
+  - types@0.3.0
+  - @evervault/card-validator@1.0.5
+  - shared@1.0.6
+
 ## 1.9.0
 
 ### Minor Changes

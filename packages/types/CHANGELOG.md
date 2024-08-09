@@ -1,5 +1,11 @@
 # types
 
+## 0.3.0
+
+### Minor Changes
+
+- 3156568: Add autoProgress option to Card component to automatically progress to the next input when an input becomes valid.
+
 ## 0.2.0
 
 ### Minor Changes
