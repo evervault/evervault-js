@@ -40,19 +40,19 @@ export default class ThreeDSecure {
     this.#client = client;
 
     this.#frame.on("EV_SUCCESS", async (cres) => {
-      await this.#updateOutcome("success", cres);
+      void await this.#updateOutcome("success", cres);
       this.#events.dispatch("success");
       this.unmount();
     });
 
     this.#frame.on("EV_FAILURE", async (cres) => {
-      await this.#updateOutcome("failure", cres);
+      void await this.#updateOutcome("failure", cres);
       this.#events.dispatch("failure");
       this.unmount();
     });
 
     this.#frame.on("EV_CANCEL", async () => {
-      await this.#updateOutcome("cancelled");
+      void await this.#updateOutcome("cancelled");
       this.#events.dispatch("failure");
       this.unmount();
     });
