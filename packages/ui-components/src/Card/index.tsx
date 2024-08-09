@@ -16,7 +16,12 @@ import { CardHolder } from "./CardHolder";
 import { CardNumber } from "./CardNumber";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useCardReader } from "./useCardReader";
-import { changePayload, isAcceptedBrand, swipePayload } from "./utilities";
+import {
+  autoProgress,
+  changePayload,
+  isAcceptedBrand,
+  swipePayload,
+} from "./utilities";
 import type { CardForm, CardConfig } from "./types";
 import type { CardFrameClientMessages, CardFrameHostMessages } from "types";
 
@@ -95,6 +100,10 @@ export function Card({ config }: { config: CardConfig }) {
       },
     },
     onChange: (formState) => {
+      if (config?.autoProgress) {
+        autoProgress(formState);
+      }
+
       const triggerChange = async () => {
         if (!ev) return;
         const cardData = await changePayload(ev, formState, fields);

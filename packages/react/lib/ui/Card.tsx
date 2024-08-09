@@ -22,6 +22,7 @@ export interface CardProps {
   onChange?: (data: CardPayload) => void;
   onComplete?: (data: CardPayload) => void;
   autoComplete?: CardOptions["autoComplete"];
+  autoProgress?: boolean;
 }
 
 type CardClass = ReturnType<Evervault["ui"]["card"]>;
@@ -37,6 +38,7 @@ export function Card({
   onChange,
   onComplete,
   autoComplete,
+  autoProgress,
 }: CardProps) {
   const ev = useEvervault();
   const initialized = useRef(false);
@@ -80,8 +82,9 @@ export function Card({
       autoFocus,
       translations,
       autoComplete,
+      autoProgress,
     }),
-    [theme, translations, fields, autoFocus, autoComplete]
+    [theme, translations, fields, autoFocus, autoComplete, autoProgress]
   );
 
   useLayoutEffect(() => {
