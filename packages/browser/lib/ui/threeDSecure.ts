@@ -40,21 +40,15 @@ export default class ThreeDSecure {
     this.#client = client;
 
     this.#frame.on("EV_SUCCESS", (cres) => {
-      this.#events.dispatch("success");
-      this.unmount();
-      this.#updateOutcome("success", cres);
+      void this.#handleOutcome("success", cres);
     });
 
     this.#frame.on("EV_FAILURE", (cres) => {
-      this.#events.dispatch("failure");
-      this.unmount();
-      this.#updateOutcome("failure", cres);
+      void this.#handleOutcome("failure", cres);
     });
 
     this.#frame.on("EV_CANCEL", () => {
-      this.#events.dispatch("failure");
-      this.unmount();
-      this.#updateOutcome("cancelled");
+      void this.#handleOutcome("cancelled");
     });
 
     this.#frame.on("EV_FRAME_READY", () => {
@@ -68,9 +62,15 @@ export default class ThreeDSecure {
     });
   }
 
-  #updateOutcome(outcome: string, cres?: string | null) {
+  async #handleOutcome(outcome: string, cres?: string | null) {
+    await this.#updateOutcome(outcome, cres);
+    this.#events.dispatch(outcome === "success" ? "success" : "failure");
+    this.unmount();
+  }
+
+  async #updateOutcome(outcome: string, cres?: string | null): Promise<void> {
     const api = this.#client.config.http.apiUrl;
-    void fetch(`${api}/frontend/3ds/browser-sessions/${this.#session}`, {
+    await fetch(`${api}/frontend/3ds/browser-sessions/${this.#session}`, {
       method: "PATCH",
       headers: {
         "X-Evervault-App-Id": this.#client.config.appId,
