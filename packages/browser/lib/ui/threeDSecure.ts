@@ -40,24 +40,15 @@ export default class ThreeDSecure {
     this.#client = client;
 
     this.#frame.on("EV_SUCCESS", (cres) => {
-      this.#updateOutcome("success", cres).then(() => {
-        this.#events.dispatch("success");
-        this.unmount();
-      });
+      void this.#handleOutcome("success", cres);
     });
 
     this.#frame.on("EV_FAILURE", (cres) => {
-      this.#updateOutcome("failure", cres).then(() => {
-        this.#events.dispatch("failure");
-        this.unmount();
-      });
+      void this.#handleOutcome("failure", cres);
     });
 
     this.#frame.on("EV_CANCEL", () => {
-      this.#updateOutcome("cancelled").then(() => {
-        this.#events.dispatch("failure");
-        this.unmount();
-      });
+      void this.#handleOutcome("cancelled");
     });
 
     this.#frame.on("EV_FRAME_READY", () => {
@@ -71,6 +62,12 @@ export default class ThreeDSecure {
     });
   }
 
+  async #handleOutcome(outcome: string, cres?: string | null) {
+    await this.#updateOutcome(outcome, cres);
+    this.#events.dispatch(outcome === "success" ? "success" : "failure");
+    this.unmount();
+  }
+  
   async #updateOutcome(outcome: string, cres?: string | null): Promise<void> {
     const api = this.#client.config.http.apiUrl;
     await fetch(`${api}/frontend/3ds/browser-sessions/${this.#session}`, {
