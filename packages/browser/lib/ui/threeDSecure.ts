@@ -39,22 +39,25 @@ export default class ThreeDSecure {
     this.#frame = new EvervaultFrame(client, "ThreeDSecure");
     this.#client = client;
 
-    this.#frame.on("EV_SUCCESS", async (cres) => {
-      void await this.#updateOutcome("success", cres);
-      this.#events.dispatch("success");
-      this.unmount();
+    this.#frame.on("EV_SUCCESS", (cres) => {
+      this.#updateOutcome("success", cres).then(() => {
+        this.#events.dispatch("success");
+        this.unmount();  
+      });
     });
 
-    this.#frame.on("EV_FAILURE", async (cres) => {
-      void await this.#updateOutcome("failure", cres);
-      this.#events.dispatch("failure");
-      this.unmount();
+    this.#frame.on("EV_FAILURE", (cres) => {
+      this.#updateOutcome("failure", cres).then(() => {
+        this.#events.dispatch("failure");
+        this.unmount();
+      });
     });
 
-    this.#frame.on("EV_CANCEL", async () => {
-      void await this.#updateOutcome("cancelled");
-      this.#events.dispatch("failure");
-      this.unmount();
+    this.#frame.on("EV_CANCEL", () => {
+      this.#updateOutcome("cancelled").then(() => {
+        this.#events.dispatch("failure");
+        this.unmount();  
+      });
     });
 
     this.#frame.on("EV_FRAME_READY", () => {
