@@ -41,38 +41,23 @@ const FieldId = (curveParams) =>
 const Curve = (curveParams) =>
   new Sequence({
     name: "curve",
-    value: curveParams.seed
-      ? [
-          new OctetString({
-            name: "a",
-            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.a))
-              .buffer,
-          }),
-          new OctetString({
-            name: "b",
-            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.b))
-              .buffer,
-          }),
-          new BitString({
-            optional: true,
-            name: "seed",
-            valueHex: curveParams.seed
-              ? new Uint8Array(hexStringToUint8Array(curveParams.seed)).buffer
-              : curveParams.seed,
-          }),
-        ]
-      : [
-          new OctetString({
-            name: "a",
-            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.a))
-              .buffer,
-          }),
-          new OctetString({
-            name: "b",
-            valueHex: new Uint8Array(hexStringToUint8Array(curveParams.b))
-              .buffer,
-          }),
-        ],
+    value: [
+      new OctetString({
+        name: "a",
+        valueHex: new Uint8Array(hexStringToUint8Array(curveParams.a)).buffer,
+      }),
+      new OctetString({
+        name: "b",
+        valueHex: new Uint8Array(hexStringToUint8Array(curveParams.b)).buffer,
+      }),
+      new BitString({
+        optional: true,
+        name: "seed",
+        valueHex: curveParams.seed
+          ? new Uint8Array(hexStringToUint8Array(curveParams.seed)).buffer
+          : curveParams.seed,
+      }),
+    ],
   });
 
 /**
