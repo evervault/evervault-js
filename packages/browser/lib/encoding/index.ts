@@ -8,12 +8,13 @@ export function uint8ArrayToUtf8String(arr: Uint8Array): string {
   return utf8Decoder.decode(arr);
 }
 
-export function hexStringToUint8Array(hexString: string): number[] {
+export function hexStringToUint8Array(hexString: string): Uint8Array {
   const matches = hexString.match(/../g);
   if (matches === null) {
-    return [] as number[];
+    return new Uint8Array();
   }
-  return matches.map((h) => parseInt(h, 16));
+  let parsedHex = matches.map((h) => parseInt(h, 16));
+  return new Uint8Array(parsedHex);
 }
 
 export function uint8ArrayToHexString(arr: Uint8Array): string {
