@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.9.0
+
+### Minor Changes
+
+- 3156568: Add autoProgress option to Card component to automatically progress to the next input when an input becomes valid.
+
 ## 2.8.0
 
 ### Minor Changes
