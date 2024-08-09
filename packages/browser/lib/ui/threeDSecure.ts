@@ -67,7 +67,7 @@ export default class ThreeDSecure {
     this.#events.dispatch(outcome === "success" ? "success" : "failure");
     this.unmount();
   }
-  
+
   async #updateOutcome(outcome: string, cres?: string | null): Promise<void> {
     const api = this.#client.config.http.apiUrl;
     await fetch(`${api}/frontend/3ds/browser-sessions/${this.#session}`, {
