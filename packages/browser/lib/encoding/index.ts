@@ -13,7 +13,7 @@ export function hexStringToUint8Array(hexString: string): Uint8Array {
   if (matches === null) {
     return new Uint8Array();
   }
-  let parsedHex = matches.map((h) => parseInt(h, 16));
+  const parsedHex = matches.map((h) => parseInt(h, 16));
   return new Uint8Array(parsedHex);
 }
 
