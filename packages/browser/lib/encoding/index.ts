@@ -8,16 +8,13 @@ export function uint8ArrayToUtf8String(arr: Uint8Array): string {
   return utf8Decoder.decode(arr);
 }
 
-export function hexStringToUint8Array(hex: string): Uint8Array {
-  const length = hex.length / 2;
-  const result = new Uint8Array(length);
-
-  for (let i = 0; i < length; i++) {
-    const byte = parseInt(hex.substr(i * 2, 2), 16);
-    result[i] = byte;
+export function hexStringToUint8Array(hexString: string): Uint8Array {
+  const matches = hexString.match(/../g);
+  if (matches === null) {
+    return new Uint8Array();
   }
-
-  return result;
+  const parsedHex = matches.map((h) => parseInt(h, 16));
+  return new Uint8Array(parsedHex);
 }
 
 export function uint8ArrayToHexString(arr: Uint8Array): string {
