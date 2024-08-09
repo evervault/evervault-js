@@ -59,6 +59,7 @@ export default class Card {
         fields: this.#options.fields,
         acceptedBrands: this.#options.acceptedBrands,
         autoComplete: this.#options.autoComplete,
+        autoProgress: this.#options.autoProgress,
       },
     };
   }

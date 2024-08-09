@@ -92,6 +92,7 @@ export interface CardOptions {
   fields?: CardField[];
   acceptedBrands?: CardBrandName[];
   translations?: Partial<CardTranslations>;
+  autoProgress?: boolean;
   autoComplete?: {
     name?: boolean;
     number?: boolean;
