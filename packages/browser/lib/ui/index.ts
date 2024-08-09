@@ -3,8 +3,14 @@ import Card from "./card";
 import Form from "./form";
 import Pin from "./pin";
 import Reveal from "./reveal";
+import ThreeDSecure from "./threeDSecure";
 import type EvervaultClient from "../main";
-import type { PinOptions, CardOptions, FormOptions } from "types";
+import type {
+  PinOptions,
+  CardOptions,
+  FormOptions,
+  ThreeDSecureOptions,
+} from "types";
 
 export default class UIComponents {
   client: EvervaultClient;
@@ -28,5 +34,9 @@ export default class UIComponents {
 
   form(opts?: FormOptions) {
     return new Form(this.client, opts);
+  }
+
+  threeDSecure(session: string, opts?: ThreeDSecureOptions) {
+    return new ThreeDSecure(this.client, session, opts);
   }
 }

@@ -3,3 +3,5 @@ node_modules
 dist
 package.json
 tsconfig.json
+vite.config.mts.timestamp-*
+playwright-report

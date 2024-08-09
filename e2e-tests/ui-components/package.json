@@ -1,7 +1,7 @@
 {
   "private": true,
-  "version": null,
   "name": "@evervault/ui-components-e2e-tests",
+  "version": "1.0.4",
   "scripts": {
     "e2e:test": "playwright test"
   },

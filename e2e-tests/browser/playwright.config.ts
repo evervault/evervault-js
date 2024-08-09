@@ -1,10 +1,11 @@
+import dotenv from "dotenv";
 import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// require('dotenv').config();
+dotenv.config({ path: "../../.env" });
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -83,8 +84,18 @@ export default defineConfig({
   // outputDir: 'test-results/',
 
   /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run test-serve',
-  //   port: 3000,
-  // },
+  webServer: [
+    {
+      command: "pnpm --filter @evervault/browser-e2e-app start --port=3005",
+      port: 3005,
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: "pnpm --filter @evervault/e2e-decrypt-backend start",
+      port: 3010,
+      reuseExistingServer: !process.env.CI,
+      stdout: "pipe",
+      stderr: "pipe",
+    },
+  ],
 });

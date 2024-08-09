@@ -7,7 +7,7 @@ Evervault JavaScript SDK.
 This is a monorepo managed with [Turborepo](https://turbo.fyi/) and [pnpm workspaces](https://pnpm.io/workspaces).
 
 - `packages/browser` - [Evervault JavaScript SDK for the browser.](https://docs.evervault.com/sdks/javascript).
-- `packages/react` - [The React SDK](https://docs.evervault.com/sdks/react)
+- `packages/react` - [The React SDK](https://docs.evervault.com/sdks/reactjs)
 - `packages/inputs` - The codebase for Inputs
 - `packages/ui-components` - The codebase for UI Components.
 - `packages/themes` - An internal package for UI Component themes

@@ -1,13 +1,11 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Vite React",
-  "_version": "2.0.0",
-  "extends": "tsconfig/browser.json",
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "skipLibCheck": true,
-    "rootDir": "."
-  },
-  "exclude": ["examples"]
-
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"display": "Vite React",
+	"_version": "2.0.0",
+	"extends": "tsconfig/browser.json",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"skipLibCheck": true,
+		"rootDir": "."
+	},
 }

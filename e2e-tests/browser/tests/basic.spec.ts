@@ -1,14 +1,14 @@
 import { test, expect } from "@playwright/test";
 import * as dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config({ path: "../../.env" });
 
 const encryptedStringRegex =
   /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
 
 test("encrypts a string", async ({ page }) => {
   await page.goto(
-    `http://localhost:3010/?team=${process.env.EV_TEAM_UUID}&app=${process.env.EV_APP_UUID}`
+    `http://localhost:3005/?team=${process.env.VITE_EV_TEAM_UUID}&app=${process.env.VITE_EV_APP_UUID}`
   );
 
   const output = await page.getByTestId("ev-encrypt-output");
@@ -25,7 +25,7 @@ test("encrypts a string", async ({ page }) => {
 
 test("encrypts an object", async ({ page }) => {
   await page.goto(
-    `http://localhost:3010/object_test?team=${process.env.EV_TEAM_UUID}&app=${process.env.EV_APP_UUID}`
+    `http://localhost:3005/object_test.html?team=${process.env.VITE_EV_TEAM_UUID}&app=${process.env.VITE_EV_APP_UUID}`
   );
 
   const output = await page.getByTestId("ev-encrypt-output");
