@@ -42,7 +42,7 @@ export default class ThreeDSecure {
     this.#frame.on("EV_SUCCESS", (cres) => {
       this.#updateOutcome("success", cres).then(() => {
         this.#events.dispatch("success");
-        this.unmount();  
+        this.unmount();
       });
     });
 
@@ -56,7 +56,7 @@ export default class ThreeDSecure {
     this.#frame.on("EV_CANCEL", () => {
       this.#updateOutcome("cancelled").then(() => {
         this.#events.dispatch("failure");
-        this.unmount();  
+        this.unmount();
       });
     });
 
