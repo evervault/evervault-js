@@ -6,12 +6,7 @@ import { BaseProps } from './Card';
 
 export interface CardExpiryProps extends BaseProps {}
 
-export function CardExpiry({
-  disabled,
-  placeholder,
-  readOnly,
-  style,
-}: CardExpiryProps) {
+export function CardExpiry(props: CardExpiryProps) {
   const context = useCardContext();
 
   const { onBlur, onChange } = context.register('expiry');
@@ -25,11 +20,9 @@ export function CardExpiry({
 
   return (
     <TextInputMask
-      style={style}
+      {...props}
       type="datetime"
       value={context.values.expiry}
-      editable={disabled}
-      selectTextOnFocus={disabled}
       // store the expiry as MMYY not MM / YY
       onChangeText={(rawExpiry) => onChange(rawExpiry.replace(' / ', ''))}
       options={{
@@ -37,10 +30,9 @@ export function CardExpiry({
       }}
       id="expiry"
       onBlur={onBlur}
-      placeholder={placeholder ?? 'MM / YY'}
+      placeholder={props.placeholder ?? 'MM / YY'}
       inputMode="numeric"
       autoComplete="cc-exp"
-      readOnly={readOnly}
     />
   );
 }

@@ -5,17 +5,9 @@ import { TextInputMask } from 'react-native-masked-text';
 import { removeFieldFromSet, useCardContext } from './context';
 import { BaseProps } from './Card';
 
-interface CardNumberProps extends BaseProps {
-  autoFocus?: boolean;
-}
+interface CardNumberProps extends BaseProps {}
 
-export function CardNumber({
-  autoFocus,
-  disabled,
-  placeholder,
-  readOnly,
-  style,
-}: CardNumberProps) {
+export function CardNumber(props: CardNumberProps) {
   const context = useCardContext();
   const ref = useRef<TextInputMask>(null);
 
@@ -48,7 +40,7 @@ export function CardNumber({
 
   return (
     <TextInputMask
-      style={style}
+      {...props}
       ref={ref}
       type="custom"
       options={{ mask }}
@@ -56,12 +48,7 @@ export function CardNumber({
       value={innerValue}
       onChangeText={onChange}
       onBlur={onBlur}
-      readOnly={readOnly}
       inputMode="numeric"
-      autoFocus={autoFocus}
-      placeholder={placeholder}
-      editable={disabled}
-      selectTextOnFocus={disabled}
       autoComplete="cc-number"
     />
   );

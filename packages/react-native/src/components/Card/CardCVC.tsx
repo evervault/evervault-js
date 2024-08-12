@@ -7,12 +7,7 @@ import { BaseProps } from './Card';
 
 export interface CVCProps extends BaseProps {}
 
-export const CardCVC = ({
-  style,
-  disabled,
-  placeholder,
-  readOnly,
-}: CVCProps) => {
+export const CardCVC = (props: CVCProps) => {
   const context = useCardContext();
   const mask = useMemo(() => {
     if (!context.values.number) {
@@ -36,19 +31,15 @@ export const CardCVC = ({
 
   return (
     <TextInputMask
+      {...props}
       type="custom"
       options={{ mask }}
-      style={style}
       value={context.values.cvc}
       onChangeText={(t) => onChange(t)}
       id="cvc"
-      editable={disabled}
-      selectTextOnFocus={disabled}
       onBlur={onBlur}
-      placeholder={placeholder}
       inputMode="numeric"
       autoComplete="cc-csc"
-      readOnly={readOnly}
     />
   );
 };
