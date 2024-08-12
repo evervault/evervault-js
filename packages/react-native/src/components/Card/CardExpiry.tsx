@@ -1,5 +1,5 @@
 import { TextInputMask } from 'react-native-masked-text';
-import { useCardContext } from './context';
+import { removeFieldFromSet, useCardContext } from './context';
 import * as React from 'react';
 import { useEffect } from 'react';
 import { BaseProps } from './Card';
@@ -14,11 +14,7 @@ export function CardExpiry(props: CardExpiryProps) {
   useEffect(() => {
     context.setRegisteredFields((prev) => new Set(prev).add('expiry'));
     return () =>
-      context.setRegisteredFields((prev) => {
-        const next = new Set(prev);
-        next.delete('expiry');
-        return next;
-      });
+      context.setRegisteredFields((prev) => removeFieldFromSet(prev, 'expiry'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
