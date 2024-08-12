@@ -1,5 +1,14 @@
 # react-native-example
 
+## 1.0.10
+
+### Patch Changes
+
+- daeeac0: \* Add the ablity to pass (almost) any `TextInputProps` onto various CHD text input components
+  - Remove redudant `disabled field`. This behaviour can now be replicated as you wish with full control over the `TextInput` component.
+- Updated dependencies [daeeac0]
+  - @evervault/evervault-react-native@1.0.0
+
 ## 1.0.9
 
 ### Patch Changes
