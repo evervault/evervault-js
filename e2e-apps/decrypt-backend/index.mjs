@@ -1,19 +1,26 @@
 import { createServer } from "node:http";
-import { fileURLToPath } from "node:url";
-import { resolve } from "node:path";
-
-import serveHandler from "serve-handler";
-
 import Evervault from "@evervault/sdk";
+import dotenv from "dotenv";
 
-(await import("dotenv")).config();
+dotenv.config({ path: "../../.env" });
 
 // Uses a key scoped only to the decryption function
-const evervault = new Evervault(process.env.EV_APP_UUID, process.env.EV_DECRYPT_FN_KEY);
-
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
+const evervault = new Evervault(
+  process.env.VITE_EV_APP_UUID,
+  process.env.EV_API_KEY
+);
 
 const server = createServer(async (request, response) => {
+  response.setHeader("Access-Control-Allow-Origin", "*");
+  response.setHeader("Access-Control-Allow-Methods", "*");
+  response.setHeader("Access-Control-Allow-Headers", "*");
+
+  if (request.method === "OPTIONS") {
+    response.writeHead(204);
+    response.end();
+    return;
+  }
+
   switch (request.url) {
     case "/api/create-decrypt-token":
       if (
@@ -29,6 +36,7 @@ const server = createServer(async (request, response) => {
             body = Buffer.concat(body).toString();
             body = JSON.parse(body);
             const token = await evervault.createClientSideDecryptToken(body);
+            response;
             response.setHeader("Content-Type", "application/json");
             response.writeHead(200);
             response.end(JSON.stringify(token.token));
@@ -56,9 +64,8 @@ const server = createServer(async (request, response) => {
       }
       return;
     default:
-      await serveHandler(request, response, {
-        public: resolve(__dirname, "..", "browser", "dist"),
-      });
+      response.writeHead(200);
+      response.end();
       return;
   }
 });

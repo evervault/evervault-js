@@ -87,9 +87,12 @@ jobs:
         with:
           version: pnpm run version
         env:
+          HUSKY: 0
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Tags
         if: steps.changesets.outputs.hasChangesets == 'false'
         run: |
           npx changeset tag && git push origin --tags
+        env:
+          HUSKY: 0

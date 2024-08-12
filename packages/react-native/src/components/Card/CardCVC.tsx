@@ -10,6 +10,9 @@ export interface CVCProps extends BaseProps {}
 export const CardCVC = ({ disabled, readOnly, ...props }: CVCProps) => {
   const context = useCardContext();
   const mask = useMemo(() => {
+    if (!context.values.number) {
+      return '9999';
+    }
     const type = validateNumber(context.values.number).brand;
     if (type === 'american-express') {
       return '9999';

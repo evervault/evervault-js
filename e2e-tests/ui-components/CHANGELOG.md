@@ -1,5 +1,61 @@
 # @evervault/ui-components-e2e-tests
 
+## 1.0.4
+
+### Patch Changes
+
+- Updated dependencies [3156568]
+  - @evervault/ui-components@1.10.0
+
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies [1df9ba2]
+- Updated dependencies [e2f0721]
+  - @evervault/ui-components@1.9.0
+
+## 1.0.2
+
+### Patch Changes
+
+- Updated dependencies [a23d2f5]
+  - @evervault/ui-components@1.8.1
+
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies [05eda8e]
+  - @evervault/ui-components@1.8.0
+
+## null
+
+### Patch Changes
+
+- @evervault/ui-components@1.7.4
+
+## null
+
+### Patch Changes
+
+- Updated dependencies [9dba8c9]
+  - @evervault/ui-components@1.7.3
+
+## null
+
+### Patch Changes
+
+- Updated dependencies [5f1a5f2]
+  - @evervault/ui-components@1.7.2
+
+## null
+
+### Patch Changes
+
+- Updated dependencies [9501860]
+  - @evervault/ui-components@1.7.1
+
 ## null
 
 ### Patch Changes

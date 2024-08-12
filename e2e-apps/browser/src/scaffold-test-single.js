@@ -23,7 +23,7 @@ encryptForm.addEventListener("submit", async (e) => {
     unencrypted: value,
   };
 
-  const result = await fetch("/api/test_decryption", {
+  const result = await fetch("http://localhost:3010/api/test_decryption", {
     method: "POST",
     mode: "cors",
     headers: {
@@ -32,14 +32,17 @@ encryptForm.addEventListener("submit", async (e) => {
     body: JSON.stringify(fnPlayload),
   });
 
-  const resultToken = await fetch("/api/create-decrypt-token", {
-    method: "POST",
-    mode: "cors",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(tokenPayload),
-  });
+  const resultToken = await fetch(
+    "http://localhost:3010/api/create-decrypt-token",
+    {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(tokenPayload),
+    }
+  );
   const parsedTokenResponse = await resultToken.json();
   const decryptTokenResponse = await ev.decrypt(
     parsedTokenResponse,

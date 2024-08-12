@@ -1,5 +1,43 @@
 # @evervault/browser
 
+## 2.28.0
+
+### Minor Changes
+
+- 3156568: Add autoProgress option to Card component to automatically progress to the next input when an input becomes valid.
+
+### Patch Changes
+
+- Updated dependencies [3156568]
+  - types@0.3.0
+  - themes@0.1.3
+
+## 2.27.0
+
+### Minor Changes
+
+- 1df9ba2: Add functionality to disable autoCompletion for fields in the Card component
+- e2f0721: Adds 3DS method support
+
+### Patch Changes
+
+- Updated dependencies [1df9ba2]
+- Updated dependencies [e2f0721]
+  - types@0.2.0
+  - themes@0.1.2
+
+## 2.26.0
+
+### Minor Changes
+
+- 05eda8e: Adds new ThreeDSecure UI Component for handling 3D Secure authentication
+
+## 2.25.2
+
+### Patch Changes
+
+- 408c73e: remove dead code
+
 ## 2.25.1
 
 ### Patch Changes

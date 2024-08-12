@@ -1,12 +1,16 @@
 import { useEffect } from 'react';
 import * as React from 'react';
-import { TextInput } from 'react-native';
+import { Platform, TextInput } from 'react-native';
 import { useCardContext } from './context';
 import { BaseProps } from './Card';
 
 export interface CardHolderProps extends BaseProps {}
 
-export function CardHolder({ disabled, readOnly, ...props }: CardHolderProps) {
+export function CardHolder({
+  disabled,
+  placeholder,
+  readOnly,
+}: CardHolderProps) {
   const context = useCardContext();
 
   const { onBlur, onChange } = context.register('name');
@@ -30,9 +34,12 @@ export function CardHolder({ disabled, readOnly, ...props }: CardHolderProps) {
       onBlur={onBlur}
       editable={disabled}
       selectTextOnFocus={disabled}
-      autoComplete="cc-name"
+      placeholder={placeholder}
+      autoComplete={Platform.select({
+        ios: 'cc-name',
+        android: 'name',
+      })}
       onChangeText={(v) => onChange(v)}
-      {...props}
     />
   );
 }

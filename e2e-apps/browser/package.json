@@ -1,12 +1,13 @@
 {
   "private": true,
   "name": "@evervault/browser-e2e-app",
-  "version": null,
+  "version": "1.0.3",
   "engines": {
     "node": "~18",
     "pnpm": "~9"
   },
   "scripts": {
+    "start": "vite",
     "build": "vite build",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

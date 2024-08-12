@@ -3,6 +3,15 @@ const fs = require("fs");
 const path = require("path");
 const { select } = require("@inquirer/prompts");
 
+console.log(`
+███████╗██╗   ██╗███████╗██████╗ ██╗   ██╗ █████╗ ██╗   ██╗██╗  ████████╗
+██╔════╝██║   ██║██╔════╝██╔══██╗██║   ██║██╔══██╗██║   ██║██║  ╚══██╔══╝
+█████╗  ██║   ██║█████╗  ██████╔╝██║   ██║███████║██║   ██║██║     ██║   
+██╔══╝  ╚██╗ ██╔╝██╔══╝  ██╔══██╗╚██╗ ██╔╝██╔══██║██║   ██║██║     ██║   
+███████╗ ╚████╔╝ ███████╗██║  ██║ ╚████╔╝ ██║  ██║╚██████╔╝███████╗██║   
+╚══════╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝   
+`);
+
 const dirs = fs
   .readdirSync(__dirname, { withFileTypes: true })
   .filter((f) => f.isDirectory());
@@ -23,11 +32,15 @@ select({
     [
       "--",
       "turbo",
+      "watch",
       "dev",
+      "--ui=tui",
       "--filter",
       "@evervault/ui-components",
       "--filter",
-      `${example}...`,
+      "@evervault/browser",
+      "--filter",
+      `${example}`,
     ],
     {
       stdio: "inherit",
