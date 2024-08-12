@@ -20,6 +20,7 @@ export default class ThreeDSecure {
   #session: string;
   #isOverlay: boolean;
   #options: ThreeDSecureOptions;
+  #client: EvervaultClient;
   #frame: EvervaultFrame<
     ThreeDSecureFrameClientMessages,
     EvervaultFrameHostMessages
@@ -36,20 +37,18 @@ export default class ThreeDSecure {
     this.#options = options ?? {};
     this.#isOverlay = false;
     this.#frame = new EvervaultFrame(client, "ThreeDSecure");
+    this.#client = client;
 
-    this.#frame.on("EV_SUCCESS", () => {
-      this.#events.dispatch("success");
-      this.unmount();
+    this.#frame.on("EV_SUCCESS", (cres) => {
+      void this.#handleOutcome("success", cres);
     });
 
-    this.#frame.on("EV_FAILURE", () => {
-      this.#events.dispatch("failure");
-      this.unmount();
+    this.#frame.on("EV_FAILURE", (cres) => {
+      void this.#handleOutcome("failure", cres);
     });
 
     this.#frame.on("EV_CANCEL", () => {
-      this.#events.dispatch("failure");
-      this.unmount();
+      void this.#handleOutcome("cancelled");
     });
 
     this.#frame.on("EV_FRAME_READY", () => {
@@ -60,6 +59,27 @@ export default class ThreeDSecure {
       this.unmount();
       this.#events.dispatch("error", error);
       if (error) console.error(error.message);
+    });
+  }
+
+  async #handleOutcome(outcome: string, cres?: string | null) {
+    await this.#updateOutcome(outcome, cres);
+    this.#events.dispatch(outcome === "success" ? "success" : "failure");
+    this.unmount();
+  }
+
+  async #updateOutcome(outcome: string, cres?: string | null): Promise<void> {
+    const api = this.#client.config.http.apiUrl;
+    await fetch(`${api}/frontend/3ds/browser-sessions/${this.#session}`, {
+      method: "PATCH",
+      headers: {
+        "X-Evervault-App-Id": this.#client.config.appId,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        outcome,
+        cres: cres ?? null,
+      }),
     });
   }
 

@@ -92,6 +92,13 @@ export interface CardOptions {
   fields?: CardField[];
   acceptedBrands?: CardBrandName[];
   translations?: Partial<CardTranslations>;
+  autoProgress?: boolean;
+  autoComplete?: {
+    name?: boolean;
+    number?: boolean;
+    expiry?: boolean;
+    cvc?: boolean;
+  };
 }
 
 export interface FormOptions {
@@ -192,7 +199,7 @@ export interface ThreeDSecureOptions {
 
 export interface ThreeDSecureFrameClientMessages
   extends EvervaultFrameClientMessages {
-  EV_SUCCESS: undefined;
-  EV_FAILURE: undefined;
+  EV_SUCCESS: string | undefined | null;
+  EV_FAILURE: string | undefined | null;
   EV_CANCEL: undefined;
 }

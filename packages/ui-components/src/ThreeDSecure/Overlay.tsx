@@ -1,32 +1,20 @@
 import { ReactNode } from "react";
-import {
-  EvervaultFrameHostMessages,
-  ThreeDSecureFrameClientMessages,
-} from "types";
-import { useMessaging } from "../utilities/useMessaging";
 
 export function Overlay({
   enabled,
   children,
+  onCancel,
 }: {
   enabled: boolean;
   children: ReactNode;
+  onCancel: () => void;
 }) {
-  const { send } = useMessaging<
-    EvervaultFrameHostMessages,
-    ThreeDSecureFrameClientMessages
-  >();
-
   if (!enabled) return children;
-
-  const handleCancel = () => {
-    send("EV_CANCEL");
-  };
 
   return (
     <div ev-overlay="" className="overlay">
       <div className="overlayWindow">
-        <button className="overlayClose" onClick={handleCancel}>
+        <button className="overlayClose" onClick={onCancel}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"

@@ -7,7 +7,9 @@ test.describe("card component", () => {
   });
 
   Object.values(VALID_CARDS).forEach((card) => {
-    test(`can capture valid card details for ${card.number} (${card.brand})`, async ({ page }) => {
+    test(`can capture valid card details for ${card.number} (${card.brand})`, async ({
+      page,
+    }) => {
       let values = {};
 
       await page.exposeFunction("handleChange", (newValues) => {
@@ -26,7 +28,9 @@ test.describe("card component", () => {
       await frame.getByLabel("CVC").fill(card.cvc);
       await expect.poll(async () => values.card?.number).toBeEncrypted();
       await expect.poll(async () => values.card?.brand).toEqual(card.brand);
-      await expect.poll(async () => values.card?.localBrands).toEqual(card.localBrands);
+      await expect
+        .poll(async () => values.card?.localBrands)
+        .toEqual(card.localBrands);
       await expect.poll(async () => values.card?.cvc).toBeEncrypted();
       await expect
         .poll(async () => values.card?.expiry?.month)
@@ -82,7 +86,7 @@ test.describe("card component", () => {
     });
 
     await page.evaluate(() => {
-      const card = window.evervault.ui.card({acceptedBrands: ["visa"]});
+      const card = window.evervault.ui.card({ acceptedBrands: ["visa"] });
       card.on("change", window.handleChange);
       card.mount("#form");
     });
@@ -91,8 +95,12 @@ test.describe("card component", () => {
     const frame = page.frameLocator("iframe[data-evervault]");
     await frame.getByLabel("Number").fill(testCard.number);
     await frame.getByLabel("Number").blur();
-    await expect(frame.getByText("This card brand is not supported")).toBeVisible();
-    await expect.poll(async () => values.errors.number).toEqual("unsupportedBrand");
+    await expect(
+      frame.getByText("This card brand is not supported")
+    ).toBeVisible();
+    await expect
+      .poll(async () => values.errors.number)
+      .toEqual("unsupportedBrand");
     await expect.poll(async () => values.isValid).toBeFalsy();
     await expect(
       frame.getByText("Your expiration date is invalid")
@@ -422,5 +430,33 @@ test.describe("card component", () => {
     });
 
     await expect(frame.getByLabel("Number")).not.toBeVisible();
+  });
+
+  test("does not auto progress by default", async ({ page }) => {
+    await page.evaluate(() => {
+      window.card = window.evervault.ui.card();
+      window.card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill("4242424242424242");
+    await expect(frame.getByLabel("Expiration")).not.toBeFocused();
+    await frame.getByLabel("Expiration").fill("1226");
+    await expect(frame.getByLabel("CVC")).not.toBeFocused();
+  });
+
+  test("auto focuses next field when autoProgress is true", async ({
+    page,
+  }) => {
+    await page.evaluate(() => {
+      window.card = window.evervault.ui.card({ autoProgress: true });
+      window.card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill("4242424242424242");
+    await expect(frame.getByLabel("Expiration")).toBeFocused();
+    await frame.getByLabel("Expiration").fill("1226");
+    await expect(frame.getByLabel("CVC")).toBeFocused();
   });
 });

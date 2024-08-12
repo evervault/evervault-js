@@ -1,37 +1,39 @@
 import { useEffect, useRef, useState } from "react";
+import { ChallengeNextAction, TrampolineMessage } from "./types";
 import {
-  EvervaultFrameHostMessages,
-  ThreeDSecureFrameClientMessages,
-} from "types";
-import { useMessaging } from "../utilities/useMessaging";
-import { NextAction, TrampolineMessage } from "./types";
-import { isTrampolineMessage, postRedirectFrame } from "./utilities";
+  isTrampolineMessage,
+  postRedirectFrame,
+  useThreeDSMessaging,
+} from "./utilities";
 
 export function ChallengeFrame({
   nextAction,
   onLoad,
 }: {
-  nextAction: NextAction;
+  nextAction: ChallengeNextAction;
   onLoad: () => void;
 }) {
+  const initialized = useRef(false);
   const frame = useRef<HTMLIFrameElement>(null);
   const [loaded, setLoaded] = useState(false);
-
-  const { send } = useMessaging<
-    EvervaultFrameHostMessages,
-    ThreeDSecureFrameClientMessages
-  >();
+  const { send } = useThreeDSMessaging();
 
   useEffect(() => {
     if (!frame.current) return;
-    postRedirectFrame(frame.current, nextAction);
+
+    if (!initialized.current) {
+      initialized.current = true;
+      postRedirectFrame(frame.current, nextAction.url, {
+        creq: nextAction.creq,
+      });
+    }
 
     const handleMessage = (e: MessageEvent) => {
       if (isTrampolineMessage(e)) {
         if (check3DSSuccess(e)) {
-          send("EV_SUCCESS");
+          send("EV_SUCCESS", cresForOutcome(e.data.cres));
         } else {
-          send("EV_FAILURE");
+          send("EV_FAILURE", cresForOutcome(e.data.cres));
         }
       }
     };
@@ -49,6 +51,8 @@ export function ChallengeFrame({
     <iframe
       ref={frame}
       name="challengeFrame"
+      allow="payment *; publickey-credentials-get *"
+      sandbox="allow-forms allow-scripts allow-same-origin allow-pointer-lock"
       style={{
         width: loaded ? "100%" : 0,
         height: loaded ? "100%" : 0,
@@ -56,6 +60,16 @@ export function ChallengeFrame({
       }}
     />
   );
+}
+
+function cresForOutcome(cres: string | null): string | null {
+  if (!cres) return null;
+
+  try {
+    return atob(cres);
+  } catch {
+    return cres;
+  }
 }
 
 function check3DSSuccess(message: TrampolineMessage): boolean {
