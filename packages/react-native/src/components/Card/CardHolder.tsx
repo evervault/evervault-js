@@ -6,11 +6,7 @@ import { BaseProps } from './Card';
 
 export interface CardHolderProps extends BaseProps {}
 
-export function CardHolder({
-  disabled,
-  placeholder,
-  readOnly,
-}: CardHolderProps) {
+export function CardHolder(props: CardHolderProps) {
   const context = useCardContext();
 
   const { onBlur, onChange } = context.register('name');
@@ -28,13 +24,10 @@ export function CardHolder({
 
   return (
     <TextInput
+      {...props}
       id="name"
       value={context.values.name}
-      readOnly={readOnly}
       onBlur={onBlur}
-      editable={disabled}
-      selectTextOnFocus={disabled}
-      placeholder={placeholder}
       autoComplete={Platform.select({
         ios: 'cc-name',
         android: 'name',
