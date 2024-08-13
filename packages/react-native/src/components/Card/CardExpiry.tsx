@@ -29,7 +29,10 @@ export function CardExpiry(props: CardExpiryProps) {
         format: '99 / 99',
       }}
       id="expiry"
-      onBlur={onBlur}
+      onBlur={(e) => {
+        onBlur(e);
+        props.onBlur?.(e);
+      }}
       placeholder={props.placeholder ?? 'MM / YY'}
       inputMode="numeric"
       autoComplete="cc-exp"

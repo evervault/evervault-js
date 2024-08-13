@@ -23,7 +23,10 @@ export function CardHolder(props: CardHolderProps) {
       {...props}
       id="name"
       value={context.values.name}
-      onBlur={onBlur}
+      onBlur={(e) => {
+        onBlur(e);
+        props.onBlur?.(e);
+      }}
       autoComplete={Platform.select({
         ios: 'cc-name',
         android: 'name',
