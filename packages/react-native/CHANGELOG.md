@@ -1,5 +1,11 @@
 # @evervault/evervault-react-native
 
+## 1.0.1
+
+### Patch Changes
+
+- 1a4bf4b: Added missing on blur prop
+
 ## 1.0.0
 
 ### Major Changes

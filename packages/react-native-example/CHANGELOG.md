@@ -1,5 +1,13 @@
 # react-native-example
 
+## 1.0.11
+
+### Patch Changes
+
+- 1a4bf4b: Added missing on blur prop
+- Updated dependencies [1a4bf4b]
+  - @evervault/evervault-react-native@1.0.1
+
 ## 1.0.10
 
 ### Patch Changes
