@@ -1,6 +1,6 @@
 {
   "name": "@evervault/evervault-react-native",
-  "version": "0.5.3",
+  "version": "1.0.0",
   "description": "Evervault react native sdk",
   "main": "./dist/commonjs/index.js",
   "module": "./dist/module/index.js",

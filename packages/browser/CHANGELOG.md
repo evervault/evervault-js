@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.29.0
+
+### Minor Changes
+
+- 8d76d70: Add dependency for handling ASN.1 encoding
+
 ## 2.28.0
 
 ### Minor Changes
