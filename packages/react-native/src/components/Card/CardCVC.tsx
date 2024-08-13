@@ -37,7 +37,10 @@ export const CardCVC = (props: CVCProps) => {
       value={context.values.cvc}
       onChangeText={(t) => onChange(t)}
       id="cvc"
-      onBlur={onBlur}
+      onBlur={(e) => {
+        onBlur(e);
+        props.onBlur?.(e);
+      }}
       inputMode="numeric"
       autoComplete="cc-csc"
     />

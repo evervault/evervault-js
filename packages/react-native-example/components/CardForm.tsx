@@ -12,6 +12,7 @@ function CardForm({ setCardData }: CardFormProps) {
         placeholder="4242 4242 4242 4242"
         style={styles.input}
         onFocus={() => console.log("on focus!")}
+        onBlur={() => console.log("on blur!")}
       />
       <Card.Expiry placeholder="MM / YY" style={styles.input} />
       <Card.Holder placeholder="John Doe" style={styles.input} />

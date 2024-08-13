@@ -19,12 +19,7 @@ import { StyleProp, TextInputProps, TextStyle, View } from 'react-native';
 export interface BaseProps
   extends Omit<
     TextInputProps,
-    | 'onChange'
-    | 'onBlur'
-    | 'onChangeText'
-    | 'inputMode'
-    | 'autoComplete'
-    | 'value'
+    'onChange' | 'onChangeText' | 'inputMode' | 'autoComplete' | 'value'
   > {}
 
 export interface CardProps {

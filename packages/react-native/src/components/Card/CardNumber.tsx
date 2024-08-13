@@ -47,7 +47,10 @@ export function CardNumber(props: CardNumberProps) {
       id="number"
       value={innerValue}
       onChangeText={onChange}
-      onBlur={onBlur}
+      onBlur={(e) => {
+        onBlur(e);
+        props.onBlur?.(e);
+      }}
       inputMode="numeric"
       autoComplete="cc-number"
     />
