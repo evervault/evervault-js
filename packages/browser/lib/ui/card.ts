@@ -16,6 +16,7 @@ interface CardEvents {
   change: (payload: CardPayload) => void;
   complete: (payload: CardPayload) => void;
   swipe: (payload: SwipedCard) => void;
+  validate: (payload: CardPayload) => void;
 }
 
 export default class Card {
@@ -94,6 +95,9 @@ export default class Card {
 
   validate() {
     this.#frame.send("EV_VALIDATE");
-    return this;
+    this.#frame.once("EV_VALIDATED", (payload) => {
+      this.values = payload;
+      this.#events.dispatch("validate", payload);
+    });
   }
 }

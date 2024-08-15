@@ -24,6 +24,10 @@ card.on("swipe", (values) => {
   console.log("swipe", values);
 });
 
+card.on("validate", (values) => {
+  console.log("validate", values);
+});
+
 card.mount("#form");
 
 const btn = document.getElementById("purchase");

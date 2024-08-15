@@ -145,6 +145,7 @@ export interface CardFrameClientMessages extends EvervaultFrameClientMessages {
   EV_SWIPE: SwipedCard;
   EV_CHANGE: CardPayload;
   EV_COMPLETE: CardPayload;
+  EV_VALIDATED: CardPayload;
 }
 
 export interface CardFrameHostMessages extends EvervaultFrameHostMessages {
