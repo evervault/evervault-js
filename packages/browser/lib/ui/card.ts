@@ -20,7 +20,7 @@ interface CardEvents {
 }
 
 export default class Card {
-  values?: CardPayload;
+  values: CardPayload;
   #options: CardOptions;
   #frame: EvervaultFrame<CardFrameClientMessages, CardFrameHostMessages>;
 
@@ -48,6 +48,22 @@ export default class Card {
     this.#frame.on("EV_FRAME_READY", () => {
       this.#events.dispatch("ready");
     });
+
+    this.values = {
+      card: {
+        name: null,
+        brand: null,
+        localBrands: [],
+        bin: null,
+        lastFour: null,
+        number: null,
+        expiry: { month: null, year: null },
+        cvc: null,
+      },
+      isValid: true,
+      isComplete: false,
+      errors: null,
+    };
   }
 
   get config() {
