@@ -1,5 +1,12 @@
 # example-forms
 
+## 0.1.7
+
+### Patch Changes
+
+- Updated dependencies [cdfb8fe]
+  - @evervault/browser@2.30.0
+
 ## 0.1.6
 
 ### Patch Changes

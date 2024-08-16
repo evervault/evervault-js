@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.30.0
+
+### Minor Changes
+
+- cdfb8fe: Add 'validate' event to card components
+
 ## 2.29.0
 
 ### Minor Changes

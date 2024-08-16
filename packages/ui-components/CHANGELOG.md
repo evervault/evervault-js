@@ -1,5 +1,15 @@
 # @evervault/ui-components
 
+## 1.11.0
+
+### Minor Changes
+
+- cdfb8fe: Add 'validate' event to card components
+
+### Patch Changes
+
+- @evervault/react@2.9.0
+
 ## 1.10.0
 
 ### Minor Changes
