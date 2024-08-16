@@ -144,9 +144,16 @@ export function Card({ config }: { config: CardConfig }) {
   useEffect(
     () =>
       on("EV_VALIDATE", () => {
-        form.validate();
+        if (!ev) return;
+
+        form.validate((formState) => {
+          void (async () => {
+            const data = await changePayload(ev, formState, fields);
+            send("EV_VALIDATED", data);
+          })();
+        });
       }),
-    [on, form]
+    [ev, on, send, form, fields]
   );
 
   const hasErrors = Object.keys(form.errors ?? {}).length > 0;

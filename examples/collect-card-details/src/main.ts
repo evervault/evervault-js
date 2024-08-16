@@ -24,6 +24,10 @@ card.on("swipe", (values) => {
   console.log("swipe", values);
 });
 
+card.on("validate", (values) => {
+  console.log("validate", values);
+});
+
 card.mount("#form");
 
 const btn = document.getElementById("purchase");
@@ -34,7 +38,7 @@ btn?.addEventListener("click", () => {
   output.innerText = "";
   card.validate();
 
-  if (card.values?.isValid) {
+  if (card.values.isComplete) {
     console.log("Valid!", card.values);
     const { number, expiry, cvc } = card.values.card;
     output.innerHTML += "Thank you for your purchase! <br /><br />";

@@ -7,7 +7,7 @@ export interface UseFormReturn<T> {
   errors: Partial<Record<keyof T, string>> | null;
   setError: <K extends keyof T>(field: K, error: string | undefined) => void;
   isValid: boolean;
-  validate: () => void;
+  validate: (cb?: ValidationCallback<T>) => void;
   register: <K extends keyof T>(
     name: K
   ) => {
@@ -23,6 +23,8 @@ interface UseFormOptions<T> {
   onChange?: (values: UseFormReturn<T>) => void;
 }
 
+type ValidationCallback<T> = (form: UseFormReturn<T>) => void;
+
 export function useForm<T extends object>({
   initialValues,
   validate,
@@ -30,6 +32,7 @@ export function useForm<T extends object>({
 }: UseFormOptions<T>): UseFormReturn<T> {
   const validators = useRef(validate);
   const triggerChange = useRef(false);
+  const validationCallback = useRef<ValidationCallback<T>>();
   const [values, setValues] = useState<T>(initialValues);
   const [errors, setErrors] = useState<UseFormReturn<T>["errors"]>(
     {} as UseFormReturn<T>["errors"]
@@ -89,35 +92,40 @@ export function useForm<T extends object>({
     [errors]
   );
 
-  const validateForm = useCallback(() => {
-    const nextErrors = Object.keys(values).reduce((acc, key) => {
-      const validator = validators.current?.[key as keyof T];
-      if (validator) {
-        const error = validator(values);
-        if (error) {
-          return {
-            ...acc,
-            [key]: error,
-          };
+  const validateForm = useCallback(
+    (cb?: ValidationCallback<T>) => {
+      validationCallback.current = cb;
+
+      const nextErrors = Object.keys(values).reduce((acc, key) => {
+        const validator = validators.current?.[key as keyof T];
+        if (validator) {
+          const error = validator(values);
+          if (error) {
+            return {
+              ...acc,
+              [key]: error,
+            };
+          }
         }
-      }
 
-      return acc;
-    }, {} as Record<keyof T, string>);
+        return acc;
+      }, {} as Record<keyof T, string>);
 
-    const hasErrors = Object.keys(nextErrors).length > 0;
-    setErrors(hasErrors ? nextErrors : null);
+      const hasErrors = Object.keys(nextErrors).length > 0;
+      setErrors(hasErrors ? nextErrors : null);
 
-    // iterate over the errors and if any of them are different then we should
-    // trigger a change event.
-    const shouldTriggerChange = Object.keys(nextErrors).some((key) => {
-      const prevError = errors?.[key as keyof T];
-      const nextError = nextErrors[key as keyof T];
-      return prevError !== nextError;
-    });
+      // iterate over the errors and if any of them are different then we should
+      // trigger a change event.
+      const shouldTriggerChange = Object.keys(nextErrors).some((key) => {
+        const prevError = errors?.[key as keyof T];
+        const nextError = nextErrors[key as keyof T];
+        return prevError !== nextError;
+      });
 
-    triggerChange.current = shouldTriggerChange;
-  }, [errors, values]);
+      triggerChange.current = shouldTriggerChange;
+    },
+    [errors, values]
+  );
 
   const validateField = useCallback(
     <K extends keyof T>(field: K) => {
@@ -163,9 +171,15 @@ export function useForm<T extends object>({
   );
 
   useEffect(() => {
-    if (!triggerChange.current) return;
-    triggerChange.current = false;
-    onChange?.(form);
+    if (triggerChange.current) {
+      triggerChange.current = false;
+      onChange?.(form);
+    }
+
+    if (validationCallback.current) {
+      validationCallback.current(form);
+      validationCallback.current = undefined;
+    }
   }, [form, onChange]);
 
   return form;
