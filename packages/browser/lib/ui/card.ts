@@ -115,5 +115,6 @@ export default class Card {
       this.values = payload;
       this.#events.dispatch("validate", payload);
     });
+    return this;
   }
 }
