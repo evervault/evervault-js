@@ -459,4 +459,50 @@ test.describe("card component", () => {
     await frame.getByLabel("Expiration").fill("1226");
     await expect(frame.getByLabel("CVC")).toBeFocused();
   });
+
+  test("fires a validate event when validation is manually triggered", async ({
+    page,
+  }) => {
+    let called = 0;
+
+    await page.exposeFunction("handleValidate", () => {
+      called += 1;
+    });
+
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card();
+      card.on("validate", window.handleValidate);
+
+      card.on("ready", () => {
+        card.validate();
+      });
+
+      card.mount("#form");
+    });
+
+    await expect.poll(async () => called).toEqual(1);
+  });
+
+  test("does not fire validate event when validate method not called", async ({
+    page,
+  }) => {
+    let called = 0;
+
+    await page.exposeFunction("handleValidate", () => {
+      called += 1;
+    });
+
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card();
+      card.on("validate", window.handleValidate);
+      card.mount("#form");
+    });
+
+    const testCard = INVALID_CARDS.invalidNumber;
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill(testCard.number);
+    await frame.getByLabel("Number").blur();
+    await expect(frame.getByText("Your card number is invalid")).toBeVisible();
+    await expect.poll(async () => called).toEqual(0);
+  });
 });
