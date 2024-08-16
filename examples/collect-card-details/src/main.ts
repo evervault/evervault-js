@@ -38,7 +38,7 @@ btn?.addEventListener("click", () => {
   output.innerText = "";
   card.validate();
 
-  if (card.values?.isValid) {
+  if (card.values.isComplete) {
     console.log("Valid!", card.values);
     const { number, expiry, cvc } = card.values.card;
     output.innerHTML += "Thank you for your purchase! <br /><br />";

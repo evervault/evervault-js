@@ -60,7 +60,7 @@ export default class Card {
         expiry: { month: null, year: null },
         cvc: null,
       },
-      isValid: true,
+      isValid: false,
       isComplete: false,
       errors: null,
     };

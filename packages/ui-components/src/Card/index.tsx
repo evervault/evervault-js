@@ -146,9 +146,11 @@ export function Card({ config }: { config: CardConfig }) {
       on("EV_VALIDATE", () => {
         if (!ev) return;
 
-        form.validate(async (formState) => {
-          const data = await changePayload(ev, formState, fields);
-          send("EV_VALIDATED", data);
+        form.validate((formState) => {
+          void (async () => {
+            const data = await changePayload(ev, formState, fields);
+            send("EV_VALIDATED", data);
+          })();
         });
       }),
     [ev, on, send, form, fields]
