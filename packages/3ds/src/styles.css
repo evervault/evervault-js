@@ -2,3 +2,29 @@ body {
   margin: 0;
   padding: 0;
 }
+
+#spinner {
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  display: grid;
+  position: absolute;
+  place-items: center;
+  color: #5e6077;
+  transform-origin: center;
+  animation: spin 0.7s linear infinite;
+}
+
+#spinner.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
