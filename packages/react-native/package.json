@@ -26,6 +26,7 @@
     "!**/.*"
   ],
   "scripts": {
+    "dev": "nodemon --watch ./src --exec 'bob build' --ext ts,tsx",
     "build": "bob build",
     "prepare": "bob build",
     "typecheck": "tsc --noEmit",
@@ -53,6 +54,7 @@
   },
   "dependencies": {
     "@evervault/card-validator": "workspace:*",
+    "nodemon": "^3.1.4",
     "react-native-masked-text": "^1.13.0"
   },
   "devDependencies": {
