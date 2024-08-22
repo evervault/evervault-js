@@ -21,13 +21,19 @@ function useInterval(callback: () => void, delay: number | undefined) {
   return intervalRef;
 }
 
+const sleep = (timeout: number) =>
+  new Promise((res) => setTimeout(res, timeout));
+
 const ThreeDS = () => {
   const [attempts, setAttempts] = useState(0);
   const [isPolling, setIsPolling] = useState(false);
 
   useInterval(
-    () => {
+    async () => {
       console.log(`Polling API! ${attempts}`);
+      await sleep(200);
+      console.log("Poll Complete!");
+
       setAttempts((a) => a + 1);
 
       if (attempts > 3) {
