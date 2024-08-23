@@ -8,3 +8,4 @@ export type {
   CardForm,
   CardField,
 } from './components/Card/types';
+export { default as EvervaultProvider } from './components/EvervaultProvider';
