@@ -2,24 +2,24 @@ import {
   validateNumber,
   validateCVC,
   validateExpiry,
-} from '@evervault/card-validator';
-import * as React from 'react';
-import { ReactNode, useEffect, useState } from 'react';
-import { useForm } from '../useForm';
-import { changePayload, isAcceptedBrand, isComplete } from './utilities';
-import type { CardForm, CardConfig, CardField, CardPayload } from './types';
-import { CardNumber } from './CardNumber';
-import { CardContext } from './context';
-import { encrypt } from '../../sdk';
-import { CardCVC } from './CardCVC';
-import { CardHolder } from './CardHolder';
-import { CardExpiry } from './CardExpiry';
-import { StyleProp, TextInputProps, TextStyle, View } from 'react-native';
+} from "@evervault/card-validator";
+import * as React from "react";
+import { ReactNode, useEffect, useState } from "react";
+import { useForm } from "../useForm";
+import { changePayload, isAcceptedBrand, isComplete } from "./utilities";
+import type { CardForm, CardConfig, CardField, CardPayload } from "./types";
+import { CardNumber } from "./CardNumber";
+import { CardContext } from "./context";
+import { encrypt } from "../../sdk";
+import { CardCVC } from "./CardCVC";
+import { CardHolder } from "./CardHolder";
+import { CardExpiry } from "./CardExpiry";
+import { StyleProp, TextInputProps, TextStyle, View } from "react-native";
 
 export interface BaseProps
   extends Omit<
     TextInputProps,
-    'onChange' | 'onChangeText' | 'inputMode' | 'autoComplete' | 'value'
+    "onChange" | "onChangeText" | "inputMode" | "autoComplete" | "value"
   > {}
 
 export interface CardProps {
@@ -37,56 +37,56 @@ function Card({ initialValue, config, children, onChange, style }: CardProps) {
 
   const form = useForm<CardForm>({
     initialValues: initialValue ?? {
-      cvc: '',
-      expiry: '',
-      number: '',
-      name: '',
+      cvc: "",
+      expiry: "",
+      number: "",
+      name: "",
     },
     validate: {
       name: (values) => {
-        if (!registeredFields.has('name')) {
+        if (!registeredFields.has("name")) {
           return undefined;
         }
 
         if (values.name.length === 0) {
-          return 'invalid';
+          return "invalid";
         }
 
         return undefined;
       },
       number: (values) => {
-        if (!registeredFields.has('number')) {
+        if (!registeredFields.has("number")) {
           return undefined;
         }
         const cardValidation = validateNumber(values.number);
         if (!cardValidation.isValid) {
-          return 'invalid';
+          return "invalid";
         }
 
         if (!isAcceptedBrand(config?.acceptedBrands, cardValidation)) {
-          return 'unsupportedBrand';
+          return "unsupportedBrand";
         }
 
         return undefined;
       },
       expiry: (values) => {
-        if (!registeredFields.has('expiry')) {
+        if (!registeredFields.has("expiry")) {
           return undefined;
         }
         const expiryValidation = validateExpiry(values.expiry);
         if (!expiryValidation.isValid) {
-          return 'invalid';
+          return "invalid";
         }
 
         return undefined;
       },
       cvc: (values) => {
-        if (!registeredFields.has('cvc')) {
+        if (!registeredFields.has("cvc")) {
           return undefined;
         }
         const cvcValidation = validateCVC(values.cvc, values.number);
         if (!cvcValidation.isValid) {
-          return 'invalid';
+          return "invalid";
         }
 
         return undefined;

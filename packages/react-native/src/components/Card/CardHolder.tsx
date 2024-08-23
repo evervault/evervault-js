@@ -1,20 +1,20 @@
-import { useEffect } from 'react';
-import * as React from 'react';
-import { Platform, TextInput } from 'react-native';
-import { removeFieldFromSet, useCardContext } from './context';
-import { BaseProps } from './Card';
+import { useEffect } from "react";
+import * as React from "react";
+import { Platform, TextInput } from "react-native";
+import { removeFieldFromSet, useCardContext } from "./context";
+import { BaseProps } from "./Card";
 
 export interface CardHolderProps extends BaseProps {}
 
 export function CardHolder(props: CardHolderProps) {
   const context = useCardContext();
 
-  const { onBlur, onChange } = context.register('name');
+  const { onBlur, onChange } = context.register("name");
 
   useEffect(() => {
-    context.setRegisteredFields((prev) => new Set(prev).add('name'));
+    context.setRegisteredFields((prev) => new Set(prev).add("name"));
     return () =>
-      context.setRegisteredFields((prev) => removeFieldFromSet(prev, 'name'));
+      context.setRegisteredFields((prev) => removeFieldFromSet(prev, "name"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -28,8 +28,8 @@ export function CardHolder(props: CardHolderProps) {
         props.onBlur?.(e);
       }}
       autoComplete={Platform.select({
-        ios: 'cc-name',
-        android: 'name',
+        ios: "cc-name",
+        android: "name",
       })}
       onChangeText={(v) => onChange(v)}
     />
