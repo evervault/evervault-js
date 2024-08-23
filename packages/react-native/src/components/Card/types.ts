@@ -1,17 +1,17 @@
 export type CardBrandName =
-  | 'american-express'
-  | 'visa'
-  | 'mastercard'
-  | 'discover'
-  | 'jcb'
-  | 'diners-club'
-  | 'unionpay'
-  | 'maestro'
-  | 'mir'
-  | 'elo'
-  | 'hipercard'
-  | 'hiper'
-  | 'szep';
+  | "american-express"
+  | "visa"
+  | "mastercard"
+  | "discover"
+  | "jcb"
+  | "diners-club"
+  | "unionpay"
+  | "maestro"
+  | "mir"
+  | "elo"
+  | "hipercard"
+  | "hiper"
+  | "szep";
 
 export interface CardConfig {
   acceptedBrands?: CardBrandName[];
@@ -24,7 +24,7 @@ export interface CardForm {
   expiry: string;
 }
 
-export type CardField = 'name' | 'number' | 'expiry' | 'cvc';
+export type CardField = "name" | "number" | "expiry" | "cvc";
 
 export interface CardExpiry {
   month: string | null;
