@@ -1,5 +1,11 @@
 # @evervault/evervault-react-native
 
+## 1.1.0
+
+### Minor Changes
+
+- 785ae73: Added a new `EvervaultProvider` component to ease initialization of the SDK
+
 ## 1.0.1
 
 ### Patch Changes
