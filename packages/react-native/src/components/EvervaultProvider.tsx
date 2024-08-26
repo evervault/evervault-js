@@ -1,6 +1,5 @@
 import { ReactNode, createContext, useContext, useEffect } from "react";
 import * as React from "react";
-import { init } from "../sdk";
 import { EvervaultSdk } from "../native";
 
 export interface EvervaultContext {
@@ -17,8 +16,8 @@ const Ctx = createContext<EvervaultContext>({
 export const useEvervault = () => useContext(Ctx);
 
 interface EvervaultProps {
-  appUuid: string;
-  teamUuid: string;
+  appId: string;
+  teamId: string;
   children: ReactNode;
 }
 
@@ -27,7 +26,7 @@ interface EvervaultProps {
  * ```tsx
  * function App() {
  *  return (
- *    <EvervaultProvider teamUuid="team_123" appUuid="app_123">
+ *    <EvervaultProvider teamId="team_123" appId="app_123">
  *      <Card onChange={(card) => console.log(card)}>
  *        <Card.Number />
  *      </Card>
@@ -36,30 +35,30 @@ interface EvervaultProps {
  * }
  * ```
  */
-const EvervaultProvider = ({ teamUuid, appUuid, children }: EvervaultProps) => {
+const EvervaultProvider = ({ teamId, appId, children }: EvervaultProps) => {
   useEffect(() => {
     async function initEvervault() {
       try {
-        if (!teamUuid?.startsWith("team_")) {
-          throw new Error("Invalid Evervault Team UUID");
+        if (!teamId || !appId) {
+          return;
         }
 
-        if (!appUuid?.startsWith("app_")) {
-          throw new Error("Invalid Evervault App UUID");
-        }
-
-        return EvervaultSdk.initialize(teamUuid, appUuid);
+        return EvervaultSdk.initialize(teamId, appId);
       } catch (error) {
         throw new Error(`Failed to initialize the Evervault SDK ${error}`);
       }
     }
 
-    if (teamUuid || appUuid) {
+    if (teamId || appId) {
       initEvervault();
     }
-  }, [teamUuid, appUuid]);
+  }, [teamId, appId]);
 
-  return <Ctx.Provider value={{ teamUuid, appUuid }}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={{ teamUuid: teamId, appUuid: appId }}>
+      {children}
+    </Ctx.Provider>
+  );
 };
 
 export default EvervaultProvider;
