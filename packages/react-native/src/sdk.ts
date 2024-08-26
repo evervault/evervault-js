@@ -2,11 +2,11 @@ import { Platform } from "react-native";
 import { EvervaultSdk } from "./native";
 
 export async function init(teamUuid: string, appUuid: string): Promise<void> {
-  if (!teamUuid.startsWith("team_")) {
+  if (!teamUuid?.startsWith("team_")) {
     throw new Error("Invalid Evervault Team UUID");
   }
 
-  if (!appUuid.startsWith("app_")) {
+  if (!appUuid?.startsWith("app_")) {
     throw new Error("Invalid Evervault App UUID");
   }
 
