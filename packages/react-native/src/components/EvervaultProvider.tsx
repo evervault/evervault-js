@@ -22,6 +22,20 @@ interface EvervaultProps {
   children: ReactNode;
 }
 
+/**
+ * @example
+ * ```tsx
+ * function App() {
+ *  return (
+ *    <EvervaultProvider teamUuid="team_123" appUuid="app_123">
+ *      <Card onChange={(card) => console.log(card)}>
+ *        <Card.Number />
+ *      </Card>
+ *    </EvervaultProvider>
+ *  );
+ * }
+ * ```
+ */
 const EvervaultProvider = ({ teamUuid, appUuid, children }: EvervaultProps) => {
   useEffect(() => {
     async function initEvervault() {
