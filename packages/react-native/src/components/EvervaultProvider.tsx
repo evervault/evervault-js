@@ -39,12 +39,8 @@ const EvervaultProvider = ({ teamId, appId, children }: EvervaultProps) => {
   useEffect(() => {
     async function initEvervault() {
       try {
-        if (!teamId?.startsWith("team_")) {
-          throw new Error("Invalid Evervault Team UUID");
-        }
-
-        if (!appId?.startsWith("app_")) {
-          throw new Error("Invalid Evervault App UUID");
+        if (!teamId || !appId) {
+          return;
         }
 
         return EvervaultSdk.initialize(teamId, appId);
