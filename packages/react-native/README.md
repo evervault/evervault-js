@@ -1,6 +1,7 @@
 # react-native-evervault-sdk
 
 ## [Documentation](https://docs.evervault.com/sdks/react-native)
+
 Please see our documentation site for a full guide and reference.
 
 ## Installation
@@ -8,12 +9,15 @@ Please see our documentation site for a full guide and reference.
 ```sh
 npm install @evervault/evervault-react-native
 ```
+
 or
+
 ```sh
 yarn add @evervault/evervault-react-native
 ```
 
 ## Usage
+
 ```tsx
 import { EvervaultProvider, init, Card, type CardPayload } from "@evervault/evervault-react-native"
 

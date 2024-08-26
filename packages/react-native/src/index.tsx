@@ -1,5 +1,5 @@
-export { type CardProps, Card } from './components/Card';
-export { init, encrypt } from './sdk';
+export { type CardProps, Card } from "./components/Card";
+export { init, encrypt } from "./sdk";
 export type {
   CardPayload,
   CardExpiry,
@@ -7,5 +7,5 @@ export type {
   CardConfig,
   CardForm,
   CardField,
-} from './components/Card/types';
-export { default as EvervaultProvider } from './components/EvervaultProvider';
+} from "./components/Card/types";
+export { default as EvervaultProvider } from "./components/EvervaultProvider";

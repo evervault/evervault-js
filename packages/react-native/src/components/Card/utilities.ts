@@ -3,9 +3,9 @@ import {
   validateExpiry,
   validateCVC,
   CardNumberValidationResult,
-} from '@evervault/card-validator';
-import type { CardForm, CardBrandName, CardField, CardPayload } from './types';
-import { UseFormReturn } from '../useForm';
+} from "@evervault/card-validator";
+import type { CardForm, CardBrandName, CardField, CardPayload } from "./types";
+import { UseFormReturn } from "../useForm";
 
 export async function changePayload(
   encrypt: (value: string) => Promise<string>,
@@ -14,7 +14,7 @@ export async function changePayload(
 ): Promise<CardPayload> {
   const { name, number: rawNumber, expiry, cvc } = form.values;
 
-  const number = rawNumber.replace(/\s/g, '');
+  const number = rawNumber.replace(/\s/g, "");
 
   const {
     brand,
@@ -41,21 +41,21 @@ export async function changePayload(
 }
 
 export function isComplete(form: UseFormReturn<CardForm>, fields: CardField[]) {
-  if (fields.includes('name')) {
+  if (fields.includes("name")) {
     if (form.values.name.length === 0) return false;
   }
 
-  if (fields.includes('number')) {
+  if (fields.includes("number")) {
     const cardValidation = validateNumber(form.values.number);
     if (!cardValidation.isValid) return false;
   }
 
-  if (fields.includes('expiry')) {
+  if (fields.includes("expiry")) {
     const expiryValidation = validateExpiry(form.values.expiry);
     if (!expiryValidation.isValid) return false;
   }
 
-  if (fields.includes('cvc')) {
+  if (fields.includes("cvc")) {
     const cvcValidation = validateCVC(form.values.cvc, form.values.number);
     if (!cvcValidation.isValid) return false;
   }
