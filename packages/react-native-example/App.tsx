@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { registerRootComponent } from "expo";
 import {
-  CardPayload,
+  type CardPayload,
   EvervaultProvider,
 } from "@evervault/evervault-react-native";
 import { useState } from "react";
@@ -29,8 +29,8 @@ export default function App() {
 
   return (
     <EvervaultProvider
-      teamUuid={process.env.EXPO_PUBLIC_EV_TEAM_UUID}
-      appUuid={process.env.EXPO_PUBLIC_EV_APP_UUID}
+      teamId={process.env.EXPO_PUBLIC_EV_TEAM_UUID}
+      appId={process.env.EXPO_PUBLIC_EV_APP_UUID}
     >
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scroll}>
