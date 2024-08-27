@@ -16,3 +16,14 @@ export const EvervaultSdk = NativeModules.EvervaultSdk
         },
       }
     );
+
+export const BackgroundTimer = NativeModules.BackgroundTimer
+  ? NativeModules.BackgroundTimer
+  : new Proxy(
+      {},
+      {
+        get() {
+          throw new Error(LINKING_ERROR);
+        },
+      }
+    );

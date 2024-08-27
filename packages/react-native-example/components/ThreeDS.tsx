@@ -82,7 +82,7 @@ const ThreeDS = (sessionId: string) => {
 
   const start3DS = async () => {
     setIsPolling(true);
-    await WebBrowser.openBrowserAsync(`https://3bed-2a09-bac5-36c1-1cdc-00-2e0-17.ngrok-free.app/?session=tds_mastercard_30bd99f83797&app=app_ee564ccddba7&team=7793170df6a4`, {
+    await WebBrowser.openBrowserAsync(`https://e0d6-2a09-bac5-37b9-ebe-00-178-198.ngrok-free.app/?session=tds_mastercard_30bd99f83797&app=app_ee564ccddba7&team=7793170df6a4`, {
         showInRecents: true,
         dismissButtonStyle: "cancel",
         presentationStyle: WebBrowser.WebBrowserPresentationStyle.POPOVER,
