@@ -1,14 +1,17 @@
 package com.evervaultsdk
 
 import com.facebook.react.ReactPackage
-import com.facebook.react.bridge.JavaScriptModule
 import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.uimanager.ViewManager
+import com.evervaultsdk.backgroundtimer.BackgroundTimerModule
 
 class EvervaultSdkPackage : ReactPackage {
   override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
-    return listOf(EvervaultSdkModule(reactContext))
+    return listOf(
+      EvervaultSdkModule(reactContext),
+      BackgroundTimerModule(reactContext)
+    )
   }
 
   override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {

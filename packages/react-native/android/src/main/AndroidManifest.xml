@@ -1,3 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.evervaultsdk">
+
+    <application>
+        <service android:name="com.evervaultsdk.backgroundtimer.BackgroundTimer"
+                 android:enabled="true"
+                 android:exported="false"/>
+    </application>
 </manifest>

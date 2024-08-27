@@ -1,5 +1,7 @@
 export { type CardProps, Card } from "./components/Card";
 export { init, encrypt } from "./sdk";
+export type { ThreeDSCallbacks, ThreeDSSessionResponse } from "./types";
+export { ThreeDSProcess } from "./components/ThreeDSProcess";
 export type {
   CardPayload,
   CardExpiry,
