@@ -18,7 +18,7 @@ export const DEFAULT_TRANSLATIONS: CardTranslations = {
   },
   expiry: {
     label: "Expiration",
-    placeholder: "MM/YY",
+    placeholder: "MM / YY",
     errors: {
       invalid: "Your expiration date is invalid",
     },
