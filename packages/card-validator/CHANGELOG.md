@@ -1,5 +1,11 @@
 # @evervault/card-validator
 
+## 1.1.0
+
+### Minor Changes
+
+- 1f6edc4: feat: validate UATP cards
+
 ## 1.0.5
 
 ### Patch Changes
