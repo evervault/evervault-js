@@ -217,6 +217,18 @@ const brands = [
     securityCodeValidationRules: {
       length: 3
     },
+  },
+  {
+    name: "uatp",
+    isLocal: false,
+    numberValidationRules: {
+      luhnCheck: true,
+      ranges: [1],
+      lengths: [15]
+    },
+    securityCodeValidationRules: {
+      length: 0
+    }
   }
 ] as CardBrand[];
 
