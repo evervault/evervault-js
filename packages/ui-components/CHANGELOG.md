@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.12.0
+
+### Minor Changes
+
+- 2eb3bf3: Automatically pad expiry month when a user enters a number betwen 2-9
+
 ## 1.11.0
 
 ### Minor Changes
