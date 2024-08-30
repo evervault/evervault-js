@@ -85,7 +85,7 @@ export default function App() {
     },
   };
 
-  const sessionId = "tds_visa_d425df8282c8"
+  const sessionId = "tds_visa_d8607940f636"
 
   return (
     <EvervaultProvider
