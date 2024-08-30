@@ -1,6 +1,7 @@
 import { ThreeDSSessionResponse } from "./types";
 
-const EV_API_DOMAIN = process.env.EV_API_DOMAIN || 'api.evervault.com';
+export const EV_API_DOMAIN = process.env.EV_API_DOMAIN || 'api.evervault.com';
+export const THREE_D_S_CHALLENGE_DOMAIN = 'c713-2a09-bac5-3a69-ebe-00-178-198.ngrok-free.app';
 
 export const getThreeDSSession = async (
     sessionId: string,

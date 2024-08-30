@@ -1,3 +1,9 @@
+export interface ThreeDSCallbacks {
+    onSuccess: () => void;
+    onFailure: (error: Error) => void;
+    onCancel: () => void;
+}
+
 type SessionStatus = 'action-required' | 'success' | 'failure';
 
 export interface ThreeDSSessionResponse {
@@ -9,8 +15,8 @@ export interface ThreeDSSessionResponse {
     status: SessionStatus;
 }
 
-export interface ThreeDSCallbacks {
-    onSuccess?: () => void;
-    onFailure?: (error: Error) => void;
-    onCancel?: () => void;
+export interface ThreeDSSession {
+    sessionId: string;
+    get: () => Promise<ThreeDSSessionResponse>;
+    cancel: () => Promise<void>;
 }

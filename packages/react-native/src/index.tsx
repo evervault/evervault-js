@@ -1,6 +1,6 @@
 export { type CardProps, Card } from "./components/Card";
+export { ThreeDS, useThreeDS } from "./components/3DS";
 export { init, encrypt } from "./sdk";
-export { ThreeDS } from "./components/3DS/ThreeDS";
 export type {
   CardPayload,
   CardExpiry,

@@ -14,6 +14,7 @@ import {
   type CardPayload,
   EvervaultProvider,
   ThreeDS,
+  useThreeDS,
 } from "@evervault/evervault-react-native";
 import { useState } from "react";
 import CardDebug from "./components/CardDebug";
@@ -26,6 +27,35 @@ if (
   throw new Error(
     "Missing Evervault environment variables. Please ensure you have setup your .env file correctly. See .env.example for an example."
   );
+}
+
+function PaymentChallengeModal() {
+  const {session, shouldShow3DSFrame} = useThreeDS();
+
+  console.log("PaymentChallengeModal", session, shouldShow3DSFrame);
+
+  const close3DS = async () => {
+    console.log("Custom close button clicked. Cancelling 3DS session");
+    await session.cancel()
+  }
+
+  if (shouldShow3DSFrame) {
+    return <>
+        <Modal 
+            animationType="slide" 
+            transparent={true}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Button title="Cancel 3DS" onPress={close3DS}/>
+              <ThreeDS.Frame/>
+          </View>
+        </View>
+      </Modal>
+    </>
+  } else {
+    return null;
+  }
 }
 
 export default function App() {
@@ -55,6 +85,8 @@ export default function App() {
     },
   };
 
+  const sessionId = "tds_visa_d425df8282c8"
+
   return (
     <EvervaultProvider
       teamId={process.env.EXPO_PUBLIC_EV_TEAM_UUID}
@@ -73,29 +105,9 @@ export default function App() {
           <Button title="Start 3DS from EV app" onPress={startThreeDS} />
         </ScrollView>
         {isThreeDSActive ? (
-          <Modal 
-            visible={isThreeDSActive} 
-            animationType="slide" 
-            transparent={true} // Makes the background transparent to better control the modal position
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <ThreeDS 
-                  sessionId="tds_visa_e460ac1e4231" 
-                  callbacks={callbacks} 
-                  config={{
-                    titleBarText: "3DS Challenge",
-                    dismissButtonLabel: "X"
-                  }}
-                  styles={{
-                    titleBarStyle: {
-                      backgroundColor: "white",
-                      borderBottomWidth: 0
-                    }
-                  }}/>
-              </View>
-            </View>
-          </Modal>
+          <ThreeDS sessionId={sessionId} callbacks={callbacks}>
+            <PaymentChallengeModal/>
+          </ThreeDS>
         ) : null}
       </SafeAreaView>
     </EvervaultProvider>
