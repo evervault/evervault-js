@@ -9,11 +9,13 @@ import React, {
 import { ThreeDSCallbacks, ThreeDSSessionResponse } from "./types"; // Assuming you have defined these types
 import ThreeDSSession, { threeDSSession } from "./threeDSSession";
 import { useEvervault } from "../EvervaultProvider";
+import { ThreeDSFrame } from "./ThreeDSFrame";
 
 interface ThreeDSContextType {
-  sessionId: string;
-  callbacks: ThreeDSCallbacks;
-}
+    sessionId: string;
+    callbacks: ThreeDSCallbacks;
+    intervalRef: React.MutableRefObject<NodeJS.Timeout | null>; // Shared interval ref
+  }
 
 export const ThreeDSContext = createContext<ThreeDSContextType | undefined>(
   undefined
@@ -49,10 +51,9 @@ function startPollingSession(
     }, 3000);
   }
 
-export function useThreeDS() {
+function useThreeDSInternal(poll: boolean = true) {
   const { appUuid } = useEvervault();
   const context = useContext(ThreeDSContext);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   if (!appUuid) {
     throw new Error("useThreeDS must be used within an Evervault Provider");
@@ -62,24 +63,29 @@ export function useThreeDS() {
     throw new Error("useThreeDS must be used within a ThreeDS Provider");
   }
 
-  const { sessionId, callbacks } = context;
+  const { sessionId, callbacks, intervalRef} = context;
   const [shouldShow3DSFrame, setShouldShow3DSFrame] = useState(false);
 
   const session = threeDSSession(sessionId, appUuid);
 
   useEffect(() => {
+    if (!poll) {
+      return;
+    }
+
     const session = threeDSSession(sessionId, appUuid);
 
     const checkForActionRequired = async () => {
       try {
         const sessionState = await session.get();
-        console.log("Session state", sessionState);
 
         switch (sessionState.status) {
           case "success":
+            setShouldShow3DSFrame(false);
             callbacks.onSuccess();
             break;
           case "failure":
+            setShouldShow3DSFrame(false);
             callbacks.onFailure(new Error("3DS session failed"));
             break;
           case "action-required":
@@ -110,7 +116,6 @@ export function useThreeDS() {
     ...session,
     cancel: async () => {
       try {
-        console.log("Cancel 3DS session called. Cancelling 3DS session and stopping polling");
         setShouldShow3DSFrame(false);
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
@@ -119,7 +124,7 @@ export function useThreeDS() {
         callbacks.onCancel();
         await session.cancel();
       } catch (error) {
-        console.error("Error cancelling 3DS session", error);
+        console.error("Error cancelling 3DS session.", error);
         throw error;
       }
     },
@@ -128,16 +133,37 @@ export function useThreeDS() {
   return { session: updatedSession, callbacks, shouldShow3DSFrame };
 }
 
+/*
+    This hook is used to start the 3DS flow and handle the polling of the session.
+    It will return the session object and a boolean to determine if the 3DS frame should be shown.
+*/
+export const useThreeDS = () => useThreeDSInternal(true);
+
+export const useThreeDSSession = () => useThreeDSInternal(false);
+
 interface ThreeDSProps {
   sessionId: string;
   callbacks: ThreeDSCallbacks;
   children: ReactNode;
 }
 
-export function ThreeDS({ sessionId, callbacks, children }: ThreeDSProps) {
-  const value = { sessionId, callbacks };
+function ThreeDS({ sessionId, callbacks, children }: ThreeDSProps) {
+    const intervalRef = useRef<NodeJS.Timeout | null>(null); // Create a shared interval ref
+  
+    const value = {
+      sessionId,
+      callbacks,
+      intervalRef,
+    };
+  
+    return (
+      <ThreeDSContext.Provider value={value}>
+        {children}
+      </ThreeDSContext.Provider>
+    );
+  }
 
-  return (
-    <ThreeDSContext.Provider value={value}>{children}</ThreeDSContext.Provider>
-  );
-}
+
+export const ThreeDSNamespace = Object.assign(ThreeDS, {
+    Frame: ThreeDSFrame
+});

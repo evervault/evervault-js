@@ -1,10 +1,9 @@
 import { ThreeDSSession, ThreeDSSessionResponse } from './types';
-import { EV_API_DOMAIN } from './utilities';
+import { EV_API_DOMAIN } from './config';
 
 export function threeDSSession(sessionId: string, appId: string): ThreeDSSession {
     const get = async (): Promise<ThreeDSSessionResponse> => {
         try {
-            console.log(`Fetching 3DS session. Session ID: ${sessionId}, App ID: ${appId}`);
             const response = await fetch(
                 `https://${EV_API_DOMAIN}/frontend/3ds/browser-sessions/${sessionId}`,
                 {
@@ -24,18 +23,18 @@ export function threeDSSession(sessionId: string, appId: string): ThreeDSSession
 
     const cancel = async (): Promise<void> => {
         try {
-            console.log(`Cancelling 3DS session. Session ID: ${sessionId}`);
-            // await fetch(
-            //     `https://${EV_API_DOMAIN}/frontend/3ds/browser-sessions/${sessionId}`,
-            //     {
-            //         method: 'PATCH',
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //             'x-evervault-app-id': appId,
-            //         },
-            //         body: JSON.stringify({ status: 'cancelled' }),
-            //     }
-            // );
+            console.log('Cancelling 3DS session in EV API');
+            await fetch(
+                `https://${EV_API_DOMAIN}/frontend/3ds/browser-sessions/${sessionId}`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-evervault-app-id': appId,
+                    },
+                    body: JSON.stringify({ outcome: 'cancelled' }),
+                }
+            );
         } catch (error) {
             console.error('Error cancelling 3DS session', error);
             throw error;
