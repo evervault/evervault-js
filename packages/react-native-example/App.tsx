@@ -31,6 +31,9 @@ if (
   );
 }
 
+//Example of building your own custom modal using the ThreeDsComponents
+// this should be nested within the ThreeDs provider component
+
 // function PaymentChallengeModal() {
 //   const {session, shouldShow3DSFrame} = useThreeDS();
 
@@ -91,7 +94,7 @@ export default function App() {
     },
   };
 
-  const sessionId = "tds_visa_742280965d49"
+  const sessionId = "tds_visa_a4a81fc0e3c1"
 
   return (
     <EvervaultProvider
