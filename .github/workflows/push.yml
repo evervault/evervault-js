@@ -62,7 +62,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Get tags
         run: git fetch --tags origin
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
