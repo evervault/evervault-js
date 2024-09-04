@@ -33,7 +33,8 @@ if (
 }
 
 function Checkout() {
-  const session = useThreeDSecure("tds_visa_f2abad5ed5d7", {
+
+  const session = useThreeDSecure('SESSION ID', {
     onSuccess: () => {
       console.log("3DS successful");
     },
@@ -45,15 +46,19 @@ function Checkout() {
     },
   });
 
+  const handlePayment = () => {
+    session.start();
+  }
+
   return (
     <>
       <ThreeDSecureModal session={session} />
-      <Button title="Start 3DS from EV app" onPress={() => session.start()} />
+      <Button title="Pay" onPress={handlePayment} />
     </>
   );
 }
 
-function CustomNestedCheckout() {
+function CustomThreeDSecureModal() {
 
   //Fetch the cancel method can be called on a custom close button
   const cancel3DSSession = useThreeDSecureCancelSession();
@@ -62,13 +67,23 @@ function CustomNestedCheckout() {
     await cancel3DSSession();
   };
 
+
   return (
-    <>
-      <TouchableOpacity onPress={() => closeCustomModal()}>
-        <Text>CLOSE</Text>
-      </TouchableOpacity>
-      <ThreeDSecure.Frame />
-    </>
+    <Modal
+      visible={true}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={closeCustomModal}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <TouchableOpacity onPress={closeCustomModal}>
+            <Text>CLOSE</Text>
+          </TouchableOpacity>
+          <ThreeDSecure.Frame />
+        </View>
+      </View>
+    </Modal>
   );
 }
 
@@ -101,7 +116,6 @@ export default function App() {
       appId={process.env.EXPO_PUBLIC_EV_APP_UUID}
     >
       <SafeAreaView style={styles.container}>
-        {!threeDSecureRequired && (
           <>
             <ScrollView style={styles.scroll}>
               <Text style={styles.title}>evervault react native</Text>
@@ -112,15 +126,14 @@ export default function App() {
               </Text>
               <StatusBar style="auto" />
               <Checkout />
-              <Button title="Start 3DS" onPress={start3DS} />
             </ScrollView>
-          </>
-        )}
-        {/* {threeDSecureRequired && (
-          <ThreeDSecure sessionId="tds_visa_59301c354d7d" callbacks={callbacks}>
-            <CustomNestedCheckout />
+          <Button title="Start 3DS with custom modal" onPress={start3DS} />
+        </>
+        {threeDSecureRequired && (
+          <ThreeDSecure sessionId="SESSION ID" callbacks={callbacks}>
+            <CustomThreeDSecureModal />
           </ThreeDSecure>
-        )} */}
+        )}
       </SafeAreaView>
     </EvervaultProvider>
   );
@@ -154,15 +167,15 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: "flex-end", // Pushes the modal to the bottom of the screen
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
     width: "100%",
-    height: "95%", // Set the modal height to 90% of the screen
+    height: "95%",
     backgroundColor: "#fff",
-    padding: 0, // Remove padding to avoid squashing the content
-    justifyContent: "flex-start", // Align content to the top inside the modal
+    padding: 0,
+    justifyContent: "flex-start",
   },
   details: {
     marginTop: 24,
