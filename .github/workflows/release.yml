@@ -18,7 +18,7 @@ jobs:
   deploy-js:
     if: contains(github.event.release.tag_name, '@evervault/browser')
     needs: build
-    uses: ./.github/workflows/aws-generic-deploy-browser.yml
+    uses: ./.github/workflows/deploy-browser.yml
     with:
       environment: "production"
       name: "Deploy to Production"
@@ -31,7 +31,7 @@ jobs:
   deploy-inputs:
     if: contains(github.event.release.tag_name, '@evervault/inputs')
     needs: build
-    uses: ./.github/workflows/aws-generic-deploy-inputs.yml
+    uses: ./.github/workflows/deploy-inputs.yml
     with:
       environment: "production"
       name: "Deploy to Production"
@@ -47,9 +47,6 @@ jobs:
     with:
       environment: "production"
       name: "Deploy to Production"
-      vite-evervault-js-url: "https://js.evervault.com/v2"
-      vite-keys-url: "https://keys.evervault.com"
-      vite-api-url: "https://api.evervault.com"
     secrets:
       aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
