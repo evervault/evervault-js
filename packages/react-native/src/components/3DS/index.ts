@@ -1,2 +1,3 @@
-export { useThreeDS, ThreeDSNamespace as ThreeDS} from "./context";
-export { ThreeDSModal } from "./ThreeDSModal";
+export { useThreeDSecureCancelSession, ThreeDSecure} from "./context";
+export { ThreeDSecureModal } from "./ThreeDSecureModal";
+export { useThreeDSecure } from "./useThreeDSecure";

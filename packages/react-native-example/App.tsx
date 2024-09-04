@@ -14,9 +14,10 @@ import { registerRootComponent } from "expo";
 import {
   type CardPayload,
   EvervaultProvider,
-  ThreeDS,
-  ThreeDSModal,
-  useThreeDS,
+  ThreeDSecureModal,
+  useThreeDSecureCancelSession,
+  ThreeDSecure,
+  useThreeDSecure,
 } from "@evervault/evervault-react-native";
 import { useState } from "react";
 import CardDebug from "./components/CardDebug";
@@ -31,70 +32,68 @@ if (
   );
 }
 
-//Example of building your own custom modal using the ThreeDsComponents
-// this should be nested within the ThreeDs provider component
+function Checkout() {
+  const session = useThreeDSecure("tds_visa_f2abad5ed5d7", {
+    onSuccess: () => {
+      console.log("3DS successful");
+    },
+    onFailure: (error: Error) => {
+      console.error("3DS failed", error);
+    },
+    onError: (error: Error) => {
+      console.log("3DS errored", error);
+    },
+  });
 
-// function PaymentChallengeModal() {
-//   const {session, shouldShow3DSFrame} = useThreeDS();
+  return (
+    <>
+      <ThreeDSecureModal session={session} />
+      <Button title="Start 3DS from EV app" onPress={() => session.start()} />
+    </>
+  );
+}
 
-//   const close3DS = async () => {
-//     await session.cancel()
-//   }
+function CustomNestedCheckout() {
 
-//   if (shouldShow3DSFrame) {
-//     return <>
-//         <Modal 
-//             animationType="slide" 
-//             transparent={true}
-//         >
-//           <View style={styles.modalContainer}>
-//             <View style={styles.modalContent}>
-//             <View style={[styles.titleBar]}>
-//                     <TouchableOpacity style={[styles.closeButton]} onPress={close3DS}>
-//                         <Text style={[styles.closeButtonText]}>X</Text>
-//                     </TouchableOpacity>
-//                     <Text style={[styles.titleText]}>
-//                         Verification
-//                     </Text>
-//                 </View>
-//               <ThreeDS.Frame/>
-//           </View>
-//         </View>
-//       </Modal>
-//     </>
-//   } else {
-//     return null;
-//   }
-// }
+  //Fetch the cancel method can be called on a custom close button
+  const cancel3DSSession = useThreeDSecureCancelSession();
+
+  const closeCustomModal = async () => {
+    await cancel3DSSession();
+  };
+
+  return (
+    <>
+      <TouchableOpacity onPress={() => closeCustomModal()}>
+        <Text>CLOSE</Text>
+      </TouchableOpacity>
+      <ThreeDSecure.Frame />
+    </>
+  );
+}
 
 export default function App() {
   const [cardData, setCardData] = useState<CardPayload | undefined>(undefined);
-  const [isThreeDSActive, setIsThreeDSActive] = useState(false);
+  const [threeDSecureRequired, setThreeDSecureRequired] = useState(false);
 
-  const startThreeDS = () => {
-    setIsThreeDSActive(true);
-  };
-
-  const closeThreeDS = () => {
-    setIsThreeDSActive(false);
+  const start3DS = () => {
+    setThreeDSecureRequired(true);
   };
 
   const callbacks = {
     onSuccess: () => {
-      console.log('3DS successful');
-      closeThreeDS();
+      console.log("3DS successful");
+      setThreeDSecureRequired(false);
     },
-    onFailure: (error) => {
-      console.error('3DS failed', error);
-      closeThreeDS();
+    onFailure: (error: Error) => {
+      console.error("3DS failed", error);
+      setThreeDSecureRequired(false);
     },
-    onCancel: () => {
-      console.log('3DS canceled');
-      closeThreeDS();
+    onError: (error: Error) => {
+      console.log("3DS errored", error);
+      setThreeDSecureRequired(false);
     },
   };
-
-  const sessionId = "tds_visa_a4a81fc0e3c1"
 
   return (
     <EvervaultProvider
@@ -102,20 +101,26 @@ export default function App() {
       appId={process.env.EXPO_PUBLIC_EV_APP_UUID}
     >
       <SafeAreaView style={styles.container}>
-        <ScrollView style={styles.scroll}>
-          <Text style={styles.title}>evervault react native</Text>
-          <CardDebug cardData={cardData} />
-          <CardForm setCardData={setCardData} />
-          <Text style={styles.details}>
-            {JSON.stringify(cardData, null, 2)}
-          </Text>
-          <StatusBar style="auto" />
-
-          <Button title="Start 3DS from EV app" onPress={startThreeDS} />
-        </ScrollView>
-        {isThreeDSActive ? (
-          <ThreeDSModal sessionId={sessionId} callbacks={callbacks} />
-        ) : null}
+        {!threeDSecureRequired && (
+          <>
+            <ScrollView style={styles.scroll}>
+              <Text style={styles.title}>evervault react native</Text>
+              <CardDebug cardData={cardData} />
+              <CardForm setCardData={setCardData} />
+              <Text style={styles.details}>
+                {JSON.stringify(cardData, null, 2)}
+              </Text>
+              <StatusBar style="auto" />
+              <Checkout />
+              <Button title="Start 3DS" onPress={start3DS} />
+            </ScrollView>
+          </>
+        )}
+        {/* {threeDSecureRequired && (
+          <ThreeDSecure sessionId="tds_visa_59301c354d7d" callbacks={callbacks}>
+            <CustomNestedCheckout />
+          </ThreeDSecure>
+        )} */}
       </SafeAreaView>
     </EvervaultProvider>
   );
