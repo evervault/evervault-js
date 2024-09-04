@@ -2,18 +2,30 @@ name: Build & Test
 on:
   workflow_call:
     inputs:
-      TURBO_TEAM:
+      turbo_team:
         type: string
         description: "Turbo team name"
         required: true
+      vite-evervault-js-url:
+        description: "URL where the JS SDK should be loaded from"
+        required: true
+        type: string
+      vite-keys-url:
+        description: "URL where keys will be fetched from"
+        required: true
+        type: string
+      vite-api-url:
+        description: "API endpoint"
+        required: true
+        type: string
     secrets:
-      TESTS_TEAM_UUID:
+      tests_team_uuid:
         required: true
-      TESTS_APP_UUID:
+      tests_app_uuid:
         required: true
-      TESTS_DECRYPT_FN_KEY:
+      tests_decrypt_fn_key:
         required: true
-      TURBO_TOKEN:
+      turbo_token:
         required: true
 jobs:
   build:
@@ -21,15 +33,17 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     env:
-      EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
-      EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
-      EV_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
-      VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
-      VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
-      TURBO_TEAM: ${{ inputs.TURBO_TEAM }}
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      EV_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
-      VITE_API_URL: https://api.evervault.com
+      EV_API_KEY: ${{ secrets.tests_decrypt_fn_key }}
+      EV_APP_UUID: ${{ secrets.tests_app_uuid }}
+      EV_DECRYPT_FN_KEY: ${{ secrets.tests_decrypt_fn_key }}
+      EV_TEAM_UUID: ${{ secrets.tests_team_uuid }}
+      TURBO_TEAM: ${{ inputs.turbo_team }}
+      TURBO_TOKEN: ${{ secrets.turbo_token }}
+      VITE_API_URL: ${{ inputs.vite-api-url }}
+      VITE_EVERVAULT_JS_URL: ${{ inputs.vite-evervault-js-url }}
+      VITE_EV_APP_UUID: ${{ secrets.tests_app_uuid }}
+      VITE_EV_TEAM_UUID: ${{ secrets.tests_team_uuid }}
+      VITE_KEYS_URL: ${{ inputs.vite-keys-url }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
