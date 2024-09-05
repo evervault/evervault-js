@@ -32,7 +32,7 @@ export function ThreeDSecureFrame({ sessionId }: ThreeDSecureFrameProps) {
         source={{
           uri: `https://${CHALLENGE_DOMAIN_3DS}/?session=${sessionId}&app=${appUuid}&team=${teamUuid}`
         }}
-        style={{flex: 1}}
+        containerStyle={defaultStyles.webView}
         onLoadStart={(_) => setLoading(true)}
         onLoadEnd={(_) => setLoading(false)}
       />

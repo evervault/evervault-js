@@ -47,6 +47,9 @@ const defaultThreeDSecureFrameStyles = StyleSheet.create({
   threeDSFrame: {
     flex: 1,
   },
+  webView: {
+    flex: 1,
+  },
   spinnerOverlay: {
     flex: 1,
     justifyContent: 'center',
