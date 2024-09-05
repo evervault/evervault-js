@@ -6,6 +6,15 @@ import {
 } from "./types";
 import { EV_API_DOMAIN } from "./config";
 
+const stopPolling = (
+  intervalRef: React.MutableRefObject<NodeJS.Timeout | null>,
+  setDisplayModal: (show: boolean) => void,
+) => {
+  setDisplayModal(false);
+  clearInterval(intervalRef.current!);
+  intervalRef.current = null;
+}
+
 export const startSession = async (
   session: ThreeDSecureSession,
   callbacks: ThreeDSecureCallbacks,
@@ -17,11 +26,11 @@ export const startSession = async (
 
     switch (sessionState.status) {
       case "success":
-        setDisplayModal(false);
+        stopPolling(intervalRef, setDisplayModal);
         callbacks.onSuccess();
         break;
       case "failure":
-        setDisplayModal(false);
+        stopPolling(intervalRef, setDisplayModal);
         callbacks.onFailure(new Error("3DS session failed"));
         break;
       case "action-required":
@@ -48,23 +57,17 @@ export const pollSession = (
     try {
       const pollResponse: ThreeDSecureSessionResponse = await session.get();
       if (pollResponse.status === "success") {
-        setDisplayModal(false);
-        clearInterval(intervalRef.current!);
-        intervalRef.current = null;
+        stopPolling(intervalRef, setDisplayModal);
         callbacks.onSuccess();
       } else if (pollResponse.status === "failure") {
-        setDisplayModal(false);
-        clearInterval(intervalRef.current!);
-        intervalRef.current = null;
+        stopPolling(intervalRef, setDisplayModal);
         callbacks.onFailure(new Error("3DS session failed"));
       } else {
         setDisplayModal(true);
       }
     } catch (error) {
-      setDisplayModal(false);
+      stopPolling(intervalRef, setDisplayModal);
       console.error("Error polling session", error);
-      clearInterval(intervalRef.current!);
-      intervalRef.current = null;
       callbacks.onError(new Error("Error polling 3DS session"));
     }
   }, interval);
