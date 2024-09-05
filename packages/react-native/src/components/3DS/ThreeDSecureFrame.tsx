@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { useEvervault } from "../EvervaultProvider";
 import WebView from "react-native-webview";
@@ -15,7 +15,7 @@ interface ThreeDSecureFrameProps {
 */
 export function ThreeDSecureFrame({ sessionId }: ThreeDSecureFrameProps) {
   const { teamUuid, appUuid } = useEvervault();
-  const [loading, setLoading] = useState(true); // Track loading state
+  const [loading, setLoading] = useState(true); 
 
   if (!teamUuid || !appUuid) {
     throw new Error('Missing Evervault Team or App Uuid. Make sure the ThreeDSecureFrame is nested within the Evervault Provider');
@@ -32,6 +32,7 @@ export function ThreeDSecureFrame({ sessionId }: ThreeDSecureFrameProps) {
         source={{
           uri: `https://${CHALLENGE_DOMAIN_3DS}/?session=${sessionId}&app=${appUuid}&team=${teamUuid}`
         }}
+        style={{flex: 1}}
         onLoadStart={(_) => setLoading(true)}
         onLoadEnd={(_) => setLoading(false)}
       />

@@ -54,6 +54,7 @@ export const pollSession = (
   interval: number = 3000
 ) => {
   intervalRef.current = setInterval(async () => {
+    console.log("Polling session");
     try {
       const pollResponse: ThreeDSecureSessionResponse = await session.get();
       if (pollResponse.status === "success") {

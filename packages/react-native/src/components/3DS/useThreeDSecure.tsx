@@ -1,35 +1,63 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRef } from "react";
 import { useEvervault } from "../EvervaultProvider";
 import { startSession, threeDSecureSession } from "./threeDSSession";
-import { ThreeDSecureCallbacks, ThreeDSecureSession } from "./types";
+import {
+  ThreeDSecureCallbacks,
+  UseThreeDSecureResponse,
+  UseThreeDSecureState,
+} from "./types";
 
-export const useThreeDSecure = (
-  sessionId: string,
-  callbacks: ThreeDSecureCallbacks
-): ThreeDSecureSession => {
+export const useThreeDSecure = (): UseThreeDSecureResponse => {
   const { appUuid } = useEvervault();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [displayModal, setDisplayModal] = useState(false);
-
-  if (!appUuid) {
-    throw new Error("useThreeDS must be used within an Evervault Provider");
-  }
-
-  const session = threeDSecureSession({
-    sessionId,
-    appId: appUuid,
-    callbacks,
-    intervalRef,
-    setDisplayModal,
+  const [state, setState] = useState<UseThreeDSecureState>({
+    session: null,
+    displayModal,
   });
 
-  const start = () =>
+  useEffect(() => {
+    setState((prevState) => ({
+      ...prevState,
+      displayModal,
+    }));
+  }, [displayModal]);
+
+  if (!appUuid) {
+    throw new Error(
+      "useThreeDSecure must be used within an Evervault Provider"
+    );
+  }
+
+  const start = (sessionId: string, callbacks: ThreeDSecureCallbacks) => {
+    const session = threeDSecureSession({
+      sessionId,
+      appId: appUuid,
+      callbacks,
+      intervalRef,
+      setDisplayModal,
+    });
+
+    setState((prevState) => ({
+      ...prevState,
+      session,
+    }));
+
     startSession(session, callbacks, intervalRef, setDisplayModal);
+  };
+
+  const cancel = async () => {
+    if (state.session) {
+      await state.session.cancel();
+    } else {
+      console.warn("No 3DS session to cancel");
+    }
+  };
 
   return {
-    ...session,
     start,
-    displayModal,
+    cancel,
+    ...state,
   };
 };
