@@ -1,0 +1,71 @@
+name: Deploy 3DS Package
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        type: string
+      name:
+        description: "Name of the job"
+        required: true
+        type: string
+      vite-evervault-js-url:
+        description: "URL where the JS SDK should be loaded from"
+        required: true
+        type: string
+      vite-keys-url:
+        description: "URL where keys will be fetched from"
+        required: true
+        type: string
+      vite-api-url:
+        description: "API endpoint"
+        required: true
+        type: string
+    secrets:
+      aws-access-key-id:
+        description: "AWS Access Key ID"
+        required: true
+      aws-secret-access-key:
+        description: "AWS Secret Access Key"
+        required: true
+      aws-s3-bucket:
+        description: "AWS S3 Bucket"
+        required: true
+      aws-cloudfront-distribution-id:
+        description: "AWS Cloudfront Distribution ID"
+        required: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    name: ${{ inputs.name }}
+    env:
+      VITE_EVERVAULT_JS_URL: ${{ inputs.vite-evervault-js-url }}
+      VITE_KEYS_URL: ${{ inputs.vite-keys-url }}
+      VITE_API_URL: ${{ inputs.vite-api-url }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      - uses: pnpm/action-setup@v2
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          cache: "pnpm"
+      - name: Install Dependencies
+        run: pnpm install
+      - name: Build
+        run: pnpm --filter @evervault/3ds... build
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: "us-east-1"
+      - name: S3 Deploy
+        working-directory: packages/3ds
+        run: aws s3 cp dist s3://${{ secrets.aws-s3-bucket }}/ --recursive
+      - name: Cloudfront Cache Invalidation
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/index.html"
