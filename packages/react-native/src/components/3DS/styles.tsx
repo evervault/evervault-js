@@ -46,7 +46,6 @@ const defaultModalStyles = StyleSheet.create({
 const defaultThreeDSecureFrameStyles = StyleSheet.create({
   threeDSFrame: {
     flex: 1,
-    backgroundColor: "plum"
   },
   spinnerOverlay: {
     flex: 1,
