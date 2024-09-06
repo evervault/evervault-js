@@ -19,9 +19,11 @@ import {
   ThreeDSecure,
   useThreeDSecure,
 } from "@evervault/evervault-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CardDebug from "./components/CardDebug";
 import CardForm from "./components/CardForm";
+import { create3DSecureSession, PaymentResult} from "./components/threeDSdemo";
+import { UseThreeDSecureResponse } from "@evervault/evervault-react-native/dist/typescript/src/components/3DS/types";
 
 if (
   !process.env.EXPO_PUBLIC_EV_TEAM_UUID ||
@@ -32,83 +34,105 @@ if (
   );
 }
 
-function Checkout() {
+function Checkout({ cardData }: { cardData: CardPayload | undefined }) {
+  const [paymentStatus, setPaymentStatus] = useState<string>("in-progress");
+  const tds: UseThreeDSecureResponse = useThreeDSecure();
 
-  const session = useThreeDSecure('SESSION ID', {
-    onSuccess: () => {
-      console.log("3DS successful");
-    },
-    onFailure: (error: Error) => {
-      console.error("3DS failed", error);
-    },
-    onError: (error: Error) => {
-      console.log("3DS errored", error);
-    },
-  });
+  const handlePayment = async () => {
+    const sessionId = await create3DSecureSession({
+      cardNumber: cardData.card.number,
+      expiryMonth: cardData.card.expiry.month,
+      expiryYear: cardData.card.expiry.year,
+    });
 
-  const handlePayment = () => {
-    session.start();
-  }
+    tds.start(sessionId, {
+      onSuccess: () => {
+        console.log("3DS successful");
+        setPaymentStatus("success");
+      },
+      onFailure: (error: Error) => {
+        console.error("3DS failed", error);
+        setPaymentStatus("failed");
+      },
+      onError: (error: Error) => {
+        console.log("3DS errored", error);
+        setPaymentStatus("failed");
+      },
+    });
+  };
 
   return (
+    
     <>
-      <ThreeDSecureModal session={session} />
-      <Button title="Pay" onPress={handlePayment} />
+      {(paymentStatus === "success") && <PaymentResult status="Successful" />}
+      {(paymentStatus === "failed") && <PaymentResult status="Failed" />}
+      {(paymentStatus === "in-progress") && (
+        <>
+        <ThreeDSecureModal state={tds} />
+        <Button title="Pay" onPress={handlePayment} />
+        </>
+      )}
     </>
   );
 }
 
-function CustomThreeDSecureModal() {
+function CustomThreeDSecureCheckout({cardData}: {cardData: CardPayload | undefined}) {
+  const [paymentStatus, setPaymentStatus] = useState<string>("in-progress");
+  
+  const tds = useThreeDSecure();
 
-  //Fetch the cancel method can be called on a custom close button
-  const cancel3DSSession = useThreeDSecureCancelSession();
+  const handlePayment = async () => {
+    const sessionId = await create3DSecureSession({
+      cardNumber: cardData?.card.number,
+      expiryMonth: cardData?.card.expiry.month,
+      expiryYear: cardData?.card.expiry.year,
+    });
+
+    tds.start(sessionId, {
+      onSuccess: () => {
+        console.log("3DS successful");
+        setPaymentStatus("success");
+      },
+      onFailure: (error: Error) => {
+        console.error("3DS failed", error);
+        setPaymentStatus("failed");
+      },
+      onError: (error: Error) => {
+        console.log("3DS errored", error);
+        setPaymentStatus("failed");
+      },
+    });
+  }
 
   const closeCustomModal = async () => {
-    await cancel3DSSession();
+    await tds.cancel();
   };
 
-
   return (
-    <Modal
-      visible={true}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={closeCustomModal}
-    >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <TouchableOpacity onPress={closeCustomModal}>
-            <Text>CLOSE</Text>
-          </TouchableOpacity>
-          <ThreeDSecure.Frame />
+    <>
+    {paymentStatus === "in-progress" &&<Button title="Complete Payment" onPress={handlePayment} />}
+    {paymentStatus === "success" && <PaymentResult status="Successful" />}
+    {paymentStatus === "failed" && <PaymentResult status="Failed" />}
+    <ThreeDSecure state={tds}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={closeCustomModal}>
+              <Text>CLOSE MODAL</Text>
+            </TouchableOpacity>
+            </View>
+            <ThreeDSecure.Frame />
+          </View>
         </View>
-      </View>
-    </Modal>
+    </ThreeDSecure>
+    </>
+
   );
 }
 
+// With custom checkout
 export default function App() {
   const [cardData, setCardData] = useState<CardPayload | undefined>(undefined);
-  const [threeDSecureRequired, setThreeDSecureRequired] = useState(false);
-
-  const start3DS = () => {
-    setThreeDSecureRequired(true);
-  };
-
-  const callbacks = {
-    onSuccess: () => {
-      console.log("3DS successful");
-      setThreeDSecureRequired(false);
-    },
-    onFailure: (error: Error) => {
-      console.error("3DS failed", error);
-      setThreeDSecureRequired(false);
-    },
-    onError: (error: Error) => {
-      console.log("3DS errored", error);
-      setThreeDSecureRequired(false);
-    },
-  };
 
   return (
     <EvervaultProvider
@@ -116,25 +140,16 @@ export default function App() {
       appId={process.env.EXPO_PUBLIC_EV_APP_UUID}
     >
       <SafeAreaView style={styles.container}>
-          <>
-            <ScrollView style={styles.scroll}>
-              <Text style={styles.title}>evervault react native</Text>
-              <CardDebug cardData={cardData} />
-              <CardForm setCardData={setCardData} />
-              <Text style={styles.details}>
-                {JSON.stringify(cardData, null, 2)}
-              </Text>
-              <StatusBar style="auto" />
-              <Checkout />
-            </ScrollView>
-          <Button title="Start 3DS with custom modal" onPress={start3DS} />
+        <>
+          <ScrollView style={styles.scroll}>
+            <Text style={styles.title}>evervault react native</Text>
+            <CardForm setCardData={setCardData} />
+            <StatusBar style="auto" />
+            {/* <CustomThreeDSecureCheckout cardData={cardData}/> */}
+            <Checkout cardData={cardData}/>
+          </ScrollView>
         </>
-        {threeDSecureRequired && (
-          <ThreeDSecure sessionId="SESSION ID" callbacks={callbacks}>
-            <CustomThreeDSecureModal />
-          </ThreeDSecure>
-        )}
-      </SafeAreaView>
+        </SafeAreaView>
     </EvervaultProvider>
   );
 }
@@ -167,21 +182,21 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center", // Center modal vertically
+    alignItems: "center", // Center modal horizontally
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+  },
+  modalHeader: {
+    padding: 10, // Add padding for better visual spacing
+
   },
   modalContent: {
-    width: "100%",
-    height: "95%",
+    width: "100%", // Increased width for larger modal
+    height: "60%", // Adjust height to fit content better
     backgroundColor: "#fff",
-    padding: 0,
-    justifyContent: "flex-start",
-  },
-  details: {
-    marginTop: 24,
-    fontFamily: Platform.select({
-      ios: "Menlo",
-      android: "monospaced",
-    }),
+    borderRadius: 10, // Optional: rounded corners
+    justifyContent: "center", // Center content vertically
+    
   },
 });
+
