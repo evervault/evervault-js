@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const BACKEND_API_KEY = process.env.EXPO_EV_BACKED_TOKEN;
+const BACKEND_API_KEY = process.env.EXPO_EV_BACKEND_TOKEN;
 
 interface CreateThreeDSecureSessionParams {
     cardNumber: string;
