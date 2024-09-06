@@ -102,23 +102,22 @@ export const create3DSecureSession = async ({cardNumber, expiryMonth, expiryYear
 
   export const closeCustomModalWithAlert = async ({cancel}) => {
     Alert.alert(
-      "Confirm Action", // Title
-      "Are you sure you want to do this?", // Message
+      "Confirm cancel payment?",
+      "Are you sure you want cancel payment verification?",
       [
         {
-          text: "Cancel",
-          onPress: () => console.log("Modal close canceled"), // Do nothing when canceled
+          text: "Don't Cancel",
+          onPress: () => console.log("Modal close canceled"),
           style: "cancel",
         },
         {
           text: "Yes",
           onPress: async () => {
-            // Proceed with closing the modal
             await cancel();
           },
         },
       ],
-      { cancelable: true } // Allow closing the alert without choosing any option
+      { cancelable: true }
     );
   };
   
