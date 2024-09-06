@@ -1,8 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import {
   Button,
-  Modal,
-  Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -15,12 +13,10 @@ import {
   type CardPayload,
   EvervaultProvider,
   ThreeDSecureModal,
-  useThreeDSecureCancelSession,
   ThreeDSecure,
   useThreeDSecure,
 } from "@evervault/evervault-react-native";
-import { useEffect, useState } from "react";
-import CardDebug from "./components/CardDebug";
+import { useState } from "react";
 import CardForm from "./components/CardForm";
 import { create3DSecureSession, PaymentResult} from "./components/threeDSdemo";
 import { UseThreeDSecureResponse } from "@evervault/evervault-react-native/dist/typescript/src/components/3DS/types";
@@ -130,7 +126,6 @@ function CustomThreeDSecureCheckout({cardData}: {cardData: CardPayload | undefin
   );
 }
 
-// With custom checkout
 export default function App() {
   const [cardData, setCardData] = useState<CardPayload | undefined>(undefined);
 
@@ -182,20 +177,19 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: "center", // Center modal vertically
-    alignItems: "center", // Center modal horizontally
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+    justifyContent: "center", 
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalHeader: {
-    padding: 10, // Add padding for better visual spacing
-
+    padding: 10, 
   },
   modalContent: {
-    width: "100%", // Increased width for larger modal
-    height: "60%", // Adjust height to fit content better
+    width: "100%",
+    height: "60%",
     backgroundColor: "#fff",
-    borderRadius: 10, // Optional: rounded corners
-    justifyContent: "center", // Center content vertically
+    borderRadius: 10,
+    justifyContent: "center",
     
   },
 });
