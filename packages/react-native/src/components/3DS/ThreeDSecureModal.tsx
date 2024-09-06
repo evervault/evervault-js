@@ -1,10 +1,18 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Modal, TouchableOpacity, Text, View, StyleSheet } from "react-native";
-import { ThreeDSecureModalProps } from "./types";
+import { ThreeDSecureModalProps, ThreeDSecureState } from "./types";
 import { ThreeDSecureFrame } from "./ThreeDSecureFrame";
 import { defaultModalStyles as defaultStyles } from "./styles";
+import { ThreeDSecureContext } from "./context";
 
-export const ThreeDSecureModal = ({state, config, style}: ThreeDSecureModalProps) => {
+export const ThreeDSecureModal = ({config, style}: ThreeDSecureModalProps) => {
+
+  const state: ThreeDSecureState | null = useContext(ThreeDSecureContext);
+
+  if (!state) {
+    throw new Error("ThreeDSecure.Modal must be used within an Evervault ThreeDSecure provider component");
+  }
+
   const close3DS = async () => {
     if (state?.session) {
       await state.session.cancel();
@@ -29,7 +37,7 @@ export const ThreeDSecureModal = ({state, config, style}: ThreeDSecureModalProps
                   {config?.titleText || "Verification"}
                   </Text>
               </View>
-              <ThreeDSecureFrame sessionId={state.session.sessionId} />
+              <ThreeDSecureFrame />
             </View>
         </View>
         </Modal>

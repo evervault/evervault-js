@@ -7,6 +7,9 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
+  Modal,
+  Alert
 } from "react-native";
 import { registerRootComponent } from "expo";
 import {
@@ -18,7 +21,7 @@ import {
 } from "@evervault/evervault-react-native";
 import { useState } from "react";
 import CardForm from "./components/CardForm";
-import { create3DSecureSession, PaymentResult} from "./components/threeDSdemo";
+import { create3DSecureSession, PaymentResult, closeCustomModalWithAlert} from "./components/threeDSdemo";
 import { UseThreeDSecureResponse } from "@evervault/evervault-react-native/dist/typescript/src/components/3DS/types";
 
 if (
@@ -64,7 +67,9 @@ function Checkout({ cardData }: { cardData: CardPayload | undefined }) {
       {(paymentStatus === "failed") && <PaymentResult status="Failed" />}
       {(paymentStatus === "in-progress") && (
         <>
-        <ThreeDSecureModal state={tds} />
+        <ThreeDSecure state={tds}>
+          <ThreeDSecure.Modal />
+        </ThreeDSecure>
         <Button title="Pay" onPress={handlePayment} />
         </>
       )}
@@ -101,7 +106,7 @@ function CustomThreeDSecureCheckout({cardData}: {cardData: CardPayload | undefin
   }
 
   const closeCustomModal = async () => {
-    await tds.cancel();
+    closeCustomModalWithAlert({cancel: tds.cancel})
   };
 
   return (
@@ -110,16 +115,22 @@ function CustomThreeDSecureCheckout({cardData}: {cardData: CardPayload | undefin
     {paymentStatus === "success" && <PaymentResult status="Successful" />}
     {paymentStatus === "failed" && <PaymentResult status="Failed" />}
     <ThreeDSecure state={tds}>
+      <Modal animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
             <TouchableOpacity onPress={closeCustomModal}>
-              <Text>CLOSE MODAL</Text>
+                <Image
+                source={require('./assets/favicon.png')} // Adjust the path according to your file structure
+                style={styles.image}
+                resizeMode="contain" // Optional: ensures the image scales correctly within its container
+                />
             </TouchableOpacity>
             </View>
             <ThreeDSecure.Frame />
           </View>
         </View>
+      </Modal>
     </ThreeDSecure>
     </>
 
@@ -190,7 +201,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 10,
     justifyContent: "center",
-    
+  },
+  image: {
+    width: 20, // Set the width of the image
+    height: 20, // Set the height of the image
   },
 });
 

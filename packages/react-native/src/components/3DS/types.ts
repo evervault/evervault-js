@@ -50,17 +50,16 @@ export interface ThreeDSecureModalStyle {
 
 // Props for the 3DS modal component
 export interface ThreeDSecureModalProps {
-  state: UseThreeDSecureState;
   config?: ThreeDSecureModalConfig;
   style?: ThreeDSecureModalStyle;
 }
 
-export interface UseThreeDSecureState {
+export interface ThreeDSecureInitialState {
   session: ThreeDSecureSession | null;
   displayModal: boolean;
 }
 
-export interface UseThreeDSecureResponse extends UseThreeDSecureState {
+export interface ThreeDSecureState extends ThreeDSecureInitialState {
   start: (sessionId: string, callbacks: ThreeDSecureCallbacks) => void;
   cancel: () => Promise<void>;
 }
@@ -71,7 +70,7 @@ export interface ThreeDSecureSessionsParams {
   appId: string;
   callbacks: ThreeDSecureCallbacks;
   intervalRef: React.MutableRefObject<NodeJS.Timeout | null>;
-  setDisplayModal: (show: boolean) => void;
+  setIsVisible: (show: boolean) => void;
 }
 
 
@@ -79,7 +78,7 @@ export interface ThreeDSecureSessionsParams {
    Types and Interfaces for 3DS Provider Component Props
 ------------------------------------------------- */
 export interface ThreeDSecureProviderProps {
-    state: UseThreeDSecureResponse;
+    state: ThreeDSecureState;
     children: React.ReactNode;
   }
 

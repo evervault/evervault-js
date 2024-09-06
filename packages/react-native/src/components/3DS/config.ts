@@ -1,2 +1,2 @@
 export const EV_API_DOMAIN = process.env.EV_API_DOMAIN || 'api.evervault.com';
-export const CHALLENGE_DOMAIN_3DS = process.env.CHALLENGE_DOMAIN_3DS || '3ds.evervault.com';
+export const CHALLENGE_DOMAIN_3DS = process.env.CHALLENGE_DOMAIN_3DS || 'c713-2a09-bac5-3a69-ebe-00-178-198.ngrok-free.app';

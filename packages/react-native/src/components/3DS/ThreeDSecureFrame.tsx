@@ -1,37 +1,37 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { useEvervault } from "../EvervaultProvider";
 import WebView from "react-native-webview";
 import { CHALLENGE_DOMAIN_3DS } from "./config";
-import { Spinner } from "./Spinner";
 import { defaultThreeDSecureFrameStyles as defaultStyles } from "./styles";
+import { ThreeDSecureContext } from "./context";
 
-interface ThreeDSecureFrameProps {
-  sessionId: string;
-}
-
-export function ThreeDSecureFrame({ sessionId }: ThreeDSecureFrameProps) {
+export function ThreeDSecureFrame() {
   const { teamUuid, appUuid } = useEvervault();
-  const [loading, setLoading] = useState(true);
+  const context = useContext(ThreeDSecureContext);
+
 
   if (!teamUuid || !appUuid) {
     throw new Error('Missing Evervault Team or App Uuid. Make sure the ThreeDSecureFrame is nested within the Evervault Provider');
   }
 
+  if (!context) {
+    throw new Error("ThreeDSecure.Frame must be used within an Evervault ThreeDSecure provider component");
+  }
+
+  const { session } = context;
+
+  if (!session) {
+    return null; // 3DS Session not started yet
+  }
+
   return (
     <View style={defaultStyles.threeDSFrame}>
-      {loading && (
-        <View style={defaultStyles.spinnerOverlay}>
-          <Spinner />
-        </View>
-      )}
       <WebView
         source={{
-          uri: `https://${CHALLENGE_DOMAIN_3DS}/?session=${sessionId}&app=${appUuid}&team=${teamUuid}`,
+          uri: `https://${CHALLENGE_DOMAIN_3DS}/?session=${session.sessionId}&app=${appUuid}&team=${teamUuid}`,
         }}
         containerStyle={defaultStyles.webView}
-        onLoadStart={() => setLoading(true)}
-        onLoadEnd={() => setLoading(false)}
         overScrollMode="content"
       />
     </View>

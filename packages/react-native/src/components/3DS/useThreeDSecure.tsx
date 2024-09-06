@@ -1,28 +1,18 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRef } from "react";
 import { useEvervault } from "../EvervaultProvider";
 import { startSession, threeDSecureSession } from "./threeDSSession";
 import {
   ThreeDSecureCallbacks,
-  UseThreeDSecureResponse,
-  UseThreeDSecureState,
+  ThreeDSecureSession,
+  ThreeDSecureState
 } from "./types";
 
-export const useThreeDSecure = (): UseThreeDSecureResponse => {
+export const useThreeDSecure = (): ThreeDSecureState => {
   const { appUuid } = useEvervault();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [displayModal, setDisplayModal] = useState(false);
-  const [state, setState] = useState<UseThreeDSecureState>({
-    session: null,
-    displayModal,
-  });
-
-  useEffect(() => {
-    setState((prevState) => ({
-      ...prevState,
-      displayModal,
-    }));
-  }, [displayModal]);
+  const [session, setSession] = useState<ThreeDSecureSession | null>(null)  
+  const [isVisible, setIsVisible] = useState(false); 
 
   if (!appUuid) {
     throw new Error(
@@ -36,20 +26,17 @@ export const useThreeDSecure = (): UseThreeDSecureResponse => {
       appId: appUuid,
       callbacks,
       intervalRef,
-      setDisplayModal,
+      setIsVisible,
     });
 
-    setState((prevState) => ({
-      ...prevState,
-      session,
-    }));
+    setSession(session);
 
-    startSession(session, callbacks, intervalRef, setDisplayModal);
+    startSession(session, callbacks, intervalRef, setIsVisible);
   };
 
   const cancel = async () => {
-    if (state.session) {
-      await state.session.cancel();
+    if (session) {
+      await session.cancel();
     } else {
       console.warn("No 3DS session to cancel");
     }
@@ -58,6 +45,7 @@ export const useThreeDSecure = (): UseThreeDSecureResponse => {
   return {
     start,
     cancel,
-    ...state,
+    session,
+    displayModal: isVisible,
   };
 };

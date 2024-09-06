@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 
-const BACKEND_API_KEY = process.env.EXPO_EV_BACKEND_TOKEN;
+
 
 interface CreateThreeDSecureSessionParams {
     cardNumber: string;
@@ -15,6 +15,8 @@ interface CreateThreeDSecureSessionParams {
 
 export const create3DSecureSession = async ({cardNumber, expiryMonth, expiryYear}: CreateThreeDSecureSessionParams): Promise<string> => {
     console.log(`Creating 3DS session for card ${cardNumber} expiring ${expiryMonth}/${expiryYear}`);
+    const BACKEND_API_KEY = process.env.EXPO_PUBLIC_EV_BACKEND_TOKEN;
+    console.log(`Using backend API key: ${BACKEND_API_KEY}`);
     const response = await fetch("https://api.evervault.com/payments/3ds-sessions", {
       method: 'POST',
       headers: {
@@ -97,4 +99,26 @@ export const create3DSecureSession = async ({cardNumber, expiryMonth, expiryYear
       textAlign: 'center',  // Centered text inside the box
     },
   });
+
+  export const closeCustomModalWithAlert = async ({cancel}) => {
+    Alert.alert(
+      "Confirm Action", // Title
+      "Are you sure you want to do this?", // Message
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Modal close canceled"), // Do nothing when canceled
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          onPress: async () => {
+            // Proceed with closing the modal
+            await cancel();
+          },
+        },
+      ],
+      { cancelable: true } // Allow closing the alert without choosing any option
+    );
+  };
   
