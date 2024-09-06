@@ -1,5 +1,11 @@
 # react-native-example
 
+## 1.0.13
+
+### Patch Changes
+
+- @evervault/evervault-react-native@1.1.1
+
 ## 1.0.12
 
 ### Patch Changes

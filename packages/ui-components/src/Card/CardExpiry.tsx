@@ -20,6 +20,7 @@ const EXPIRY_BLOCKS = {
     from: 1,
     to: 12,
     maxLength: 2,
+    autofix: "pad",
   },
   YY: {
     mask: IMask.MaskedRange,

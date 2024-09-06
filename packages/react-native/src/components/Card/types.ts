@@ -11,7 +11,8 @@ export type CardBrandName =
   | "elo"
   | "hipercard"
   | "hiper"
-  | "szep";
+  | "szep"
+  | "uatp";
 
 export interface CardConfig {
   acceptedBrands?: CardBrandName[];

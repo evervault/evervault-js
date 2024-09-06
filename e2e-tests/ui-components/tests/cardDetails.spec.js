@@ -505,4 +505,32 @@ test.describe("card component", () => {
     await expect(frame.getByText("Your card number is invalid")).toBeVisible();
     await expect.poll(async () => called).toEqual(0);
   });
+
+  test("Auto pads expiry month if value starts with a digit between 2-9", async ({
+    page,
+  }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card();
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Expiration").fill("2");
+    await expect(frame.getByLabel("Expiration")).toHaveValue("02");
+  });
+
+  ["0", "1"].forEach((digit) => {
+    test(`Does not autopad expiry month if value starts with ${digit}`, async ({
+      page,
+    }) => {
+      await page.evaluate(() => {
+        const card = window.evervault.ui.card();
+        card.mount("#form");
+      });
+
+      const frame = page.frameLocator("iframe[data-evervault]");
+      await frame.getByLabel("Expiration").fill(digit);
+      await expect(frame.getByLabel("Expiration")).toHaveValue(digit);
+    });
+  });
 });

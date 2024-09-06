@@ -9,16 +9,19 @@ jobs:
   build:
     uses: ./.github/workflows/build-and-test.yml
     with:
-      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      turbo_team: ${{ vars.TURBO_TEAM }}
+      vite-evervault-js-url: "https://js.evervault.com/v2"
+      vite-keys-url: "https://keys.evervault.com"
+      vite-api-url: "https://api.evervault.com"
     secrets:
-      TESTS_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
-      TESTS_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
-      TESTS_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      tests_team_uuid: ${{ secrets.TESTS_TEAM_UUID }}
+      tests_app_uuid: ${{ secrets.TESTS_APP_UUID }}
+      tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      turbo_token: ${{ secrets.TURBO_TOKEN }}
   deploy-js:
     if: contains(github.event.release.tag_name, '@evervault/browser')
     needs: build
-    uses: ./.github/workflows/aws-generic-deploy-browser.yml
+    uses: ./.github/workflows/deploy-browser.yml
     with:
       environment: "production"
       name: "Deploy to Production"
@@ -31,7 +34,7 @@ jobs:
   deploy-inputs:
     if: contains(github.event.release.tag_name, '@evervault/inputs')
     needs: build
-    uses: ./.github/workflows/aws-generic-deploy-inputs.yml
+    uses: ./.github/workflows/deploy-inputs.yml
     with:
       environment: "production"
       name: "Deploy to Production"
@@ -47,9 +50,6 @@ jobs:
     with:
       environment: "production"
       name: "Deploy to Production"
-      vite-evervault-js-url: "https://js.evervault.com/v2"
-      vite-keys-url: "https://keys.evervault.com"
-      vite-api-url: "https://api.evervault.com"
     secrets:
       aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
