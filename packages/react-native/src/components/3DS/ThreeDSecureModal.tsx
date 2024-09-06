@@ -18,8 +18,6 @@ export const ThreeDSecureModal = ({config, style}: ThreeDSecureModalProps) => {
       await state.session.cancel();
     };
   };
-
-  if (state.session && state.displayModal) {
     return (
         <Modal animationType="slide" transparent={true}>
         <View style={[defaultStyles.modalContainer, style?.modalStyle]}>
@@ -42,7 +40,4 @@ export const ThreeDSecureModal = ({config, style}: ThreeDSecureModalProps) => {
         </View>
         </Modal>
     );
-  } else {
-    return null;
-  }
 };

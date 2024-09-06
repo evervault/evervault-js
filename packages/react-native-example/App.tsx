@@ -22,7 +22,6 @@ import {
 import { useState } from "react";
 import CardForm from "./components/CardForm";
 import { create3DSecureSession, PaymentResult, closeCustomModalWithAlert} from "./components/threeDSdemo";
-import { UseThreeDSecureResponse } from "@evervault/evervault-react-native/dist/typescript/src/components/3DS/types";
 
 if (
   !process.env.EXPO_PUBLIC_EV_TEAM_UUID ||
@@ -35,7 +34,7 @@ if (
 
 function Checkout({ cardData }: { cardData: CardPayload | undefined }) {
   const [paymentStatus, setPaymentStatus] = useState<string>("in-progress");
-  const tds: UseThreeDSecureResponse = useThreeDSecure();
+  const tds = useThreeDSecure();
 
   const handlePayment = async () => {
     const sessionId = await create3DSecureSession({
@@ -111,7 +110,7 @@ function CustomThreeDSecureCheckout({cardData}: {cardData: CardPayload | undefin
 
   return (
     <>
-    {paymentStatus === "in-progress" &&<Button title="Complete Payment" onPress={handlePayment} />}
+    {paymentStatus === "in-progress" &&<Button title="Complete Custom Payment" onPress={handlePayment} />}
     {paymentStatus === "success" && <PaymentResult status="Successful" />}
     {paymentStatus === "failed" && <PaymentResult status="Failed" />}
     <ThreeDSecure state={tds}>
@@ -121,9 +120,9 @@ function CustomThreeDSecureCheckout({cardData}: {cardData: CardPayload | undefin
             <View style={styles.modalHeader}>
             <TouchableOpacity onPress={closeCustomModal}>
                 <Image
-                source={require('./assets/favicon.png')} // Adjust the path according to your file structure
+                source={require('./assets/cancel.png')}
                 style={styles.image}
-                resizeMode="contain" // Optional: ensures the image scales correctly within its container
+                resizeMode="contain"
                 />
             </TouchableOpacity>
             </View>
@@ -193,7 +192,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalHeader: {
-    padding: 10, 
+    padding: 5, 
   },
   modalContent: {
     width: "100%",
@@ -203,7 +202,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   image: {
-    width: 20, // Set the width of the image
+    width: 70, // Set the width of the image
     height: 20, // Set the height of the image
   },
 });

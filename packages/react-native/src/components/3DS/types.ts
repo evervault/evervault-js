@@ -56,7 +56,7 @@ export interface ThreeDSecureModalProps {
 
 export interface ThreeDSecureInitialState {
   session: ThreeDSecureSession | null;
-  displayModal: boolean;
+  isVisible: boolean;
 }
 
 export interface ThreeDSecureState extends ThreeDSecureInitialState {

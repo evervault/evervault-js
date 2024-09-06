@@ -13,13 +13,13 @@ const ThreeDSecure = ({ state, children }: ThreeDSecureProviderProps) => {
     throw new Error("ThreeDSecure must be used within an Evervault Provider");
   }
 
-  const { session, displayModal } = state;
+  const { session, isVisible } = state;
 
   if (!session) return null;
 
   return (
     <ThreeDSecureContext.Provider value={state}>
-      {displayModal && children}
+      {isVisible && children}
     </ThreeDSecureContext.Provider>
   );
 };

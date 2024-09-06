@@ -46,6 +46,6 @@ export const useThreeDSecure = (): ThreeDSecureState => {
     start,
     cancel,
     session,
-    displayModal: isVisible,
+    isVisible: isVisible,
   };
 };
