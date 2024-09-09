@@ -260,6 +260,15 @@ importers:
         specifier: ^4.5.3
         version: 4.5.3(@types/node@20.11.30)(terser@5.31.0)
 
+  packages/3ds:
+    devDependencies:
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
+      vite:
+        specifier: ^4.5.3
+        version: 4.5.3(@types/node@20.11.30)(terser@5.31.0)
+
   packages/browser:
     dependencies:
       asn1js:
@@ -301,10 +310,10 @@ importers:
         version: link:../tsconfig
       vite:
         specifier: ^4.5.3
-        version: 4.5.3(@types/node@18.19.26)(terser@5.31.0)
+        version: 4.5.3(@types/node@20.11.30)(terser@5.31.0)
       vite-plugin-dts:
         specifier: ^3.6.3
-        version: 3.6.3(@types/node@18.19.26)(rollup@3.29.4)(typescript@5.5.4)(vite@4.5.3(@types/node@18.19.26)(terser@5.31.0))
+        version: 3.6.3(@types/node@20.11.30)(rollup@3.29.4)(typescript@5.5.4)(vite@4.5.3(@types/node@20.11.30)(terser@5.31.0))
       vitest:
         specifier: ^0.29.8
         version: 0.29.8(jsdom@22.1.0)(playwright@1.42.1)(terser@5.31.0)
@@ -319,10 +328,10 @@ importers:
         version: 5.5.4
       vite:
         specifier: ^4.5.3
-        version: 4.5.3(@types/node@18.19.26)(terser@5.31.0)
+        version: 4.5.3(@types/node@20.11.30)(terser@5.31.0)
       vite-plugin-dts:
         specifier: ^3.6.3
-        version: 3.6.3(@types/node@18.19.26)(rollup@3.29.4)(typescript@5.5.4)(vite@4.5.3(@types/node@18.19.26)(terser@5.31.0))
+        version: 3.6.3(@types/node@20.11.30)(rollup@3.29.4)(typescript@5.5.4)(vite@4.5.3(@types/node@20.11.30)(terser@5.31.0))
       vitest:
         specifier: ^0.29.8
         version: 0.29.8(jsdom@22.1.0)(playwright@1.42.1)(terser@5.31.0)
@@ -438,6 +447,9 @@ importers:
       react-native-masked-text:
         specifier: ^1.13.0
         version: 1.13.0
+      react-native-webview:
+        specifier: ^13.12.0
+        version: 13.12.0(react-native@0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
     devDependencies:
       '@commitlint/config-conventional':
         specifier: ^17.0.2
@@ -517,6 +529,12 @@ importers:
       react-native:
         specifier: 0.74.1
         version: 0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0)
+      react-native-svg:
+        specifier: ^15.6.0
+        version: 15.6.0(react-native@0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
+      react-native-webview:
+        specifier: ^13.12.0
+        version: 13.12.0(react-native@0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
     devDependencies:
       '@babel/core':
         specifier: ^7.20.0
@@ -4122,6 +4140,10 @@ packages:
   css-select@5.1.0:
     resolution: {integrity: sha512-nwoRF1rvRRnnCqqY7updORDsuqKzqYJ28+oSMaJMMgOauh3fvwHqMS7EZpIPqK8GL+g9mKxF1vP/ZjSeNjEVHg==}
 
+  css-tree@1.1.3:
+    resolution: {integrity: sha512-tRpdppF7TRazZrjJ6v3stzv93qxRcSsFmW6cX0Zm2NVKpxE1WV1HblnghVv9TreireHkqI/VDEsfolRF1p6y7Q==}
+    engines: {node: '>=8.0.0'}
+
   css-vendor@2.0.8:
     resolution: {integrity: sha512-x9Aq0XTInxrkuFeHKbYC7zWY8ai7qJ04Kxd9MnvbC1uO5DagxoHQjm4JvG+vCdXOoFtCjbL2XSZfxmoYa9uQVQ==}
 
@@ -6545,6 +6567,9 @@ packages:
   md5hex@1.0.0:
     resolution: {integrity: sha512-c2YOUbp33+6thdCUi34xIyOU/a7bvGKj/3DB1iaPMTuPHf/Q2d5s4sn1FaCOO43XkXggnb08y5W2PU8UNYNLKQ==}
 
+  mdn-data@2.0.14:
+    resolution: {integrity: sha512-dn6wd0uw5GsdswPFfsgMp5NSB0/aDe6fK94YJV/AJDYXL6HVLWBsxeq7js7Ad+mU2K9LAlwpk6kN2D5mwCPVow==}
+
   memoize-one@5.2.1:
     resolution: {integrity: sha512-zYiwtZUcYyXKo/np96AGZAckk+FWWsUdJ3cHGGmld7+AhvcWmQyGCYUh1hc4Q/pkOhb65dQR/pqCyK0cOaHz4Q==}
 
@@ -7725,6 +7750,18 @@ packages:
 
   react-native-masked-text@1.13.0:
     resolution: {integrity: sha512-iMku5Ky6DP4fTRosjsYNJOhH8yoBQCzRALBdv1wVDKmCBQhhVE8RHr5EW4SNUjkYTZL473sDdEKl4NI948q9FQ==}
+
+  react-native-svg@15.6.0:
+    resolution: {integrity: sha512-TUtR+h+yi1ODsd8FHdom1TpjfWOmnaK5pri5rnSBXnMqpzq8o2zZfonHTjPX+nS3wb/Pu2XsoARgYaHNjVWXhQ==}
+    peerDependencies:
+      react: '*'
+      react-native: '*'
+
+  react-native-webview@13.12.0:
+    resolution: {integrity: sha512-4Dg2BiUfbfePAWUzIgB7yZjEQR3u9MxgxeR0sj1E/i7AKWhRfl/WHscXIgejrv6sEieVrEzq+iJlNb0O7Zra4Q==}
+    peerDependencies:
+      react: '*'
+      react-native: '*'
 
   react-native@0.74.1:
     resolution: {integrity: sha512-0H2XpmghwOtfPpM2LKqHIN7gxy+7G/r1hwJHKLV6uoyXGC/gCojRtoo5NqyKrWpFC8cqyT6wTYCLuG7CxEKilg==}
@@ -9144,6 +9181,9 @@ packages:
 
   walker@1.0.8:
     resolution: {integrity: sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==}
+
+  warn-once@0.1.1:
+    resolution: {integrity: sha512-VkQZJbO8zVImzYFteBXvBOZEl1qL175WH8VmZcxF2fZAoudNhNDvHi+doCaAEdU2l2vtcIwa2zn0QK5+I1HQ3Q==}
 
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
@@ -11962,36 +12002,11 @@ snapshots:
       globby: 11.1.0
       read-yaml-file: 1.1.0
 
-  '@microsoft/api-extractor-model@7.28.2(@types/node@18.19.26)':
-    dependencies:
-      '@microsoft/tsdoc': 0.14.2
-      '@microsoft/tsdoc-config': 0.16.2
-      '@rushstack/node-core-library': 3.61.0(@types/node@18.19.26)
-    transitivePeerDependencies:
-      - '@types/node'
-
   '@microsoft/api-extractor-model@7.28.2(@types/node@20.11.30)':
     dependencies:
       '@microsoft/tsdoc': 0.14.2
       '@microsoft/tsdoc-config': 0.16.2
       '@rushstack/node-core-library': 3.61.0(@types/node@20.11.30)
-    transitivePeerDependencies:
-      - '@types/node'
-
-  '@microsoft/api-extractor@7.38.2(@types/node@18.19.26)':
-    dependencies:
-      '@microsoft/api-extractor-model': 7.28.2(@types/node@18.19.26)
-      '@microsoft/tsdoc': 0.14.2
-      '@microsoft/tsdoc-config': 0.16.2
-      '@rushstack/node-core-library': 3.61.0(@types/node@18.19.26)
-      '@rushstack/rig-package': 0.5.1
-      '@rushstack/ts-command-line': 4.17.1
-      colors: 1.2.5
-      lodash: 4.17.21
-      resolve: 1.22.6
-      semver: 7.5.4
-      source-map: 0.6.1
-      typescript: 5.0.4
     transitivePeerDependencies:
       - '@types/node'
 
@@ -12555,18 +12570,6 @@ snapshots:
       picomatch: 2.3.1
     optionalDependencies:
       rollup: 3.29.4
-
-  '@rushstack/node-core-library@3.61.0(@types/node@18.19.26)':
-    dependencies:
-      colors: 1.2.5
-      fs-extra: 7.0.1
-      import-lazy: 4.0.0
-      jju: 1.4.0
-      resolve: 1.22.8
-      semver: 7.5.4
-      z-schema: 5.0.5
-    optionalDependencies:
-      '@types/node': 18.19.26
 
   '@rushstack/node-core-library@3.61.0(@types/node@20.11.30)':
     dependencies:
@@ -14448,6 +14451,11 @@ snapshots:
       domhandler: 5.0.3
       domutils: 3.0.1
       nth-check: 2.1.1
+
+  css-tree@1.1.3:
+    dependencies:
+      mdn-data: 2.0.14
+      source-map: 0.6.1
 
   css-vendor@2.0.8:
     dependencies:
@@ -17437,6 +17445,8 @@ snapshots:
 
   md5hex@1.0.0: {}
 
+  mdn-data@2.0.14: {}
+
   memoize-one@5.2.1: {}
 
   memory-cache@0.2.0: {}
@@ -18998,6 +19008,21 @@ snapshots:
       date-and-time: 0.14.2
       tinymask: 1.0.2
 
+  react-native-svg@15.6.0(react-native@0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0):
+    dependencies:
+      css-select: 5.1.0
+      css-tree: 1.1.3
+      react: 18.2.0
+      react-native: 0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0)
+      warn-once: 0.1.1
+
+  react-native-webview@13.12.0(react-native@0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0):
+    dependencies:
+      escape-string-regexp: 4.0.0
+      invariant: 2.2.4
+      react: 18.2.0
+      react-native: 0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0)
+
   react-native@0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0):
     dependencies:
       '@jest/create-cache-key-function': 29.7.0
@@ -20482,22 +20507,6 @@ snapshots:
       - supports-color
       - terser
 
-  vite-plugin-dts@3.6.3(@types/node@18.19.26)(rollup@3.29.4)(typescript@5.5.4)(vite@4.5.3(@types/node@18.19.26)(terser@5.31.0)):
-    dependencies:
-      '@microsoft/api-extractor': 7.38.2(@types/node@18.19.26)
-      '@rollup/pluginutils': 5.0.5(rollup@3.29.4)
-      '@vue/language-core': 1.8.22(typescript@5.5.4)
-      debug: 4.3.4(supports-color@5.5.0)
-      kolorist: 1.8.0
-      typescript: 5.5.4
-      vue-tsc: 1.8.22(typescript@5.5.4)
-    optionalDependencies:
-      vite: 4.5.3(@types/node@18.19.26)(terser@5.31.0)
-    transitivePeerDependencies:
-      - '@types/node'
-      - rollup
-      - supports-color
-
   vite-plugin-dts@3.6.3(@types/node@20.11.30)(rollup@3.29.4)(typescript@5.5.4)(vite@4.5.3(@types/node@20.11.30)(terser@5.31.0)):
     dependencies:
       '@microsoft/api-extractor': 7.38.2(@types/node@20.11.30)
@@ -20614,6 +20623,8 @@ snapshots:
   walker@1.0.8:
     dependencies:
       makeerror: 1.0.12
+
+  warn-once@0.1.1: {}
 
   wcwidth@1.0.1:
     dependencies:
