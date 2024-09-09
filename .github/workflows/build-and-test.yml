@@ -86,6 +86,11 @@ jobs:
         with:
           name: ui-components-build
           path: packages/ui-components/dist
+      - name: Upload 3ds build
+        uses: actions/upload-artifact@v4
+        with:
+          name: 3ds-build
+          path: packages/3ds/dist
       - name: Upload react build
         uses: actions/upload-artifact@v4
         with:
