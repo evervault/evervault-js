@@ -91,10 +91,6 @@ jobs:
         with:
           name: 3ds-build
           path: packages/3ds/dist
-        env:
-          VITE_API_URL: "https://api.evervault.io"
-          VITE_EVERVAULT_JS_URL: "https://js.evervault.io/v2"
-          VITE_KEYS_URL: "https://keys.evervault.io"
       - name: Upload react build
         uses: actions/upload-artifact@v4
         with:
