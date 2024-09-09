@@ -1,57 +1,9 @@
 import { TextStyle, ViewStyle } from "react-native";
 
-/* ---------------------------------------------
-   Types and Interfaces for 3DS Callbacks and Session Responses
-------------------------------------------------- */
-
-// Callbacks to handle the various outcomes of a 3DS session
 export interface ThreeDSecureCallbacks {
-  onSuccess: () => void;
-  onFailure: (error: Error) => void;
   onError: (error: Error) => void;
-}
-
-// Possible statuses of a 3DS session
-type SessionStatus = "action-required" | "success" | "failure";
-
-// Response structure for a 3DS session
-export interface ThreeDSecureSessionResponse {
-  nextAction: {
-    type: string;
-    url?: string;
-    creq?: string;
-  };
-  status: SessionStatus;
-}
-
-/* ---------------------------------------------
-   Types and Interfaces for 3DS Modal Configuration and Styling
-------------------------------------------------- */
-
-// Configuration options for the 3DS modal
-export interface ThreeDSecureModalConfig {
-  titleText: string;
-  closeButtonText: string;
-}
-
-// Styling options for the 3DS modal and its components
-export interface ThreeDSecureModalStyle {
-  modalStyle: ViewStyle;
-  modalContentStyle: ViewStyle;
-  titleBarStyle: ViewStyle;
-  titleTextStyle: TextStyle;
-  closeButtonStyle: object;
-  closeButtonTextStyle: TextStyle;
-}
-
-/* ---------------------------------------------
-   Types and Interfaces for 3DS Secure Session and Modal Props
-------------------------------------------------- */
-
-// Props for the 3DS modal component
-export interface ThreeDSecureModalProps {
-  config?: ThreeDSecureModalConfig;
-  style?: ThreeDSecureModalStyle;
+  onFailure: (error: Error) => void;
+  onSuccess: () => void;
 }
 
 export interface ThreeDSecureInitialState {
@@ -59,36 +11,56 @@ export interface ThreeDSecureInitialState {
   isVisible: boolean;
 }
 
-export interface ThreeDSecureState extends ThreeDSecureInitialState {
-  start: (sessionId: string, callbacks: ThreeDSecureCallbacks) => void;
-  cancel: () => Promise<void>;
+export interface ThreeDSecureModalConfig {
+  closeButtonText: string;
+  titleText: string;
 }
 
-// Parameters needed to start a 3DS session
-export interface ThreeDSecureSessionsParams {
+export interface ThreeDSecureModalProps {
+  config?: ThreeDSecureModalConfig;
+  style?: ThreeDSecureModalStyle;
+}
+
+export interface ThreeDSecureModalStyle {
+  closeButtonStyle: object;
+  closeButtonTextStyle: TextStyle;
+  modalContentStyle: ViewStyle;
+  modalStyle: ViewStyle;
+  titleBarStyle: ViewStyle;
+  titleTextStyle: TextStyle;
+}
+
+export interface ThreeDSecureProviderProps {
+  children: React.ReactNode;
+  state: ThreeDSecureState;
+}
+
+export interface ThreeDSecureSession {
+  cancel: () => Promise<void>;
+  get: () => Promise<ThreeDSecureSessionResponse>;
   sessionId: string;
+}
+
+export interface ThreeDSecureSessionResponse {
+  nextAction: {
+    creq?: string;
+    type: string;
+    url?: string;
+  };
+  status: SessionStatus;
+}
+
+export interface ThreeDSecureSessionsParams {
   appId: string;
   callbacks: ThreeDSecureCallbacks;
   intervalRef: React.MutableRefObject<NodeJS.Timeout | null>;
+  sessionId: string;
   setIsVisible: (show: boolean) => void;
 }
 
-
-/* ---------------------------------------------
-   Types and Interfaces for 3DS Provider Component Props
-------------------------------------------------- */
-export interface ThreeDSecureProviderProps {
-    state: ThreeDSecureState;
-    children: React.ReactNode;
-  }
-
-/* ---------------------------------------------
-   Types and Interfaces for 3DS Session Management
-------------------------------------------------- */
-
-// Interface representing the 3DS session object
-export interface ThreeDSecureSession {
-  get: () => Promise<ThreeDSecureSessionResponse>;
+export interface ThreeDSecureState extends ThreeDSecureInitialState {
   cancel: () => Promise<void>;
-  sessionId: string;
+  start: (sessionId: string, callbacks: ThreeDSecureCallbacks) => void;
 }
+
+type SessionStatus = "action-required" | "failure" | "success";
