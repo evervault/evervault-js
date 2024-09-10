@@ -38,6 +38,12 @@ describe("Encryption", () => {
   });
 
   it("it encrypts a string", async (context) => {
+    console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    console.log("VITE_EV_TEAM_UUID");
+    console.log(import.meta.env.VITE_EV_TEAM_UUID);
+    console.log("VITE_EV_APP_UUID");
+    console.log(import.meta.env.VITE_EV_APP_UUID);
+    console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     const encryptedString = await context.ev.encrypt("Big Secret");
     assert(encryptedStringRegex.test(encryptedString));
   });
