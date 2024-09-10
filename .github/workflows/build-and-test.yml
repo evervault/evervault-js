@@ -41,9 +41,9 @@ jobs:
       TURBO_TOKEN: ${{ secrets.turbo_token }}
       VITE_EV_APP_UUID: ${{ secrets.tests_app_uuid }}
       VITE_EV_TEAM_UUID: ${{ secrets.tests_team_uuid }}
-      VITE_API_URL: "https://api.evervault.com"
-      VITE_EVERVAULT_JS_URL: "https://js.evervault.com/v2"
-      VITE_KEYS_URL: "https://keys.evervault.com"
+      VITE_API_URL: "https://api.evervault.io"
+      VITE_EVERVAULT_JS_URL: "https://js.evervault.io/v2"
+      VITE_KEYS_URL: "https://keys.evervault.io"
     steps:
       - name: Check out code
         uses: actions/checkout@v4
