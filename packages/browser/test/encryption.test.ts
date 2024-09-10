@@ -270,7 +270,7 @@ describe("Encryption with evervault async initailization", () => {
     context.evDebug = await Evervault.init(
       import.meta.env.VITE_EV_TEAM_UUID,
       import.meta.env.VITE_EV_APP_UUID,
-      { 
+      {
         isDebugMode: true,
         urls: {
           keysUrl: import.meta.env.VITE_KEYS_URL as string,
