@@ -57,7 +57,9 @@ jobs:
           cache: "pnpm"
       - name: Install deps
         run: pnpm install --frozen-lockfile
-      - name: Formats check
+      - name: Build for tests
+        run: pnpm build
+      - name: Formats checkgi
         run: pnpm run format:check
       - name: Typescript check
         run: pnpm run typecheck
