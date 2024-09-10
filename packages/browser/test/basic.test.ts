@@ -20,6 +20,11 @@ describe("customConfig", () => {
       {
         publicKey:
           "BDeIKmwjqB35+tnMzQFEvXIvM2kyK6DX75NBEhSZxCR5CQZYnh1fwWsXMEqqKihmEGfMX0+EDHtmZNP/TK7mqMc=",
+        urls: {
+          keysUrl: import.meta.env.VITE_KEYS_URL as string,
+          apiUrl: import.meta.env.VITE_API_URL as string,
+          componentsUrl: import.meta.env.VITE_UI_COMPONENTS_URL as string,
+        },
       }
     );
     const encryptedString = await ev.encrypt("Big Secret");

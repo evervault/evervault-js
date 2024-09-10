@@ -3,7 +3,14 @@ import Evervault from "./lib/main";
 (async () => {
   const evervault = new Evervault(
     import.meta.env.VITE_EV_TEAM_UUID,
-    import.meta.env.VITE_EV_APP_UUID
+    import.meta.env.VITE_EV_APP_UUID,
+    {
+      urls: {
+        keysUrl: import.meta.env.VITE_KEYS_URL,
+        apiUrl: import.meta.env.VITE_API_URL,
+        componentsUrl: import.meta.env.VITE_UI_COMPONENTS_URL,
+      },
+    }
   );
   console.log(await evervault.encrypt("hello evervault"));
 
