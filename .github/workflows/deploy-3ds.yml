@@ -41,7 +41,6 @@ jobs:
           name: 3ds-build
           path: dist
       - name: S3 Deploy
-        working-directory: packages/3ds
         run: aws s3 cp dist s3://${{ secrets.aws-s3-bucket }}/ --recursive
       - name: Cloudfront Cache Invalidation
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/index.html"
