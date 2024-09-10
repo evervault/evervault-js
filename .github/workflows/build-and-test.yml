@@ -58,7 +58,14 @@ jobs:
       - name: Install deps
         run: pnpm install --frozen-lockfile
       - name: Build
-        run: pnpm build
+        run: |
+          pnpm \
+          --filter @evervault/browser \
+          --filter @evervault/inputs \
+          --filter @evervault/react \
+          --filter @evervault/card-validator \
+          --filter @evervault/react-native \
+          build
       - name: Build ui-components and 3ds
         run: pnpm --filter @evervault/ui-components --filter @evervault/3ds build
         env: 
