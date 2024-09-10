@@ -2,7 +2,6 @@ import React, { createContext, useContext } from "react";
 import { ThreeDSecureProviderProps } from "./types";
 import { useEvervault } from "../EvervaultProvider";
 import { ThreeDSecureFrame } from "./ThreeDSecureFrame";
-import { ThreeDSecureModal } from "./ThreeDSecureModal";
 import { ThreeDSecureContext } from "./context";
 
 
@@ -27,8 +26,7 @@ const ThreeDSecure = ({ state, children }: ThreeDSecureProviderProps) => {
 
 
 const ThreeDSecureNamespace = Object.assign(ThreeDSecure, {
-  Frame: ThreeDSecureFrame,
-  Modal: ThreeDSecureModal
+  Frame: ThreeDSecureFrame
 });
 
 export { ThreeDSecureNamespace as ThreeDSecure };

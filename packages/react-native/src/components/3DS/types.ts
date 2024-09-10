@@ -1,4 +1,3 @@
-import { TextStyle, ViewStyle } from "react-native";
 
 export interface ThreeDSecureCallbacks {
   onError: (error: Error) => void;
@@ -9,25 +8,6 @@ export interface ThreeDSecureCallbacks {
 export interface ThreeDSecureInitialState {
   session: ThreeDSecureSession | null;
   isVisible: boolean;
-}
-
-export interface ThreeDSecureModalConfig {
-  closeButtonText: string;
-  titleText: string;
-}
-
-export interface ThreeDSecureModalProps {
-  config?: ThreeDSecureModalConfig;
-  style?: ThreeDSecureModalStyle;
-}
-
-export interface ThreeDSecureModalStyle {
-  closeButtonStyle: object;
-  closeButtonTextStyle: TextStyle;
-  modalContentStyle: ViewStyle;
-  modalStyle: ViewStyle;
-  titleBarStyle: ViewStyle;
-  titleTextStyle: TextStyle;
 }
 
 export interface ThreeDSecureProviderProps {
