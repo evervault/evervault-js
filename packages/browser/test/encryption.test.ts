@@ -256,6 +256,13 @@ describe("File Encryption", () => {
 describe("Encryption with evervault async initailization", () => {
   beforeEach(async (context) => {
     setupCrypto();
+    
+    console.log(import.meta.env.VITE_EV_TEAM_UUID);
+    console.log(import.meta.env.VITE_EV_APP_UUID);
+    console.log(import.meta.env.VITE_KEYS_URL);
+    console.log(import.meta.env.VITE_API_URL);
+    console.log(import.meta.env.VITE_UI_COMPONENTS_URL);
+
     context.evClient = await Evervault.init(
       import.meta.env.VITE_EV_TEAM_UUID,
       import.meta.env.VITE_EV_APP_UUID,
