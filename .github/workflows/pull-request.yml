@@ -15,7 +15,7 @@ jobs:
       vite-keys-url: "https://keys.evervault.io"
       vite-api-url: "https://api.evervault.io"
     secrets:
-      TESTS_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
-      TESTS_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
-      TESTS_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      TESTS_TEAM_UUID: ${{ secrets.STAGING_TESTS_TEAM_UUID }}
+      TESTS_APP_UUID: ${{ secrets.STAGING_TESTS_APP_UUID }}
+      TESTS_DECRYPT_FN_KEY: ${{ secrets.STAGING_TESTS_DECRYPT_FN_KEY }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
