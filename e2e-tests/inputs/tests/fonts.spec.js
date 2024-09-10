@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test";
 
-const teamUuid = "59a96deeef03";
-const appUuid = "app_869a0605f7c3";
+const appUuid = process.env.VITE_EV_APP_UUID
+const teamUuid = process.env.VITE_EV_TEAM_UUID
+
 const fontUrl = encodeURIComponent(
   "https://fonts.googleapis.com/css2?family=Poppins:wght@100;800&display=swap"
 );

@@ -14,9 +14,9 @@ jobs:
       vite-keys-url: "https://keys.evervault.com"
       vite-api-url: "https://api.evervault.com"
     secrets:
-      tests_team_uuid: ${{ secrets.TESTS_TEAM_UUID }}
-      tests_app_uuid: ${{ secrets.TESTS_APP_UUID }}
-      tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      tests_team_uuid: ${{ secrets.STAGING_TESTS_TEAM_UUID }}
+      tests_app_uuid: ${{ secrets.STAGING_TESTS_APP_UUID }}
+      tests_decrypt_fn_key: ${{ secrets.STAGING_TESTS_DECRYPT_FN_KEY }}
       turbo_token: ${{ secrets.TURBO_TOKEN }}
   deploy-js:
     if: contains(github.event.release.tag_name, '@evervault/browser')

@@ -1,11 +1,14 @@
 import { test, expect } from "@playwright/test";
 import { CardLib } from "../utils.js";
 
+const appUuid = process.env.VITE_EV_APP_UUID
+const teamUuid = process.env.VITE_EV_TEAM_UUID
+
 test.describe("evervault inputs", () => {
   test.describe("v2 render default inputs", () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(
-        "http://localhost:4173/v2/?team=59a96deeef03&app=app_869a0605f7c3"
+        `http://localhost:4173/v2/?team=${teamUuid}&app=${appUuid}`
       );
     });
 
@@ -82,7 +85,7 @@ test.describe("evervault inputs", () => {
   test.describe("v2 render with CCV disabled", () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(
-        "http://localhost:4173/v2/?team=59a96deeef03&app=app_869a0605f7c3&disableCVV=true"
+        `http://localhost:4173/v2/?team=${teamUuid}&app=${appUuid}&disableCVV=true`
       );
     });
 
@@ -126,7 +129,7 @@ test.describe("evervault inputs", () => {
   test.describe("v2 render with expiry disabled", () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(
-        "http://localhost:4173/v2/?team=59a96deeef03&app=app_869a0605f7c3&disableExpiry=true"
+        `http://localhost:4173/v2/?team=${teamUuid}&app=${appUuid}&disableExpiry=true`
       );
     });
 
@@ -156,7 +159,7 @@ test.describe("evervault inputs", () => {
   test.describe("v2 render with expiry and CVV disabled", () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(
-        "http://localhost:4173/v2/?team=59a96deeef03&app=app_869a0605f7c3&disableExpiry=true&disableCVV=true"
+        `http://localhost:4173/v2/?team=${teamUuid}&app=${appUuid}&disableExpiry=true&disableCVV=true`
       );
     });
 

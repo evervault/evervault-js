@@ -3,6 +3,9 @@ import { test, expect } from "@playwright/test";
 const EV_STRING_REGEX =
   /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
 
+const appUuid = process.env.VITE_EV_APP_UUID
+const teamUuid = process.env.VITE_EV_TEAM_UUID
+
 test.setTimeout(120000);
 
 test.describe("evervault inputs", () => {

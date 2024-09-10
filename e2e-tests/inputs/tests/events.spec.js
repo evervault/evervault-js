@@ -4,11 +4,14 @@ import { CardLib } from "../utils.js";
 const EV_STRING_REGEX =
   /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
 
+const appUuid = process.env.VITE_EV_APP_UUID
+const teamUuid = process.env.VITE_EV_TEAM_UUID
+
 test.describe("evervault inputs", () => {
   test.describe("v2 event testing", () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(
-        "http://localhost:4173/v2/?team=59a96deeef03&app=app_869a0605f7c3"
+        `http://localhost:4173/v2/?team=${teamUuid}&app=${appUuid}`
       );
     });
 
