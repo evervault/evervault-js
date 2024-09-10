@@ -57,6 +57,13 @@ jobs:
           cache: "pnpm"
       - name: Install deps
         run: pnpm install --frozen-lockfile
+      - name: Build
+        run: |
+          pnpm build
+        env: 
+          VITE_API_URL: ${{secrets.vite_api_url}}
+          VITE_EVERVAULT_JS_URL: ${{secrets.vite_evervault_js_url}}
+          VITE_KEYS_URL: ${{secrets.vite_keys_url}}
       - name: Formats check
         run: pnpm run format:check
       - name: Typescript check
@@ -69,13 +76,6 @@ jobs:
         run: pnpm test
       - name: E2E test
         run: pnpm run e2e:test
-      - name: Build
-        run: |
-          pnpm build
-        env: 
-          VITE_API_URL: ${{secrets.vite_api_url}}
-          VITE_EVERVAULT_JS_URL: ${{secrets.vite_evervault_js_url}}
-          VITE_KEYS_URL: ${{secrets.vite_keys_url}}
       - name: Upload browser build
         uses: actions/upload-artifact@v4
         with:
