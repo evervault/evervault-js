@@ -256,7 +256,7 @@ describe("File Encryption", () => {
 describe("Encryption with evervault async initailization", () => {
   beforeEach(async (context) => {
     setupCrypto();
-    
+
     console.log(import.meta.env.VITE_EV_TEAM_UUID);
     console.log(import.meta.env.VITE_EV_APP_UUID);
     console.log(import.meta.env.VITE_KEYS_URL);
