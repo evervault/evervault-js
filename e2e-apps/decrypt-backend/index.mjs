@@ -8,10 +8,7 @@ const appUuid = process.env.VITE_EV_APP_UUID;
 const apiKey = process.env.EV_API_KEY;
 
 // Uses a key scoped only to the decryption function
-const evervault = new Evervault(
-  appUuid,
-  apiKey
-);
+const evervault = new Evervault(appUuid, apiKey);
 
 const server = createServer(async (request, response) => {
   response.setHeader("Access-Control-Allow-Origin", "*");
