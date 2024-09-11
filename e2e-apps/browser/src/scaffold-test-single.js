@@ -9,6 +9,7 @@ const ev = new Evervault(EV_TEAM_UUID, EV_APP_UUID, {
   urls: {
     keysUrl: "https://keys.evervault.io",
     apiUrl: "https://api.evervault.io",
+    componentsUrl: "https://js.evervault.io/v2",
   },
 });
 
