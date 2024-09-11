@@ -1,5 +1,14 @@
 # @evervault/evervault-react-native
 
+## 1.2.0
+
+### Minor Changes
+
+- 0bfe097: Added 3DS support.
+
+  - Added the `<ThreeDSecure />` provider component which allows the use of the and `<ThreeDSecure.Frame />` component which can be used for completing a 3DS Session.
+  - One new hook is available, `useThreeDSecure()`, which must be used in conjunction with the 3DS component.
+
 ## 1.1.1
 
 ### Patch Changes
