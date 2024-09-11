@@ -5,13 +5,17 @@ import dotenv from "dotenv";
 dotenv.config({ path: "../../.env" });
 
 // Uses a key scoped only to the decryption function
-const ev = new Evervault(EV_TEAM_UUID, EV_APP_UUID, {
-  urls: {
-    keysUrl: "https://keys.evervault.io",
-    apiUrl: "https://api.evervault.io",
-    componentsUrl: "https://js.evervault.io/v2",
-  },
-});
+const evervault = new Evervault(
+  process.env.VITE_EV_APP_UUID,
+  process.env.EV_API_KEY,
+  {
+    urls: {
+      keysUrl: "https://keys.evervault.io",
+      apiUrl: "https://api.evervault.io",
+      componentsUrl: "https://js.evervault.io/v2",
+    },
+  }
+);
 
 const server = createServer(async (request, response) => {
   response.setHeader("Access-Control-Allow-Origin", "*");
