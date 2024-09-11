@@ -55,7 +55,7 @@ const decrypted = {
 };
 
 export const restHandlers = [
-  rest.post("https://api.evervault.com/decrypt", (req, res, ctx) => {
+  rest.post("https://api.evervault.io/decrypt", (req, res, ctx) => {
     if (req.headers.get("Authorization") !== `Token ${execToken}`) {
       return res(ctx.status(401), ctx.json({}));
     }

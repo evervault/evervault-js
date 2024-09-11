@@ -4,10 +4,13 @@ import dotenv from "dotenv";
 
 dotenv.config({ path: "../../.env" });
 
+const appUuid = process.env.VITE_EV_APP_UUID;
+const apiKey = process.env.EV_API_KEY;
+
 // Uses a key scoped only to the decryption function
 const evervault = new Evervault(
-  process.env.VITE_EV_APP_UUID,
-  process.env.EV_API_KEY
+  appUuid,
+  apiKey
 );
 
 const server = createServer(async (request, response) => {
