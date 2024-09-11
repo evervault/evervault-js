@@ -7,14 +7,7 @@ dotenv.config({ path: "../../.env" });
 // Uses a key scoped only to the decryption function
 const evervault = new Evervault(
   process.env.VITE_EV_APP_UUID,
-  process.env.EV_API_KEY,
-  {
-    urls: {
-      keysUrl: process.env.VITE_KEYS_URL,
-      apiUrl: process.env.VITE_API_URL,
-      componentsUrl: process.env.VITE_UI_COMPONENTS_URL,
-    },
-  }
+  process.env.EV_API_KEY
 );
 
 const server = createServer(async (request, response) => {

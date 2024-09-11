@@ -44,6 +44,7 @@ jobs:
       VITE_API_URL: "https://api.evervault.io"
       VITE_EVERVAULT_JS_URL: "https://js.evervault.io/v2"
       VITE_KEYS_URL: "https://keys.evervault.io"
+      EV_API_URL: "https://api.evervault.io"
     steps:
       - name: Check out code
         uses: actions/checkout@v4
