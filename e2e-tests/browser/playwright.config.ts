@@ -91,7 +91,8 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: "EV_API_URL='https://api.evervault.io' pnpm --filter @evervault/e2e-decrypt-backend start",
+      command:
+        "EV_API_URL='https://api.evervault.io' pnpm --filter @evervault/e2e-decrypt-backend start",
       port: 3010,
       reuseExistingServer: !process.env.CI,
       stdout: "pipe",
