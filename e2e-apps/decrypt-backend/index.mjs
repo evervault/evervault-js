@@ -10,9 +10,9 @@ const evervault = new Evervault(
   process.env.EV_API_KEY,
   {
     urls: {
-      keysUrl: "https://keys.evervault.io",
-      apiUrl: "https://api.evervault.io",
-      componentsUrl: "https://js.evervault.io/v2",
+      keysUrl: process.env.VITE_KEYS_URL,
+      apiUrl: process.env.VITE_API_URL,
+      componentsUrl: process.env.VITE_UI_COMPONENTS_URL,
     },
   }
 );
