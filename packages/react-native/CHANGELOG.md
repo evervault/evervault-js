@@ -1,5 +1,11 @@
 # @evervault/evervault-react-native
 
+## 1.2.1
+
+### Patch Changes
+
+- 684b9ae: Update 3DS challenge URL
+
 ## 1.2.0
 
 ### Minor Changes
