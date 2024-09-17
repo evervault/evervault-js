@@ -1,6 +1,8 @@
 import { validateNumber } from "@evervault/card-validator";
 import { FocusEvent, useEffect, useRef } from "react";
 import { useMask } from "../utilities/useMask";
+import { UseFormReturn } from "shared";
+import { CardForm } from "./types";
 
 interface CardNumberProps {
   disabled?: boolean;
@@ -11,6 +13,7 @@ interface CardNumberProps {
   value: string;
   readOnly?: boolean;
   autoComplete?: boolean;
+  form: UseFormReturn<CardForm>;
 }
 
 interface CardMask {
@@ -25,11 +28,25 @@ export function CardNumber({
   onBlur,
   placeholder,
   value,
+  form,
   readOnly,
   autoComplete,
 }: CardNumberProps) {
   const ref = useRef<HTMLInputElement>(null);
-  const { setValue } = useMask(ref, onChange, {
+
+  const handleCardChange = (newValue: string) => {
+    const brand = validateNumber(newValue).brand;
+    if (brand !== "american-express" && form.values.cvc.length === 4) {
+      form.setValues((previous) => ({
+        ...previous,
+        cvc: previous.cvc.slice(0, 3),
+      }));
+    }
+
+    onChange(newValue);
+  };
+
+  const { setValue } = useMask(ref, handleCardChange, {
     mask: [
       {
         mask: "0000 0000 0000 0000",

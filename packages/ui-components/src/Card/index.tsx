@@ -202,6 +202,7 @@ export function Card({ config }: { config: CardConfig }) {
             placeholder={t("number.placeholder")}
             value={form.values.number}
             autoComplete={config.autoComplete?.number ?? true}
+            form={form}
             {...form.register("number")}
           />
           {form.errors?.number && (
