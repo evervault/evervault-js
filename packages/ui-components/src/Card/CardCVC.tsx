@@ -45,7 +45,18 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
       return "000";
     }, [cardNumber]);
 
-    const { setValue } = useMask(innerRef, onChange, { mask });
+    const { setValue, getUnmaskedValue } = useMask(innerRef, onChange, {
+      mask,
+    });
+
+    // When the mask changes we want to ensure the correct value is set.
+    // e.g if a the user previously entered a 4 digit cvc and then enters
+    // a card that only supports 3 then we force the value to be 3 digits.
+    useEffect(() => {
+      if (value !== getUnmaskedValue()) {
+        onChange(getUnmaskedValue() || "");
+      }
+    }, [value, mask, getUnmaskedValue, onChange]);
 
     useEffect(() => {
       setValue(value);
