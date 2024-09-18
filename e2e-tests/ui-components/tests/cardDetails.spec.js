@@ -7,7 +7,7 @@ test.describe("card component", () => {
   });
 
   Object.values(VALID_CARDS).forEach((card) => {
-    test.only(`can capture valid card details for ${card.number} (${card.brand})`, async ({
+    test(`can capture valid card details for ${card.number} (${card.brand})`, async ({
       page,
     }) => {
       let values = {};
