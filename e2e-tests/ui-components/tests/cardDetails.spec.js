@@ -7,7 +7,7 @@ test.describe("card component", () => {
   });
 
   Object.values(VALID_CARDS).forEach((card) => {
-    test(`can capture valid card details for ${card.number} (${card.brand})`, async ({
+    test.only(`can capture valid card details for ${card.number} (${card.brand})`, async ({
       page,
     }) => {
       let values = {};
@@ -45,6 +45,10 @@ test.describe("card component", () => {
       await expect.poll(async () => values.errors).toBeNull();
       await expect.poll(async () => values.card.bin).toEqual(card.bin);
       await expect.poll(async () => values.errors).toBeNull();
+
+      const decrypted = await decrypt(values.card);
+      expect(decrypted.number).toEqual(card.number);
+      expect(decrypted.cvc).toEqual(card.cvc);
     });
   });
 
@@ -591,3 +595,20 @@ test.describe("card component", () => {
     await expect.poll(async () => lastChange.isComplete).toBeFalsy();
   });
 });
+
+async function decrypt(payload) {
+  const token = btoa(
+    `${process.env.VITE_EV_APP_UUID}:${process.env.EV_API_KEY}`
+  );
+
+  const response = await fetch(`${process.env.VITE_API_URL}/decrypt`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Basic ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return response.json();
+}
