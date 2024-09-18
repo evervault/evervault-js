@@ -14,7 +14,7 @@ export async function changePayload(
 ): Promise<CardPayload> {
   const { name, number: rawNumber, expiry, cvc } = form.values;
 
-  const number = rawNumber.replace(/\s/g, "");
+  const number = fields.includes("number") ? rawNumber.replace(/\s/g, "") : "";
 
   const {
     brand,
