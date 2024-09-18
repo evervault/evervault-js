@@ -68,7 +68,7 @@ jobs:
           build
       - name: Build ui-components and 3ds
         run: pnpm --filter @evervault/ui-components --filter @evervault/3ds build
-        env: 
+        env:
           VITE_API_URL: ${{secrets.vite_api_url}}
           VITE_EVERVAULT_JS_URL: ${{secrets.vite_evervault_js_url}}
           VITE_KEYS_URL: ${{secrets.vite_keys_url}}
