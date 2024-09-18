@@ -36,7 +36,7 @@ export function useMask(
   }, []);
 
   const getUnmaskedValue = useCallback(() => {
-    if (!mask.current) return;
+    if (!mask.current) return "";
     return mask.current.unmaskedValue;
   }, []);
 

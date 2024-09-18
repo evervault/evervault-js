@@ -1,7 +1,7 @@
 import { validateNumber } from "@evervault/card-validator";
 import { FocusEvent, useEffect, useRef } from "react";
-import { useMask } from "../utilities/useMask";
 import { UseFormReturn } from "shared";
+import { useMask } from "../utilities/useMask";
 import { CardForm } from "./types";
 
 interface CardNumberProps {
@@ -35,7 +35,7 @@ export function CardNumber({
   const ref = useRef<HTMLInputElement>(null);
 
   const handleCardChange = (newValue: string) => {
-    const brand = validateNumber(newValue).brand;
+    const { brand } = validateNumber(newValue);
     if (brand !== "american-express" && form.values.cvc.length === 4) {
       form.setValues((previous) => ({
         ...previous,
