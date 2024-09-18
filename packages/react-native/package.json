@@ -32,7 +32,8 @@
     "prepare": "bob build",
     "typecheck": "tsc --noEmit",
     "clean": "del-cli android/build dist",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "jest"
   },
   "keywords": [
     "react-native",
