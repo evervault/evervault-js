@@ -63,6 +63,7 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
         onBlur={onBlur}
         placeholder={placeholder}
         pattern="[0-9]*"
+        inputMode="numeric"
         autoComplete={autoComplete ? "billing cc-cvc" : "off"}
         readOnly={readOnly}
       />

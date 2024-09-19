@@ -60,6 +60,7 @@ export function CardExpiry({
       onBlur={onBlur}
       placeholder={placeholder}
       pattern="[0-9]*"
+      inputMode="numeric"
       autoComplete={autoComplete ? "billing cc-exp" : "off"}
       readOnly={readOnly}
     />
