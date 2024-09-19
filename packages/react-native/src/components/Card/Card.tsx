@@ -99,6 +99,17 @@ function Card({ initialValue, config, children, onChange, style }: CardProps) {
           formState,
           Array.from(registeredFields)
         );
+        if (
+          registeredFields.has("number") &&
+          registeredFields.has("cvc") &&
+          cardData.card.brand !== "american-express" &&
+          formState.values.cvc.length === 4
+        ) {
+          formState.setValues((previous) => ({
+            ...previous,
+            cvc: formState.values.cvc.slice(0, 3),
+          }));
+        }
         if (onChange) {
           onChange(cardData);
         }
