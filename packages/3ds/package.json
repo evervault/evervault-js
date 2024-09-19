@@ -1,5 +1,5 @@
 {
-  "private": true,
+  "private": false,
   "name": "@evervault/3ds",
   "version": "1.1.0",
   "scripts": {
