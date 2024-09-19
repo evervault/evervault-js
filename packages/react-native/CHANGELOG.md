@@ -1,5 +1,11 @@
 # @evervault/evervault-react-native
 
+## 1.2.2
+
+### Patch Changes
+
+- 6842448: Correct onChange behaviour to account for unmounted card number.
+
 ## 1.2.1
 
 ### Patch Changes
