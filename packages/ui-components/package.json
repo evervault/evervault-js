@@ -1,6 +1,6 @@
 {
   "name": "@evervault/ui-components",
-  "private": true,
+  "private": false,
   "version": "1.13.0",
   "type": "module",
   "scripts": {

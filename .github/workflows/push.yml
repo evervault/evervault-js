@@ -91,6 +91,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.SDK_PUBLISH_TOKEN }}
       - name: Create Tags
         if: steps.changesets.outputs.hasChangesets == 'false'
-        run: npx changeset tag && git push origin --tags
+        run: pnpm changeset tag && git push origin --tags
         env:
           HUSKY: 0

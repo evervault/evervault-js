@@ -1,5 +1,5 @@
 {
-  "private": true,
+  "private": false,
   "name": "@evervault/inputs",
   "version": "2.18.2",
   "description": "Repo for the backend for Evervault Inputs",
