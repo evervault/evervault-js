@@ -70,18 +70,23 @@ export function useForm<T extends object>({
 
   const setValue = useCallback(
     <K extends keyof T>(field: K, value: T[K]) => {
-      if (errors?.[field]) {
-        setError(field, undefined);
-      }
+      const nextValues = { ...values, [field]: value };
+      setValues((p) => ({ ...p, [field]: value }));
 
-      setValues((previous) => ({
-        ...previous,
-        [field]: value,
-      }));
+      const nextErrors: Partial<Record<keyof T, string>> = {};
+      Object.keys(errors ?? {}).forEach((key) => {
+        if (key === field) return;
+        const validator = validators.current?.[key as keyof T];
+        if (!validator) return;
+        const error = validator(nextValues);
+        if (!error) return;
+        nextErrors[key as keyof T] = error;
+      });
+      setErrors(nextErrors);
 
       triggerChange.current = true;
     },
-    [errors, setError]
+    [values, errors]
   );
 
   const isValid = useMemo(
