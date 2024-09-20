@@ -24,7 +24,7 @@ export async function changePayload(
     isValid: isValidCardNumber,
   } = validateNumber(number);
 
-  if (brand !== "american-express" && cvc.length === 4) {
+  if (brand !== "american-express" && cvc?.length === 4) {
     form.setValues((prev) => ({
       ...prev,
       cvc: cvc.slice(0, 3),
