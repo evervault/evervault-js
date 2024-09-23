@@ -6,7 +6,6 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "backend": "node example-backend/index.js",
     "web": "expo start --web",
     "prebuild": "expo prebuild"
   },
