@@ -1,5 +1,11 @@
 # @evervault/evervault-react-native
 
+## 1.3.1
+
+### Patch Changes
+
+- aa072b4: Support partial objects for initial values to better reflect card component's pattern.
+
 ## 1.3.0
 
 ### Minor Changes
