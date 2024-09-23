@@ -5,7 +5,7 @@
   "description": "A mini node server to be consumed by the react native example app.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "Evervault Engineering <engineering@evervault.com>",
