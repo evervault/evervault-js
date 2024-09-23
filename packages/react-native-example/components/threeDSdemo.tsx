@@ -10,55 +10,60 @@ interface CreateThreeDSecureSessionParams {
   }
   
   interface CreateThreeDSecureSessionResponse {
-    id: string;
+    session: {
+      id: string;
+    };
   }
 
-export const create3DSecureSession = async ({cardNumber, expiryMonth, expiryYear}: CreateThreeDSecureSessionParams): Promise<string> => {
-    console.log(`Creating 3DS session for card ${cardNumber} expiring ${expiryMonth}/${expiryYear}`);
-    const BACKEND_API_KEY = process.env.EXPO_PUBLIC_EV_BACKEND_TOKEN;
-    console.log(`Using backend API key: ${BACKEND_API_KEY}`);
-    const response = await fetch("https://api.evervault.com/payments/3ds-sessions", {
-      method: 'POST',
-      headers: {
-        Authorization: `Basic ${BACKEND_API_KEY}`,
-        'Content-Type': 'application/json',
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        card: {
-          number: cardNumber,
-          expiry: {
-            month: expiryMonth,
-            year: expiryYear,
+  export const create3DSecureSession = async ({
+    cardNumber,
+    expiryMonth,
+    expiryYear,
+  }: CreateThreeDSecureSessionParams): Promise<string | null> => {
+    try {
+      console.log(
+        `Creating 3DS session for card ${cardNumber} expiring ${expiryMonth}/${expiryYear}`
+      );
+      const response = await fetch(
+        `http://localhost:${
+          process.env.EXPO_PUBLIC_EV_PORT ?? 8008
+        }/3ds-session`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        },
-        merchant: {
-          name: "Ollivanders Wand Shop",
-          website: "https://www.ollivanders.co.uk",
-          categoryCode: "5945",
-          country: "ie",
-        },
-        acquirer: {
-          bin: "414141",
-          merchantIdentifier: "18463590293743",
-          country: "ie",
-        },
-        payment: {
-          type: "one-off",
-          amount: 12300,
-          currency: "eur",
-        },
-      }),
-    });
-  
-    if (!response.ok) {
-      console.log(`Failed to create 3DS session: ${response}`);
-    }
+          body: JSON.stringify({
+            cardNumber,
+            expiryMonth,
+            expiryYear,
+          }),
+        }
+      );
 
-    const payload = await response.json();
-    console.log(`3DS session created: ${JSON.stringify(payload, null, 2)}`);
-    const { id: sessionId }: CreateThreeDSecureSessionResponse = payload;
-    return sessionId;
+      if (!response.ok) {
+        const payload = await response.json();
+        console.log(
+          `Failed to create 3DS session: ${JSON.stringify(
+            payload,
+            undefined,
+            2
+          )}`
+        );
+        return null;
+      }
+
+      const payload =
+        (await response.json()) as CreateThreeDSecureSessionResponse;
+      console.log(`3DS session created: ${JSON.stringify(payload, null, 2)}`);
+      const {
+        session: { id: sessionId },
+      } = payload;
+      return sessionId;
+    } catch (error) {
+      console.error("Failed to create 3DS session", error);
+      return null;
+    }
   };
 
 

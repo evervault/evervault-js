@@ -23,7 +23,7 @@ export interface BaseProps
   > {}
 
 export interface CardProps {
-  initialValue?: CardForm;
+  initialValue?: Partial<CardForm>;
   config?: CardConfig;
   children: ReactNode;
   onChange?: (payload: CardPayload) => void;
@@ -36,11 +36,11 @@ function Card({ initialValue, config, children, onChange, style }: CardProps) {
   );
 
   const form = useForm<CardForm>({
-    initialValues: initialValue ?? {
-      cvc: "",
-      expiry: "",
-      number: "",
-      name: "",
+    initialValues: {
+      cvc: initialValue?.cvc ?? "",
+      expiry: initialValue?.expiry ?? "",
+      number: initialValue?.number ?? "",
+      name: initialValue?.name ?? "",
     },
     validate: {
       name: (values) => {
@@ -48,7 +48,7 @@ function Card({ initialValue, config, children, onChange, style }: CardProps) {
           return undefined;
         }
 
-        if (values.name.length === 0) {
+        if (values.name == null || values.name.length === 0) {
           return "invalid";
         }
 
@@ -57,6 +57,9 @@ function Card({ initialValue, config, children, onChange, style }: CardProps) {
       number: (values) => {
         if (!registeredFields.has("number")) {
           return undefined;
+        }
+        if (values.number == null) {
+          return "invalid";
         }
         const cardValidation = validateNumber(values.number);
         if (!cardValidation.isValid) {
@@ -73,6 +76,9 @@ function Card({ initialValue, config, children, onChange, style }: CardProps) {
         if (!registeredFields.has("expiry")) {
           return undefined;
         }
+        if (values.expiry == null) {
+          return "invalid";
+        }
         const expiryValidation = validateExpiry(values.expiry);
         if (!expiryValidation.isValid) {
           return "invalid";
@@ -83,6 +89,9 @@ function Card({ initialValue, config, children, onChange, style }: CardProps) {
       cvc: (values) => {
         if (!registeredFields.has("cvc")) {
           return undefined;
+        }
+        if (values.cvc == null) {
+          return "invalid";
         }
         const cvcValidation = validateCVC(values.cvc, values.number);
         if (!cvcValidation.isValid) {

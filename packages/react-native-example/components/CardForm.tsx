@@ -16,7 +16,6 @@ function CardForm({ setCardData }: CardFormProps) {
       />
       <Card.Expiry placeholder="MM / YY" style={styles.input} />
       <Card.Holder placeholder="John Doe" style={styles.input} />
-      <Card.CVC placeholder="523" style={styles.input} />
     </Card>
   );
 }
