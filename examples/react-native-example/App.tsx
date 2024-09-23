@@ -9,7 +9,7 @@ import {
   View,
   Image,
   Modal,
-  Alert
+  Alert,
 } from "react-native";
 import { registerRootComponent } from "expo";
 import {
@@ -21,7 +21,11 @@ import {
 } from "@evervault/evervault-react-native";
 import { useState } from "react";
 import CardForm from "./components/CardForm";
-import { create3DSecureSession, PaymentResult, closeCustomModalWithAlert} from "./components/threeDSdemo";
+import {
+  create3DSecureSession,
+  PaymentResult,
+  closeCustomModalWithAlert,
+} from "./components/threeDSdemo";
 
 if (
   !process.env.EXPO_PUBLIC_EV_TEAM_UUID ||
@@ -43,6 +47,10 @@ function Checkout({ cardData }: { cardData: CardPayload | undefined }) {
       expiryYear: cardData.card.expiry.year,
     });
 
+    if (sessionId == null) {
+      return;
+    }
+
     tds.start(sessionId, {
       onSuccess: () => {
         console.log("3DS successful");
@@ -60,25 +68,28 @@ function Checkout({ cardData }: { cardData: CardPayload | undefined }) {
   };
 
   return (
-    
     <>
-      {(paymentStatus === "success") && <PaymentResult status="Successful" />}
-      {(paymentStatus === "failed") && <PaymentResult status="Failed" />}
-      {(paymentStatus === "in-progress") && (
+      {paymentStatus === "success" && <PaymentResult status="Successful" />}
+      {paymentStatus === "failed" && <PaymentResult status="Failed" />}
+      {paymentStatus === "in-progress" && (
         <>
-        <ThreeDSecure state={tds}>
-          <ThreeDSecure.Modal />
-        </ThreeDSecure>
-        <Button title="Pay" onPress={handlePayment} />
+          <ThreeDSecure state={tds}>
+            <ThreeDSecure.Frame />
+          </ThreeDSecure>
+          <Button title="Pay" onPress={handlePayment} />
         </>
       )}
     </>
   );
 }
 
-function CustomThreeDSecureCheckout({cardData}: {cardData: CardPayload | undefined}) {
+function CustomThreeDSecureCheckout({
+  cardData,
+}: {
+  cardData: CardPayload | undefined;
+}) {
   const [paymentStatus, setPaymentStatus] = useState<string>("in-progress");
-  
+
   const tds = useThreeDSecure();
 
   const handlePayment = async () => {
@@ -88,6 +99,10 @@ function CustomThreeDSecureCheckout({cardData}: {cardData: CardPayload | undefin
       expiryYear: cardData?.card.expiry.year,
     });
 
+    if (sessionId == null) {
+      return;
+    }
+
     tds.start(sessionId, {
       onSuccess: () => {
         console.log("3DS successful");
@@ -102,37 +117,38 @@ function CustomThreeDSecureCheckout({cardData}: {cardData: CardPayload | undefin
         setPaymentStatus("failed");
       },
     });
-  }
+  };
 
   const closeCustomModal = async () => {
-    closeCustomModalWithAlert({cancel: tds.cancel})
+    closeCustomModalWithAlert({ cancel: tds.cancel });
   };
 
   return (
     <>
-    {paymentStatus === "in-progress" &&<Button title="Complete Custom Payment" onPress={handlePayment} />}
-    {paymentStatus === "success" && <PaymentResult status="Successful" />}
-    {paymentStatus === "failed" && <PaymentResult status="Failed" />}
-    <ThreeDSecure state={tds}>
-      <Modal animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={closeCustomModal}>
-                <Image
-                source={require('./assets/cancel.png')}
-                style={styles.image}
-                resizeMode="contain"
-                />
-            </TouchableOpacity>
+      {paymentStatus === "in-progress" && (
+        <Button title="Complete Custom Payment" onPress={handlePayment} />
+      )}
+      {paymentStatus === "success" && <PaymentResult status="Successful" />}
+      {paymentStatus === "failed" && <PaymentResult status="Failed" />}
+      <ThreeDSecure state={tds}>
+        <Modal animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <TouchableOpacity onPress={closeCustomModal}>
+                  <Image
+                    source={require("./assets/cancel.png")}
+                    style={styles.image}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+              </View>
+              <ThreeDSecure.Frame />
             </View>
-            <ThreeDSecure.Frame />
           </View>
-        </View>
-      </Modal>
-    </ThreeDSecure>
+        </Modal>
+      </ThreeDSecure>
     </>
-
   );
 }
 
@@ -145,16 +161,14 @@ export default function App() {
       appId={process.env.EXPO_PUBLIC_EV_APP_UUID}
     >
       <SafeAreaView style={styles.container}>
-        <>
-          <ScrollView style={styles.scroll}>
-            <Text style={styles.title}>evervault react native</Text>
-            <CardForm setCardData={setCardData} />
-            <StatusBar style="auto" />
-            {/* <CustomThreeDSecureCheckout cardData={cardData}/> */}
-            <Checkout cardData={cardData}/>
-          </ScrollView>
-        </>
-        </SafeAreaView>
+        <ScrollView style={styles.scroll}>
+          <Text style={styles.title}>evervault react native</Text>
+          <CardForm setCardData={setCardData} />
+          <StatusBar style="auto" />
+          {/* <CustomThreeDSecureCheckout cardData={cardData}/> */}
+          <Checkout cardData={cardData} />
+        </ScrollView>
+      </SafeAreaView>
     </EvervaultProvider>
   );
 }
@@ -187,12 +201,12 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: "center", 
+    justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalHeader: {
-    padding: 5, 
+    padding: 5,
   },
   modalContent: {
     width: "100%",
@@ -206,4 +220,3 @@ const styles = StyleSheet.create({
     height: 20, // Set the height of the image
   },
 });
-
