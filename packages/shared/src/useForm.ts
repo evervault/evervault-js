@@ -80,7 +80,7 @@ export function useForm<T extends object>({
       if (
         field === "number" &&
         errors?.["cvc" as keyof T] == null &&
-        nextValues?.["cvc" as keyof T] != null
+        nextValues?.["cvc" as keyof T]
       ) {
         fieldsToValidate.push("cvc");
       }
