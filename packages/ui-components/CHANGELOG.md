@@ -1,5 +1,13 @@
 # @evervault/ui-components
 
+## 1.13.1
+
+### Patch Changes
+
+- 184841e: Update form validation to support cvcs being invalidated by a change in card number.
+- Updated dependencies [184841e]
+  - shared@1.0.8
+
 ## 1.13.0
 
 ### Minor Changes

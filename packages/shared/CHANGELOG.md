@@ -1,5 +1,11 @@
 # shared
 
+## 1.0.8
+
+### Patch Changes
+
+- 184841e: Update form validation to support cvcs being invalidated by a change in card number.
+
 ## 1.0.7
 
 ### Patch Changes

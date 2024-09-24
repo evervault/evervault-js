@@ -1,5 +1,11 @@
 # @evervault/evervault-react-native
 
+## 1.3.2
+
+### Patch Changes
+
+- 184841e: Update form validation to support cvcs being invalidated by a change in card number.
+
 ## 1.3.1
 
 ### Patch Changes
