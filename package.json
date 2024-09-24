@@ -6,6 +6,7 @@
     "build": "turbo run build --filter=@evervault/*...",
     "build:browser": "dotenv -- turbo run build --filter=browser",
     "build:inputs": "dotenv -- turbo run build --filter=inputs",
+    "clean": "turbo run clean",
     "test": "dotenv -- turbo run test",
     "format": "turbo run format",
     "format:check": "turbo run format:check",

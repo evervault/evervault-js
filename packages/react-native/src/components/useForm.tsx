@@ -73,8 +73,18 @@ export function useForm<T extends object>({
       const nextValues = { ...values, [field]: value };
       setValues((p) => ({ ...p, [field]: value }));
 
+      const fieldsToValidate: string[] = Object.keys(errors ?? {});
+      if (
+        field === "number" &&
+        errors?.["cvc" as keyof T] == null &&
+        nextValues?.["cvc" as keyof T]
+      ) {
+        fieldsToValidate.push("cvc");
+      }
+
       const nextErrors: Partial<Record<keyof T, string>> = {};
-      Object.keys(errors ?? {}).forEach((key) => {
+
+      fieldsToValidate.forEach((key) => {
         if (key === field) return;
         const validator = validators.current?.[key as keyof T];
         if (!validator) return;

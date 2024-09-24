@@ -76,7 +76,11 @@ function Checkout({ cardData }: { cardData: CardPayload | undefined }) {
           <ThreeDSecure state={tds}>
             <ThreeDSecure.Frame />
           </ThreeDSecure>
-          <Button title="Pay" onPress={handlePayment} />
+          <Button
+            title="Pay"
+            onPress={handlePayment}
+            disabled={!(cardData?.isComplete && cardData?.isValid)}
+          />
         </>
       )}
     </>

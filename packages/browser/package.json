@@ -36,7 +36,8 @@
     "lint:fix": "eslint --fix .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules dist"
   },
   "license": "MIT",
   "dependencies": {

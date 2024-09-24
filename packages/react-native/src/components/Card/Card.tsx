@@ -6,7 +6,7 @@ import {
 import * as React from "react";
 import { ReactNode, useState } from "react";
 import { useForm } from "../useForm";
-import { changePayload, isAcceptedBrand, isComplete } from "./utilities";
+import { changePayload, isAcceptedBrand } from "./utilities";
 import type { CardForm, CardConfig, CardField, CardPayload } from "./types";
 import { CardNumber } from "./CardNumber";
 import { CardContext } from "./context";

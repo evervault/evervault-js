@@ -2,10 +2,6 @@ name: Build & Test
 on:
   workflow_call:
     inputs:
-      turbo_team:
-        type: string
-        description: "Turbo team name"
-        required: true
       vite-evervault-js-url:
         description: "URL where the JS SDK should be loaded from"
         required: true
@@ -25,8 +21,6 @@ on:
         required: true
       tests_decrypt_fn_key:
         required: true
-      turbo_token:
-        required: true
 jobs:
   build:
     name: Build and Test
@@ -37,8 +31,6 @@ jobs:
       EV_APP_UUID: ${{ secrets.tests_app_uuid }}
       EV_DECRYPT_FN_KEY: ${{ secrets.tests_decrypt_fn_key }}
       EV_TEAM_UUID: ${{ secrets.tests_team_uuid }}
-      TURBO_TEAM: ${{ inputs.turbo_team }}
-      TURBO_TOKEN: ${{ secrets.turbo_token }}
       VITE_EV_APP_UUID: ${{ secrets.tests_app_uuid }}
       VITE_EV_TEAM_UUID: ${{ secrets.tests_team_uuid }}
       VITE_API_URL: "https://api.evervault.com"

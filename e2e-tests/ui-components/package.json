@@ -3,7 +3,8 @@
   "name": "@evervault/ui-components-e2e-tests",
   "version": "1.0.8",
   "scripts": {
-    "e2e:test": "playwright test"
+    "e2e:test": "playwright test",
+    "clean": "rm -rf .turbo node_modules dist"
   },
   "dependencies": {
     "@evervault/ui-components": "workspace:*"

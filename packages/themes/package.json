@@ -7,5 +7,8 @@
   "dependencies": {
     "types": "workspace:*",
     "typescript": "latest"
+  },
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules dist"
   }
 }

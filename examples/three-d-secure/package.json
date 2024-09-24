@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "concurrently --kill-others \"pnpm run client:dev\" \"pnpm run server:dev\"",
     "client:dev": "vite --port 4000",
-    "server:dev": "node api.js"
+    "server:dev": "node api.js",
+    "clean": "rm -rf .turbo node_modules dist"
   },
   "dependencies": {
     "@evervault/browser": "workspace:*"

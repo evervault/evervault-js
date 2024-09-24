@@ -28,7 +28,8 @@
   },
   "scripts": {
     "test": "vitest run",
-    "build": "vite build"
+    "build": "vite build",
+    "clean": "rm -rf .turbo node_modules dist"
   },
   "dependencies": {},
   "devDependencies": {

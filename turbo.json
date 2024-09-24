@@ -40,6 +40,9 @@
     },
     "preview": {
       "dependsOn": ["build"]
+    },
+    "clean": {
+      "cache": false
     }
   }
 }

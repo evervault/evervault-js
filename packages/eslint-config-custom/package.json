@@ -13,5 +13,8 @@
     "eslint-config-turbo": "^2.0.9",
     "eslint-plugin-import": "^2.28.1",
     "eslint-plugin-prettier": "^5.0.0"
+  },
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules dist"
   }
 }

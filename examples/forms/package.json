@@ -4,7 +4,8 @@
   "version": "0.1.7",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 4000"
+    "dev": "vite --port 4000",
+    "clean": "rm -rf .turbo node_modules dist"
   },
   "dependencies": {
     "@evervault/browser": "workspace:*"

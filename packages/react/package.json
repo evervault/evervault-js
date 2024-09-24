@@ -31,7 +31,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "preinstall": "npx only-allow pnpm",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules dist"
   },
   "peerDependencies": {
     "react": ">=18.0.0"
