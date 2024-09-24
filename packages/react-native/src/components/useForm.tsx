@@ -74,7 +74,11 @@ export function useForm<T extends object>({
       setValues((p) => ({ ...p, [field]: value }));
 
       const fieldsToValidate: string[] = Object.keys(errors ?? {});
-      if (field === "number" && errors?.["cvc" as keyof T] == null) {
+      if (
+        field === "number" &&
+        errors?.["cvc" as keyof T] == null &&
+        nextValues?.["cvc" as keyof T]
+      ) {
         fieldsToValidate.push("cvc");
       }
 
