@@ -5,7 +5,8 @@
   "description": "A mini node server to be consumed by the react native example app.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "clean": "rm -rf .turbo node_modules dist"
   },
   "keywords": [],
   "author": "Evervault Engineering <engineering@evervault.com>",

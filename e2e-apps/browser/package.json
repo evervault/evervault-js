@@ -10,7 +10,8 @@
     "start": "vite",
     "build": "vite build",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "clean": "rm -rf .turbo node_modules dist"
   },
   "license": "MIT",
   "dependencies": {

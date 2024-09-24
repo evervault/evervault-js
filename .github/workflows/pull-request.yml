@@ -9,7 +9,6 @@ jobs:
   build:
     uses: ./.github/workflows/build-and-test.yml
     with:
-      turbo_team: ${{ vars.TURBO_TEAM }}
       vite-evervault-js-url: "https://js.evervault.io/v2"
       vite-keys-url: "https://keys.evervault.io"
       vite-api-url: "https://api.evervault.io"
@@ -17,4 +16,3 @@ jobs:
       tests_team_uuid: ${{ secrets.TESTS_TEAM_UUID }}
       tests_app_uuid: ${{ secrets.TESTS_APP_UUID }}
       tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
-      turbo_token: ${{ secrets.TURBO_TOKEN }}
