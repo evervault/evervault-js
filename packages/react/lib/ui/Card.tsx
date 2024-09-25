@@ -3,6 +3,7 @@ import * as React from "react";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useEvervault } from "../useEvervault";
 import type {
+  CardBrandName,
   CardField,
   CardOptions,
   CardPayload,
@@ -23,6 +24,7 @@ export interface CardProps {
   onComplete?: (data: CardPayload) => void;
   autoComplete?: CardOptions["autoComplete"];
   autoProgress?: boolean;
+  acceptedBrands?: CardBrandName[];
 }
 
 type CardClass = ReturnType<Evervault["ui"]["card"]>;
@@ -39,6 +41,7 @@ export function Card({
   onComplete,
   autoComplete,
   autoProgress,
+  acceptedBrands,
 }: CardProps) {
   const ev = useEvervault();
   const initialized = useRef(false);
@@ -83,8 +86,17 @@ export function Card({
       translations,
       autoComplete,
       autoProgress,
+      acceptedBrands,
     }),
-    [theme, translations, fields, autoFocus, autoComplete, autoProgress]
+    [
+      theme,
+      translations,
+      fields,
+      autoFocus,
+      autoComplete,
+      autoProgress,
+      acceptedBrands,
+    ]
   );
 
   useLayoutEffect(() => {
