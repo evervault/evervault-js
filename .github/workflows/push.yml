@@ -87,6 +87,14 @@ jobs:
         env:
           HUSKY: 0
           GITHUB_TOKEN: ${{ secrets.SDK_PUBLISH_TOKEN }}
+      - name: Set up Git
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.SDK_PUBLISH_TOKEN }}
+        run: |-
+          git config user.email "dependencies@evervault.com"
+          git config user.name "Evervault Bot"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
       - name: Create Tags
         if: steps.changesets.outputs.hasChangesets == 'false'
         run: pnpm changeset tag && git push origin --tags
