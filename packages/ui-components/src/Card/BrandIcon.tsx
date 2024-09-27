@@ -9,7 +9,7 @@ export function BrandIcon({
   icons: CardIcons;
 }) {
   const { brand, localBrands } = validateNumber(number);
-  let icon = icons[brand || localBrands?.[0] || "default"];
+  let icon = icons[brand ?? localBrands?.[0] ?? "default"];
   icon = icon || icons.default;
 
   return (

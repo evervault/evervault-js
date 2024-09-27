@@ -10,6 +10,7 @@ import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
 import { resize } from "../utilities/resize";
 import { useMessaging } from "../utilities/useMessaging";
+import { BrandIcon } from "./BrandIcon";
 import { CardCVC } from "./CardCVC";
 import { CardExpiry } from "./CardExpiry";
 import { CardHolder } from "./CardHolder";
@@ -25,7 +26,6 @@ import {
 } from "./utilities";
 import type { CardForm, CardConfig } from "./types";
 import type { CardFrameClientMessages, CardFrameHostMessages } from "types";
-import { BrandIcon } from "./BrandIcon";
 
 export function Card({ config }: { config: CardConfig }) {
   const cvc = useRef<HTMLInputElement | null>(null);

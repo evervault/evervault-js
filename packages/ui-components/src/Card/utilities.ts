@@ -6,6 +6,7 @@ import {
 } from "@evervault/card-validator";
 import { PromisifiedEvervaultClient } from "@evervault/react";
 import { UseFormReturn } from "shared";
+import { ICONS } from "./icons";
 import { MagStripeData } from "./useCardReader";
 import type { CardForm } from "./types";
 import type {
@@ -15,7 +16,6 @@ import type {
   CardPayload,
   SwipedCard,
 } from "types";
-import { ICONS } from "./icons";
 
 export async function changePayload(
   ev: PromisifiedEvervaultClient,
