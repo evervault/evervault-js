@@ -5,6 +5,7 @@ import { useEvervault } from "../useEvervault";
 import type {
   CardBrandName,
   CardField,
+  CardIcons,
   CardOptions,
   CardPayload,
   CardTranslations,
@@ -15,6 +16,7 @@ import type {
 export interface CardProps {
   autoFocus?: boolean;
   theme?: ThemeDefinition;
+  icons?: boolean | CardIcons;
   translations?: CardTranslations;
   fields?: CardField[];
   onReady?: () => void;
@@ -31,6 +33,7 @@ type CardClass = ReturnType<Evervault["ui"]["card"]>;
 
 export function Card({
   theme,
+  icons,
   fields,
   autoFocus,
   translations,
@@ -81,6 +84,7 @@ export function Card({
   const config = useMemo(
     () => ({
       theme,
+      icons,
       fields,
       autoFocus,
       translations,
@@ -90,6 +94,7 @@ export function Card({
     }),
     [
       theme,
+      icons,
       translations,
       fields,
       autoFocus,
