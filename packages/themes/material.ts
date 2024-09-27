@@ -97,6 +97,26 @@ export function material(extended?: ThemeDefinition): ThemeDefinition {
       "[ev-component=card]": {
         gap: 16,
       },
+
+      "[ev-component=card]:has(.icon)": {
+        "& .icon": {
+          left: 10,
+          height: 20,
+          position: "absolute",
+          top: 10,
+          opacity: 0,
+        },
+
+        "& .field[ev-name=number]:focus-within, & .field[ev-name=number]:not([ev-has-value=false])":
+          {
+            "& .icon": {
+              opacity: 1,
+            },
+            "& input": {
+              paddingLeft: 45,
+            },
+          },
+      },
       ...(extended ? utils.extend(extended) : {}),
     },
   });

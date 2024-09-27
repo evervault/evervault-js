@@ -3,6 +3,10 @@ import type { ThemeDefinition } from "types";
 export function minimal(extended?: ThemeDefinition): ThemeDefinition {
   return (utils) => ({
     styles: {
+      ":root": {
+        "--icon-offset": "34px",
+      },
+
       body: {
         paddingBottom: 2,
       },
@@ -166,7 +170,17 @@ export function minimal(extended?: ThemeDefinition): ThemeDefinition {
           borderBottomRightRadius: 6,
         },
       },
-
+      "[ev-component=card]:has(.icon)": {
+        "& .icon": {
+          left: 10,
+          height: 20,
+          position: "absolute",
+          top: "var(--icon-offset)",
+        },
+        "& .field[ev-name=number] input": {
+          paddingLeft: 48,
+        },
+      },
       ...(extended ? utils.extend(extended) : {}),
     },
   });

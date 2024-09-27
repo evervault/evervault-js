@@ -70,6 +70,7 @@ export default class Card {
     return {
       theme: this.#options.theme,
       config: {
+        icons: this.#options.icons,
         autoFocus: this.#options.autoFocus,
         translations: this.#options.translations,
         hiddenFields: (this.#options.hiddenFields ?? [])?.join(","),

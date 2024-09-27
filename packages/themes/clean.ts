@@ -3,6 +3,9 @@ import type { ThemeDefinition } from "types";
 export function clean(extended?: ThemeDefinition): ThemeDefinition {
   return (utils) => ({
     styles: {
+      ":root": {
+        "--icon-offset": "1.9rem",
+      },
       body: {
         paddingBottom: 2,
       },
@@ -20,7 +23,6 @@ export function clean(extended?: ThemeDefinition): ThemeDefinition {
         padding: "0 12px",
         backgroundColor: "#fff",
         border: "1px solid #e6ebf1",
-
         boxShadow:
           "0px 1px 1px rgba(0, 0, 0, .03), 0px 3px 6px rgba(0, 0, 0, .02)",
 
@@ -52,7 +54,7 @@ export function clean(extended?: ThemeDefinition): ThemeDefinition {
         "&:focus": {
           outline: "none",
           borderColor: "#63e",
-        }
+        },
       },
       select: {
         height: 40,
@@ -85,6 +87,20 @@ export function clean(extended?: ThemeDefinition): ThemeDefinition {
         height: 80,
         fontSize: 20,
         caretColor: "transparent",
+      },
+      "[ev-component=card]:has(.icon)": {
+        "& .field[ev-name=number]": {
+          position: "relative",
+        },
+        "& .icon": {
+          left: 10,
+          height: 20,
+          position: "absolute",
+          top: "var(--icon-offset)",
+        },
+        "& .field[ev-name=number] input": {
+          paddingLeft: 48,
+        },
       },
       ...(extended ? utils.extend(extended) : {}),
     },

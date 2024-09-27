@@ -19,11 +19,13 @@ import { useCardReader } from "./useCardReader";
 import {
   autoProgress,
   changePayload,
+  collectIcons,
   isAcceptedBrand,
   swipePayload,
 } from "./utilities";
 import type { CardForm, CardConfig } from "./types";
 import type { CardFrameClientMessages, CardFrameHostMessages } from "types";
+import { BrandIcon } from "./BrandIcon";
 
 export function Card({ config }: { config: CardConfig }) {
   const cvc = useRef<HTMLInputElement | null>(null);
@@ -195,6 +197,14 @@ export function Card({ config }: { config: CardConfig }) {
           }
         >
           <label htmlFor="number">{t("number.label")}</label>
+
+          {config.icons && (
+            <BrandIcon
+              icons={collectIcons(config.icons)}
+              number={form.values.number}
+            />
+          )}
+
           <CardNumber
             disabled={!config}
             readOnly={cardReaderListening}

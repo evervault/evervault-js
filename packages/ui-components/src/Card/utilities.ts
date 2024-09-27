@@ -8,7 +8,14 @@ import { PromisifiedEvervaultClient } from "@evervault/react";
 import { UseFormReturn } from "shared";
 import { MagStripeData } from "./useCardReader";
 import type { CardForm } from "./types";
-import type { CardBrandName, CardField, CardPayload, SwipedCard } from "types";
+import type {
+  CardBrandName,
+  CardField,
+  CardIcons,
+  CardPayload,
+  SwipedCard,
+} from "types";
+import { ICONS } from "./icons";
 
 export async function changePayload(
   ev: PromisifiedEvervaultClient,
@@ -143,4 +150,9 @@ async function encryptedCVC(
 
   if (!isValid) return null;
   return ev.encrypt(cvc);
+}
+
+export function collectIcons(icons: boolean | CardIcons) {
+  if (typeof icons === "boolean") return ICONS;
+  return { ...ICONS, ...icons };
 }

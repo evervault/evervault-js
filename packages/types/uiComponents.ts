@@ -86,7 +86,10 @@ export interface CardTranslations extends TranslationsObject {
   cvc: CardFieldTranslations<{ invalid?: string }>;
 }
 
+export type CardIcons = Record<CardBrandName | "default", string>;
+
 export interface CardOptions {
+  icons?: boolean | CardIcons;
   theme?: ThemeDefinition;
   autoFocus?: boolean;
   hiddenFields?: ("number" | "expiry" | "cvc")[]; // deprecated
