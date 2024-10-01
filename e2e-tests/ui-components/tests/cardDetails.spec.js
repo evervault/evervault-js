@@ -694,6 +694,32 @@ test.describe("card component", () => {
     await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot();
   });
+
+  test("Does not render icons by default", async ({ page }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card();
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill("4242424242424242");
+    await expect(frame.locator("img[ev-brand='visa']")).not.toBeVisible();
+  });
+
+  test("Can render icons", async ({ page }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card({ icons: true });
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill("4242424242424242");
+    await expect(frame.locator("img[ev-brand='visa']")).toBeVisible();
+    await frame.getByLabel("Number").fill("378282246310005");
+    await expect(
+      frame.locator("img[ev-brand='american-express']")
+    ).toBeVisible();
+  });
 });
 
 async function decrypt(payload) {

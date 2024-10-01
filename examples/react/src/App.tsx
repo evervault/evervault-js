@@ -1,9 +1,4 @@
-import {
-  Card,
-  CardPayload,
-  EvervaultProvider,
-  themes,
-} from "@evervault/react";
+import { Card, CardPayload, EvervaultProvider, themes } from "@evervault/react";
 
 const theme = themes.clean({
   styles: {
@@ -34,7 +29,7 @@ function App() {
       customConfig={customConfig}
     >
       <h1>Example React app</h1>
-      <Card onChange={handleChange} theme={theme} />
+      <Card icons onChange={handleChange} theme={theme} />
     </EvervaultProvider>
   );
 }

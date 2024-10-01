@@ -10,6 +10,7 @@ import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
 import { resize } from "../utilities/resize";
 import { useMessaging } from "../utilities/useMessaging";
+import { BrandIcon } from "./BrandIcon";
 import { CardCVC } from "./CardCVC";
 import { CardExpiry } from "./CardExpiry";
 import { CardHolder } from "./CardHolder";
@@ -19,6 +20,7 @@ import { useCardReader } from "./useCardReader";
 import {
   autoProgress,
   changePayload,
+  collectIcons,
   isAcceptedBrand,
   swipePayload,
 } from "./utilities";
@@ -195,6 +197,14 @@ export function Card({ config }: { config: CardConfig }) {
           }
         >
           <label htmlFor="number">{t("number.label")}</label>
+
+          {config.icons && (
+            <BrandIcon
+              icons={collectIcons(config.icons)}
+              number={form.values.number}
+            />
+          )}
+
           <CardNumber
             disabled={!config}
             readOnly={cardReaderListening}

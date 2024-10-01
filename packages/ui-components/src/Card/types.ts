@@ -3,9 +3,11 @@ import type {
   CardField,
   CardTranslations,
   CardBrandName,
+  CardIcons,
 } from "types";
 
 export interface CardConfig {
+  icons?: boolean | CardIcons;
   theme?: ThemeObject;
   autoFocus?: boolean;
   hiddenFields?: ("number" | "expiry" | "cvc")[];
