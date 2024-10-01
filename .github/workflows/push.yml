@@ -69,13 +69,12 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+        with:
+          ssh-key: "${{ secrets.COMMIT_KEY }}"
       - name: Set up Git
-        env:
-          GITHUB_TOKEN: ${{ secrets.SDK_PUBLISH_TOKEN }}
         run: |-
           git config user.email "dependencies@evervault.com"
           git config user.name "Evervault Bot"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
       - name: Get tags
         run: git fetch --tags origin
       - uses: pnpm/action-setup@v4
