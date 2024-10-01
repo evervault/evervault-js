@@ -6,8 +6,16 @@ Evervault JavaScript SDK.
 
 This is a monorepo managed with [Turborepo](https://turbo.fyi/) and [pnpm workspaces](https://pnpm.io/workspaces).
 
+### Public Packages
+
 - `packages/browser` - [Evervault JavaScript SDK for the browser.](https://docs.evervault.com/sdks/javascript).
 - `packages/react` - [The React SDK](https://docs.evervault.com/sdks/reactjs)
+- `packages/react-native` - [React Native SDK](https://docs.evervault.com/sdks/react-native)
+- `packages/card-validator` - card number validator shared between react and react-native
+
+### Private Packages
+
+- `packages/3ds` - Code base for 3ds page for mobile SDKs
 - `packages/inputs` - The codebase for Inputs
 - `packages/ui-components` - The codebase for UI Components.
 - `packages/themes` - An internal package for UI Component themes
@@ -65,12 +73,6 @@ The best way to work on the SDK's is by using one of the example projects. If yo
 
 The example project will be available on [localhost:4000](https://localhost:4000) after it has started up.
 
-## Remote caching
-
-We use Vercel for remote caching of the packages in this repo. This means that when you install a package from this repo, it will be cached on Vercel and subsequent installs will be much faster.
-
-Run `turbo link` to link the workspace to Vercel with your account.
-
 ## Building
 
 `pnpm build` will build all packages in the repo.
@@ -103,14 +105,15 @@ When creating a pr that needs to be rolled into a version release, do `npx chang
 
 To release:
 
-- Merge the version PR that the changeset bot created to bump the version numbers.
-  This will bump the versions of the packages and create a git tag for the release.
-- Create a GitHub release with either the UI or the local CLI: `gh release create`
-  This will trigger a workflow to deploy them to AWS and/or publish to NPM, and create a new release on GitHub.
+Merge the version PR that the changeset bot created to bump the version numbers.
+This will bump the versions of the packages and create a git tag for the release.
+This will trigger a workflow to deploy them to AWS and/or publish to NPM, and create a new release on GitHub.
 
 ## Environments
 
-|         | Production                         | Staging                           |
-| ------- | ---------------------------------- | --------------------------------- |
-| browser | js.evervault.com/v2/index.js       | js.evervault.io/v2/index.js       |
-| inputs  | inputs.evervault.com/v2/index.html | inputs.evervault.io/v2/index.html |
+| Package             | Production                             | Staging                                |
+| ------------------- | -------------------------------------- | -------------------------------------- |
+| browser             | js.evervault.com/v2/index.js           | js.evervault.io/v2/index.js            |
+| inputs (deprecated) | inputs.evervault.com/index.html        | inputs.evervault.io/index.html         |
+| ui-components       | ui-components.evervault.com/index.html | ui-components.evervault.com/index.html |
+| 3ds                 | 3ds.evervault.com/index.html           | 3ds.evervault.io/index.html            |

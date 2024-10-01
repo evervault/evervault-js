@@ -2,8 +2,8 @@
 # The tag names created by `changeset tag` include the name of the package we want to release
 name: Main Release Workflow
 on:
-  release:
-    types: [published]
+  push:
+    tags: ["@evervault/*"]
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
   build:
@@ -17,7 +17,7 @@ jobs:
       tests_app_uuid: ${{ secrets.TESTS_APP_UUID }}
       tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
   deploy-js:
-    if: contains(github.event.release.tag_name, '@evervault/browser')
+    if: contains(github.ref, 'refs/tags/@evervault/browser')
     needs: build
     uses: ./.github/workflows/deploy-browser.yml
     with:
@@ -30,7 +30,7 @@ jobs:
       aws-s3-bucket: ${{ secrets.BROWSER_SDK_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }}
   deploy-inputs:
-    if: contains(github.event.release.tag_name, '@evervault/inputs')
+    if: contains(github.ref, 'refs/tags/@evervault/inputs')
     needs: build
     uses: ./.github/workflows/deploy-inputs.yml
     with:
@@ -43,7 +43,7 @@ jobs:
       aws-s3-bucket: ${{ secrets.INPUTS_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.INPUTS_CLOUDFRONT_DISTRIBUTION_ID }}
   deploy-ui-components:
-    if: contains(github.event.release.tag_name, '@evervault/ui-components')
+    if: contains(github.ref, 'refs/tags/@evervault/ui-components')
     needs: build
     uses: ./.github/workflows/deploy-ui-components.yml
     with:
@@ -55,7 +55,7 @@ jobs:
       aws-s3-bucket: ${{ secrets.UI_COMPONENTS_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID }}
   deploy-3ds:
-    if: contains(github.event.release.tag_name, '@evervault/3ds')
+    if: contains(github.ref, 'refs/tags/@evervault/3ds')
     needs: build
     uses: ./.github/workflows/deploy-3ds.yml
     with:
@@ -67,7 +67,7 @@ jobs:
       aws-s3-bucket: ${{ secrets.TDS_AWS_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.TDS_AWS_CLOUDFRONT_DISTRIBUTION_ID }}
   publish-react:
-    if: contains(github.event.release.tag_name, '@evervault/react')
+    if: contains(github.ref, 'refs/tags/@evervault/react')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
@@ -76,7 +76,7 @@ jobs:
       repo_path: "packages/react/dist"
     secrets: inherit
   publish-card-validator:
-    if: contains(github.event.release.tag_name, '@evervault/card-validator')
+    if: contains(github.ref, 'refs/tags/@evervault/card-validator')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
@@ -85,7 +85,7 @@ jobs:
       repo_path: "packages/card-validator/dist"
     secrets: inherit
   publish-react-native:
-    if: contains(github.event.release.tag_name, '@evervault/evervault-react-native')
+    if: contains(github.ref, 'refs/tags/@evervault/evervault-react-native')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
@@ -93,3 +93,13 @@ jobs:
       artifact: "react-native-build"
       repo_path: "packages/react-native/lib"
     secrets: inherit
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
