@@ -1,4 +1,5 @@
 import { test, expect, VALID_CARDS, INVALID_CARDS } from "../utils";
+import { inlineTheme } from "./customThemes";
 
 test.describe("card component", () => {
   test.beforeEach(async ({ page }) => {
@@ -623,6 +624,75 @@ test.describe("card component", () => {
     await frame.getByLabel("Number").clear();
     await frame.getByLabel("Number").fill("378282246310005");
     await expect.poll(async () => lastChange.isComplete).toBeFalsy();
+  });
+
+  test("clean theme matches snapshot", async ({ page }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card({
+        theme: window.evervault.ui.themes.clean(),
+      });
+
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill("4242424242424242");
+    await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
+    await frame.getByLabel("Expiration").blur();
+    // delay 500ms for any animations to complete
+    await page.waitForTimeout(500);
+    expect(await page.screenshot()).toMatchSnapshot();
+  });
+
+  test("material theme matches snapshot", async ({ page }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card({
+        theme: window.evervault.ui.themes.material(),
+      });
+
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill("4242424242424242");
+    await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
+    await frame.getByLabel("Expiration").blur();
+    // delay 500ms for any animations to complete
+    await page.waitForTimeout(500);
+    expect(await page.screenshot()).toMatchSnapshot();
+  });
+
+  test("minimal theme matches snapshot", async ({ page }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card({
+        theme: window.evervault.ui.themes.minimal(),
+      });
+
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill("4242424242424242");
+    await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
+    await frame.getByLabel("Expiration").blur();
+    // delay 500ms for any animations to complete
+    await page.waitForTimeout(500);
+    expect(await page.screenshot()).toMatchSnapshot();
+  });
+
+  test("custom theme matches snapshot", async ({ page }) => {
+    await page.evaluate((theme) => {
+      const card = window.evervault.ui.card({ theme });
+      card.mount("#form");
+    }, inlineTheme);
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill("4242424242424242");
+    await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
+    await frame.getByLabel("Expiration").blur();
+    // delay 500ms for any animations to complete
+    await page.waitForTimeout(500);
+    expect(await page.screenshot()).toMatchSnapshot();
   });
 });
 
