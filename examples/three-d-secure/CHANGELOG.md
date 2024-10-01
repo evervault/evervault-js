@@ -1,5 +1,12 @@
 # example-three-d-secure
 
+## 0.0.21
+
+### Patch Changes
+
+- Updated dependencies [be19a4c]
+  - @evervault/browser@2.31.0
+
 ## 0.0.20
 
 ### Patch Changes

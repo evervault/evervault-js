@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.31.0
+
+### Minor Changes
+
+- be19a4c: Add support for rendering card icons in the Card component
+
 ## 2.30.0
 
 ### Minor Changes
