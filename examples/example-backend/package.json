@@ -2,6 +2,7 @@
   "name": "example-backend",
   "version": "1.0.0",
   "type": "module",
+  "private": true,
   "description": "A mini node server to be consumed by the react native example app.",
   "main": "index.js",
   "scripts": {
