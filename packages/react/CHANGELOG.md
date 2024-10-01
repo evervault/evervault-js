@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.10.0
+
+### Minor Changes
+
+- 36d9212: Add acceptedBrands prop to react Card component
+
 ## 2.9.0
 
 ### Minor Changes
