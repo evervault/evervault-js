@@ -1,16 +1,5 @@
 # @evervault/ui-components
 
-## 1.14.0
-
-### Minor Changes
-
-- f344635: Add support for rendering card icons in the Card component
-
-### Patch Changes
-
-- Updated dependencies [f344635]
-  - @evervault/react@2.11.0
-
 ## 1.13.2
 
 ### Patch Changes
