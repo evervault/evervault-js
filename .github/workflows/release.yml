@@ -3,7 +3,7 @@
 name: Main Release Workflow
 on:
   push:
-    tags: ["@evervault/*"]
+    tags: ["@evervault/**"]
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
   build:
