@@ -48,7 +48,7 @@
     "types": "workspace:^"
   },
   "devDependencies": {
-    "@peculiar/webcrypto": "^1.4.3",
+    "@peculiar/webcrypto": "^1.5.0",
     "@web-std/file": "^1.0.4",
     "concurrently": "^8.2.2",
     "crc-32": "^1.2.2",
