@@ -1,5 +1,11 @@
 # @evervault/e2e-decrypt-backend
 
+## 1.0.6
+
+### Patch Changes
+
+- @evervault/browser-e2e-app@1.0.6
+
 ## 1.0.5
 
 ### Patch Changes
