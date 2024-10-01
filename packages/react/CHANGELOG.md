@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.11.0
+
+### Minor Changes
+
+- f344635: Add support for rendering card icons in the Card component
+
 ## 2.10.0
 
 ### Minor Changes
