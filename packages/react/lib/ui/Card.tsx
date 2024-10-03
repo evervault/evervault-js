@@ -27,6 +27,7 @@ export interface CardProps {
   autoComplete?: CardOptions["autoComplete"];
   autoProgress?: boolean;
   acceptedBrands?: CardBrandName[];
+  defaultValues?: { name?: string };
 }
 
 type CardClass = ReturnType<Evervault["ui"]["card"]>;
@@ -45,6 +46,7 @@ export function Card({
   autoComplete,
   autoProgress,
   acceptedBrands,
+  defaultValues,
 }: CardProps) {
   const ev = useEvervault();
   const initialized = useRef(false);
@@ -91,6 +93,7 @@ export function Card({
       autoComplete,
       autoProgress,
       acceptedBrands,
+      defaultValues,
     }),
     [
       theme,
@@ -101,6 +104,7 @@ export function Card({
       autoComplete,
       autoProgress,
       acceptedBrands,
+      defaultValues,
     ]
   );
 
