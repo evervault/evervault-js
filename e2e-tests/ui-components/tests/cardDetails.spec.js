@@ -720,6 +720,73 @@ test.describe("card component", () => {
       frame.locator("img[ev-brand='american-express']")
     ).toBeVisible();
   });
+
+  test("Can render a name field", async ({ page }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card({
+        fields: ["name", "number", "expiry", "cvc"],
+      });
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await expect(frame.getByLabel("Card Holder")).toBeVisible();
+  });
+
+  test("Can pass an initial card holder name value", async ({ page }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card({
+        fields: ["name", "number", "expiry", "cvc"],
+        defaultValues: { name: "Dwight Schrute" },
+      });
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await expect(frame.getByLabel("Card Holder")).toHaveValue("Dwight Schrute");
+  });
+
+  test("Can update the card holder name after mounting", async ({ page }) => {
+    await page.evaluate(() => {
+      window.card = window.evervault.ui.card({
+        fields: ["name", "number", "expiry", "cvc"],
+      });
+      window.card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Card Holder").fill("Michael Scott");
+    await expect(frame.getByLabel("Card Holder")).toHaveValue("Michael Scott");
+
+    await page.evaluate(() => {
+      window.card.update({
+        defaultValues: { name: "Dwight Schrute" },
+      });
+    });
+
+    await expect(frame.getByLabel("Card Holder")).toHaveValue("Dwight Schrute");
+  });
+
+  test("Cardholder name is not updated unless passed when calling update", async ({
+    page,
+  }) => {
+    await page.evaluate(() => {
+      window.card = window.evervault.ui.card({
+        defaultValues: { name: "Michael Scott" },
+        fields: ["name", "number", "expiry", "cvc"],
+      });
+      window.card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Card Holder").fill("Michael Scott");
+
+    await page.evaluate(() => {
+      window.card.update();
+    });
+
+    await expect(frame.getByLabel("Card Holder")).toHaveValue("Michael Scott");
+  });
 });
 
 async function decrypt(payload) {
