@@ -54,7 +54,7 @@ export function Card({ config }: { config: CardConfig }) {
       cvc: "",
       expiry: "",
       number: "",
-      name: "",
+      name: config.defaultValues?.name ?? "",
     },
     validate: {
       name: (values) => {
@@ -156,6 +156,14 @@ export function Card({ config }: { config: CardConfig }) {
         });
       }),
     [ev, on, send, form, fields]
+  );
+
+  useEffect(
+    () =>
+      on("EV_UPDATE_NAME", (name) => {
+        form.setValue("name", name);
+      }),
+    [on, form]
   );
 
   const hasErrors = Object.keys(form.errors ?? {}).length > 0;
