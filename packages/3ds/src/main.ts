@@ -24,7 +24,7 @@ tds.on("success", () => {
     const redirectUrl = new URL(redirect);
     redirectUrl.searchParams.append("status", "success");
     redirectUrl.searchParams.append("session", session);
-    window.location = redirectUrl.toString();
+    window.location.href = redirectUrl.toString();
   }
 });
 
@@ -34,7 +34,7 @@ tds.on("failure", () => {
     const redirectUrl = new URL(redirect);
     redirectUrl.searchParams.append("status", "failure");
     redirectUrl.searchParams.append("session", session);
-    window.location = redirectUrl.toString();
+    window.location.href = redirectUrl.toString();
   }
 });
 
@@ -44,7 +44,7 @@ tds.on("error", (e) => {
     const redirectUrl = new URL(redirect);
     redirectUrl.searchParams.append("status", "error");
     redirectUrl.searchParams.append("session", session);
-    window.location = redirectUrl.toString();
+    window.location.href = redirectUrl.toString();
   }
 });
 
