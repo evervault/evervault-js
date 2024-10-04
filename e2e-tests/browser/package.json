@@ -11,6 +11,6 @@
     "preview": "vite --port 4006"
   },
   "devDependencies": {
-    "vite": "^4.5.3"
+    "vite": "^4.5.5"
   }
 }
