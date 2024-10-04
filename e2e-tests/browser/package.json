@@ -8,7 +8,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "clean": "rm -rf .turbo node_modules dist",
-    "preview": "vite --port 4005"
+    "preview": "vite --port 4006"
   },
   "devDependencies": {
     "vite": "^4.5.3"

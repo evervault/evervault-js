@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("http://localhost:4005");
+  await page.goto("http://localhost:4006");
   await page.waitForFunction(() => window.evervault);
 });
 
