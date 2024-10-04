@@ -33,9 +33,9 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "tsconfig": "workspace:^",
     "vitest": "^0.29.8",
     "types": "workspace:*",
-    "typescript": "latest",
     "vite": "^4.5.5",
     "vite-plugin-dts": "^3.6.3"
   }
