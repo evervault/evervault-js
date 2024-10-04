@@ -23,8 +23,6 @@ This is a monorepo managed with [Turborepo](https://turbo.fyi/) and [pnpm worksp
 - `packages/eslint-config-custom` - A project wide custom eslint config
 - `packages/tsconfig` - A project wide tsconfig
 - `e2e-tests` - End to end tests for the packages.
-- `e2e-apps` - Skeleton apps using packages that are then targed by the e2e tests.
-- `ev-functions` - [Evervault Functions](https://docs.evervault.com/products/functions) that are used by the e2e tests. Mostly to test decryption.
 - `examples` - A folder of different examples using the JS and React SDK.
 - `statics` - Contains a few static JSON files served from the browser endpoint that barely change.
 
