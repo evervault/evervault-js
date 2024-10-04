@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.32.0
+
+### Minor Changes
+
+- 57633ec: Add defaultValues option to allow passing a default card holder name to the card component
+
 ## 2.31.0
 
 ### Minor Changes
