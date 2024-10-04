@@ -97,6 +97,9 @@ export interface CardOptions {
   acceptedBrands?: CardBrandName[];
   translations?: Partial<CardTranslations>;
   autoProgress?: boolean;
+  defaultValues?: {
+    name?: string;
+  };
   autoComplete?: {
     name?: boolean;
     number?: boolean;
@@ -154,6 +157,7 @@ export interface CardFrameClientMessages extends EvervaultFrameClientMessages {
 
 export interface CardFrameHostMessages extends EvervaultFrameHostMessages {
   EV_VALIDATE: undefined;
+  EV_UPDATE_NAME: string;
 }
 
 export interface PinOptions {

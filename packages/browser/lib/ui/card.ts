@@ -76,6 +76,7 @@ export default class Card {
         hiddenFields: (this.#options.hiddenFields ?? [])?.join(","),
         fields: this.#options.fields,
         acceptedBrands: this.#options.acceptedBrands,
+        defaultValues: this.#options.defaultValues,
         autoComplete: this.#options.autoComplete,
         autoProgress: this.#options.autoProgress,
       },
@@ -97,6 +98,11 @@ export default class Card {
     if (options) {
       this.#options = { ...this.#options, ...options };
     }
+
+    if (options?.defaultValues?.name) {
+      this.#frame.send("EV_UPDATE_NAME", options.defaultValues.name);
+    }
+
     this.#frame.update(this.config);
     return this;
   }
