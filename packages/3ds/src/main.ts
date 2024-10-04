@@ -4,6 +4,7 @@ const searchParams = new URLSearchParams(window.location.search);
 const team = searchParams.get("team");
 const app = searchParams.get("app");
 const session = searchParams.get("session");
+const redirect = searchParams.get("redirect");
 
 const ev = new Evervault(team, app, {
   urls: {
@@ -19,14 +20,32 @@ const tds = ev.ui.threeDSecure(session, {
 
 tds.on("success", () => {
   document.getElementById("spinner")?.classList.add("visible");
+  if (redirect) {
+    const redirectUrl = new URL(redirect);
+    redirectUrl.searchParams.append("status", "success");
+    redirectUrl.searchParams.append("session", session);
+    window.location.href = redirectUrl.toString();
+  }
 });
 
 tds.on("failure", () => {
   document.getElementById("spinner")?.classList.add("visible");
+  if (redirect) {
+    const redirectUrl = new URL(redirect);
+    redirectUrl.searchParams.append("status", "failure");
+    redirectUrl.searchParams.append("session", session);
+    window.location.href = redirectUrl.toString();
+  }
 });
 
 tds.on("error", (e) => {
   document.getElementById("spinner")?.classList.add("visible");
+  if (redirect) {
+    const redirectUrl = new URL(redirect);
+    redirectUrl.searchParams.append("status", "error");
+    redirectUrl.searchParams.append("session", session);
+    window.location.href = redirectUrl.toString();
+  }
 });
 
 tds.mount("#frame");
