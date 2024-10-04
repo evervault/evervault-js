@@ -1,5 +1,16 @@
 # @evervault/ui-components
 
+## 1.15.0
+
+### Minor Changes
+
+- 57633ec: Add defaultValues option to allow passing a default card holder name to the card component
+
+### Patch Changes
+
+- Updated dependencies [57633ec]
+  - @evervault/react@2.12.0
+
 ## 1.14.0
 
 ### Minor Changes
