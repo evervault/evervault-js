@@ -1,5 +1,4 @@
 packages:
   - "packages/*"
   - "examples/*"
-  - "e2e-apps/*"
   - "e2e-tests/**"

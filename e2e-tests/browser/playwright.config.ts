@@ -58,44 +58,17 @@ export default defineConfig({
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
     },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { channel: 'chrome' },
-    // },
   ],
-
-  /* Folder for test artifacts such as screenshots, videos, traces, etc. */
-  // outputDir: 'test-results/',
-
-  /* Run your local dev server before starting the tests */
   webServer: [
     {
-      command: "pnpm --filter @evervault/browser-e2e-app start --port=3005",
-      port: 3005,
-      reuseExistingServer: !process.env.CI,
+      command: "pnpm --filter=@evervault/browser dev:preview --port 4007",
+      url: "http://localhost:4007/evervault-browser.main.umd.cjs",
+      timeout: 10 * 1000,
     },
     {
-      command: "pnpm --filter @evervault/e2e-decrypt-backend start",
-      port: 3010,
-      reuseExistingServer: !process.env.CI,
-      stdout: "pipe",
-      stderr: "pipe",
+      command: "pnpm --filter=@evervault/browser-e2e-tests preview",
+      url: "http://localhost:4006",
+      timeout: 10 * 1000,
     },
   ],
 });
