@@ -299,9 +299,6 @@ importers:
       '@peculiar/webcrypto':
         specifier: ^1.5.0
         version: 1.5.0
-      '@web-std/file':
-        specifier: ^1.0.4
-        version: 1.1.4
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -3209,12 +3206,6 @@ packages:
 
   '@vue/shared@3.5.11':
     resolution: {integrity: sha512-W8GgysJVnFo81FthhzurdRAWP/byq3q2qIw70e0JWblzVhjgOMiC2GyovXrZTFQJnFVryYaKGP3Tc9vYzYm6PQ==}
-
-  '@web-std/blob@2.1.3':
-    resolution: {integrity: sha512-K94rkZpa8yDEylkniNmK0aCYpkZe7wWn8GHNpyM+ckBQuRqhRmX0NG9d1b1f4pX3FKdLcfp7vTj6FjfdcjO3rQ==}
-
-  '@web-std/file@1.1.4':
-    resolution: {integrity: sha512-oQ/qgKpuJn8DaPl4kfhItD1hflKGwQ27I21Cq0Rf0ENfirxV10ipyiixn392W3z6WsDJ5d6CDLAFoWUCCCu2BQ==}
 
   '@xmldom/xmldom@0.7.13':
     resolution: {integrity: sha512-lm2GW5PkosIzccsaZIz7tp8cPADSIlIHWDFTR1N0SzfinhhYgeIQjFMz4rYzanCScr3DqQLeomUDArp6MWKm+g==}
@@ -9131,10 +9122,6 @@ packages:
   web-encoding@1.1.5:
     resolution: {integrity: sha512-HYLeVCdJ0+lBYV2FvNZmv3HJ2Nt0QYXqZojk3d9FJOLkwnuhzM9tmamh8d7HPM8QqjKH8DeHkFTx+CFlWpZZDA==}
 
-  web-streams-polyfill@3.0.3:
-    resolution: {integrity: sha512-d2H/t0eqRNM4w2WvmTdoeIvzAUSpK7JmATB8Nr2lb7nQ9BTIJVjbQ/TRFVEh2gUH1HwclPdoPtfMoFfetXaZnA==}
-    engines: {node: '>= 8'}
-
   web-streams-polyfill@3.3.3:
     resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
     engines: {node: '>= 8'}
@@ -13056,15 +13043,6 @@ snapshots:
       typescript: 5.6.2
 
   '@vue/shared@3.5.11': {}
-
-  '@web-std/blob@2.1.3':
-    dependencies:
-      web-encoding: 1.1.5
-      web-streams-polyfill: 3.0.3
-
-  '@web-std/file@1.1.4':
-    dependencies:
-      '@web-std/blob': 2.1.3
 
   '@xmldom/xmldom@0.7.13': {}
 
@@ -20134,8 +20112,6 @@ snapshots:
       util: 0.12.5
     optionalDependencies:
       '@zxing/text-encoding': 0.9.0
-
-  web-streams-polyfill@3.0.3: {}
 
   web-streams-polyfill@3.3.3: {}
 

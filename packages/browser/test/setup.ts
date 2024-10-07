@@ -1,7 +1,6 @@
 import { Crypto } from "@peculiar/webcrypto";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-// import { File as WebFile, Blob as WebBlob } from "@web-std/file";
 import { File, Blob } from "node:buffer";
 
 const crypto = new Crypto();
