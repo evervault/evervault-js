@@ -1,7 +1,5 @@
-import { Crypto } from "@peculiar/webcrypto";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { File, Blob } from "node:buffer";
+import { Crypto } from "@peculiar/webcrypto";
 
 const crypto = new Crypto();
 
@@ -20,10 +18,9 @@ Object.defineProperty(window, "Blob", {
   writable: true,
 });
 
-/* eslint-disable  class-methods-use-this */
 class FileReaderPolyfill {
   result?: Buffer;
-  onloadend = (_: unknown) => ({});
+  onloadend = (_: unknown) => ({}); // eslint-disable-line @typescript-eslint/no-unused-vars
   readAsArrayBuffer() {
     this.result = Buffer.from([0x00]);
     this.onloadend({});

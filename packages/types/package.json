@@ -8,6 +8,7 @@
     "jss": "^10.10.0"
   },
   "scripts": {
+    "lint": "eslint .",
     "clean": "rm -rf .turbo node_modules dist"
   }
 }

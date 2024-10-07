@@ -115,6 +115,7 @@ export default function Inputs(config: Config) {
                     error.type as keyof Window
                   ] as typeof Error;
                   reject(new ErrorType(error.message));
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 } catch (e) {
                   reject(new Error(error.message));
                 }

@@ -48,6 +48,7 @@
     "react-dom": "^18.2.0",
     "tsconfig": "workspace:^",
     "vite": "^5.4.3",
-    "vite-plugin-dts": "^4.2.3"
+    "vite-plugin-dts": "^4.2.3",
+    "eslint-config-custom": "workspace:*"
   }
 }

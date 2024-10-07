@@ -1,4 +1,4 @@
-import { describe, assert, it, beforeEach, expect } from "vitest";
+import { describe, it, expect } from "vitest";
 import { validateCVC } from "../index";
 import { CardCVCValidationResult } from "../types";
 
@@ -100,4 +100,3 @@ describe("validateCvc function tests", () => {
     });
   });
 });
-

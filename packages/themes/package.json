@@ -12,6 +12,7 @@
   },
   "scripts": {
     "clean": "rm -rf .turbo node_modules dist",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   }
 }

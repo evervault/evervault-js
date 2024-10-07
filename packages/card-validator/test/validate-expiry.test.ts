@@ -1,4 +1,4 @@
-import { describe, assert, it, beforeEach, expect } from "vitest";
+import { describe, it, expect } from "vitest";
 import { validateExpiry } from "../index";
 import { CardExpiryValidationResult } from "../types";
 
@@ -12,7 +12,7 @@ const testCases: TestCase[] = [
   {
     scope: "Valid expiry",
     expiry: "1239",
-    expectedResult: { month: '12', year: '39', isValid: true },
+    expectedResult: { month: "12", year: "39", isValid: true },
   },
   {
     scope: "Invalid month",
@@ -36,57 +36,76 @@ const testCases: TestCase[] = [
   },
 ];
 
-describe('validateExpiry function tests', () => {
+describe("validateExpiry function tests", () => {
   testCases.forEach(({ scope, expiry, expectedResult }) => {
     describe(`${scope}`, () => {
-        it(`should validate the expiry`, () => {
-            const result = validateExpiry(expiry);
-            expect(result).toEqual(expectedResult);
-        });
+      it(`should validate the expiry`, () => {
+        const result = validateExpiry(expiry);
+        expect(result).toEqual(expectedResult);
+      });
     });
   });
 
-  describe('Expires at the end of the year', () => {
-    it('should validate the expiry', () => {
+  describe("Expires at the end of the year", () => {
+    it("should validate the expiry", () => {
       const currentYear = new Date().getFullYear();
       const lastTwoDigitsCurrentYear = currentYear.toString().slice(-2);
       const expiry = `12${lastTwoDigitsCurrentYear}`;
       const result = validateExpiry(expiry);
-      expect(result).toEqual({ month: '12', year: lastTwoDigitsCurrentYear, isValid: true });
+      expect(result).toEqual({
+        month: "12",
+        year: lastTwoDigitsCurrentYear,
+        isValid: true,
+      });
     });
   });
 
-  describe('Expires at the beginning of next year', () => {
-    it('should validate the expiry', () => {
+  describe("Expires at the beginning of next year", () => {
+    it("should validate the expiry", () => {
       const nextYear = new Date().getFullYear() + 1;
       const lastTwoDigitsNextYear = nextYear.toString().slice(-2);
       const expiry = `01${lastTwoDigitsNextYear}`;
       const result = validateExpiry(expiry);
-      expect(result).toEqual({ month: '01', year: lastTwoDigitsNextYear, isValid: true });
+      expect(result).toEqual({
+        month: "01",
+        year: lastTwoDigitsNextYear,
+        isValid: true,
+      });
     });
   });
 
-  describe('Expires this month', () => {
-    it('should validate the expiry', () => {
+  describe("Expires this month", () => {
+    it("should validate the expiry", () => {
       const currentYear = new Date().getFullYear();
       const lastTwoDigitsCurrentYear = currentYear.toString().slice(-2);
       const currentMonth = new Date().getMonth() + 1;
-      const formattedExpiryMonth = currentMonth < 10 ? `0${currentMonth}` : `${currentMonth}`;
+      const formattedExpiryMonth =
+        currentMonth < 10 ? `0${currentMonth}` : `${currentMonth}`;
       const expiry = `${formattedExpiryMonth}${lastTwoDigitsCurrentYear}`;
       const result = validateExpiry(expiry);
-      expect(result).toEqual({ month: formattedExpiryMonth, year: lastTwoDigitsCurrentYear, isValid: true });
+      expect(result).toEqual({
+        month: formattedExpiryMonth,
+        year: lastTwoDigitsCurrentYear,
+        isValid: true,
+      });
     });
   });
 
-  describe('Expires next month', () => {
-    it('should validate the expiry', () => {
+  describe("Expires next month", () => {
+    it("should validate the expiry", () => {
       const currentYear = new Date().getFullYear();
       const lastTwoDigitsCurrentYear = currentYear.toString().slice(-2);
-      const nextMonth =  new Date().getMonth() + 2;
-      const formattedExpiryMonth = nextMonth < 10 ? `0${nextMonth}` : `${nextMonth}`;
+      const nextMonth = new Date().getMonth() + 2;
+      const formattedExpiryMonth =
+        nextMonth < 10 ? `0${nextMonth}` : `${nextMonth}`;
       const expiry = `${formattedExpiryMonth}${lastTwoDigitsCurrentYear}`;
       const result = validateExpiry(expiry);
-      expect(result).toEqual({ month: formattedExpiryMonth, year: lastTwoDigitsCurrentYear, isValid: true });
+      expect(result).toEqual({
+        month: formattedExpiryMonth,
+        year: lastTwoDigitsCurrentYear,
+        isValid: true,
+      });
     });
   });
 });
+

@@ -13,6 +13,7 @@ export function useEvervault(): PromisifiedEvervaultClient | null {
     );
   }
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const evervault = React.useContext(EvervaultContext);
   if (!evervault) {
     throw new Error(
