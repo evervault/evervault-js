@@ -1,4 +1,4 @@
-import { test, expect } from "../utils";
+import { test, expect, EV_STRING_REGEX } from "../utils";
 
 function typingDelay(min = 20, max = 100) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -29,7 +29,7 @@ test.describe("pin component", () => {
     await page.keyboard.type("2", { delay: typingDelay() });
     await page.keyboard.type("3", { delay: typingDelay() });
     await page.keyboard.type("4", { delay: typingDelay() });
-    await expect.poll(async () => values.value).toBeEncrypted();
+    await expect.poll(async () => values.value).toMatch(EV_STRING_REGEX);
     await expect.poll(async () => values.isComplete).toBeTruthy();
   });
 

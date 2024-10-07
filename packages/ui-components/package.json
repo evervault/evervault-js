@@ -37,7 +37,7 @@
     "jsdom": "^22.1.0",
     "postcss-preset-env": "^8.3.0",
     "tsconfig": "workspace:^",
-    "vite": "^4.5.5",
+    "vite": "^5.4.3",
     "vite-plugin-istanbul": "^5.0.0"
   }
 }

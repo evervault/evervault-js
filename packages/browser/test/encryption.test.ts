@@ -2,14 +2,13 @@ import { Buffer } from "node:buffer";
 import crc32 from "crc-32";
 import { describe, assert, it, beforeEach, expect } from "vitest";
 import Evervault from "../lib/main";
-import { setupCrypto } from "./setup";
 
 const encryptedStringRegex =
   /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
 const debugStringRegex =
   /((ev(:|%3A))(debug(:|%3A))(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
 
-declare module "vitest" {
+declare module "@vitest/runner" {
   export interface TestContext {
     ev: Evervault;
     evDebug: Evervault;
@@ -30,7 +29,6 @@ interface Person {
 
 describe("Encryption", () => {
   beforeEach((context) => {
-    setupCrypto();
     context.ev = new Evervault(
       import.meta.env.VITE_EV_TEAM_UUID,
       import.meta.env.VITE_EV_APP_UUID
@@ -73,7 +71,6 @@ describe("Encryption", () => {
 
 describe("Encryption with debug mode", () => {
   beforeEach((context) => {
-    setupCrypto();
     context.evDebug = new Evervault(
       import.meta.env.VITE_EV_TEAM_UUID,
       import.meta.env.VITE_EV_APP_UUID,
@@ -125,7 +122,6 @@ describe("Encryption with debug mode", () => {
 
 describe("File Encryption", () => {
   beforeEach((context) => {
-    setupCrypto();
     context.ev = new Evervault(
       import.meta.env.VITE_EV_TEAM_UUID,
       import.meta.env.VITE_EV_APP_UUID
@@ -275,7 +271,6 @@ describe("File Encryption", () => {
 
 describe("Encryption with evervault async initailization", () => {
   beforeEach(async (context) => {
-    setupCrypto();
     context.evClient = await Evervault.init(
       import.meta.env.VITE_EV_TEAM_UUID,
       import.meta.env.VITE_EV_APP_UUID

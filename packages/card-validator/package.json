@@ -29,14 +29,15 @@
   "scripts": {
     "test": "vitest run",
     "build": "vite build",
-    "clean": "rm -rf .turbo node_modules dist"
+    "clean": "rm -rf .turbo node_modules dist",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {},
   "devDependencies": {
     "tsconfig": "workspace:^",
-    "vitest": "^0.29.8",
+    "vitest": "^2.1.2",
     "types": "workspace:*",
-    "vite": "^4.5.5",
-    "vite-plugin-dts": "^3.6.3"
+    "vite": "^5.4.3",
+    "vite-plugin-dts": "^4.2.3"
   }
 }

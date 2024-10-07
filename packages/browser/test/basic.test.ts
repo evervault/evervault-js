@@ -4,15 +4,11 @@ import { describe, assert, it, beforeAll, afterAll, afterEach } from "vitest";
 import EvervaultClient from "../lib/main";
 import { getContext } from "../lib/utils";
 import { DecryptError } from "../lib/utils/errors";
-import { setupCrypto } from "./setup";
 
 const encryptedStringRegex =
   /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
 
 describe("customConfig", () => {
-  beforeAll(() => {
-    setupCrypto();
-  });
   it("does not call out to api when publicKey is present", async () => {
     const ev = new EvervaultClient(
       import.meta.env.VITE_EV_TEAM_UUID,
@@ -62,7 +58,6 @@ const server = setupServer(...restHandlers);
 
 describe("decrypt", () => {
   beforeAll(() => {
-    setupCrypto();
     server.listen();
   });
 
