@@ -133,6 +133,7 @@ function removeUrlsFromStyles(customRevealStyles: CustomRevealStyles) {
   for (const [groupKey, group] of Object.entries(newStyles)) {
     for (const [keyKey, key] of Object.entries(group)) {
       if (typeof key === "string" && key.match(/url\([^)]+\)/g)) {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
         delete newStyles[groupKey]![keyKey as keyof CSSStyleDeclaration];
       }
     }
