@@ -14,7 +14,7 @@
   "dependencies": {
     "@evervault/react": "workspace:*",
     "@evervault/card-validator": "workspace:*",
-    "imask": "^7.1.3",
+    "imask": "^7.6.1",
     "jsonpath": "^1.1.1",
     "jss": "^10.10.0",
     "jss-preset-default": "^10.10.0",
