@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "clean": "rm -rf .turbo dist node_modules",
-    "typecheck": "tsc --version"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@evervault/react": "workspace:*",
