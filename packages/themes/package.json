@@ -9,6 +9,7 @@
     "typescript": "latest"
   },
   "scripts": {
+    "lint": "eslint .",
     "clean": "rm -rf .turbo node_modules dist"
   }
 }

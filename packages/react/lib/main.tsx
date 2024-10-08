@@ -154,6 +154,7 @@ export const EvervaultProvider = ({
     );
   }
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const ev = React.useMemo<PromisifiedEvervaultClient>(
     () =>
       new PromisifiedEvervaultClient((resolve, reject) => {
@@ -189,11 +190,13 @@ export function EvervaultInput({
     return <div id={id} />;
   }
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const evervault = useEvervault();
 
   const { height = "auto", ...cfg } = config ?? {};
   const conf: InputSettings = !cfg ? { height } : { height, ...cfg };
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   React.useEffect(() => {
     void evervault?.then((ev) => {
       const encryptedInput = ev.inputs(id, conf);
@@ -229,11 +232,13 @@ export function EvervaultReveal({
     return <div id={id} />;
   }
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const evervault = useEvervault();
 
   const { height = "auto", ...cfg } = config ?? {};
   const conf: RevealSettings = !cfg ? { height } : { height, ...cfg };
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   React.useEffect(() => {
     void evervault?.then((ev) => {
       const encryptedInput = ev.reveal(id, request, conf, onCopy);
