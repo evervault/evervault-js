@@ -13,6 +13,7 @@ export interface UseFormReturn<T> {
   ) => {
     onChange: (value: T[K]) => void;
     //TODO(Mark): Replace with union of React.FocusEvent<HTMLInputElement> and native event
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onBlur: (event: any) => void;
   };
 }

@@ -6,7 +6,6 @@
     "dev": "next dev --port 4000",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
     "clean": "rm -rf .turbo node_modules dist"
   },
   "dependencies": {

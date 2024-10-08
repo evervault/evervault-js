@@ -24,6 +24,7 @@ export function setupCrypto(): void {
   /* eslint-disable  class-methods-use-this */
   class FileReaderPolyfill {
     result?: Buffer;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onloadend = (_: unknown) => ({});
     readAsArrayBuffer() {
       this.result = Buffer.from([0x00]);
