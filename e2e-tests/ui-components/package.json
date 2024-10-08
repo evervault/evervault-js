@@ -4,9 +4,13 @@
   "version": "1.0.12",
   "scripts": {
     "e2e:test": "playwright test",
-    "clean": "rm -rf .turbo node_modules dist"
+    "clean": "rm -rf .turbo node_modules dist",
+    "preview": "vite --port 4006"
   },
-  "dependencies": {
-    "@evervault/ui-components": "workspace:*"
+  "devDependencies": {
+    "@playwright/test": "^1.47.2",
+    "@evervault/browser": "workspace:*",
+    "@evervault/ui-components": "workspace:*",
+    "vite": "^5.4.3"
   }
 }

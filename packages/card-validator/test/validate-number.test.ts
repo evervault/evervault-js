@@ -1,4 +1,4 @@
-import { describe, assert, it, beforeEach, expect } from "vitest";
+import { describe, it, expect } from "vitest";
 import { validateNumber } from "../index";
 import { CardNumberValidationResult } from "../types";
 
@@ -308,11 +308,11 @@ const testData: CardTestData[] = [
   //       expectedResult: { brand: null, localBrands: ['szep'], bin: '30867825', lastFour: '1230', isValid: true }
   //     },
   //     {
-  //       cardNumber: "308678257343", // 12 characters 
+  //       cardNumber: "308678257343", // 12 characters
   //       expectedResult: { brand: null, localBrands: ['szep'], bin: null, lastFour: null, isValid: false }
   //     },
   //     {
-  //       cardNumber: "3086782573431231", // Invalid luhn check 
+  //       cardNumber: "3086782573431231", // Invalid luhn check
   //       expectedResult: { brand: null, localBrands: ['szep'], bin: null, lastFour: null, isValid: false }
   //     },
   //     {
@@ -403,33 +403,69 @@ const testData: CardTestData[] = [
     testCases: [
       {
         cardNumber: "1",
-        expectedResult: { brand: 'uatp', localBrands: [], bin: null, lastFour: null, isValid: false },
+        expectedResult: {
+          brand: "uatp",
+          localBrands: [],
+          bin: null,
+          lastFour: null,
+          isValid: false,
+        },
       },
       {
         cardNumber: "101",
-        expectedResult: { brand: 'uatp', localBrands: [], bin: null, lastFour: null, isValid: false },
+        expectedResult: {
+          brand: "uatp",
+          localBrands: [],
+          bin: null,
+          lastFour: null,
+          isValid: false,
+        },
       },
       {
         cardNumber: "135410014004955",
-        expectedResult: { brand: 'uatp', localBrands: [], bin: '135410', lastFour: '4955', isValid: true },
+        expectedResult: {
+          brand: "uatp",
+          localBrands: [],
+          bin: "135410",
+          lastFour: "4955",
+          isValid: true,
+        },
       },
       {
         cardNumber: "123456789012345", // 15 digits, invalid
-        expectedResult: { brand: 'uatp', localBrands: [], bin: null, lastFour: null, isValid: false },
+        expectedResult: {
+          brand: "uatp",
+          localBrands: [],
+          bin: null,
+          lastFour: null,
+          isValid: false,
+        },
       },
       {
         cardNumber: "12345678901234567", // 17 digits, invalid
-        expectedResult: { brand: 'uatp', localBrands: [], bin: null, lastFour: null, isValid: false },
+        expectedResult: {
+          brand: "uatp",
+          localBrands: [],
+          bin: null,
+          lastFour: null,
+          isValid: false,
+        },
       },
       {
         cardNumber: "1234567890123458", // Invalid Luhn check
-        expectedResult: { brand: 'uatp', localBrands: [], bin: null, lastFour: null, isValid: false },
-      }
-    ]
+        expectedResult: {
+          brand: "uatp",
+          localBrands: [],
+          bin: null,
+          lastFour: null,
+          isValid: false,
+        },
+      },
+    ],
   },
 ];
 
-describe('validateNumber function tests', () => {
+describe("validateNumber function tests", () => {
   testData.forEach(({ scope, testCases }) => {
     describe(`${scope} tests`, () => {
       testCases.forEach(({ cardNumber, expectedResult }) => {
@@ -441,3 +477,4 @@ describe('validateNumber function tests', () => {
     });
   });
 });
+

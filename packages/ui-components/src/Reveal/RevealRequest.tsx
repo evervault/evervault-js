@@ -48,6 +48,7 @@ export function RevealRequest({ config }: { config: RevealRequestConfig }) {
 
         setData(d);
         messages.send("EV_REVEAL_REQUEST_READY");
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         messages.send("EV_ERROR");
       }

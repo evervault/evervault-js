@@ -1,4 +1,10 @@
-import { test, expect, VALID_CARDS, INVALID_CARDS } from "../utils";
+import {
+  test,
+  expect,
+  VALID_CARDS,
+  INVALID_CARDS,
+  EV_STRING_REGEX,
+} from "../utils";
 import { inlineTheme } from "./customThemes";
 
 test.describe("card component", () => {
@@ -27,12 +33,15 @@ test.describe("card component", () => {
       await frame.getByLabel("Number").fill(card.number);
       await frame.getByLabel("Expiration").fill(`${card.month}/${card.year}`);
       await frame.getByLabel("CVC").fill(card.cvc);
-      await expect.poll(async () => values.card?.number).toBeEncrypted();
+      await expect.poll(async () => values.isComplete).toBeTruthy();
+      await expect
+        .poll(async () => values.card?.number)
+        .toMatch(EV_STRING_REGEX);
       await expect.poll(async () => values.card?.brand).toEqual(card.brand);
       await expect
         .poll(async () => values.card?.localBrands)
         .toEqual(card.localBrands);
-      await expect.poll(async () => values.card?.cvc).toBeEncrypted();
+      await expect.poll(async () => values.card?.cvc).toMatch(EV_STRING_REGEX);
       await expect
         .poll(async () => values.card?.expiry?.month)
         .toEqual(card.month);
@@ -73,7 +82,7 @@ test.describe("card component", () => {
     await frame.getByLabel("Number").fill(testCard.number);
     await frame.getByLabel("Number").blur();
     await expect(frame.getByText("Your card number is invalid")).toBeVisible();
-    await expect.poll(async () => values.errors.number).toEqual("invalid");
+    await expect.poll(async () => values.errors?.number).toEqual("invalid");
     await expect.poll(async () => values.isValid).toBeFalsy();
     await expect(
       frame.getByText("Your expiration date is invalid")
@@ -104,7 +113,7 @@ test.describe("card component", () => {
       frame.getByText("This card brand is not supported")
     ).toBeVisible();
     await expect
-      .poll(async () => values.errors.number)
+      .poll(async () => values.errors?.number)
       .toEqual("unsupportedBrand");
     await expect.poll(async () => values.isValid).toBeFalsy();
     await expect(
@@ -386,9 +395,9 @@ test.describe("card component", () => {
     const frame = page.frameLocator("iframe[data-evervault]");
     await expect(frame.getByLabel("Number")).toBeVisible();
     await frame.getByLabel("Number").pressSequentially(magstripe);
-    await expect.poll(async () => swipeData?.number).toBeEncrypted();
-    await expect.poll(async () => swipeData?.expiry.month).toEqual("05");
-    await expect.poll(async () => swipeData?.expiry.year).toEqual("23");
+    await expect.poll(async () => swipeData?.number).toMatch(EV_STRING_REGEX);
+    await expect.poll(async () => swipeData?.expiry?.month).toEqual("05");
+    await expect.poll(async () => swipeData?.expiry?.year).toEqual("23");
     await expect.poll(async () => swipeData?.firstName).toEqual("JOHN A");
     await expect.poll(async () => swipeData?.lastName).toEqual("DOE");
     await expect.poll(async () => swipeData?.brand).toEqual("visa");
@@ -413,7 +422,7 @@ test.describe("card component", () => {
     const frame = page.frameLocator("iframe[data-evervault]");
     await expect(frame.getByLabel("Number")).toBeVisible();
     await frame.getByLabel("Number").pressSequentially(magstripe);
-    await expect.poll(async () => swipeData?.number).toBeEncrypted();
+    await expect.poll(async () => swipeData?.number).toMatch(EV_STRING_REGEX);
     await expect.poll(async () => swipeData?.expiry.month).toEqual("05");
     await expect.poll(async () => swipeData?.expiry.year).toEqual("26");
     await expect.poll(async () => swipeData?.brand).toEqual("mastercard");
@@ -578,21 +587,23 @@ test.describe("card component", () => {
 
     await page.evaluate(() => {
       const card = window.evervault.ui.card();
-      card.on("change", window.handleChange);
+      card.on("change", (change) => {
+        window.handleChange(change);
+      });
       card.mount("#form");
     });
 
     const frame = page.frameLocator("iframe[data-evervault]");
-    await frame.getByLabel("Number").fill("4242424242424242");
+    await frame.getByLabel("Number").pressSequentially("4242424242424242");
     await frame.getByLabel("CVC").fill("123");
     await frame.getByLabel("CVC").blur();
     await expect(frame.getByText("Your CVC is invalid")).not.toBeVisible();
     await expect.poll(async () => values.errors?.cvc).toBeUndefined();
     await frame.getByLabel("Number").clear();
     // enter amex card which requires 4 digit cvc
-    await frame.getByLabel("Number").fill("378282246310005");
-    await expect.poll(async () => values.errors?.cvc).not.toBeUndefined();
+    await frame.getByLabel("Number").pressSequentially("378282246310005");
     await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
+    await expect.poll(async () => values.errors?.cvc).not.toBeUndefined();
   });
 
   test("Updates the underlying CVC when switching from 4 digit CVC to 3", async ({

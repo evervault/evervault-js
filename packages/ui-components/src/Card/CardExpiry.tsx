@@ -1,4 +1,4 @@
-import IMask from "imask";
+import IMask, { MaskedPattern } from "imask";
 import { FocusEvent, useEffect, useRef } from "react";
 import { useMask } from "../utilities/useMask";
 import type { CardForm } from "./types";
@@ -13,7 +13,7 @@ interface CardExpiryProps {
   autoComplete?: boolean;
 }
 
-const EXPIRY_BLOCKS = {
+const EXPIRY_BLOCKS: MaskedPattern["blocks"] = {
   MM: {
     mask: IMask.MaskedRange,
     placeholderChar: "MM",

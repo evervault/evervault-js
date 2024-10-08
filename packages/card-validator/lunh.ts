@@ -1,8 +1,8 @@
-export function luhn10(identifier: String): boolean {
-  var sum = 0;
-  var alt = false;
-  var i = identifier.length - 1;
-  var num;
+export function luhn10(identifier: string): boolean {
+  let sum = 0;
+  let alt = false;
+  let i = identifier.length - 1;
+  let num;
 
   while (i >= 0) {
     num = parseInt(identifier.charAt(i), 10);
@@ -23,3 +23,4 @@ export function luhn10(identifier: String): boolean {
 
   return sum % 10 === 0;
 }
+

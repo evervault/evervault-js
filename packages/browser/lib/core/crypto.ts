@@ -224,6 +224,7 @@ export class CoreCrypto {
     return new Promise((resolve, reject) => {
       const reader = new window.FileReader();
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       reader.onloadend = (_event) => {
         const readerResult = reader.result;
         if (readerResult == null || typeof readerResult === "string") {

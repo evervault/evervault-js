@@ -1,10 +1,10 @@
-import { describe, assert, it, beforeEach, expect } from "vitest";
+import { describe, it, expect } from "vitest";
 import { validateCVC } from "../index";
 import { CardCVCValidationResult } from "../types";
 
 interface TestCase {
   scope: string;
-  cardNumber: string;
+  cardNumber?: string;
   cvc: string;
   expectedResult: CardCVCValidationResult;
 }
@@ -90,7 +90,7 @@ const testCases: TestCase[] = [
   },
 ];
 
-describe('validateCvc function tests', () => {
+describe("validateCvc function tests", () => {
   testCases.forEach(({ scope, cardNumber, cvc, expectedResult }) => {
     describe(`${scope}`, () => {
       it(`should validate the cvc`, () => {

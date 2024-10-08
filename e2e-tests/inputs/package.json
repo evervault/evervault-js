@@ -9,5 +9,8 @@
   },
   "dependencies": {
     "@evervault/inputs": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.2"
   }
 }

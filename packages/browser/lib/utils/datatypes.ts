@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/ban-types -- we need to allow Function, its fine as we just convert it to a string
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type -- we need to allow Function, its fine as we just convert it to a string
 export type EncryptableAsString = string | number | boolean | bigint | Function;
 export type EncryptableValue =
   | EncryptableAsString
