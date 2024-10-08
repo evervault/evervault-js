@@ -39,7 +39,6 @@
     "tsconfig": "workspace:^",
     "tslib": "^2.7.0",
     "turbo": "^2.1.1",
-    "typescript": "^5.4.3",
     "wait-on": "^7.2.0"
   },
   "pnpm": {

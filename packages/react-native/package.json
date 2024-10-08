@@ -80,7 +80,7 @@
     "react-native-mask-input": "^1.2.3",
     "release-it": "^16.1.3",
     "turbo": "^1.10.7",
-    "typescript": "^5.3.3"
+    "typescript": "5.5.4"
   },
   "peerDependencies": {
     "react": "*",
