@@ -587,21 +587,23 @@ test.describe("card component", () => {
 
     await page.evaluate(() => {
       const card = window.evervault.ui.card();
-      card.on("change", window.handleChange);
+      card.on("change", (change) => {
+        window.handleChange(change);
+      });
       card.mount("#form");
     });
 
     const frame = page.frameLocator("iframe[data-evervault]");
-    await frame.getByLabel("Number").fill("4242424242424242");
+    await frame.getByLabel("Number").pressSequentially("4242424242424242");
     await frame.getByLabel("CVC").fill("123");
     await frame.getByLabel("CVC").blur();
     await expect(frame.getByText("Your CVC is invalid")).not.toBeVisible();
     await expect.poll(async () => values.errors?.cvc).toBeUndefined();
     await frame.getByLabel("Number").clear();
     // enter amex card which requires 4 digit cvc
-    await frame.getByLabel("Number").fill("378282246310005");
-    await expect.poll(async () => values.errors?.cvc).not.toBeUndefined();
+    await frame.getByLabel("Number").pressSequentially("378282246310005");
     await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
+    await expect.poll(async () => values.errors?.cvc).not.toBeUndefined();
   });
 
   test("Updates the underlying CVC when switching from 4 digit CVC to 3", async ({

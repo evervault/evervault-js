@@ -61,7 +61,7 @@ export default defineConfig({
     {
       command: "pnpm --filter=@evervault/browser dev:preview",
       url: "http://localhost:4002/evervault-browser.main.umd.cjs",
-      timeout: 10 * 1000,
+      timeout: 20 * 1000,
     },
     {
       command: "pnpm --filter @evervault/ui-components dev",
@@ -69,7 +69,8 @@ export default defineConfig({
       timeout: 10 * 1000,
     },
     {
-      command: "pnpm -C ./vanilla-test-server dev --port 4005",
+      command:
+        "pnpm --filter=@evervault/ui-components-e2e-tests preview --port 4005",
       url: "http://localhost:4005",
       timeout: 10 * 1000,
     },

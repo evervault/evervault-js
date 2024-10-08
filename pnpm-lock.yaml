@@ -20,9 +20,6 @@ importers:
       '@inquirer/prompts':
         specifier: ^3.3.2
         version: 3.3.2
-      '@playwright/test':
-        specifier: ^1.42.1
-        version: 1.47.2
       '@swc/core':
         specifier: ^1.4.11
         version: 1.7.26(@swc/helpers@0.5.13)
@@ -85,17 +82,16 @@ importers:
         version: link:../../packages/inputs
 
   e2e-tests/ui-components:
-    dependencies:
+    devDependencies:
+      '@evervault/browser':
+        specifier: workspace:*
+        version: link:../../packages/browser
       '@evervault/ui-components':
         specifier: workspace:*
         version: link:../../packages/ui-components
-
-  e2e-tests/ui-components/vanilla-test-server:
-    dependencies:
-      '@evervault/browser':
-        specifier: workspace:*
-        version: link:../../../packages/browser
-    devDependencies:
+      '@playwright/test':
+        specifier: ^1.47.2
+        version: 1.47.2
       vite:
         specifier: ^5.4.3
         version: 5.4.8(@types/node@22.7.4)(terser@5.34.1)
