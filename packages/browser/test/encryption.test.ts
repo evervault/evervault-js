@@ -146,11 +146,19 @@ describe("File Encryption", () => {
 
     const data = Buffer.from(await encryptedFile.arrayBuffer());
     assert(
-      Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) === 0
+      Buffer.compare(
+        new Uint8Array(data.subarray(0, 6)),
+        new Uint8Array(Buffer.from("%EVENC", "utf-8"))
+      ) === 0
     );
 
     // Test that the debug flag is not set
-    assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x00])) === 0);
+    assert(
+      Buffer.compare(
+        new Uint8Array(data.subarray(54, 55)),
+        new Uint8Array(Buffer.from([0x00]))
+      ) === 0
+    );
   });
 
   it("it encrypts a file in debug mode", async (context) => {
@@ -163,11 +171,19 @@ describe("File Encryption", () => {
 
     const data = Buffer.from(await encryptedFile.arrayBuffer());
     assert(
-      Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) === 0
+      Buffer.compare(
+        new Uint8Array(data.subarray(0, 6)),
+        new Uint8Array(Buffer.from("%EVENC", "utf-8"))
+      ) === 0
     );
 
     // Test that the debug flag is set
-    assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x01])) === 0);
+    assert(
+      Buffer.compare(
+        new Uint8Array(data.subarray(54, 55)),
+        new Uint8Array(Buffer.from([0x01]))
+      ) === 0
+    );
   });
 
   it("throws an error if the file is too large", async (context) => {
@@ -186,11 +202,19 @@ describe("File Encryption", () => {
 
     const data = Buffer.from(await encryptedFile.arrayBuffer());
     assert(
-      Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) === 0
+      Buffer.compare(
+        new Uint8Array(data.subarray(0, 6)),
+        new Uint8Array(Buffer.from("%EVENC", "utf-8"))
+      ) === 0
     );
 
     // Test that the debug flag is not set
-    assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x00])) === 0);
+    assert(
+      Buffer.compare(
+        new Uint8Array(data.subarray(54, 55)),
+        new Uint8Array(Buffer.from([0x00]))
+      ) === 0
+    );
   });
 
   it("it encrypts a blob in debug mode", async (context) => {
@@ -202,11 +226,19 @@ describe("File Encryption", () => {
     const data = Buffer.from(await encryptedFile.arrayBuffer());
 
     assert(
-      Buffer.compare(data.subarray(0, 6), Buffer.from("%EVENC", "utf-8")) === 0
+      Buffer.compare(
+        new Uint8Array(data.subarray(0, 6)),
+        new Uint8Array(Buffer.from("%EVENC", "utf-8"))
+      ) === 0
     );
 
     // Test that the debug flag is set
-    assert(Buffer.compare(data.subarray(54, 55), Buffer.from([0x01])) === 0);
+    assert(
+      Buffer.compare(
+        new Uint8Array(data.subarray(54, 55)),
+        new Uint8Array(Buffer.from([0x01]))
+      ) === 0
+    );
   });
 
   it("it encrypts a file and verifies that the crc32 was genered correctly", async (context) => {
@@ -218,7 +250,9 @@ describe("File Encryption", () => {
     const view = new DataView(crc32Bytes);
     const crc32FromFile = view.getInt32(0, true);
 
-    const crc32FromFileContents = crc32.buf(Buffer.from(data.slice(0, -4)));
+    const crc32FromFileContents = crc32.buf(
+      new Uint8Array(Buffer.from(data.slice(0, -4)))
+    );
 
     assert(crc32FromFile === crc32FromFileContents);
   });

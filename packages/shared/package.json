@@ -10,5 +10,8 @@
   "scripts": {
     "lint": "eslint .",
     "clean": "rm -rf .turbo node_modules dist"
+  },
+  "devDependencies": {
+    "typescript": "5.5.4"
   }
 }
