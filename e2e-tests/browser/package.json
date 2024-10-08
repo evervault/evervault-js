@@ -11,6 +11,7 @@
     "preview": "vite --port 4006"
   },
   "devDependencies": {
-    "vite": "^5.4.3"
+    "vite": "^5.4.3",
+    "@playwright/test": "^1.47.2"
   }
 }
