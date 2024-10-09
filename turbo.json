@@ -1,29 +1,58 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["EV_*", "VITE_*"],
+  "globalEnv": [
+    "EV_*",
+    "VITE_*"
+  ],
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
     },
     "dev": {
       "cache": false,
       "persistent": true,
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env"]
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env"
+      ]
     },
     "e2e:test": {
-      "dependsOn": ["build"],
-      "outputs": ["playwright-report/**", "test-results/**"]
+      "dependsOn": [
+        "build"
+      ],
+      "outputs": [
+        "playwright-report/**",
+        "test-results/**"
+      ]
     },
     "deploy": {
-      "dependsOn": ["build", "test", "lint"]
+      "dependsOn": [
+        "build",
+        "test",
+        "lint"
+      ]
     },
     "typecheck": {
-      "dependsOn": []
+      "dependsOn": [
+        "^build"
+      ]
     },
     "format": {
-      "outputs": ["lib/**", "*.[m][tj]s", "*.html", "*.json", "*.md"]
+      "outputs": [
+        "lib/**",
+        "*.[m][tj]s",
+        "*.html",
+        "*.json",
+        "*.md"
+      ]
     },
     "format:check": {
       "dependsOn": []
@@ -33,13 +62,20 @@
     },
     "lint:fix": {
       "dependsOn": [],
-      "outputs": ["lib/**", "*.ts"]
+      "outputs": [
+        "lib/**",
+        "*.ts"
+      ]
     },
     "test": {
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     },
     "preview": {
-      "dependsOn": ["build"]
+      "dependsOn": [
+        "^build"
+      ]
     },
     "clean": {
       "cache": false
