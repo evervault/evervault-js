@@ -18,7 +18,6 @@ import { CardNumber } from "./CardNumber";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useCardReader } from "./useCardReader";
 import {
-  autoProgress,
   changePayload,
   collectIcons,
   isAcceptedBrand,
@@ -103,10 +102,6 @@ export function Card({ config }: { config: CardConfig }) {
       },
     },
     onChange: (formState) => {
-      if (config?.autoProgress) {
-        autoProgress(formState);
-      }
-
       const triggerChange = async () => {
         if (!ev) return;
         const cardData = await changePayload(ev, formState, fields);
@@ -221,6 +216,7 @@ export function Card({ config }: { config: CardConfig }) {
             placeholder={t("number.placeholder")}
             value={form.values.number}
             autoComplete={config.autoComplete?.number ?? true}
+            autoProgress={config.autoProgress}
             form={form}
             {...form.register("number")}
           />
@@ -245,6 +241,7 @@ export function Card({ config }: { config: CardConfig }) {
             readOnly={cardReaderListening}
             placeholder={t("expiry.placeholder")}
             autoComplete={config.autoComplete?.expiry ?? true}
+            autoProgress={config.autoProgress}
             {...form.register("expiry")}
           />
           {form.errors?.expiry && (
