@@ -48,27 +48,6 @@ export async function changePayload(
   };
 }
 
-export function autoProgress(form: UseFormReturn<CardForm>) {
-  const activeField = document.activeElement as HTMLElement;
-  if (activeField instanceof HTMLInputElement === false) return;
-
-  const field = activeField.name as CardField;
-
-  if (field === "number") {
-    const { isValid } = validateNumber(form.values.number);
-    if (isValid) {
-      document.getElementById("expiry")?.focus();
-    }
-  }
-
-  if (field === "expiry") {
-    const { isValid } = validateExpiry(form.values.expiry);
-    if (isValid) {
-      document.getElementById("cvc")?.focus();
-    }
-  }
-}
-
 function isComplete(form: UseFormReturn<CardForm>, fields: CardField[]) {
   if (fields.includes("name")) {
     if (form.values.name.length === 0) return false;

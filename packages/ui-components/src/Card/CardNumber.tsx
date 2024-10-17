@@ -13,6 +13,7 @@ interface CardNumberProps {
   value: string;
   readOnly?: boolean;
   autoComplete?: boolean;
+  autoProgress?: boolean;
   form: UseFormReturn<CardForm>;
 }
 
@@ -31,6 +32,7 @@ export function CardNumber({
   form,
   readOnly,
   autoComplete,
+  autoProgress,
 }: CardNumberProps) {
   const ref = useRef<HTMLInputElement>(null);
 
@@ -46,7 +48,7 @@ export function CardNumber({
     onChange(newValue);
   };
 
-  const { setValue } = useMask(ref, handleCardChange, {
+  const { setValue, mask } = useMask(ref, handleCardChange, {
     mask: [
       {
         mask: "0000 0000 0000 0000",
@@ -72,6 +74,15 @@ export function CardNumber({
       return mask ?? dynamicMasked.compiledMasks[0];
     },
   });
+
+  useEffect(() => {
+    const isComplete = mask.current?.masked.isComplete ?? false;
+    const activeField = document.activeElement as HTMLElement;
+    const isFocused = activeField === ref.current;
+    if (autoProgress && isFocused && isComplete) {
+      document.getElementById("expiry")?.focus();
+    }
+  }, [value, mask, autoProgress]);
 
   useEffect(() => {
     setValue(value);

@@ -11,6 +11,7 @@ interface CardExpiryProps {
   value: string;
   readOnly?: boolean;
   autoComplete?: boolean;
+  autoProgress?: boolean;
 }
 
 const EXPIRY_BLOCKS = {
@@ -39,12 +40,22 @@ export function CardExpiry({
   value,
   readOnly,
   autoComplete,
+  autoProgress,
 }: CardExpiryProps) {
   const ref = useRef<HTMLInputElement>(null);
-  const { setValue } = useMask(ref, onChange, {
+  const { setValue, mask } = useMask(ref, onChange, {
     mask: "MM / YY",
     blocks: EXPIRY_BLOCKS,
   });
+
+  useEffect(() => {
+    const isComplete = mask.current?.masked.isComplete ?? false;
+    const activeField = document.activeElement as HTMLElement;
+    const isFocused = activeField === ref.current;
+    if (autoProgress && isFocused && isComplete) {
+      document.getElementById("cvc")?.focus();
+    }
+  }, [value, autoProgress, mask]);
 
   useEffect(() => {
     setValue(value);

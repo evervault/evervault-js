@@ -3,7 +3,7 @@ import { RefObject, useCallback, useEffect, useRef } from "react";
 
 interface UseMaskReturn {
   setValue: (newValue: string) => void;
-  getUnmaskedValue: () => string | undefined;
+  mask: React.MutableRefObject<ReturnType<typeof IMask> | undefined>;
 }
 
 export function useMask(
@@ -35,10 +35,5 @@ export function useMask(
     mask.current.value = newValue;
   }, []);
 
-  const getUnmaskedValue = useCallback(() => {
-    if (!mask.current) return "";
-    return mask.current.unmaskedValue;
-  }, []);
-
-  return { setValue, getUnmaskedValue };
+  return { setValue, mask };
 }
