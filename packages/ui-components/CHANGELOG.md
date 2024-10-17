@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.16.0
+
+### Minor Changes
+
+- 72d682c: autoProgress will now progress when the input mask is complete instead of when the input value becomes valid.
+
 ## 1.15.0
 
 ### Minor Changes
