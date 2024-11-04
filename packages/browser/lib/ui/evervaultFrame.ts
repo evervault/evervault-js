@@ -52,6 +52,7 @@ export class EvervaultFrame<
     this.iframe.style.border = "none";
     this.iframe.style.width = "100%";
     this.iframe.style.display = "block";
+    this.iframe.allow = "payment";
 
     if (options?.size) {
       this.setSize(options.size);

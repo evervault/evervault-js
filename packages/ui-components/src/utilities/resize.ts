@@ -1,7 +1,7 @@
 // Posts the iframe size to the parent window
 export function resize() {
   const height = document.body.scrollHeight;
-  const {location} = window;
+  const { location } = window;
   const searchParams = new URLSearchParams(location.search);
   const frame = searchParams.get("id");
 
@@ -13,6 +13,6 @@ export function resize() {
         height,
       },
     },
-    "*",
+    "*"
   );
 }

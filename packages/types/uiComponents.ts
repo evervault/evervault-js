@@ -212,3 +212,30 @@ export interface ThreeDSecureFrameClientMessages
   EV_FAILURE: string | undefined | null;
   EV_CANCEL: undefined;
 }
+
+export interface GooglePayClientMessages extends EvervaultFrameClientMessages {
+  // TODO: Correctly type payload
+  EV_GOOGLE_PAY_AUTH: any;
+}
+
+export interface GooglePayHostMessages extends EvervaultFrameHostMessages {
+  EV_GOOGLE_PAY_AUTH_COMPLETE: null;
+}
+
+export interface GooglePayOptions {
+  process: Promise<void>;
+}
+
+export interface ApplePayOptions {
+  process: Promise<void>;
+}
+
+export interface TransactionDetails {
+  amount: number;
+  currency: string;
+  country: string;
+  merchant: {
+    id: string;
+    name: string;
+  };
+}

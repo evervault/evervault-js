@@ -10,7 +10,11 @@ import type {
   CardOptions,
   FormOptions,
   ThreeDSecureOptions,
+  GooglePayOptions,
 } from "types";
+import { Transaction } from "../resources/transaction";
+import GooglePay from "./googlePay";
+import ApplePay from "./applePay";
 
 export default class UIComponents {
   client: EvervaultClient;
@@ -38,5 +42,13 @@ export default class UIComponents {
 
   threeDSecure(session: string, opts?: ThreeDSecureOptions) {
     return new ThreeDSecure(this.client, session, opts);
+  }
+
+  googlePay(tx: Transaction, opts: GooglePayOptions) {
+    return new GooglePay(this.client, tx, opts);
+  }
+
+  applePay(tx: Transaction, opts: GooglePayOptions) {
+    return new ApplePay(this.client, tx, opts);
   }
 }
