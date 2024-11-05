@@ -214,9 +214,10 @@ export class EvervaultFrame<
   }
 
   #setupListeners() {
-    this.on("EV_RESIZE", ({ height }) => {
+    this.on("EV_RESIZE", ({ height, width }) => {
       if (!this.iframe || this.#size) return;
       this.iframe.style.height = `${height}px`;
+      if (width) this.iframe.style.width = `${width}px`;
     });
   }
 }

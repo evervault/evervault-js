@@ -1,11 +1,12 @@
 import css from "./styles.module.css";
 import { useLayoutEffect, useRef } from "react";
 import { buildPaymentRequest, exchangePaymentData } from "./utilities";
-import { resize } from "../utilities/resize";
+import { resize, setSize } from "../utilities/resize";
 import { GooglePayConfig } from "./types";
 import { useMessaging } from "../utilities/useMessaging";
 import { GooglePayClientMessages, GooglePayHostMessages } from "types";
 import { useSearchParams } from "../utilities/useSearchParams";
+import { values } from "eslint-config-custom";
 
 interface GooglePayProps {
   config: GooglePayConfig;
@@ -74,8 +75,13 @@ export function GooglePay({ config }: GooglePayProps) {
         });
 
         container.current?.appendChild(btn);
-        // TODO: resize width as well.
-        resize();
+
+        if (container.current) {
+          setSize({
+            width: container.current.offsetWidth,
+            height: container.current.offsetHeight,
+          });
+        }
       } catch (err) {
         console.log("cancelled");
         console.error(err);
