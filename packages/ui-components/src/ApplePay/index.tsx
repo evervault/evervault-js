@@ -42,7 +42,7 @@ export function ApplePay({ config }: ApplePayProps) {
   };
 
   // device does not support Apple Pay
-  if (typeof window.ApplePaySession === "undefined" || !window.PaymentRequest) {
+  if (!window.ApplePaySession || !window.ApplePaySession.canMakePayments()) {
     return null;
   }
 

@@ -1,4 +1,4 @@
-import { TransactionDetails } from "types";
+import { EncryptedGooglePayData, TransactionDetails } from "types";
 
 export function buildPaymentRequest(
   tx: TransactionDetails
@@ -24,9 +24,8 @@ export function buildPaymentRequest(
           type: "PAYMENT_GATEWAY",
           parameters: {
             gateway: "evervault",
-            gatewayMerchantId: import.meta.env.VITE_STAGING
-              ? "googletest"
-              : "google",
+            gatewayMerchantId:
+              import.meta.env.VITE_STAGING === "true" ? "googletest" : "google",
           },
         },
       },
@@ -51,7 +50,7 @@ const API = import.meta.env.VITE_API_URL as string;
 export async function exchangePaymentData(
   app: string,
   paymentData: google.payments.api.PaymentData
-): Promise<unknown> {
+): Promise<EncryptedGooglePayData> {
   const response = await fetch(`${API}/frontend/google-pay/credentials`, {
     method: "POST",
     headers: {

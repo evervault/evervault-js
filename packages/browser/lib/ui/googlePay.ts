@@ -1,14 +1,25 @@
 import EventManager from "./eventManager";
 import { EvervaultFrame } from "./evervaultFrame";
 import type EvervaultClient from "../main";
-import type { SelectorType, GooglePayOptions } from "types";
+import type {
+  SelectorType,
+  GooglePayOptions,
+  GooglePayClientMessages,
+  GooglePayHostMessages,
+} from "types";
 import { Transaction } from "../resources/transaction";
+
+interface GooglePayEvents {
+  ready: () => void;
+  error: () => void;
+  cancel: () => void;
+}
 
 export default class GooglePay {
   #transaction: Transaction;
   #options: GooglePayOptions;
-  #frame: EvervaultFrame;
-  #events = new EventManager();
+  #frame: EvervaultFrame<GooglePayClientMessages, GooglePayHostMessages>;
+  #events = new EventManager<GooglePayEvents>();
 
   constructor(
     client: EvervaultClient,
@@ -25,7 +36,10 @@ export default class GooglePay {
 
     this.#frame.on("EV_GOOGLE_PAY_AUTH", async (payload) => {
       await this.#options.process(payload);
-      this.#frame.send("EV_GOOGLE_PAY_AUTH_COMPLETE");
+    });
+
+    this.#frame.on("EV_GOOGLE_CANCELLED", () => {
+      this.#events.dispatch("cancel");
     });
   }
 
@@ -35,7 +49,9 @@ export default class GooglePay {
         transaction: this.#transaction.details,
         type: this.#options.type,
         color: this.#options.color,
+        locale: this.#options.locale,
         borderRadius: this.#options.borderRadius,
+        environment: this.#options.environment,
       },
     };
   }
@@ -63,5 +79,9 @@ export default class GooglePay {
   unmount() {
     this.#frame.unmount();
     return this;
+  }
+
+  on<T extends keyof GooglePayEvents>(event: T, callback: GooglePayEvents[T]) {
+    return this.#events.on(event, callback);
   }
 }

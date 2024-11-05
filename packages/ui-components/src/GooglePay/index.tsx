@@ -7,12 +7,6 @@ import { useMessaging } from "../utilities/useMessaging";
 import { GooglePayClientMessages, GooglePayHostMessages } from "types";
 import { useSearchParams } from "../utilities/useSearchParams";
 
-declare global {
-  interface Window {
-    google: any;
-  }
-}
-
 interface GooglePayProps {
   config: GooglePayConfig;
 }
@@ -25,7 +19,7 @@ export function GooglePay({ config }: GooglePayProps) {
   const { app } = useSearchParams();
   const container = useRef<HTMLDivElement>(null);
   const called = useRef(false);
-  const { send, on } = useMessaging<
+  const { send } = useMessaging<
     GooglePayHostMessages,
     GooglePayClientMessages
   >();
@@ -36,27 +30,18 @@ export function GooglePay({ config }: GooglePayProps) {
 
     async function onLoad() {
       const paymentsClient = new google.payments.api.PaymentsClient({
-        environment:
-          import.meta.env.VITE_STAGING === "TRUE" ? "TEST" : undefined,
+        environment: config.environment,
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
-            // TODO: exchange data for encrypted payload via frontend API
             try {
               const encrypted = await exchangePaymentData(app, data);
-
-              await new Promise((resolve) => {
-                // The parent frame will send a message to the child frame when processing is done
-                on("EV_GOOGLE_PAY_AUTH_COMPLETE", resolve);
-                // Send the data up to the parent frame to process
-                send("EV_GOOGLE_PAY_AUTH", encrypted);
-              });
-
+              send("EV_GOOGLE_PAY_AUTH", encrypted);
               return { transactionState: "SUCCESS" };
-            } catch (err) {
+            } catch {
               return {
+                // TODO: allow user to return specific error messages
                 transactionState: "ERROR",
                 error: {
-                  // TODO: allow user to return specific error messages
                   intent: "PAYMENT_AUTHORIZATION",
                   message: "Insufficient funds",
                   reason: "PAYMENT_DATA_INVALID",
@@ -71,18 +56,17 @@ export function GooglePay({ config }: GooglePayProps) {
         const paymentRequest = buildPaymentRequest(config.transaction);
         await paymentsClient.isReadyToPay(paymentRequest);
         const btn = paymentsClient.createButton({
-          // TODO: Support more button config options. https://developers.google.com/pay/api/web/reference/request-objects#ButtonOptions
           buttonType: config.type || "plain",
           buttonColor: config.color || "black",
           buttonRadius: config.borderRadius || 4,
           onClick: async () => {
             try {
               await paymentsClient.loadPaymentData(paymentRequest);
-              // TODO: Fire a success event
             } catch (err) {
               if (isPaymentError(err) && err.statusCode === "CANCELED") {
-                // TODO: Fire a cancelled event
+                send("EV_GOOGLE_CANCELLED");
               } else {
+                console.error(err);
                 // TODO: Fire an error event
               }
             }
@@ -103,7 +87,7 @@ export function GooglePay({ config }: GooglePayProps) {
     script.async = true;
     script.onload = onLoad;
     document.body.appendChild(script);
-  }, []);
+  }, [app, config, send]);
 
   return <div className={css.googlePay} ref={container} />;
 }

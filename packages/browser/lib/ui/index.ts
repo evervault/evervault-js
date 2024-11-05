@@ -11,6 +11,7 @@ import type {
   FormOptions,
   ThreeDSecureOptions,
   GooglePayOptions,
+  ApplePayOptions,
 } from "types";
 import { Transaction } from "../resources/transaction";
 import GooglePay from "./googlePay";
@@ -48,7 +49,7 @@ export default class UIComponents {
     return new GooglePay(this.client, tx, opts);
   }
 
-  applePay(tx: Transaction, opts: GooglePayOptions) {
+  applePay(tx: Transaction, opts: ApplePayOptions) {
     return new ApplePay(this.client, tx, opts);
   }
 }

@@ -313,6 +313,7 @@ export default class EvervaultClient {
 
   get transactions() {
     return {
+      // TODO: Correctly type detais payload
       create: (details) => new Transaction(details),
     };
   }

@@ -214,13 +214,11 @@ export interface ThreeDSecureFrameClientMessages
 }
 
 export interface GooglePayClientMessages extends EvervaultFrameClientMessages {
-  // TODO: Correctly type payload
-  EV_GOOGLE_PAY_AUTH: any;
+  EV_GOOGLE_PAY_AUTH: EncryptedGooglePayData;
+  EV_GOOGLE_CANCELLED: undefined;
 }
 
-export interface GooglePayHostMessages extends EvervaultFrameHostMessages {
-  EV_GOOGLE_PAY_AUTH_COMPLETE: null;
-}
+export interface GooglePayHostMessages extends EvervaultFrameHostMessages {}
 
 export type GooglePayButtonType =
   | "book"
@@ -234,11 +232,42 @@ export type GooglePayButtonType =
 
 export type GooglePayButtonColor = "black" | "white";
 
+export interface EncryptedDPAN<P> {
+  token: {
+    tokenServiceProvider: P;
+    number: string;
+    expiry: {
+      month: string;
+      year: string;
+    };
+  };
+  card: {
+    brand: string;
+  };
+  cryptogram: string;
+  eci: string;
+}
+
+export interface EncryptedFPAN {
+  card: {
+    brand: string;
+    number: string;
+    expiry: {
+      month: string;
+      year: string;
+    };
+  };
+}
+
+export type EncryptedGooglePayData = EncryptedDPAN<"google"> | EncryptedFPAN;
+
 export interface GooglePayOptions {
-  process: Promise<void>;
+  process: (data: EncryptedGooglePayData) => Promise<void>;
   type?: GooglePayButtonType;
   color?: GooglePayButtonColor;
+  locale?: string;
   borderRadius?: number;
+  environment?: "TEST" | "PRODUCTION";
 }
 
 export type ApplePayButtonType =

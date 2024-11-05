@@ -26,9 +26,12 @@ const google = evervault.ui.googlePay(transaction, {
   type: "book",
   color: "white",
   process: async (data) => {
-    console.log("process called", data);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log("google process called", data);
   },
+});
+
+google.on("cancel", () => {
+  console.log("cancelled");
 });
 
 google.mount("#container");
