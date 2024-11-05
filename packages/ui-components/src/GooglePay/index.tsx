@@ -1,12 +1,11 @@
 import css from "./styles.module.css";
 import { useLayoutEffect, useRef } from "react";
 import { buildPaymentRequest, exchangePaymentData } from "./utilities";
-import { resize, setSize } from "../utilities/resize";
+import { setSize } from "../utilities/resize";
 import { GooglePayConfig } from "./types";
 import { useMessaging } from "../utilities/useMessaging";
 import { GooglePayClientMessages, GooglePayHostMessages } from "types";
 import { useSearchParams } from "../utilities/useSearchParams";
-import { values } from "eslint-config-custom";
 
 interface GooglePayProps {
   config: GooglePayConfig;

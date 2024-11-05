@@ -1,6 +1,14 @@
 import { TransactionDetails } from "types";
 
-export function buildPaymentRequest(tx: TransactionDetails) {
+declare global {
+  interface PaymentRequest {
+    onmerchantvalidation: (
+      event: ApplePayJS.ApplePayValidateMerchantEvent
+    ) => void;
+  }
+}
+
+export function buildPaymentRequest() {
   const paymentMethodData = [
     {
       supportedMethods: "https://apple.com/apple-pay",
@@ -26,14 +34,13 @@ export function buildPaymentRequest(tx: TransactionDetails) {
 
   const request = new PaymentRequest(paymentMethodData, paymentDetails);
 
-  request.onmerchantvalidation = (event) => {
-    console.log("Merchant Validation Event", event);
-    // Call your own server to request a new merchant session.
-    const merchantSessionPromise = new Promise((resolve) =>
-      setTimeout(resolve, 2000)
-    );
-    event.complete(merchantSessionPromise);
-  };
+  // request.onmerchantvalidation = (event) => {
+  // Call your own server to request a new merchant session.
+  // const merchantSessionPromise = new Promise((resolve) =>
+  //   setTimeout(resolve, 2000)
+  // );
+  // event.complete(merchantSessionPromise);
+  // };
 
   return request;
 }

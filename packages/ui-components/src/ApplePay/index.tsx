@@ -10,7 +10,13 @@ interface ApplePayProps {
 
 declare global {
   interface Window {
-    ApplePaySession: ApplePaySession;
+    ApplePaySession?: {
+      new (
+        version: number,
+        request: ApplePayJS.ApplePayPaymentRequest
+      ): ApplePaySession;
+      canMakePayments(): boolean;
+    };
   }
 }
 
@@ -35,7 +41,7 @@ export function ApplePay({ config }: ApplePayProps) {
   }, []);
 
   const handleClick = async () => {
-    const request = buildPaymentRequest(config.transaction);
+    const request = buildPaymentRequest();
     console.log(request);
     const result = await request.show();
     console.log({ result });
@@ -46,9 +52,15 @@ export function ApplePay({ config }: ApplePayProps) {
     return null;
   }
 
-  let style = {} as CSSProperties;
-  if (config.type) style["-apple-pay-button-type"] = config.type;
-  console.log("config", style);
+  const style = {
+    "--apple-pay-button-type": config.type,
+  };
 
-  return <button className="apple-pay" onClick={handleClick} style={style} />;
+  return (
+    <button
+      className="apple-pay"
+      onClick={handleClick}
+      style={style as CSSProperties}
+    />
+  );
 }
