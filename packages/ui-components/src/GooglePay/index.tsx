@@ -1,3 +1,4 @@
+import css from "./styles.module.css";
 import { useLayoutEffect, useRef } from "react";
 import { buildPaymentRequest, exchangePaymentData } from "./utilities";
 import { resize } from "../utilities/resize";
@@ -70,6 +71,9 @@ export function GooglePay({ config }: GooglePayProps) {
         await paymentsClient.isReadyToPay(paymentRequest);
         const btn = paymentsClient.createButton({
           // TODO: Support more button config options. https://developers.google.com/pay/api/web/reference/request-objects#ButtonOptions
+          buttonType: config.type || "plain",
+          buttonColor: config.color || "black",
+          buttonRadius: config.borderRadius || 4,
           onClick: async () => {
             try {
               await paymentsClient.loadPaymentData(paymentRequest);
@@ -100,5 +104,5 @@ export function GooglePay({ config }: GooglePayProps) {
     document.body.appendChild(script);
   }, []);
 
-  return <div ref={container} />;
+  return <div className={css.googlePay} ref={container} />;
 }

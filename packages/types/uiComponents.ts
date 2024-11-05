@@ -222,12 +222,47 @@ export interface GooglePayHostMessages extends EvervaultFrameHostMessages {
   EV_GOOGLE_PAY_AUTH_COMPLETE: null;
 }
 
+export type GooglePayButtonType =
+  | "book"
+  | "buy"
+  | "checkout"
+  | "donate"
+  | "order"
+  | "pay"
+  | "plain"
+  | "subscribe";
+
+export type GooglePayButtonColor = "black" | "white";
+
 export interface GooglePayOptions {
   process: Promise<void>;
+  type?: GooglePayButtonType;
+  color?: GooglePayButtonColor;
+  borderRadius?: number;
 }
+
+export type ApplePayButtonType =
+  | "add-money"
+  | "book"
+  | "buy"
+  | "check-out"
+  | "continue"
+  | "contribute"
+  | "donate"
+  | "order"
+  | "pay"
+  | "plain"
+  | "reload"
+  | "rent"
+  | "set-up"
+  | "subscribe"
+  | "support"
+  | "tip"
+  | "top-up";
 
 export interface ApplePayOptions {
   process: Promise<void>;
+  type?: ApplePayButtonType;
 }
 
 export interface TransactionDetails {

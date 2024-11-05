@@ -33,6 +33,9 @@ export default class GooglePay {
     return {
       config: {
         transaction: this.#transaction.details,
+        type: this.#options.type,
+        color: this.#options.color,
+        borderRadius: this.#options.borderRadius,
       },
     };
   }

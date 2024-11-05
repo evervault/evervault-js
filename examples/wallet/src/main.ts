@@ -23,6 +23,8 @@ const transaction = evervault.transactions.create({
 });
 
 const google = evervault.ui.googlePay(transaction, {
+  type: "book",
+  color: "white",
   process: async (data) => {
     console.log("process called", data);
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -32,6 +34,7 @@ const google = evervault.ui.googlePay(transaction, {
 google.mount("#container");
 
 const apple = evervault.ui.applePay(transaction, {
+  type: "rent",
   process: async (data) => {
     console.log("apple pay process called", data);
     await new Promise((resolve) => setTimeout(resolve, 1000));

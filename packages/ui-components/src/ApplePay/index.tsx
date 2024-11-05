@@ -1,5 +1,5 @@
 import "./styles.css";
-import { useLayoutEffect, useRef } from "react";
+import { CSSProperties, useLayoutEffect, useRef } from "react";
 import { ApplePayConfig } from "./types";
 import { resize } from "../utilities/resize";
 import { buildPaymentRequest } from "./utilities";
@@ -46,5 +46,9 @@ export function ApplePay({ config }: ApplePayProps) {
     return null;
   }
 
-  return <button className="apple-pay" onClick={handleClick} />;
+  let style = {} as CSSProperties;
+  if (config.type) style["-apple-pay-button-type"] = config.type;
+  console.log("config", style);
+
+  return <button className="apple-pay" onClick={handleClick} style={style} />;
 }

@@ -32,6 +32,7 @@ export default class ApplePay {
   get config() {
     return {
       config: {
+        type: this.#options.type,
         transaction: this.#transaction.details,
       },
     };
