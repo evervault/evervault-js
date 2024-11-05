@@ -218,7 +218,9 @@ export interface GooglePayClientMessages extends EvervaultFrameClientMessages {
   EV_GOOGLE_CANCELLED: undefined;
 }
 
-export interface GooglePayHostMessages extends EvervaultFrameHostMessages {}
+export interface GooglePayHostMessages extends EvervaultFrameHostMessages {
+  EV_GOOGLE_PAY_AUTH_RESPONSE: undefined;
+}
 
 export type GooglePayButtonType =
   | "book"
