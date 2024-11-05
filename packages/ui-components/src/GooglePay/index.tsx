@@ -36,7 +36,8 @@ export function GooglePay({ config }: GooglePayProps) {
 
     async function onLoad() {
       const paymentsClient = new google.payments.api.PaymentsClient({
-        environment: "TEST", // TODO: remove TEST environment
+        environment:
+          import.meta.env.VITE_STAGING === "TRUE" ? "TEST" : undefined,
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
             // TODO: exchange data for encrypted payload via frontend API

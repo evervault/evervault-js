@@ -24,7 +24,9 @@ export function buildPaymentRequest(
           type: "PAYMENT_GATEWAY",
           parameters: {
             gateway: "evervault",
-            gatewayMerchantId: "googletest",
+            gatewayMerchantId: import.meta.env.VITE_STAGING
+              ? "googletest"
+              : "google",
           },
         },
       },
