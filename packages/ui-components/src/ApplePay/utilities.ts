@@ -1,5 +1,3 @@
-import { TransactionDetails } from "types";
-
 declare global {
   interface PaymentRequest {
     onmerchantvalidation: (

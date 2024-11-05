@@ -11,8 +11,10 @@ interface GooglePayProps {
   config: GooglePayConfig;
 }
 
-function isPaymentError(err: any): err is google.payments.api.PaymentsError {
-  return err.hasOwnProperty("statusCode");
+function isPaymentError(
+  err: unknown
+): err is google.payments.api.PaymentsError {
+  return Boolean((err as google.payments.api.PaymentsError).statusCode);
 }
 
 export function GooglePay({ config }: GooglePayProps) {
