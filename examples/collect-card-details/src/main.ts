@@ -29,6 +29,22 @@ card.on("validate", (values) => {
   console.log("validate", values);
 });
 
+card.on("blur", (field) => {
+  console.log("blur", field);
+});
+
+card.on("focus", (field) => {
+  console.log("focus", field);
+});
+
+card.on("keyup", (field) => {
+  console.log("keyup", field);
+});
+
+card.on("keydown", (field) => {
+  console.log("keydown", field);
+});
+
 card.mount("#form");
 
 const btn = document.getElementById("purchase");

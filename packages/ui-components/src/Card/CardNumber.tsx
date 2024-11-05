@@ -9,6 +9,9 @@ interface CardNumberProps {
   autoFocus?: boolean;
   onChange: (v: string) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
+  onFocus?: (e: FocusEvent<HTMLInputElement>) => void;
+  onKeyUp?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   placeholder: string;
   value: string;
   readOnly?: boolean;
@@ -33,6 +36,9 @@ export function CardNumber({
   readOnly,
   autoComplete,
   autoProgress,
+  onFocus,
+  onKeyUp,
+  onKeyDown,
 }: CardNumberProps) {
   const ref = useRef<HTMLInputElement>(null);
 
@@ -102,6 +108,9 @@ export function CardNumber({
       placeholder={placeholder}
       pattern="[0-9]*"
       autoComplete={autoComplete ? "billing cc-number" : "off"}
+      onFocus={onFocus}
+      onKeyUp={onKeyUp}
+      onKeyDown={onKeyDown}
     />
   );
 }

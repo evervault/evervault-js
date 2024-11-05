@@ -9,7 +9,10 @@ export interface UseFormReturn<T> {
   isValid: boolean;
   validate: (cb?: ValidationCallback<T>) => void;
   register: <K extends keyof T>(
-    name: K
+    name: K,
+    events?: {
+      onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+    }
   ) => {
     onChange: (value: T[K]) => void;
     //TODO(Mark): Replace with union of React.FocusEvent<HTMLInputElement> and native event
@@ -155,9 +158,15 @@ export function useForm<T extends object>({
   );
 
   const register = useCallback(
-    <K extends keyof T>(name: K) => {
-      const handleBlur = () => {
+    <K extends keyof T>(
+      name: K,
+      events?: {
+        onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+      }
+    ) => {
+      const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
         validateField(name);
+        events?.onBlur?.(e);
       };
 
       const handleChange = (value: T[K]) => {
