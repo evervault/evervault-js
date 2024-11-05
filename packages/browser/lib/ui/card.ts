@@ -8,7 +8,13 @@ import type {
   CardFrameClientMessages,
   CardFrameHostMessages,
   SelectorType,
+  CardField,
 } from "types";
+
+type FieldEvent = {
+  field: CardField;
+  data: CardPayload;
+};
 
 interface CardEvents {
   ready: () => void;
@@ -17,6 +23,10 @@ interface CardEvents {
   complete: (payload: CardPayload) => void;
   swipe: (payload: SwipedCard) => void;
   validate: (payload: CardPayload) => void;
+  focus: (event: FieldEvent) => void;
+  blur: (event: FieldEvent) => void;
+  keydown: (event: FieldEvent) => void;
+  keyup: (event: FieldEvent) => void;
 }
 
 export default class Card {
@@ -47,6 +57,34 @@ export default class Card {
 
     this.#frame.on("EV_FRAME_READY", () => {
       this.#events.dispatch("ready");
+    });
+
+    this.#frame.on("EV_FOCUS", (field) => {
+      this.#events.dispatch("focus", {
+        field,
+        data: this.values,
+      });
+    });
+
+    this.#frame.on("EV_BLUR", (field) => {
+      this.#events.dispatch("blur", {
+        field,
+        data: this.values,
+      });
+    });
+
+    this.#frame.on("EV_KEYDOWN", (field) => {
+      this.#events.dispatch("keydown", {
+        field,
+        data: this.values,
+      });
+    });
+
+    this.#frame.on("EV_KEYUP", (field) => {
+      this.#events.dispatch("keyup", {
+        field,
+        data: this.values,
+      });
     });
 
     this.values = {

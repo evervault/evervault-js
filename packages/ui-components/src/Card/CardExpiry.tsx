@@ -6,6 +6,9 @@ import type { CardForm } from "./types";
 interface CardExpiryProps {
   onChange: (value: CardForm["expiry"]) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
+  onFocus?: (e: FocusEvent<HTMLInputElement>) => void;
+  onKeyUp?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   disabled: boolean;
   placeholder?: string;
   value: string;
@@ -41,6 +44,9 @@ export function CardExpiry({
   readOnly,
   autoComplete,
   autoProgress,
+  onFocus,
+  onKeyUp,
+  onKeyDown,
 }: CardExpiryProps) {
   const ref = useRef<HTMLInputElement>(null);
   const { setValue, mask } = useMask(ref, onChange, {
@@ -74,6 +80,9 @@ export function CardExpiry({
       inputMode="numeric"
       autoComplete={autoComplete ? "billing cc-exp" : "off"}
       readOnly={readOnly}
+      onFocus={onFocus}
+      onKeyUp={onKeyUp}
+      onKeyDown={onKeyDown}
     />
   );
 }

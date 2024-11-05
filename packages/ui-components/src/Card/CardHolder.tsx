@@ -5,6 +5,9 @@ interface CardHolderProps {
   autoFocus?: boolean;
   onChange: (v: string) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
+  onFocus?: (e: FocusEvent<HTMLInputElement>) => void;
+  onKeyUp?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   placeholder: string;
   value: string;
   readOnly?: boolean;
@@ -16,6 +19,9 @@ export function CardHolder({
   disabled,
   onChange,
   onBlur,
+  onFocus,
+  onKeyUp,
+  onKeyDown,
   placeholder,
   value,
   readOnly,
@@ -34,6 +40,9 @@ export function CardHolder({
       placeholder={placeholder}
       autoComplete={autoComplete ? "billing cc-name" : "off"}
       onChange={(e) => onChange(e.target.value)}
+      onFocus={onFocus}
+      onKeyUp={onKeyUp}
+      onKeyDown={onKeyDown}
     />
   );
 }
