@@ -13,6 +13,7 @@ import {
 } from "./utils";
 import type { InputSettings, RevealSettings } from "./types";
 import { Transaction } from "./resources/transaction";
+import { TransactionDetails } from "types";
 
 export type * from "types";
 export type * from "./config";
@@ -313,8 +314,7 @@ export default class EvervaultClient {
 
   get transactions() {
     return {
-      // TODO: Correctly type detais payload
-      create: (details) => new Transaction(details),
+      create: (details: TransactionDetails) => new Transaction(details),
     };
   }
 }

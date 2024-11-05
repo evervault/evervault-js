@@ -132,7 +132,7 @@ export interface ComponentError {
 
 export interface EvervaultFrameClientMessages {
   EV_ERROR: ComponentError | undefined;
-  EV_RESIZE: { height: number };
+  EV_RESIZE: { height: number; width?: number };
   EV_FRAME_READY: undefined;
   EV_FRAME_HANDSHAKE: undefined;
 }
