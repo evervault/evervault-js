@@ -8,13 +8,8 @@ import type {
   CardFrameClientMessages,
   CardFrameHostMessages,
   SelectorType,
-  CardField,
+  FieldEvent,
 } from "types";
-
-type FieldEvent = {
-  field: CardField;
-  data: CardPayload;
-};
 
 interface CardEvents {
   ready: () => void;

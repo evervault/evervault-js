@@ -70,6 +70,11 @@ export interface CardPayload {
 
 export type CardField = "name" | "number" | "expiry" | "cvc";
 
+export interface FieldEvent {
+  field: CardField;
+  data: CardPayload;
+}
+
 interface CardFieldTranslations<E extends TranslationsObject>
   extends TranslationsObject {
   label?: string;

@@ -9,6 +9,7 @@ import type {
   CardOptions,
   CardPayload,
   CardTranslations,
+  FieldEvent,
   SwipedCard,
   ThemeDefinition,
 } from "types";
@@ -28,6 +29,10 @@ export interface CardProps {
   autoProgress?: boolean;
   acceptedBrands?: CardBrandName[];
   defaultValues?: { name?: string };
+  onFocus?: (event: FieldEvent) => void;
+  onBlur?: (event: FieldEvent) => void;
+  onKeyUp?: (event: FieldEvent) => void;
+  onKeyDown?: (event: FieldEvent) => void;
 }
 
 type CardClass = ReturnType<Evervault["ui"]["card"]>;
@@ -43,6 +48,10 @@ export function Card({
   onError,
   onChange,
   onComplete,
+  onFocus,
+  onBlur,
+  onKeyUp,
+  onKeyDown,
   autoComplete,
   autoProgress,
   acceptedBrands,
@@ -82,6 +91,30 @@ export function Card({
     if (!instance || !onComplete) return undefined;
     return instance?.on("complete", onComplete);
   }, [instance, onComplete]);
+
+  // setup focus event listener
+  useEffect(() => {
+    if (!instance || !onFocus) return undefined;
+    return instance?.on("focus", onFocus);
+  }, [instance, onFocus]);
+
+  // setup blur event listener
+  useEffect(() => {
+    if (!instance || !onBlur) return undefined;
+    return instance?.on("blur", onBlur);
+  }, [instance, onBlur]);
+
+  // setup keyup event listener
+  useEffect(() => {
+    if (!instance || !onKeyUp) return undefined;
+    return instance?.on("keyup", onKeyUp);
+  }, [instance, onKeyUp]);
+
+  // setup keydown event listener
+  useEffect(() => {
+    if (!instance || !onKeyDown) return undefined;
+    return instance?.on("keydown", onKeyDown);
+  }, [instance, onKeyDown]);
 
   const config = useMemo(
     () => ({
