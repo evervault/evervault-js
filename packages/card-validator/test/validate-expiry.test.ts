@@ -1,4 +1,4 @@
-import { describe, assert, it, beforeEach, expect } from "vitest";
+import { describe, it, expect } from "vitest";
 import { validateExpiry } from "../index";
 import { CardExpiryValidationResult } from "../types";
 
@@ -20,18 +20,28 @@ const testCases: TestCase[] = [
     expectedResult: { month: null, year: null, isValid: false },
   },
   {
+    scope: "Just month",
+    expiry: "12",
+    expectedResult: { month: "12", year: null, isValid: false },
+  },
+  {
     scope: "Invalid year",
     expiry: "122",
-    expectedResult: { month: null, year: null, isValid: false },
+    expectedResult: { month: "12", year: null, isValid: false },
   },
   {
     scope: "Previous year",
     expiry: "1220",
-    expectedResult: { month: null, year: null, isValid: false },
+    expectedResult: { month: "12", year: "20", isValid: false },
   },
   {
     scope: "Invalid format",
     expiry: "12/20",
+    expectedResult: { month: "12", year: null, isValid: false },
+  },
+  {
+    scope: "Invalid input",
+    expiry: "  ",
     expectedResult: { month: null, year: null, isValid: false },
   },
 ];
