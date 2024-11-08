@@ -278,6 +278,8 @@ export interface GooglePayOptions {
   borderRadius?: number;
   environment?: "TEST" | "PRODUCTION";
   size?: { width: string; height: string };
+  allowedAuthMethods?: string[];
+  allowedCardNetworks?: string[];
 }
 
 export type ApplePayButtonType =

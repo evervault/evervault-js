@@ -11,4 +11,6 @@ export interface GooglePayConfig {
   locale?: string;
   borderRadius: number;
   environment: "TEST" | "PRODUCTION";
+  allowedAuthMethods?: string[];
+  allowedCardNetworks?: string[];
 }

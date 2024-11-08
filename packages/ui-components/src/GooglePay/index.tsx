@@ -55,7 +55,7 @@ export function GooglePay({ config }: GooglePayProps) {
       });
 
       try {
-        const paymentRequest = buildPaymentRequest(config.transaction);
+        const paymentRequest = buildPaymentRequest(config);
         await paymentsClient.isReadyToPay(paymentRequest);
         const btn = paymentsClient.createButton({
           buttonType: config.type || "plain",

@@ -1,8 +1,11 @@
-import { EncryptedGooglePayData, TransactionDetails } from "types";
+import { EncryptedGooglePayData } from "types";
+import { GooglePayConfig } from "./types";
 
 export function buildPaymentRequest(
-  tx: TransactionDetails
+  config: GooglePayConfig
 ): google.payments.api.PaymentDataRequest {
+  const tx = config.transaction;
+
   return {
     apiVersion: 2,
     apiVersionMinor: 0,
@@ -10,15 +13,20 @@ export function buildPaymentRequest(
       {
         type: "CARD",
         parameters: {
-          allowedAuthMethods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
-          allowedCardNetworks: [
-            "AMEX",
-            "DISCOVER",
-            "INTERAC",
-            "JCB",
-            "MASTERCARD",
-            "VISA",
-          ],
+          allowedAuthMethods:
+            (config.allowedAuthMethods as google.payments.api.CardAuthMethod[]) || [
+              "PAN_ONLY",
+              "CRYPTOGRAM_3DS",
+            ],
+          allowedCardNetworks:
+            (config.allowedCardNetworks as google.payments.api.CardNetwork[]) || [
+              "AMEX",
+              "DISCOVER",
+              "INTERAC",
+              "JCB",
+              "MASTERCARD",
+              "VISA",
+            ],
         },
         tokenizationSpecification: {
           type: "PAYMENT_GATEWAY",
