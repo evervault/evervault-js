@@ -219,7 +219,8 @@ export interface GooglePayClientMessages extends EvervaultFrameClientMessages {
 }
 
 export interface GooglePayHostMessages extends EvervaultFrameHostMessages {
-  EV_GOOGLE_PAY_AUTH_RESPONSE: undefined;
+  EV_GOOGLE_PAY_AUTH_COMPLETE: undefined;
+  EV_GOOGLE_PAY_AUTH_ERROR: google.payments.api.PaymentDataError;
 }
 
 export type EncryptedApplePayData = EncryptedDPAN<"apple">;
@@ -271,7 +272,12 @@ export interface EncryptedFPAN {
 export type EncryptedGooglePayData = EncryptedDPAN<"google"> | EncryptedFPAN;
 
 export interface GooglePayOptions {
-  process: (data: EncryptedGooglePayData) => Promise<void>;
+  process: (
+    data: EncryptedGooglePayData,
+    helpers: {
+      fail: (error: google.payments.api.PaymentDataError) => void;
+    }
+  ) => Promise<void>;
   type?: GooglePayButtonType;
   color?: GooglePayButtonColor;
   locale?: string;

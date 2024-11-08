@@ -27,8 +27,16 @@ const transaction = evervault.transactions.create({
 const google = evervault.ui.googlePay(transaction, {
   type: "book",
   color: "white",
-  process: async (data) => {
+  allowedAuthMethods: ["PAN_ONLY"],
+  allowedCardNetworks: ["MASTERCARD", "VISA"],
+  process: async (data, { fail }) => {
     console.log("google process called", data);
+
+    fail({
+      reason: "PAYMENT_DATA_INVALID",
+      message: "Cannot pay with payment credentials",
+      intent: "PAYMENT_AUTHORIZATION",
+    });
   },
 });
 

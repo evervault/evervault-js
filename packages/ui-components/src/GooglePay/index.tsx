@@ -21,7 +21,7 @@ export function GooglePay({ config }: GooglePayProps) {
   const { app } = useSearchParams();
   const container = useRef<HTMLDivElement>(null);
   const called = useRef(false);
-  const { send } = useMessaging<
+  const { send, on } = useMessaging<
     GooglePayHostMessages,
     GooglePayClientMessages
   >();
@@ -35,21 +35,22 @@ export function GooglePay({ config }: GooglePayProps) {
         environment: config.environment,
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
-            try {
-              const encrypted = await exchangePaymentData(app, data);
+            const encrypted = await exchangePaymentData(app, data);
+
+            return new Promise((resolve) => {
+              on("EV_GOOGLE_PAY_AUTH_COMPLETE", () => {
+                resolve({ transactionState: "SUCCESS" });
+              });
+
+              on("EV_GOOGLE_PAY_AUTH_ERROR", (error) => {
+                resolve({
+                  transactionState: "ERROR",
+                  error,
+                });
+              });
+
               send("EV_GOOGLE_PAY_AUTH", encrypted);
-              return { transactionState: "SUCCESS" };
-            } catch {
-              return {
-                // TODO: allow user to return specific error messages
-                transactionState: "ERROR",
-                error: {
-                  intent: "PAYMENT_AUTHORIZATION",
-                  message: "Insufficient funds",
-                  reason: "PAYMENT_DATA_INVALID",
-                },
-              };
-            }
+            });
           },
         },
       });

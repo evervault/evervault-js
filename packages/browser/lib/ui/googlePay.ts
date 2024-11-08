@@ -40,7 +40,24 @@ export default class GooglePay {
     });
 
     this.#frame.on("EV_GOOGLE_PAY_AUTH", async (payload) => {
-      await this.#options.process(payload);
+      try {
+        let failed = false;
+        await this.#options.process(payload, {
+          fail: (err: google.payments.api.PaymentDataError) => {
+            failed = true;
+            this.#frame.send("EV_GOOGLE_PAY_AUTH_ERROR", err);
+          },
+        });
+
+        if (failed) return;
+        this.#frame.send("EV_GOOGLE_PAY_AUTH_COMPLETE");
+      } catch {
+        this.#frame.send("EV_GOOGLE_PAY_AUTH_ERROR", {
+          reason: "PAYMENT_DATA_INVALID",
+          message: "Something went wrong, please try again",
+          intent: "PAYMENT_AUTHORIZATION",
+        });
+      }
     });
 
     this.#frame.on("EV_GOOGLE_CANCELLED", () => {
@@ -71,15 +88,6 @@ export default class GooglePay {
       },
     });
 
-    return this;
-  }
-
-  update(options?: GooglePayOptions) {
-    if (options) {
-      this.#options = { ...this.#options, ...options };
-    }
-
-    this.#frame.update(this.config);
     return this;
   }
 
