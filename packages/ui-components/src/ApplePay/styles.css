@@ -8,6 +8,8 @@ apple-pay-button {
 
 .apple-pay {
   display: inline-block;
-  -webkit-appearance: -apple-pay-button;
-  /* -apple-pay-button-type: donate; */
+  appearance: -apple-pay-button;
+  border-radius: calc(var(--border-radius) * 1px);
+  --apple-pay-button-type: var(--type);
+  --apple-pay-button-style: var(--style);
 }

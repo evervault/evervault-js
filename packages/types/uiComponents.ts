@@ -270,6 +270,7 @@ export interface GooglePayOptions {
   locale?: string;
   borderRadius?: number;
   environment?: "TEST" | "PRODUCTION";
+  size?: { width: string; height: string };
 }
 
 export type ApplePayButtonType =
@@ -291,9 +292,15 @@ export type ApplePayButtonType =
   | "tip"
   | "top-up";
 
+export type ApplePayButtonStyle = "black" | "white" | "white-outline";
+
 export interface ApplePayOptions {
   process: Promise<void>;
   type?: ApplePayButtonType;
+  style?: ApplePayButtonStyle;
+  padding?: string;
+  borderRadius?: number;
+  size?: { width: string; height: string };
 }
 
 export interface TransactionDetails {
@@ -303,5 +310,6 @@ export interface TransactionDetails {
   merchant: {
     id: string;
     name: string;
+    applePayIdentifier?: string;
   };
 }

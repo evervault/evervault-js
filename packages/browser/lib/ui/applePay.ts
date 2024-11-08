@@ -17,22 +17,24 @@ export default class ApplePay {
   ) {
     this.#options = options;
     this.#transaction = transaction;
-    this.#frame = new EvervaultFrame(client, "ApplePay");
+    this.#frame = new EvervaultFrame(client, "ApplePay", {
+      size: options.size ?? {
+        width: "250px",
+        height: "45px",
+      },
+    });
 
     this.#frame.on("EV_FRAME_READY", () => {
       this.#events.dispatch("ready");
     });
-    //
-    // this.#frame.on("EV_GOOGLE_PAY_AUTH", async (payload) => {
-    //   await this.#options.process(payload);
-    //   this.#frame.send("EV_GOOGLE_PAY_AUTH_COMPLETE");
-    // });
   }
 
   get config() {
     return {
       config: {
         type: this.#options.type,
+        style: this.#options.style,
+        borderRadius: this.#options.borderRadius,
         transaction: this.#transaction.details,
       },
     };

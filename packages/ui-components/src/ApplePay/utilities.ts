@@ -1,44 +1,39 @@
-declare global {
-  interface PaymentRequest {
-    onmerchantvalidation: (
-      event: ApplePayJS.ApplePayValidateMerchantEvent
-    ) => void;
-  }
-}
+import { TransactionDetails } from "types";
 
-export function buildPaymentRequest() {
-  const paymentMethodData = [
-    {
-      supportedMethods: "https://apple.com/apple-pay",
-      data: {
-        version: 3,
-        merchantIdentifier: "merchant.com.apdemo",
-        merchantCapabilities: ["supports3DS"],
-        supportedNetworks: ["amex", "discover", "masterCard", "visa"],
-        countryCode: "US",
-      },
-    },
-  ];
-  // Define PaymentDetails
-  const paymentDetails = {
+export function buildPaymentRequest(tx: TransactionDetails) {
+  const request = {
+    countryCode: tx.country,
+    currencyCode: tx.currency,
+    merchantCapabilities: ["supports3DS"],
+    supportedNetworks: ["visa", "masterCard", "amex", "discover"],
     total: {
       label: "Demo (Card is not charged)",
-      amount: {
-        value: "27.50",
-        currency: "USD",
-      },
+      type: "final",
+      amount: "1.99",
     },
   };
 
-  const request = new PaymentRequest(paymentMethodData, paymentDetails);
+  const session = new ApplePaySession(3, request);
 
-  // request.onmerchantvalidation = (event) => {
-  // Call your own server to request a new merchant session.
-  // const merchantSessionPromise = new Promise((resolve) =>
-  //   setTimeout(resolve, 2000)
-  // );
-  // event.complete(merchantSessionPromise);
-  // };
+  session.onmerchantvalidation = (event) => {
+    const response = fetch(
+      "https://api-donaltuohy.ngrok.app/frontend/apple-pay/merchant-session",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Evervault-App-Id": "app_8f3dc605aa5d",
+        },
+        body: JSON.stringify({
+          merchantUuid: "merchant_8f3dc605aa5d",
+          domain: "donaltuohy.ngrok.app",
+        }),
+      }
+    );
 
-  return request;
+    const { sessionData } = response.json();
+    event.completeMerchantValidation(sessionData);
+  };
+
+  return session;
 }

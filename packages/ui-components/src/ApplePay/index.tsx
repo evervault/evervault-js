@@ -1,7 +1,7 @@
 import "./styles.css";
 import { CSSProperties, useLayoutEffect, useRef } from "react";
 import { ApplePayConfig } from "./types";
-import { resize } from "../utilities/resize";
+import { resize, setSize } from "../utilities/resize";
 import { buildPaymentRequest } from "./utilities";
 
 interface ApplePayProps {
@@ -21,6 +21,7 @@ declare global {
 }
 
 export function ApplePay({ config }: ApplePayProps) {
+  const button = useRef<HTMLButtonElement>(null);
   const initialized = useRef(false);
 
   useLayoutEffect(() => {
@@ -29,6 +30,10 @@ export function ApplePay({ config }: ApplePayProps) {
 
     const handleLoad = () => {
       resize();
+      setSize({
+        width: button.current?.offsetWidth || 0,
+        height: button.current?.offsetHeight || 0,
+      });
     };
 
     const script = document.createElement("script");
@@ -41,10 +46,8 @@ export function ApplePay({ config }: ApplePayProps) {
   }, []);
 
   const handleClick = async () => {
-    const request = buildPaymentRequest();
-    console.log(request);
-    const result = await request.show();
-    console.log({ result });
+    const session = buildPaymentRequest(config.transaction);
+    session.begin();
   };
 
   // device does not support Apple Pay
@@ -52,12 +55,23 @@ export function ApplePay({ config }: ApplePayProps) {
     return null;
   }
 
+  if (!config.transaction.merchant.applePayIdentifier) {
+    throw new Error(
+      "Apple Pay Merchant Identifier not found, please set merchant.applePayIdentifier on the transaction"
+    );
+  }
+
   const style = {
-    "--apple-pay-button-type": config.type,
+    "--type": config.type,
+    "--style": config.style,
+    "--border-radius": config.borderRadius || 4,
+    width: "100%",
+    height: "100%",
   };
 
   return (
     <button
+      ref={button}
       className="apple-pay"
       onClick={handleClick}
       style={style as CSSProperties}

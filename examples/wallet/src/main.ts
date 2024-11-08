@@ -13,12 +13,13 @@ const evervault = new window.Evervault(
 );
 
 const transaction = evervault.transactions.create({
-  amount: 1000,
+  amount: 100,
   currency: "USD",
   country: "US",
   merchant: {
     id: "12345678901234567890",
     name: "Test Merchant",
+    applePayIdentifier: "donaltuohy.ngrok.app",
   },
 });
 
@@ -38,6 +39,7 @@ google.mount("#container");
 
 const apple = evervault.ui.applePay(transaction, {
   type: "rent",
+  style: "black",
   process: async (data) => {
     console.log("apple pay process called", data);
     await new Promise((resolve) => setTimeout(resolve, 1000));

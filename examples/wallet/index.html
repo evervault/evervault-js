@@ -5,16 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Load Evervault.js -->
     <script src="%VITE_EVERVAULT_JS_URL%"></script>
+
+    <style>
+      #container {
+        gap: 20px;
+        display: flex;
+      }
+    </style>
+    <title>Evervault</title>
   </head>
 
   <body>
-    <div id="container">
-      <!-- <apple-pay-button -->
-      <!--   buttonStyle="black" -->
-      <!--   type="check-out" -->
-      <!--   locale="en" -->
-      <!-- ></apple-pay-button> -->
-    </div>
+    <div id="container"></div>
 
     <script type="module" src="./src/main.ts"></script>
   </body>
