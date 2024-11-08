@@ -222,6 +222,13 @@ export interface GooglePayHostMessages extends EvervaultFrameHostMessages {
   EV_GOOGLE_PAY_AUTH_RESPONSE: undefined;
 }
 
+export type EncryptedApplePayData = EncryptedDPAN<"apple">;
+
+export interface ApplePayClientMessages extends EvervaultFrameClientMessages {
+  EV_APPLE_PAY_AUTH: EncryptedApplePayData;
+  EV_APPLE_PAY_CANCELLED: undefined;
+}
+
 export type GooglePayButtonType =
   | "book"
   | "buy"
@@ -295,7 +302,7 @@ export type ApplePayButtonType =
 export type ApplePayButtonStyle = "black" | "white" | "white-outline";
 
 export interface ApplePayOptions {
-  process: Promise<void>;
+  process: (data: EncryptedApplePayData) => Promise<void>;
   type?: ApplePayButtonType;
   style?: ApplePayButtonStyle;
   padding?: string;
@@ -310,6 +317,7 @@ export interface TransactionDetails {
   merchant: {
     id: string;
     name: string;
+    evervaultId?: string;
     applePayIdentifier?: string;
   };
 }

@@ -11,3 +11,8 @@ export interface ApplePayConfig {
   padding?: string;
   borderRadius?: number;
 }
+
+export interface ValidateMerchantResponse {
+  // TODO: Type this response correctly.
+  sessionData: unknown;
+}

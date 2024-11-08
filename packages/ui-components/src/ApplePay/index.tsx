@@ -2,7 +2,14 @@ import "./styles.css";
 import { CSSProperties, useLayoutEffect, useRef } from "react";
 import { ApplePayConfig } from "./types";
 import { resize, setSize } from "../utilities/resize";
-import { buildPaymentRequest } from "./utilities";
+import { buildSession } from "./utilities";
+import { useSearchParams } from "../utilities/useSearchParams";
+import { useMessaging } from "../utilities/useMessaging";
+import {
+  ApplePayClientMessages,
+  EncryptedApplePayData,
+  EvervaultFrameHostMessages,
+} from "types";
 
 interface ApplePayProps {
   config: ApplePayConfig;
@@ -21,8 +28,13 @@ declare global {
 }
 
 export function ApplePay({ config }: ApplePayProps) {
+  const { app } = useSearchParams();
   const button = useRef<HTMLButtonElement>(null);
   const initialized = useRef(false);
+  const { send } = useMessaging<
+    EvervaultFrameHostMessages,
+    ApplePayClientMessages
+  >();
 
   useLayoutEffect(() => {
     if (initialized.current) return;
@@ -46,7 +58,18 @@ export function ApplePay({ config }: ApplePayProps) {
   }, []);
 
   const handleClick = async () => {
-    const session = buildPaymentRequest(config.transaction);
+    const session = buildSession(app, config.transaction);
+
+    session.oncancel = () => {
+      send("EV_APPLE_PAY_CANCELLED");
+    };
+
+    session.onpaymentauthorized = async () => {
+      // TODO: Exchange data for EV data
+      const data: EncryptedApplePayData = {} as EncryptedApplePayData;
+      send("EV_APPLE_PAY_AUTH", data);
+    };
+
     session.begin();
   };
 

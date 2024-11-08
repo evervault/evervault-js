@@ -1,14 +1,25 @@
 import EventManager from "./eventManager";
 import { EvervaultFrame } from "./evervaultFrame";
 import type EvervaultClient from "../main";
-import type { SelectorType, ApplePayOptions } from "types";
+import type {
+  SelectorType,
+  ApplePayOptions,
+  EvervaultFrameHostMessages,
+  ApplePayClientMessages,
+} from "types";
 import { Transaction } from "../resources/transaction";
+
+interface ApplePayEvents {
+  ready: () => void;
+  error: () => void;
+  cancel: () => void;
+}
 
 export default class ApplePay {
   #transaction: Transaction;
   #options: ApplePayOptions;
-  #frame: EvervaultFrame;
-  #events = new EventManager();
+  #frame: EvervaultFrame<ApplePayClientMessages, EvervaultFrameHostMessages>;
+  #events = new EventManager<ApplePayEvents>();
 
   constructor(
     client: EvervaultClient,
@@ -26,6 +37,14 @@ export default class ApplePay {
 
     this.#frame.on("EV_FRAME_READY", () => {
       this.#events.dispatch("ready");
+    });
+
+    this.#frame.on("EV_APPLE_PAY_AUTH", async (payload) => {
+      await this.#options.process(payload);
+    });
+
+    this.#frame.on("EV_APPLE_PAY_CANCELLED", () => {
+      this.#events.dispatch("cancel");
     });
   }
 
@@ -64,5 +83,9 @@ export default class ApplePay {
   unmount() {
     this.#frame.unmount();
     return this;
+  }
+
+  on<T extends keyof ApplePayEvents>(event: T, callback: ApplePayEvents[T]) {
+    return this.#events.on(event, callback);
   }
 }
