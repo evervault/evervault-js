@@ -35,7 +35,7 @@ export function GooglePay({ config }: GooglePayProps) {
         environment: config.environment,
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
-            const encrypted = await exchangePaymentData(app, data);
+            const encrypted = await exchangePaymentData(app, data, config.transaction.merchant.id);
 
             return new Promise((resolve) => {
               on("EV_GOOGLE_PAY_AUTH_COMPLETE", () => {

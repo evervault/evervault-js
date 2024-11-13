@@ -32,8 +32,7 @@ export function buildPaymentRequest(
           type: "PAYMENT_GATEWAY",
           parameters: {
             gateway: "evervault",
-            gatewayMerchantId:
-              import.meta.env.VITE_STAGING === "true" ? "googletest" : "google",
+            gatewayMerchantId: tx.merchant.id
           },
         },
       },
@@ -57,15 +56,22 @@ const API = import.meta.env.VITE_API_URL as string;
 
 export async function exchangePaymentData(
   app: string,
-  paymentData: google.payments.api.PaymentData
+  paymentData: google.payments.api.PaymentData,
+  merchantId: string
 ): Promise<EncryptedGooglePayData> {
+  const token = JSON.parse(paymentData.paymentMethodData.tokenizationData.token);
+  const requestBody = {
+    token,
+    merchantId,
+  };
+  console.log("exchanging google pay encrypted data for evervault encrypted data", requestBody);
   const response = await fetch(`${API}/frontend/google-pay/credentials`, {
     method: "POST",
     headers: {
       "x-Evervault-App-Id": app,
       "Content-Type": "application/json",
     },
-    body: paymentData.paymentMethodData.tokenizationData.token,
+    body: JSON.stringify(requestBody),
   });
 
   return response.json();
