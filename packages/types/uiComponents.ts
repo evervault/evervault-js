@@ -132,7 +132,7 @@ export interface ComponentError {
 
 export interface EvervaultFrameClientMessages {
   EV_ERROR: ComponentError | undefined;
-  EV_RESIZE: { height: number };
+  EV_RESIZE: { height: number; width?: number };
   EV_FRAME_READY: undefined;
   EV_FRAME_HANDSHAKE: undefined;
 }
@@ -211,4 +211,121 @@ export interface ThreeDSecureFrameClientMessages
   EV_SUCCESS: string | undefined | null;
   EV_FAILURE: string | undefined | null;
   EV_CANCEL: undefined;
+}
+
+export interface GooglePayClientMessages extends EvervaultFrameClientMessages {
+  EV_GOOGLE_PAY_AUTH: EncryptedGooglePayData;
+  EV_GOOGLE_CANCELLED: undefined;
+}
+
+export interface GooglePayHostMessages extends EvervaultFrameHostMessages {
+  EV_GOOGLE_PAY_AUTH_COMPLETE: undefined;
+  EV_GOOGLE_PAY_AUTH_ERROR: google.payments.api.PaymentDataError;
+}
+
+export type EncryptedApplePayData = EncryptedDPAN<"apple">;
+
+export interface ApplePayClientMessages extends EvervaultFrameClientMessages {
+  EV_APPLE_PAY_AUTH: EncryptedApplePayData;
+  EV_APPLE_PAY_CANCELLED: undefined;
+}
+
+export type GooglePayButtonType =
+  | "book"
+  | "buy"
+  | "checkout"
+  | "donate"
+  | "order"
+  | "pay"
+  | "plain"
+  | "subscribe";
+
+export type GooglePayButtonColor = "black" | "white";
+
+export interface EncryptedDPAN<P> {
+  token: {
+    tokenServiceProvider: P;
+    number: string;
+    expiry: {
+      month: string;
+      year: string;
+    };
+  };
+  card: {
+    brand: string;
+  };
+  cryptogram: string;
+  eci: string;
+}
+
+export interface EncryptedFPAN {
+  card: {
+    brand: string;
+    number: string;
+    expiry: {
+      month: string;
+      year: string;
+    };
+  };
+}
+
+export type EncryptedGooglePayData = EncryptedDPAN<"google"> | EncryptedFPAN;
+
+export interface GooglePayOptions {
+  process: (
+    data: EncryptedGooglePayData,
+    helpers: {
+      fail: (error: google.payments.api.PaymentDataError) => void;
+    }
+  ) => Promise<void>;
+  type?: GooglePayButtonType;
+  color?: GooglePayButtonColor;
+  locale?: string;
+  borderRadius?: number;
+  environment?: "TEST" | "PRODUCTION";
+  size?: { width: string; height: string };
+  allowedAuthMethods?: string[];
+  allowedCardNetworks?: string[];
+}
+
+export type ApplePayButtonType =
+  | "add-money"
+  | "book"
+  | "buy"
+  | "check-out"
+  | "continue"
+  | "contribute"
+  | "donate"
+  | "order"
+  | "pay"
+  | "plain"
+  | "reload"
+  | "rent"
+  | "set-up"
+  | "subscribe"
+  | "support"
+  | "tip"
+  | "top-up";
+
+export type ApplePayButtonStyle = "black" | "white" | "white-outline";
+
+export interface ApplePayOptions {
+  process: (data: EncryptedApplePayData) => Promise<void>;
+  type?: ApplePayButtonType;
+  style?: ApplePayButtonStyle;
+  padding?: string;
+  borderRadius?: number;
+  size?: { width: string; height: string };
+}
+
+export interface TransactionDetails {
+  amount: number;
+  currency: string;
+  country: string;
+  merchant: {
+    id: string;
+    name: string;
+    evervaultId?: string;
+    applePayIdentifier?: string;
+  };
 }

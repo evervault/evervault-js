@@ -19,6 +19,10 @@ import type {
   RevealRequestConfig,
   RevealTextConfig,
 } from "./Reveal/types";
+import { GooglePay } from "./GooglePay";
+import { GooglePayConfig } from "./GooglePay/types";
+import { ApplePay } from "./ApplePay";
+import { ApplePayConfig } from "./ApplePay/types";
 
 // Use the component query param to determine which component to render
 export function UIComponent() {
@@ -112,6 +116,14 @@ export function UIComponent() {
 
   if (component === "ThreeDSecure") {
     return <ThreeDSecure config={config as ThreeDSecureConfig} />;
+  }
+
+  if (component === "GooglePay") {
+    return <GooglePay config={config as GooglePayConfig} />;
+  }
+
+  if (component === "ApplePay") {
+    return <ApplePay config={config as ApplePayConfig} />;
   }
 
   throw new Error(`Unknown component ${component}`);

@@ -52,6 +52,7 @@ export class EvervaultFrame<
     this.iframe.style.border = "none";
     this.iframe.style.width = "100%";
     this.iframe.style.display = "block";
+    this.iframe.allow = "payment";
 
     if (options?.size) {
       this.setSize(options.size);
@@ -213,9 +214,10 @@ export class EvervaultFrame<
   }
 
   #setupListeners() {
-    this.on("EV_RESIZE", ({ height }) => {
+    this.on("EV_RESIZE", ({ height, width }) => {
       if (!this.iframe || this.#size) return;
       this.iframe.style.height = `${height}px`;
+      if (width) this.iframe.style.width = `${width}px`;
     });
   }
 }
