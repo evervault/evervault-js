@@ -216,11 +216,17 @@ export interface ThreeDSecureFrameClientMessages
 export interface GooglePayClientMessages extends EvervaultFrameClientMessages {
   EV_GOOGLE_PAY_AUTH: EncryptedGooglePayData;
   EV_GOOGLE_CANCELLED: undefined;
+  EV_GOOGLE_PAY_ERROR: string;
 }
 
 export interface GooglePayHostMessages extends EvervaultFrameHostMessages {
   EV_GOOGLE_PAY_AUTH_COMPLETE: undefined;
   EV_GOOGLE_PAY_AUTH_ERROR: google.payments.api.PaymentDataError;
+}
+
+export interface ApplePayHostMessages extends EvervaultFrameHostMessages {
+  EV_APPLE_PAY_COMPLETION: undefined;
+  EV_APPLE_PAY_AUTH_ERROR: ApplePayError;
 }
 
 export type EncryptedApplePayData = EncryptedDPAN<"apple">;
@@ -310,12 +316,22 @@ export type ApplePayButtonType =
 export type ApplePayButtonStyle = "black" | "white" | "white-outline";
 
 export interface ApplePayOptions {
-  process: (data: EncryptedApplePayData) => Promise<void>;
+  process: (data: EncryptedApplePayData, 
+    helpers: {
+      fail: (error: ApplePayError) => void
+    }
+  ) => Promise<void>;
   type?: ApplePayButtonType;
   style?: ApplePayButtonStyle;
   padding?: string;
   borderRadius?: number;
   size?: { width: string; height: string };
+  paymentRequest?: ApplePayPaymentRequest; 
+}
+
+export interface TransactionLineItem {
+  amount: number;
+  label: string;
 }
 
 export interface TransactionDetails {
@@ -328,4 +344,60 @@ export interface TransactionDetails {
     evervaultId: string;
     applePayIdentifier?: string;
   };
+  lineItems?: TransactionLineItem[];
 }
+
+export interface ApplePayToken {
+    version: string;
+    data: string;
+    signature: string;
+    header: {
+        ephemeralPublicKey?: string;
+        wrappedKey?: string;
+        publicKeyHash: string;
+        transactionId: string;
+        applicatoinData?: string;
+    };
+}
+
+export interface ApplePayPaymentDataRequest { 
+  encryptedCredentials: ApplePayToken;
+}
+
+type BaseApplePayPaymentRequest = {
+  lineItems?: ApplePayJS.ApplePayLineItem[];
+};
+
+type ApplePayRecurringPaymentRequest = BaseApplePayPaymentRequest & {
+  recurringPaymentRequest: ApplePayJS.ApplePayRecurringPaymentRequest;
+  deferredPaymentRequest?: never;
+  automaticReloadPaymentRequest?: never;
+};
+
+type ApplePayDeferredPaymentRequest = BaseApplePayPaymentRequest & {
+  deferredPaymentRequest: ApplePayJS.ApplePayDeferredPaymentRequest;
+  recurringPaymentRequest?: never;
+  automaticReloadPaymentRequest?: never;
+};
+
+type ApplePayAutomaticReloadPaymentRequest = BaseApplePayPaymentRequest & {
+  automaticReloadPaymentRequest: ApplePayJS.ApplePayAutomaticReloadPaymentRequest;
+  multiTokenContexts?: never;
+  recurringPaymentRequest?: never;
+  deferredPaymentRequest?: never;
+};
+
+type ApplePayStandardPaymentRequest = BaseApplePayPaymentRequest & {
+  recurringPaymentRequest?: never;
+  multiTokenContexts?: never;
+  deferredPaymentRequest?: never;
+  automaticReloadPaymentRequest?: never;
+};
+
+// Can only specify one of the following payment request types
+export type ApplePayPaymentRequest = 
+  | ApplePayRecurringPaymentRequest 
+  | ApplePayDeferredPaymentRequest 
+  | ApplePayAutomaticReloadPaymentRequest
+  | ApplePayStandardPaymentRequest;
+

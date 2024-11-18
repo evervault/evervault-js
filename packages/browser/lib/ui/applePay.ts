@@ -4,8 +4,8 @@ import type EvervaultClient from "../main";
 import type {
   SelectorType,
   ApplePayOptions,
-  EvervaultFrameHostMessages,
   ApplePayClientMessages,
+  ApplePayHostMessages,
 } from "types";
 import { Transaction } from "../resources/transaction";
 
@@ -18,7 +18,7 @@ interface ApplePayEvents {
 export default class ApplePay {
   #transaction: Transaction;
   #options: ApplePayOptions;
-  #frame: EvervaultFrame<ApplePayClientMessages, EvervaultFrameHostMessages>;
+  #frame: EvervaultFrame<ApplePayClientMessages, ApplePayHostMessages>;
   #events = new EventManager<ApplePayEvents>();
 
   constructor(
@@ -40,7 +40,25 @@ export default class ApplePay {
     });
 
     this.#frame.on("EV_APPLE_PAY_AUTH", async (payload) => {
-      await this.#options.process(payload);
+      try {
+        let failed = false;
+        await this.#options.process(payload, {
+          fail: (err: ApplePayError) => {
+            failed = true;
+            this.#frame.send("EV_APPLE_PAY_AUTH_ERROR", err);
+          },
+        });
+
+        if (failed) return;
+        this.#frame.send("EV_APPLE_PAY_COMPLETION");
+      } catch {
+        const error: ApplePayError = {
+          code: "unknown",
+          message: "Something went wrong, please try again",
+        };
+
+        this.#frame.send("EV_APPLE_PAY_AUTH_ERROR", error);
+      }
     });
 
     this.#frame.on("EV_APPLE_PAY_CANCELLED", () => {
@@ -55,6 +73,7 @@ export default class ApplePay {
         style: this.#options.style,
         borderRadius: this.#options.borderRadius,
         transaction: this.#transaction.details,
+        paymentRequest: this.#options.paymentRequest,
       },
     };
   }

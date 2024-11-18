@@ -1,9 +1,23 @@
-import { TransactionDetails } from "types";
-import { ValidateMerchantResponse } from "./types";
+import {
+  ApplePayToken,
+  EncryptedApplePayData,
+  TransactionDetails,
+} from "types";
+import { ApplePayConfig, ValidateMerchantResponse } from "./types";
 
 const API = import.meta.env.VITE_API_URL as string;
 
-export function buildSession(app: string, tx: TransactionDetails) {
+export function buildSession(app: string, config: ApplePayConfig) {
+  console.log(JSON.stringify(config, null, 2));
+  const { transaction: tx, paymentRequest } = config;
+
+  const lineItems =
+    (tx.lineItems?.map((item) => ({
+      label: item.label,
+      type: "final",
+      amount: (item.amount / 100).toFixed(2).toString(),
+    })) as ApplePayJS.ApplePayLineItem[]) || [];
+
   const request: ApplePayJS.ApplePayPaymentRequest = {
     countryCode: tx.country,
     currencyCode: tx.currency,
@@ -14,6 +28,8 @@ export function buildSession(app: string, tx: TransactionDetails) {
       type: "final",
       amount: (tx.amount / 100).toFixed(2).toString(),
     },
+    lineItems,
+    ...paymentRequest,
   };
 
   const session = new ApplePaySession(3, request);
@@ -40,6 +56,28 @@ async function validateMerchant(
       merchantUuid: tx.merchant.evervaultId,
       domain: tx.merchant.applePayIdentifier,
     }),
+  });
+
+  return response.json();
+}
+
+export async function exchangeApplePaymentData(
+  app: string,
+  token: ApplePayToken,
+  merchantId: string
+): Promise<EncryptedApplePayData> {
+  const requestBody = {
+    merchantId,
+    encryptedCredentials: token,
+  };
+
+  const response = await fetch(`${API}/frontend/apple-pay/credentials`, {
+    method: "POST",
+    headers: {
+      "x-Evervault-App-Id": app,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(requestBody),
   });
 
   return response.json();

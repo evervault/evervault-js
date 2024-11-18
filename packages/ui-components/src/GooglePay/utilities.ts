@@ -47,6 +47,11 @@ export function buildPaymentRequest(
       totalPrice: (tx.amount / 100).toFixed(2).toString(),
       currencyCode: tx.currency,
       countryCode: tx.country,
+      displayItems: tx.lineItems?.map((item) => ({
+        label: item.label,
+        type: "LINE_ITEM",
+        price: (item.amount / 100).toFixed(2).toString(),
+      })),
     },
     callbackIntents: ["PAYMENT_AUTHORIZATION"],
   };
@@ -59,12 +64,14 @@ export async function exchangePaymentData(
   paymentData: google.payments.api.PaymentData,
   merchantId: string
 ): Promise<EncryptedGooglePayData> {
-  const token = JSON.parse(paymentData.paymentMethodData.tokenizationData.token);
+  const token = JSON.parse(
+    paymentData.paymentMethodData.tokenizationData.token
+  );
   const requestBody = {
     token,
     merchantId,
   };
-  console.log("Exchanging Google Pay encrypted data for Evervault encrypted data:", token);
+  
   const response = await fetch(`${API}/frontend/google-pay/credentials`, {
     method: "POST",
     headers: {

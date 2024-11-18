@@ -13,15 +13,25 @@ const evervault = new window.Evervault(
 );
 
 const transaction = evervault.transactions.create({
-  amount: 125,
+  amount: 0,
   currency: "USD",
   country: "US",
   merchant: {
     id: "12345678901234567890",
-    name: "Test Merchant",
-    evervaultId: "merchant_8f3dc605aa5d",
-    applePayIdentifier: "donaltuohy.ngrok.app",
+    name: "Doni Donuts",
+    evervaultId: "merchant_d8e4353154df",
+    applePayIdentifier: "donidonuts.ngrok.app",
   },
+  lineItems: [
+    {
+      amount: 125,
+      label: "Product Fee",
+    },
+    {
+      amount: 0,
+      label: "Support Fee (Free)" 
+    },
+  ]
 });
 
 const google = evervault.ui.googlePay(transaction, {
@@ -49,9 +59,17 @@ google.mount("#container");
 const apple = evervault.ui.applePay(transaction, {
   type: "rent",
   style: "black",
-  process: async (data) => {
-    console.log("apple pay process called", data);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  process: async (data, { fail }) => {
+    console.log("apple pay process called - purchasing product", data);
+
+    // Simulate a delay
+    // await new Promise((resolve) => setTimeout(resolve, 2000));
+    // or fail
+    fail({
+      message: "Cannot pay with payment credentials"
+    });
+    
+    console.log("product purchased");
   },
 });
 

@@ -71,7 +71,7 @@ export function GooglePay({ config }: GooglePayProps) {
                 send("EV_GOOGLE_CANCELLED");
               } else {
                 console.error(err);
-                // TODO: Fire an error event
+                send("EV_GOOGLE_PAY_ERROR");
               }
             }
           },
