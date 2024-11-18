@@ -11,6 +11,7 @@ export interface ApplePayConfig {
   style: ApplePayButtonStyle;
   padding?: string;
   borderRadius?: number;
+  allowedCardNetworks?: string[];
   paymentRequest?: ApplePayPaymentRequest;
 }
 

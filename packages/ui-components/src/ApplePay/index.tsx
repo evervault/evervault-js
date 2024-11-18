@@ -74,7 +74,7 @@ export function ApplePay({ config }: ApplePayProps) {
         const encrypted: EncryptedApplePayData = await exchangeApplePaymentData(
           app,
           paymentData,
-          config.transaction.merchant.id
+          config.transaction.merchant.evervaultId
         );
 
         // return the EV encrypted data

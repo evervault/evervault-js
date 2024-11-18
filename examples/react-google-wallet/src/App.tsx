@@ -57,6 +57,7 @@ function App() {
         style: "white-outline",
         size: { width: "108%", height: "48px" },
         borderRadius: 10,
+        allowedCardNetworks: ["VISA", "MASTERCARD"],
         process: async (data) => {
           console.log("Sending encrypted data to merchant", data);
           setSuccessMessage("Payment processed successfully! Thank you for your order.");

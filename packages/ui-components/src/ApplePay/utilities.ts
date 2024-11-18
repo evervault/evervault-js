@@ -22,7 +22,7 @@ export function buildSession(app: string, config: ApplePayConfig) {
     countryCode: tx.country,
     currencyCode: tx.currency,
     merchantCapabilities: ["supports3DS"],
-    supportedNetworks: ["visa", "masterCard", "amex", "discover"],
+    supportedNetworks: config.allowedCardNetworks?.map((network) => network.toLowerCase()) || ["visa", "masterCard", "amex", "discover"],
     total: {
       label: "Total",
       type: "final",
