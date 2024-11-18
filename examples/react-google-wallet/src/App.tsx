@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
-import { EncryptedFPAN, useEvervault } from "@evervault/react";
+import { useEvervault } from "@evervault/react";
 import "./App.css";
 
 function App() {
@@ -35,11 +35,9 @@ function App() {
         borderRadius: 10,
         allowedAuthMethods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
         allowedCardNetworks: ["VISA"],
-        process: async (data, { fail }) => {
+        process: async (data) => {
           console.log("Sending encrypted data to merchant", data);
-          const fpan = data as EncryptedFPAN;
-          const decrypted = await evervault.decrypt("1234567890", fpan.card.number);
-          console.log("Decrypted data", decrypted);
+          setSuccessMessage("Payment processed successfully! Thank you for your order.");
         }
       });
 
