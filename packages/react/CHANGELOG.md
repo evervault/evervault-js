@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.13.0
+
+### Minor Changes
+
+- a3bd556: Remount 3ds component after error
+
 ## 2.12.0
 
 ### Minor Changes

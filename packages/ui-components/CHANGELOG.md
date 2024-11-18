@@ -1,5 +1,12 @@
 # @evervault/ui-components
 
+## 1.16.1
+
+### Patch Changes
+
+- Updated dependencies [a3bd556]
+  - @evervault/react@2.13.0
+
 ## 1.16.0
 
 ### Minor Changes
