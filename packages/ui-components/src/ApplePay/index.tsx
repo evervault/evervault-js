@@ -128,6 +128,7 @@ export function ApplePay({ config }: ApplePayProps) {
     "--border-radius": config.borderRadius || 4,
     width: "100%",
     height: "100%",
+    cursor: "pointer",
   };
 
   return (

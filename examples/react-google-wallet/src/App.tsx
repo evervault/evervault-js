@@ -22,8 +22,8 @@ function App() {
         merchant: {
           id: "12345678901234567890",
           name: "Test Merchant",
-          evervaultId: "merchant_8f3dc605aa5d",
-          applePayIdentifier: "donaltuohy.ngrok.app",
+          evervaultId: "merchant_d8e4353154df",
+          applePayIdentifier: "donidonuts.ngrok.app",
         },
       });
 
@@ -51,6 +51,23 @@ function App() {
 
       inst.mount("#google-pay-button");
       setInstance(inst);
+
+      const apple = evervault.ui.applePay(transaction, {
+        type: "pay",
+        style: "white-outline",
+        size: { width: "108%", height: "48px" },
+        borderRadius: 10,
+        process: async (data) => {
+          console.log("Sending encrypted data to merchant", data);
+          setSuccessMessage("Payment processed successfully! Thank you for your order.");
+        }
+      });
+
+      apple.on("cancel", () => {
+        console.log("Apple Pay cancelled");
+      });
+      
+      apple.mount("#apple-pay-button");
     }
 
     init().catch(console.error);
@@ -102,6 +119,7 @@ function App() {
                   />
               </div>
               <div id="google-pay-button" />
+              <div id="apple-pay-button" />
             </form>
           )}
         </div>
