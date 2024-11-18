@@ -1,17 +1,13 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
-import { ComponentError, EncryptedFPAN, useEvervault, useThreeDSecure } from "@evervault/react";
+import { EncryptedFPAN, useEvervault } from "@evervault/react";
 import "./App.css";
 
 function App() {
   const [name, setName] = useState("");
   const ev = useEvervault();
-  const threeDSecure = useThreeDSecure();
   const initialized = useRef(false);
   const [instance, setInstance] = useState<any | null>(null);
-
-  const onError = (error: ComponentError) => {
-    console.error(error);
-  };
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useLayoutEffect(() => {
     async function init() {
@@ -40,12 +36,19 @@ function App() {
         allowedAuthMethods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
         allowedCardNetworks: ["VISA"],
         process: async (data, { fail }) => {
-          console.log("Processing Google Pay data", data);
+          console.log("Sending encrypted data to merchant", data);
+          const fpan = data as EncryptedFPAN;
+          const decrypted = await evervault.decrypt("1234567890", fpan.card.number);
+          console.log("Decrypted data", decrypted);
         }
       });
 
       inst.on("cancel", () => {
         console.log("Google Pay cancelled");
+      });
+
+      inst.on("error", () => {
+        console.error("Google Pay error");
       });
 
       inst.mount("#google-pay-button");
@@ -70,33 +73,39 @@ function App() {
       </header>
 
       <main>
+        {successMessage && (
+          <div className="success-message">
+            {successMessage}
+          </div>
+        )}
+        
         <div className="checkout-container">
           <div className="order-summary">
             <h2>Order Summary</h2>
             <ul>
               <li>First Edition "The Great Gatsby" (1925) <span>€2,450.00</span></li>
-              <li>18th Century Atlas of the Americas <span>€1,875.00</span></li>
-              <li>Archival Storage Case <span>€195.00</span></li>
-              <li>Insured Priority Shipping <span>€75.00</span></li>
+              <li>Signed "One Hundred Years of Solitude" (1967) <span>€1,850.00</span></li>
             </ul>
             <div className="total">
-              <strong>Total</strong> <strong>€4,595.00</strong>
+              <strong>Total</strong> <strong>€4,300.00</strong>
             </div>
           </div>
 
-          <form id="checkout-form">
-            <h2>Checkout</h2>
-            <div className="form-group">
-                <label htmlFor="name">Full Name</label>
-                <input 
-                  type="text" 
-                  id="name" 
-                  value={name} 
-                  onChange={(e) => setName(e.target.value)} 
-                />
-            </div>
-            <div id="google-pay-button" />
-          </form>
+          {!successMessage && (
+            <form id="checkout-form">
+              <h2>Checkout</h2>
+              <div className="form-group">
+                  <label htmlFor="name">Full Name</label>
+                  <input 
+                    type="text" 
+                    id="name" 
+                    value={name} 
+                    onChange={(e) => setName(e.target.value)} 
+                  />
+              </div>
+              <div id="google-pay-button" />
+            </form>
+          )}
         </div>
       </main>
 

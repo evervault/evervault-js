@@ -203,35 +203,7 @@ importers:
         specifier: ^4.5.5
         version: 4.5.5(@types/node@20.11.30)(terser@5.31.0)
 
-  examples/react-native-example:
-    dependencies:
-      '@evervault/evervault-react-native':
-        specifier: workspace:*
-        version: link:../../packages/react-native
-      expo:
-        specifier: ~51.0.8
-        version: 51.0.8(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))
-      expo-status-bar:
-        specifier: ~1.12.1
-        version: 1.12.1
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      react-native:
-        specifier: 0.74.1
-        version: 0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0)
-      react-native-svg:
-        specifier: ^15.6.0
-        version: 15.6.0(react-native@0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
-      react-native-webview:
-        specifier: ^13.12.0
-        version: 13.12.0(react-native@0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
-    devDependencies:
-      '@babel/core':
-        specifier: ^7.20.0
-        version: 7.24.5
-
-  examples/react-wallet:
+  examples/react-google-wallet:
     dependencies:
       '@evervault/browser':
         specifier: workspace:*
@@ -261,6 +233,34 @@ importers:
       vite:
         specifier: ^4.5.5
         version: 4.5.5(@types/node@20.11.30)(terser@5.31.0)
+
+  examples/react-native-example:
+    dependencies:
+      '@evervault/evervault-react-native':
+        specifier: workspace:*
+        version: link:../../packages/react-native
+      expo:
+        specifier: ~51.0.8
+        version: 51.0.8(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))
+      expo-status-bar:
+        specifier: ~1.12.1
+        version: 1.12.1
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-native:
+        specifier: 0.74.1
+        version: 0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0)
+      react-native-svg:
+        specifier: ^15.6.0
+        version: 15.6.0(react-native@0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
+      react-native-webview:
+        specifier: ^13.12.0
+        version: 13.12.0(react-native@0.74.1(@babel/core@7.24.5)(@babel/preset-env@7.24.5(@babel/core@7.24.5))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.20.0
+        version: 7.24.5
 
   examples/three-d-secure:
     dependencies:

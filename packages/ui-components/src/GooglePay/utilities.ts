@@ -32,7 +32,7 @@ export function buildPaymentRequest(
           type: "PAYMENT_GATEWAY",
           parameters: {
             gateway: "evervault",
-            gatewayMerchantId: tx.merchant.id
+            gatewayMerchantId: tx.merchant.evervaultId
           },
         },
       },
@@ -64,7 +64,7 @@ export async function exchangePaymentData(
     token,
     merchantId,
   };
-  console.log("exchanging google pay encrypted data for evervault encrypted data", requestBody);
+  console.log("Exchanging Google Pay encrypted data for Evervault encrypted data:", token);
   const response = await fetch(`${API}/frontend/google-pay/credentials`, {
     method: "POST",
     headers: {

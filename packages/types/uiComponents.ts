@@ -325,7 +325,7 @@ export interface TransactionDetails {
   merchant: {
     id: string;
     name: string;
-    evervaultId?: string;
+    evervaultId: string;
     applePayIdentifier?: string;
   };
 }

@@ -340,3 +340,35 @@ footer a {
 .session-details p {
   margin: 3px 0;
 }
+
+.success-message {
+  background-color: #4CAF50;
+  color: white;
+  padding: 1.5rem;
+  margin: 2rem auto;
+  max-width: 600px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  animation: slideDown 0.5s ease-out;
+}
+
+.success-message img {
+  filter: brightness(0) invert(1);
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
