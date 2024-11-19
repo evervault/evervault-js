@@ -203,6 +203,37 @@ importers:
         specifier: ^4.5.5
         version: 4.5.5(@types/node@20.11.30)(terser@5.31.0)
 
+  examples/react-google-wallet:
+    dependencies:
+      '@evervault/browser':
+        specifier: workspace:*
+        version: link:../../packages/browser
+      '@evervault/react':
+        specifier: workspace:*
+        version: link:../../packages/react
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+    devDependencies:
+      '@types/react':
+        specifier: ^18.2.37
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: ^18.2.15
+        version: 18.2.17
+      '@vitejs/plugin-react':
+        specifier: ^4.2.0
+        version: 4.2.1(vite@4.5.5(@types/node@20.11.30)(terser@5.31.0))
+      typescript:
+        specifier: ^5.0.2
+        version: 5.5.4
+      vite:
+        specifier: ^4.5.5
+        version: 4.5.5(@types/node@20.11.30)(terser@5.31.0)
+
   examples/react-native-example:
     dependencies:
       '@evervault/evervault-react-native':
@@ -240,6 +271,19 @@ importers:
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
+      typescript:
+        specifier: ^5.0.2
+        version: 5.5.4
+      vite:
+        specifier: ^4.5.5
+        version: 4.5.5(@types/node@20.11.30)(terser@5.31.0)
+
+  examples/wallet:
+    dependencies:
+      '@evervault/browser':
+        specifier: workspace:*
+        version: link:../../packages/browser
+    devDependencies:
       typescript:
         specifier: ^5.0.2
         version: 5.5.4
@@ -551,6 +595,12 @@ importers:
       '@evervault/react':
         specifier: workspace:*
         version: link:../react
+      '@types/applepayjs':
+        specifier: ^14.0.8
+        version: 14.0.8
+      '@types/googlepay':
+        specifier: ^0.7.6
+        version: 0.7.6
       imask:
         specifier: ^7.1.3
         version: 7.1.3
@@ -2763,6 +2813,9 @@ packages:
   '@tsconfig/node16@1.0.4':
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
 
+  '@types/applepayjs@14.0.8':
+    resolution: {integrity: sha512-Yzf5OSitdS+/G8cjaAkPJ0+pBOEf9Vik1XUCdw6ul7Qh6Xb18wTlG/sWA5jKIme3x4fbyTGlSd4mfkvdtP9mRw==}
+
   '@types/argparse@1.0.38':
     resolution: {integrity: sha512-ebDJ9b0e702Yr7pWgB0jzm+CX4Srzz8RcXtLJDJB+BSccqMa36uyH/zUsSYao5+BD1ytv3k3rPYCq4mAE1hsXA==}
 
@@ -2798,6 +2851,9 @@ packages:
 
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
+
+  '@types/googlepay@0.7.6':
+    resolution: {integrity: sha512-5003wG+qvf4Ktf1hC9IJuRakNzQov00+Xf09pAWGJLpdOjUrq0SSLCpXX7pwSeTG9r5hrdzq1iFyZcW7WVyr4g==}
 
   '@types/graceful-fs@4.1.9':
     resolution: {integrity: sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==}
@@ -3124,6 +3180,7 @@ packages:
   '@xmldom/xmldom@0.7.13':
     resolution: {integrity: sha512-lm2GW5PkosIzccsaZIz7tp8cPADSIlIHWDFTR1N0SzfinhhYgeIQjFMz4rYzanCScr3DqQLeomUDArp6MWKm+g==}
     engines: {node: '>=10.0.0'}
+    deprecated: this version is no longer supported, please update to at least 0.8.*
 
   '@xmldom/xmldom@0.8.10':
     resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
@@ -12225,6 +12282,8 @@ snapshots:
 
   '@tsconfig/node16@1.0.4': {}
 
+  '@types/applepayjs@14.0.8': {}
+
   '@types/argparse@1.0.38': {}
 
   '@types/babel__core@7.20.3':
@@ -12271,6 +12330,8 @@ snapshots:
   '@types/estree@1.0.1': {}
 
   '@types/estree@1.0.6': {}
+
+  '@types/googlepay@0.7.6': {}
 
   '@types/graceful-fs@4.1.9':
     dependencies:
