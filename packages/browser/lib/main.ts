@@ -12,8 +12,6 @@ import {
   getContext,
 } from "./utils";
 import type { InputSettings, RevealSettings } from "./types";
-import { Transaction } from "./resources/transaction";
-import { TransactionDetails } from "types";
 
 export type * from "types";
 export type * from "./config";
@@ -310,11 +308,5 @@ export default class EvervaultClient {
 
   isInDebugMode() {
     return this.#debugMode;
-  }
-
-  get transactions() {
-    return {
-      create: (details: TransactionDetails) => new Transaction(details),
-    };
   }
 }
