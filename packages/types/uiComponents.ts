@@ -326,7 +326,7 @@ export interface ApplePayOptions {
   padding?: string;
   borderRadius?: number;
   size?: { width: string; height: string };
-  allowedAuthMethods?: string[];
+  allowedCardNetworks?: string[];
   paymentRequest?: ApplePayPaymentRequest; 
 }
 
