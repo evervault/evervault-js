@@ -17,6 +17,7 @@ export const inlineTheme = {
       fontSize: 14,
       fontWeight: 700,
       color: "black",
+      border: "1px solid black",
     },
     fieldset: {
       marginTop: 4,
