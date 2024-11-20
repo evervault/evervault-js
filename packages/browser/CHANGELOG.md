@@ -1,17 +1,5 @@
 # @evervault/browser
 
-## 2.33.0
-
-### Minor Changes
-
-- 6c3bec5: Add support for apple pay and google pay wallet
-
-### Patch Changes
-
-- Updated dependencies [6c3bec5]
-  - types@0.4.0
-  - themes@0.1.4
-
 ## 2.32.0
 
 ### Minor Changes
