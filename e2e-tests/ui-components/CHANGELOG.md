@@ -1,5 +1,11 @@
 # @evervault/ui-components-e2e-tests
 
+## 1.1.0
+
+### Minor Changes
+
+- f537d5f: Revert mobile wallet release
+
 ## 1.0.14
 
 ### Patch Changes
