@@ -1,5 +1,11 @@
 # types
 
+## 0.4.0
+
+### Minor Changes
+
+- 6c3bec5: Add support for apple pay and google pay wallet
+
 ## 0.3.0
 
 ### Minor Changes
