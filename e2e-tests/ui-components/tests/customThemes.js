@@ -17,10 +17,10 @@ export const inlineTheme = {
       fontSize: 14,
       fontWeight: 700,
       color: "black",
-      border: "1px solid black",
     },
     fieldset: {
       marginTop: 4,
+      border: "1px solid black",
     },
     ".field": {
       padding: "4px 0",
