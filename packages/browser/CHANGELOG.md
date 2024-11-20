@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.33.0
+
+### Minor Changes
+
+- f537d5f: Revert mobile wallet release
+
 ## 2.32.0
 
 ### Minor Changes

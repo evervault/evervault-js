@@ -1,5 +1,16 @@
 # example-ui-components
 
+## 0.1.0
+
+### Minor Changes
+
+- f537d5f: Revert mobile wallet release
+
+### Patch Changes
+
+- Updated dependencies [f537d5f]
+  - @evervault/browser@2.33.0
+
 ## 0.0.22
 
 ### Patch Changes
