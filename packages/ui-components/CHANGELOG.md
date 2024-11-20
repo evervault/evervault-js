@@ -1,19 +1,5 @@
 # @evervault/ui-components
 
-## 1.17.0
-
-### Minor Changes
-
-- 6c3bec5: Add support for apple pay and google pay wallet
-
-### Patch Changes
-
-- Updated dependencies [6c3bec5]
-  - types@0.4.0
-  - @evervault/react@2.13.0
-  - @evervault/card-validator@1.1.0
-  - shared@1.0.9
-
 ## 1.16.1
 
 ### Patch Changes
