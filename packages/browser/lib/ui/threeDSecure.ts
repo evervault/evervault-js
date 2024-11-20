@@ -119,7 +119,6 @@ export default class ThreeDSecure {
     if (options) {
       this.#options = { ...this.#options, ...options };
     }
-
     this.#frame.update(this.config);
     return this;
   }
