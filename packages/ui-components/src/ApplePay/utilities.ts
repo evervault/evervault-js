@@ -8,7 +8,6 @@ import { ApplePayConfig, ValidateMerchantResponse } from "./types";
 const API = import.meta.env.VITE_API_URL as string;
 
 export function buildSession(app: string, config: ApplePayConfig) {
-  console.log(JSON.stringify(config, null, 2));
   const { transaction: tx, paymentRequest } = config;
 
   const lineItems =
@@ -19,6 +18,7 @@ export function buildSession(app: string, config: ApplePayConfig) {
     })) as ApplePayJS.ApplePayLineItem[]) || [];
 
   const request: ApplePayJS.ApplePayPaymentRequest = {
+    
     countryCode: tx.country,
     currencyCode: tx.currency,
     merchantCapabilities: ["supports3DS"],

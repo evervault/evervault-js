@@ -29,9 +29,9 @@ export default class GooglePay {
     this.#options = options;
     this.#transaction = transaction;
     this.#frame = new EvervaultFrame(client, "GooglePay", {
-      size: options.size || {
-        width: "250px ",
-        height: "45px",
+      size: {
+        width: options.size?.width || "250px ",
+        height: options.size?.height ||"45px",
       },
     });
 
@@ -60,8 +60,12 @@ export default class GooglePay {
       }
     });
 
-    this.#frame.on("EV_GOOGLE_CANCELLED", () => {
+    this.#frame.on("EV_GOOGLE_PAY_CANCELLED", () => {
       this.#events.dispatch("cancel");
+    });
+
+    this.#frame.on("EV_GOOGLE_PAY_ERROR", (error) => {
+      this.#events.dispatch("error", error);
     });
   }
 

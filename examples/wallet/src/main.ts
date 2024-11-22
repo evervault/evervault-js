@@ -20,7 +20,7 @@ const transaction = evervault.transactions.create({
     id: "12345678901234567890",
     name: "Doni Donuts",
     evervaultId: "merchant_d8e4353154df",
-    applePayIdentifier: "donidonuts.ngrok.app",
+    applePayIdentifier: "ev-wallet.ngrok.app",
   },
   lineItems: [
     {
@@ -37,6 +37,7 @@ const transaction = evervault.transactions.create({
 const google = evervault.ui.googlePay(transaction, {
   type: "book",
   color: "white",
+  size: { width: "450px", height: "90px" },
   allowedAuthMethods: ["PAN_ONLY"],
   allowedCardNetworks: ["MASTERCARD", "VISA"],
   process: async (data, { fail }) => {
@@ -56,19 +57,38 @@ google.on("cancel", () => {
 
 google.mount("#container");
 
+const card = evervault.ui.card({
+  icons: true,
+  theme: {
+    styles: {
+      fieldSet: {
+        marginTop: 4,
+      },
+    },
+  },
+});
+
+card.on("change", (values) => {
+  console.log("change", values);
+});
+
+card.on("swipe", (values) => {
+  console.log("swipe", values);
+});
+
+card.on("validate", (values) => {
+  console.log("validate", values);
+});
+
+card.mount("#form");
+
 const apple = evervault.ui.applePay(transaction, {
   type: "rent",
-  style: "black",
+  style: "white-outline",
+  size: { width: "250px", height: "50px" },
   process: async (data, { fail }) => {
     console.log("apple pay process called - purchasing product", data);
-
-    // Simulate a delay
-    // await new Promise((resolve) => setTimeout(resolve, 2000));
-    // or fail
-    fail({
-      message: "Cannot pay with payment credentials"
-    });
-    
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     console.log("product purchased");
   },
 });
@@ -77,4 +97,9 @@ apple.on("cancel", () => {
   console.log("cancelled");
 });
 
-apple.mount("#container");
+apple.on("error", (error) => {
+  console.error("Apple Pay failed with error.", error);
+  alert(`Error: Please try again.`);
+});
+
+apple.mount("#container-apple");

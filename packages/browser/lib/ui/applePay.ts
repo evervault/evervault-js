@@ -11,6 +11,7 @@ import { Transaction } from "../resources/transaction";
 
 interface ApplePayEvents {
   ready: () => void;
+  success: () => void;
   error: () => void;
   cancel: () => void;
 }
@@ -29,9 +30,9 @@ export default class ApplePay {
     this.#options = options;
     this.#transaction = transaction;
     this.#frame = new EvervaultFrame(client, "ApplePay", {
-      size: options.size ?? {
-        width: "250px",
-        height: "45px",
+      size: {
+        width: options.size?.width || "150px",
+        height: options.size?.height || "50px",
       },
     });
 
@@ -64,6 +65,11 @@ export default class ApplePay {
     this.#frame.on("EV_APPLE_PAY_CANCELLED", () => {
       this.#events.dispatch("cancel");
     });
+
+    this.#frame.on("EV_APPLE_PAY_ERROR", (error) => {
+      this.#events.dispatch("error", error);
+    });
+
   }
 
   get config() {
@@ -89,7 +95,6 @@ export default class ApplePay {
     return this;
   }
 
-  // TODO: Update might not make sense for apple pay
   update(options?: ApplePayOptions) {
     if (options) {
       this.#options = { ...this.#options, ...options };

@@ -215,8 +215,9 @@ export interface ThreeDSecureFrameClientMessages
 
 export interface GooglePayClientMessages extends EvervaultFrameClientMessages {
   EV_GOOGLE_PAY_AUTH: EncryptedGooglePayData;
-  EV_GOOGLE_CANCELLED: undefined;
+  EV_GOOGLE_PAY_CANCELLED: undefined;
   EV_GOOGLE_PAY_ERROR: string;
+  EV_GOOGLE_PAY_SUCCESS: undefined;
 }
 
 export interface GooglePayHostMessages extends EvervaultFrameHostMessages {
@@ -234,6 +235,8 @@ export type EncryptedApplePayData = EncryptedDPAN<"apple">;
 export interface ApplePayClientMessages extends EvervaultFrameClientMessages {
   EV_APPLE_PAY_AUTH: EncryptedApplePayData;
   EV_APPLE_PAY_CANCELLED: undefined;
+  EV_APPLE_PAY_ERROR: string;
+  EV_APPLE_PAY_SUCCESS: undefined;
 }
 
 export type GooglePayButtonType =

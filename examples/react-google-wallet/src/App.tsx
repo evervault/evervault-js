@@ -23,7 +23,7 @@ function App() {
           id: "12345678901234567890",
           name: "Test Merchant",
           evervaultId: "merchant_d8e4353154df",
-          applePayIdentifier: "donidonuts.ngrok.app",
+          applePayIdentifier: "ev-wallet.ngrok.app",
         },
       });
 
@@ -31,10 +31,10 @@ function App() {
       const inst = evervault.ui.googlePay(transaction, {
         type: "pay",
         color: "black",
-        size: { width: "108%", height: "48px" },
-        borderRadius: 10,
+        borderRadius: 15,
+        size: { width: "100%", height: "40px" },
         allowedAuthMethods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
-        allowedCardNetworks: ["VISA"],
+        allowedCardNetworks: ["VISA", "MASTERCARD"],
         process: async (data) => {
           console.log("Sending encrypted data to merchant", data);
           setSuccessMessage("Payment processed successfully! Thank you for your order.");
@@ -55,7 +55,7 @@ function App() {
       const apple = evervault.ui.applePay(transaction, {
         type: "pay",
         style: "white-outline",
-        size: { width: "108%", height: "48px" },
+        size: { width: "30px", height: "40px" },
         borderRadius: 10,
         allowedCardNetworks: ["VISA", "MASTERCARD"],
         process: async (data) => {

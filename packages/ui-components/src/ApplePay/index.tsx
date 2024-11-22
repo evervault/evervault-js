@@ -1,5 +1,5 @@
 import "./styles.css";
-import { CSSProperties, useLayoutEffect, useRef } from "react";
+import { CSSProperties, useEffect, useLayoutEffect, useRef } from "react";
 import { ApplePayConfig } from "./types";
 import { resize, setSize } from "../utilities/resize";
 import { buildSession, exchangeApplePaymentData } from "./utilities";
@@ -30,6 +30,7 @@ declare global {
 export function ApplePay({ config }: ApplePayProps) {
   const { app } = useSearchParams();
   const button = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const initialized = useRef(false);
   const { on, send } = useMessaging<
     ApplePayHostMessages,
@@ -91,20 +92,23 @@ export function ApplePay({ config }: ApplePayProps) {
               });
 
               on("EV_APPLE_PAY_AUTH_ERROR", (error) => {
-                console.error("Error during payment completion:", error);
+                const errorMsg = `Error during payment completion: ${error.message}`;
                 resolve({
                   status: ApplePaySession.STATUS_FAILURE,
                 });
+
+                send("EV_APPLE_PAY_ERROR", errorMsg);
               });
             }
           );
 
         session.completePayment(result);
       } catch (error) {
-        console.error("Error during payment completion:", error);
+        const errorMsg = `Error during payment completion. Error: ${error}`;
         session.completePayment({
           status: ApplePaySession.STATUS_FAILURE,
         });
+        send("EV_APPLE_PAY_ERROR", errorMsg);
       }
     };
 
@@ -122,21 +126,51 @@ export function ApplePay({ config }: ApplePayProps) {
     );
   }
 
-  const style = {
-    "--type": config.type,
-    "--style": config.style,
-    "--border-radius": config.borderRadius || 4,
-    width: "100%",
-    height: "100%",
-    cursor: "pointer",
-  };
+  useEffect(() => {
+    const buttonElement = button.current;
+    const containerElement = containerRef.current;
 
+    if (buttonElement) {
+      buttonElement.addEventListener('click', handleClick);
+    }
+    if (containerElement) {
+      containerElement.addEventListener('click', handleClick);
+    }
+
+    return () => {
+      if (buttonElement) {
+        buttonElement.removeEventListener('click', handleClick);
+      }
+      if (containerElement) {
+        containerElement.removeEventListener('click', handleClick);
+      }
+    };
+  }, []);
+
+  const containerStyle = {
+    position: 'relative',
+    width: '100vw',
+    height: '100vh',
+    display: 'flex'
+  };
+  
+  const buttonStyle = {
+    '--apple-pay-button-width': '100%',
+    '--apple-pay-button-height': '100%',
+    '--apple-pay-button-border-radius': `${config.borderRadius || 4}px`,
+    '--apple-pay-button-padding': `${config.padding || 4}px`,
+    '--apple-pay-button-box-sizing': 'border-box',
+    flex: '1',
+  } as React.CSSProperties;
+  
   return (
-    <button
-      ref={button}
-      className="apple-pay"
-      onClick={handleClick}
-      style={style as CSSProperties}
-    />
+    <div style={containerStyle}>
+      <apple-pay-button
+        ref={button}
+        buttonstyle={config.style}
+        type={config.type}
+        style={buttonStyle}
+      />
+    </div>
   );
 }

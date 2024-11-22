@@ -39,6 +39,7 @@ export function GooglePay({ config }: GooglePayProps) {
 
             return new Promise((resolve) => {
               on("EV_GOOGLE_PAY_AUTH_COMPLETE", () => {
+                send("EV_GOOGLE_PAY_SUCCESS");
                 resolve({ transactionState: "SUCCESS" });
               });
 
@@ -68,10 +69,10 @@ export function GooglePay({ config }: GooglePayProps) {
               await paymentsClient.loadPaymentData(paymentRequest);
             } catch (err) {
               if (isPaymentError(err) && err.statusCode === "CANCELED") {
-                send("EV_GOOGLE_CANCELLED");
+                send("EV_GOOGLE_PAY_CANCELLED");
               } else {
-                console.error(err);
-                send("EV_GOOGLE_PAY_ERROR");
+                const errorMsg = err.message || "Something went wrong, please try again";
+                send("EV_GOOGLE_PAY_ERROR", errorMsg);
               }
             }
           },
@@ -98,5 +99,18 @@ export function GooglePay({ config }: GooglePayProps) {
     document.body.appendChild(script);
   }, [app, config, send]);
 
-  return <div className={css.googlePay} ref={container} />;
+  return (
+<div 
+  className={css.googlePay} 
+  ref={container} 
+  style={{
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  }}
+/>
+  );
 }
