@@ -19,9 +19,16 @@ declare global {
 
   namespace JSX {
     interface IntrinsicElements {
-      'apple-pay-button': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-    }
+      'apple-pay-button': React.DetailedHTMLProps<ApplePayButtonAttributes, HTMLElement>;
+    }    
   }
+
+  interface ApplePayButtonAttributes extends React.HTMLAttributes<HTMLElement> {
+    buttonstyle?: string;
+    type?: string;
+    locale?: string;
+  }
+
   interface Window {
     ApplePaySession?: {
       new (
@@ -35,7 +42,7 @@ declare global {
 
 export function ApplePay({ config }: ApplePayProps) {
   const { app } = useSearchParams();
-  const button = useRef<HTMLButtonElement>(null);
+  const button = useRef<HTMLElement>(null);
   const initialized = useRef(false);
   const { on, send } = useMessaging<
     ApplePayHostMessages,
