@@ -44,9 +44,14 @@ export function GooglePay({ config }: GooglePayProps) {
               });
 
               on("EV_GOOGLE_PAY_AUTH_ERROR", (error) => {
+                const googleError: google.payments.api.PaymentDataError = {
+                  reason: error.reason || "OTHER_ERROR",
+                  intent: error.intent || "PAYMENT_AUTHORIZATION",
+                  message: error.message,
+                }
                 resolve({
                   transactionState: "ERROR",
-                  error,
+                  error: googleError,
                 });
               });
 
@@ -71,7 +76,7 @@ export function GooglePay({ config }: GooglePayProps) {
               if (isPaymentError(err) && err.statusCode === "CANCELED") {
                 send("EV_GOOGLE_PAY_CANCELLED");
               } else {
-                const errorMsg = err.message || "Something went wrong, please try again";
+                const errorMsg = `Something went wrong, please try again: ${err}`;
                 send("EV_GOOGLE_PAY_ERROR", errorMsg);
               }
             }
@@ -100,17 +105,9 @@ export function GooglePay({ config }: GooglePayProps) {
   }, [app, config, send]);
 
   return (
-<div 
-  className={css.googlePay} 
-  ref={container} 
-  style={{
-    position: 'relative',
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  }}
-/>
+    <div 
+      className={css.googlePay} 
+      ref={container} 
+    />
   );
 }

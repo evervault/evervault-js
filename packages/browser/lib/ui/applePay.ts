@@ -6,6 +6,7 @@ import type {
   ApplePayOptions,
   ApplePayClientMessages,
   ApplePayHostMessages,
+  ApplePayErrorMessage,
 } from "types";
 import { Transaction } from "../resources/transaction";
 
@@ -44,7 +45,7 @@ export default class ApplePay {
       try {
         let failed = false;
         await this.#options.process(payload, {
-          fail: (err: ApplePayError) => {
+          fail: (err: ApplePayErrorMessage) => {
             failed = true;
             this.#frame.send("EV_APPLE_PAY_AUTH_ERROR", err);
           },
@@ -77,7 +78,9 @@ export default class ApplePay {
       config: {
         type: this.#options.type,
         style: this.#options.style,
+        locale: this.#options.locale,
         borderRadius: this.#options.borderRadius,
+        allowedCardNetworks: this.#options.allowedCardNetworks,
         transaction: this.#transaction.details,
         paymentRequest: this.#options.paymentRequest,
       },

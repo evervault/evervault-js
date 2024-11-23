@@ -222,12 +222,12 @@ export interface GooglePayClientMessages extends EvervaultFrameClientMessages {
 
 export interface GooglePayHostMessages extends EvervaultFrameHostMessages {
   EV_GOOGLE_PAY_AUTH_COMPLETE: undefined;
-  EV_GOOGLE_PAY_AUTH_ERROR: google.payments.api.PaymentDataError;
+  EV_GOOGLE_PAY_AUTH_ERROR: GooglePayErrorMessage;
 }
 
 export interface ApplePayHostMessages extends EvervaultFrameHostMessages {
   EV_APPLE_PAY_COMPLETION: undefined;
-  EV_APPLE_PAY_AUTH_ERROR: ApplePayError;
+  EV_APPLE_PAY_AUTH_ERROR: ApplePayErrorMessage;
 }
 
 export type EncryptedApplePayData = EncryptedDPAN<"apple">;
@@ -250,6 +250,39 @@ export type GooglePayButtonType =
   | "subscribe";
 
 export type GooglePayButtonColor = "black" | "white";
+
+export type GooglePayButtonLocale =
+  | "en"
+  | "ar"
+  | "bg"
+  | "ca"
+  | "cs"
+  | "da"
+  | "de"
+  | "el"
+  | "es"
+  | "et"
+  | "fi"
+  | "fr"
+  | "hr"
+  | "id"
+  | "it"
+  | "ja"
+  | "ko"
+  | "ms"
+  | "nl"
+  | "no"
+  | "pl"
+  | "pt"
+  | "ru"
+  | "sk"
+  | "sl"
+  | "sr"
+  | "sv"
+  | "th"
+  | "tr"
+  | "uk"
+  | "zh";
 
 export interface EncryptedDPAN<P> {
   token: {
@@ -280,21 +313,27 @@ export interface EncryptedFPAN {
 
 export type EncryptedGooglePayData = EncryptedDPAN<"google"> | EncryptedFPAN;
 
+export interface GooglePayErrorMessage {
+  message: string;
+  reason?: google.payments.api.ErrorReason;
+  intent?: google.payments.api.CallbackIntent;
+}
+
 export interface GooglePayOptions {
   process: (
     data: EncryptedGooglePayData,
     helpers: {
-      fail: (error: google.payments.api.PaymentDataError) => void;
+      fail: (error: GooglePayErrorMessage) => void;
     }
   ) => Promise<void>;
   type?: GooglePayButtonType;
   color?: GooglePayButtonColor;
-  locale?: string;
+  locale?: GooglePayButtonLocale;
   borderRadius?: number;
-  environment?: "TEST" | "PRODUCTION";
   size?: { width: string; height: string };
-  allowedAuthMethods?: string[];
-  allowedCardNetworks?: string[];
+  allowedAuthMethods?: google.payments.api.CardAuthMethod[];
+  allowedCardNetworks?: google.payments.api.CardNetwork[];
+  environment?: "TEST" | "PRODUCTION";
 }
 
 export type ApplePayButtonType =
@@ -318,18 +357,89 @@ export type ApplePayButtonType =
 
 export type ApplePayButtonStyle = "black" | "white" | "white-outline";
 
+export type ApplePayButtonLocale =
+| "ar-AB"
+| "ca-ES"
+| "cs-CZ"
+| "da-DK"
+| "de-DE"
+| "el-GR"
+| "en-AU"
+| "en-GB"
+| "en-US"
+| "es-ES"
+| "es-MX"
+| "fi-FI"
+| "fr-CA"
+| "fr-FR"
+| "he-IL"
+| "hi-IN"
+| "hr-HR"
+| "hu-HU"
+| "id-ID"
+| "it-IT"
+| "ja-JP"
+| "ko-KR"
+| "ms-MY"
+| "nb-NO"
+| "nl-NL"
+| "pl-PL"
+| "pt-BR"
+| "pt-PT"
+| "ro-RO"
+| "ru-RU"
+| "sk-SK"
+| "sv-SE"
+| "th-TH"
+| "tr-TR"
+| "uk-UA"
+| "vi-VN"
+| "zh-CN"
+| "zh-HK"
+| "zh-TW";
+
+export type ApplePayCardNetwork =
+| "amex"
+| "bancomat"
+| "bancontact"
+| "cartesBancaires"
+| "chinaUnionPay"
+| "dankort"
+| "discover"
+| "eftpos"
+| "electron"
+| "elo"
+| "girocard"
+| "interac"
+| "jcb"
+| "mada"
+| "maestro"
+| "masterCard"
+| "mir"
+| "privateLabel"
+| "visa"
+| "vPay";
+
+export interface ApplePayErrorMessage {
+  message: string
+  code?: ApplePayJS.ApplePayErrorCode;
+  contactField?: ApplePayJS.ApplePayErrorContactField;
+}
+
 export interface ApplePayOptions {
-  process: (data: EncryptedApplePayData, 
+  process: (
+    data: EncryptedApplePayData,
     helpers: {
-      fail: (error: ApplePayError) => void
+      fail: (error: ApplePayErrorMessage) => void;
     }
   ) => Promise<void>;
   type?: ApplePayButtonType;
   style?: ApplePayButtonStyle;
+  locale?: ApplePayButtonLocale;
   padding?: string;
   borderRadius?: number;
   size?: { width: string; height: string };
-  allowedCardNetworks?: string[];
+  allowedCardNetworks?: ApplePayCardNetwork[];
   paymentRequest?: ApplePayPaymentRequest; 
 }
 

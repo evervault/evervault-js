@@ -16,6 +16,12 @@ interface ApplePayProps {
 }
 
 declare global {
+
+  namespace JSX {
+    interface IntrinsicElements {
+      'apple-pay-button': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+    }
+  }
   interface Window {
     ApplePaySession?: {
       new (
@@ -30,7 +36,6 @@ declare global {
 export function ApplePay({ config }: ApplePayProps) {
   const { app } = useSearchParams();
   const button = useRef<HTMLButtonElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const initialized = useRef(false);
   const { on, send } = useMessaging<
     ApplePayHostMessages,
@@ -92,11 +97,23 @@ export function ApplePay({ config }: ApplePayProps) {
               });
 
               on("EV_APPLE_PAY_AUTH_ERROR", (error) => {
+                if (error.code && error.contactField) {
+                  resolve({
+                    status: ApplePaySession.STATUS_FAILURE,
+                    errors: [
+                      {
+                        code: error.code,
+                        contactField: error.contactField,
+                        message: error.message,
+                      },
+                    ],
+                  });
+                } else {
+                  resolve({
+                    status: ApplePaySession.STATUS_FAILURE,
+                  });
+                }
                 const errorMsg = `Error during payment completion: ${error.message}`;
-                resolve({
-                  status: ApplePaySession.STATUS_FAILURE,
-                });
-
                 send("EV_APPLE_PAY_ERROR", errorMsg);
               });
             }
@@ -115,6 +132,20 @@ export function ApplePay({ config }: ApplePayProps) {
     session.begin();
   };
 
+  useEffect(() => {
+    const buttonElement = button.current;
+
+    if (buttonElement) {
+      buttonElement.addEventListener('click', handleClick);
+    }
+
+    return () => {
+      if (buttonElement) {
+        buttonElement.removeEventListener('click', handleClick);
+      }
+    };
+  }, []);
+
   // device does not support Apple Pay
   if (!window.ApplePaySession || !window.ApplePaySession.canMakePayments()) {
     return null;
@@ -126,39 +157,18 @@ export function ApplePay({ config }: ApplePayProps) {
     );
   }
 
-  useEffect(() => {
-    const buttonElement = button.current;
-    const containerElement = containerRef.current;
-
-    if (buttonElement) {
-      buttonElement.addEventListener('click', handleClick);
-    }
-    if (containerElement) {
-      containerElement.addEventListener('click', handleClick);
-    }
-
-    return () => {
-      if (buttonElement) {
-        buttonElement.removeEventListener('click', handleClick);
-      }
-      if (containerElement) {
-        containerElement.removeEventListener('click', handleClick);
-      }
-    };
-  }, []);
-
-  const containerStyle = {
+  const containerStyle: CSSProperties = {
     position: 'relative',
     width: '100vw',
     height: '100vh',
     display: 'flex'
   };
   
-  const buttonStyle = {
+  const buttonStyle: CSSProperties = {
     '--apple-pay-button-width': '100%',
     '--apple-pay-button-height': '100%',
-    '--apple-pay-button-border-radius': `${config.borderRadius || 4}px`,
-    '--apple-pay-button-padding': `${config.padding || 4}px`,
+    '--apple-pay-button-border-radius': config.borderRadius || '4px',
+    '--apple-pay-button-padding': config.padding || '4px',
     '--apple-pay-button-box-sizing': 'border-box',
     flex: '1',
   } as React.CSSProperties;
@@ -169,6 +179,7 @@ export function ApplePay({ config }: ApplePayProps) {
         ref={button}
         buttonstyle={config.style}
         type={config.type}
+        locale={config.locale}
         style={buttonStyle}
       />
     </div>

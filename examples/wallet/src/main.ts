@@ -17,7 +17,7 @@ const transaction = evervault.transactions.create({
   currency: "USD",
   country: "US",
   merchant: {
-    id: "12345678901234567890",
+    id: "12345678901234567890", //Maybe not needed?
     name: "Doni Donuts",
     evervaultId: "merchant_d8e4353154df",
     applePayIdentifier: "ev-wallet.ngrok.app",
@@ -37,16 +37,14 @@ const transaction = evervault.transactions.create({
 const google = evervault.ui.googlePay(transaction, {
   type: "book",
   color: "white",
-  size: { width: "450px", height: "90px" },
+  size: { width: "250px", height: "50px" },
   allowedAuthMethods: ["PAN_ONLY"],
   allowedCardNetworks: ["MASTERCARD", "VISA"],
   process: async (data, { fail }) => {
     console.log("google process called", data);
 
     fail({
-      reason: "PAYMENT_DATA_INVALID",
       message: "Cannot pay with payment credentials",
-      intent: "PAYMENT_AUTHORIZATION",
     });
   },
 });

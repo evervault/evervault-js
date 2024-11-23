@@ -3,12 +3,14 @@ import {
   ApplePayButtonType,
   TransactionDetails,
   ApplePayPaymentRequest,
+  ApplePayButtonLocale,
 } from "types";
 
 export interface ApplePayConfig {
   transaction: TransactionDetails;
   type: ApplePayButtonType;
   style: ApplePayButtonStyle;
+  locale: ApplePayButtonLocale;
   padding?: string;
   borderRadius?: number;
   allowedCardNetworks?: string[];

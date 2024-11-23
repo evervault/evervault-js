@@ -32,7 +32,7 @@ function App() {
         type: "pay",
         color: "black",
         borderRadius: 15,
-        size: { width: "100%", height: "40px" },
+        size: { width: "100px", height: "40px" },
         allowedAuthMethods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
         allowedCardNetworks: ["VISA", "MASTERCARD"],
         process: async (data) => {
@@ -53,11 +53,12 @@ function App() {
       setInstance(inst);
 
       const apple = evervault.ui.applePay(transaction, {
-        type: "pay",
+        type: "contribute",
         style: "white-outline",
-        size: { width: "30px", height: "40px" },
-        borderRadius: 10,
-        allowedCardNetworks: ["VISA", "MASTERCARD"],
+        locale: "en-US",
+        size: { width: "100px", height: "40px" },
+        borderRadius: 15,
+        allowedCardNetworks: ["visa", "masterCard"],
         process: async (data) => {
           console.log("Sending encrypted data to merchant", data);
           setSuccessMessage("Payment processed successfully! Thank you for your order.");
