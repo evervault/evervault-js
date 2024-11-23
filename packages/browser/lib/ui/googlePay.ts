@@ -31,7 +31,7 @@ export default class GooglePay {
     this.#frame = new EvervaultFrame(client, "GooglePay", {
       size: {
         width: options.size?.width || "250px ",
-        height: options.size?.height ||"45px",
+        height: options.size?.height || "45px",
       },
     });
 

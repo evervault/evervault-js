@@ -70,7 +70,6 @@ export default class ApplePay {
     this.#frame.on("EV_APPLE_PAY_ERROR", (error) => {
       this.#events.dispatch("error", error);
     });
-
   }
 
   get config() {
