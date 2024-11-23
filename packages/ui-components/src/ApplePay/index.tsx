@@ -21,7 +21,7 @@ interface ApplePayButtonAttributes extends React.HTMLAttributes<HTMLElement> {
   locale?: string;
 }
 
-/* eslint-disable @typescript-eslint/prefer-namespace-keyword */
+/* eslint-disable @typescript-eslint/no-namespace */
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -39,7 +39,7 @@ declare global {
     };
   }
 }
-/* eslint-enable @typescript-eslint/prefer-namespace-keyword */
+/* eslint-enable @typescript-eslint/no-namespace */
 
 
 export function ApplePay({ config }: ApplePayProps) {
