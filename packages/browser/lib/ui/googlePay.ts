@@ -6,6 +6,7 @@ import type {
   GooglePayOptions,
   GooglePayClientMessages,
   GooglePayHostMessages,
+  GooglePayErrorMessage,
 } from "types";
 import { Transaction } from "../resources/transaction";
 
@@ -43,7 +44,7 @@ export default class GooglePay {
       try {
         let failed = false;
         await this.#options.process(payload, {
-          fail: (err: google.payments.api.PaymentDataError) => {
+          fail: (err: GooglePayErrorMessage) => {
             failed = true;
             this.#frame.send("EV_GOOGLE_PAY_AUTH_ERROR", err);
           },
