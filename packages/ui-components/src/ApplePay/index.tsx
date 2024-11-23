@@ -15,18 +15,17 @@ interface ApplePayProps {
   config: ApplePayConfig;
 }
 
-declare global {
+interface ApplePayButtonAttributes extends React.HTMLAttributes<HTMLElement> {
+  buttonstyle?: string;
+  type?: string;
+  locale?: string;
+}
 
+declare global {
   namespace JSX {
     interface IntrinsicElements {
       'apple-pay-button': React.DetailedHTMLProps<ApplePayButtonAttributes, HTMLElement>;
-    }    
-  }
-
-  interface ApplePayButtonAttributes extends React.HTMLAttributes<HTMLElement> {
-    buttonstyle?: string;
-    type?: string;
-    locale?: string;
+    }
   }
 
   interface Window {
@@ -90,10 +89,8 @@ export function ApplePay({ config }: ApplePayProps) {
           config.transaction.merchant.evervaultId
         );
 
-        // return the EV encrypted data
         send("EV_APPLE_PAY_AUTH", encrypted);
 
-        // wait for response from the host to say the payment was completed
         const result =
           await new Promise<ApplePayJS.ApplePayPaymentAuthorizationResult>(
             (resolve) => {
@@ -153,7 +150,6 @@ export function ApplePay({ config }: ApplePayProps) {
     };
   }, []);
 
-  // device does not support Apple Pay
   if (!window.ApplePaySession || !window.ApplePaySession.canMakePayments()) {
     return null;
   }
