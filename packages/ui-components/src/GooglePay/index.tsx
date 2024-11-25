@@ -35,7 +35,7 @@ export function GooglePay({ config }: GooglePayProps) {
         environment: config.environment,
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
-            const encrypted = await exchangePaymentData(app, data, config.transaction.merchant.evervaultId!);
+            const encrypted = await exchangePaymentData(app, data, config.transaction.merchant.id);
 
             return new Promise((resolve) => {
               on("EV_GOOGLE_PAY_AUTH_COMPLETE", () => {
@@ -102,7 +102,7 @@ export function GooglePay({ config }: GooglePayProps) {
     script.async = true;
     script.onload = onLoad;
     document.body.appendChild(script);
-  }, [app, config, send]);
+  }, [app, config, send, on]);
 
   const containerStyle: CSSProperties = {
     position: 'relative',

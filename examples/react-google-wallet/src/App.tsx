@@ -20,9 +20,8 @@ function App() {
         currency: "USD",
         country: "US",
         merchant: {
-          id: "12345678901234567890",
+          id: "merchant_d8e4353154df",
           name: "Test Merchant",
-          evervaultId: "merchant_d8e4353154df",
           applePayIdentifier: "ev-wallet.ngrok.app",
         },
       });

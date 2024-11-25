@@ -72,74 +72,75 @@ export function ApplePay({ config }: ApplePayProps) {
     document.body.appendChild(script);
   }, []);
 
-  const handleClick = async () => {
-    const session = buildSession(app, config);
-
-    session.oncancel = () => {
-      send("EV_APPLE_PAY_CANCELLED");
-    };
-
-    session.onpaymentauthorized = async (event) => {
-      try {
-        const {
-          payment: { token },
-        } = event;
-        const { paymentData } = token;
-
-        const encrypted: EncryptedApplePayData = await exchangeApplePaymentData(
-          app,
-          paymentData,
-          config.transaction.merchant.evervaultId
-        );
-
-        send("EV_APPLE_PAY_AUTH", encrypted);
-
-        const result =
-          await new Promise<ApplePayJS.ApplePayPaymentAuthorizationResult>(
-            (resolve) => {
-              on("EV_APPLE_PAY_COMPLETION", () => {
-                resolve({
-                  status: ApplePaySession.STATUS_SUCCESS,
-                });
-              });
-
-              on("EV_APPLE_PAY_AUTH_ERROR", (error) => {
-                if (error.code && error.contactField) {
-                  resolve({
-                    status: ApplePaySession.STATUS_FAILURE,
-                    errors: [
-                      {
-                        code: error.code,
-                        contactField: error.contactField,
-                        message: error.message,
-                      },
-                    ],
-                  });
-                } else {
-                  resolve({
-                    status: ApplePaySession.STATUS_FAILURE,
-                  });
-                }
-                const errorMsg = `Error during payment completion: ${error.message}`;
-                send("EV_APPLE_PAY_ERROR", errorMsg);
-              });
-            }
-          );
-
-        session.completePayment(result);
-      } catch (error) {
-        const errorMsg = `Error during payment completion. Error: ${error}`;
-        session.completePayment({
-          status: ApplePaySession.STATUS_FAILURE,
-        });
-        send("EV_APPLE_PAY_ERROR", errorMsg);
-      }
-    };
-
-    session.begin();
-  };
-
   useEffect(() => {
+    
+    const handleClick = async () => {
+      const session = buildSession(app, config);
+  
+      session.oncancel = () => {
+        send("EV_APPLE_PAY_CANCELLED");
+      };
+  
+      session.onpaymentauthorized = async (event) => {
+        try {
+          const {
+            payment: { token },
+          } = event;
+          const { paymentData } = token;
+  
+          const encrypted: EncryptedApplePayData = await exchangeApplePaymentData(
+            app,
+            paymentData,
+            config.transaction.merchant.id
+          );
+  
+          send("EV_APPLE_PAY_AUTH", encrypted);
+  
+          const result =
+            await new Promise<ApplePayJS.ApplePayPaymentAuthorizationResult>(
+              (resolve) => {
+                on("EV_APPLE_PAY_COMPLETION", () => {
+                  resolve({
+                    status: ApplePaySession.STATUS_SUCCESS,
+                  });
+                });
+  
+                on("EV_APPLE_PAY_AUTH_ERROR", (error) => {
+                  if (error.code && error.contactField) {
+                    resolve({
+                      status: ApplePaySession.STATUS_FAILURE,
+                      errors: [
+                        {
+                          code: error.code,
+                          contactField: error.contactField,
+                          message: error.message,
+                        },
+                      ],
+                    });
+                  } else {
+                    resolve({
+                      status: ApplePaySession.STATUS_FAILURE,
+                    });
+                  }
+                  const errorMsg = `Error during payment completion: ${error.message}`;
+                  send("EV_APPLE_PAY_ERROR", errorMsg);
+                });
+              }
+            );
+  
+          session.completePayment(result);
+        } catch (error) {
+          const errorMsg = `Error during payment completion. Error: ${error}`;
+          session.completePayment({
+            status: ApplePaySession.STATUS_FAILURE,
+          });
+          send("EV_APPLE_PAY_ERROR", errorMsg);
+        }
+      };
+  
+      session.begin();
+    };
+
     const buttonElement = button.current;
 
     if (buttonElement) {
@@ -151,7 +152,7 @@ export function ApplePay({ config }: ApplePayProps) {
         buttonElement.removeEventListener('click', handleClick);
       }
     };
-  }, []);
+  }, [app, config]);
 
   if (!window.ApplePaySession || !window.ApplePaySession.canMakePayments()) {
     return null;

@@ -32,7 +32,7 @@ export function buildPaymentRequest(
           type: "PAYMENT_GATEWAY",
           parameters: {
             gateway: "evervault",
-            gatewayMerchantId: tx.merchant.evervaultId
+            gatewayMerchantId: tx.merchant.id,
           },
         },
       },

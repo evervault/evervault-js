@@ -17,9 +17,8 @@ const transaction = evervault.transactions.create({
   currency: "USD",
   country: "US",
   merchant: {
-    id: "12345678901234567890", //Maybe not needed?
     name: "Doni Donuts",
-    evervaultId: "merchant_d8e4353154df",
+    id: "merchant_d8e4353154df",
     applePayIdentifier: "ev-wallet.ngrok.app",
   },
   lineItems: [
@@ -37,6 +36,8 @@ const transaction = evervault.transactions.create({
 const google = evervault.ui.googlePay(transaction, {
   type: "book",
   color: "white",
+  locale: "en-US",
+  borderRadius: 15,
   size: { width: "250px", height: "50px" },
   allowedAuthMethods: ["PAN_ONLY"],
   allowedCardNetworks: ["MASTERCARD", "VISA"],
@@ -53,7 +54,7 @@ google.on("cancel", () => {
   console.log("cancelled");
 });
 
-google.mount("#container");
+google.mount("#google-pay-button");
 
 const card = evervault.ui.card({
   icons: true,

@@ -53,7 +53,7 @@ async function validateMerchant(
       "X-Evervault-App-Id": app,
     },
     body: JSON.stringify({
-      merchantUuid: tx.merchant.evervaultId,
+      merchantUuid: tx.merchant.id,
       domain: tx.merchant.applePayIdentifier,
     }),
   });
