@@ -173,7 +173,7 @@ export function ApplePay({ config }: ApplePayProps) {
   const buttonStyle: CSSProperties = {
     '--apple-pay-button-width': '100%',
     '--apple-pay-button-height': '100%',
-    '--apple-pay-button-border-radius': `${config.borderRadius}px`|| '4px',
+    '--apple-pay-button-border-radius': `${config.borderRadius|| 4}px`,
     '--apple-pay-button-padding': config.padding || '4px 4px',
     '--apple-pay-button-box-sizing': 'border-box',
     flex: '1',
