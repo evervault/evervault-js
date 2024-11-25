@@ -1,5 +1,5 @@
 import css from "./styles.module.css";
-import { useLayoutEffect, useRef } from "react";
+import { CSSProperties, useLayoutEffect, useRef } from "react";
 import { buildPaymentRequest, exchangePaymentData } from "./utilities";
 import { setSize } from "../utilities/resize";
 import { GooglePayConfig } from "./types";
@@ -104,10 +104,19 @@ export function GooglePay({ config }: GooglePayProps) {
     document.body.appendChild(script);
   }, [app, config, send]);
 
+  const containerStyle: CSSProperties = {
+    position: 'relative',
+    width: '100vw',
+    height: '100vh',
+    display: 'flex'
+  };
+
   return (
-    <div 
-      className={css.googlePay} 
-      ref={container} 
-    />
+    <div style={containerStyle}>
+      <div 
+        className={css.googlePay} 
+        ref={container} 
+      />
+    </div>
   );
 }

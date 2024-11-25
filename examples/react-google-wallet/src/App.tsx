@@ -30,14 +30,21 @@ function App() {
 
       const inst = evervault.ui.googlePay(transaction, {
         type: "pay",
-        color: "black",
+        color: "white",
         borderRadius: 15,
-        size: { width: "100px", height: "40px" },
+        size: { width: "100%", height: "40px" },
         allowedAuthMethods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
         allowedCardNetworks: ["VISA", "MASTERCARD"],
-        process: async (data) => {
+        process: async (data, {fail}) => {
           console.log("Sending encrypted data to merchant", data);
           setSuccessMessage("Payment processed successfully! Thank you for your order.");
+
+          // Simulate a failed payment
+          if (false) {
+            fail({
+              message: "Something went wrong, please try again",
+            });
+          }
         }
       });
 
@@ -56,12 +63,19 @@ function App() {
         type: "contribute",
         style: "white-outline",
         locale: "en-US",
-        size: { width: "100px", height: "40px" },
-        borderRadius: 15,
+        size: { width: "100%", height: "80px" },
+        borderRadius: 10,
         allowedCardNetworks: ["visa", "masterCard"],
-        process: async (data) => {
+        process: async (data, { fail }) => {
           console.log("Sending encrypted data to merchant", data);
           setSuccessMessage("Payment processed successfully! Thank you for your order.");
+
+          // Simulate a failed payment
+          if (false) {
+            fail({
+              message: "Something went wrong, please try again",
+            });
+          }
         }
       });
 
@@ -121,7 +135,7 @@ function App() {
                   />
               </div>
               <div id="google-pay-button" />
-              <div id="apple-pay-button" />
+              {/* <div id="apple-pay-button" /> */}
             </form>
           )}
         </div>
