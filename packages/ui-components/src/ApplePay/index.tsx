@@ -73,7 +73,7 @@ export function ApplePay({ config }: ApplePayProps) {
   }, []);
 
   useEffect(() => {
-    
+
     const handleClick = async () => {
       const session = buildSession(app, config);
   
@@ -155,6 +155,7 @@ export function ApplePay({ config }: ApplePayProps) {
   }, [app, config]);
 
   if (!window.ApplePaySession || !window.ApplePaySession.canMakePayments()) {
+    console.log("Apple Pay is not available on this device/browser");
     return null;
   }
 
