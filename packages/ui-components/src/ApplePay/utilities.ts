@@ -24,7 +24,7 @@ export function buildSession(app: string, config: ApplePayConfig) {
     merchantCapabilities: ["supports3DS"],
     supportedNetworks: config.allowedCardNetworks?.map((network) => network.toLowerCase()) || ["visa", "masterCard", "amex", "discover"],
     total: {
-      label: "Total",
+      label: `${tx.merchant.name}`,
       type: "final",
       amount: (tx.amount / 100).toFixed(2).toString(),
     },

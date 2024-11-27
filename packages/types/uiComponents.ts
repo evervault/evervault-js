@@ -330,7 +330,7 @@ export interface GooglePayOptions {
   color?: GooglePayButtonColor;
   locale?: GooglePayButtonLocale;
   borderRadius?: number;
-  size?: { width: string; height: string };
+  size?: { width: WalletDimension; height: WalletDimension };
   allowedAuthMethods?: google.payments.api.CardAuthMethod[];
   allowedCardNetworks?: google.payments.api.CardNetwork[];
   environment?: "TEST" | "PRODUCTION";
@@ -438,10 +438,12 @@ export interface ApplePayOptions {
   locale?: ApplePayButtonLocale;
   padding?: string;
   borderRadius?: number;
-  size?: { width: string; height: string };
+  size?: { width: WalletDimension; height: WalletDimension };
   allowedCardNetworks?: ApplePayCardNetwork[];
   paymentRequest?: ApplePayPaymentRequest; 
 }
+
+export type WalletDimension = string | number;
 
 export interface TransactionLineItem {
   amount: number;

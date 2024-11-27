@@ -43,7 +43,7 @@ export function buildPaymentRequest(
     },
     transactionInfo: {
       totalPriceStatus: "FINAL",
-      totalPriceLabel: "Total",
+      totalPriceLabel: `Pay ${tx.merchant.name}`,
       totalPrice: (tx.amount / 100).toFixed(2).toString(),
       currencyCode: tx.currency,
       countryCode: tx.country,

@@ -31,7 +31,7 @@ function App() {
         type: "pay",
         color: "white",
         borderRadius: 15,
-        size: { width: "100%", height: "40px" },
+        size: { width: 400, height: "60px" },
         allowedAuthMethods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
         allowedCardNetworks: ["VISA", "MASTERCARD"],
         process: async (data, {fail}) => {
@@ -134,7 +134,7 @@ function App() {
                   />
               </div>
               <div id="google-pay-button" />
-              {/* <div id="apple-pay-button" /> */}
+              <div id="apple-pay-button" />
             </form>
           )}
         </div>

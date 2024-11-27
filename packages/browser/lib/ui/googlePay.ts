@@ -9,6 +9,7 @@ import type {
   GooglePayErrorMessage,
 } from "types";
 import { Transaction } from "../resources/transaction";
+import { getStringDimensionOrDefault } from "../utils";
 
 interface GooglePayEvents {
   ready: () => void;
@@ -31,8 +32,8 @@ export default class GooglePay {
     this.#transaction = transaction;
     this.#frame = new EvervaultFrame(client, "GooglePay", {
       size: {
-        width: options.size?.width || "250px ",
-        height: options.size?.height || "45px",
+        width: getStringDimensionOrDefault(options.size?.width, "250px"),
+        height: getStringDimensionOrDefault(options.size?.height, "45px"),
       },
     });
 

@@ -9,6 +9,7 @@ import type {
   ApplePayErrorMessage,
 } from "types";
 import { Transaction } from "../resources/transaction";
+import { getStringDimensionOrDefault } from "../utils";
 
 interface ApplePayEvents {
   ready: () => void;
@@ -32,8 +33,8 @@ export default class ApplePay {
     this.#transaction = transaction;
     this.#frame = new EvervaultFrame(client, "ApplePay", {
       size: {
-        width: options.size?.width || "150px",
-        height: options.size?.height || "50px",
+        width: getStringDimensionOrDefault(options.size?.width, "150px"),
+        height: getStringDimensionOrDefault(options.size?.height, "50px"),
       },
     });
 
