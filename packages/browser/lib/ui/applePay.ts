@@ -14,7 +14,7 @@ import { getStringDimensionOrDefault } from "../utils";
 interface ApplePayEvents {
   ready: () => void;
   success: () => void;
-  error: () => void;
+  error: (error: string) => void;
   cancel: () => void;
 }
 
@@ -70,6 +70,10 @@ export default class ApplePay {
 
     this.#frame.on("EV_APPLE_PAY_ERROR", (error) => {
       this.#events.dispatch("error", error);
+    });
+
+    this.#frame.on("EV_APPLE_PAY_SUCCESS", () => {
+      this.#events.dispatch("success");
     });
   }
 

@@ -36,7 +36,6 @@ export function GooglePay({ config }: GooglePayProps) {
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
             const encrypted = await exchangePaymentData(app, data, config.transaction.merchant.id);
-
             return new Promise((resolve) => {
               on("EV_GOOGLE_PAY_AUTH_COMPLETE", () => {
                 send("EV_GOOGLE_PAY_SUCCESS");
@@ -54,7 +53,6 @@ export function GooglePay({ config }: GooglePayProps) {
                   error: googleError,
                 });
               });
-
               send("EV_GOOGLE_PAY_AUTH", encrypted);
             });
           },

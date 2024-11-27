@@ -13,7 +13,8 @@ import { getStringDimensionOrDefault } from "../utils";
 
 interface GooglePayEvents {
   ready: () => void;
-  error: () => void;
+  success: () => void;
+  error: (error: string) => void;
   cancel: () => void;
 }
 
@@ -68,6 +69,10 @@ export default class GooglePay {
 
     this.#frame.on("EV_GOOGLE_PAY_ERROR", (error) => {
       this.#events.dispatch("error", error);
+    });
+
+    this.#frame.on("EV_GOOGLE_PAY_SUCCESS", () => {
+      this.#events.dispatch("success");
     });
   }
 

@@ -103,6 +103,7 @@ export function ApplePay({ config }: ApplePayProps) {
                   resolve({
                     status: ApplePaySession.STATUS_SUCCESS,
                   });
+                  send("EV_APPLE_PAY_SUCCESS")
                 });
   
                 on("EV_APPLE_PAY_AUTH_ERROR", (error) => {
@@ -127,7 +128,6 @@ export function ApplePay({ config }: ApplePayProps) {
                 });
               }
             );
-  
           session.completePayment(result);
         } catch (error) {
           const errorMsg = `Error during payment completion. Error: ${error}`;

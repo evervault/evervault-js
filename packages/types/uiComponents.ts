@@ -223,11 +223,13 @@ export interface GooglePayClientMessages extends EvervaultFrameClientMessages {
 export interface GooglePayHostMessages extends EvervaultFrameHostMessages {
   EV_GOOGLE_PAY_AUTH_COMPLETE: undefined;
   EV_GOOGLE_PAY_AUTH_ERROR: GooglePayErrorMessage;
+  EV_GOOGLE_PAY_SUCCESS: undefined;
 }
 
 export interface ApplePayHostMessages extends EvervaultFrameHostMessages {
   EV_APPLE_PAY_COMPLETION: undefined;
   EV_APPLE_PAY_AUTH_ERROR: ApplePayErrorMessage;
+  EV_APPLE_PAY_SUCCESS: undefined;
 }
 
 export type EncryptedApplePayData = EncryptedDPAN<"apple">;

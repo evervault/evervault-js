@@ -36,7 +36,10 @@ function App() {
         allowedCardNetworks: ["VISA", "MASTERCARD"],
         process: async (data, {fail}) => {
           console.log("Sending encrypted data to merchant", data);
-          setSuccessMessage("Payment processed successfully! Thank you for your order.");
+
+          await new Promise((resolve) => {
+            setTimeout(resolve, 2000);
+          });
 
           // Simulate a failed payment
           if (false) {
@@ -51,8 +54,13 @@ function App() {
         console.log("Google Pay cancelled");
       });
 
-      inst.on("error", () => {
-        console.error("Google Pay error");
+      inst.on("error", (error: string) => {
+        console.error("Google Pay error - ", error);
+      });
+
+      inst.on("success", () => {
+        console.log("Google Pay success callback triggered - setting success");
+        setSuccessMessage("Payment processed successfully! Thank you for your order.");
       });
 
       inst.mount("#google-pay-button");
@@ -67,7 +75,10 @@ function App() {
         allowedCardNetworks: ["visa", "masterCard"],
         process: async (data, { fail }) => {
           console.log("Sending encrypted data to merchant", data);
-          setSuccessMessage("Payment processed successfully! Thank you for your order.");
+        
+          await new Promise((resolve) => {
+            setTimeout(resolve, 2000);
+          });
 
           // Simulate a failed payment
           if (false) {
@@ -80,6 +91,15 @@ function App() {
 
       apple.on("cancel", () => {
         console.log("Apple Pay cancelled");
+      });
+
+      apple.on("error", (error) => {
+        console.error("Apple Pay error", error);
+      });
+
+      apple.on("success", () => {
+        console.log("Apple Pay success callback triggered - setting success");
+        setSuccessMessage("Payment processed successfully! Thank you for your order.");
       });
       
       apple.mount("#apple-pay-button");
