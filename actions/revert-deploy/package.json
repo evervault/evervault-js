@@ -1,0 +1,28 @@
+{
+  "name": "@ev/revert-s3-deploy",
+  "description": "GitHub Actions for revert S3 deployments",
+  "private": true,
+  "exports": "./dist/index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "tsup --config packages/tsconfig/app.tsup.config.json",
+    "build:watch": "npm run build -- --watch",
+    "clean": "rm -rf .turbo .nyc_output node_modules dist",
+    "lint": "tsc && eslint .",
+    "lint:fix": "eslint --fix ."
+  },
+  "dependencies": {
+    "@actions/core": "catalog:",
+    "@actions/github": "catalog:",
+    "@aws-sdk/client-s3": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "tsconfig": "workspace:*",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
+  }
+}
