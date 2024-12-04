@@ -1,0 +1,11 @@
+{
+  "entry": ["src/index.ts"],
+  "clean": true,
+  "dts": true,
+  "sourcemap": true,
+  "splitting": true,
+  "treeshake": true,
+  "format": ["cjs", "esm"],
+  "target": "node18",
+  "skipNodeModulesBundle": true 
+}

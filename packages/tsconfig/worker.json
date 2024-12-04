@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Default",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "checkJs": false,
+    "lib": [
+      "es2021"
+    ],
+    "module": "es2022",
+    "moduleResolution": "Bundler",
+    "target": "es2021",
+    "types": [
+      "@cloudflare/workers-types",
+      "node"
+    ]
+  }
+}
