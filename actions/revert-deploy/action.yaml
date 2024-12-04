@@ -1,0 +1,27 @@
+name: "S3 Rollback Action"
+description: "Rollback S3 bucket contents to previous versions"
+author: "Evervault"
+inputs:
+  stage:
+    description: "Environment stage (staging/production)"
+    required: true
+  bucket:
+    description: "Bucket type to rollback (js-sdk/3ds/ui-comps/inputs)"
+    required: true
+  dry-run:
+    description: "Run in dry-run mode"
+    required: false
+    default: "true"
+  github-token:
+    description: "GitHub token"
+    required: true
+    default: ${{ github.token }}
+outputs:
+  processed-files:
+    description: "Number of files processed during rollback"
+runs:
+  using: "node20"
+  main: "dist/index.js"
+branding:
+  icon: "rotate-ccw"
+  color: "orange"
