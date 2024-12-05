@@ -70,6 +70,11 @@ export interface CardPayload {
 
 export type CardField = "name" | "number" | "expiry" | "cvc";
 
+export interface FieldEvent {
+  field: CardField;
+  data: CardPayload;
+}
+
 interface CardFieldTranslations<E extends TranslationsObject>
   extends TranslationsObject {
   label?: string;
@@ -153,6 +158,10 @@ export interface CardFrameClientMessages extends EvervaultFrameClientMessages {
   EV_CHANGE: CardPayload;
   EV_COMPLETE: CardPayload;
   EV_VALIDATED: CardPayload;
+  EV_FOCUS: CardField;
+  EV_BLUR: CardField;
+  EV_KEYDOWN: CardField;
+  EV_KEYUP: CardField;
 }
 
 export interface CardFrameHostMessages extends EvervaultFrameHostMessages {
