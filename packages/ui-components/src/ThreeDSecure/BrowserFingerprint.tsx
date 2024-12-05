@@ -21,7 +21,7 @@ export function BrowserFingerprint({
 
     if (!initialized.current) {
       initialized.current = true;
-      postRedirectFrame(frame.current, action.url, { data: action.data });
+      postRedirectFrame(frame.current, action.url, { threeDSMethodData: action.data });
     }
 
     const handleMessage = (e: MessageEvent) => {
