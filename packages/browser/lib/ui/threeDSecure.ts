@@ -47,6 +47,13 @@ export default class ThreeDSecure {
       void this.#handleOutcome("failure", cres);
     });
 
+    this.#frame.on("EV_FAIL_ON_CHALLENGE", () => {
+      void this.#handleOutcome("failure");
+      if (typeof this.#options.failOnChallenge === "function") {
+        this.#options.failOnChallenge();
+      }
+    });
+
     this.#frame.on("EV_CANCEL", () => {
       void this.#handleOutcome("cancelled");
     });
@@ -90,6 +97,7 @@ export default class ThreeDSecure {
         session: this.#session,
         size: this.#options.size,
         isOverlay: this.#isOverlay,
+        failOnChallenge: Boolean(this.#options.failOnChallenge),
       },
     };
   }
