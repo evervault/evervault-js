@@ -11,6 +11,7 @@ export interface ThreeDSecureProps {
   onSuccess?: () => void;
   onFailure?: () => void;
   onError?: (error: ComponentError) => void;
+  failOnChallenge?: boolean | (() => void);
 }
 
 type ThreeDSecureInstance = ReturnType<Evervault["ui"]["threeDSecure"]>;
@@ -23,6 +24,7 @@ export function ThreeDSecure({
   onError,
   onSuccess,
   onFailure,
+  failOnChallenge,
 }: ThreeDSecureProps) {
   const ev = useEvervault();
   const initialized = React.useRef(false);
@@ -55,8 +57,9 @@ export function ThreeDSecure({
     () => ({
       theme,
       size,
+      failOnChallenge,
     }),
-    [theme, size]
+    [theme, size, failOnChallenge]
   );
 
   React.useLayoutEffect(() => {
