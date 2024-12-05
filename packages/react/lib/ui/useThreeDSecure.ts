@@ -6,6 +6,7 @@ import { useEvervault } from "../useEvervault";
 interface UseThreeDSecureOptions {
   theme?: ThemeDefinition;
   size?: { width: string; height: string };
+  failOnChallenge?: boolean | (() => void);
 }
 
 interface UseThreeDSecureCallbacks {
