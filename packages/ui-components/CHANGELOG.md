@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.18.0
+
+### Minor Changes
+
+- 3baa9d4: Bugfix: Update method URL form field name
+
 ## 1.17.0
 
 ### Minor Changes
