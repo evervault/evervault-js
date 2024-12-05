@@ -639,8 +639,8 @@ test.describe("card component", () => {
     await frame.getByLabel("Number").fill("4242424242424242");
     await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
     await frame.getByLabel("Expiration").blur();
-    // delay 500ms for any animations to complete
-    await page.waitForTimeout(500);
+    // delay for any animations or messages to complete
+    await page.waitForTimeout(1000);
     expect(await page.screenshot()).toMatchSnapshot();
   });
 
@@ -657,8 +657,8 @@ test.describe("card component", () => {
     await frame.getByLabel("Number").fill("4242424242424242");
     await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
     await frame.getByLabel("Expiration").blur();
-    // delay 500ms for any animations to complete
-    await page.waitForTimeout(500);
+    // delay for any animations or messages to complete
+    await page.waitForTimeout(1000);
     expect(await page.screenshot()).toMatchSnapshot();
   });
 
@@ -675,8 +675,8 @@ test.describe("card component", () => {
     await frame.getByLabel("Number").fill("4242424242424242");
     await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
     await frame.getByLabel("Expiration").blur();
-    // delay 500ms for any animations to complete
-    await page.waitForTimeout(500);
+    // delay for any animations or messages to complete
+    await page.waitForTimeout(1000);
     expect(await page.screenshot()).toMatchSnapshot();
   });
 
@@ -690,8 +690,8 @@ test.describe("card component", () => {
     await frame.getByLabel("Number").fill("4242424242424242");
     await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
     await frame.getByLabel("Expiration").blur();
-    // delay 500ms for any animations to complete
-    await page.waitForTimeout(500);
+    // delay for any animations or messages to complete
+    await page.waitForTimeout(1000);
     expect(await page.screenshot()).toMatchSnapshot();
   });
 
