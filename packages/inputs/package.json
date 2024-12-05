@@ -28,7 +28,7 @@
     "rollup-plugin-sri": "^1.3.4",
     "tsconfig": "workspace:^",
     "typescript": "5.5.4",
-    "vite": "^4.5.5",
+    "vite": "^6.0.2",
     "vite-plugin-dts": "^3.6.3"
   },
   "dependencies": {
