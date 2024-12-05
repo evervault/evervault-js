@@ -8,8 +8,6 @@
     "base.json",
     "browser.json",
     "library.tsup.config.json",
-    "node.json",
-    "worker.json"
+    "node.json"
   ]
 }
-

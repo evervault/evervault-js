@@ -11,6 +11,6 @@
   "devDependencies": {
     "dotenv": "^16.4.5",
     "typescript": "5.5.4",
-    "vite": "^4.5.5"
+    "vite": "^6.0.2"
   }
 }

@@ -10,6 +10,6 @@
     "@evervault/browser": "workspace:*"
   },
   "devDependencies": {
-    "vite": "^4.5.5"
+    "vite": "^6.0.2"
   }
 }

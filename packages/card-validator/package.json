@@ -31,12 +31,11 @@
     "build": "vite build",
     "clean": "rm -rf .turbo node_modules dist"
   },
-  "dependencies": {},
   "devDependencies": {
-    "vitest": "^0.29.8",
     "types": "workspace:*",
     "typescript": "5.5.4",
-    "vite": "^4.5.5",
-    "vite-plugin-dts": "^3.6.3"
+    "vite": "^6.0.2",
+    "vite-plugin-dts": "^3.6.3",
+    "vitest": "^2.1.8"
   }
 }
