@@ -46,6 +46,10 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
     if (session?.status === "failure") {
       send("EV_FAILURE");
     }
+
+    if (isChallengeAction(session?.nextAction) && config.failOnChallenge) {
+      send("EV_FAIL_ON_CHALLENGE");
+    }
   }, [session]);
 
   return (
@@ -63,7 +67,7 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
           />
         )}
 
-        {isChallengeAction(session?.nextAction) && (
+        {isChallengeAction(session?.nextAction) && !config.failOnChallenge && (
           <ChallengeFrame
             nextAction={session.nextAction}
             onLoad={() => setChallengeFrameReady(true)}
