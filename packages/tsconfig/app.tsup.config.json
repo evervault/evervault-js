@@ -3,8 +3,7 @@
     "src/index.ts"
   ],
   "format": [
-    "cjs",
-    "esm"
+    "cjs"
   ],
   "clean": true,
   "sourcemap": true,
