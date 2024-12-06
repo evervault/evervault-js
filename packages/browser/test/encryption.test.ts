@@ -9,15 +9,6 @@ const encryptedStringRegex =
 const debugStringRegex =
   /((ev(:|%3A))(debug(:|%3A))(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
 
-declare module "vitest" {
-  export interface TestContext {
-    ev: Evervault;
-    evDebug: Evervault;
-    evClient: Evervault;
-    evCustomClient: Evervault;
-  }
-}
-
 interface Person {
   name: string;
   employer: {
@@ -29,7 +20,11 @@ interface Person {
 }
 
 describe("Encryption", () => {
-  beforeEach((context) => {
+  interface TestContext {
+    ev: Evervault;
+  }
+
+  beforeEach<TestContext>((context) => {
     setupCrypto();
     context.ev = new Evervault(
       import.meta.env.VITE_EV_TEAM_UUID,
@@ -37,22 +32,22 @@ describe("Encryption", () => {
     );
   });
 
-  it("it encrypts a string", async (context) => {
+  it<TestContext>("it encrypts a string", async (context) => {
     const encryptedString = await context.ev.encrypt("Big Secret");
     assert(encryptedStringRegex.test(encryptedString));
   });
 
-  it("it encrypts a number", async (context) => {
+  it<TestContext>("it encrypts a number", async (context) => {
     const encryptedString = await context.ev.encrypt(12345);
     assert(encryptedStringRegex.test(encryptedString));
   });
 
-  it("it encrypts a boolean", async (context) => {
+  it<TestContext>("it encrypts a boolean", async (context) => {
     const encryptedString = await context.ev.encrypt(true);
     assert(encryptedStringRegex.test(encryptedString));
   });
 
-  it("it encrypts all datatypes in an object", async (context) => {
+  it<TestContext>("it encrypts all datatypes in an object", async (context) => {
     const encryptedObject = (await context.ev.encrypt({
       name: "Claude Shannon",
       employer: {
@@ -72,7 +67,11 @@ describe("Encryption", () => {
 });
 
 describe("Encryption with debug mode", () => {
-  beforeEach((context) => {
+  interface TestContext {
+    evDebug: Evervault;
+  }
+
+  beforeEach<TestContext>((context) => {
     setupCrypto();
     context.evDebug = new Evervault(
       import.meta.env.VITE_EV_TEAM_UUID,
@@ -85,14 +84,14 @@ describe("Encryption with debug mode", () => {
     );
   });
 
-  it("enforces debug mode even if config contains a public key", async (context) => {
+  it<TestContext>("enforces debug mode even if config contains a public key", async (context) => {
     const string = "hello world";
 
     const encryptedString = await context.evDebug.encrypt(string);
     assert(debugStringRegex.test(encryptedString));
   });
 
-  it("does not enforce debug mode when config has public key and debugMode is false", async () => {
+  it<TestContext>("does not enforce debug mode when config has public key and debugMode is false", async () => {
     const evDebug = new Evervault(
       import.meta.env.VITE_EV_TEAM_UUID,
       import.meta.env.VITE_EV_APP_UUID,
@@ -109,7 +108,7 @@ describe("Encryption with debug mode", () => {
     expect(debugStringRegex.test(encryptedString)).toBe(false);
   });
 
-  it("should use debug encryption if set in the config", async () => {
+  it<TestContext>("should use debug encryption if set in the config", async () => {
     const evDebug = new Evervault(
       import.meta.env.VITE_EV_TEAM_UUID,
       import.meta.env.VITE_EV_APP_UUID,
@@ -124,7 +123,12 @@ describe("Encryption with debug mode", () => {
 });
 
 describe("File Encryption", () => {
-  beforeEach((context) => {
+  interface TestContext {
+    ev: Evervault;
+    evDebug: Evervault;
+  }
+
+  beforeEach<TestContext>((context) => {
     setupCrypto();
     context.ev = new Evervault(
       import.meta.env.VITE_EV_TEAM_UUID,
@@ -137,7 +141,7 @@ describe("File Encryption", () => {
     );
   });
 
-  it("it encrypts a file", async (context) => {
+  it<TestContext>("it encrypts a file", async (context) => {
     const file = new File(["hello world"], "hello.txt");
     const encryptedFile = await context.ev.encrypt(file);
 
@@ -161,7 +165,7 @@ describe("File Encryption", () => {
     );
   });
 
-  it("it encrypts a file in debug mode", async (context) => {
+  it<TestContext>("it encrypts a file in debug mode", async (context) => {
     const file = new File(["hello world"], "hello.txt");
 
     const encryptedFile = await context.evDebug.encrypt(file);
@@ -186,7 +190,7 @@ describe("File Encryption", () => {
     );
   });
 
-  it("throws an error if the file is too large", async (context) => {
+  it<TestContext>("throws an error if the file is too large", async (context) => {
     const file = new File(["hello world"], "hello.txt");
     Object.defineProperty(file, "size", { value: 26 * 1024 * 1024 });
     await expect(() => context.ev.encrypt(file)).rejects.toThrowError(
@@ -194,7 +198,7 @@ describe("File Encryption", () => {
     );
   });
 
-  it("it encrypts a blob", async (context) => {
+  it<TestContext>("it encrypts a blob", async (context) => {
     const blob = new Blob(["hello world"]);
     const encryptedFile = await context.ev.encrypt(blob);
 
@@ -217,7 +221,7 @@ describe("File Encryption", () => {
     );
   });
 
-  it("it encrypts a blob in debug mode", async (context) => {
+  it<TestContext>("it encrypts a blob in debug mode", async (context) => {
     const blob = new Blob(["hello world"]);
 
     const encryptedFile = await context.evDebug.encrypt(blob);
@@ -241,7 +245,7 @@ describe("File Encryption", () => {
     );
   });
 
-  it("it encrypts a file and verifies that the crc32 was genered correctly", async (context) => {
+  it<TestContext>("it encrypts a file and verifies that the crc32 was genered correctly", async (context) => {
     const file = new File(["hello world"], "hello.txt");
     const encryptedFile = await context.ev.encrypt(file);
     const data = await encryptedFile.arrayBuffer();
@@ -257,14 +261,14 @@ describe("File Encryption", () => {
     assert(crc32FromFile === crc32FromFileContents);
   });
 
-  it("it doesnt encrypt a file with metadata", async (context) => {
+  it<TestContext>("it doesnt encrypt a file with metadata", async (context) => {
     const file = new File(["Hello world"], "hello.txt");
     await expect(() => context.ev.encrypt(file, "role")).rejects.toThrowError(
       /Data roles are not supported for files./
     );
   });
 
-  it("throws an error if the blob is too large", async (context) => {
+  it<TestContext>("throws an error if the blob is too large", async (context) => {
     const blob = new Blob(["hello world"]);
     Object.defineProperty(blob, "size", { value: 26 * 1024 * 1024 });
     await expect(() => context.ev.encrypt(blob)).rejects.toThrowError(
@@ -274,7 +278,13 @@ describe("File Encryption", () => {
 });
 
 describe("Encryption with evervault async initailization", () => {
-  beforeEach(async (context) => {
+  interface TestContext {
+    evDebug: Evervault;
+    evClient: Evervault;
+    evCustomClient: Evervault;
+  }
+
+  beforeEach<TestContext>(async (context) => {
     setupCrypto();
     context.evClient = await Evervault.init(
       import.meta.env.VITE_EV_TEAM_UUID,
@@ -295,22 +305,22 @@ describe("Encryption with evervault async initailization", () => {
     );
   });
 
-  it("encrypts a string", async (context) => {
+  it<TestContext>("encrypts a string", async (context) => {
     const encryptedString = await context.evClient.encrypt("Big Secret");
     assert(encryptedStringRegex.test(encryptedString));
   });
 
-  it("encrypts a string in debug mode", async (context) => {
+  it<TestContext>("encrypts a string in debug mode", async (context) => {
     const encryptedString = await context.evDebug.encrypt("Big Secret");
     assert(debugStringRegex.test(encryptedString));
   });
 
-  it("encrypts with a user defined key", async (context) => {
+  it<TestContext>("encrypts with a user defined key", async (context) => {
     const encryptedString = await context.evCustomClient.encrypt("Big Secret");
     assert(encryptedStringRegex.test(encryptedString));
   });
 
-  it("throws an error if getting app key fails", async () => {
+  it<TestContext>("throws an error if getting app key fails", async () => {
     await expect(
       Evervault.init(
         import.meta.env.VITE_EV_TEAM_UUID,
