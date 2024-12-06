@@ -26,6 +26,7 @@
   },
   "scripts": {
     "build": "vite build",
+    "clean": "rm -rf .turbo node_modules dist",
     "coverage": "vitest --coverage",
     "dev": "concurrently --kill-others --success first \"pnpm dev:build\" \"pnpm dev:preview\"",
     "dev:build": "vite build --watch",
@@ -36,8 +37,7 @@
     "lint:fix": "eslint --fix .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit",
-    "clean": "rm -rf .turbo node_modules dist"
+    "typecheck": "tsc --noEmit"
   },
   "license": "MIT",
   "dependencies": {

@@ -76,7 +76,7 @@ export function validateNumber(cardNumber: string): CardNumberValidationResult {
   // 1. The card number belongs to at least one card brand range
   // 2. The length of the card number is supported, based on all supported card brands
   // 3. The Luhn check passes, based on all supported card brands
-  let isValid =
+  const isValid =
     cardBrands.length > 0 &&
     cardBrands.every((creditCardBrand) => {
       const { lengths, luhnCheck } = creditCardBrand.numberValidationRules;
@@ -130,7 +130,7 @@ export function validateCVC(
     };
   }
 
-  let brands: CardBrandName[] = [];
+  const brands: CardBrandName[] = [];
   if (validatedCard.brand) {
     brands.push(validatedCard.brand);
   }

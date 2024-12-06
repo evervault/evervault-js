@@ -35,7 +35,11 @@ export function GooglePay({ config }: GooglePayProps) {
         environment: config.environment,
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
-            const encrypted = await exchangePaymentData(app, data, config.transaction.merchant.id);
+            const encrypted = await exchangePaymentData(
+              app,
+              data,
+              config.transaction.merchant.id
+            );
             return new Promise((resolve) => {
               on("EV_GOOGLE_PAY_AUTH_COMPLETE", () => {
                 send("EV_GOOGLE_PAY_SUCCESS");
@@ -47,7 +51,7 @@ export function GooglePay({ config }: GooglePayProps) {
                   reason: error.reason || "OTHER_ERROR",
                   intent: error.intent || "PAYMENT_AUTHORIZATION",
                   message: error.message,
-                }
+                };
                 resolve({
                   transactionState: "ERROR",
                   error: googleError,
@@ -103,18 +107,15 @@ export function GooglePay({ config }: GooglePayProps) {
   }, [app, config, send, on]);
 
   const containerStyle: CSSProperties = {
-    position: 'relative',
-    width: '100vw',
-    height: '100vh',
-    display: 'flex'
+    position: "relative",
+    width: "100vw",
+    height: "100vh",
+    display: "flex",
   };
 
   return (
     <div style={containerStyle}>
-      <div 
-        className={css.googlePay} 
-        ref={container} 
-      />
+      <div className={css.googlePay} ref={container} />
     </div>
   );
 }

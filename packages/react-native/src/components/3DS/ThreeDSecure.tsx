@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React from "react";
 import { ThreeDSecureProviderProps } from "./types";
 import { useEvervault } from "../EvervaultProvider";
 import { ThreeDSecureFrame } from "./ThreeDSecureFrame";

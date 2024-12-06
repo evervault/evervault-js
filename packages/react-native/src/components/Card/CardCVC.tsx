@@ -3,9 +3,9 @@ import * as React from "react";
 import { useEffect, useMemo } from "react";
 import { TextInputMask } from "react-native-masked-text";
 import { removeFieldFromSet, useCardContext } from "./context";
-import { BaseProps } from "./Card";
+import { type BaseProps } from "./Card";
 
-export interface CVCProps extends BaseProps {}
+export type CVCProps = BaseProps;
 
 export const CardCVC = (props: CVCProps) => {
   const context = useCardContext();

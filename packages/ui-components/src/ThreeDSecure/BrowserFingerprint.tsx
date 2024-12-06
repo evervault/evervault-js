@@ -21,7 +21,9 @@ export function BrowserFingerprint({
 
     if (!initialized.current) {
       initialized.current = true;
-      postRedirectFrame(frame.current, action.url, { threeDSMethodData: action.data });
+      postRedirectFrame(frame.current, action.url, {
+        threeDSMethodData: action.data,
+      });
     }
 
     const handleMessage = (e: MessageEvent) => {
@@ -33,7 +35,6 @@ export function BrowserFingerprint({
     const timeout = setTimeout(onTimeout, 5000);
     window.addEventListener("message", handleMessage);
 
-    // eslint-disable-next-line consistent-return
     return () => {
       clearTimeout(timeout);
       window.removeEventListener("message", handleMessage);

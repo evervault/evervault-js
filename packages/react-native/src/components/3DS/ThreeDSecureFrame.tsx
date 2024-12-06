@@ -1,5 +1,5 @@
-import React, { useContext, useState } from "react";
-import { View, StyleSheet } from "react-native";
+import React, { useContext } from "react";
+import { View } from "react-native";
 import { useEvervault } from "../EvervaultProvider";
 import WebView from "react-native-webview";
 import { CHALLENGE_DOMAIN_3DS } from "./config";

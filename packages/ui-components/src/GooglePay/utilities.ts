@@ -71,7 +71,7 @@ export async function exchangePaymentData(
     token,
     merchantId,
   };
-  
+
   const response = await fetch(`${API}/frontend/google-pay/credentials`, {
     method: "POST",
     headers: {

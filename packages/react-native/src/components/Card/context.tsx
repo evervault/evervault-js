@@ -10,7 +10,7 @@ type Context<T> = {
 
 export const removeFieldFromSet = (prev: Set<CardField>, field: CardField) => {
   const next = new Set(prev);
-  next.delete("name");
+  next.delete(field);
   return next;
 };
 
