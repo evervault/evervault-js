@@ -1,5 +1,5 @@
-import React, { useContext, useState } from "react";
-import { View, StyleSheet } from "react-native";
+import React, { useContext } from "react";
+import { View } from "react-native";
 import { useEvervault } from "../EvervaultProvider";
 import WebView from "react-native-webview";
 import { CHALLENGE_DOMAIN_3DS } from "./config";
@@ -10,13 +10,16 @@ export function ThreeDSecureFrame() {
   const { teamUuid, appUuid } = useEvervault();
   const context = useContext(ThreeDSecureContext);
 
-
   if (!teamUuid || !appUuid) {
-    throw new Error('Missing Evervault Team or App Uuid. Make sure the ThreeDSecureFrame is nested within the Evervault Provider');
+    throw new Error(
+      "Missing Evervault Team or App Uuid. Make sure the ThreeDSecureFrame is nested within the Evervault Provider"
+    );
   }
 
   if (!context) {
-    throw new Error("ThreeDSecure.Frame must be used within an Evervault ThreeDSecure provider component");
+    throw new Error(
+      "ThreeDSecure.Frame must be used within an Evervault ThreeDSecure provider component"
+    );
   }
 
   const { session } = context;

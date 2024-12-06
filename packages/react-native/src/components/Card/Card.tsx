@@ -16,11 +16,10 @@ import { CardHolder } from "./CardHolder";
 import { CardExpiry } from "./CardExpiry";
 import { StyleProp, TextInputProps, TextStyle, View } from "react-native";
 
-export interface BaseProps
-  extends Omit<
-    TextInputProps,
-    "onChange" | "onChangeText" | "inputMode" | "autoComplete" | "value"
-  > {}
+export type BaseProps = Omit<
+  TextInputProps,
+  "onChange" | "onChangeText" | "inputMode" | "autoComplete" | "value"
+>;
 
 export interface CardProps {
   initialValue?: Partial<CardForm>;

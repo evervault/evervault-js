@@ -1,4 +1,4 @@
-import { describe, assert, it, beforeEach, expect } from "vitest";
+import { describe, it, expect } from "vitest";
 import { validateExpiry } from "../index";
 import { CardExpiryValidationResult } from "../types";
 

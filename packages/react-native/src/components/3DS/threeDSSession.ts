@@ -8,12 +8,12 @@ import { EV_API_DOMAIN } from "./config";
 
 const stopPolling = (
   intervalRef: React.MutableRefObject<NodeJS.Timeout | null>,
-  setIsVisible: (show: boolean) => void,
+  setIsVisible: (show: boolean) => void
 ) => {
   setIsVisible(false);
   clearInterval(intervalRef.current!);
   intervalRef.current = null;
-}
+};
 
 export const startSession = async (
   session: ThreeDSecureSession,

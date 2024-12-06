@@ -51,7 +51,7 @@ export function RevealCopyButton({
       .then(() => {
         messages.send("EV_COPY");
       })
-      .catch(console.error); // eslint-disable-line no-console
+      .catch(console.error);
   };
 
   if (!text) return null;

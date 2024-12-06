@@ -16,7 +16,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [
-    dts({ rollupTypes: true, bundledPackages: ["types"] }),
-  ],
+  plugins: [dts({ rollupTypes: true, bundledPackages: ["types"] })],
 });

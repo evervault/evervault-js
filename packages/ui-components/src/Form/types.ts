@@ -1,26 +1,26 @@
 import type { ThemeObject } from "types";
 
 export interface FormConfig {
-    autoFocus?: boolean;
-    theme?: ThemeObject;
-    formUuid: string;
-    formSubmissionUrl: string;
+  autoFocus?: boolean;
+  theme?: ThemeObject;
+  formUuid: string;
+  formSubmissionUrl: string;
 }
 
 export interface FormElement {
-    elementName: string;
-    elementType: string;
-    options?: { value: string; label: string }[];
-    type?: string;
-    required: boolean;
+  elementName: string;
+  elementType: string;
+  options?: { value: string; label: string }[];
+  type?: string;
+  required: boolean;
 }
 
 export interface FormApiResponse {
-    id: number;
-    uuid: string;
-    appUuid: string;
-    targetElements: FormElement[];
-    createdAt: string;
-    updatedAt: string;
-    deletedAt: string | null;
+  id: number;
+  uuid: string;
+  appUuid: string;
+  targetElements: FormElement[];
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
 }

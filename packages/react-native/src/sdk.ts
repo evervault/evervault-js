@@ -20,7 +20,7 @@ export async function init(teamUuid: string, appUuid: string): Promise<void> {
   return EvervaultSdk.initialize(teamUuid, appUuid);
 }
 
-export async function encrypt(data: any): Promise<string> {
+export async function encrypt(data: unknown): Promise<string> {
   if (Platform.OS === "android" && typeof data !== "string") {
     throw new Error(`The Evervault SDK does not currently support encrypting non-string data on Android.
       If this is required for your use case, please get in touch with us at support@evervault.com. Please do not
