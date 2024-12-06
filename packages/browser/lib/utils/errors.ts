@@ -1,4 +1,3 @@
- 
 export class EvervaultError extends Error {
   type: string;
 

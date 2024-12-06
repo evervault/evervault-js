@@ -21,7 +21,6 @@ export function setupCrypto(): void {
     writable: true,
   });
 
-   
   class FileReaderPolyfill {
     result?: Buffer;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

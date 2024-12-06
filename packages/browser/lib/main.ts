@@ -133,7 +133,7 @@ export default class EvervaultClient {
   }
 
   // TODO: make this private and static
-   
+
   getContext(origin: string, inputsUrl: string): SdkContext {
     if (origin === inputsUrl) {
       return "inputs";

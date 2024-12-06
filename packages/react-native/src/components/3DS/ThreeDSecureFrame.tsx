@@ -10,13 +10,16 @@ export function ThreeDSecureFrame() {
   const { teamUuid, appUuid } = useEvervault();
   const context = useContext(ThreeDSecureContext);
 
-
   if (!teamUuid || !appUuid) {
-    throw new Error('Missing Evervault Team or App Uuid. Make sure the ThreeDSecureFrame is nested within the Evervault Provider');
+    throw new Error(
+      "Missing Evervault Team or App Uuid. Make sure the ThreeDSecureFrame is nested within the Evervault Provider"
+    );
   }
 
   if (!context) {
-    throw new Error("ThreeDSecure.Frame must be used within an Evervault ThreeDSecure provider component");
+    throw new Error(
+      "ThreeDSecure.Frame must be used within an Evervault ThreeDSecure provider component"
+    );
   }
 
   const { session } = context;

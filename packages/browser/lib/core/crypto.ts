@@ -229,7 +229,7 @@ export class CoreCrypto {
         const readerResult = reader.result;
         if (readerResult == null || typeof readerResult === "string") {
           // No idea why we dont just reject an error
-           
+
           reject({
             error: "Failed to read file to be encrypted",
           });
@@ -400,11 +400,11 @@ export class CoreCrypto {
     }
     if (Datatypes.isObjectStrict(data)) {
       const encryptedObject = { ...data };
-       
+
       for (const [key, value] of Object.entries(encryptedObject)) {
         encryptedObject[key] = await this.#traverseObject(value, role);
       }
-       
+
       return encryptedObject;
     }
     if (Datatypes.isArray(data)) {
