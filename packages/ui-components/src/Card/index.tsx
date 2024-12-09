@@ -169,7 +169,6 @@ export function Card({ config }: { config: CardConfig }) {
   const hasErrors = Object.keys(form.errors ?? {}).length > 0;
 
   const handleFocus = (field: CardField) => () => {
-    console.log("FOCUS");
     send("EV_FOCUS", field);
   };
 
