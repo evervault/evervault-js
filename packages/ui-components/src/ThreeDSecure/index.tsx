@@ -20,11 +20,14 @@ function defaultSize(): { width: string; height: string } {
 }
 
 export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
-  const { send } = useThreeDSMessaging();
+  const { send, on } = useThreeDSMessaging();
   const container = useRef<HTMLDivElement>(null);
   const [challengeFrameReady, setChallengeFrameReady] = useState(false);
   const { session, refetch } = useSession(container, config.session);
   const size = config.size ?? defaultSize();
+  const [failOnChallenge, setFailOnChallenge] = useState(
+    config.failOnChallenge ?? false
+  );
 
   const handleTimeout = () => {
     void refetch({ browserFingerprint: "timeout" });
@@ -48,6 +51,16 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
     }
 
     if (isChallengeAction(session?.nextAction) && config.failOnChallenge) {
+      // if next step is challenge, and the failOnChallenge config has been passed,
+      // call up to the parent to see if the challenge should be shown.
+      on("EV_FAIL_ON_CHALLENGE_RESULT", (shouldFail) => {
+        if (shouldFail) {
+          send("EV_FAILURE");
+        } else {
+          setFailOnChallenge(false);
+        }
+      });
+
       send("EV_FAIL_ON_CHALLENGE");
     }
   }, [session]);
@@ -67,7 +80,7 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
           />
         )}
 
-        {isChallengeAction(session?.nextAction) && !config.failOnChallenge && (
+        {isChallengeAction(session?.nextAction) && !failOnChallenge && (
           <ChallengeFrame
             nextAction={session.nextAction}
             onLoad={() => setChallengeFrameReady(true)}

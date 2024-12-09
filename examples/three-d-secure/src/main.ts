@@ -52,7 +52,11 @@ async function handleSubmit() {
   // a 3DS UI Component to handle the 3DS process.
   const tds = evervault.ui.threeDSecure(session, {
     // The 'failOnChallenge' option will cause the 3DS process to fail if a challenge is required.
-    // failOnChallenge: true,
+    // failOnChallenge: async () => {
+    //   await new Promise((resolve) => setTimeout(resolve, 2000));
+    //   return false;
+    // },
+    failOnChallenge: false,
   });
 
   // The 'success' event is emitted when the 3DS process has finished successfully
