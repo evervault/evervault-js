@@ -46,7 +46,11 @@
       ]
     },
     "format": {
+      "dependsOn": [
+        "^lint:fix"
+      ],
       "outputs": [
+        "src/**",
         "lib/**",
         "*.[m][tj]s",
         "*.html",
@@ -63,13 +67,29 @@
     "lint:fix": {
       "dependsOn": [],
       "outputs": [
+        "src/**",
         "lib/**",
-        "*.ts"
+        "*.ts|js|mjs|cjs"
       ]
     },
     "test": {
       "dependsOn": [
         "^build"
+      ],
+      "inputs": [
+        "src/**/*.ts",
+        "lib/**/*.ts",
+        "test/**/*.ts"
+      ]
+    },
+    "test:watch": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "src/**/*.ts",
+        "lib/**/*.ts",
+        "test/**/*.ts"
       ]
     },
     "preview": {

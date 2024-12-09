@@ -57,16 +57,9 @@ jobs:
       - name: Install deps
         run: pnpm install --frozen-lockfile
       - name: Build
-        run: |
-          pnpm \
-          --filter @evervault/browser \
-          --filter @evervault/inputs \
-          --filter @evervault/react \
-          --filter @evervault/card-validator \
-          --filter @evervault/react-native \
-          build
+        run: pnpm turbo run build --filter='!@evervault/ui-components' --filter='!@evervault/3ds'
       - name: Build ui-components and 3ds
-        run: pnpm --filter @evervault/ui-components --filter @evervault/3ds build
+        run: pnpm turbo run build --filter '@evervault/ui-components' --filter '@evervault/3ds'
         env:
           VITE_API_URL: ${{secrets.vite_api_url}}
           VITE_EVERVAULT_JS_URL: ${{secrets.vite_evervault_js_url}}
