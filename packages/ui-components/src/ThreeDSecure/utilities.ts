@@ -2,6 +2,7 @@ import { RefObject, useCallback, useEffect, useRef, useState } from "react";
 import {
   EvervaultFrameHostMessages,
   ThreeDSecureFrameClientMessages,
+  ThreeDSecureFrameHostMessages,
 } from "types";
 import { useMessaging } from "../utilities/useMessaging";
 import { useSearchParams } from "../utilities/useSearchParams";
@@ -58,7 +59,7 @@ export async function getBrowserSession(
 
 export function useThreeDSMessaging() {
   return useMessaging<
-    EvervaultFrameHostMessages,
+    ThreeDSecureFrameHostMessages,
     ThreeDSecureFrameClientMessages
   >();
 }

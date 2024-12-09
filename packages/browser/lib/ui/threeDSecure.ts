@@ -7,6 +7,7 @@ import type {
   ThreeDSecureFrameClientMessages,
   ThreeDSecureOptions,
   ComponentError,
+  ThreeDSecureFrameHostMessages,
 } from "types";
 
 interface ThreeDSecureEvents {
@@ -23,7 +24,7 @@ export default class ThreeDSecure {
   #client: EvervaultClient;
   #frame: EvervaultFrame<
     ThreeDSecureFrameClientMessages,
-    EvervaultFrameHostMessages
+    ThreeDSecureFrameHostMessages
   >;
 
   #events = new EventManager<ThreeDSecureEvents>();
@@ -47,11 +48,9 @@ export default class ThreeDSecure {
       void this.#handleOutcome("failure", cres);
     });
 
-    this.#frame.on("EV_FAIL_ON_CHALLENGE", () => {
-      void this.#handleOutcome("failure");
-      if (typeof this.#options.failOnChallenge === "function") {
-        this.#options.failOnChallenge();
-      }
+    this.#frame.on("EV_FAIL_ON_CHALLENGE", async () => {
+      const result = await this.#failOnChallenge();
+      this.#frame.send("EV_FAIL_ON_CHALLENGE_RESULT", result);
     });
 
     this.#frame.on("EV_CANCEL", () => {
@@ -67,6 +66,20 @@ export default class ThreeDSecure {
       this.#events.dispatch("error", error);
       if (error) console.error(error.message);
     });
+  }
+
+  async #failOnChallenge(): Promise<boolean> {
+    if (typeof this.#options.failOnChallenge === "function") {
+      const result = this.#options.failOnChallenge();
+
+      if (result instanceof Promise) {
+        return await result;
+      }
+
+      return result;
+    }
+
+    return this.#options.failOnChallenge ?? false;
   }
 
   async #handleOutcome(outcome: string, cres?: string | null) {

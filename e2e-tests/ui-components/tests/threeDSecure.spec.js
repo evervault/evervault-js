@@ -99,6 +99,7 @@ test.describe("threeDSecure component", () => {
       const comp = window.evervault.ui.threeDSecure(sessionId, {
         failOnChallenge: true,
       });
+
       comp.on("failure", window.handleFailure);
       comp.mount();
     }, session.id);
@@ -110,14 +111,9 @@ test.describe("threeDSecure component", () => {
     page,
   }) => {
     let failed = false;
-    let called = false;
 
     await page.exposeFunction("handleFailure", () => {
       failed = true;
-    });
-
-    await page.exposeFunction("handleFailOnChallenge", () => {
-      called = true;
     });
 
     const session = await createThreeDSSession("4242424242424242");
@@ -125,7 +121,7 @@ test.describe("threeDSecure component", () => {
     await page.evaluate((sessionId) => {
       const comp = window.evervault.ui.threeDSecure(sessionId, {
         failOnChallenge: () => {
-          window.handleFailOnChallenge();
+          return true;
         },
       });
 
@@ -134,7 +130,68 @@ test.describe("threeDSecure component", () => {
     }, session.id);
 
     await expect.poll(async () => failed).toBeTruthy();
-    await expect.poll(async () => called).toBeTruthy();
+  });
+
+  test("can fail 3DS on challenge with callback that returns a promise", async ({
+    page,
+  }) => {
+    let failed = false;
+
+    await page.exposeFunction("handleFailure", () => {
+      failed = true;
+    });
+
+    const session = await createThreeDSSession("4242424242424242");
+
+    await page.evaluate((sessionId) => {
+      const comp = window.evervault.ui.threeDSecure(sessionId, {
+        failOnChallenge: async () => {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          return true;
+        },
+      });
+
+      comp.on("failure", window.handleFailure);
+      comp.mount();
+    }, session.id);
+
+    await expect.poll(async () => failed).toBeTruthy();
+  });
+
+  test("can show 3DS challenge with callback", async ({ page }) => {
+    let failed = false;
+    let success = false;
+
+    await page.exposeFunction("handleFailure", () => {
+      failed = true;
+    });
+
+    await page.exposeFunction("handleSuccess", () => {
+      success = true;
+    });
+
+    const session = await createThreeDSSession("4242424242424242");
+
+    await page.evaluate((sessionId) => {
+      const comp = window.evervault.ui.threeDSecure(sessionId, {
+        failOnChallenge: async () => {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          return false;
+        },
+      });
+
+      comp.on("failure", window.handleFailure);
+      comp.on("success", window.handleSuccess);
+      comp.mount();
+    }, session.id);
+
+    await expect.poll(async () => failed).toBeFalsy();
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    const acsFrame = frame.frameLocator("iframe[name='challengeFrame']");
+    const code = acsFrame.locator("input");
+    code.pressSequentially("111111");
+    await expect.poll(async () => success).toBeTruthy();
   });
 });
 

@@ -213,7 +213,12 @@ export interface FormFrameClientMessages extends EvervaultFrameClientMessages {
 export interface ThreeDSecureOptions {
   theme?: ThemeDefinition;
   size?: { width: string; height: string };
-  failOnChallenge?: boolean | (() => void);
+  failOnChallenge?: boolean | (() => boolean) | (() => Promise<boolean>);
+}
+
+export interface ThreeDSecureFrameHostMessages
+  extends EvervaultFrameHostMessages {
+  EV_FAIL_ON_CHALLENGE_RESULT: boolean;
 }
 
 export interface ThreeDSecureFrameClientMessages
