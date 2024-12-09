@@ -1,5 +1,12 @@
 # types
 
+## 0.5.0
+
+### Minor Changes
+
+- 3847a73: - Adds focus, blur, keyup and keydown events to the Card component to track interactions with inputs inside of the Card component.
+  - Updates the payload from the card component to include the parsed month & year even when the entered expiry is invalid. Previously the expiry value would only be returned when the entered value is valid.
+
 ## 0.4.0
 
 ### Minor Changes

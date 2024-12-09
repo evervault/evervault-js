@@ -1,5 +1,12 @@
 # @evervault/evervault-react-native
 
+## 1.3.4
+
+### Patch Changes
+
+- Updated dependencies [3847a73]
+  - @evervault/card-validator@1.2.0
+
 ## 1.3.3
 
 ### Patch Changes
