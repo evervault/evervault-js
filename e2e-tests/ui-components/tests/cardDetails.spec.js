@@ -635,13 +635,12 @@ test.describe("card component", () => {
       card.mount("#form");
     });
 
+    await page.waitForTimeout(2000);
     const frame = page.frameLocator("iframe[data-evervault]");
     await frame.getByLabel("Number").fill("4242424242424242");
     await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
     await frame.getByLabel("Expiration").blur();
-    // delay 500ms for any animations to complete
-    await page.waitForTimeout(500);
-    expect(await page.screenshot()).toMatchSnapshot();
+    await expect(page).toHaveScreenshot();
   });
 
   test("material theme matches snapshot", async ({ page }) => {
@@ -653,13 +652,12 @@ test.describe("card component", () => {
       card.mount("#form");
     });
 
+    await page.waitForTimeout(2000);
     const frame = page.frameLocator("iframe[data-evervault]");
     await frame.getByLabel("Number").fill("4242424242424242");
     await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
     await frame.getByLabel("Expiration").blur();
-    // delay 500ms for any animations to complete
-    await page.waitForTimeout(500);
-    expect(await page.screenshot()).toMatchSnapshot();
+    await expect(page).toHaveScreenshot();
   });
 
   test("minimal theme matches snapshot", async ({ page }) => {
@@ -671,13 +669,12 @@ test.describe("card component", () => {
       card.mount("#form");
     });
 
+    await page.waitForTimeout(2000);
     const frame = page.frameLocator("iframe[data-evervault]");
     await frame.getByLabel("Number").fill("4242424242424242");
     await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
     await frame.getByLabel("Expiration").blur();
-    // delay 500ms for any animations to complete
-    await page.waitForTimeout(500);
-    expect(await page.screenshot()).toMatchSnapshot();
+    await expect(page).toHaveScreenshot();
   });
 
   test("custom theme matches snapshot", async ({ page }) => {
@@ -686,13 +683,12 @@ test.describe("card component", () => {
       card.mount("#form");
     }, inlineTheme);
 
+    await page.waitForTimeout(2000);
     const frame = page.frameLocator("iframe[data-evervault]");
     await frame.getByLabel("Number").fill("4242424242424242");
     await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
     await frame.getByLabel("Expiration").blur();
-    // delay 500ms for any animations to complete
-    await page.waitForTimeout(500);
-    expect(await page.screenshot()).toMatchSnapshot();
+    await expect(page).toHaveScreenshot();
   });
 
   test("Does not render icons by default", async ({ page }) => {

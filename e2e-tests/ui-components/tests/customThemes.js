@@ -19,14 +19,14 @@ export const inlineTheme = {
       color: "black",
     },
     fieldset: {
-      marginTop: 4,
+      marginTop: 10,
+      marginBottom: 20,
     },
     ".field": {
       padding: "4px 0",
     },
     ".field input": {
       height: 38,
-      marginBottom: 22,
       marginTop: 6,
       padding: "4px 12px",
       fontSize: 12,
@@ -45,9 +45,6 @@ export const inlineTheme = {
     },
     ".field[ev-valid=false] input:not(:focus)": {
       borderColor: "blue",
-    },
-    ".field[ev-valid=false] input": {
-      marginBottom: 0,
     },
     ".error": {
       fontSize: 12,
