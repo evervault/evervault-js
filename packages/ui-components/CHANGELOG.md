@@ -1,5 +1,20 @@
 # @evervault/ui-components
 
+## 1.19.0
+
+### Minor Changes
+
+- 3847a73: - Adds focus, blur, keyup and keydown events to the Card component to track interactions with inputs inside of the Card component.
+  - Updates the payload from the card component to include the parsed month & year even when the entered expiry is invalid. Previously the expiry value would only be returned when the entered value is valid.
+
+### Patch Changes
+
+- Updated dependencies [3847a73]
+  - @evervault/card-validator@1.2.0
+  - shared@1.1.0
+  - @evervault/react@2.14.0
+  - types@0.5.0
+
 ## 1.18.0
 
 ### Minor Changes

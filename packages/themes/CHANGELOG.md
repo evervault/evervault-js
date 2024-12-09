@@ -1,5 +1,12 @@
 # themes
 
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies [3847a73]
+  - types@0.5.0
+
 ## 0.1.4
 
 ### Patch Changes
