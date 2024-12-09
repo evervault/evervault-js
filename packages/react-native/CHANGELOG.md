@@ -1,5 +1,11 @@
 # @evervault/evervault-react-native
 
+## 1.3.5
+
+### Patch Changes
+
+- 46291b7: Fix bug where the wrong field was being removed from a set
+
 ## 1.3.4
 
 ### Patch Changes
