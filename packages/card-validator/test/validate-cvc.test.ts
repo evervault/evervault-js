@@ -1,4 +1,4 @@
-import { describe, assert, it, beforeEach, expect } from "vitest";
+import { describe, it, expect } from "vitest";
 import { validateCVC } from "../index";
 import { CardCVCValidationResult } from "../types";
 
@@ -66,13 +66,13 @@ const testCases: TestCase[] = [
   },
   {
     scope: "Valid CVC Mastercard with no card number",
-    cardNumber: undefined,
+    cardNumber: undefined as unknown as string,
     cvc: "123",
     expectedResult: { cvc: "123", isValid: true },
   },
   {
     scope: "Valid CVC Amex with no card number",
-    cardNumber: undefined,
+    cardNumber: undefined as unknown as string,
     cvc: "1234",
     expectedResult: { cvc: "1234", isValid: true },
   },
@@ -90,7 +90,7 @@ const testCases: TestCase[] = [
   },
 ];
 
-describe('validateCvc function tests', () => {
+describe("validateCvc function tests", () => {
   testCases.forEach(({ scope, cardNumber, cvc, expectedResult }) => {
     describe(`${scope}`, () => {
       it(`should validate the cvc`, () => {

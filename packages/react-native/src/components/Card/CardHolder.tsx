@@ -4,7 +4,7 @@ import { Platform, TextInput } from "react-native";
 import { removeFieldFromSet, useCardContext } from "./context";
 import { BaseProps } from "./Card";
 
-export interface CardHolderProps extends BaseProps {}
+export type CardHolderProps = BaseProps;
 
 export function CardHolder(props: CardHolderProps) {
   const context = useCardContext();

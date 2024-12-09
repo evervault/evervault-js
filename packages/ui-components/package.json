@@ -4,11 +4,14 @@
   "version": "1.19.0",
   "type": "module",
   "scripts": {
-    "dev": "wait-on ../browser/dist && vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "lint": "eslint .",
     "clean": "rm -rf .turbo dist node_modules",
+    "dev": "wait-on ../browser/dist && vite",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

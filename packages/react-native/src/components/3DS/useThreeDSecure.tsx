@@ -5,14 +5,14 @@ import { startSession, threeDSecureSession } from "./threeDSSession";
 import {
   ThreeDSecureCallbacks,
   ThreeDSecureSession,
-  ThreeDSecureState
+  ThreeDSecureState,
 } from "./types";
 
 export const useThreeDSecure = (): ThreeDSecureState => {
   const { appUuid } = useEvervault();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [session, setSession] = useState<ThreeDSecureSession | null>(null)  
-  const [isVisible, setIsVisible] = useState(false); 
+  const [session, setSession] = useState<ThreeDSecureSession | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   if (!appUuid) {
     throw new Error(

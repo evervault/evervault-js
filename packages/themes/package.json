@@ -8,8 +8,12 @@
     "types": "workspace:*"
   },
   "scripts": {
+    "clean": "rm -rf .turbo node_modules dist",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "eslint .",
-    "clean": "rm -rf .turbo node_modules dist"
+    "lint:fix": "eslint --fix .",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "typescript": "5.5.4"

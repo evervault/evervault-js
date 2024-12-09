@@ -369,70 +369,70 @@ export type ApplePayButtonType =
 export type ApplePayButtonStyle = "black" | "white" | "white-outline";
 
 export type ApplePayButtonLocale =
-| "ar-AB"
-| "ca-ES"
-| "cs-CZ"
-| "da-DK"
-| "de-DE"
-| "el-GR"
-| "en-AU"
-| "en-GB"
-| "en-US"
-| "es-ES"
-| "es-MX"
-| "fi-FI"
-| "fr-CA"
-| "fr-FR"
-| "he-IL"
-| "hi-IN"
-| "hr-HR"
-| "hu-HU"
-| "id-ID"
-| "it-IT"
-| "ja-JP"
-| "ko-KR"
-| "ms-MY"
-| "nb-NO"
-| "nl-NL"
-| "pl-PL"
-| "pt-BR"
-| "pt-PT"
-| "ro-RO"
-| "ru-RU"
-| "sk-SK"
-| "sv-SE"
-| "th-TH"
-| "tr-TR"
-| "uk-UA"
-| "vi-VN"
-| "zh-CN"
-| "zh-HK"
-| "zh-TW";
+  | "ar-AB"
+  | "ca-ES"
+  | "cs-CZ"
+  | "da-DK"
+  | "de-DE"
+  | "el-GR"
+  | "en-AU"
+  | "en-GB"
+  | "en-US"
+  | "es-ES"
+  | "es-MX"
+  | "fi-FI"
+  | "fr-CA"
+  | "fr-FR"
+  | "he-IL"
+  | "hi-IN"
+  | "hr-HR"
+  | "hu-HU"
+  | "id-ID"
+  | "it-IT"
+  | "ja-JP"
+  | "ko-KR"
+  | "ms-MY"
+  | "nb-NO"
+  | "nl-NL"
+  | "pl-PL"
+  | "pt-BR"
+  | "pt-PT"
+  | "ro-RO"
+  | "ru-RU"
+  | "sk-SK"
+  | "sv-SE"
+  | "th-TH"
+  | "tr-TR"
+  | "uk-UA"
+  | "vi-VN"
+  | "zh-CN"
+  | "zh-HK"
+  | "zh-TW";
 
 export type ApplePayCardNetwork =
-| "amex"
-| "bancomat"
-| "bancontact"
-| "cartesBancaires"
-| "chinaUnionPay"
-| "dankort"
-| "discover"
-| "eftpos"
-| "electron"
-| "elo"
-| "girocard"
-| "interac"
-| "jcb"
-| "mada"
-| "maestro"
-| "masterCard"
-| "mir"
-| "privateLabel"
-| "visa"
-| "vPay";
+  | "amex"
+  | "bancomat"
+  | "bancontact"
+  | "cartesBancaires"
+  | "chinaUnionPay"
+  | "dankort"
+  | "discover"
+  | "eftpos"
+  | "electron"
+  | "elo"
+  | "girocard"
+  | "interac"
+  | "jcb"
+  | "mada"
+  | "maestro"
+  | "masterCard"
+  | "mir"
+  | "privateLabel"
+  | "visa"
+  | "vPay";
 
 export interface ApplePayErrorMessage {
-  message: string
+  message: string;
   code?: ApplePayJS.ApplePayErrorCode;
   contactField?: ApplePayJS.ApplePayErrorContactField;
 }
@@ -451,7 +451,7 @@ export interface ApplePayOptions {
   borderRadius?: number;
   size?: { width: WalletDimension; height: WalletDimension };
   allowedCardNetworks?: ApplePayCardNetwork[];
-  paymentRequest?: ApplePayPaymentRequest; 
+  paymentRequest?: ApplePayPaymentRequest;
 }
 
 export type WalletDimension = string | number;
@@ -474,19 +474,19 @@ export interface TransactionDetails {
 }
 
 export interface ApplePayToken {
-    version: string;
-    data: string;
-    signature: string;
-    header: {
-        ephemeralPublicKey?: string;
-        wrappedKey?: string;
-        publicKeyHash: string;
-        transactionId: string;
-        applicatoinData?: string;
-    };
+  version: string;
+  data: string;
+  signature: string;
+  header: {
+    ephemeralPublicKey?: string;
+    wrappedKey?: string;
+    publicKeyHash: string;
+    transactionId: string;
+    applicatoinData?: string;
+  };
 }
 
-export interface ApplePayPaymentDataRequest { 
+export interface ApplePayPaymentDataRequest {
   encryptedCredentials: ApplePayToken;
 }
 
@@ -521,9 +521,8 @@ type ApplePayStandardPaymentRequest = BaseApplePayPaymentRequest & {
 };
 
 // Can only specify one of the following payment request types
-export type ApplePayPaymentRequest = 
-  | ApplePayRecurringPaymentRequest 
-  | ApplePayDeferredPaymentRequest 
+export type ApplePayPaymentRequest =
+  | ApplePayRecurringPaymentRequest
+  | ApplePayDeferredPaymentRequest
   | ApplePayAutomaticReloadPaymentRequest
   | ApplePayStandardPaymentRequest;
-

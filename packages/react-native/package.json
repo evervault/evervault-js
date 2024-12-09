@@ -27,13 +27,16 @@
     "!**/.*"
   ],
   "scripts": {
-    "dev": "nodemon --watch ./src --exec 'bob build' --ext ts,tsx",
     "build": "bob build",
-    "prepare": "bob build",
-    "typecheck": "tsc --noEmit",
     "clean": "del-cli android/build dist",
+    "dev": "nodemon --watch ./src --exec 'bob build' --ext ts,tsx",
     "format": "prettier --write .",
-    "test": "jest"
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "prepare": "bob build",
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "react-native",
@@ -62,15 +65,11 @@
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.2",
-    "@react-native/eslint-config": "^0.75.3",
     "@release-it/conventional-changelog": "^5.0.0",
     "@types/jest": "^28.1.2",
     "@types/react": "~18.2.45",
     "commitlint": "^17.0.2",
     "del-cli": "^5.0.0",
-    "eslint": "^8.4.1",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-prettier": "^4.0.0",
     "jest": "^28.1.1",
     "pod-install": "^0.1.0",
     "prettier": "^2.0.5",

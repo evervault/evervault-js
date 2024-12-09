@@ -1,4 +1,3 @@
-
 export interface ThreeDSecureCallbacks {
   onError: (error: Error) => void;
   onFailure: (error: Error) => void;

@@ -25,7 +25,10 @@ interface ApplePayButtonAttributes extends React.HTMLAttributes<HTMLElement> {
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      'apple-pay-button': React.DetailedHTMLProps<ApplePayButtonAttributes, HTMLElement>;
+      "apple-pay-button": React.DetailedHTMLProps<
+        ApplePayButtonAttributes,
+        HTMLElement
+      >;
     }
   }
 
@@ -40,7 +43,6 @@ declare global {
   }
 }
 /* eslint-enable @typescript-eslint/no-namespace */
-
 
 export function ApplePay({ config }: ApplePayProps) {
   const { app } = useSearchParams();
@@ -73,29 +75,29 @@ export function ApplePay({ config }: ApplePayProps) {
   }, []);
 
   useEffect(() => {
-
     const handleClick = async () => {
       const session = buildSession(app, config);
-  
+
       session.oncancel = () => {
         send("EV_APPLE_PAY_CANCELLED");
       };
-  
+
       session.onpaymentauthorized = async (event) => {
         try {
           const {
             payment: { token },
           } = event;
           const { paymentData } = token;
-  
-          const encrypted: EncryptedApplePayData = await exchangeApplePaymentData(
-            app,
-            paymentData,
-            config.transaction.merchant.id
-          );
-  
+
+          const encrypted: EncryptedApplePayData =
+            await exchangeApplePaymentData(
+              app,
+              paymentData,
+              config.transaction.merchant.id
+            );
+
           send("EV_APPLE_PAY_AUTH", encrypted);
-  
+
           const result =
             await new Promise<ApplePayJS.ApplePayPaymentAuthorizationResult>(
               (resolve) => {
@@ -103,9 +105,9 @@ export function ApplePay({ config }: ApplePayProps) {
                   resolve({
                     status: ApplePaySession.STATUS_SUCCESS,
                   });
-                  send("EV_APPLE_PAY_SUCCESS")
+                  send("EV_APPLE_PAY_SUCCESS");
                 });
-  
+
                 on("EV_APPLE_PAY_AUTH_ERROR", (error) => {
                   if (error.code && error.contactField) {
                     resolve({
@@ -137,19 +139,19 @@ export function ApplePay({ config }: ApplePayProps) {
           send("EV_APPLE_PAY_ERROR", errorMsg);
         }
       };
-  
+
       session.begin();
     };
 
     const buttonElement = button.current;
 
     if (buttonElement) {
-      buttonElement.addEventListener('click', handleClick);
+      buttonElement.addEventListener("click", handleClick);
     }
 
     return () => {
       if (buttonElement) {
-        buttonElement.removeEventListener('click', handleClick);
+        buttonElement.removeEventListener("click", handleClick);
       }
     };
   }, [app, config]);
@@ -166,21 +168,21 @@ export function ApplePay({ config }: ApplePayProps) {
   }
 
   const containerStyle: CSSProperties = {
-    position: 'relative',
-    width: '100vw',
-    height: '100vh',
-    display: 'flex'
+    position: "relative",
+    width: "100vw",
+    height: "100vh",
+    display: "flex",
   };
-  
+
   const buttonStyle: CSSProperties = {
-    '--apple-pay-button-width': '100%',
-    '--apple-pay-button-height': '100%',
-    '--apple-pay-button-border-radius': `${config.borderRadius|| 4}px`,
-    '--apple-pay-button-padding': config.padding || '4px 4px',
-    '--apple-pay-button-box-sizing': 'border-box',
-    flex: '1',
+    "--apple-pay-button-width": "100%",
+    "--apple-pay-button-height": "100%",
+    "--apple-pay-button-border-radius": `${config.borderRadius || 4}px`,
+    "--apple-pay-button-padding": config.padding || "4px 4px",
+    "--apple-pay-button-box-sizing": "border-box",
+    flex: "1",
   } as React.CSSProperties;
-  
+
   return (
     <div style={containerStyle}>
       <apple-pay-button
