@@ -3,7 +3,6 @@ import { EvervaultFrame } from "./evervaultFrame";
 import type EvervaultClient from "../main";
 import type {
   SelectorType,
-  EvervaultFrameHostMessages,
   ThreeDSecureFrameClientMessages,
   ThreeDSecureOptions,
   ComponentError,
