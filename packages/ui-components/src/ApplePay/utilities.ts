@@ -18,11 +18,12 @@ export function buildSession(app: string, config: ApplePayConfig) {
     })) as ApplePayJS.ApplePayLineItem[]) || [];
 
   const request: ApplePayJS.ApplePayPaymentRequest = {
-    
     countryCode: tx.country,
     currencyCode: tx.currency,
     merchantCapabilities: ["supports3DS"],
-    supportedNetworks: config.allowedCardNetworks?.map((network) => network.toLowerCase()) || ["visa", "masterCard", "amex", "discover"],
+    supportedNetworks: config.allowedCardNetworks?.map((network) =>
+      network.toLowerCase()
+    ) || ["visa", "masterCard", "amex", "discover"],
     total: {
       label: `${tx.merchant.name}`,
       type: "final",

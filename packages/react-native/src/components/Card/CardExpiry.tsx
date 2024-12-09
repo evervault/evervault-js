@@ -4,7 +4,7 @@ import * as React from "react";
 import { useEffect } from "react";
 import { BaseProps } from "./Card";
 
-export interface CardExpiryProps extends BaseProps {}
+export type CardExpiryProps = BaseProps;
 
 export function CardExpiry(props: CardExpiryProps) {
   const context = useCardContext();

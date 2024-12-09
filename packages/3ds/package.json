@@ -5,10 +5,16 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "clean": "rm -rf .turbo node_modules dist"
+    "clean": "rm -rf .turbo node_modules dist",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "typecheck": "tsc --noEmit"
   },
   "license": "MIT",
   "devDependencies": {
+    "@evervault/browser": "workspace:*",
     "dotenv": "^16.4.5",
     "typescript": "5.5.4",
     "vite": "^4.5.5"

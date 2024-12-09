@@ -5,7 +5,7 @@ import { TextInputMask } from "react-native-masked-text";
 import { removeFieldFromSet, useCardContext } from "./context";
 import { BaseProps } from "./Card";
 
-export interface CVCProps extends BaseProps {}
+export type CVCProps = BaseProps;
 
 export const CardCVC = (props: CVCProps) => {
   const context = useCardContext();

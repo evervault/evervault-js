@@ -1,43 +1,72 @@
-import {useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { resize } from "../utilities/resize";
 import usStates from "../utilities/usStates";
-import {useMessaging} from "../utilities/useMessaging";
-import type {FormConfig, FormApiResponse, FormElement} from "./types";
-import type {EvervaultFrameHostMessages, FormFrameClientMessages} from "types";
+import { useMessaging } from "../utilities/useMessaging";
+import type { FormConfig, FormApiResponse, FormElement } from "./types";
+import type {
+  EvervaultFrameHostMessages,
+  FormFrameClientMessages,
+} from "types";
 
-type InputRenderer = (name: string, type: string, required: boolean) => JSX.Element;
+type InputRenderer = (
+  name: string,
+  type: string,
+  required: boolean
+) => JSX.Element;
 type TextareaRenderer = (name: string, required: boolean) => JSX.Element;
 type FieldRenderer = InputRenderer | TextareaRenderer;
 
-const SelectRenderer = ({ name, options }: { name: string, options: { value: string }[]}): JSX.Element => {
+const SelectRenderer = ({
+  name,
+  options,
+}: {
+  name: string;
+  options: { value: string }[];
+}): JSX.Element => {
   const [selectedField, setSelectedField] = useState(options[0]?.value || "");
 
   return (
     <div className="field-container">
-      <select name={name} value={selectedField} onChange={(e) => setSelectedField(e.target.value)}>
+      <select
+        name={name}
+        value={selectedField}
+        onChange={(e) => setSelectedField(e.target.value)}
+      >
         {options.map((option, i) => (
-          <option key={i} value={option.value}>{option.value}</option>
+          <option key={i} value={option.value}>
+            {option.value}
+          </option>
         ))}
       </select>
     </div>
   );
 };
 
-
 const fieldRenderers: Record<string, FieldRenderer> = {
   input: (name: string, type: string, required: boolean) => (
     <div key={name} className="field-container">
-      <input type={type} name={name.toLocaleLowerCase()} id={name} placeholder={`${name} ${required ? "*" : "" }`} required={required}/>
+      <input
+        type={type}
+        name={name.toLocaleLowerCase()}
+        id={name}
+        placeholder={`${name} ${required ? "*" : ""}`}
+        required={required}
+      />
     </div>
   ),
   textarea: (name: string, required: boolean) => (
     <div key={name} className="field-container">
-      <textarea name={name.toLocaleLowerCase()} id={name} required={required} placeholder={`${name} ${required ? "*" : "" }`}></textarea>
+      <textarea
+        name={name.toLocaleLowerCase()}
+        id={name}
+        required={required}
+        placeholder={`${name} ${required ? "*" : ""}`}
+      ></textarea>
     </div>
-  )
+  ),
 };
 
-export function Form({config}: { config: FormConfig }): JSX.Element {
+export function Form({ config }: { config: FormConfig }): JSX.Element {
   const [formElements, setFormElements] = useState<FormElement[]>([]);
 
   const messages = useMessaging<
@@ -50,8 +79,11 @@ export function Form({config}: { config: FormConfig }): JSX.Element {
   useEffect(() => {
     async function makeRequest() {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/forms/${config.formUuid}`);
-        const {targetElements}: FormApiResponse = await response.json() as FormApiResponse;
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/forms/${config.formUuid}`
+        );
+        const { targetElements }: FormApiResponse =
+          (await response.json()) as FormApiResponse;
         setFormElements(targetElements);
       } catch (e) {
         console.error(e);
@@ -72,32 +104,41 @@ export function Form({config}: { config: FormConfig }): JSX.Element {
 
     try {
       const response = await fetch(config.formSubmissionUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(formJson)
+        body: JSON.stringify(formJson),
       });
 
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
       // eslint-disable-next-line
       await response.json();
-      messages.send("EV_SUBMITTED")
+      messages.send("EV_SUBMITTED");
     } catch (error) {
       messages.send("EV_ERROR");
-      console.error('Error submitting form:', error);
+      console.error("Error submitting form:", error);
     }
   };
 
   return (
     <div>
-      <form id={config.formUuid} onSubmit={(event) => { void handleSubmit(event); }}>
+      <form
+        id={config.formUuid}
+        onSubmit={(event) => {
+          void handleSubmit(event);
+        }}
+      >
         {formElements?.map((element) => {
           if (element.elementType === "input") {
             const renderField = fieldRenderers.input as InputRenderer;
-            return renderField(element.elementName, element.type ? element.type : "text", element.required);
+            return renderField(
+              element.elementName,
+              element.type ? element.type : "text",
+              element.required
+            );
           }
 
           if (element.elementType === "textarea") {
@@ -106,14 +147,26 @@ export function Form({config}: { config: FormConfig }): JSX.Element {
           }
 
           if (element.elementType === "select") {
-            return <SelectRenderer name={element.elementName} key={element.elementName} options={element.options ?? []} />;
+            return (
+              <SelectRenderer
+                name={element.elementName}
+                key={element.elementName}
+                options={element.options ?? []}
+              />
+            );
           }
 
           if (element.elementType === "select-states") {
-            return <SelectRenderer name={element.elementName} key={element.elementName} options={usStates ?? []} />;
+            return (
+              <SelectRenderer
+                name={element.elementName}
+                key={element.elementName}
+                options={usStates ?? []}
+              />
+            );
           }
 
-          return null
+          return null;
         })}
         <div className={"button-container"}>
           <button type="submit">Submit</button>

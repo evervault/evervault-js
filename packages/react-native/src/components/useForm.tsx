@@ -12,8 +12,8 @@ export interface UseFormReturn<T> {
     name: K
   ) => {
     onChange: (value: T[K]) => void;
-    //TODO(Mark): Replace with union of React.FocusEvent<HTMLInputElement> and native event
-    onBlur: (event: any) => void;
+    // TODO(Mark): Replace with union of React.FocusEvent<HTMLInputElement> and native event
+    onBlur: (event: unknown) => void;
   };
 }
 

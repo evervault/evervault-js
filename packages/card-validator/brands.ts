@@ -7,11 +7,11 @@ const brands = [
     numberValidationRules: {
       luhnCheck: true,
       ranges: [4],
-      lengths: [16, 18, 19]
+      lengths: [16, 18, 19],
     },
     securityCodeValidationRules: {
-      length: 3
-    }
+      length: 3,
+    },
   },
   {
     name: "mastercard",
@@ -19,11 +19,11 @@ const brands = [
     numberValidationRules: {
       luhnCheck: true,
       ranges: [[51, 55], [2221, 2229], [223, 229], [23, 26], [270, 271], 2720],
-      lengths: [16]
+      lengths: [16],
     },
     securityCodeValidationRules: {
-      length: 3
-    }
+      length: 3,
+    },
   },
   {
     name: "american-express",
@@ -31,11 +31,11 @@ const brands = [
     numberValidationRules: {
       luhnCheck: true,
       ranges: [34, 37],
-      lengths: [15]
+      lengths: [15],
     },
     securityCodeValidationRules: {
-      length: 4
-    }
+      length: 4,
+    },
   },
   {
     name: "diners-club",
@@ -46,8 +46,8 @@ const brands = [
       lengths: [14, 16, 19],
     },
     securityCodeValidationRules: {
-      length: 3
-    }
+      length: 3,
+    },
   },
   {
     name: "discover",
@@ -55,11 +55,11 @@ const brands = [
     numberValidationRules: {
       luhnCheck: true,
       ranges: [6011, [644, 649], 65],
-      lengths: [16, 19]
+      lengths: [16, 19],
     },
     securityCodeValidationRules: {
-      length: 3
-    }
+      length: 3,
+    },
   },
   {
     name: "jcb",
@@ -70,8 +70,8 @@ const brands = [
       lengths: [16, 17, 18, 19],
     },
     securityCodeValidationRules: {
-      length: 3
-    }
+      length: 3,
+    },
   },
   {
     name: "unionpay",
@@ -105,8 +105,8 @@ const brands = [
       lengths: [14, 15, 16, 17, 18, 19],
     },
     securityCodeValidationRules: {
-      length: 3
-    }
+      length: 3,
+    },
   },
   {
     name: "maestro",
@@ -126,11 +126,11 @@ const brands = [
         67,
         69,
       ],
-      lengths: [12, 13, 14, 15, 16, 17, 18, 19]
+      lengths: [12, 13, 14, 15, 16, 17, 18, 19],
     },
     securityCodeValidationRules: {
-      length: 3
-    }
+      length: 3,
+    },
   },
   {
     name: "elo",
@@ -164,10 +164,10 @@ const brands = [
         [655000, 655019],
         [655021, 655058],
       ],
-      lengths: [16]
+      lengths: [16],
     },
     securityCodeValidationRules: {
-      length: 3
+      length: 3,
     },
   },
   {
@@ -176,10 +176,10 @@ const brands = [
     numberValidationRules: {
       luhnCheck: true,
       ranges: [[2200, 2204]],
-      lengths: [16, 17, 18, 19]
+      lengths: [16, 17, 18, 19],
     },
     securityCodeValidationRules: {
-      length: 3
+      length: 3,
     },
   },
   {
@@ -188,10 +188,10 @@ const brands = [
     numberValidationRules: {
       luhnCheck: true,
       ranges: [637095, 63737423, 63743358, 637568, 637599, 637609, 637612],
-      lengths: [16]
+      lengths: [16],
     },
     securityCodeValidationRules: {
-      length: 3
+      length: 3,
     },
   },
   {
@@ -200,10 +200,10 @@ const brands = [
     numberValidationRules: {
       luhnCheck: true,
       ranges: [606282],
-      lengths: [16]
+      lengths: [16],
     },
     securityCodeValidationRules: {
-      length: 3
+      length: 3,
     },
   },
   {
@@ -212,10 +212,10 @@ const brands = [
     numberValidationRules: {
       luhnCheck: true,
       ranges: [30867825, 61013170, 61013242],
-      lengths: [16]
+      lengths: [16],
     },
     securityCodeValidationRules: {
-      length: 3
+      length: 3,
     },
   },
   {
@@ -224,12 +224,12 @@ const brands = [
     numberValidationRules: {
       luhnCheck: true,
       ranges: [1],
-      lengths: [15]
+      lengths: [15],
     },
     securityCodeValidationRules: {
-      length: 0
-    }
-  }
+      length: 0,
+    },
+  },
 ] as CardBrand[];
 
 export default brands;

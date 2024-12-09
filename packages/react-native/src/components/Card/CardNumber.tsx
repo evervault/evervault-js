@@ -5,7 +5,7 @@ import { TextInputMask } from "react-native-masked-text";
 import { removeFieldFromSet, useCardContext } from "./context";
 import { BaseProps } from "./Card";
 
-interface CardNumberProps extends BaseProps {}
+type CardNumberProps = BaseProps;
 
 export function CardNumber(props: CardNumberProps) {
   const context = useCardContext();

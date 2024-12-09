@@ -3,7 +3,7 @@ import "./styles.css";
 const searchParams = new URLSearchParams(window.location.search);
 const team = searchParams.get("team");
 const app = searchParams.get("app");
-const session = searchParams.get("session");
+const session = searchParams.get("session")!;
 const redirect = searchParams.get("redirect");
 
 const ev = new Evervault(team, app, {
@@ -15,7 +15,10 @@ const ev = new Evervault(team, app, {
 });
 
 const tds = ev.ui.threeDSecure(session, {
-  size: { height: window.innerHeight, width: window.innerWidth },
+  size: {
+    height: window.innerHeight as unknown as string,
+    width: window.innerWidth as unknown as string,
+  },
 });
 
 tds.on("success", () => {
@@ -38,7 +41,7 @@ tds.on("failure", () => {
   }
 });
 
-tds.on("error", (e) => {
+tds.on("error", () => {
   document.getElementById("spinner")?.classList.add("visible");
   if (redirect) {
     const redirectUrl = new URL(redirect);
@@ -49,4 +52,3 @@ tds.on("error", (e) => {
 });
 
 tds.mount("#frame");
-
