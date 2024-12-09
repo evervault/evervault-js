@@ -1,5 +1,12 @@
 # react-native-example
 
+## 1.0.22
+
+### Patch Changes
+
+- Updated dependencies [46291b7]
+  - @evervault/evervault-react-native@1.3.5
+
 ## 1.0.21
 
 ### Patch Changes
