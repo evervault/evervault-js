@@ -56,7 +56,7 @@ async function handleSubmit() {
     //   await new Promise((resolve) => setTimeout(resolve, 2000));
     //   return false;
     // },
-    failOnChallenge: false,
+    failOnChallenge: true,
   });
 
   // The 'success' event is emitted when the 3DS process has finished successfully

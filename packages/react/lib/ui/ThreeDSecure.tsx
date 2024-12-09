@@ -11,7 +11,7 @@ export interface ThreeDSecureProps {
   onSuccess?: () => void;
   onFailure?: () => void;
   onError?: (error: ComponentError) => void;
-  failOnChallenge?: boolean | (() => void);
+  failOnChallenge?: boolean | (() => boolean) | (() => Promise<boolean>);
 }
 
 type ThreeDSecureInstance = ReturnType<Evervault["ui"]["threeDSecure"]>;
