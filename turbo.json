@@ -52,6 +52,7 @@
       "outputs": [
         "src/**",
         "lib/**",
+        "test/**",
         "*.[m][tj]s",
         "*.html",
         "*.json",
@@ -69,7 +70,8 @@
       "outputs": [
         "src/**",
         "lib/**",
-        "*.ts|js|mjs|cjs"
+        "test/**",
+        "*.[mc][tj]s"
       ]
     },
     "test": {

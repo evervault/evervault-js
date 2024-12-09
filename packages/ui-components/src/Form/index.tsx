@@ -114,7 +114,7 @@ export function Form({ config }: { config: FormConfig }): JSX.Element {
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      // eslint-disable-next-line
+
       await response.json();
       messages.send("EV_SUBMITTED");
     } catch (error) {
