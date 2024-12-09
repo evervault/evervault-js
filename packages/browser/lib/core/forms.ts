@@ -1,14 +1,15 @@
 /* eslint-disable */
 import { EventEmitter } from "events";
+import type Evervault from "../main";
 
 /**
  * @deprecated Forms is no longer a supported Evervault product and this feature will be removed in a future version
  * @param {Evervault} evervault
  * */
-function Forms(evervault) {
+function Forms(evervault: Evervault) {
   const formEmitter = new EventEmitter();
   return {
-    async handleForm(form) {
+    async handleForm(form: HTMLFormElement) {
       let currentInput;
       const inputs = form.querySelectorAll("input");
       const formPayload = {};
@@ -38,11 +39,13 @@ function Forms(evervault) {
             currentInput.name = "";
 
             form[id || name].value = encryptedValue;
+            // @ts-expect-error - This is a deprecated
             formPayload[
               id ? id.replace("ev-hidden-", "") : name.replace("ev-hidden-", "")
             ] = encryptedValue;
           } else {
             form[id || name].value = value;
+            // @ts-expect-error - This is a deprecated
             formPayload[id || name] = value;
           }
         }
@@ -53,7 +56,7 @@ function Forms(evervault) {
     register() {
       const forms = document.querySelectorAll("[data-evervault-form]");
 
-      let form;
+      let form: Element;
 
       if (forms.length != 0) {
         // Dear lord, there actually using forms
@@ -66,12 +69,16 @@ function Forms(evervault) {
 
       for (let i = 0; i < forms.length; i++) {
         form = forms[i];
+        // @ts-expect-error - This is a deprecated
         const prevOnSubmit = form.onsubmit;
+        // @ts-expect-error - This is a deprecated
         form.onsubmit = async (e) => {
           e.preventDefault();
+          // @ts-expect-error - This is a deprecated
           const processedPayload = await this.handleForm(form);
           this.events.emit("form-ready", processedPayload);
           if (form.getAttribute("data-evervault-form") === "auto") {
+            // @ts-expect-error - This is a deprecated
             prevOnSubmit ? prevOnSubmit() : form.submit();
           } else {
             return false;

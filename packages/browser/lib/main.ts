@@ -133,7 +133,6 @@ export default class EvervaultClient {
   }
 
   // TODO: make this private and static
-  // eslint-disable-next-line class-methods-use-this
   getContext(origin: string, inputsUrl: string): SdkContext {
     if (origin === inputsUrl) {
       return "inputs";

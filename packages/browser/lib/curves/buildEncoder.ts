@@ -6,16 +6,13 @@ import {
   OctetString,
 } from "asn1js";
 import { hexStringToUint8Array } from "../encoding";
+import { type TP256Constants } from "./p256";
 
 const PUBLIC_KEY_TYPE = "1.2.840.10045.2.1";
 const PRIME_FIELD = "1.2.840.10045.1.1";
 const VERSION = "01";
 
-/**
- * @param {import { ./p256 }.TP256Constants} curveParams
- * @returns Sequence
- */
-const FieldId = (curveParams) =>
+const FieldId = (curveParams: TP256Constants) =>
   new Sequence({
     name: "fieldID",
     value: [
@@ -34,11 +31,7 @@ const FieldId = (curveParams) =>
     ],
   });
 
-/**
- * @param {import { ./p256 }.TP256Constants} curveParams
- * @returns Sequence
- */
-const Curve = (curveParams) =>
+const Curve = (curveParams: TP256Constants) =>
   new Sequence({
     name: "curve",
     value: [
@@ -55,16 +48,12 @@ const Curve = (curveParams) =>
         name: "seed",
         valueHex: curveParams.seed
           ? new Uint8Array(hexStringToUint8Array(curveParams.seed)).buffer
-          : curveParams.seed,
+          : (curveParams.seed as unknown as ArrayBuffer),
       }),
     ],
   });
 
-/**
- * @param {import { ./p256 }.TP256Constants} curveParams
- * @returns Sequence
- */
-const ECParameters = (curveParams) =>
+const ECParameters = (curveParams: TP256Constants) =>
   new Sequence({
     name: "ecParameters",
     value: [
@@ -95,11 +84,7 @@ const ECParameters = (curveParams) =>
     ],
   });
 
-/**
- * @param {import { ./p256 }.TP256Constants} curveParams
- * @returns Sequence
- */
-const AlgorithmIdentifier = (curveParams) =>
+const AlgorithmIdentifier = (curveParams: TP256Constants) =>
   new Sequence({
     name: "algorithm",
     value: [
@@ -111,12 +96,10 @@ const AlgorithmIdentifier = (curveParams) =>
     ],
   });
 
-/**
- * @param {import { ./p256 }.TP256Constants} curveParams
- * @param {string} decompressedKey
- * @returns Sequence
- */
-const SubjectPublicKeyInfo = (curveParams, decompressedKey) =>
+const SubjectPublicKeyInfo = (
+  curveParams: TP256Constants,
+  decompressedKey: string
+) =>
   new Sequence({
     name: "SubjectPublicKeyInfo",
     value: [
@@ -128,18 +111,12 @@ const SubjectPublicKeyInfo = (curveParams, decompressedKey) =>
     ],
   });
 
-/**
- * @param {import("./p256").TP256Constants} curveValues
- * */
-export default function buildEncoder({ p, a, b, seed, generator, n, h }) {
+export default function buildEncoder(curveParams: TP256Constants) {
   /**
    * @param {string} decompressedKey
    * */
-  return (decompressedKey) => {
-    const spki = SubjectPublicKeyInfo(
-      { p, a, b, seed, generator, n, h },
-      decompressedKey
-    );
+  return (decompressedKey: string) => {
+    const spki = SubjectPublicKeyInfo(curveParams, decompressedKey);
     return hexStringToUint8Array(spki.toString("hex"));
   };
 }
