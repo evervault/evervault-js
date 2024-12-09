@@ -151,29 +151,26 @@ export function validateCVC(
 }
 
 export function validateExpiry(expiry: string): CardExpiryValidationResult {
-  // Validate that the expiry is in the format MMYY
-  const regex = /^(0[1-9]|1[0-2])(\d{2})$/;
-  const match = expiry.match(regex);
+  const month_regex = /^(0[1-9]|1[[0-2]).*$/;
+  const month_match = expiry.match(month_regex);
+  const month = month_match ? parseInt(month_match[1].toString(), 10) : null;
 
-  if (match) {
-    const month = parseInt(match[1]?.toString(), 10);
-    const year = parseInt(match[2]?.toString(), 10);
+  const year_regex = /^(0[1-9]|1[[0-2])(\d{2})$/;
+  const year_match = expiry.match(year_regex);
+  const year = year_match ? parseInt(year_match[2].toString(), 10) : null;
 
+  if (month) {
     const currentYear = new Date().getFullYear() % 100;
     const currentMonth = new Date().getMonth() + 1;
-
-    if (year < currentYear || (year === currentYear && month < currentMonth)) {
-      return {
-        month: null,
-        year: null,
-        isValid: false,
-      };
-    }
+    const invalid =
+      !year ||
+      year < currentYear ||
+      (year === currentYear && month < currentMonth);
 
     return {
-      month: match[1]?.toString(),
-      year: match[2]?.toString(),
-      isValid: true,
+      month: month.toString().padStart(2, "0"),
+      year: year?.toString()?.padStart(2, "0") ?? null,
+      isValid: !invalid,
     };
   }
 

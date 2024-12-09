@@ -12,6 +12,9 @@ import { useMask } from "../utilities/useMask";
 interface CVCProps {
   onChange: (v: string) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
+  onFocus?: (e: FocusEvent<HTMLInputElement>) => void;
+  onKeyUp?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   disabled: boolean;
   placeholder?: string;
   value: string;
@@ -31,6 +34,9 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
       value,
       readOnly,
       autoComplete,
+      onFocus,
+      onKeyUp,
+      onKeyDown,
     },
     forwardedRef
   ) => {
@@ -66,6 +72,9 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
         inputMode="numeric"
         autoComplete={autoComplete ? "billing cc-cvc" : "off"}
         readOnly={readOnly}
+        onFocus={onFocus}
+        onKeyUp={onKeyUp}
+        onKeyDown={onKeyDown}
       />
     );
   }

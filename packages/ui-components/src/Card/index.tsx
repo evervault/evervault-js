@@ -24,7 +24,11 @@ import {
   swipePayload,
 } from "./utilities";
 import type { CardForm, CardConfig } from "./types";
-import type { CardFrameClientMessages, CardFrameHostMessages } from "types";
+import type {
+  CardField,
+  CardFrameClientMessages,
+  CardFrameHostMessages,
+} from "types";
 
 export function Card({ config }: { config: CardConfig }) {
   const cvc = useRef<HTMLInputElement | null>(null);
@@ -164,6 +168,22 @@ export function Card({ config }: { config: CardConfig }) {
 
   const hasErrors = Object.keys(form.errors ?? {}).length > 0;
 
+  const handleFocus = (field: CardField) => () => {
+    send("EV_FOCUS", field);
+  };
+
+  const handleBlur = (field: CardField) => () => {
+    send("EV_BLUR", field);
+  };
+
+  const handleKeyDown = (field: CardField) => () => {
+    send("EV_KEYDOWN", field);
+  };
+
+  const handleKeyUp = (field: CardField) => () => {
+    send("EV_KEYUP", field);
+  };
+
   return (
     <fieldset
       ev-component="card"
@@ -184,7 +204,12 @@ export function Card({ config }: { config: CardConfig }) {
             placeholder={t("name.placeholder")}
             value={form.values.name}
             autoComplete={config.autoComplete?.name ?? true}
-            {...form.register("name")}
+            onFocus={handleFocus("name")}
+            onKeyUp={handleKeyUp("name")}
+            onKeyDown={handleKeyDown("name")}
+            {...form.register("name", {
+              onBlur: handleBlur("name"),
+            })}
           />
           {form.errors?.name && (
             <Error>{t(`name.errors.${form.errors.name}`)}</Error>
@@ -218,7 +243,12 @@ export function Card({ config }: { config: CardConfig }) {
             autoComplete={config.autoComplete?.number ?? true}
             autoProgress={config.autoProgress}
             form={form}
-            {...form.register("number")}
+            onFocus={handleFocus("number")}
+            onKeyUp={handleKeyUp("number")}
+            onKeyDown={handleKeyDown("number")}
+            {...form.register("number", {
+              onBlur: handleBlur("number"),
+            })}
           />
           {form.errors?.number && (
             <Error>{t(`number.errors.${form.errors.number}`)}</Error>
@@ -242,7 +272,12 @@ export function Card({ config }: { config: CardConfig }) {
             placeholder={t("expiry.placeholder")}
             autoComplete={config.autoComplete?.expiry ?? true}
             autoProgress={config.autoProgress}
-            {...form.register("expiry")}
+            onFocus={handleFocus("expiry")}
+            onKeyUp={handleKeyUp("expiry")}
+            onKeyDown={handleKeyDown("expiry")}
+            {...form.register("expiry", {
+              onBlur: handleBlur("expiry"),
+            })}
           />
           {form.errors?.expiry && (
             <Error>{t(`expiry.errors.${form.errors.expiry}`)}</Error>
@@ -264,7 +299,12 @@ export function Card({ config }: { config: CardConfig }) {
             cardNumber={form.values.number}
             readOnly={cardReaderListening}
             placeholder={t("cvc.placeholder")}
-            {...form.register("cvc")}
+            onFocus={handleFocus("cvc")}
+            onKeyUp={handleKeyUp("cvc")}
+            onKeyDown={handleKeyDown("cvc")}
+            {...form.register("cvc", {
+              onBlur: handleBlur("cvc"),
+            })}
           />
           {form.errors?.cvc && (
             <Error>{t(`cvc.errors.${form.errors.cvc}`)}</Error>
