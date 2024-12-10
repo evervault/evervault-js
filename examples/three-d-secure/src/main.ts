@@ -50,14 +50,7 @@ async function handleSubmit() {
 
   // Once a 3DS session has be initiated we can use the session ID to create
   // a 3DS UI Component to handle the 3DS process.
-  const tds = evervault.ui.threeDSecure(session, {
-    // The 'failOnChallenge' option will cause the 3DS process to fail if a challenge is required.
-    // failOnChallenge: async () => {
-    //   await new Promise((resolve) => setTimeout(resolve, 2000));
-    //   return false;
-    // },
-    failOnChallenge: true,
-  });
+  const tds = evervault.ui.threeDSecure(session);
 
   // The 'success' event is emitted when the 3DS process has finished successfully
   tds.on("success", () => {
