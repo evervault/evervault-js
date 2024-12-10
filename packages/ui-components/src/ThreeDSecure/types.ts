@@ -24,6 +24,7 @@ export interface ThreeDSecureConfig {
   isOverlay: boolean;
   session: string;
   size?: { width: number; height: number };
+  failOnChallenge?: boolean;
 }
 
 export type TrampolineMessage = MessageEvent<{
