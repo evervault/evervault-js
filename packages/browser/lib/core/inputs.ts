@@ -120,7 +120,6 @@ export default function Inputs(config: Config) {
                   reject(new Error(error.message));
                 }
               } catch (e) {
-                // eslint-disable-next-line prefer-promise-reject-errors
                 reject(
                   `Failed to parse Error: ${
                     (e as Error).message

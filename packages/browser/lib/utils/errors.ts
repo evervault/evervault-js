@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 export class EvervaultError extends Error {
   type: string;
 
