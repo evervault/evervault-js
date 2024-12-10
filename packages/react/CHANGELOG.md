@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.15.0
+
+### Minor Changes
+
+- d859786: Add failOnChallenge option to ThreeDSecure UI Component
+
 ## 2.14.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.36.0
+
+### Minor Changes
+
+- d859786: Add failOnChallenge option to ThreeDSecure UI Component
+
 ## 2.35.0
 
 ### Minor Changes
