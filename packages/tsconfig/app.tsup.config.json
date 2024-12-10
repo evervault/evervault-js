@@ -1,0 +1,14 @@
+{
+  "entry": [
+    "src/index.ts"
+  ],
+  "format": [
+    "cjs"
+  ],
+  "clean": true,
+  "sourcemap": true,
+  "splitting": true,
+  "treeshake": true,
+  "target": "node20",
+  "skipNodeModulesBundle": true
+}

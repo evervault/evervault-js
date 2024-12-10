@@ -26,7 +26,7 @@ export default defineConfig({
     },
   },
   plugins: [
-    react({ jsxRuntime: "classic" }),
+    ...react({ jsxRuntime: "classic" }),
     dts({
       rollupTypes: true,
       bundledPackages: ["types", "themes", "@evervault/browser"],
