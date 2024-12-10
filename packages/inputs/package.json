@@ -28,8 +28,8 @@
     "rollup-plugin-sri": "^1.3.4",
     "tsconfig": "workspace:^",
     "typescript": "5.5.4",
-    "vite": "^4.5.5",
-    "vite-plugin-dts": "^3.6.3"
+    "vite": "^5.4.11",
+    "vite-plugin-dts": "^4.3.0"
   },
   "dependencies": {
     "@evervault/browser": "workspace:^2.14.2",

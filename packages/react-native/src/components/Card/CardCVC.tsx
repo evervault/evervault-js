@@ -3,7 +3,7 @@ import * as React from "react";
 import { useEffect, useMemo } from "react";
 import { TextInputMask } from "react-native-masked-text";
 import { removeFieldFromSet, useCardContext } from "./context";
-import { BaseProps } from "./Card";
+import { type BaseProps } from "./Card";
 
 export type CVCProps = BaseProps;
 
