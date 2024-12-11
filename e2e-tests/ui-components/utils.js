@@ -6,6 +6,7 @@ import { test as baseTest, expect as baseExpect } from "@playwright/test";
 const istanbulCLIOutput = path.join(process.cwd(), "../../.nyc_output");
 
 async function collectCoverage(coverage) {
+  if (!coverage) return;
   await fs.promises.mkdir(istanbulCLIOutput, { recursive: true });
   const filename = `playwright_coverage_${generateUUID()}.json`;
   const filepath = path.join(istanbulCLIOutput, filename);
