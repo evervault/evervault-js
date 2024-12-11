@@ -59,34 +59,13 @@ export default defineConfig({
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
     },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { channel: 'chrome' },
-    // },
   ],
-
-  /* Folder for test artifacts such as screenshots, videos, traces, etc. */
-  // outputDir: 'test-results/',
-
-  /* Run your local dev server before starting the tests */
-  //   webServer: {
-  //     command: 'npm run test-serve',
-  //     port: 3000,
-  //   },
+  webServer: [
+    {
+      command: "pnpm --filter=@evervault/inputs preview",
+      url: "http://localhost:4173/v2/",
+      timeout: 10 * 1000,
+      stdout: "pipe",
+    },
+  ],
 });

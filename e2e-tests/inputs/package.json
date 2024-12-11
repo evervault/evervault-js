@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev:test": "playwright test",
-    "e2e:test": "start-server-and-test \"(cd ../../packages/inputs && pnpm run preview)\" http://localhost:4173/v2/ \"playwright test\"",
+    "e2e:test": "playwright test",
     "clean": "rm -rf .turbo node_modules dist"
   },
   "dependencies": {

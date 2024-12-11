@@ -16,7 +16,7 @@
     "dotenv": "^16",
     "express": "^4",
     "node-fetch": "^3",
-    "pino-http": "^10",
-    "pino": "^9"
+    "pino": "^9",
+    "pino-http": "^10"
   }
 }
