@@ -59,6 +59,7 @@
     "typescript": "5.5.4",
     "vite": "^5.4.11",
     "vite-plugin-dts": "^4.3.0",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "vite-plugin-istanbul": "^6.0.2"
   }
 }

@@ -17,7 +17,8 @@
     "e2e:test:browser": "dotenv -- turbo run e2e:test --parallel --filter=browser",
     "ci:prune:browser": "turbo prune --scope=\"browser\" --docker",
     "version": "changeset version && pnpm install --no-frozen-lockfile",
-    "prepare": "husky"
+    "prepare": "husky",
+    "report": "npx nyc report --exclude-after-remap false"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.10",
