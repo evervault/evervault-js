@@ -20,7 +20,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.8",
+    "@changesets/cli": "^2.27.10",
     "@inquirer/prompts": "^3.3.2",
     "@playwright/test": "^1.42.1",
     "@swc/core": "^1.4.11",
@@ -34,19 +34,17 @@
     "jsdom": "^21.1.2",
     "nock": "^13.5.4",
     "prettier": "^2.8.8",
-    "start-server-and-test": "^2.0.3",
+    "start-server-and-test": "^2.0.9",
     "ts-node": "^10.9.2",
     "tsconfig": "workspace:^",
     "tslib": "^2.7.0",
     "turbo": "^2.3.3",
-    "wait-on": "^7.2.0"
+    "wait-on": "^8.0.1"
   },
   "pnpm": {
     "overrides": {
-      "follow-redirects@<=1.15.5": ">=1.15.6",
-      "follow-redirects@<1.15.4": ">=1.15.4",
-      "axios@<=1.6.2": ">=1.6.8",
-      "date-and-time": "0.14.2"
+      "date-and-time": "0.14.2",
+      "ws": ">=6.2.3"
     },
     "peerDependencyRules": {
       "ignoreMissing": true
