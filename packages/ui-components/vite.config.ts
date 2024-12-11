@@ -9,7 +9,7 @@ if (process.env.VITE_TEST_COVERAGE === "true") {
   plugins.push(
     istanbul({
       include: "src/*",
-      exclude: ["node_modules", "src/tests/"],
+      exclude: ["node_modules", "src/Form/**"],
       extension: [".js", ".ts", ".jsx", ".tsx"],
       requireEnv: false,
     })

@@ -18,7 +18,10 @@
     "ci:prune:browser": "turbo prune --scope=\"browser\" --docker",
     "version": "changeset version && pnpm install --no-frozen-lockfile",
     "prepare": "husky",
-    "report": "npx nyc report --exclude-after-remap false"
+    "coverage:clean": "rm -rf .nyc_output/",
+    "coverage:report": "npx nyc --exclude-after-remap=false report",
+    "coverage:report:html": "npx nyc --reporter=html --exclude-after-remap=false report && open coverage/index.html",
+    "coverage:check": "npx nyc check-coverage"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.10",

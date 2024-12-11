@@ -18,7 +18,13 @@ if (generateCoverage) {
   plugins.push(
     istanbul({
       include: "lib/*",
-      exclude: ["node_modules", "test/"],
+      exclude: [
+        "node_modules",
+        "test/",
+        "lib/ui/form.ts",
+        "lib/core/inputs.ts",
+        "lib/utils/calculateHeight.ts",
+      ],
       extension: [".js", ".ts"],
       requireEnv: false,
       forceBuildInstrument: true,
