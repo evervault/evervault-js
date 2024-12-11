@@ -1,0 +1,46 @@
+name: Rollback S3 release
+on:
+  workflow_call:
+  workflow_dispatch:
+    inputs:
+      bucket:
+        description: "Bucket to rollback"
+        required: true
+        type: choice
+        options:
+          - js-sdk
+          - 3ds
+          - ui-comps
+          - inputs
+jobs:
+  revert-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v4
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build release-gate-tests
+        run: pnpm --filter @ev/revert-s3-deploy... build
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Run S3 Rollback
+        uses: ./actions/revert-deploy
+        with:
+          stage: production
+          bucket: ${{ github.event.inputs.bucket }}
