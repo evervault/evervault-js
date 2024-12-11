@@ -34,7 +34,6 @@
     "jsdom": "^21.1.2",
     "nock": "^13.5.4",
     "prettier": "^2.8.8",
-    "start-server-and-test": "^2.0.9",
     "ts-node": "^10.9.2",
     "tsconfig": "workspace:^",
     "tslib": "^2.7.0",
