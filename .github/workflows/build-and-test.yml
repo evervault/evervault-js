@@ -24,7 +24,7 @@ on:
 jobs:
   build:
     name: Build and Test
-    timeout-minutes: 15
+    timeout-minutes: 25
     runs-on: ubuntu-latest
     env:
       EV_API_KEY: ${{ secrets.tests_decrypt_fn_key }}
@@ -61,9 +61,9 @@ jobs:
       - name: Build ui-components and 3ds
         run: pnpm turbo run build --filter '@evervault/ui-components' --filter '@evervault/3ds'
         env:
-          VITE_API_URL: ${{secrets.vite_api_url}}
-          VITE_EVERVAULT_JS_URL: ${{secrets.vite_evervault_js_url}}
-          VITE_KEYS_URL: ${{secrets.vite_keys_url}}
+          VITE_API_URL: ${{ inputs.vite_api_url }}
+          VITE_EVERVAULT_JS_URL: ${{ inputs.vite_evervault_js_url}}
+          VITE_KEYS_URL: ${{ inputs.vite_keys_url }}
       - name: Formats check
         run: pnpm run format:check
       - name: Typescript check

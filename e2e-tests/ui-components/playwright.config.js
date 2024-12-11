@@ -64,12 +64,12 @@ export default defineConfig({
       timeout: 10 * 2000,
     },
     {
-      command: "pnpm --filter @evervault/ui-components dev",
+      command: "pnpm --filter @evervault/ui-components dev --port 4001",
       url: "http://localhost:4001",
       timeout: 10 * 2000,
     },
     {
-      command: "pnpm -C ./vanilla-test-server dev --port 4005",
+      command: "pnpm --filter e2e-tests-ui-components-vanilla-server dev",
       url: "http://localhost:4005",
       timeout: 10 * 2000,
     },
