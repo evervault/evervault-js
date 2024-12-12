@@ -10,7 +10,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 );
 
 if (import.meta.env.VITE_TEST_COVERAGE === "true") {
-  // Post coverage metrics up to parent from before unloading the iframe
+  // Post coverage metrics up to parent before unloading the iframe
   window.addEventListener("pagehide", () => {
     window.parent.postMessage(
       {
