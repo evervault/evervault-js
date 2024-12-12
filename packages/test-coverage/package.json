@@ -1,0 +1,6 @@
+{
+  "name": "@repo/test-coverage",
+  "exports": {
+    ".": "./index.ts"
+  }
+}

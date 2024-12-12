@@ -53,7 +53,7 @@ test.describe("card component", () => {
     });
   });
 
-  test("shows an error message for an invalid card number", async ({
+  test.only("shows an error message for an invalid card number", async ({
     page,
   }) => {
     let values = {};

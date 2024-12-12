@@ -77,6 +77,9 @@ importers:
 
   e2e-tests/browser:
     devDependencies:
+      '@repo/test-coverage':
+        specifier: workspace:*
+        version: link:../../packages/test-coverage
       vite:
         specifier: ^5.4.11
         version: 5.4.11(@types/node@20.11.30)(lightningcss@1.27.0)(terser@5.31.0)
@@ -93,6 +96,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ui-components
     devDependencies:
+      '@repo/test-coverage':
+        specifier: workspace:*
+        version: link:../../packages/test-coverage
       v8-to-istanbul:
         specifier: ^9.3.0
         version: 9.3.0
@@ -552,6 +558,8 @@ importers:
       typescript:
         specifier: 5.5.4
         version: 5.5.4
+
+  packages/test-coverage: {}
 
   packages/themes:
     dependencies:
