@@ -1,8 +1,10 @@
-import * as crypto from "crypto";
 import { test as baseTest, expect as baseExpect } from "@playwright/test";
+import { extendTest } from "@repo/test-coverage";
 
 const EV_STRING_REGEX =
   /((ev(:|%3A))(debug(:|%3A))?(([A-z0-9+/=%]+)(:|%3A))?((number|boolean|string)(:|%3A))?(([A-z0-9+/=%]+)(:|%3A)){3}(\$|%24))|(((eyJ[A-z0-9+=.]+){2})([\w]{8}(-[\w]{4}){3}-[\w]{12}))/;
+
+export const test = extendTest(baseTest);
 
 export const expect = baseExpect.extend({
   toBeEncrypted(locator) {
@@ -22,12 +24,6 @@ export const expect = baseExpect.extend({
     };
   },
 });
-
-export function generateUUID() {
-  return crypto.randomBytes(16).toString("hex");
-}
-
-export const test = baseTest.extend({});
 
 export const VALID_CARDS = {
   visa: {

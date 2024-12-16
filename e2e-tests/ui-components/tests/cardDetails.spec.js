@@ -790,14 +790,19 @@ async function decrypt(payload) {
     `${process.env.VITE_EV_APP_UUID}:${process.env.EV_API_KEY}`
   );
 
-  const response = await fetch(`${process.env.VITE_API_URL}/decrypt`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Basic ${token}`,
-    },
-    body: JSON.stringify(payload),
-  });
+  try {
+    const response = await fetch(`${process.env.VITE_API_URL}/decrypt`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
 
-  return response.json();
+    return response.json();
+  } catch (e) {
+    console.log("decrypt error");
+    console.error(e);
+  }
 }

@@ -11,6 +11,7 @@
     "preview": "vite --port 4006"
   },
   "devDependencies": {
-    "vite": "^5.4.11"
+    "vite": "^5.4.11",
+    "@repo/test-coverage": "workspace:*"
   }
 }

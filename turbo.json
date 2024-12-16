@@ -1,54 +1,29 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": [
-    "EV_*",
-    "VITE_*"
-  ],
+  "globalEnv": ["EV_*", "VITE_*"],
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "dist/**"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
     },
     "dev": {
       "cache": false,
       "persistent": true,
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env"
-      ]
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env"]
     },
     "e2e:test": {
-      "dependsOn": [
-        "build"
-      ],
-      "outputs": [
-        "playwright-report/**",
-        "test-results/**"
-      ]
+      "dependsOn": ["build"],
+      "outputs": ["playwright-report/**", "test-results/**", ".nyc_output/**"]
     },
     "deploy": {
-      "dependsOn": [
-        "build",
-        "test",
-        "lint"
-      ]
+      "dependsOn": ["build", "test", "lint"]
     },
     "typecheck": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "format": {
-      "dependsOn": [
-        "^lint:fix"
-      ],
+      "dependsOn": ["^lint:fix"],
       "outputs": [
         "src/**",
         "lib/**",
@@ -67,37 +42,18 @@
     },
     "lint:fix": {
       "dependsOn": [],
-      "outputs": [
-        "src/**",
-        "lib/**",
-        "test/**",
-        "*.[mc][tj]s"
-      ]
+      "outputs": ["src/**", "lib/**", "test/**", "*.[mc][tj]s"]
     },
     "test": {
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "src/**/*.ts",
-        "lib/**/*.ts",
-        "test/**/*.ts"
-      ]
+      "dependsOn": ["^build"],
+      "inputs": ["src/**/*.ts", "lib/**/*.ts", "test/**/*.ts"]
     },
     "test:watch": {
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "src/**/*.ts",
-        "lib/**/*.ts",
-        "test/**/*.ts"
-      ]
+      "dependsOn": ["^build"],
+      "inputs": ["src/**/*.ts", "lib/**/*.ts", "test/**/*.ts"]
     },
     "preview": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "clean": {
       "cache": false

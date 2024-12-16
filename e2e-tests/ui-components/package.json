@@ -8,5 +8,9 @@
   },
   "dependencies": {
     "@evervault/ui-components": "workspace:*"
+  },
+  "devDependencies": {
+    "@repo/test-coverage": "workspace:*",
+    "v8-to-istanbul": "^9.3.0"
   }
 }
