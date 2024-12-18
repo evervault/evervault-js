@@ -13,6 +13,7 @@
       "inputs": ["$TURBO_DEFAULT$", ".env"]
     },
     "e2e:test": {
+      "cache": false,
       "dependsOn": ["build"],
       "outputs": ["playwright-report/**", "test-results/**", ".nyc_output/**"]
     },
