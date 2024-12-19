@@ -32,7 +32,7 @@ export function GooglePay({ config }: GooglePayProps) {
 
     async function onLoad() {
       const paymentsClient = new google.payments.api.PaymentsClient({
-        environment: config.environment,
+        environment: process.env.VITE_STAGING ? "TEST" : "PRODUCTION",
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
             const encrypted = await exchangePaymentData(
