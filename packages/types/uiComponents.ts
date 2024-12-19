@@ -351,7 +351,6 @@ export interface GooglePayOptions {
   size?: { width: WalletDimension; height: WalletDimension };
   allowedAuthMethods?: google.payments.api.CardAuthMethod[];
   allowedCardNetworks?: google.payments.api.CardNetwork[];
-  environment?: "TEST" | "PRODUCTION";
 }
 
 export type ApplePayButtonType =
