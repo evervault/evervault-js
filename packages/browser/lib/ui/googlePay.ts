@@ -84,7 +84,6 @@ export default class GooglePay {
         color: this.#options.color,
         locale: this.#options.locale,
         borderRadius: this.#options.borderRadius,
-        environment: this.#options.environment,
         allowedAuthMethods: this.#options.allowedAuthMethods,
         allowedCardNetworks: this.#options.allowedCardNetworks,
       },
