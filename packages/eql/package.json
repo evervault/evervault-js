@@ -1,0 +1,27 @@
+{
+  "name": "@evervault/eql",
+  "version": "0.1.0",
+  "private": false,
+  "author": "Evervault (https://evervault.com)",
+  "license": "MIT",
+  "description": "This package contains the grammar for Evervault Query Language (EQL).",
+  "scripts": {
+    "build:cjs": "peggy -o dist/index.js --format commonjs src/grammar.peggy",
+    "build:esm": "peggy -o dist/index.mjs --format es src/grammar.peggy",
+    "build": "pnpm run build:cjs && pnpm run build:esm",
+    "clean": "rm -rf .turbo node_modules dist",
+    "prepublish": "pnpm run build",
+    "test": "mocha 'src/**/*.test.js'"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/node": "^22",
+    "chai": "^4.4.1",
+    "mocha": "^9.2.2",
+    "peggy": "^4.0.2"
+  }
+}
