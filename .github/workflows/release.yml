@@ -94,6 +94,15 @@ jobs:
       package: "@evervault/evervault-react-native"
       artifact: "react-native-build"
       repo_path: "packages/react-native/lib"
+    secrets: inherit  
+  publish-eql:
+    if: contains(github.ref, 'refs/tags/@evervault/eql')
+    needs: build
+    uses: ./.github/workflows/npm-publish.yml
+    with:
+      package: "@evervault/eql"
+      artifact: "eql-build"
+      repo_path: "packages/eql/dist"
     secrets: inherit
   release:
     name: Release
