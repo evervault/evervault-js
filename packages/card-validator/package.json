@@ -38,9 +38,9 @@
   },
   "devDependencies": {
     "types": "workspace:*",
-    "typescript": "5.5.4",
-    "vite": "^5.4.11",
-    "vite-plugin-dts": "^4.3.0",
-    "vitest": "^2.1.8"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   }
 }

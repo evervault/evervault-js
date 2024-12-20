@@ -11,7 +11,7 @@
     "@evervault/browser": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "5.5.4",
-    "vite": "^5.4.11"
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }
