@@ -64,11 +64,8 @@
     "react-native-webview": "catalog:"
   },
   "devDependencies": {
-    "@commitlint/config-conventional": "catalog:",
-    "@release-it/conventional-changelog": "catalog:",
     "@types/jest": "catalog:",
     "@types/react": "catalog:",
-    "commitlint": "catalog:",
     "del-cli": "catalog:",
     "jest": "catalog:",
     "pod-install": "catalog:",
@@ -76,7 +73,6 @@
     "react-native": "catalog:",
     "react-native-builder-bob": "catalog:",
     "react-native-mask-input": "catalog:",
-    "release-it": "catalog:",
     "typescript": "catalog:"
   },
   "peerDependencies": {
