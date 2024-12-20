@@ -5,6 +5,11 @@
   "author": "Evervault (https://evervault.com)",
   "license": "MIT",
   "description": "This package contains the grammar for Evervault Query Language (EQL).",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evervault/evervault-js.git",
+    "directory": "packages/eql"
+  },
   "scripts": {
     "build:cjs": "peggy -o dist/index.js --format commonjs src/grammar.peggy",
     "build:esm": "peggy -o dist/index.mjs --format es src/grammar.peggy",
