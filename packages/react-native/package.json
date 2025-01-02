@@ -59,27 +59,21 @@
   },
   "dependencies": {
     "@evervault/card-validator": "workspace:*",
-    "nodemon": "^3.1.4",
-    "react-native-masked-text": "^1.13.0",
-    "react-native-webview": "^13.12.5"
+    "nodemon": "catalog:",
+    "react-native-masked-text": "catalog:",
+    "react-native-webview": "catalog:"
   },
   "devDependencies": {
-    "@commitlint/config-conventional": "^17.0.2",
-    "@release-it/conventional-changelog": "^5.0.0",
-    "@types/jest": "^28.1.2",
-    "@types/react": "~18.2.45",
-    "commitlint": "^17.0.2",
-    "del-cli": "^5.0.0",
-    "jest": "^28.1.1",
-    "pod-install": "^0.1.0",
-    "prettier": "^2.0.5",
-    "react": "18.2.0",
-    "react-native": "0.74.1",
-    "react-native-builder-bob": "^0.23.2",
-    "react-native-mask-input": "^1.2.3",
-    "release-it": "^16.1.3",
-    "turbo": "^1.10.7",
-    "typescript": "5.5.4"
+    "@types/jest": "catalog:",
+    "@types/react": "catalog:",
+    "del-cli": "catalog:",
+    "jest": "catalog:",
+    "pod-install": "catalog:",
+    "react": "catalog:",
+    "react-native": "catalog:",
+    "react-native-builder-bob": "catalog:",
+    "react-native-mask-input": "catalog:",
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "react": "*",
