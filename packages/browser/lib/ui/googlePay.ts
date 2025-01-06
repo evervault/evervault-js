@@ -36,6 +36,7 @@ export default class GooglePay {
         width: getStringDimensionOrDefault(options.size?.width, "250px"),
         height: getStringDimensionOrDefault(options.size?.height, "45px"),
       },
+      allow: "payment *",
     });
 
     this.#frame.on("EV_FRAME_READY", () => {
