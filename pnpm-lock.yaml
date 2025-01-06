@@ -31,8 +31,8 @@ catalogs:
       specifier: ^1.5.0
       version: 1.5.0
     '@playwright/test':
-      specifier: ^1.42.1
-      version: 1.42.1
+      specifier: ^1.49.1
+      version: 1.49.1
     '@swc/core':
       specifier: ^1.4.11
       version: 1.4.11
@@ -268,7 +268,7 @@ importers:
         version: 3.3.2
       '@playwright/test':
         specifier: 'catalog:'
-        version: 1.42.1
+        version: 1.49.1
       '@swc/core':
         specifier: 'catalog:'
         version: 1.4.11(@swc/helpers@0.5.5)
@@ -432,7 +432,7 @@ importers:
         version: link:../../packages/react
       next:
         specifier: 'catalog:'
-        version: 14.2.15(@playwright/test@1.42.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 14.2.15(@playwright/test@1.49.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
         specifier: 'catalog:'
         version: 18.2.0
@@ -2878,9 +2878,9 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@playwright/test@1.42.1':
-    resolution: {integrity: sha512-Gq9rmS54mjBL/7/MvBaNOBwbfnh7beHvS6oS4srqXFcQHpQCV1+c8JXWE8VLPyRDhgS3H8x8A7hztqI9VnwrAQ==}
-    engines: {node: '>=16'}
+  '@playwright/test@1.49.1':
+    resolution: {integrity: sha512-Ky+BVzPz8pL6PQxHqNRW1k3mIyv933LML7HktS8uik0bUXNCdPhoS/kLihiO1tMf/egaJb4IutXd7UywvXEW+g==}
+    engines: {node: '>=18'}
     hasBin: true
 
   '@react-native-community/cli-clean@13.6.6':
@@ -7056,14 +7056,14 @@ packages:
   pkg-types@1.2.1:
     resolution: {integrity: sha512-sQoqa8alT3nHjGuTjuKgOnvjo4cljkufdtLMnO2LBP/wRwuDlo1tkaEdMxCRhyGRPacv/ztlZgDPm2b7FAmEvw==}
 
-  playwright-core@1.42.1:
-    resolution: {integrity: sha512-mxz6zclokgrke9p1vtdy/COWBH+eOZgYUVVU34C73M+4j4HLlQJHtfcqiqqxpP0o8HhMkflvfbquLX5dg6wlfA==}
-    engines: {node: '>=16'}
+  playwright-core@1.49.1:
+    resolution: {integrity: sha512-BzmpVcs4kE2CH15rWfzpjzVGhWERJfmnXmniSyKeRZUs9Ws65m+RGIi7mjJK/euCegfn3i7jvqWeWyHe9y3Vgg==}
+    engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.42.1:
-    resolution: {integrity: sha512-PgwB03s2DZBcNRoW+1w9E+VkLBxweib6KTXM0M3tkiT4jVxKSi6PmVJ591J+0u10LUrgxB7dLRbiJqO5s2QPMg==}
-    engines: {node: '>=16'}
+  playwright@1.49.1:
+    resolution: {integrity: sha512-VYL8zLoNTBxVOrJBbDuRgDWa3i+mfQgDTrL8Ah9QXZ7ax4Dsj0MSq5bYgytRnDVVe+njoKnfsYkH3HzqVj5UZA==}
+    engines: {node: '>=18'}
     hasBin: true
 
   plist@3.1.0:
@@ -11700,9 +11700,9 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@playwright/test@1.42.1':
+  '@playwright/test@1.49.1':
     dependencies:
-      playwright: 1.42.1
+      playwright: 1.49.1
 
   '@react-native-community/cli-clean@13.6.6':
     dependencies:
@@ -16546,7 +16546,7 @@ snapshots:
 
   nested-error-stacks@2.0.1: {}
 
-  next@14.2.15(@playwright/test@1.42.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
+  next@14.2.15(@playwright/test@1.49.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
       '@next/env': 14.2.15
       '@swc/helpers': 0.5.5
@@ -16567,7 +16567,7 @@ snapshots:
       '@next/swc-win32-arm64-msvc': 14.2.15
       '@next/swc-win32-ia32-msvc': 14.2.15
       '@next/swc-win32-x64-msvc': 14.2.15
-      '@playwright/test': 1.42.1
+      '@playwright/test': 1.49.1
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
@@ -16947,11 +16947,11 @@ snapshots:
       mlly: 1.7.3
       pathe: 1.1.2
 
-  playwright-core@1.42.1: {}
+  playwright-core@1.49.1: {}
 
-  playwright@1.42.1:
+  playwright@1.49.1:
     dependencies:
-      playwright-core: 1.42.1
+      playwright-core: 1.49.1
     optionalDependencies:
       fsevents: 2.3.2
 
