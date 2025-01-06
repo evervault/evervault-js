@@ -302,6 +302,7 @@ export function Card({ config }: { config: CardConfig }) {
             onFocus={handleFocus("cvc")}
             onKeyUp={handleKeyUp("cvc")}
             onKeyDown={handleKeyDown("cvc")}
+            redact={config.redactCVC}
             {...form.register("cvc", {
               onBlur: handleBlur("cvc"),
             })}

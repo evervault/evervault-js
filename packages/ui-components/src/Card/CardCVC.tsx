@@ -21,6 +21,7 @@ interface CVCProps {
   readOnly?: boolean;
   cardNumber: string;
   autoComplete?: boolean;
+  redact?: boolean;
 }
 
 export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
@@ -37,6 +38,7 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
       onFocus,
       onKeyUp,
       onKeyDown,
+      redact,
     },
     forwardedRef
   ) => {
@@ -64,7 +66,7 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
         ref={innerRef}
         id="cvc"
         name="cvc"
-        type="text"
+        type={redact ? "password" : "text"}
         disabled={disabled}
         onBlur={onBlur}
         placeholder={placeholder}
