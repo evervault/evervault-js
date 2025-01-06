@@ -22,7 +22,7 @@ function App() {
         merchant: {
           id: "merchant_d8e4353154df",
           name: "Test Merchant",
-          applePayIdentifier: "ev-wallet.ngrok.app",
+          domain: "ev-wallet.ngrok.app",
         },
       });
 

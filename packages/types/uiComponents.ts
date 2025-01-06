@@ -475,7 +475,7 @@ export interface TransactionDetails {
   merchant: {
     id: string;
     name: string;
-    applePayIdentifier?: string;
+    domain?: string;
   };
   lineItems?: TransactionLineItem[];
 }
