@@ -16,9 +16,9 @@ function App() {
       const evervault = await ev;
       if (!evervault) return;
       const transaction = evervault.transactions.create({
-        amount: 1,
-        currency: "EUR",
-        country: "IE",
+        amount: 125,
+        currency: "USD",
+        country: "US",
         merchant: {
           id: "merchant_d8e4353154df",
           name: "Test Merchant",
@@ -29,9 +29,9 @@ function App() {
 
       const inst = evervault.ui.googlePay(transaction, {
         type: "pay",
-        color: "black",
+        color: "white",
         borderRadius: 15,
-        size: { width: "107%", height: "55px" },
+        size: { width: 400, height: "60px" },
         allowedAuthMethods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
         allowedCardNetworks: ["VISA", "MASTERCARD"],
         process: async (data, {fail}) => {

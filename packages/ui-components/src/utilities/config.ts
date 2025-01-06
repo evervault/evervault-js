@@ -1,7 +1,8 @@
 type Environment = "staging" | "production";
-const environment: Environment = import.meta.env.VITE_STAGING
-  ? "staging"
-  : "production";
+const environment: Environment =
+  import.meta.env.VITE_STAGING?.toLowerCase() === "true"
+    ? "staging"
+    : "production";
 
 const isProduction = environment === "production";
 
