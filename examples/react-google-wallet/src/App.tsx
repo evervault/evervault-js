@@ -16,22 +16,22 @@ function App() {
       const evervault = await ev;
       if (!evervault) return;
       const transaction = evervault.transactions.create({
-        amount: 125,
-        currency: "USD",
-        country: "US",
+        amount: 1,
+        currency: "EUR",
+        country: "IE",
         merchant: {
           id: "merchant_d8e4353154df",
           name: "Test Merchant",
-          applePayIdentifier: "ev-wallet.ngrok.app",
+          domain: "ev-wallet.ngrok.app",
         },
       });
 
 
       const inst = evervault.ui.googlePay(transaction, {
         type: "pay",
-        color: "white",
+        color: "black",
         borderRadius: 15,
-        size: { width: 400, height: "60px" },
+        size: { width: "107%", height: "55px" },
         allowedAuthMethods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
         allowedCardNetworks: ["VISA", "MASTERCARD"],
         process: async (data, {fail}) => {
