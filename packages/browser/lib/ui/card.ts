@@ -112,6 +112,7 @@ export default class Card {
         defaultValues: this.#options.defaultValues,
         autoComplete: this.#options.autoComplete,
         autoProgress: this.#options.autoProgress,
+        redactCVC: this.#options.redactCVC,
       },
     };
   }
