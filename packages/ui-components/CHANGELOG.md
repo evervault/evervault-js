@@ -1,5 +1,19 @@
 # @evervault/ui-components
 
+## 1.22.0
+
+### Minor Changes
+
+- 446bbcb: Remove merchant.domain field and infer value from window
+
+### Patch Changes
+
+- Updated dependencies [446bbcb]
+  - types@0.7.0
+  - @evervault/card-validator@1.2.0
+  - @evervault/react@2.16.0
+  - shared@1.1.2
+
 ## 1.21.0
 
 ### Minor Changes

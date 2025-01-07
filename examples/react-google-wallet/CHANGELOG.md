@@ -1,5 +1,16 @@
 # example-react-google-wallet
 
+## 0.2.0
+
+### Minor Changes
+
+- 446bbcb: Remove merchant.domain field and infer value from window
+
+### Patch Changes
+
+- @evervault/browser@2.37.1
+- @evervault/react@2.16.0
+
 ## 0.1.0
 
 ### Minor Changes
