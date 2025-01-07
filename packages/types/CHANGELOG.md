@@ -1,5 +1,11 @@
 # types
 
+## 0.7.0
+
+### Minor Changes
+
+- 446bbcb: Remove merchant.domain field and infer value from window
+
 ## 0.6.0
 
 ### Minor Changes
