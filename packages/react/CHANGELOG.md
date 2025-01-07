@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.16.0
+
+### Minor Changes
+
+- 4928702: Add redactCVC option to visually redact the CVC value
+
 ## 2.15.0
 
 ### Minor Changes

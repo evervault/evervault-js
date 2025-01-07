@@ -1,5 +1,13 @@
 # types
 
+## 0.6.0
+
+### Minor Changes
+
+- cd40338: - Send merchantOrigin for Google Pay
+  - Update iFrame allow value to "payments \*"
+  - Update Apple Pay to use domain instead of applePayIdentifier
+
 ## 0.5.0
 
 ### Minor Changes

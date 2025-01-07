@@ -1,5 +1,12 @@
 # themes
 
+## 0.1.6
+
+### Patch Changes
+
+- Updated dependencies [cd40338]
+  - types@0.6.0
+
 ## 0.1.5
 
 ### Patch Changes
