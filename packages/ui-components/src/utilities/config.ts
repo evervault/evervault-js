@@ -18,11 +18,14 @@ const keysUrl = isProduction
   ? "https://keys.evervault.com"
   : import.meta.env.VITE_KEYS_URL ?? "https://keys.evervault.io";
 
+const GOOGLE_PAY_MERCHANT_ID = isProduction ? "BCR2DN4TX7AOD7BD" : undefined;
+
 const apiConfig = {
   environment,
   googlePayEnvironment,
   apiUrl,
   keysUrl,
+  googlePayMerchantId: GOOGLE_PAY_MERCHANT_ID,
 } as const;
 
 export { apiConfig };
