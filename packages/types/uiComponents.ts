@@ -475,7 +475,6 @@ export interface TransactionDetails {
   merchant: {
     id: string;
     name: string;
-    domain?: string;
   };
   lineItems?: TransactionLineItem[];
 }
