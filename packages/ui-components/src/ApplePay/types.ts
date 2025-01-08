@@ -2,7 +2,6 @@ import {
   ApplePayButtonStyle,
   ApplePayButtonType,
   TransactionDetails,
-  ApplePayPaymentRequest,
   ApplePayButtonLocale,
 } from "types";
 

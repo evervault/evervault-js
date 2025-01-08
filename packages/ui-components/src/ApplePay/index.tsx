@@ -82,7 +82,7 @@ export function ApplePay({ config }: ApplePayProps) {
       try {
         response = await session.show();
       } catch (error) {
-        if (error.name === "AbortError") {
+        if (error instanceof Error && error.name === "AbortError") {
           send("EV_APPLE_PAY_CANCELLED");
           return;
         } else {
@@ -103,23 +103,19 @@ export function ApplePay({ config }: ApplePayProps) {
 
         send("EV_APPLE_PAY_AUTH", encrypted);
 
-        const result = await new Promise<{ status: string }>((resolve) => {
+        const result = await new Promise<PaymentComplete>((resolve) => {
           on("EV_APPLE_PAY_COMPLETION", () => {
-            resolve({
-              status: "success",
-            });
+            resolve("success");
             send("EV_APPLE_PAY_SUCCESS");
           });
 
           on("EV_APPLE_PAY_AUTH_ERROR", (error) => {
             const errorMsg = `Error during payment completion: ${error.message}`;
-            resolve({
-              status: "fail",
-            });
+            resolve("fail");
             send("EV_APPLE_PAY_ERROR", errorMsg);
           });
         });
-        await response.complete(result.status);
+        await response.complete(result);
       } catch (error) {
         const errorMsg = `Error during payment completion. Error: ${error}`;
         console.log(errorMsg);

@@ -5,7 +5,6 @@ import {
 } from "types";
 import {
   ApplePayConfig,
-  ApplePaymentRequest,
   ValidateMerchantResponse,
 } from "./types";
 
@@ -65,9 +64,11 @@ export function buildSession(app: string, config: ApplePayConfig) {
   const request = new PaymentRequest(
     paymentMethodData,
     paymentDetails,
-    paymentOptions
+    // @ts-ignore
+    paymentOptions 
   );
-
+  
+    // @ts-ignore
   request.onmerchantvalidation = async (event) => {
     const merchantSessionPromise = await validateMerchant(app, tx);
     console.log(merchantSessionPromise);
