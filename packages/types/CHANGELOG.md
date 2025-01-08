@@ -1,5 +1,13 @@
 # types
 
+## 0.8.0
+
+### Minor Changes
+
+- ffb19d1: Replace merchant object with merchantId string field.
+
+  Use the new frontend merchant API to obtain the required details.
+
 ## 0.7.0
 
 ### Minor Changes

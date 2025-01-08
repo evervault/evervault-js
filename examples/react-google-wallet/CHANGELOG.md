@@ -1,5 +1,18 @@
 # example-react-google-wallet
 
+## 0.3.0
+
+### Minor Changes
+
+- ffb19d1: Replace merchant object with merchantId string field.
+
+  Use the new frontend merchant API to obtain the required details.
+
+### Patch Changes
+
+- @evervault/browser@2.37.2
+- @evervault/react@2.16.0
+
 ## 0.2.0
 
 ### Minor Changes
