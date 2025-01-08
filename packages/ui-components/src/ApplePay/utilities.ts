@@ -63,7 +63,7 @@ export function buildSession(app: string, config: ApplePayConfig) {
     paymentOptions
   );
 
-  // @ts-expect-error
+  // @ts-expect-error - onmerchantvalidation is added by apple and not on the PaymentRequest type
   request.onmerchantvalidation = async (event) => {
     const merchantSessionPromise = await validateMerchant(app, tx);
     console.log(merchantSessionPromise);
