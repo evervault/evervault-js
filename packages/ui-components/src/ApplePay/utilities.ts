@@ -3,10 +3,7 @@ import {
   EncryptedApplePayData,
   TransactionDetails,
 } from "types";
-import {
-  ApplePayConfig,
-  ValidateMerchantResponse,
-} from "./types";
+import { ApplePayConfig, ValidateMerchantResponse } from "./types";
 
 const API = import.meta.env.VITE_API_URL as string;
 
@@ -65,10 +62,10 @@ export function buildSession(app: string, config: ApplePayConfig) {
     paymentMethodData,
     paymentDetails,
     // @ts-ignore
-    paymentOptions 
+    paymentOptions
   );
-  
-    // @ts-ignore
+
+  // @ts-ignore
   request.onmerchantvalidation = async (event) => {
     const merchantSessionPromise = await validateMerchant(app, tx);
     console.log(merchantSessionPromise);
