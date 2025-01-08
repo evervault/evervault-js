@@ -1,7 +1,6 @@
-import { EncryptedGooglePayData } from "types";
+import { EncryptedGooglePayData, MerchantDetail } from "types";
 import { GooglePayConfig } from "./types";
 import { apiConfig } from "../utilities/config";
-import { MerchantDetail } from "../utilities/useMerchant";
 
 export function buildPaymentRequest(
   config: GooglePayConfig,

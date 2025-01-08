@@ -529,3 +529,8 @@ export type ApplePayPaymentRequest =
   | ApplePayDeferredPaymentRequest
   | ApplePayAutomaticReloadPaymentRequest
   | ApplePayStandardPaymentRequest;
+
+export interface MerchantDetail {
+  id: string;
+  name: string;
+}
