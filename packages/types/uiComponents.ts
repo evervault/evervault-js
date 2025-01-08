@@ -455,6 +455,7 @@ export interface ApplePayOptions {
   borderRadius?: number;
   size?: { width: WalletDimension; height: WalletDimension };
   allowedCardNetworks?: ApplePayCardNetwork[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   paymentMethodsDataOverrides?: { [key: string]: any };
   paymentDetailsModifiers?: PaymentDetailsModifier[];
 }
