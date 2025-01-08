@@ -33,6 +33,7 @@ export interface CardProps {
   onBlur?: (event: FieldEvent) => void;
   onKeyUp?: (event: FieldEvent) => void;
   onKeyDown?: (event: FieldEvent) => void;
+  redactCVC?: boolean;
 }
 
 type CardClass = ReturnType<Evervault["ui"]["card"]>;
@@ -56,6 +57,7 @@ export function Card({
   autoProgress,
   acceptedBrands,
   defaultValues,
+  redactCVC,
 }: CardProps) {
   const ev = useEvervault();
   const initialized = useRef(false);
@@ -127,6 +129,7 @@ export function Card({
       autoProgress,
       acceptedBrands,
       defaultValues,
+      redactCVC,
     }),
     [
       theme,
@@ -138,6 +141,7 @@ export function Card({
       autoProgress,
       acceptedBrands,
       defaultValues,
+      redactCVC,
     ]
   );
 

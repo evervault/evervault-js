@@ -783,6 +783,19 @@ test.describe("card component", () => {
 
     await expect(frame.getByLabel("Card Holder")).toHaveValue("Michael Scott");
   });
+
+  test("Can redact CVC field", async ({ page }) => {
+    await page.evaluate(() => {
+      window.card = window.evervault.ui.card({
+        redactCVC: true,
+      });
+      window.card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    const cvc = frame.getByLabel("CVC");
+    expect(await cvc.getAttribute("type")).toEqual("password");
+  });
 });
 
 async function decrypt(payload) {

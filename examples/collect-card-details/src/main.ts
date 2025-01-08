@@ -15,6 +15,7 @@ const evervault = new window.Evervault(
 const card = evervault.ui.card({
   icons: true,
   theme: evervault.ui.themes.clean(),
+  redactCVC: true,
 });
 
 card.on("change", (values) => {

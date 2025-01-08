@@ -1,5 +1,19 @@
 # types
 
+## 0.7.0
+
+### Minor Changes
+
+- 446bbcb: Remove merchant.domain field and infer value from window
+
+## 0.6.0
+
+### Minor Changes
+
+- cd40338: - Send merchantOrigin for Google Pay
+  - Update iFrame allow value to "payments \*"
+  - Update Apple Pay to use domain instead of applePayIdentifier
+
 ## 0.5.0
 
 ### Minor Changes

@@ -85,7 +85,7 @@ async function validateMerchant(
     },
     body: JSON.stringify({
       merchantUuid: tx.merchant.id,
-      domain: tx.merchant.applePayIdentifier,
+      domain: window.location.origin,
     }),
   });
 

@@ -1,5 +1,37 @@
 # @evervault/ui-components
 
+## 1.22.0
+
+### Minor Changes
+
+- 446bbcb: Remove merchant.domain field and infer value from window
+
+### Patch Changes
+
+- Updated dependencies [446bbcb]
+  - types@0.7.0
+  - @evervault/card-validator@1.2.0
+  - @evervault/react@2.16.0
+  - shared@1.1.2
+
+## 1.21.0
+
+### Minor Changes
+
+- 4928702: Add redactCVC option to visually redact the CVC value
+- cd40338: - Send merchantOrigin for Google Pay
+  - Update iFrame allow value to "payments \*"
+  - Update Apple Pay to use domain instead of applePayIdentifier
+
+### Patch Changes
+
+- Updated dependencies [4928702]
+- Updated dependencies [cd40338]
+  - @evervault/react@2.16.0
+  - types@0.6.0
+  - @evervault/card-validator@1.2.0
+  - shared@1.1.1
+
 ## 1.20.0
 
 ### Minor Changes

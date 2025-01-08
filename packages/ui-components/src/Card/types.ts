@@ -15,6 +15,7 @@ export interface CardConfig {
   acceptedBrands?: CardBrandName[];
   translations?: Partial<CardTranslations>;
   autoProgress?: boolean;
+  redactCVC?: boolean;
   defaultValues?: {
     name?: string;
   };

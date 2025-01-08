@@ -142,12 +142,6 @@ export function ApplePay({ config }: ApplePayProps) {
     return null;
   }
 
-  if (!config.transaction.merchant.applePayIdentifier) {
-    throw new Error(
-      "Apple Pay Merchant Identifier not found, please set merchant.applePayIdentifier on the transaction"
-    );
-  }
-
   const containerStyle: CSSProperties = {
     position: "relative",
     width: "100vw",

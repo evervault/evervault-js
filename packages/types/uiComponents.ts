@@ -102,6 +102,7 @@ export interface CardOptions {
   acceptedBrands?: CardBrandName[];
   translations?: Partial<CardTranslations>;
   autoProgress?: boolean;
+  redactCVC?: boolean;
   defaultValues?: {
     name?: string;
   };
@@ -474,7 +475,6 @@ export interface TransactionDetails {
   merchant: {
     id: string;
     name: string;
-    applePayIdentifier?: string;
   };
   lineItems?: TransactionLineItem[];
 }

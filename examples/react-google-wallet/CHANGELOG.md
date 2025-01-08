@@ -1,5 +1,31 @@
 # example-react-google-wallet
 
+## 0.2.0
+
+### Minor Changes
+
+- 446bbcb: Remove merchant.domain field and infer value from window
+
+### Patch Changes
+
+- @evervault/browser@2.37.1
+- @evervault/react@2.16.0
+
+## 0.1.0
+
+### Minor Changes
+
+- cd40338: - Send merchantOrigin for Google Pay
+  - Update iFrame allow value to "payments \*"
+  - Update Apple Pay to use domain instead of applePayIdentifier
+
+### Patch Changes
+
+- Updated dependencies [4928702]
+- Updated dependencies [cd40338]
+  - @evervault/browser@2.37.0
+  - @evervault/react@2.16.0
+
 ## 0.0.3
 
 ### Patch Changes

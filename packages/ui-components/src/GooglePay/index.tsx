@@ -6,6 +6,7 @@ import { GooglePayConfig } from "./types";
 import { useMessaging } from "../utilities/useMessaging";
 import { GooglePayClientMessages, GooglePayHostMessages } from "types";
 import { useSearchParams } from "../utilities/useSearchParams";
+import { apiConfig } from "../utilities/config";
 
 interface GooglePayProps {
   config: GooglePayConfig;
@@ -32,7 +33,7 @@ export function GooglePay({ config }: GooglePayProps) {
 
     async function onLoad() {
       const paymentsClient = new google.payments.api.PaymentsClient({
-        environment: process.env.VITE_STAGING ? "TEST" : "PRODUCTION",
+        environment: apiConfig.googlePayEnvironment,
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
             const encrypted = await exchangePaymentData(

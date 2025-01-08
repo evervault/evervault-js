@@ -51,7 +51,7 @@ export function CardExpiry({
   const ref = useRef<HTMLInputElement>(null);
   const { setValue, mask } = useMask(ref, onChange, {
     mask: "MM / YY",
-    blocks: EXPIRY_BLOCKS,
+    blocks: EXPIRY_BLOCKS as typeof useMask.prototype.blocks,
   });
 
   useEffect(() => {

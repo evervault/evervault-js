@@ -22,7 +22,6 @@ function App() {
         merchant: {
           id: "merchant_e930d3f7bf37",
           name: "Test Merchant",
-          applePayIdentifier: "store-donijan3.ngrok.app",
         },
         lineItems: [
           {

@@ -1,5 +1,28 @@
 # @evervault/browser
 
+## 2.37.1
+
+### Patch Changes
+
+- Updated dependencies [446bbcb]
+  - types@0.7.0
+  - themes@0.1.7
+
+## 2.37.0
+
+### Minor Changes
+
+- 4928702: Add redactCVC option to visually redact the CVC value
+- cd40338: - Send merchantOrigin for Google Pay
+  - Update iFrame allow value to "payments \*"
+  - Update Apple Pay to use domain instead of applePayIdentifier
+
+### Patch Changes
+
+- Updated dependencies [cd40338]
+  - types@0.6.0
+  - themes@0.1.6
+
 ## 2.36.0
 
 ### Minor Changes

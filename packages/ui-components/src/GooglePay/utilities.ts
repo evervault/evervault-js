@@ -1,5 +1,6 @@
 import { EncryptedGooglePayData } from "types";
 import { GooglePayConfig } from "./types";
+import { apiConfig } from "../utilities/config";
 
 export function buildPaymentRequest(
   config: GooglePayConfig
@@ -38,9 +39,10 @@ export function buildPaymentRequest(
       },
     ],
     merchantInfo: {
-      merchantId: tx.merchant.id,
+      merchantId: apiConfig.googlePayMerchantId,
       merchantName: tx.merchant.name,
-    },
+      merchantOrigin: window.location.origin, // merchantOrigin is not present in the GooglePayConfig type but is noted as required by the GooglePay API
+    } as unknown as google.payments.api.MerchantInfo,
     transactionInfo: {
       totalPriceStatus: "FINAL",
       totalPriceLabel: `Pay ${tx.merchant.name}`,
