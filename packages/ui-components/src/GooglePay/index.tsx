@@ -7,6 +7,7 @@ import { useMessaging } from "../utilities/useMessaging";
 import { GooglePayClientMessages, GooglePayHostMessages } from "types";
 import { useSearchParams } from "../utilities/useSearchParams";
 import { apiConfig } from "../utilities/config";
+import { getMerchant } from "../utilities/useMerchant";
 
 interface GooglePayProps {
   config: GooglePayConfig;
@@ -39,7 +40,7 @@ export function GooglePay({ config }: GooglePayProps) {
             const encrypted = await exchangePaymentData(
               app,
               data,
-              config.transaction.merchant.id
+              config.transaction.merchantId
             );
             return new Promise((resolve) => {
               on("EV_GOOGLE_PAY_AUTH_COMPLETE", () => {
@@ -65,7 +66,12 @@ export function GooglePay({ config }: GooglePayProps) {
       });
 
       try {
-        const paymentRequest = buildPaymentRequest(config);
+        const merchant = await getMerchant(app, config.transaction.merchantId);
+        if (!merchant) {
+          throw new Error("Merchant not found");
+        }
+
+        const paymentRequest = buildPaymentRequest(config, merchant);
         await paymentsClient.isReadyToPay(paymentRequest);
         const btn = paymentsClient.createButton({
           buttonType: config.type || "plain",
