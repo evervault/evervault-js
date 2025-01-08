@@ -19,10 +19,7 @@ function App() {
         amount: 125,
         currency: "USD",
         country: "US",
-        merchant: {
-          id: "merchant_d8e4353154df",
-          name: "Test Merchant",
-        },
+        merchantId: "merchant_d8e4353154df",
       });
 
 

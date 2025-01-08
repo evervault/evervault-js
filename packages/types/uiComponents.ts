@@ -472,10 +472,7 @@ export interface TransactionDetails {
   amount: number;
   currency: string;
   country: string;
-  merchant: {
-    id: string;
-    name: string;
-  };
+  merchantId: string;
   lineItems?: TransactionLineItem[];
 }
 
@@ -532,3 +529,8 @@ export type ApplePayPaymentRequest =
   | ApplePayDeferredPaymentRequest
   | ApplePayAutomaticReloadPaymentRequest
   | ApplePayStandardPaymentRequest;
+
+export interface MerchantDetail {
+  id: string;
+  name: string;
+}
