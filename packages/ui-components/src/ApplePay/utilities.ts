@@ -3,7 +3,11 @@ import {
   EncryptedApplePayData,
   TransactionDetails,
 } from "types";
-import { ApplePayConfig, ApplePaymentRequest, ValidateMerchantResponse } from "./types";
+import {
+  ApplePayConfig,
+  ApplePaymentRequest,
+  ValidateMerchantResponse,
+} from "./types";
 
 const API = import.meta.env.VITE_API_URL as string;
 
@@ -16,12 +20,13 @@ export function buildSession(app: string, config: ApplePayConfig) {
       amount: {
         value: (item.amount / 100).toFixed(2).toString(),
         currency: tx.currency,
-      }
+      },
     })) || [];
 
-    const paymentMethodsDataOverrides = {};
+  const paymentMethodsDataOverrides = {};
 
-    const paymentMethodData: PaymentMethodData[] = [{
+  const paymentMethodData: PaymentMethodData[] = [
+    {
       supportedMethods: "https://apple.com/apple-pay",
       data: {
         version: 3,
@@ -33,36 +38,41 @@ export function buildSession(app: string, config: ApplePayConfig) {
         countryCode: tx.country,
         ...paymentMethodsDataOverrides,
       },
-    }];
-  
-    const paymentDetails: PaymentDetailsInit = {
-      total: {
-        label: `${tx.merchant.name}`,
-        amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
-      },
-      displayItems: lineItems,
-      modifiers: config.paymentDetailsModifiers,
-    };
+    },
+  ];
 
-    console.log(paymentDetails);
+  const paymentDetails: PaymentDetailsInit = {
+    total: {
+      label: `${tx.merchant.name}`,
+      amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
+    },
+    displayItems: lineItems,
+    modifiers: config.paymentDetailsModifiers,
+  };
+
+  console.log(paymentDetails);
 
   // not supported in v1 - default to false for now
   const paymentOptions = {
-      "requestPayerName": false,
-      "requestBillingAddress": false,
-      "requestPayerEmail": false,
-      "requestPayerPhone": false,
-      "requestShipping": false,
-      "shippingType": "shipping"
+    requestPayerName: false,
+    requestBillingAddress: false,
+    requestPayerEmail: false,
+    requestPayerPhone: false,
+    requestShipping: false,
+    shippingType: "shipping",
   };
 
-  const request = new PaymentRequest(paymentMethodData, paymentDetails, paymentOptions) ;
-  
+  const request = new PaymentRequest(
+    paymentMethodData,
+    paymentDetails,
+    paymentOptions
+  );
+
   request.onmerchantvalidation = async (event) => {
     const merchantSessionPromise = await validateMerchant(app, tx);
     console.log(merchantSessionPromise);
     event.complete(merchantSessionPromise.sessionData);
-};
+  };
 
   return request;
 }
