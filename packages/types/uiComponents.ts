@@ -439,8 +439,6 @@ export type ApplePayCardNetwork =
 
 export interface ApplePayErrorMessage {
   message: string;
-  code?: ApplePayJS.ApplePayErrorCode;
-  contactField?: ApplePayJS.ApplePayErrorContactField;
 }
 
 export interface ApplePayOptions {
@@ -457,7 +455,9 @@ export interface ApplePayOptions {
   borderRadius?: number;
   size?: { width: WalletDimension; height: WalletDimension };
   allowedCardNetworks?: ApplePayCardNetwork[];
-  paymentRequest?: ApplePayPaymentRequest;
+  paymentMethodsDataOverrides?: { [key: string]: any };
+  paymentDetailsModifiers?:  PaymentDetailsModifier[]
+  
 }
 
 export type WalletDimension = string | number;
@@ -491,44 +491,3 @@ export interface ApplePayToken {
     applicatoinData?: string;
   };
 }
-
-export interface ApplePayPaymentDataRequest {
-  encryptedCredentials: ApplePayToken;
-}
-
-type BaseApplePayPaymentRequest = {
-  lineItems?: ApplePayJS.ApplePayLineItem[];
-};
-
-type ApplePayRecurringPaymentRequest = BaseApplePayPaymentRequest & {
-  recurringPaymentRequest: ApplePayJS.ApplePayRecurringPaymentRequest;
-  deferredPaymentRequest?: never;
-  automaticReloadPaymentRequest?: never;
-};
-
-type ApplePayDeferredPaymentRequest = BaseApplePayPaymentRequest & {
-  deferredPaymentRequest: ApplePayJS.ApplePayDeferredPaymentRequest;
-  recurringPaymentRequest?: never;
-  automaticReloadPaymentRequest?: never;
-};
-
-type ApplePayAutomaticReloadPaymentRequest = BaseApplePayPaymentRequest & {
-  automaticReloadPaymentRequest: ApplePayJS.ApplePayAutomaticReloadPaymentRequest;
-  multiTokenContexts?: never;
-  recurringPaymentRequest?: never;
-  deferredPaymentRequest?: never;
-};
-
-type ApplePayStandardPaymentRequest = BaseApplePayPaymentRequest & {
-  recurringPaymentRequest?: never;
-  multiTokenContexts?: never;
-  deferredPaymentRequest?: never;
-  automaticReloadPaymentRequest?: never;
-};
-
-// Can only specify one of the following payment request types
-export type ApplePayPaymentRequest =
-  | ApplePayRecurringPaymentRequest
-  | ApplePayDeferredPaymentRequest
-  | ApplePayAutomaticReloadPaymentRequest
-  | ApplePayStandardPaymentRequest;

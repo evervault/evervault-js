@@ -55,8 +55,7 @@ export default class ApplePay {
         if (failed) return;
         this.#frame.send("EV_APPLE_PAY_COMPLETION");
       } catch {
-        const error: ApplePayError = {
-          code: "unknown",
+        const error: ApplePayErrorMessage = {
           message: "Something went wrong, please try again",
         };
 
@@ -86,7 +85,8 @@ export default class ApplePay {
         borderRadius: this.#options.borderRadius,
         allowedCardNetworks: this.#options.allowedCardNetworks,
         transaction: this.#transaction.details,
-        paymentRequest: this.#options.paymentRequest,
+        paymentMethodsDataOverrides: this.#options.paymentMethodsDataOverrides,
+        paymentDetailsModifiers: this.#options.paymentDetailsModifiers,
       },
     };
   }

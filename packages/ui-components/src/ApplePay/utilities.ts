@@ -3,44 +3,68 @@ import {
   EncryptedApplePayData,
   TransactionDetails,
 } from "types";
-import { ApplePayConfig, ValidateMerchantResponse } from "./types";
+import { ApplePayConfig, ApplePaymentRequest, ValidateMerchantResponse } from "./types";
 
 const API = import.meta.env.VITE_API_URL as string;
 
 export function buildSession(app: string, config: ApplePayConfig) {
-  const { transaction: tx, paymentRequest } = config;
+  const { transaction: tx } = config;
 
   const lineItems =
-    (tx.lineItems?.map((item) => ({
+    tx.lineItems?.map((item) => ({
       label: item.label,
-      type: "final",
-      amount: (item.amount / 100).toFixed(2).toString(),
-    })) as ApplePayJS.ApplePayLineItem[]) || [];
+      amount: {
+        value: (item.amount / 100).toFixed(2).toString(),
+        currency: tx.currency,
+      }
+    })) || [];
 
-  const request: ApplePayJS.ApplePayPaymentRequest = {
-    countryCode: tx.country,
-    currencyCode: tx.currency,
-    merchantCapabilities: ["supports3DS"],
-    supportedNetworks: config.allowedCardNetworks?.map((network) =>
-      network.toLowerCase()
-    ) || ["visa", "masterCard", "amex", "discover"],
-    total: {
-      label: `${tx.merchant.name}`,
-      type: "final",
-      amount: (tx.amount / 100).toFixed(2).toString(),
-    },
-    lineItems,
-    ...paymentRequest,
+    const paymentMethodsDataOverrides = {};
+
+    const paymentMethodData: PaymentMethodData[] = [{
+      supportedMethods: "https://apple.com/apple-pay",
+      data: {
+        version: 3,
+        merchantIdentifier: `merchant.com.evervault.${tx.merchant.id}`,
+        merchantCapabilities: ["supports3DS"],
+        supportedNetworks: config.allowedCardNetworks?.map((network) =>
+          network.toLowerCase()
+        ) || ["visa", "masterCard", "amex", "discover"],
+        countryCode: tx.country,
+        ...paymentMethodsDataOverrides,
+      },
+    }];
+  
+    const paymentDetails: PaymentDetailsInit = {
+      total: {
+        label: `${tx.merchant.name}`,
+        amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
+      },
+      displayItems: lineItems,
+      modifiers: config.paymentDetailsModifiers,
+    };
+
+    console.log(paymentDetails);
+
+  // not supported in v1 - default to false for now
+  const paymentOptions = {
+      "requestPayerName": false,
+      "requestBillingAddress": false,
+      "requestPayerEmail": false,
+      "requestPayerPhone": false,
+      "requestShipping": false,
+      "shippingType": "shipping"
   };
 
-  const session = new ApplePaySession(3, request);
+  const request = new PaymentRequest(paymentMethodData, paymentDetails, paymentOptions) ;
+  
+  request.onmerchantvalidation = async (event) => {
+    const merchantSessionPromise = await validateMerchant(app, tx);
+    console.log(merchantSessionPromise);
+    event.complete(merchantSessionPromise.sessionData);
+};
 
-  session.onvalidatemerchant = async () => {
-    const { sessionData } = await validateMerchant(app, tx);
-    session.completeMerchantValidation(sessionData);
-  };
-
-  return session;
+  return request;
 }
 
 async function validateMerchant(

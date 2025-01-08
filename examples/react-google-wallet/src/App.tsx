@@ -16,16 +16,25 @@ function App() {
       const evervault = await ev;
       if (!evervault) return;
       const transaction = evervault.transactions.create({
-        amount: 125,
+        amount: 4300,
         currency: "USD",
         country: "US",
         merchant: {
-          id: "merchant_d8e4353154df",
+          id: "merchant_e930d3f7bf37",
           name: "Test Merchant",
-          applePayIdentifier: "ev-wallet.ngrok.app",
+          applePayIdentifier: "store-donijan3.ngrok.app",
         },
+        lineItems: [
+          {
+            label: "First Edition 'The Great Gatsby' (1925)",
+            amount: 2450,
+          },
+          {
+            label: "Signed 'One Hundred Years of Solitude' (1967)",
+            amount: 1850,
+          },
+        ],
       });
-
 
       const inst = evervault.ui.googlePay(transaction, {
         type: "pay",
@@ -34,7 +43,7 @@ function App() {
         size: { width: 400, height: "60px" },
         allowedAuthMethods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
         allowedCardNetworks: ["VISA", "MASTERCARD"],
-        process: async (data, {fail}) => {
+        process: async (data, { fail }) => {
           console.log("Sending encrypted data to merchant", data);
 
           await new Promise((resolve) => {
@@ -47,7 +56,7 @@ function App() {
               message: "Something went wrong, please try again",
             });
           }
-        }
+        },
       });
 
       inst.on("cancel", () => {
@@ -60,7 +69,9 @@ function App() {
 
       inst.on("success", () => {
         console.log("Google Pay success callback triggered - setting success");
-        setSuccessMessage("Payment processed successfully! Thank you for your order.");
+        setSuccessMessage(
+          "Payment processed successfully! Thank you for your order."
+        );
       });
 
       inst.mount("#google-pay-button");
@@ -75,18 +86,65 @@ function App() {
         allowedCardNetworks: ["visa", "masterCard"],
         process: async (data, { fail }) => {
           console.log("Sending encrypted data to merchant", data);
-        
+
           await new Promise((resolve) => {
             setTimeout(resolve, 2000);
           });
 
-          // Simulate a failed payment
-          if (false) {
-            fail({
-              message: "Something went wrong, please try again",
-            });
-          }
-        }
+          // console.log("Simulating failure");
+          // fail({
+          //   message: "Something went wrong, please try again",
+          // });
+        },
+        //If user want to do a reccuring payment, they can use paymentDetailsModifiers and pass the raw apple pay config
+        paymentDetailsModifiers: [
+          {
+            total: {
+              label: "Total",
+              amount: {
+                currency: "USD",
+                value: "4.99",
+              },
+            },
+            supportedMethods: "https://apple.com/apple-pay",
+            data: {
+              recurringPaymentRequest: {
+                paymentDescription:
+                  "A description of the recurring payment to display to the user in the payment sheet.",
+                regularBilling: {
+                  label: "Recurring",
+                  amount: "4.99",
+                  paymentTiming: "recurring",
+                  recurringPaymentStartDate: "2025-01-15T00:00:00.000Z",
+                },
+                trialBilling: {
+                  label: "7 Day Trial",
+                  amount: "0.00",
+                  paymentTiming: "recurring",
+                  recurringPaymentEndDate: "2025-01-15T00:00:00.000Z",
+                },
+                billingAgreement:
+                  "You agree to pay the amount specified above on a recurring basis until you cancel. You can manage your subscription in the app or on the web at the following URL: https://applepaydemo.apple.com",
+                managementURL: "https://applepaydemo.apple.com",
+                tokenNotificationURL: "https://applepaydemo.apple.com",
+              },
+              additionalLineItems: [
+                {
+                  label: "7 Day Trial",
+                  amount: "0.00",
+                  paymentTiming: "recurring",
+                  recurringPaymentEndDate: "2025-01-15T00:00:00.000Z",
+                },
+                {
+                  label: "Recurring",
+                  amount: "4.99",
+                  paymentTiming: "recurring",
+                  recurringPaymentStartDate: "2025-01-15T00:00:00.000Z",
+                },
+              ],
+            },
+          },
+        ],
       });
 
       apple.on("cancel", () => {
@@ -99,9 +157,11 @@ function App() {
 
       apple.on("success", () => {
         console.log("Apple Pay success callback triggered - setting success");
-        setSuccessMessage("Payment processed successfully! Thank you for your order.");
+        setSuccessMessage(
+          "Payment processed successfully! Thank you for your order."
+        );
       });
-      
+
       apple.mount("#apple-pay-button");
     }
 
@@ -112,29 +172,51 @@ function App() {
     <div className="app-container">
       <header>
         <div className="logo">
-          <img src="/evervault.svg" alt="EverBooks Logo" width="40" height="40" />
+          <img
+            src="/evervault.svg"
+            alt="EverBooks Logo"
+            width="40"
+            height="40"
+          />
           <h1>EverBooks</h1>
         </div>
         <nav>
-          <a href={window.location.href} className="active">Checkout</a>
-          <a href="https://docs.evervault.com" target="_blank" rel="noopener noreferrer">Catalogue</a>
-          <a href="https://docs.evervault.com/payments/3d-secure" target="_blank" rel="noopener noreferrer">About</a>
+          <a href={window.location.href} className="active">
+            Checkout
+          </a>
+          <a
+            href="https://docs.evervault.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Catalogue
+          </a>
+          <a
+            href="https://docs.evervault.com/payments/3d-secure"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            About
+          </a>
         </nav>
       </header>
 
       <main>
         {successMessage && (
-          <div className="success-message">
-            {successMessage}
-          </div>
+          <div className="success-message">{successMessage}</div>
         )}
-        
+
         <div className="checkout-container">
           <div className="order-summary">
             <h2>Order Summary</h2>
             <ul>
-              <li>First Edition "The Great Gatsby" (1925) <span>€2,450.00</span></li>
-              <li>Signed "One Hundred Years of Solitude" (1967) <span>€1,850.00</span></li>
+              <li>
+                First Edition "The Great Gatsby" (1925) <span>€2,450.00</span>
+              </li>
+              <li>
+                Signed "One Hundred Years of Solitude" (1967){" "}
+                <span>€1,850.00</span>
+              </li>
             </ul>
             <div className="total">
               <strong>Total</strong> <strong>€4,300.00</strong>
@@ -145,13 +227,13 @@ function App() {
             <form id="checkout-form">
               <h2>Checkout</h2>
               <div className="form-group">
-                  <label htmlFor="name">Full Name</label>
-                  <input 
-                    type="text" 
-                    id="name" 
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)} 
-                  />
+                <label htmlFor="name">Full Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
               </div>
               <div id="google-pay-button" />
               <div id="apple-pay-button" />
@@ -162,7 +244,16 @@ function App() {
 
       <footer>
         <p>&copy; 2023 EverLore. All rights reserved.</p>
-        <p>Secured by <a href="https://evervault.com" target="_blank" rel="noopener noreferrer">Evervault</a></p>
+        <p>
+          Secured by{" "}
+          <a
+            href="https://evervault.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Evervault
+          </a>
+        </p>
       </footer>
     </div>
   );

@@ -14,7 +14,9 @@ export interface ApplePayConfig {
   padding?: string;
   borderRadius?: number;
   allowedCardNetworks?: string[];
-  paymentRequest?: ApplePayPaymentRequest;
+  //These two allow users to add any additional data to the Apple Pay request that we don't currently support
+  paymentMethodsDataOverrides?: { [key: string]: any };
+  paymentDetailsModifiers?:  PaymentDetailsModifier[]
 }
 
 export interface ValidateMerchantResponse {

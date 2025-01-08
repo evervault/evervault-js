@@ -12,9 +12,55 @@ const evervault = new window.Evervault(
   }
 );
 
+const themeBg1 = (utilities) => {
+  return {
+    styles: {
+      label: {
+        width: '16.66666667%',
+        textAlign: 'right',
+        padding: '0 15px',
+        fontWeight: '700',
+        fontSize: 14,
+        textTransform: 'uppercase',
+        ...utilities.media("(max-with: 678px)", {
+          label: {
+            textAlign: 'left',
+            whiteSpace: 'nowrap',
+          },
+        })
+      },
+      '.field input': {
+        fontSize: "14px",
+        margin: "0 15px",
+        minHeight: "34px",
+        borderRadius: "4px",
+        padding: '8px 12px',
+        border: 'border: 20px solid #ccc',
+        ...utilities.media("(max-with: 888px)", {
+          input: {
+            width: 'calc(33.33333333% - 30px)'
+          },
+        }),
+        ...utilities.media("(max-with: 678px)", {
+          input: {
+            width: 'calc(100% - 30px)'
+          },
+        })
+      },
+      '.field:focus-within input': {
+        borderColor: '#66afe9',
+        outline: 0,
+        transition: "0.15s !important",
+        boxShadow: "inset 0 1px 1px rgb(0 0 0 / 8%), 0 0 8px rgb(102 175 233 / 60%);"
+      },
+    },
+  }
+}
+
+
 const card = evervault.ui.card({
   icons: true,
-  theme: evervault.ui.themes.clean(),
+  theme: themeBg1
 });
 
 card.on("change", (values) => {
