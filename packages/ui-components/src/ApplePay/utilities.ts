@@ -46,8 +46,6 @@ export function buildSession(app: string, config: ApplePayConfig) {
     modifiers: config.paymentDetailsModifiers,
   };
 
-  console.log(paymentDetails);
-
   // not supported in v1 - default to false for now
   const paymentOptions = {
     requestPayerName: false,
@@ -61,11 +59,11 @@ export function buildSession(app: string, config: ApplePayConfig) {
   const request = new PaymentRequest(
     paymentMethodData,
     paymentDetails,
-    // @ts-ignore
+    // @ts-expect-error - apple overrides the payment request
     paymentOptions
   );
 
-  // @ts-ignore
+  // @ts-expect-error
   request.onmerchantvalidation = async (event) => {
     const merchantSessionPromise = await validateMerchant(app, tx);
     console.log(merchantSessionPromise);
