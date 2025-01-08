@@ -456,8 +456,7 @@ export interface ApplePayOptions {
   size?: { width: WalletDimension; height: WalletDimension };
   allowedCardNetworks?: ApplePayCardNetwork[];
   paymentMethodsDataOverrides?: { [key: string]: any };
-  paymentDetailsModifiers?:  PaymentDetailsModifier[]
-  
+  paymentDetailsModifiers?: PaymentDetailsModifier[];
 }
 
 export type WalletDimension = string | number;
