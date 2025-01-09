@@ -36,8 +36,7 @@ function App() {
             setTimeout(resolve, 2000);
           });
 
-          // Simulate a failed payment
-          if (false) {
+          if (true) {
             fail({
               message: "Something went wrong, please try again",
             });
@@ -77,10 +76,10 @@ function App() {
             setTimeout(resolve, 2000);
           });
 
-          // console.log("Simulating failure");
-          // fail({
-          //   message: "Something went wrong, please try again",
-          // });
+          console.log("Simulating failure");
+          fail({
+            message: "Something went wrong, please try again",
+          });
         },
         //If user want to do a reccuring payment, they can use paymentDetailsModifiers and pass the raw apple pay config
         paymentDetailsModifiers: [
