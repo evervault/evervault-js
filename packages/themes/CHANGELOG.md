@@ -1,5 +1,12 @@
 # themes
 
+## 0.1.8
+
+### Patch Changes
+
+- Updated dependencies [ffb19d1]
+  - types@0.8.0
+
 ## 0.1.7
 
 ### Patch Changes

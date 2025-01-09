@@ -1,13 +1,18 @@
 import {
   ApplePayToken,
   EncryptedApplePayData,
+  MerchantDetail,
   TransactionDetails,
 } from "types";
 import { ApplePayConfig, ValidateMerchantResponse } from "./types";
 
 const API = import.meta.env.VITE_API_URL as string;
 
-export function buildSession(app: string, config: ApplePayConfig) {
+export function buildSession(
+  app: string,
+  merchant: MerchantDetail,
+  config: ApplePayConfig
+) {
   const { transaction: tx } = config;
 
   const lineItems =
@@ -39,7 +44,7 @@ export function buildSession(app: string, config: ApplePayConfig) {
 
   const paymentDetails: PaymentDetailsInit = {
     total: {
-      label: `${tx.merchant.name}`,
+      label: `${merchant.name}`,
       amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
     },
     displayItems: lineItems,
@@ -84,7 +89,7 @@ async function validateMerchant(
       "X-Evervault-App-Id": app,
     },
     body: JSON.stringify({
-      merchantUuid: tx.merchant.id,
+      merchantUuid: tx.merchantId,
       domain: window.location.origin,
     }),
   });

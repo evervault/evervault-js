@@ -472,10 +472,7 @@ export interface TransactionDetails {
   amount: number;
   currency: string;
   country: string;
-  merchant: {
-    id: string;
-    name: string;
-  };
+  merchantId: string;
   lineItems?: TransactionLineItem[];
 }
 
@@ -490,4 +487,9 @@ export interface ApplePayToken {
     transactionId: string;
     applicatoinData?: string;
   };
+}
+
+export interface MerchantDetail {
+  id: string;
+  name: string;
 }

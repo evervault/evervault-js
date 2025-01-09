@@ -1,5 +1,21 @@
 # @evervault/ui-components
 
+## 1.23.0
+
+### Minor Changes
+
+- ffb19d1: Replace merchant object with merchantId string field.
+
+  Use the new frontend merchant API to obtain the required details.
+
+### Patch Changes
+
+- Updated dependencies [ffb19d1]
+  - types@0.8.0
+  - @evervault/card-validator@1.2.0
+  - @evervault/react@2.16.0
+  - shared@1.1.3
+
 ## 1.22.0
 
 ### Minor Changes

@@ -1,12 +1,12 @@
-import { EncryptedGooglePayData } from "types";
+import { EncryptedGooglePayData, MerchantDetail } from "types";
 import { GooglePayConfig } from "./types";
 import { apiConfig } from "../utilities/config";
 
 export function buildPaymentRequest(
-  config: GooglePayConfig
+  config: GooglePayConfig,
+  merchant: MerchantDetail
 ): google.payments.api.PaymentDataRequest {
   const tx = config.transaction;
-
   return {
     apiVersion: 2,
     apiVersionMinor: 0,
@@ -33,19 +33,19 @@ export function buildPaymentRequest(
           type: "PAYMENT_GATEWAY",
           parameters: {
             gateway: "evervault",
-            gatewayMerchantId: tx.merchant.id,
+            gatewayMerchantId: merchant.id,
           },
         },
       },
     ],
     merchantInfo: {
       merchantId: apiConfig.googlePayMerchantId,
-      merchantName: tx.merchant.name,
+      merchantName: merchant.name,
       merchantOrigin: window.location.origin, // merchantOrigin is not present in the GooglePayConfig type but is noted as required by the GooglePay API
     } as unknown as google.payments.api.MerchantInfo,
     transactionInfo: {
       totalPriceStatus: "FINAL",
-      totalPriceLabel: `Pay ${tx.merchant.name}`,
+      totalPriceLabel: `Pay ${merchant.name}`,
       totalPrice: (tx.amount / 100).toFixed(2).toString(),
       currencyCode: tx.currency,
       countryCode: tx.country,

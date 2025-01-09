@@ -10,6 +10,7 @@ import {
   EncryptedApplePayData,
   ApplePayHostMessages,
 } from "types";
+import { getMerchant } from "../utilities/useMerchant";
 
 interface ApplePayProps {
   config: ApplePayConfig;
@@ -76,7 +77,12 @@ export function ApplePay({ config }: ApplePayProps) {
 
   useEffect(() => {
     const handleClick = async () => {
-      const session = buildSession(app, config);
+      const merchant = await getMerchant(app, config.transaction.merchantId);
+      if (!merchant) {
+        throw new Error("Merchant not found");
+      }
+
+      const session = buildSession(app, merchant, config);
 
       let response;
       try {
@@ -98,7 +104,7 @@ export function ApplePay({ config }: ApplePayProps) {
         const encrypted: EncryptedApplePayData = await exchangeApplePaymentData(
           app,
           paymentData,
-          config.transaction.merchant.id
+          merchant.id
         );
 
         send("EV_APPLE_PAY_AUTH", encrypted);

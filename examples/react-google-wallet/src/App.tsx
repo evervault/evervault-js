@@ -19,20 +19,7 @@ function App() {
         amount: 4300,
         currency: "USD",
         country: "US",
-        merchant: {
-          id: "merchant_e930d3f7bf37",
-          name: "Test Merchant",
-        },
-        lineItems: [
-          {
-            label: "First Edition 'The Great Gatsby' (1925)",
-            amount: 2450,
-          },
-          {
-            label: "Signed 'One Hundred Years of Solitude' (1967)",
-            amount: 1850,
-          },
-        ],
+        merchantId: "merchant_e930d3f7bf37",
       });
 
       const inst = evervault.ui.googlePay(transaction, {
