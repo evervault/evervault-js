@@ -19,7 +19,7 @@ function App() {
         amount: 4300,
         currency: "USD",
         country: "US",
-        merchantId: "merchant_e930d3f7bf37",
+        merchant: "merchant_e930d3f7bf37",
       });
 
       const inst = evervault.ui.googlePay(transaction, {
