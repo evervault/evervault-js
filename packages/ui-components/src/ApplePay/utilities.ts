@@ -31,7 +31,7 @@ export function buildSession(
       supportedMethods: "https://apple.com/apple-pay",
       data: {
         version: 3,
-        merchantIdentifier: `merchant.com.evervault.${tx.merchant.id}`,
+        merchantIdentifier: `merchant.com.evervault.${merchant.id}`,
         merchantCapabilities: ["supports3DS"],
         supportedNetworks: config.allowedCardNetworks?.map((network) =>
           network.toLowerCase()
