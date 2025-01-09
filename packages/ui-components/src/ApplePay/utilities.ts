@@ -24,8 +24,6 @@ export function buildSession(
       },
     })) || [];
 
-  const paymentMethodsDataOverrides = {};
-
   const paymentMethodData: PaymentMethodData[] = [
     {
       supportedMethods: "https://apple.com/apple-pay",
@@ -37,7 +35,7 @@ export function buildSession(
           network.toLowerCase()
         ) || ["visa", "masterCard", "amex", "discover"],
         countryCode: tx.country,
-        ...paymentMethodsDataOverrides,
+        ...config.paymentMethodsDataOverrides,
       },
     },
   ];
