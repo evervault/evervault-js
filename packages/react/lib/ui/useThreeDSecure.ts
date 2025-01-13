@@ -1,5 +1,5 @@
 import type Evervault from "@evervault/browser";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { ComponentError, ThemeDefinition } from "types";
 import { useEvervault } from "../useEvervault";
 
@@ -24,55 +24,36 @@ export function useThreeDSecure(opts?: UseThreeDSecureOptions) {
 
   const start = useCallback(
     (session: string, callbacks?: UseThreeDSecureCallbacks) => {
-      if (instance.current) {
-        instance.current.unmount();
-        instance.current = null;
-      }
+      if (instance.current) return;
 
       async function init() {
         const evervault = await ev;
         if (!evervault) return;
-        try {
-          instance.current = evervault.ui.threeDSecure(session, opts);
+        instance.current = evervault.ui.threeDSecure(session, opts);
 
-          if (callbacks?.onReady) {
-            instance.current.on("ready", callbacks.onReady);
-          }
-
-          if (callbacks?.onSuccess) {
-            instance.current.on("success", callbacks.onSuccess);
-          }
-
-          if (callbacks?.onFailure) {
-            instance.current.on("failure", callbacks.onFailure);
-          }
-
-          if (callbacks?.onError) {
-            instance.current.on("error", callbacks.onError);
-          }
-
-          instance.current.mount();
-        } catch (error) {
-          instance.current = null;
-          if (callbacks?.onError) {
-            callbacks.onError(error as ComponentError);
-          }
+        if (callbacks?.onReady) {
+          instance.current.on("ready", callbacks.onReady);
         }
+
+        if (callbacks?.onSuccess) {
+          instance.current.on("success", callbacks.onSuccess);
+        }
+
+        if (callbacks?.onFailure) {
+          instance.current.on("failure", callbacks.onFailure);
+        }
+
+        if (callbacks?.onError) {
+          instance.current.on("error", callbacks.onError);
+        }
+
+        instance.current.mount();
       }
 
       void init();
     },
     [ev, opts]
   );
-
-  useEffect(() => {
-    return () => {
-      if (instance.current) {
-        instance.current.unmount();
-        instance.current = null;
-      }
-    };
-  }, []);
 
   const update = useCallback((newOptions?: UseThreeDSecureOptions) => {
     if (!instance.current) return;
