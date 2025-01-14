@@ -4,15 +4,19 @@
   --background-color: #f0f4f8;
   --text-color: #0a2540;
   --border-color: #e6ebf1;
-  --success-color: #4CAF50;
+  --success-color: #4caf50;
   --failure-color: #df1c41;
   --warning-color: #ff9800;
 }
 
 body {
   background-color: var(--background-color);
-  background-image: 
-    radial-gradient(circle at 100% 100%, #e6ebf1 0, #e6ebf1 3px, transparent 3px),
+  background-image: radial-gradient(
+      circle at 100% 100%,
+      #e6ebf1 0,
+      #e6ebf1 3px,
+      transparent 3px
+    ),
     radial-gradient(circle at 0 100%, #e6ebf1 0, #e6ebf1 3px, transparent 3px),
     radial-gradient(circle at 100% 0, #e6ebf1 0, #e6ebf1 3px, transparent 3px),
     radial-gradient(circle at 0 0, #e6ebf1 0, #e6ebf1 3px, transparent 3px);
@@ -22,7 +26,7 @@ body {
   align-items: center;
   min-height: 100vh;
   margin: 0;
-  font-family: 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color: var(--text-color);
 }
 
@@ -39,7 +43,7 @@ body {
 }
 
 .app-container::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -106,9 +110,15 @@ button {
   font-weight: 700;
 }
 
-.success-message h3 { background: linear-gradient(45deg, var(--success-color), #45a049); }
-.failure-message h3 { background: linear-gradient(45deg, var(--failure-color), #c41236); }
-.error-message h3 { background: linear-gradient(45deg, var(--warning-color), #f57c00); }
+.success-message h3 {
+  background: linear-gradient(45deg, var(--success-color), #45a049);
+}
+.failure-message h3 {
+  background: linear-gradient(45deg, var(--failure-color), #c41236);
+}
+.error-message h3 {
+  background: linear-gradient(45deg, var(--warning-color), #f57c00);
+}
 
 .message-content {
   padding: 28px;
@@ -135,11 +145,11 @@ button {
 }
 
 /* Styles for Evervault React components */
-[ev-component=card] {
+[ev-component="card"] {
   gap: 28px;
 }
 
-.field[ev-valid=false] input {
+.field[ev-valid="false"] input {
   color: var(--failure-color);
   border-color: var(--failure-color);
 }
@@ -182,18 +192,18 @@ label {
   color: var(--text-color);
 }
 
-[ev-component=card]:has(.icon) .field[ev-name=number] {
+[ev-component="card"]:has(.icon) .field[ev-name="number"] {
   position: relative;
 }
 
-[ev-component=card]:has(.icon) .icon {
+[ev-component="card"]:has(.icon) .icon {
   left: 20px;
   height: 28px;
   position: absolute;
   top: var(--icon-offset, 2.2rem);
 }
 
-[ev-component=card]:has(.icon) .field[ev-name=number] input {
+[ev-component="card"]:has(.icon) .field[ev-name="number"] input {
   padding-left: 65px;
 }
 
@@ -319,7 +329,7 @@ footer a {
 }
 
 .details-toggle::after {
-  content: '▼';
+  content: "▼";
   display: inline-block;
   font-size: 8px;
   margin-left: 3px;
@@ -342,7 +352,7 @@ footer a {
 }
 
 .success-message {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 1.5rem;
   margin: 2rem auto;
