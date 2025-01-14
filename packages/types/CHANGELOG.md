@@ -1,5 +1,11 @@
 # types
 
+## 0.9.0
+
+### Minor Changes
+
+- f24dcf9: Update apple pay to use the Payment Request API
+
 ## 0.8.0
 
 ### Minor Changes

@@ -1,5 +1,19 @@
 # @evervault/ui-components
 
+## 1.24.0
+
+### Minor Changes
+
+- f24dcf9: Update apple pay to use the Payment Request API
+
+### Patch Changes
+
+- Updated dependencies [f24dcf9]
+  - types@0.9.0
+  - @evervault/react@2.16.0
+  - @evervault/card-validator@1.2.0
+  - shared@1.1.4
+
 ## 1.23.0
 
 ### Minor Changes
