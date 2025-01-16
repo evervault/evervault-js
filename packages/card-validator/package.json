@@ -37,6 +37,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "tsconfig": "workspace:*",
     "types": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",

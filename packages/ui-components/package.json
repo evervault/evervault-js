@@ -36,7 +36,7 @@
     "@vitejs/plugin-react": "catalog:",
     "jsdom": "catalog:",
     "postcss-preset-env": "catalog:",
-    "tsconfig": "workspace:^",
+    "tsconfig": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-istanbul": "catalog:"
