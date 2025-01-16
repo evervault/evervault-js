@@ -480,7 +480,6 @@ export interface RequiredRecipientDetails {
   postalAddress: boolean;
 }
 
-
 // Base transaction interface with common fields
 interface BaseTransactionDetails {
   amount: number;
@@ -502,9 +501,14 @@ export interface DisbursementTransactionDetails extends BaseTransactionDetails {
   requiredRecipientDetails?: RequiredRecipientDetails;
 }
 
-export type TransactionDetails = PaymentTransactionDetails | DisbursementTransactionDetails;
+export type TransactionDetails =
+  | PaymentTransactionDetails
+  | DisbursementTransactionDetails;
 
-export type CreateTransactionDetails = Omit<PaymentTransactionDetails, 'type'> & { type?: 'payment' };
+export type CreateTransactionDetails = Omit<
+  PaymentTransactionDetails,
+  "type"
+> & { type?: "payment" };
 
 export interface ApplePayToken {
   version: string;
