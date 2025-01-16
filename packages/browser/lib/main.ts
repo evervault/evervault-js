@@ -13,7 +13,10 @@ import {
 } from "./utils";
 import type { InputSettings, RevealSettings } from "./types";
 import { Transaction } from "./resources/transaction";
-import { CreateTransactionDetails, DisbursementTransactionDetails } from "types";
+import {
+  CreateTransactionDetails,
+  DisbursementTransactionDetails,
+} from "types";
 
 export type * from "types";
 export type * from "./config";
@@ -313,7 +316,9 @@ export default class EvervaultClient {
 
   get transactions() {
     return {
-      create: (details: CreateTransactionDetails | DisbursementTransactionDetails) => new Transaction(details),
+      create: (
+        details: CreateTransactionDetails | DisbursementTransactionDetails
+      ) => new Transaction(details),
     };
   }
 }

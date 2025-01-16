@@ -175,7 +175,6 @@ function buildDisbursementSession(
     ],
   };
 
-
   const request = new PaymentRequest(
     paymentMethodData,
     // @ts-expect-error - apple overrides the payment request
