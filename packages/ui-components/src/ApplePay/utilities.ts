@@ -135,7 +135,7 @@ function buildDisbursementSession(
     total: {
       label: merchant.name,
       amount: {
-        value: calculatedTotal,
+        value: calculatedTotal.toString(),
         currency: tx.currency,
       },
     },
@@ -175,11 +175,13 @@ function buildDisbursementSession(
     ],
   };
 
+  const paymentOptions = {};
+
   const request = new PaymentRequest(
     paymentMethodData,
-    // @ts-expect-error - apple overrides the payment request
     paymentDetails,
-    {}
+    // @ts-expect-error - apple overrides the payment request
+    paymentOptions
   );
 
   return request;
