@@ -468,13 +468,43 @@ export interface TransactionLineItem {
   label: string;
 }
 
-export interface TransactionDetails {
+export interface InstantTransferDetails {
+  label: string;
+  amount: number;
+}
+
+export interface RequiredRecipientDetails {
+  email: boolean;
+  name: boolean;
+  phone: boolean;
+  postalAddress: boolean;
+}
+
+
+// Base transaction interface with common fields
+interface BaseTransactionDetails {
   amount: number;
   currency: string;
   country: string;
   merchantId: string;
   lineItems?: TransactionLineItem[];
 }
+
+// Payment-specific fields
+export interface PaymentTransactionDetails extends BaseTransactionDetails {
+  type: "payment";
+}
+
+// Disbursement-specific fields
+export interface DisbursementTransactionDetails extends BaseTransactionDetails {
+  type: "disbursement";
+  instantTransfer?: InstantTransferDetails;
+  requiredRecipientDetails?: RequiredRecipientDetails;
+}
+
+export type TransactionDetails = PaymentTransactionDetails | DisbursementTransactionDetails;
+
+export type CreateTransactionDetails = Omit<PaymentTransactionDetails, 'type'> & { type?: 'payment' };
 
 export interface ApplePayToken {
   version: string;

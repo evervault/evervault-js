@@ -1,9 +1,13 @@
-import { TransactionDetails } from "types";
+import { TransactionDetails, CreateTransactionDetails, DisbursementTransactionDetails } from "types";
 
 export class Transaction {
   details: TransactionDetails;
 
-  constructor(details: TransactionDetails) {
-    this.details = details;
+  constructor(details: CreateTransactionDetails | DisbursementTransactionDetails) {
+    this.details = {
+      ...details,
+      type: details.type ?? 'payment'
+    } as TransactionDetails;
   }
+
 }

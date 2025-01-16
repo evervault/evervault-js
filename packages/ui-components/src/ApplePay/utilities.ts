@@ -1,7 +1,9 @@
 import {
   ApplePayToken,
+  DisbursementTransactionDetails,
   EncryptedApplePayData,
   MerchantDetail,
+  PaymentTransactionDetails,
   TransactionDetails,
 } from "types";
 import { ApplePayConfig, ValidateMerchantResponse } from "./types";
@@ -15,6 +17,28 @@ export function buildSession(
 ) {
   const { transaction: tx } = config;
 
+  let baseRequest;
+  if (tx.type === "payment") {
+    baseRequest = buildPaymentSession(merchant, config, tx);
+  } else {
+    baseRequest = buildDisbursementSession(merchant, config, tx);
+  }
+
+  // @ts-expect-error - onmerchantvalidation is added by apple and not on the PaymentRequest type
+  baseRequest.onmerchantvalidation = async (event) => {
+    const merchantSessionPromise = await validateMerchant(app, tx);
+    console.log(merchantSessionPromise);
+    event.complete(merchantSessionPromise.sessionData);
+  };
+
+  return baseRequest;
+}
+
+function buildPaymentSession(
+  merchant: MerchantDetail,
+  config: ApplePayConfig,
+  tx: PaymentTransactionDetails
+) {
   const lineItems =
     tx.lineItems?.map((item) => ({
       label: item.label,
@@ -49,7 +73,6 @@ export function buildSession(
     modifiers: config.paymentDetailsModifiers,
   };
 
-  // not supported in v1 - default to false for now
   const paymentOptions = {
     requestPayerName: false,
     requestBillingAddress: false,
@@ -66,12 +89,99 @@ export function buildSession(
     paymentOptions
   );
 
-  // @ts-expect-error - onmerchantvalidation is added by apple and not on the PaymentRequest type
-  request.onmerchantvalidation = async (event) => {
-    const merchantSessionPromise = await validateMerchant(app, tx);
-    console.log(merchantSessionPromise);
-    event.complete(merchantSessionPromise.sessionData);
+  return request;
+}
+
+function buildDisbursementSession(
+  merchant: MerchantDetail,
+  config: ApplePayConfig,
+  tx: DisbursementTransactionDetails
+) {
+  const lineItems =
+    tx.lineItems?.map((item) => ({
+      label: item.label,
+      amount: {
+        value: (item.amount / 100).toFixed(2).toString(),
+        currency: tx.currency,
+      },
+    })) || [];
+
+  const merchantCapabilities = ["supports3DS"];
+
+  if (tx.instantTransfer) {
+    merchantCapabilities.push("supportsInstantFundsOut");
+  }
+
+  const paymentMethodData = [
+    {
+      supportedMethods: "https://apple.com/apple-pay",
+      data: {
+        version: 3,
+        merchantIdentifier: `merchant.com.evervault.${merchant.id}`,
+        merchantCapabilities,
+        supportedNetworks: config.allowedCardNetworks,
+        countryCode: tx.country,
+      },
+    },
+  ];
+
+  let calculatedTotal = tx.amount;
+
+  if (tx.instantTransfer) {
+    calculatedTotal = tx.amount - tx.instantTransfer.amount;
+  }
+
+  const paymentDetails = {
+    total: {
+      label: merchant.name,
+      amount: {
+        value: calculatedTotal,
+        currency: tx.currency,
+      },
+    },
+    modifiers: [
+      {
+        supportedMethods: "https://apple.com/apple-pay",
+        data: {
+          disbursementRequest: tx.requiredRecipientDetails
+            ? {
+                requiredRecipientContactFields: tx.requiredRecipientDetails,
+              }
+            : {},
+          // ORDER OF THESE IS IMPORTANT - IT BREAKS IF NOT IN THIS ORDER
+          additionalLineItems: [
+            {
+              label: "Total Amount",
+              amount: tx.amount,
+            },
+            ...(lineItems ? lineItems : []),
+            ...(tx.instantTransfer
+              ? [
+                  {
+                    label: tx.instantTransfer.label,
+                    amount: tx.instantTransfer.amount,
+                    disbursementLineItemType: "instantFundsOutFee",
+                  },
+                ]
+              : []),
+            {
+              label: "Apple Pay Demo",
+              amount: calculatedTotal,
+              disbursementLineItemType: "disbursement",
+            },
+          ],
+        },
+      },
+    ],
   };
+
+
+  const request = new PaymentRequest(
+    paymentMethodData,
+    // @ts-expect-error - apple overrides the payment request
+    paymentDetails,
+    {}
+  );
 
   return request;
 }
@@ -88,7 +198,7 @@ async function validateMerchant(
     },
     body: JSON.stringify({
       merchantUuid: tx.merchantId,
-      domain: window.location.origin,
+      domain: "store-donijan3.ngrok.app",
     }),
   });
 
