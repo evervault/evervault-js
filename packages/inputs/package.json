@@ -26,13 +26,13 @@
     "postcss-load-config": "catalog:",
     "postcss-preset-env": "catalog:",
     "rollup-plugin-sri": "catalog:",
-    "tsconfig": "workspace:^",
+    "tsconfig": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:"
   },
   "dependencies": {
-    "@evervault/browser": "workspace:^2.14.2",
+    "@evervault/browser": "workspace:*",
     "card-validator": "catalog:",
     "credit-card-type": "catalog:",
     "imask": "catalog:"
