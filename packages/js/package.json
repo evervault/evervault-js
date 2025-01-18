@@ -1,0 +1,40 @@
+{
+  "private": false,
+  "name": "@evervault/js",
+  "version": "1.0.0",
+  "description": "Evervault.js loader",
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evervault/evervault-js.git",
+    "directory": "packages/js"
+  },
+  "main": "dist/evervault.umd.cjs",
+  "module": "dist/evervault.js",
+  "types": "dist/evervault.d.ts",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "preinstall": "npx only-allow pnpm",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "devDependencies": {
+    "@evervault/browser": "workspace:*",
+    "themes": "workspace:*",
+    "tsconfig": "workspace:*",
+    "tsup": "^8.3.5",
+    "types": "workspace:*",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:"
+  }
+}
