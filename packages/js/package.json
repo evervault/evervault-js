@@ -13,8 +13,8 @@
     "url": "https://github.com/evervault/evervault-js.git",
     "directory": "packages/js"
   },
-  "main": "dist/evervault.umd.cjs",
-  "module": "dist/evervault.js",
+  "main": "dist/evervault-js.umd.cjs",
+  "module": "dist/evervault-js.js",
   "types": "dist/evervault.d.ts",
   "scripts": {
     "build": "vite build",

@@ -3,6 +3,7 @@
   "display": "Vite React",
   "_version": "2.0.0",
   "extends": "tsconfig/browser.json",
+  "exclude": ["dist"],
   "compilerOptions": {
     "jsx": "react-jsx",
     "rootDir": "."
