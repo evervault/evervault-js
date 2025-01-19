@@ -17,9 +17,14 @@ async function injectScript(): Promise<void> {
 
   injectionPromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = process.env.VITE_EVERVAULT_JS_URL!;
+    script.src = import.meta.env.VITE_EVERVAULT_JS_URL!;
+
     script.onload = () => resolve();
-    script.onerror = reject;
+
+    script.onerror = () => {
+      injectionPromise = null;
+      reject();
+    };
 
     if (!document.head) {
       throw new Error(
