@@ -1,7 +1,7 @@
-import { EvervaultInstance, loadEvervault } from "@evervault/js";
+import { loadEvervault } from "@evervault/js";
 import "./style.css";
 
-const evervault = (await loadEvervault(
+const evervault = await loadEvervault(
   import.meta.env.VITE_EV_TEAM_UUID,
   import.meta.env.VITE_EV_APP_UUID,
   {
@@ -11,7 +11,7 @@ const evervault = (await loadEvervault(
       componentsUrl: import.meta.env.VITE_UI_COMPONENTS_URL!,
     },
   }
-)) as EvervaultInstance;
+);
 
 const card = evervault.ui.card({
   icons: true,
