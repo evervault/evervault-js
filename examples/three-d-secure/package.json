@@ -10,7 +10,7 @@
     "clean": "rm -rf .turbo node_modules dist"
   },
   "dependencies": {
-    "@evervault/browser": "workspace:*"
+    "@evervault/js": "workspace:*"
   },
   "devDependencies": {
     "concurrently": "catalog:",
