@@ -38,12 +38,7 @@ async function injectScript(): Promise<void> {
   return injectionPromise;
 }
 
-async function load(): Promise<EvervaultConstructor | null> {
-  // return null if run on the server.
-  if (typeof window === "undefined" || typeof document === "undefined") {
-    return null;
-  }
-
+async function load(): Promise<EvervaultConstructor> {
   // If already loaded, return immediately.
   if (window.Evervault) {
     return window.Evervault;
@@ -51,25 +46,19 @@ async function load(): Promise<EvervaultConstructor | null> {
 
   try {
     await injectScript();
+    return window.Evervault!;
   } catch {
     throw new Error("Failed to load Evervault.js");
   }
-
-  return window.Evervault || null;
 }
 
 export async function loadEvervault(
   team: string,
   app: string,
   config?: CustomConfig
-): Promise<EvervaultInstance | null> {
-  try {
-    const Client = await load();
-    if (!Client) return null;
-    return new Client(team, app, config);
-  } catch {
-    return null;
-  }
+): Promise<EvervaultInstance> {
+  const Client = await load();
+  return new Client(team, app, config);
 }
 
 // Automatically inject the Evervault browser script
