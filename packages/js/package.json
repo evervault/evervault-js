@@ -31,7 +31,6 @@
     "@evervault/browser": "workspace:*",
     "themes": "workspace:*",
     "tsconfig": "workspace:*",
-    "tsup": "^8.3.5",
     "types": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
