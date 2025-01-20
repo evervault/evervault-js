@@ -752,9 +752,6 @@ importers:
       tsconfig:
         specifier: workspace:*
         version: link:../tsconfig
-      tsup:
-        specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@22.10.5))(@swc/core@1.4.11(@swc/helpers@0.5.5))(postcss@8.4.49)(typescript@5.5.4)
       types:
         specifier: workspace:*
         version: link:../types
@@ -19166,35 +19163,6 @@ snapshots:
       tree-kill: 1.2.2
     optionalDependencies:
       '@microsoft/api-extractor': 7.48.0(@types/node@22.10.2)
-      '@swc/core': 1.4.11(@swc/helpers@0.5.5)
-      postcss: 8.4.49
-      typescript: 5.5.4
-    transitivePeerDependencies:
-      - jiti
-      - supports-color
-      - tsx
-      - yaml
-
-  tsup@8.3.5(@microsoft/api-extractor@7.48.0(@types/node@22.10.5))(@swc/core@1.4.11(@swc/helpers@0.5.5))(postcss@8.4.49)(typescript@5.5.4):
-    dependencies:
-      bundle-require: 5.0.0(esbuild@0.24.0)
-      cac: 6.7.14
-      chokidar: 4.0.1
-      consola: 3.2.3
-      debug: 4.4.0(supports-color@5.5.0)
-      esbuild: 0.24.0
-      joycon: 3.1.1
-      picocolors: 1.1.1
-      postcss-load-config: 6.0.1(postcss@8.4.49)
-      resolve-from: 5.0.0
-      rollup: 4.28.1
-      source-map: 0.8.0-beta.0
-      sucrase: 3.35.0
-      tinyexec: 0.3.1
-      tinyglobby: 0.2.10
-      tree-kill: 1.2.2
-    optionalDependencies:
-      '@microsoft/api-extractor': 7.48.0(@types/node@22.10.5)
       '@swc/core': 1.4.11(@swc/helpers@0.5.5)
       postcss: 8.4.49
       typescript: 5.5.4
