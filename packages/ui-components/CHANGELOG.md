@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.24.1
+
+### Patch Changes
+
+- b8c2bad: Update IMask to latest version
+
 ## 1.24.0
 
 ### Minor Changes
