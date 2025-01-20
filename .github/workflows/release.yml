@@ -78,6 +78,15 @@ jobs:
       artifact: "eql-build"
       repo_path: "packages/eql/dist"
     secrets: inherit
+  publish-js:
+    if: contains(github.ref, 'refs/tags/@evervault/js')
+    needs: build
+    uses: ./.github/workflows/npm-publish.yml
+    with:
+      package: "@evervault/js"
+      artifact: "eql-build"
+      repo_path: "packages/js/dist"
+    secrets: inherit
   release:
     name: Release
     runs-on: ubuntu-latest
