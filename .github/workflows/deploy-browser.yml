@@ -47,6 +47,6 @@ jobs:
       - name: Rename Build Artifacts
         run: cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
       - name: S3 Deploy
-        run: aws s3 cp ./dist/ s3://${{ secrets.aws-s3-bucket }}/${{ inputs.version }}/ --recursive
+        run: aws s3 cp ./dist/ s3://${{ secrets.aws-s3-bucket }}/preview/${{ inputs.version }}/ --recursive
       - name: Cloudfront Cache Invalidation
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/${{ inputs.version }}/index.js"
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/preview/${{ inputs.version }}/index.js"

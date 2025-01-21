@@ -45,6 +45,6 @@ jobs:
           name: inputs-sdk-build
           path: dist
       - name: S3 Deploy
-        run: aws s3 cp ./dist s3://${{ secrets.aws-s3-bucket }}/${{ inputs.version }}/ --recursive
+        run: aws s3 cp ./dist s3://${{ secrets.aws-s3-bucket }}/preview/${{ inputs.version }}/ --recursive
       - name: Cloudfront Cache Invalidation
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/index.html" "/bundle.js" "/v2/*"
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/preview/index.html" "preview/bundle.js" "/preview/v2/*"
