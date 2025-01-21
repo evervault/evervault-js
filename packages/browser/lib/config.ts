@@ -84,9 +84,6 @@ export interface Config {
   input: InputConfig;
   components: ComponentsConfig;
   debugKey: typeof debugKey;
-  sdk: {
-    url: string;
-  };
 }
 
 export default function Config(
@@ -114,9 +111,6 @@ export default function Config(
         customUrls?.inputsOrigin,
         DEFAULT_CONFIG_URLS.inputsOrigin
       ),
-    },
-    sdk: {
-      url: validateSet(import.meta.url, "https://js.evervault.com/v2"),
     },
     debugKey,
   };

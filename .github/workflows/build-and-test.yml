@@ -58,8 +58,6 @@ jobs:
           cache: "pnpm"
       - name: Install deps
         run: pnpm install --frozen-lockfile
-      - name: Build
-        run: pnpm turbo run build
       - name: Formats check
         run: pnpm run format:check
       - name: Typescript check
@@ -72,6 +70,10 @@ jobs:
         run: pnpm test
       - name: E2E test
         run: pnpm run e2e:test
+        env:
+          VITE_API_URL: "https://api.evervault.com"
+          VITE_EVERVAULT_JS_URL: "https://js.evervault.com/v2"
+          VITE_KEYS_URL: "https://keys.evervault.com"
       - name: Upload UI Components Playwright report
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
@@ -83,6 +85,8 @@ jobs:
         run: pnpm coverage:report
       - name: Check test coverage
         run: pnpm coverage:check
+      - name: Rebuild all packages with the correct variables
+        run: pnpm turbo run build
       - name: Upload browser build
         uses: actions/upload-artifact@v4
         with:

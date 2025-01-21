@@ -2,7 +2,7 @@ import { EvervaultProvider } from "@evervault/react";
 import { UIComponent } from "./UIComponent";
 import { useSearchParams } from "./utilities/useSearchParams";
 
-const DEFAULT_CUSTOM_CONFIG = {
+const customConfig = {
   jsSdkUrl: import.meta.env.VITE_EVERVAULT_JS_URL as string,
   urls: {
     keysUrl: import.meta.env.VITE_KEYS_URL as string,
@@ -11,15 +11,7 @@ const DEFAULT_CUSTOM_CONFIG = {
 };
 
 export default function App() {
-  const { team, app, jsSdkUrl, keysUrl, apiUrl } = useSearchParams();
-
-  const customConfig = {
-    jsSdkUrl: jsSdkUrl ?? DEFAULT_CUSTOM_CONFIG.jsSdkUrl,
-    urls: {
-      keysUrl: keysUrl ?? DEFAULT_CUSTOM_CONFIG.urls.keysUrl,
-      apiUrl: apiUrl ?? DEFAULT_CUSTOM_CONFIG.urls.apiUrl,
-    },
-  };
+  const { team, app } = useSearchParams();
 
   // Throw an error if team or app are missing
   if (!team || !app) {
