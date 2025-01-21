@@ -210,6 +210,9 @@ export class EvervaultFrame<
     url.searchParams.set("app", this.#client.config.appId);
     url.searchParams.set("team", this.#client.config.teamId);
     url.searchParams.set("component", component);
+    url.searchParams.set("keysUrl", this.#client.config.http.keysUrl);
+    url.searchParams.set("apiUrl", this.#client.config.http.apiUrl);
+    url.searchParams.set("jsSdkUrl", this.#client.config.sdk.url);
     return url.toString();
   }
 
