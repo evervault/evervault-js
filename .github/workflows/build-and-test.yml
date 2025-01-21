@@ -95,11 +95,6 @@ jobs:
         with:
           name: inputs-sdk-build
           path: packages/inputs/dist
-      - name: Upload ui-components build
-        uses: actions/upload-artifact@v4
-        with:
-          name: ui-components-build
-          path: packages/ui-components/dist
       - name: Upload react build
         uses: actions/upload-artifact@v4
         with:
