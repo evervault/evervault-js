@@ -58,16 +58,20 @@ jobs:
       aws-cloudfront-distribution-id: ${{ secrets.UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID }}
   deploy-3ds:
     if: contains(github.ref, 'refs/tags/@evervault/3ds')
-    needs: build
-    uses: ./.github/workflows/deploy-3ds.yml
+    uses: ./.github/workflows/3ds.workflow.yml
     with:
       environment: "production"
-      name: "Deploy to Production"
+      vite-evervault-js-url: "https://js.evervault.com/v2"
+      vite-keys-url: "https://keys.evervault.com"
+      vite-api-url: "https://api.evervault.com"
     secrets:
       aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
       aws-s3-bucket: ${{ secrets.TDS_AWS_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.TDS_AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+      tests_team_uuid: ${{ secrets.TESTS_TEAM_UUID }}
+      tests_app_uuid: ${{ secrets.TESTS_APP_UUID }}
+      tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
   publish-react:
     if: contains(github.ref, 'refs/tags/@evervault/react')
     needs: build
@@ -94,7 +98,7 @@ jobs:
       package: "@evervault/evervault-react-native"
       artifact: "react-native-build"
       repo_path: "packages/react-native/lib"
-    secrets: inherit  
+    secrets: inherit
   publish-eql:
     if: contains(github.ref, 'refs/tags/@evervault/eql')
     needs: build
