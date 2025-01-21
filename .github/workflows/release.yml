@@ -37,13 +37,16 @@ jobs:
       tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
   deploy-inputs:
     if: contains(github.ref, 'refs/tags/@evervault/inputs')
-    needs: build
-    uses: ./.github/workflows/deploy-inputs.yml
+    uses: ./.github/workflows/inputs.workflow.yml
     with:
       environment: "production"
-      name: "Deploy to Production"
-      version: "v2"
+      vite-evervault-js-url: "https://js.evervault.com/v2"
+      vite-keys-url: "https://keys.evervault.com"
+      vite-api-url: "https://api.evervault.com"
     secrets:
+      tests_team_uuid: ${{ secrets.TESTS_TEAM_UUID }}
+      tests_app_uuid: ${{ secrets.TESTS_APP_UUID }}
+      tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
       aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
       aws-s3-bucket: ${{ secrets.INPUTS_S3_BUCKET }}
@@ -117,7 +120,7 @@ jobs:
       repo_path: "packages/eql/dist"
     secrets: inherit
   release:
-    name: Release
+    name: Create Github Releases
     runs-on: ubuntu-latest
     needs: build
     steps:

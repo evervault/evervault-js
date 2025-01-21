@@ -33,13 +33,16 @@ jobs:
       tests_app_uuid: ${{ secrets.TESTS_APP_UUID }}
       tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
   deploy-inputs:
-    needs: build
-    uses: ./.github/workflows/deploy-inputs.yml
+    uses: ./.github/workflows/inputs.workflow.yml
     with:
       environment: "staging"
-      name: "Deploy to Staging"
-      version: "v2"
+      vite-evervault-js-url: "https://js.evervault.io/v2"
+      vite-keys-url: "https://api.evervault.io/keys"
+      vite-api-url: "https://api.evervault.io"
     secrets:
+      tests_team_uuid: ${{ secrets.TESTS_TEAM_UUID }}
+      tests_app_uuid: ${{ secrets.TESTS_APP_UUID }}
+      tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
       aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
       aws-s3-bucket: ${{ secrets.INPUTS_S3_BUCKET }}
@@ -75,7 +78,7 @@ jobs:
       tests_app_uuid: ${{ secrets.TESTS_APP_UUID }}
       tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
   release:
-    name: Release
+    name: Create Release PR
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
