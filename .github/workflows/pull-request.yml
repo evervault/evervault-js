@@ -7,12 +7,65 @@ on:
       - "main"
 jobs:
   build:
-    uses: ./.github/workflows/build-and-test.yml
-    with:
-      vite-evervault-js-url: "https://js.evervault.io/v2"
-      vite-keys-url: "https://keys.evervault.io"
-      vite-api-url: "https://api.evervault.io"
-    secrets:
-      tests_team_uuid: ${{ secrets.TESTS_TEAM_UUID }}
-      tests_app_uuid: ${{ secrets.TESTS_APP_UUID }}
-      tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+    name: Build and Test
+    timeout-minutes: 25
+    runs-on: ubuntu-latest
+    env:
+      EV_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+      EV_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+      VITE_GOOGLE_PAY_MERCHANT_ID: ${{ vars.GOOGLE_PAY_MERCHANT_ID }}
+      VITE_EV_APP_UUID: ${{ secrets.tests_app_uuid }}
+      VITE_EV_TEAM_UUID: ${{ secrets.tests_team_uuid }}
+      VITE_TEST_COVERAGE: "true"
+      VITE_EVERVAULT_JS_URL: "https://js.evervault.io/v2"
+      VITE_KEYS_URL: "https://keys.evervault.io"
+      VITE_API_URL: "https://api.evervault.io"
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+      - uses: pnpm/action-setup@v4
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+      - name: Formats check
+        run: pnpm run format:check
+      - name: Typescript check
+        run: pnpm run typecheck
+      - name: eslint check
+        run: pnpm run lint
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+      - name: Unit test
+        run: pnpm test
+      - name: E2E test
+        run: pnpm run e2e:test
+        env:
+          VITE_API_URL: "https://api.evervault.com"
+          VITE_EVERVAULT_JS_URL: "https://js.evervault.com/v2"
+          VITE_KEYS_URL: "https://keys.evervault.com"
+      - name: Upload UI Components Playwright report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: ui-components-playwright-report
+          path: e2e-tests/ui-components/playwright-report
+          retention-days: 5
+      - name: Coverage report
+        run: pnpm coverage:report
+      - name: Check test coverage
+        run: pnpm coverage:check
