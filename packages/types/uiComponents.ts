@@ -255,6 +255,7 @@ export type EncryptedApplePayData = EncryptedDPAN<"apple"> & {
     familyName?: string;
     emailAddress?: string;
     phoneNumber?: string;
+    address?: unknown;
   };
 };
 
@@ -501,7 +502,7 @@ export interface PaymentTransactionDetails extends BaseTransactionDetails {
 
 // Disbursement-specific fields
 
-export type RequiredRecipientDetail = "email" | "phone" | "name";
+export type RequiredRecipientDetail = "email" | "phone" | "name" | "address";
 export interface DisbursementTransactionDetails extends BaseTransactionDetails {
   type: "disbursement";
   instantTransfer?: InstantTransferDetails;

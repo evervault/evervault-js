@@ -67,7 +67,7 @@ function App() {
         currency: "USD",
         country: "US",
         merchantId: "merchant_e930d3f7bf37",
-        requiredRecipientDetails: ["email", "phone", "name"],
+        requiredRecipientDetails: ["email", "phone", "name", "address"],
         type: "disbursement",
       });
 
