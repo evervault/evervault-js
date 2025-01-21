@@ -1,4 +1,4 @@
-name: 3DS Package
+name: Browser Package
 on:
   workflow_call:
     inputs:
@@ -62,9 +62,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: ${{ runner.os }}-turbo-3ds-${{ github.sha }}
+          key: ${{ runner.os }}-turbo-browser-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-turbo-3ds
+            ${{ runner.os }}-turbo-browser
       - uses: pnpm/action-setup@v4
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -73,18 +73,18 @@ jobs:
           cache: "pnpm"
       - name: Install deps
         run: pnpm install --frozen-lockfile
-      - name: Ensure all 3ds dependecies are built
-        run: pnpm turbo run build --fitler @evervault/3ds...
+      - name: Ensure all browser dependecies are built
+        run: pnpm turbo run build --fitler @evervault/browser...
       - name: Formats check
-        run: pnpm run format:check --fitler @evervault/3ds
+        run: pnpm run format:check --fitler @evervault/browser
       - name: Typescript check
-        run: pnpm run typecheck --fitler @evervault/3ds
+        run: pnpm run typecheck --fitler @evervault/browser
       - name: eslint check
-        run: pnpm run lint --fitler @evervault/3ds
+        run: pnpm run lint --fitler @evervault/browser
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
       - name: Unit test
-        run: pnpm test --fitler @evervault/3ds
+        run: pnpm test --fitler @evervault/browser
       - name: Coverage report
         run: pnpm coverage:report
       - name: Check test coverage
@@ -93,16 +93,54 @@ jobs:
       - name: Remove all built assets
         run: rm -rf packages/**/dist
       - name: Rebuild all packages with the correct variables
-        run: pnpm turbo run build --fitler @evervault/3ds
-      - name: Upload 3ds build
+        run: pnpm turbo run build --fitler @evervault/browser
+      - name: Upload browser build
         uses: actions/upload-artifact@v4
         with:
-          name: 3ds-build
-          path: packages/3ds/dist
+          name: browser-sdk-build
+          path: packages/browser/dist
+  e2e-test:
+    name: e2e Test
+    runs-on: ubuntu-latest
+    env:
+      EV_API_KEY: ${{ secrets.tests_decrypt_fn_key }}
+      EV_APP_UUID: ${{ secrets.tests_app_uuid }}
+      EV_DECRYPT_FN_KEY: ${{ secrets.tests_decrypt_fn_key }}
+      EV_TEAM_UUID: ${{ secrets.tests_team_uuid }}
+      VITE_GOOGLE_PAY_MERCHANT_ID: ${{ vars.GOOGLE_PAY_MERCHANT_ID }}
+      VITE_EV_APP_UUID: ${{ secrets.tests_app_uuid }}
+      VITE_EV_TEAM_UUID: ${{ secrets.tests_team_uuid }}
+      VITE_API_URL: "https://api.evervault.com"
+      VITE_EVERVAULT_JS_URL: "https://js.evervault.com/v2"
+      VITE_KEYS_URL: "https://keys.evervault.com"
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Cache turbo build setup
+        uses: actions/cache/restore@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-browser-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-browser-
+      - uses: pnpm/action-setup@v4
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+      - name: E2E test
+        run: pnpm run e2e:test --filter @repo/browser-e2e-tests...
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
-    needs: [build-and-test]
+    needs: [build-and-test, e2e-test]
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -113,10 +151,12 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8
         with:
-          name: 3ds-build
+          name: browser-sdk-build
           path: dist
+      - name: Rename Build Artifacts
+        run: cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
       - name: S3 Deploy
-        run: aws s3 cp dist s3://${{ secrets.aws-s3-bucket }}/preview --recursive
+        run: aws s3 cp ./dist/ s3://${{ secrets.aws-s3-bucket }}/preview/v2/ --recursive
       - name: Cloudfront Cache Invalidation
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/preview/index.html"
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/preview/v2/index.js"
     # TODO add pre release test and release
