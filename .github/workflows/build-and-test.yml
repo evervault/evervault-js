@@ -34,10 +34,10 @@ jobs:
       VITE_GOOGLE_PAY_MERCHANT_ID: ${{ vars.GOOGLE_PAY_MERCHANT_ID }}
       VITE_EV_APP_UUID: ${{ secrets.tests_app_uuid }}
       VITE_EV_TEAM_UUID: ${{ secrets.tests_team_uuid }}
-      VITE_API_URL: "https://api.evervault.com"
-      VITE_EVERVAULT_JS_URL: "https://js.evervault.com/v2"
-      VITE_KEYS_URL: "https://keys.evervault.com"
       VITE_TEST_COVERAGE: "true"
+      VITE_API_URL: ${{ inputs.vite-api-url }}
+      VITE_EVERVAULT_JS_URL: ${{ inputs.vite-evervault-js-url}}
+      VITE_KEYS_URL: ${{ inputs.vite-keys-url }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -59,13 +59,7 @@ jobs:
       - name: Install deps
         run: pnpm install --frozen-lockfile
       - name: Build
-        run: pnpm turbo run build --filter='!@evervault/ui-components' --filter='!@evervault/3ds'
-      - name: Build ui-components and 3ds
-        run: pnpm turbo run build --filter '@evervault/ui-components' --filter '@evervault/3ds'
-        env:
-          VITE_API_URL: ${{ inputs.vite_api_url }}
-          VITE_EVERVAULT_JS_URL: ${{ inputs.vite_evervault_js_url}}
-          VITE_KEYS_URL: ${{ inputs.vite_keys_url }}
+        run: pnpm turbo run build
       - name: Formats check
         run: pnpm run format:check
       - name: Typescript check
