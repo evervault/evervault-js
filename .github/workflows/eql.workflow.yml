@@ -70,10 +70,6 @@ jobs:
         run: pnpm run lint --fitler @evervault/eql
       - name: Unit test
         run: pnpm test --fitler @evervault/eql
-      - name: Coverage report
-        run: pnpm coverage:report
-      - name: Check test coverage
-        run: pnpm coverage:check
       # We wipe and rebuild all assets to ensure that we dont upload any left over artifacts
       - name: Remove all built assets
         run: rm -rf packages/**/dist

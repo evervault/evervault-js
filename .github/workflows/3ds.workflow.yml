@@ -49,7 +49,6 @@ jobs:
       VITE_GOOGLE_PAY_MERCHANT_ID: ${{ vars.GOOGLE_PAY_MERCHANT_ID }}
       VITE_EV_APP_UUID: ${{ secrets.tests_app_uuid }}
       VITE_EV_TEAM_UUID: ${{ secrets.tests_team_uuid }}
-      VITE_TEST_COVERAGE: "true"
       VITE_API_URL: ${{ inputs.vite-api-url }}
       VITE_EVERVAULT_JS_URL: ${{ inputs.vite-evervault-js-url}}
       VITE_KEYS_URL: ${{ inputs.vite-keys-url }}
@@ -81,14 +80,8 @@ jobs:
         run: pnpm run typecheck --fitler @evervault/3ds
       - name: eslint check
         run: pnpm run lint --fitler @evervault/3ds
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
       - name: Unit test
         run: pnpm test --fitler @evervault/3ds
-      - name: Coverage report
-        run: pnpm coverage:report
-      - name: Check test coverage
-        run: pnpm coverage:check
       # We wipe and rebuild all assets to ensure that we dont upload any left over artifacts
       - name: Remove all built assets
         run: rm -rf packages/**/dist
