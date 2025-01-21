@@ -102,7 +102,7 @@ export function ApplePay({ config }: ApplePayProps) {
       } = response.details;
 
       try {
-        let encrypted: EncryptedApplePayData = await exchangeApplePaymentData(
+        const encrypted: EncryptedApplePayData = await exchangeApplePaymentData(
           app,
           paymentData,
           merchant.id
