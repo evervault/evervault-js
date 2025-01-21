@@ -249,7 +249,14 @@ export interface ApplePayHostMessages extends EvervaultFrameHostMessages {
   EV_APPLE_PAY_SUCCESS: undefined;
 }
 
-export type EncryptedApplePayData = EncryptedDPAN<"apple">;
+export type EncryptedApplePayData = EncryptedDPAN<"apple"> & {
+  billingContact?: {
+    givenName?: string;
+    familyName?: string;
+    emailAddress?: string;
+    phoneNumber?: string;
+  };
+};
 
 export interface ApplePayClientMessages extends EvervaultFrameClientMessages {
   EV_APPLE_PAY_AUTH: EncryptedApplePayData;
@@ -457,8 +464,13 @@ export interface ApplePayOptions {
   size?: { width: WalletDimension; height: WalletDimension };
   allowedCardNetworks?: ApplePayCardNetwork[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  paymentMethodsDataOverrides?: { [key: string]: any };
-  paymentDetailsModifiers?: PaymentDetailsModifier[];
+  paymentOverrides?: {
+    paymentMethodData?: PaymentMethodData[];
+    paymentDetails?: PaymentDetailsInit
+  },
+  disbursementOverrides?: {
+      disbursementDetails?: PaymentDetailsInit;
+  },
 }
 
 export type WalletDimension = string | number;
@@ -471,13 +483,6 @@ export interface TransactionLineItem {
 export interface InstantTransferDetails {
   label: string;
   amount: number;
-}
-
-export interface RequiredRecipientDetails {
-  email: boolean;
-  name: boolean;
-  phone: boolean;
-  postalAddress: boolean;
 }
 
 // Base transaction interface with common fields
@@ -495,15 +500,21 @@ export interface PaymentTransactionDetails extends BaseTransactionDetails {
 }
 
 // Disbursement-specific fields
+
+export type RequiredRecipientDetail = "email" | "phone" | "name";
 export interface DisbursementTransactionDetails extends BaseTransactionDetails {
   type: "disbursement";
   instantTransfer?: InstantTransferDetails;
-  requiredRecipientDetails?: RequiredRecipientDetails;
+  requiredRecipientDetails?: RequiredRecipientDetail[];
 }
 
 export type TransactionDetails =
   | PaymentTransactionDetails
   | DisbursementTransactionDetails;
+
+export type TransactionDetailsWithDomain = TransactionDetails & {
+  domain: string;
+};
 
 export type CreateTransactionDetails = Omit<
   PaymentTransactionDetails,

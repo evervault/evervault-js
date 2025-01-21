@@ -67,27 +67,28 @@ function App() {
         currency: "USD",
         country: "US",
         merchantId: "merchant_e930d3f7bf37",
+        requiredRecipientDetails: ["email", "phone", "name"],
         type: "disbursement",
       });
 
-      const apple = evervault.ui.applePay(transaction, {
+      const apple = evervault.ui.applePay(disbursementTransaction, {
         type: "contribute",
         style: "white-outline",
         locale: "en-US",
         size: { width: "100%", height: "80px" },
         borderRadius: 10,
         allowedCardNetworks: ["visa", "masterCard"],
-        process: async (data, { fail }) => {
+        process: async (data, {}) => {
           console.log("Sending encrypted data to merchant", data);
 
           await new Promise((resolve) => {
             setTimeout(resolve, 2000);
           });
 
-          console.log("Simulating failure");
-          fail({
-            message: "Something went wrong, please try again",
-          });
+          // console.log("Simulating failure");
+          // fail({
+          //   message: "Something went wrong, please try again",
+          // });
         },
       });
 

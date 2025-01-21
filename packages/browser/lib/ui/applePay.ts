@@ -85,8 +85,8 @@ export default class ApplePay {
         borderRadius: this.#options.borderRadius,
         allowedCardNetworks: this.#options.allowedCardNetworks,
         transaction: this.#transaction.details,
-        paymentMethodsDataOverrides: this.#options.paymentMethodsDataOverrides,
-        paymentDetailsModifiers: this.#options.paymentDetailsModifiers,
+        paymentOverrides: this.#options.paymentOverrides,
+        disbursementOverrides: this.#options.disbursementOverrides,
       },
     };
   }

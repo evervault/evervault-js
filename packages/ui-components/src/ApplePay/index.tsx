@@ -97,15 +97,26 @@ export function ApplePay({ config }: ApplePayProps) {
       }
 
       const {
+        billingContact,
         token: { paymentData },
       } = response.details;
 
       try {
-        const encrypted: EncryptedApplePayData = await exchangeApplePaymentData(
+        let encrypted: EncryptedApplePayData = await exchangeApplePaymentData(
           app,
           paymentData,
           merchant.id
         );
+
+        if (config.transaction.type === "disbursement" && billingContact) {
+           const { familyName, givenName, emailAddress, phoneNumber } = billingContact;
+           encrypted.billingContact = {
+              familyName,
+              givenName,
+              emailAddress,
+              phoneNumber,
+            };
+        }
 
         send("EV_APPLE_PAY_AUTH", encrypted);
 

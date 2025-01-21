@@ -1,11 +1,11 @@
 import {
-  TransactionDetails,
+  TransactionDetailsWithDomain,
   CreateTransactionDetails,
   DisbursementTransactionDetails,
 } from "types";
 
 export class Transaction {
-  details: TransactionDetails;
+  details: TransactionDetailsWithDomain;
 
   constructor(
     details: CreateTransactionDetails | DisbursementTransactionDetails
@@ -13,6 +13,7 @@ export class Transaction {
     this.details = {
       ...details,
       type: details.type ?? "payment",
-    } as TransactionDetails;
+      domain: window.location.origin.replace(/https?:\/\//, ""),
+    } as TransactionDetailsWithDomain;
   }
 }

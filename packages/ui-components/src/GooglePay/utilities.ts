@@ -41,7 +41,7 @@ export function buildPaymentRequest(
     merchantInfo: {
       merchantId: apiConfig.googlePayMerchantId,
       merchantName: merchant.name,
-      merchantOrigin: window.location.origin, // merchantOrigin is not present in the GooglePayConfig type but is noted as required by the GooglePay API
+      merchantOrigin: tx.domain, // merchantOrigin is not present in the GooglePayConfig type but is noted as required by the GooglePay API
     } as unknown as google.payments.api.MerchantInfo,
     transactionInfo: {
       totalPriceStatus: "FINAL",

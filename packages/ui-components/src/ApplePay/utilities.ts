@@ -4,7 +4,7 @@ import {
   EncryptedApplePayData,
   MerchantDetail,
   PaymentTransactionDetails,
-  TransactionDetails,
+  TransactionDetailsWithDomain,
 } from "types";
 import { ApplePayConfig, ValidateMerchantResponse } from "./types";
 
@@ -26,8 +26,7 @@ export function buildSession(
 
   // @ts-expect-error - onmerchantvalidation is added by apple and not on the PaymentRequest type
   baseRequest.onmerchantvalidation = async (event) => {
-    const merchantSessionPromise = await validateMerchant(app, tx);
-    console.log(merchantSessionPromise);
+    const merchantSessionPromise = await validateMerchant(app, event.validationURL, tx);
     event.complete(merchantSessionPromise.sessionData);
   };
 
@@ -59,7 +58,6 @@ function buildPaymentSession(
           network.toLowerCase()
         ) || ["visa", "masterCard", "amex", "discover"],
         countryCode: tx.country,
-        ...config.paymentMethodsDataOverrides,
       },
     },
   ];
@@ -69,8 +67,7 @@ function buildPaymentSession(
       label: `${merchant.name}`,
       amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
     },
-    displayItems: lineItems,
-    modifiers: config.paymentDetailsModifiers,
+    displayItems: lineItems
   };
 
   const paymentOptions = {
@@ -82,9 +79,11 @@ function buildPaymentSession(
     shippingType: "shipping",
   };
 
+  const paymentOverrides = config.paymentOverrides || {};
+
   const request = new PaymentRequest(
-    paymentMethodData,
-    paymentDetails,
+    paymentOverrides.paymentMethodData ? paymentOverrides.paymentMethodData : paymentMethodData,
+    paymentOverrides.paymentDetails ? paymentOverrides.paymentDetails : paymentDetails,
     // @ts-expect-error - apple overrides the payment request
     paymentOptions
   );
@@ -189,7 +188,8 @@ function buildDisbursementSession(
 
 async function validateMerchant(
   app: string,
-  tx: TransactionDetails
+  validationUrl: string,
+  tx: TransactionDetailsWithDomain
 ): Promise<ValidateMerchantResponse> {
   const response = await fetch(`${API}/frontend/apple-pay/merchant-session`, {
     method: "POST",
@@ -198,8 +198,9 @@ async function validateMerchant(
       "X-Evervault-App-Id": app,
     },
     body: JSON.stringify({
+      validationUrl: validationUrl,
       merchantUuid: tx.merchantId,
-      domain: "store-donijan3.ngrok.app",
+      domain: tx.domain,
     }),
   });
 

@@ -1,11 +1,11 @@
 import {
   GooglePayButtonColor,
   GooglePayButtonType,
-  TransactionDetails,
+  TransactionDetailsWithDomain,
 } from "types";
 
 export interface GooglePayConfig {
-  transaction: TransactionDetails;
+  transaction: TransactionDetailsWithDomain;
   type: GooglePayButtonType;
   color: GooglePayButtonColor;
   locale?: string;
