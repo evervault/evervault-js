@@ -1,10 +1,6 @@
 import "./styles.css";
 import { CSSProperties, useEffect, useLayoutEffect, useRef } from "react";
-import {
-  ApplePayConfig,
-  DisbursementContactAddress,
-  DisbursementContactDetails,
-} from "./types";
+import { ApplePayConfig } from "./types";
 import { resize, setSize } from "../utilities/resize";
 import {
   buildAddressObject,
@@ -128,8 +124,6 @@ export function ApplePay({ config }: ApplePayProps) {
             address,
           };
         }
-
-        console.log(`Sending encrypted data to merchant: ${encrypted}`);
 
         send("EV_APPLE_PAY_AUTH", encrypted);
 
