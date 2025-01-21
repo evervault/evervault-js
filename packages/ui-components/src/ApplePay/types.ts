@@ -18,10 +18,10 @@ export interface ApplePayConfig {
   paymentOverrides?: {
     paymentMethodData?: PaymentMethodData[];
     paymentDetails?: PaymentDetailsInit;
-  },
+  };
   disbursementOverrides?: {
-      disbursementDetails?: PaymentDetailsInit;
-  },
+    disbursementDetails?: PaymentDetailsInit;
+  };
 }
 
 export interface ValidateMerchantResponse {

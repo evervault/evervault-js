@@ -26,7 +26,11 @@ export function buildSession(
 
   // @ts-expect-error - onmerchantvalidation is added by apple and not on the PaymentRequest type
   baseRequest.onmerchantvalidation = async (event) => {
-    const merchantSessionPromise = await validateMerchant(app, event.validationURL, tx);
+    const merchantSessionPromise = await validateMerchant(
+      app,
+      event.validationURL,
+      tx
+    );
     event.complete(merchantSessionPromise.sessionData);
   };
 
@@ -67,7 +71,7 @@ function buildPaymentSession(
       label: `${merchant.name}`,
       amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
     },
-    displayItems: lineItems
+    displayItems: lineItems,
   };
 
   const paymentOptions = {
@@ -82,8 +86,12 @@ function buildPaymentSession(
   const paymentOverrides = config.paymentOverrides || {};
 
   const request = new PaymentRequest(
-    paymentOverrides.paymentMethodData ? paymentOverrides.paymentMethodData : paymentMethodData,
-    paymentOverrides.paymentDetails ? paymentOverrides.paymentDetails : paymentDetails,
+    paymentOverrides.paymentMethodData
+      ? paymentOverrides.paymentMethodData
+      : paymentMethodData,
+    paymentOverrides.paymentDetails
+      ? paymentOverrides.paymentDetails
+      : paymentDetails,
     // @ts-expect-error - apple overrides the payment request
     paymentOptions
   );

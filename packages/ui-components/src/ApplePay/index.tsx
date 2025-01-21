@@ -109,13 +109,14 @@ export function ApplePay({ config }: ApplePayProps) {
         );
 
         if (config.transaction.type === "disbursement" && billingContact) {
-           const { familyName, givenName, emailAddress, phoneNumber } = billingContact;
-           encrypted.billingContact = {
-              familyName,
-              givenName,
-              emailAddress,
-              phoneNumber,
-            };
+          const { familyName, givenName, emailAddress, phoneNumber } =
+            billingContact;
+          encrypted.billingContact = {
+            familyName,
+            givenName,
+            emailAddress,
+            phoneNumber,
+          };
         }
 
         send("EV_APPLE_PAY_AUTH", encrypted);

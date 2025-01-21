@@ -466,11 +466,11 @@ export interface ApplePayOptions {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   paymentOverrides?: {
     paymentMethodData?: PaymentMethodData[];
-    paymentDetails?: PaymentDetailsInit
-  },
+    paymentDetails?: PaymentDetailsInit;
+  };
   disbursementOverrides?: {
-      disbursementDetails?: PaymentDetailsInit;
-  },
+    disbursementDetails?: PaymentDetailsInit;
+  };
 }
 
 export type WalletDimension = string | number;
