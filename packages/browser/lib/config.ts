@@ -97,16 +97,41 @@ export default function Config(
     appId,
     encryption: createEncryptionConfig(publicKey),
     http: {
-      keysUrl: customUrls?.keysUrl ?? DEFAULT_CONFIG_URLS.keysUrl,
-      apiUrl: customUrls?.apiUrl ?? API_URL,
+      keysUrl: validateSet(customUrls?.keysUrl, DEFAULT_CONFIG_URLS.keysUrl),
+      apiUrl: validateSet(customUrls?.apiUrl, API_URL),
     },
     components: {
-      url: customUrls?.componentsUrl ?? DEFAULT_CONFIG_URLS.componentsUrl,
+      url: validateSet(
+        customUrls?.componentsUrl,
+        DEFAULT_CONFIG_URLS.componentsUrl
+      ),
     },
     input: {
-      inputsOrigin:
-        customUrls?.inputsOrigin ?? DEFAULT_CONFIG_URLS.inputsOrigin,
+      inputsOrigin: validateSet(
+        customUrls?.inputsOrigin,
+        DEFAULT_CONFIG_URLS.inputsOrigin
+      ),
     },
     debugKey,
   };
+}
+
+// Ensure that the value is a string and is not empty. If the value is not then return the default value
+function validateSet(
+  value: string | undefined | null | String, // eslint-disable-line @typescript-eslint/no-wrapper-object-types
+  defaultValue: string
+): string {
+  if (
+    typeof value === "undefined" ||
+    value === null ||
+    (typeof value !== "string" && !(value instanceof String)) ||
+    value.length === 0
+  ) {
+    return defaultValue;
+  }
+  if (value instanceof String) {
+    return value.toString();
+  }
+
+  return value;
 }

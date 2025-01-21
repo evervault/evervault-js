@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@evervault/browser",
-  "version": "2.37.2",
+  "version": "2.38.0",
   "engines": {
     "node": "~18",
     "pnpm": "~9"
@@ -44,8 +44,8 @@
     "asn1js": "catalog:",
     "deepmerge": "catalog:",
     "events": "catalog:",
-    "themes": "workspace:^",
-    "types": "workspace:^"
+    "themes": "workspace:*",
+    "types": "workspace:*"
   },
   "devDependencies": {
     "@peculiar/webcrypto": "catalog:",
@@ -55,7 +55,7 @@
     "dotenv": "catalog:",
     "msw": "catalog:",
     "nock": "catalog:",
-    "tsconfig": "workspace:^",
+    "tsconfig": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",

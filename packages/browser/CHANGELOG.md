@@ -1,5 +1,17 @@
 # @evervault/browser
 
+## 2.38.0
+
+### Minor Changes
+
+- f24dcf9: Update apple pay to use the Payment Request API
+
+### Patch Changes
+
+- Updated dependencies [f24dcf9]
+  - types@0.9.0
+  - themes@0.1.9
+
 ## 2.37.2
 
 ### Patch Changes

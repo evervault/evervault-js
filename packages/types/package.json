@@ -1,14 +1,14 @@
 {
   "name": "types",
   "private": true,
-  "version": "0.8.0",
+  "version": "0.9.0",
   "main": "index.ts",
   "types": "index.ts",
   "dependencies": {
     "jss": "catalog:"
   },
   "scripts": {
-    "clean": "rm -rf .turbo node_modules dist",
+    "clean": "rm -rf .turbo node_modules",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
@@ -16,6 +16,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "tsconfig": "workspace:*"
   }
 }

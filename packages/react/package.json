@@ -38,15 +38,15 @@
     "react": ">=18.0.0"
   },
   "devDependencies": {
-    "@evervault/browser": "workspace:^",
+    "@evervault/browser": "workspace:*",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "themes": "workspace:^",
-    "tsconfig": "workspace:^",
-    "types": "workspace:^",
+    "themes": "workspace:*",
+    "tsconfig": "workspace:*",
+    "types": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:"

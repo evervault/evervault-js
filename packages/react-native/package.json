@@ -73,7 +73,8 @@
     "react-native": "catalog:",
     "react-native-builder-bob": "catalog:",
     "react-native-mask-input": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "tsconfig": "workspace:*"
   },
   "peerDependencies": {
     "react": "*",

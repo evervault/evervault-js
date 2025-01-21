@@ -59,7 +59,7 @@ const EVERVAULT_URL = "https://js.evervault.com/v2";
 function injectScript(overrideUrl?: string) {
   const script = document.createElement("script");
 
-  if (overrideUrl) {
+  if (overrideUrl && overrideUrl !== "") {
     script.src = overrideUrl;
   } else {
     script.src = EVERVAULT_URL;
