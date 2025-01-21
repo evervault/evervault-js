@@ -1,4 +1,4 @@
-name: Build & Test
+name: EQL Package
 on:
   workflow_call:
     inputs:
@@ -15,22 +15,24 @@ on:
         required: true
         type: string
     secrets:
-      tests_team_uuid:
+      TESTS_TEAM_UUID:
         required: true
-      tests_app_uuid:
+      TESTS_APP_UUID:
         required: true
-      tests_decrypt_fn_key:
+      TESTS_DECRYPT_FN_KEY:
+        required: true
+      PUBLIC_REPO_NPM_PUBLISH:
+        description: "NPM Token"
         required: true
 jobs:
-  build:
+  build-and-test:
     name: Build and Test
-    timeout-minutes: 25
     runs-on: ubuntu-latest
     env:
-      EV_API_KEY: ${{ secrets.tests_decrypt_fn_key }}
-      EV_APP_UUID: ${{ secrets.tests_app_uuid }}
-      EV_DECRYPT_FN_KEY: ${{ secrets.tests_decrypt_fn_key }}
-      EV_TEAM_UUID: ${{ secrets.tests_team_uuid }}
+      EV_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+      EV_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
       VITE_GOOGLE_PAY_MERCHANT_ID: ${{ vars.GOOGLE_PAY_MERCHANT_ID }}
       VITE_EV_APP_UUID: ${{ secrets.tests_app_uuid }}
       VITE_EV_TEAM_UUID: ${{ secrets.tests_team_uuid }}
@@ -47,9 +49,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          key: ${{ runner.os }}-turbo-eql-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-turbo-
+            ${{ runner.os }}-turbo-eql
       - uses: pnpm/action-setup@v4
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -58,29 +60,16 @@ jobs:
           cache: "pnpm"
       - name: Install deps
         run: pnpm install --frozen-lockfile
+      - name: Ensure all eql dependecies are built
+        run: pnpm turbo run build --fitler @evervault/eql...
       - name: Formats check
-        run: pnpm run format:check
+        run: pnpm run format:check --fitler @evervault/eql
       - name: Typescript check
-        run: pnpm run typecheck
+        run: pnpm run typecheck --fitler @evervault/eql
       - name: eslint check
-        run: pnpm run lint
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
+        run: pnpm run lint --fitler @evervault/eql
       - name: Unit test
-        run: pnpm test
-      - name: E2E test
-        run: pnpm run e2e:test
-        env:
-          VITE_API_URL: "https://api.evervault.com"
-          VITE_EVERVAULT_JS_URL: "https://js.evervault.com/v2"
-          VITE_KEYS_URL: "https://keys.evervault.com"
-      - name: Upload UI Components Playwright report
-        uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: ui-components-playwright-report
-          path: e2e-tests/ui-components/playwright-report
-          retention-days: 5
+        run: pnpm test --fitler @evervault/eql
       - name: Coverage report
         run: pnpm coverage:report
       - name: Check test coverage
@@ -89,24 +78,17 @@ jobs:
       - name: Remove all built assets
         run: rm -rf packages/**/dist
       - name: Rebuild all packages with the correct variables
-        run: pnpm turbo run build
-      - name: Upload react build
-        uses: actions/upload-artifact@v4
-        with:
-          name: react-sdk-build
-          path: packages/react/dist
-      - name: Upload card validator build
-        uses: actions/upload-artifact@v4
-        with:
-          name: card-validator-build
-          path: packages/card-validator/dist
-      - name: Upload react native build
-        uses: actions/upload-artifact@v4
-        with:
-          name: react-native-build
-          path: packages/react-native/dist
+        run: pnpm turbo run build --fitler @evervault/eql
       - name: Upload eql build
         uses: actions/upload-artifact@v4
         with:
           name: eql-build
           path: packages/eql/dist
+  publish:
+    needs: [build-and-test]
+    uses: ./.github/workflows/npm-publish.workflow.yml
+    with:
+      package: "@evervault/eql"
+      artifact: "eql-build"
+      repo_path: "packages/eql/dist"
+    secrets: inherit

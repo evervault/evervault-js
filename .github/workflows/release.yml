@@ -89,11 +89,12 @@ jobs:
   publish-card-validator:
     if: contains(github.ref, 'refs/tags/@evervault/card-validator')
     needs: build
-    uses: ./.github/workflows/npm-publish.workflow.yml
+    uses: ./.github/workflows/card-validator.workflow.yml
     with:
-      package: "@evervault/card-validator"
-      artifact: "card-validator-build"
-      repo_path: "packages/card-validator/dist"
+      vite-evervault-js-url: "https://js.evervault.com/v2"
+      vite-keys-url: "https://keys.evervault.com"
+      vite-api-url: "https://api.evervault.com"
+    secrets: inherit
     secrets: inherit
   publish-react-native:
     if: contains(github.ref, 'refs/tags/@evervault/evervault-react-native')
@@ -106,11 +107,11 @@ jobs:
   publish-eql:
     if: contains(github.ref, 'refs/tags/@evervault/eql')
     needs: build
-    uses: ./.github/workflows/npm-publish.workflow.yml
+    uses: ./.github/workflows/eql.workflow.yml
     with:
-      package: "@evervault/eql"
-      artifact: "eql-build"
-      repo_path: "packages/eql/dist"
+      vite-evervault-js-url: "https://js.evervault.com/v2"
+      vite-keys-url: "https://keys.evervault.com"
+      vite-api-url: "https://api.evervault.com"
     secrets: inherit
   release:
     name: Create Github Releases

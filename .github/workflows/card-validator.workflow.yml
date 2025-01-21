@@ -1,0 +1,94 @@
+name: Card Validator Package
+on:
+  workflow_call:
+    inputs:
+      vite-evervault-js-url:
+        description: "URL where the JS SDK should be loaded from"
+        required: true
+        type: string
+      vite-keys-url:
+        description: "URL where keys will be fetched from"
+        required: true
+        type: string
+      vite-api-url:
+        description: "API endpoint"
+        required: true
+        type: string
+    secrets:
+      TESTS_TEAM_UUID:
+        required: true
+      TESTS_APP_UUID:
+        required: true
+      TESTS_DECRYPT_FN_KEY:
+        required: true
+      PUBLIC_REPO_NPM_PUBLISH:
+        description: "NPM Token"
+        required: true
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    env:
+      EV_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+      EV_DECRYPT_FN_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+      VITE_GOOGLE_PAY_MERCHANT_ID: ${{ vars.GOOGLE_PAY_MERCHANT_ID }}
+      VITE_EV_APP_UUID: ${{ secrets.tests_app_uuid }}
+      VITE_EV_TEAM_UUID: ${{ secrets.tests_team_uuid }}
+      VITE_TEST_COVERAGE: "true"
+      VITE_API_URL: ${{ inputs.vite-api-url }}
+      VITE_EVERVAULT_JS_URL: ${{ inputs.vite-evervault-js-url}}
+      VITE_KEYS_URL: ${{ inputs.vite-keys-url }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-card-validator-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-card-validator
+      - uses: pnpm/action-setup@v4
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+      - name: Ensure all card-validator dependecies are built
+        run: pnpm turbo run build --fitler @evervault/card-validator...
+      - name: Formats check
+        run: pnpm run format:check --fitler @evervault/card-validator
+      - name: Typescript check
+        run: pnpm run typecheck --fitler @evervault/card-validator
+      - name: eslint check
+        run: pnpm run lint --fitler @evervault/card-validator
+      - name: Unit test
+        run: pnpm test --fitler @evervault/card-validator
+      - name: Coverage report
+        run: pnpm coverage:report
+      - name: Check test coverage
+        run: pnpm coverage:check
+      # We wipe and rebuild all assets to ensure that we dont upload any left over artifacts
+      - name: Remove all built assets
+        run: rm -rf packages/**/dist
+      - name: Rebuild all packages with the correct variables
+        run: pnpm turbo run build --fitler @evervault/card-validator
+      - name: Upload card-validator build
+        uses: actions/upload-artifact@v4
+        with:
+          name: card-validator-build
+          path: packages/card-validator/dist
+  publish:
+    needs: [build-and-test]
+    uses: ./.github/workflows/npm-publish.workflow.yml
+    with:
+      package: "@evervault/card-validator"
+      artifact: "card-validator-build"
+      repo_path: "packages/card-validator/dist"
+    secrets: inherit
