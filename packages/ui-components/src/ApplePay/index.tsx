@@ -1,8 +1,16 @@
 import "./styles.css";
 import { CSSProperties, useEffect, useLayoutEffect, useRef } from "react";
-import { ApplePayConfig, DisbursementContactAddress, DisbursementContactDetails} from "./types";
+import {
+  ApplePayConfig,
+  DisbursementContactAddress,
+  DisbursementContactDetails,
+} from "./types";
 import { resize, setSize } from "../utilities/resize";
-import { buildAddressObject, buildSession, exchangeApplePaymentData } from "./utilities";
+import {
+  buildAddressObject,
+  buildSession,
+  exchangeApplePaymentData,
+} from "./utilities";
 import { useSearchParams } from "../utilities/useSearchParams";
 import { useMessaging } from "../utilities/useMessaging";
 import {
@@ -109,7 +117,8 @@ export function ApplePay({ config }: ApplePayProps) {
         );
 
         if (config.transaction.type === "disbursement" && billingContact) {
-          const { familyName, givenName, emailAddress, phoneNumber } = billingContact;
+          const { familyName, givenName, emailAddress, phoneNumber } =
+            billingContact;
           const address = buildAddressObject(billingContact);
           encrypted.billingContact = {
             familyName,

@@ -6,7 +6,12 @@ import {
   PaymentTransactionDetails,
   TransactionDetailsWithDomain,
 } from "types";
-import { ApplePayConfig, DisbursementContactAddress, DisbursementContactDetails, ValidateMerchantResponse } from "./types";
+import {
+  ApplePayConfig,
+  DisbursementContactAddress,
+  DisbursementContactDetails,
+  ValidateMerchantResponse,
+} from "./types";
 
 const API = import.meta.env.VITE_API_URL as string;
 
@@ -152,11 +157,13 @@ function buildDisbursementSession(
         data: {
           disbursementRequest: tx.requiredRecipientDetails
             ? {
-                requiredRecipientContactFields: tx.requiredRecipientDetails.map((field) => {
-                  if (field === "address") { 
-                    return "postalAddress" 
-                  } else return field;
-                }),
+                requiredRecipientContactFields: tx.requiredRecipientDetails.map(
+                  (field) => {
+                    if (field === "address") {
+                      return "postalAddress";
+                    } else return field;
+                  }
+                ),
               }
             : {},
           // ORDER OF THESE IS IMPORTANT - IT BREAKS IF NOT IN THIS ORDER
@@ -198,7 +205,9 @@ function buildDisbursementSession(
   return request;
 }
 
-export function buildAddressObject(billingContact: DisbursementContactDetails): DisbursementContactAddress {
+export function buildAddressObject(
+  billingContact: DisbursementContactDetails
+): DisbursementContactAddress {
   return {
     addressLines: billingContact.addressLines,
     administrativeArea: billingContact.administrativeArea,
