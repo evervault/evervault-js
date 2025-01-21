@@ -7,16 +7,6 @@ on:
       - "main"
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
-  build:
-    uses: ./.github/workflows/build-and-test.yml
-    with:
-      vite-evervault-js-url: "https://js.evervault.io/v2"
-      vite-keys-url: "https://api.evervault.io/keys"
-      vite-api-url: "https://api.evervault.io"
-    secrets:
-      tests_team_uuid: ${{ secrets.TESTS_TEAM_UUID }}
-      tests_app_uuid: ${{ secrets.TESTS_APP_UUID }}
-      tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
   deploy-browser:
     uses: ./.github/workflows/browser.workflow.yml
     with:

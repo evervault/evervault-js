@@ -14,13 +14,8 @@ jobs:
       vite-evervault-js-url: "https://js.evervault.com/v2"
       vite-keys-url: "https://keys.evervault.com"
       vite-api-url: "https://api.evervault.com"
-    secrets:
-      tests_team_uuid: ${{ secrets.TESTS_TEAM_UUID }}
-      tests_app_uuid: ${{ secrets.TESTS_APP_UUID }}
-      tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
   deploy-browser:
     if: contains(github.ref, 'refs/tags/@evervault/browser')
-    needs: build
     uses: ./.github/workflows/browser.workflow.yml
     with:
       environment: "production"
@@ -85,17 +80,16 @@ jobs:
       tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
   publish-react:
     if: contains(github.ref, 'refs/tags/@evervault/react')
-    needs: build
-    uses: ./.github/workflows/npm-publish.yml
+    uses: ./.github/workflows/react.workflow.yml
     with:
-      package: "@evervault/react"
-      artifact: "react-sdk-build"
-      repo_path: "packages/react/dist"
+      vite-evervault-js-url: "https://js.evervault.com/v2"
+      vite-keys-url: "https://keys.evervault.com"
+      vite-api-url: "https://api.evervault.com"
     secrets: inherit
   publish-card-validator:
     if: contains(github.ref, 'refs/tags/@evervault/card-validator')
     needs: build
-    uses: ./.github/workflows/npm-publish.yml
+    uses: ./.github/workflows/npm-publish.workflow.yml
     with:
       package: "@evervault/card-validator"
       artifact: "card-validator-build"
@@ -103,17 +97,16 @@ jobs:
     secrets: inherit
   publish-react-native:
     if: contains(github.ref, 'refs/tags/@evervault/evervault-react-native')
-    needs: build
-    uses: ./.github/workflows/npm-publish.yml
+    uses: ./.github/workflows/react-native.workflow.yml
     with:
-      package: "@evervault/evervault-react-native"
-      artifact: "react-native-build"
-      repo_path: "packages/react-native/lib"
+      vite-evervault-js-url: "https://js.evervault.com/v2"
+      vite-keys-url: "https://keys.evervault.com"
+      vite-api-url: "https://api.evervault.com"
     secrets: inherit
   publish-eql:
     if: contains(github.ref, 'refs/tags/@evervault/eql')
     needs: build
-    uses: ./.github/workflows/npm-publish.yml
+    uses: ./.github/workflows/npm-publish.workflow.yml
     with:
       package: "@evervault/eql"
       artifact: "eql-build"
