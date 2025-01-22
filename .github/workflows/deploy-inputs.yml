@@ -15,8 +15,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ inputs.stage == 'production' &&  secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID || secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
-          aws-secret-access-key: ${{ inputs.stage == 'production' &&  secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY || secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
+          aws-access-key-id: ${{ inputs.environment == 'production' &&  secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID || secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ inputs.environment == 'production' &&  secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY || secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
           aws-region: "us-east-1"
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8

@@ -15,8 +15,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ inputs.stage == 'production' &&  secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID || secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
-          aws-secret-access-key: ${{ inputs.stage == 'production' &&  secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY || secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
+          aws-access-key-id: ${{ inputs.environment == 'production' &&  secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID || secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ inputs.environment == 'production' &&  secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY || secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
           aws-region: "us-east-1"
       - name: Check out code
         uses: actions/checkout@v4
@@ -52,7 +52,7 @@ jobs:
           VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
           VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
           VITE_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
-          VITE_UI_COMPONENTS_URL: https://ui-components.evervault.${{ inputs.stage == 'production' && 'com' || 'io' }}/preview/
+          VITE_UI_COMPONENTS_URL: https://ui-components.evervault.${{ inputs.environment == 'production' && 'com' || 'io' }}/preview/
         run: pnpm --filter=@repo/ui-components-pre-release-tests test-prerelease
       - name: Notify slack of failed release gate run
         uses: donaltuohy/deployment-slack-alert@v1
