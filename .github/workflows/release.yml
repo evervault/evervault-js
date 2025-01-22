@@ -36,7 +36,7 @@ jobs:
     secrets:
       aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
-      aws-s3-bucket: ${{ secrets.INPUTS_S3_BUCKET }}
+      aws-s3-bucket: ${{ vars.INPUTS_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.INPUTS_CLOUDFRONT_DISTRIBUTION_ID }}
   deploy-ui-components:
     if: contains(github.ref, 'refs/tags/@evervault/ui-components')
@@ -55,7 +55,7 @@ jobs:
     secrets:
       aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
-      aws-s3-bucket: ${{ secrets.TDS_AWS_S3_BUCKET }}
+      aws-s3-bucket: ${{ vars.TDS_AWS_S3_BUCKET }}
       aws-cloudfront-distribution-id: ${{ secrets.TDS_AWS_CLOUDFRONT_DISTRIBUTION_ID }}
   publish-react:
     if: contains(github.ref, 'refs/tags/@evervault/react')
