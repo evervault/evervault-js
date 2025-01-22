@@ -35,7 +35,7 @@ jobs:
           name: ui-components-build
           path: dist
       - name: S3 Deploy
-        run: aws s3 cp ./dist s3://${{ secrets.UI_COMPONENTS_S3_BUCKET }}/preview/ --recursive
+        run: aws s3 cp ./dist s3://${{ var.UI_COMPONENTS_S3_BUCKET }}/preview/ --recursive
       - name: Cloudfront Cache Invalidation
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID }}--paths "/preview/index.html"
       - uses: pnpm/action-setup@v4
