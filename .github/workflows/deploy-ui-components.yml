@@ -6,41 +6,60 @@ on:
         description: "Environment to deploy to"
         required: true
         type: string
-      name:
-        description: "Name of the job"
-        required: true
-        type: string
-    secrets:
-      aws-access-key-id:
-        description: "AWS Access Key ID"
-        required: true
-      aws-secret-access-key:
-        description: "AWS Secret Access Key"
-        required: true
-      aws-s3-bucket:
-        description: "AWS S3 Bucket"
-        required: true
-      aws-cloudfront-distribution-id:
-        description: "AWS Cloudfront Distribution ID"
-        required: true
 jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
-    name: ${{ inputs.name }}
+    name: "Deploy to ${{ inputs.environment }}"
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.aws-access-key-id }}
-          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-access-key-id: ${{ inputs.environment == 'production' &&  secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID || secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ inputs.environment == 'production' &&  secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY || secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
           aws-region: "us-east-1"
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8
         with:
           name: ui-components-build
           path: dist
       - name: S3 Deploy
-        run: aws s3 cp ./dist s3://${{ secrets.aws-s3-bucket }}/ --recursive
+        run: aws s3 cp ./dist s3://${{ vars.UI_COMPONENTS_S3_BUCKET }}/preview/ --recursive
       - name: Cloudfront Cache Invalidation
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.aws-cloudfront-distribution-id }} --paths "/index.html"
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/preview/index.html"
+      - uses: pnpm/action-setup@v4
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+      - name: Run prefight checks
+        id: preflight
+        env:
+          VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+          VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+          VITE_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+          VITE_UI_COMPONENTS_URL: https://ui-components.evervault.${{ inputs.environment == 'production' && 'com' || 'io' }}/preview/
+        run: pnpm --filter=@repo/ui-components-pre-release-tests test-prerelease
+      - name: Notify slack of failed release gate run
+        uses: donaltuohy/deployment-slack-alert@v1
+        if: ${{ failure() && steps.preflight.outcome == 'failure' }}
+        with:
+          webhook: ${{ secrets.PRODUCTION_SLACK_WEBHOOK }}
+          service_name: Browser SDK Preflight check failed for ${{ inputs.environment }}
+          action: failed

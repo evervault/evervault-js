@@ -14,26 +14,18 @@ on:
         description: "API endpoint"
         required: true
         type: string
-    secrets:
-      tests_team_uuid:
-        required: true
-      tests_app_uuid:
-        required: true
-      tests_decrypt_fn_key:
-        required: true
 jobs:
   build:
     name: Build and Test
     timeout-minutes: 25
     runs-on: ubuntu-latest
     env:
-      EV_API_KEY: ${{ secrets.tests_decrypt_fn_key }}
-      EV_APP_UUID: ${{ secrets.tests_app_uuid }}
-      EV_DECRYPT_FN_KEY: ${{ secrets.tests_decrypt_fn_key }}
-      EV_TEAM_UUID: ${{ secrets.tests_team_uuid }}
+      EV_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+      EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
       VITE_GOOGLE_PAY_MERCHANT_ID: ${{ vars.GOOGLE_PAY_MERCHANT_ID }}
-      VITE_EV_APP_UUID: ${{ secrets.tests_app_uuid }}
-      VITE_EV_TEAM_UUID: ${{ secrets.tests_team_uuid }}
+      VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+      VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
       VITE_TEST_COVERAGE: "true"
       VITE_API_URL: ${{ inputs.vite-api-url }}
       VITE_EVERVAULT_JS_URL: ${{ inputs.vite-evervault-js-url}}
