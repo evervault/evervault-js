@@ -15,8 +15,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ inputs.stage == 'staging' && secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING || secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ inputs.stage == 'staging' && secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING  || secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY  }}
+          aws-access-key-id: ${{ inputs.stage == 'production' &&  secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID || secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ inputs.stage == 'production' &&  secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY || secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
           aws-region: "us-east-1"
       - name: Check out code
         uses: actions/checkout@v4
@@ -37,7 +37,7 @@ jobs:
       - name: S3 Deploy
         run: aws s3 cp ./dist s3://${{ vars.UI_COMPONENTS_S3_BUCKET }}/preview/ --recursive
       - name: Cloudfront Cache Invalidation
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID }}--paths "/preview/index.html"
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/preview/index.html"
       - uses: pnpm/action-setup@v4
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
