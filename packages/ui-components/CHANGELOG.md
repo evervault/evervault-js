@@ -1,5 +1,15 @@
 # @evervault/ui-components
 
+## 1.25.0
+
+### Minor Changes
+
+- c7976c8: Bump the version of the browser SDK used
+
+### Patch Changes
+
+- @evervault/react@2.16.0
+
 ## 1.24.1
 
 ### Patch Changes
