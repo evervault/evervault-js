@@ -88,9 +88,9 @@ export default class ThreeDSecure {
   async #handleOutcome(
     outcome: string,
     cres?: string | null,
-    failedDueToChallege: boolean = false
+    failedDueToChallenge: boolean = false
   ) {
-    await this.#updateOutcome(outcome, cres, failedDueToChallege);
+    await this.#updateOutcome(outcome, cres, failedDueToChallenge);
     this.#events.dispatch(outcome === "success" ? "success" : "failure");
     this.unmount();
   }
@@ -98,7 +98,7 @@ export default class ThreeDSecure {
   async #updateOutcome(
     outcome: string,
     cres?: string | null,
-    failedDueToChallege?: boolean | null
+    failedDueToChallenge?: boolean | null
   ): Promise<void> {
     const api = this.#client.config.http.apiUrl;
     await fetch(`${api}/frontend/3ds/browser-sessions/${this.#session}`, {
@@ -110,7 +110,7 @@ export default class ThreeDSecure {
       body: JSON.stringify({
         outcome,
         cres: cres ?? null,
-        failedDueToChallege,
+        failedDueToChallenge,
       }),
     });
   }
