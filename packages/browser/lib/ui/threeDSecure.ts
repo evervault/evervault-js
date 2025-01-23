@@ -105,7 +105,7 @@ export default class ThreeDSecure {
     let updatedOutcome = outcome;
     if (abortedOnChallenge && outcome === "failure") {
       updatedOutcome = "abortedOnChallenge";
-    } 
+    }
 
     await fetch(`${api}/frontend/3ds/browser-sessions/${this.#session}`, {
       method: "PATCH",
