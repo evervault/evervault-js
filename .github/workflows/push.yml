@@ -11,7 +11,7 @@ jobs:
     uses: ./.github/workflows/build-and-test.yml
     with:
       vite-evervault-js-url: "https://js.evervault.io/v2"
-      vite-keys-url: "https://api.evervault.io/keys"
+      vite-keys-url: "https://api.evervault.io/teams"
       vite-api-url: "https://api.evervault.io"
     secrets: inherit
   deploy-browser:
