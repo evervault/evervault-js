@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.38.1
+
+### Patch Changes
+
+- 2987a2a: Validate that URL's provided to SDK are not empty, if they are the default values are used
+
 ## 2.38.0
 
 ### Minor Changes
