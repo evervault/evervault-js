@@ -14,10 +14,7 @@ jobs:
       vite-evervault-js-url: "https://js.evervault.com/v2"
       vite-keys-url: "https://keys.evervault.com"
       vite-api-url: "https://api.evervault.com"
-    secrets:
-      tests_team_uuid: ${{ secrets.TESTS_TEAM_UUID }}
-      tests_app_uuid: ${{ secrets.TESTS_APP_UUID }}
-      tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+    secrets: inherit
   deploy-browser:
     if: contains(github.ref, 'refs/tags/@evervault/browser')
     needs: build
