@@ -101,6 +101,12 @@ export default class ThreeDSecure {
     abortedOnChallenge?: boolean | null
   ): Promise<void> {
     const api = this.#client.config.http.apiUrl;
+
+    let updatedOutcome = outcome;
+    if (abortedOnChallenge && outcome === "failure") {
+      updatedOutcome = "abortedOnChallenge";
+    } 
+
     await fetch(`${api}/frontend/3ds/browser-sessions/${this.#session}`, {
       method: "PATCH",
       headers: {
@@ -108,9 +114,8 @@ export default class ThreeDSecure {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        outcome,
+        outcome: updatedOutcome,
         cres: cres ?? null,
-        abortedOnChallenge,
       }),
     });
   }
