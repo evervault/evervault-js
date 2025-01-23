@@ -13,10 +13,7 @@ jobs:
       vite-evervault-js-url: "https://js.evervault.io/v2"
       vite-keys-url: "https://api.evervault.io/keys"
       vite-api-url: "https://api.evervault.io"
-    secrets:
-      tests_team_uuid: ${{ secrets.TESTS_TEAM_UUID }}
-      tests_app_uuid: ${{ secrets.TESTS_APP_UUID }}
-      tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+    secrets: inherit
   deploy-browser:
     needs: build
     uses: ./.github/workflows/deploy-browser.yml
@@ -28,13 +25,7 @@ jobs:
     uses: ./.github/workflows/deploy-inputs.yml
     with:
       environment: "staging"
-      name: "Deploy to Staging"
-      version: "v2"
-    secrets:
-      aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
-      aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
-      aws-s3-bucket: ${{ secrets.INPUTS_S3_BUCKET }}
-      aws-cloudfront-distribution-id: ${{ secrets.INPUTS_CLOUDFRONT_DISTRIBUTION_ID }}
+    secrets: inherit
   deploy-ui-components-staging:
     needs: build
     uses: ./.github/workflows/deploy-ui-components.yml
@@ -46,12 +37,7 @@ jobs:
     uses: ./.github/workflows/deploy-3ds.yml
     with:
       environment: "staging"
-      name: "Deploy to Staging"
-    secrets:
-      aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
-      aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
-      aws-s3-bucket: ${{ secrets.TDS_AWS_S3_BUCKET }}
-      aws-cloudfront-distribution-id: ${{ secrets.TDS_AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+    secrets: inherit
   release:
     name: Release
     runs-on: ubuntu-latest

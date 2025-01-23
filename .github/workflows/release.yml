@@ -14,10 +14,7 @@ jobs:
       vite-evervault-js-url: "https://js.evervault.com/v2"
       vite-keys-url: "https://keys.evervault.com"
       vite-api-url: "https://api.evervault.com"
-    secrets:
-      tests_team_uuid: ${{ secrets.TESTS_TEAM_UUID }}
-      tests_app_uuid: ${{ secrets.TESTS_APP_UUID }}
-      tests_decrypt_fn_key: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+    secrets: inherit
   deploy-browser:
     if: contains(github.ref, 'refs/tags/@evervault/browser')
     needs: build
@@ -31,13 +28,7 @@ jobs:
     uses: ./.github/workflows/deploy-inputs.yml
     with:
       environment: "production"
-      name: "Deploy to Production"
-      version: "v2"
-    secrets:
-      aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID }}
-      aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
-      aws-s3-bucket: ${{ secrets.INPUTS_S3_BUCKET }}
-      aws-cloudfront-distribution-id: ${{ secrets.INPUTS_CLOUDFRONT_DISTRIBUTION_ID }}
+    secrets: inherit
   deploy-ui-components:
     if: contains(github.ref, 'refs/tags/@evervault/ui-components')
     needs: build
@@ -51,12 +42,7 @@ jobs:
     uses: ./.github/workflows/deploy-3ds.yml
     with:
       environment: "production"
-      name: "Deploy to Production"
-    secrets:
-      aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID }}
-      aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
-      aws-s3-bucket: ${{ secrets.TDS_AWS_S3_BUCKET }}
-      aws-cloudfront-distribution-id: ${{ secrets.TDS_AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+    secrets: inherit
   publish-react:
     if: contains(github.ref, 'refs/tags/@evervault/react')
     needs: build
