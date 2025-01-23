@@ -55,7 +55,7 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
       // call up to the parent to see if the challenge should be shown.
       on("EV_FAIL_ON_CHALLENGE_RESULT", (shouldFail) => {
         if (shouldFail) {
-          send("EV_FAILURE");
+          send("EV_FAILURE_FORCED_DUE_TO_CHALLENGE");
         } else {
           setFailOnChallenge(false);
         }
