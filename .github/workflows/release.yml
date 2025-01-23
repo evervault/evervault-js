@@ -28,7 +28,6 @@ jobs:
     uses: ./.github/workflows/deploy-inputs.yml
     with:
       environment: "production"
-      version: "v2"
     secrets: inherit
   deploy-ui-components:
     if: contains(github.ref, 'refs/tags/@evervault/ui-components')
