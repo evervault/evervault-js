@@ -48,7 +48,7 @@ export default class ThreeDSecure {
     });
 
     this.#frame.on("EV_FAILURE_FORCED_DUE_TO_CHALLENGE", (cres) => {
-      void this.#handleOutcome("failure", cres);
+      void this.#handleOutcome("failure", cres, true);
     });
 
     this.#frame.on("EV_FAIL_ON_CHALLENGE", async () => {
@@ -88,9 +88,9 @@ export default class ThreeDSecure {
   async #handleOutcome(
     outcome: string,
     cres?: string | null,
-    failedDueToChallenge: boolean = false
+    abortedOnChallenge: boolean = false
   ) {
-    await this.#updateOutcome(outcome, cres, failedDueToChallenge);
+    await this.#updateOutcome(outcome, cres, abortedOnChallenge);
     this.#events.dispatch(outcome === "success" ? "success" : "failure");
     this.unmount();
   }
@@ -98,7 +98,7 @@ export default class ThreeDSecure {
   async #updateOutcome(
     outcome: string,
     cres?: string | null,
-    failedDueToChallenge?: boolean | null
+    abortedOnChallenge?: boolean | null
   ): Promise<void> {
     const api = this.#client.config.http.apiUrl;
     await fetch(`${api}/frontend/3ds/browser-sessions/${this.#session}`, {
@@ -110,7 +110,7 @@ export default class ThreeDSecure {
       body: JSON.stringify({
         outcome,
         cres: cres ?? null,
-        failedDueToChallenge,
+        abortedOnChallenge,
       }),
     });
   }
