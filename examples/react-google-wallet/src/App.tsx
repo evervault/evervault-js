@@ -62,74 +62,34 @@ function App() {
       inst.mount("#google-pay-button");
       setInstance(inst);
 
-      const apple = evervault.ui.applePay(transaction, {
+      const disbursementTransaction = evervault.transactions.create({
+        amount: 4300,
+        currency: "USD",
+        country: "US",
+        merchantId: "merchant_e930d3f7bf37",
+        requiredRecipientDetails: ["email", "phone", "name", "address"],
+        type: "disbursement",
+      });
+
+      const apple = evervault.ui.applePay(disbursementTransaction, {
         type: "contribute",
         style: "white-outline",
         locale: "en-US",
         size: { width: "100%", height: "80px" },
         borderRadius: 10,
         allowedCardNetworks: ["visa", "masterCard"],
-        process: async (data, { fail }) => {
+        process: async (data, {}) => {
           console.log("Sending encrypted data to merchant", data);
 
           await new Promise((resolve) => {
             setTimeout(resolve, 2000);
           });
 
-          console.log("Simulating failure");
-          fail({
-            message: "Something went wrong, please try again",
-          });
+          // console.log("Simulating failure");
+          // fail({
+          //   message: "Something went wrong, please try again",
+          // });
         },
-        //If user want to do a reccuring payment, they can use paymentDetailsModifiers and pass the raw apple pay config
-        paymentDetailsModifiers: [
-          {
-            total: {
-              label: "Total",
-              amount: {
-                currency: "USD",
-                value: "4.99",
-              },
-            },
-            supportedMethods: "https://apple.com/apple-pay",
-            data: {
-              recurringPaymentRequest: {
-                paymentDescription:
-                  "A description of the recurring payment to display to the user in the payment sheet.",
-                regularBilling: {
-                  label: "Recurring",
-                  amount: "4.99",
-                  paymentTiming: "recurring",
-                  recurringPaymentStartDate: "2025-01-15T00:00:00.000Z",
-                },
-                trialBilling: {
-                  label: "7 Day Trial",
-                  amount: "0.00",
-                  paymentTiming: "recurring",
-                  recurringPaymentEndDate: "2025-01-15T00:00:00.000Z",
-                },
-                billingAgreement:
-                  "You agree to pay the amount specified above on a recurring basis until you cancel. You can manage your subscription in the app or on the web at the following URL: https://applepaydemo.apple.com",
-                managementURL: "https://applepaydemo.apple.com",
-                tokenNotificationURL: "https://applepaydemo.apple.com",
-              },
-              additionalLineItems: [
-                {
-                  label: "7 Day Trial",
-                  amount: "0.00",
-                  paymentTiming: "recurring",
-                  recurringPaymentEndDate: "2025-01-15T00:00:00.000Z",
-                },
-                {
-                  label: "Recurring",
-                  amount: "4.99",
-                  paymentTiming: "recurring",
-                  recurringPaymentStartDate: "2025-01-15T00:00:00.000Z",
-                },
-              ],
-            },
-          },
-        ],
       });
 
       apple.on("cancel", () => {

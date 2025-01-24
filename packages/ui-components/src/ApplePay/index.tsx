@@ -2,7 +2,11 @@ import "./styles.css";
 import { CSSProperties, useEffect, useLayoutEffect, useRef } from "react";
 import { ApplePayConfig } from "./types";
 import { resize, setSize } from "../utilities/resize";
-import { buildSession, exchangeApplePaymentData } from "./utilities";
+import {
+  buildAddressObject,
+  buildSession,
+  exchangeApplePaymentData,
+} from "./utilities";
 import { useSearchParams } from "../utilities/useSearchParams";
 import { useMessaging } from "../utilities/useMessaging";
 import {
@@ -97,6 +101,7 @@ export function ApplePay({ config }: ApplePayProps) {
       }
 
       const {
+        billingContact,
         token: { paymentData },
       } = response.details;
 
@@ -106,6 +111,19 @@ export function ApplePay({ config }: ApplePayProps) {
           paymentData,
           merchant.id
         );
+
+        if (config.transaction.type === "disbursement" && billingContact) {
+          const { familyName, givenName, emailAddress, phoneNumber } =
+            billingContact;
+          const address = buildAddressObject(billingContact);
+          encrypted.billingContact = {
+            familyName,
+            givenName,
+            emailAddress,
+            phoneNumber,
+            address,
+          };
+        }
 
         send("EV_APPLE_PAY_AUTH", encrypted);
 

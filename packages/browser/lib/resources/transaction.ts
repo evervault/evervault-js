@@ -1,9 +1,19 @@
-import { TransactionDetails } from "types";
+import {
+  TransactionDetailsWithDomain,
+  CreateTransactionDetails,
+  DisbursementTransactionDetails,
+} from "types";
 
 export class Transaction {
-  details: TransactionDetails;
+  details: TransactionDetailsWithDomain;
 
-  constructor(details: TransactionDetails) {
-    this.details = details;
+  constructor(
+    details: CreateTransactionDetails | DisbursementTransactionDetails
+  ) {
+    this.details = {
+      ...details,
+      type: details.type ?? "payment",
+      domain: window.location.origin.replace(/https?:\/\//, ""),
+    } as TransactionDetailsWithDomain;
   }
 }

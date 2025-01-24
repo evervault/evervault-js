@@ -249,7 +249,15 @@ export interface ApplePayHostMessages extends EvervaultFrameHostMessages {
   EV_APPLE_PAY_SUCCESS: undefined;
 }
 
-export type EncryptedApplePayData = EncryptedDPAN<"apple">;
+export type EncryptedApplePayData = EncryptedDPAN<"apple"> & {
+  billingContact?: {
+    givenName?: string;
+    familyName?: string;
+    emailAddress?: string;
+    phoneNumber?: string;
+    address?: unknown;
+  };
+};
 
 export interface ApplePayClientMessages extends EvervaultFrameClientMessages {
   EV_APPLE_PAY_AUTH: EncryptedApplePayData;
@@ -457,8 +465,13 @@ export interface ApplePayOptions {
   size?: { width: WalletDimension; height: WalletDimension };
   allowedCardNetworks?: ApplePayCardNetwork[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  paymentMethodsDataOverrides?: { [key: string]: any };
-  paymentDetailsModifiers?: PaymentDetailsModifier[];
+  paymentOverrides?: {
+    paymentMethodData?: PaymentMethodData[];
+    paymentDetails?: PaymentDetailsInit;
+  };
+  disbursementOverrides?: {
+    disbursementDetails?: PaymentDetailsInit;
+  };
 }
 
 export type WalletDimension = string | number;
@@ -468,13 +481,46 @@ export interface TransactionLineItem {
   label: string;
 }
 
-export interface TransactionDetails {
+export interface InstantTransferDetails {
+  label: string;
+  amount: number;
+}
+
+// Base transaction interface with common fields
+interface BaseTransactionDetails {
   amount: number;
   currency: string;
   country: string;
   merchantId: string;
   lineItems?: TransactionLineItem[];
 }
+
+// Payment-specific fields
+export interface PaymentTransactionDetails extends BaseTransactionDetails {
+  type: "payment";
+}
+
+// Disbursement-specific fields
+
+export type RequiredRecipientDetail = "email" | "phone" | "name" | "address";
+export interface DisbursementTransactionDetails extends BaseTransactionDetails {
+  type: "disbursement";
+  instantTransfer?: InstantTransferDetails;
+  requiredRecipientDetails?: RequiredRecipientDetail[];
+}
+
+export type TransactionDetails =
+  | PaymentTransactionDetails
+  | DisbursementTransactionDetails;
+
+export type TransactionDetailsWithDomain = TransactionDetails & {
+  domain: string;
+};
+
+export type CreateTransactionDetails = Omit<
+  PaymentTransactionDetails,
+  "type"
+> & { type?: "payment" };
 
 export interface ApplePayToken {
   version: string;
