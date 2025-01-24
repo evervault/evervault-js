@@ -1,5 +1,12 @@
 # themes
 
+## 0.1.10
+
+### Patch Changes
+
+- Updated dependencies [bbc7673]
+  - types@0.10.0
+
 ## 0.1.9
 
 ### Patch Changes
