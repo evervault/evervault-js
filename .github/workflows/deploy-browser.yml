@@ -87,4 +87,4 @@ jobs:
       - name: S3 Deploy
         run: aws s3 cp ./dist/ s3://${{ vars.BROWSER_SDK_S3_BUCKET }}/v2/ --recursive
       - name: Cloudfront Cache Invalidation
-        r un: aws cloudfront create-invalidation --distribution-id ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/v2/index.js"
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/v2/index.js"
