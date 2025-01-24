@@ -30,7 +30,7 @@ export function GooglePay({ config }: GooglePayProps) {
 
   useLayoutEffect(() => {
     if (config.transaction.type == "disbursement") {
-      console.log("Google Pay does not support disbursment transactions.");
+      console.error("Google Pay does not support disbursment transactions.");
       return;
     }
 
