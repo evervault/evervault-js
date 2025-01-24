@@ -47,6 +47,10 @@ export default class ThreeDSecure {
       void this.#handleOutcome("failure", cres);
     });
 
+    this.#frame.on("EV_FAILURE_FORCED_DUE_TO_CHALLENGE", (cres) => {
+      void this.#handleOutcome("failure", cres, true);
+    });
+
     this.#frame.on("EV_FAIL_ON_CHALLENGE", async () => {
       const result = await this.#failOnChallenge();
       this.#frame.send("EV_FAIL_ON_CHALLENGE_RESULT", result);
@@ -81,14 +85,28 @@ export default class ThreeDSecure {
     return this.#options.failOnChallenge ?? false;
   }
 
-  async #handleOutcome(outcome: string, cres?: string | null) {
-    await this.#updateOutcome(outcome, cres);
+  async #handleOutcome(
+    outcome: string,
+    cres?: string | null,
+    abortedOnChallenge: boolean = false
+  ) {
+    await this.#updateOutcome(outcome, cres, abortedOnChallenge);
     this.#events.dispatch(outcome === "success" ? "success" : "failure");
     this.unmount();
   }
 
-  async #updateOutcome(outcome: string, cres?: string | null): Promise<void> {
+  async #updateOutcome(
+    outcome: string,
+    cres?: string | null,
+    abortedOnChallenge?: boolean | null
+  ): Promise<void> {
     const api = this.#client.config.http.apiUrl;
+
+    let updatedOutcome = outcome;
+    if (abortedOnChallenge && outcome === "failure") {
+      updatedOutcome = "abortedOnChallenge";
+    }
+
     await fetch(`${api}/frontend/3ds/browser-sessions/${this.#session}`, {
       method: "PATCH",
       headers: {
@@ -96,7 +114,7 @@ export default class ThreeDSecure {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        outcome,
+        outcome: updatedOutcome,
         cres: cres ?? null,
       }),
     });
