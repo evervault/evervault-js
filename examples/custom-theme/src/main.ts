@@ -1,3 +1,4 @@
+import "@evervault/js";
 import "./style.css";
 
 // themes can just be objects, however, here we are using a function so that we can update the theme
@@ -84,56 +85,58 @@ const theme = (
   },
 });
 
-const evervault = new window.Evervault(
-  import.meta.env.VITE_EV_TEAM_UUID,
-  import.meta.env.VITE_EV_APP_UUID,
-  {
-    urls: {
-      keysUrl: import.meta.env.VITE_KEYS_URL as string,
-      apiUrl: import.meta.env.VITE_API_URL as string,
-      componentsUrl: import.meta.env.VITE_UI_COMPONENTS_URL as string,
-    },
-  }
-);
+if (window.Evervault) {
+  const evervault = new window.Evervault(
+    import.meta.env.VITE_EV_TEAM_UUID,
+    import.meta.env.VITE_EV_APP_UUID,
+    {
+      urls: {
+        keysUrl: import.meta.env.VITE_KEYS_URL as string,
+        apiUrl: import.meta.env.VITE_API_URL as string,
+        componentsUrl: import.meta.env.VITE_UI_COMPONENTS_URL as string,
+      },
+    }
+  );
 
-const card = evervault.ui.card({ 
-  theme: theme()
-});
+  const card = evervault.ui.card({
+    theme: theme(),
+  });
 
-card.on("ready", () => {
-  document.body.classList.add("ready");
-});
+  card.on("ready", () => {
+    document.body.classList.add("ready");
+  });
 
-const cardIcon: HTMLElement = document.querySelector(".card-icon")!;
+  const cardIcon: HTMLElement = document.querySelector(".card-icon")!;
 
-card.on("change", (values) => {
-  console.log("change", values);
-  if (!cardIcon) return;
+  card.on("change", (values) => {
+    console.log("change", values);
+    if (!cardIcon) return;
 
-  if (values.card.brand) {
-    cardIcon.dataset.type = values.card.brand;
-    cardIcon.classList.add("show");
-    card.update({ theme: theme({ showIcon: true }) });
-  } else {
-    cardIcon.classList.remove("show");
-    card.update({ theme: theme() });
-  }
-});
+    if (values.card.brand) {
+      cardIcon.dataset.type = values.card.brand;
+      cardIcon.classList.add("show");
+      card.update({ theme: theme({ showIcon: true }) });
+    } else {
+      cardIcon.classList.remove("show");
+      card.update({ theme: theme() });
+    }
+  });
 
-card.on("complete", (values) => {
-  console.log("complete", values);
-});
+  card.on("complete", (values) => {
+    console.log("complete", values);
+  });
 
-card.on("ready", () => {
-  console.log("component is ready");
-});
+  card.on("ready", () => {
+    console.log("component is ready");
+  });
 
-const holder = document.getElementById("holder")! as HTMLInputElement;
+  const holder = document.getElementById("holder")! as HTMLInputElement;
 
-card.on("swipe", (values) => {
-  if (values.firstName) {
-    holder.value = `${values.firstName} ${values.lastName}`;
-  }
-});
+  card.on("swipe", (values) => {
+    if (values.firstName) {
+      holder.value = `${values.firstName} ${values.lastName}`;
+    }
+  });
 
-card.mount("#card");
+  card.mount("#card");
+}
