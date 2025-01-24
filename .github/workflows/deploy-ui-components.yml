@@ -6,6 +6,10 @@ on:
         description: "Environment to deploy to"
         required: true
         type: string
+      run-preflight-checks:
+        description: "Flag to enable preflight checks"
+        default: true
+        type: boolean
 jobs:
   deploy-preview:
     runs-on: ubuntu-latest
@@ -51,6 +55,7 @@ jobs:
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
       - name: Run prefight checks
+        if: ${{ inputs.run-preflight-checks }}
         id: preflight
         env:
           VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
@@ -60,15 +65,16 @@ jobs:
         run: pnpm --filter=@repo/ui-components-pre-release-tests test-prerelease
       - name: Notify slack of failed release gate run
         uses: donaltuohy/deployment-slack-alert@v1
-        if: ${{ failure() && steps.preflight.outcome == 'failure' }}
+        if: ${{ failure() && inputs.run-preflight-checks && steps.preflight.outcome == 'failure' }}
         with:
           webhook: ${{ secrets.PRODUCTION_SLACK_WEBHOOK }}
-          service_name: Browser SDK Preflight check failed for ${{ inputs.environment }}
+          service_name: Ui components Preflight check failed for ${{ inputs.environment }}
           action: failed
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}-deploy
     name: "Deploy to ${{ inputs.environment }}"
+    needs: [deploy-preview]
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
