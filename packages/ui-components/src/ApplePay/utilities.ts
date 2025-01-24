@@ -91,12 +91,8 @@ function buildPaymentSession(
   const paymentOverrides = config.paymentOverrides || {};
 
   const request = new PaymentRequest(
-    paymentOverrides.paymentMethodData
-      ? paymentOverrides.paymentMethodData
-      : paymentMethodData,
-    paymentOverrides.paymentDetails
-      ? paymentOverrides.paymentDetails
-      : paymentDetails,
+    paymentOverrides.paymentMethodData || paymentMethodData,
+    paymentOverrides.paymentDetails || paymentDetails,
     // @ts-expect-error - apple overrides the payment request
     paymentOptions
   );
@@ -194,10 +190,11 @@ function buildDisbursementSession(
   };
 
   const paymentOptions = {};
+  const disbursementOverrides = config.disbursementOverrides || {};
 
   const request = new PaymentRequest(
     paymentMethodData,
-    paymentDetails,
+    disbursementOverrides.disbursementDetails || paymentDetails,
     // @ts-expect-error - apple overrides the payment request
     paymentOptions
   );
