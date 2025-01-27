@@ -21,6 +21,7 @@ test("can encrypt a card", async ({ page }) => {
   await frame.getByLabel("Expiration").fill("12/35");
   await frame.getByLabel("CVC").fill("123");
   await expect.poll(async () => values.card?.brand).toEqual("visa");
+  await expect.poll(async () => values.card?.cvc).toBeTruthy();
   const decrypted = await decrypt(values.card);
   expect(decrypted.number).toEqual("4242424242424242");
   expect(decrypted.cvc).toEqual("123");
