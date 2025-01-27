@@ -25,7 +25,7 @@ export default defineConfig({
   webServer: [
     {
       command:
-        "pnpm --filter @repo/ui-components-prerelease-tests dev --port 4000",
+        "pnpm --filter @repo/ui-components-pre-release-tests dev --port 4000",
       url: "http://localhost:4000",
       timeout: 20 * 3000,
     },
