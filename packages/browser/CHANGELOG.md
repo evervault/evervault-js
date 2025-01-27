@@ -1,5 +1,17 @@
 # @evervault/browser
 
+## 2.39.0
+
+### Minor Changes
+
+- bbc7673: feat: Add Apple Pay Disbursements. bugfix: Use domain of parent component, not UI components.
+
+### Patch Changes
+
+- Updated dependencies [bbc7673]
+  - types@0.10.0
+  - themes@0.1.10
+
 ## 2.38.1
 
 ### Patch Changes

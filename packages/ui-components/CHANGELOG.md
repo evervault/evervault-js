@@ -1,5 +1,19 @@
 # @evervault/ui-components
 
+## 1.26.0
+
+### Minor Changes
+
+- bbc7673: feat: Add Apple Pay Disbursements. bugfix: Use domain of parent component, not UI components.
+
+### Patch Changes
+
+- Updated dependencies [bbc7673]
+  - types@0.10.0
+  - @evervault/react@2.16.0
+  - @evervault/card-validator@1.2.0
+  - shared@1.1.5
+
 ## 1.25.0
 
 ### Minor Changes
