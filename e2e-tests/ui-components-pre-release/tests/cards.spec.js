@@ -28,7 +28,7 @@ test("can encrypt a card", async ({ page }) => {
 
 async function decrypt(payload) {
   const token = btoa(
-    `${process.env.VITE_EV_APP_UUID}:${process.env.EV_API_KEY}`
+    `${process.env.VITE_EV_APP_UUID}:${process.env.VITE_API_KEY}`
   );
 
   try {
