@@ -88,6 +88,6 @@ jobs:
           name: ui-components-build
           path: dist
       - name: S3 Deploy
-        run: aws s3 cp ./dist/index.html s3://${{ vars.UI_COMPONENTS_S3_BUCKET }}/v2
+        run: aws s3 cp ./dist/index.html s3://${{ vars.UI_COMPONENTS_S3_BUCKET }}/
       - name: Cloudfront Cache Invalidation
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/index.html"
