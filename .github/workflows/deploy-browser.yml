@@ -64,7 +64,7 @@ jobs:
           VITE_EVERVAULT_JS_URL: https://js.evervault.${{ inputs.environment == 'production' && 'com' || 'io' }}/v2/preview/index.js
         run: pnpm --filter=@repo/browser-pre-release-tests test-prerelease
       - name: Notify slack of failed release gate run
-        uses: donaltuohy/deployment-slack-alert@v1
+        uses: donaltuohy/deployment-slack-alert@v2
         if: ${{ failure() && inputs.run-preflight-checks && steps.preflight.outcome == 'failure' }}
         with:
           webhook: ${{ secrets.PRODUCTION_SLACK_WEBHOOK }}
