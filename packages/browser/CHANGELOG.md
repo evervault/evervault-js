@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.40.1
+
+### Patch Changes
+
+- 1e38f67: Change casing on the new outcome possibility - aborted-on-challenge
+
 ## 2.40.0
 
 ### Minor Changes
