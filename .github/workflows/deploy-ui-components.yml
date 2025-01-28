@@ -6,8 +6,12 @@ on:
         description: "Environment to deploy to"
         required: true
         type: string
+      run-preflight-checks:
+        description: "Flag to enable preflight checks"
+        default: true
+        type: boolean
 jobs:
-  deploy:
+  deploy-preview:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     name: "Deploy to ${{ inputs.environment }}"
@@ -34,8 +38,10 @@ jobs:
         with:
           name: ui-components-build
           path: dist
-      - name: S3 Deploy
-        run: aws s3 cp ./dist s3://${{ vars.UI_COMPONENTS_S3_BUCKET }}/preview/ --recursive
+      - name: S3 Deploy assets
+        run: aws s3 cp ./dist/assets s3://${{ vars.UI_COMPONENTS_S3_BUCKET }}/assets/ --recursive
+      - name: S3 Deploy preview
+        run: aws s3 cp ./dist/index.html s3://${{ vars.UI_COMPONENTS_S3_BUCKET }}/preview/
       - name: Cloudfront Cache Invalidation
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/preview/index.html"
       - uses: pnpm/action-setup@v4
@@ -49,17 +55,39 @@ jobs:
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
       - name: Run prefight checks
+        if: ${{ inputs.run-preflight-checks }}
         id: preflight
         env:
           VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
           VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
           VITE_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
-          VITE_UI_COMPONENTS_URL: https://ui-components.evervault.${{ inputs.environment == 'production' && 'com' || 'io' }}/preview/
+          VITE_UI_COMPONENTS_URL: https://ui-components.evervault.${{ inputs.environment == 'production' && 'com' || 'io' }}/preview/index.html
         run: pnpm --filter=@repo/ui-components-pre-release-tests test-prerelease
       - name: Notify slack of failed release gate run
         uses: donaltuohy/deployment-slack-alert@v1
-        if: ${{ failure() && steps.preflight.outcome == 'failure' }}
+        if: ${{ failure() && inputs.run-preflight-checks && steps.preflight.outcome == 'failure' }}
         with:
           webhook: ${{ secrets.PRODUCTION_SLACK_WEBHOOK }}
-          service_name: Browser SDK Preflight check failed for ${{ inputs.environment }}
+          service_name: Ui components Preflight check failed for ${{ inputs.environment }}
           action: failed
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}-deploy
+    name: "Deploy to ${{ inputs.environment }}"
+    needs: [deploy-preview]
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ inputs.environment == 'production' &&  secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID || secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ inputs.environment == 'production' &&  secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY || secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
+          aws-region: "us-east-1"
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: ui-components-build
+          path: dist
+      - name: S3 Deploy
+        run: aws s3 cp ./dist/index.html s3://${{ vars.UI_COMPONENTS_S3_BUCKET }}/
+      - name: Cloudfront Cache Invalidation
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/index.html"
