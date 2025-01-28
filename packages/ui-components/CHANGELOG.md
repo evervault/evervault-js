@@ -1,5 +1,19 @@
 # @evervault/ui-components
 
+## 1.27.0
+
+### Minor Changes
+
+- d7be3df: Send specific outcome for failOnChallenge
+
+### Patch Changes
+
+- Updated dependencies [d7be3df]
+  - types@0.11.0
+  - @evervault/react@2.16.0
+  - @evervault/card-validator@1.2.0
+  - shared@1.1.6
+
 ## 1.26.0
 
 ### Minor Changes
