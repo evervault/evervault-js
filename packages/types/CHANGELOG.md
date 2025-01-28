@@ -1,5 +1,11 @@
 # types
 
+## 0.11.0
+
+### Minor Changes
+
+- d7be3df: Send specific outcome for failOnChallenge
+
 ## 0.10.0
 
 ### Minor Changes

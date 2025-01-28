@@ -1,5 +1,17 @@
 # @evervault/browser
 
+## 2.40.0
+
+### Minor Changes
+
+- d7be3df: Send specific outcome for failOnChallenge
+
+### Patch Changes
+
+- Updated dependencies [d7be3df]
+  - types@0.11.0
+  - themes@0.1.11
+
 ## 2.39.0
 
 ### Minor Changes
