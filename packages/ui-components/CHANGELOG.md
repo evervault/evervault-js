@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.27.1
+
+### Patch Changes
+
+- c7328ab: Fix potential race condition during browser fingerprinting
+
 ## 1.27.0
 
 ### Minor Changes
