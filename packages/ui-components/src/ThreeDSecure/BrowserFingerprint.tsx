@@ -26,13 +26,15 @@ export function BrowserFingerprint({
       });
     }
 
+    const timeout = setTimeout(onTimeout, 5000);
+
     const handleMessage = (e: MessageEvent) => {
       if (isTrampolineMessage(e)) {
         onComplete();
+        clearTimeout(timeout);
       }
     };
 
-    const timeout = setTimeout(onTimeout, 5000);
     window.addEventListener("message", handleMessage);
 
     return () => {
