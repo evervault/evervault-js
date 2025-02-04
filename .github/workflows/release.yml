@@ -84,7 +84,7 @@ jobs:
     uses: ./.github/workflows/npm-publish.yml
     with:
       package: "@evervault/js"
-      artifact: "eql-build"
+      artifact: "evervault-js"
       repo_path: "packages/js/dist"
     secrets: inherit
   release:
