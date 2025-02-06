@@ -1,13 +1,14 @@
+import { loadEvervault } from "@evervault/js";
 import "./style.css";
 
-const evervault = new window.Evervault(
+const evervault = await loadEvervault(
   import.meta.env.VITE_EV_TEAM_UUID,
   import.meta.env.VITE_EV_APP_UUID,
   {
     urls: {
-      keysUrl: import.meta.env.VITE_KEYS_URL as string,
-      apiUrl: import.meta.env.VITE_API_URL as string,
-      componentsUrl: import.meta.env.VITE_UI_COMPONENTS_URL as string,
+      keysUrl: import.meta.env.VITE_KEYS_URL!,
+      apiUrl: import.meta.env.VITE_API_URL!,
+      componentsUrl: import.meta.env.VITE_UI_COMPONENTS_URL!,
     },
   }
 );
@@ -16,34 +17,6 @@ const card = evervault.ui.card({
   icons: true,
   theme: evervault.ui.themes.clean(),
   redactCVC: true,
-});
-
-card.on("change", (values) => {
-  console.log("change", values);
-});
-
-card.on("swipe", (values) => {
-  console.log("swipe", values);
-});
-
-card.on("validate", (values) => {
-  console.log("validate", values);
-});
-
-card.on("blur", (field) => {
-  console.log("blur", field);
-});
-
-card.on("focus", (field) => {
-  console.log("focus", field);
-});
-
-card.on("keyup", (field) => {
-  console.log("keyup", field);
-});
-
-card.on("keydown", (field) => {
-  console.log("keydown", field);
 });
 
 card.mount("#form");

@@ -392,9 +392,9 @@ importers:
 
   examples/collect-card-details:
     dependencies:
-      '@evervault/browser':
+      '@evervault/js':
         specifier: workspace:*
-        version: link:../../packages/browser
+        version: link:../../packages/js
     devDependencies:
       typescript:
         specifier: 'catalog:'
@@ -405,9 +405,9 @@ importers:
 
   examples/custom-theme:
     dependencies:
-      '@evervault/browser':
+      '@evervault/js':
         specifier: workspace:*
-        version: link:../../packages/browser
+        version: link:../../packages/js
     devDependencies:
       typescript:
         specifier: 'catalog:'
@@ -551,9 +551,9 @@ importers:
 
   examples/three-d-secure:
     dependencies:
-      '@evervault/browser':
+      '@evervault/js':
         specifier: workspace:*
-        version: link:../../packages/browser
+        version: link:../../packages/js
     devDependencies:
       concurrently:
         specifier: 'catalog:'
@@ -731,6 +731,30 @@ importers:
       tsconfig:
         specifier: workspace:*
         version: link:../tsconfig
+      typescript:
+        specifier: 'catalog:'
+        version: 5.5.4
+      vite:
+        specifier: 'catalog:'
+        version: 5.4.11(@types/node@22.10.7)(lightningcss@1.27.0)(terser@5.31.0)
+      vite-plugin-dts:
+        specifier: 'catalog:'
+        version: 4.3.0(@types/node@22.10.7)(rollup@4.28.1)(typescript@5.5.4)(vite@5.4.11(@types/node@22.10.7)(lightningcss@1.27.0)(terser@5.31.0))
+
+  packages/js:
+    devDependencies:
+      '@evervault/browser':
+        specifier: workspace:*
+        version: link:../browser
+      themes:
+        specifier: workspace:*
+        version: link:../themes
+      tsconfig:
+        specifier: workspace:*
+        version: link:../tsconfig
+      types:
+        specifier: workspace:*
+        version: link:../types
       typescript:
         specifier: 'catalog:'
         version: 5.5.4

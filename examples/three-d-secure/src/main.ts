@@ -1,7 +1,8 @@
 import { CardPayload } from "@evervault/browser";
 import "./style.css";
+import { loadEvervault } from "@evervault/js";
 
-const evervault = new window.Evervault(
+const evervault = await loadEvervault(
   import.meta.env.VITE_EV_TEAM_UUID,
   import.meta.env.VITE_EV_APP_UUID,
   {

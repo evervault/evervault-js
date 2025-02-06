@@ -7,4 +7,7 @@ module.exports = [
     files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
     languageOptions: { globals: globals.browser },
   },
+  {
+    ignores: ["vite.config.*.timestamp-*"],
+  },
 ];

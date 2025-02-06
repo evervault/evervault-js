@@ -217,6 +217,7 @@ export default class EvervaultClient {
   }
 
   /**
+   * @deprecated Use ui.card() instead
    * Initializes Evervault Inputs. Evervault Inputs makes it easy to collect encrypted cardholder data in a completely PCI-compliant environment.
    * Evervault Inputs are served within an iFrame retrieved directly from Evervault’s PCI-compliant infrastructure, which can reduce your PCI DSS compliance scope to the simplest form (SAQ A).
    * Simply pass the ID of the element in which the iFrame should be embedded.
@@ -240,6 +241,9 @@ export default class EvervaultClient {
     return this.input.generate(elementId, config ?? {});
   }
 
+  /**
+   * @deprecated Use ui.reveal() instead
+   */
   reveal(
     elementId: string,
     request: Request | EvervaultRequestProps,
