@@ -1,5 +1,12 @@
 # example-custom-theme
 
+## 0.0.32
+
+### Patch Changes
+
+- Updated dependencies [094b0a3]
+  - @evervault/js@2.0.0
+
 ## 0.0.31
 
 ### Patch Changes
