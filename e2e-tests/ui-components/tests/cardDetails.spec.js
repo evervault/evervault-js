@@ -465,6 +465,37 @@ test.describe("card component", () => {
     await expect(frame.getByLabel("CVC")).toBeFocused();
   });
 
+  test("validates fields and shows errors when autoProgress is strue", async ({
+    page,
+  }) => {
+    let values = {};
+
+    await page.exposeFunction("handleChange", (newValues) => {
+      values = newValues;
+    });
+
+    await page.evaluate(() => {
+      window.card = window.evervault.ui.card({ autoProgress: true });
+      window.card.on("change", window.handleChange);
+      window.card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").focus();
+    await page.keyboard.type("2222222222222222"); // number
+    await page.keyboard.type("1222"); // expiry
+    await page.keyboard.type("123"); // cvc
+
+    await expect(frame.getByText("Your card number is invalid")).toBeVisible();
+
+    await expect(
+      frame.getByText("Your expiration date is invalid")
+    ).toBeVisible();
+
+    await expect.poll(async () => values.errors.number).toBe("invalid");
+    await expect.poll(async () => values.errors.expiry).toBe("invalid");
+  });
+
   test("fires a validate event when validation is manually triggered", async ({
     page,
   }) => {
