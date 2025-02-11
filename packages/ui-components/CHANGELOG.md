@@ -1,5 +1,12 @@
 # @evervault/ui-components
 
+## 1.27.2
+
+### Patch Changes
+
+- Updated dependencies [c967317]
+  - shared@1.1.7
+
 ## 1.27.1
 
 ### Patch Changes

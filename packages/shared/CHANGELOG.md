@@ -1,5 +1,11 @@
 # shared
 
+## 1.1.7
+
+### Patch Changes
+
+- c967317: Fix issue causing errors to be cleared when autoProgressing inputs
+
 ## 1.1.6
 
 ### Patch Changes
