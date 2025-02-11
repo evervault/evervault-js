@@ -6,7 +6,7 @@ packages:
 catalog:
   "@actions/core": ^1.11.1
   "@actions/github": ^6.0.0
-  "@aws-sdk/client-s3": ^3.420.0
+  "@aws-sdk/client-s3": ^3.744.0
   "@babel/core": ^7.20.0
   "@changesets/cli": ^2.27.10
   "@eslint/js": ^9.12.0
