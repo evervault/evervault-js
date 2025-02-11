@@ -19,6 +19,10 @@ const card = evervault.ui.card({
   autoProgress: true,
 });
 
+card.on("change", (values) => {
+  console.log("Change", values);
+});
+
 card.mount("#form");
 
 const btn = document.getElementById("purchase");
