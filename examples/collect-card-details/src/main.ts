@@ -16,7 +16,11 @@ const evervault = await loadEvervault(
 const card = evervault.ui.card({
   icons: true,
   theme: evervault.ui.themes.clean(),
-  redactCVC: true,
+  autoProgress: true,
+});
+
+card.on("change", (values) => {
+  console.log("Change", values);
 });
 
 card.mount("#form");
