@@ -80,30 +80,31 @@ export function useForm<T extends object>({
       const nextValues = { ...values, [field]: value };
       setValues((p) => ({ ...p, [field]: value }));
 
-      const fieldsToValidate: string[] = Object.keys(errors ?? {});
-      if (
-        field === "number" &&
-        errors?.["cvc" as keyof T] == null &&
-        nextValues?.["cvc" as keyof T]
-      ) {
-        fieldsToValidate.push("cvc");
-      }
+      setErrors((previousErrors) => {
+        const fieldsToValidate: string[] = Object.keys(previousErrors ?? {});
+        if (
+          field === "number" &&
+          previousErrors?.["cvc" as keyof T] == null &&
+          nextValues?.["cvc" as keyof T]
+        ) {
+          fieldsToValidate.push("cvc");
+        }
 
-      const nextErrors: Partial<Record<keyof T, string>> = {};
-      fieldsToValidate.forEach((key) => {
-        if (key === field) return;
-        const validator = validators.current?.[key as keyof T];
-        if (!validator) return;
-        const error = validator(nextValues);
-        if (!error) return;
-        nextErrors[key as keyof T] = error;
+        const nextErrors: Partial<Record<keyof T, string>> = {};
+        fieldsToValidate.forEach((key) => {
+          const validator = validators.current?.[key as keyof T];
+          if (!validator) return;
+          const error = validator(nextValues);
+          if (!error) return;
+          nextErrors[key as keyof T] = error;
+        });
+
+        return nextErrors;
       });
-
-      setErrors(nextErrors);
 
       triggerChange.current = true;
     },
-    [values, errors]
+    [values]
   );
 
   const isValid = useMemo(
