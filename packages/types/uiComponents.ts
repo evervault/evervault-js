@@ -250,7 +250,8 @@ export interface ApplePayHostMessages extends EvervaultFrameHostMessages {
   EV_APPLE_PAY_SUCCESS: undefined;
 }
 
-export type EncryptedApplePayData = EncryptedDPAN<"apple"> & {
+export type EncryptedApplePayData = Omit<EncryptedDPAN<"apple">, "token"> & {
+  networkToken: PaymentToken<"apple"> & { rawExpiry: string };
   billingContact?: {
     givenName?: string;
     familyName?: string;
@@ -258,6 +259,8 @@ export type EncryptedApplePayData = EncryptedDPAN<"apple"> & {
     phoneNumber?: string;
     address?: unknown;
   };
+  paymentDataType: string;
+  deviceManufacturerIdentifier: string;
 };
 
 export interface ApplePayClientMessages extends EvervaultFrameClientMessages {
@@ -312,15 +315,17 @@ export type GooglePayButtonLocale =
   | "uk"
   | "zh";
 
-export interface EncryptedDPAN<P> {
-  token: {
-    tokenServiceProvider: P;
-    number: string;
-    expiry: {
-      month: string;
-      year: string;
-    };
+interface PaymentToken<P> {
+  tokenServiceProvider: P;
+  number: string;
+  expiry: {
+    month: string;
+    year: string;
   };
+}
+
+export interface EncryptedDPAN<P> {
+  token: PaymentToken<P>;
   card: {
     brand: string;
   };
