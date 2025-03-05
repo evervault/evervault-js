@@ -570,62 +570,6 @@ test.describe("card component", () => {
     });
   });
 
-  test("Revalidates previously invalid CVC when card number changes", async ({
-    page,
-  }) => {
-    let values = {};
-
-    await page.exposeFunction("handleChange", (newValues) => {
-      values = newValues;
-    });
-
-    await page.evaluate(() => {
-      const card = window.evervault.ui.card();
-      card.on("change", window.handleChange);
-      card.mount("#form");
-    });
-
-    const frame = page.frameLocator("iframe[data-evervault]");
-    // enter amex card which requires 4 digit cvc
-    await frame.getByLabel("Number").fill("378282246310005");
-    await frame.getByLabel("CVC").fill("123");
-    await frame.getByLabel("CVC").blur();
-    await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
-    await expect.poll(async () => values.errors?.cvc).not.toBeUndefined();
-    await frame.getByLabel("Number").clear();
-    await frame.getByLabel("Number").fill("4242424242424242");
-    await expect.poll(async () => values.errors?.cvc).toBeUndefined();
-    await expect(frame.getByText("Your CVC is invalid")).not.toBeVisible();
-  });
-
-  test("Invalidates previously valid CVC when card number changes", async ({
-    page,
-  }) => {
-    let values = {};
-
-    await page.exposeFunction("handleChange", (newValues) => {
-      values = newValues;
-    });
-
-    await page.evaluate(() => {
-      const card = window.evervault.ui.card();
-      card.on("change", window.handleChange);
-      card.mount("#form");
-    });
-
-    const frame = page.frameLocator("iframe[data-evervault]");
-    await frame.getByLabel("Number").fill("4242424242424242");
-    await frame.getByLabel("CVC").fill("123");
-    await frame.getByLabel("CVC").blur();
-    await expect(frame.getByText("Your CVC is invalid")).not.toBeVisible();
-    await expect.poll(async () => values.errors?.cvc).toBeUndefined();
-    await frame.getByLabel("Number").clear();
-    // enter amex card which requires 4 digit cvc
-    await frame.getByLabel("Number").fill("378282246310005");
-    await expect.poll(async () => values.errors?.cvc).not.toBeUndefined();
-    await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
-  });
-
   test("Updates the underlying CVC when switching from 4 digit CVC to 3", async ({
     page,
   }) => {

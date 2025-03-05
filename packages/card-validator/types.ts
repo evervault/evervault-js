@@ -7,7 +7,7 @@ export type NumberValidationRules = {
 };
 
 export type SecurityCodeValidationRules = {
-  length: number;
+  lengths: number[];
 };
 
 export type CardBrand = {

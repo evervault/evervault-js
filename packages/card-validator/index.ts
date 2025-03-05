@@ -141,7 +141,7 @@ export function validateCVC(
   const isCVCValid = defaultBrands
     .filter((brand) => brands.includes(brand.name))
     .some((brand) => {
-      return brand.securityCodeValidationRules.length === cvc.length;
+      return brand.securityCodeValidationRules.lengths.includes(cvc.length);
     });
 
   return {

@@ -10,7 +10,7 @@ const brands = [
       lengths: [16, 18, 19],
     },
     securityCodeValidationRules: {
-      length: 3,
+      lengths: [3],
     },
   },
   {
@@ -22,7 +22,7 @@ const brands = [
       lengths: [16],
     },
     securityCodeValidationRules: {
-      length: 3,
+      lengths: [3],
     },
   },
   {
@@ -34,7 +34,7 @@ const brands = [
       lengths: [15],
     },
     securityCodeValidationRules: {
-      length: 4,
+      lengths: [3, 4],
     },
   },
   {
@@ -46,7 +46,7 @@ const brands = [
       lengths: [14, 16, 19],
     },
     securityCodeValidationRules: {
-      length: 3,
+      lengths: [3],
     },
   },
   {
@@ -58,7 +58,7 @@ const brands = [
       lengths: [16, 19],
     },
     securityCodeValidationRules: {
-      length: 3,
+      lengths: [3],
     },
   },
   {
@@ -70,7 +70,7 @@ const brands = [
       lengths: [16, 17, 18, 19],
     },
     securityCodeValidationRules: {
-      length: 3,
+      lengths: [3],
     },
   },
   {
@@ -105,7 +105,7 @@ const brands = [
       lengths: [14, 15, 16, 17, 18, 19],
     },
     securityCodeValidationRules: {
-      length: 3,
+      lengths: [3],
     },
   },
   {
@@ -129,7 +129,7 @@ const brands = [
       lengths: [12, 13, 14, 15, 16, 17, 18, 19],
     },
     securityCodeValidationRules: {
-      length: 3,
+      lengths: [3],
     },
   },
   {
@@ -167,7 +167,7 @@ const brands = [
       lengths: [16],
     },
     securityCodeValidationRules: {
-      length: 3,
+      lengths: [3],
     },
   },
   {
@@ -179,7 +179,7 @@ const brands = [
       lengths: [16, 17, 18, 19],
     },
     securityCodeValidationRules: {
-      length: 3,
+      lengths: [3],
     },
   },
   {
@@ -191,7 +191,7 @@ const brands = [
       lengths: [16],
     },
     securityCodeValidationRules: {
-      length: 3,
+      lengths: [3],
     },
   },
   {
@@ -203,7 +203,7 @@ const brands = [
       lengths: [16],
     },
     securityCodeValidationRules: {
-      length: 3,
+      lengths: [3],
     },
   },
   {
@@ -215,7 +215,7 @@ const brands = [
       lengths: [16],
     },
     securityCodeValidationRules: {
-      length: 3,
+      lengths: [3],
     },
   },
   {
@@ -227,7 +227,7 @@ const brands = [
       lengths: [15],
     },
     securityCodeValidationRules: {
-      length: 0,
+      lengths: [0],
     },
   },
 ] as CardBrand[];
