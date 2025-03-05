@@ -1,5 +1,12 @@
 # example-react-google-wallet
 
+## 0.3.6
+
+### Patch Changes
+
+- @evervault/browser@2.40.2
+- @evervault/react@2.16.0
+
 ## 0.3.5
 
 ### Patch Changes

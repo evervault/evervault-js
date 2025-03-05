@@ -1,5 +1,12 @@
 # themes
 
+## 0.1.12
+
+### Patch Changes
+
+- Updated dependencies [6286f09]
+  - types@0.12.0
+
 ## 0.1.11
 
 ### Patch Changes

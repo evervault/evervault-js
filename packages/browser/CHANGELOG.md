@@ -1,5 +1,13 @@
 # @evervault/browser
 
+## 2.40.2
+
+### Patch Changes
+
+- Updated dependencies [6286f09]
+  - types@0.12.0
+  - themes@0.1.12
+
 ## 2.40.1
 
 ### Patch Changes
