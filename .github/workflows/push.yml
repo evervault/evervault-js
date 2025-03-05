@@ -72,7 +72,11 @@ jobs:
           HUSKY: 0
           GITHUB_TOKEN: ${{ secrets.SDK_PUBLISH_TOKEN }}
       - name: Create Tags
+        # Changesets deletes the changeset files on version PR, so if false then we need to tag and release the packages
         if: steps.changesets.outputs.hasChangesets == 'false'
-        run: pnpm changeset tag && git push origin --tags
+        run: |-
+          pnpm changeset tag
+          TAGS=$(git tag --points-at=HEAD | jq -scR 'split("\n") | map(select(length > 0))')
+          echo "tags_to_publish=$TAGS" >> $GITHUB_OUTPUT
         env:
           HUSKY: 0
