@@ -37,7 +37,7 @@ const testCases: TestCase[] = [
   {
     scope: "CVC with wrong length amex",
     cardNumber: "378282246310005",
-    cvc: "123",
+    cvc: "12",
     expectedResult: { cvc: null, isValid: false },
   },
   {
@@ -51,6 +51,12 @@ const testCases: TestCase[] = [
     cardNumber: "378282246310005",
     cvc: "1234",
     expectedResult: { cvc: "1234", isValid: true },
+  },
+  {
+    scope: "3 digit CVC Amex",
+    cardNumber: "378282246310005",
+    cvc: "123",
+    expectedResult: { cvc: "123", isValid: true },
   },
   {
     scope: "Valid CVC Mastercard with empty card number",
