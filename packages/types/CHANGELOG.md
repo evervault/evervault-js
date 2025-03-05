@@ -1,5 +1,11 @@
 # types
 
+## 0.12.0
+
+### Minor Changes
+
+- 6286f09: Update Apple Pay types
+
 ## 0.11.0
 
 ### Minor Changes

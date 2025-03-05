@@ -1,5 +1,11 @@
 # @evervault/card-validator
 
+## 1.3.0
+
+### Minor Changes
+
+- 7a15434: Updates card brand configuration to support multiple lengths for CVCs and support 3 character CVCs for Amex cards
+
 ## 1.2.0
 
 ### Minor Changes
