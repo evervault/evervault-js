@@ -54,7 +54,7 @@ catalog:
   next: 14.2.21
   nock: ^13.5.4
   node-fetch: ^3
-  nodemon: ^3.1.4
+  nodemon: ^3.1.9
   peggy: ^4.0.2
   pino: ^9
   pino-http: ^10
