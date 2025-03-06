@@ -12,11 +12,11 @@ export function EvervaultProvider({
   appId,
   children,
 }: EvervaultProviderProps) {
-  const [initialized, setInitialized] = useState(false);
+  const [ready, setReady] = useState(false);
 
   const context = useMemo<EvervaultContextValue>(
-    () => ({ teamId, appId, initialized }),
-    [teamId, appId, initialized]
+    () => ({ teamId, appId, ready }),
+    [teamId, appId, ready]
   );
 
   useEffect(() => {
@@ -24,10 +24,10 @@ export function EvervaultProvider({
     const signal = abortController.signal;
 
     async function initialize() {
-      setInitialized(false);
+      setReady(false);
       try {
         await sdk.initialize(teamId, appId, { signal });
-        setInitialized(true);
+        setReady(true);
       } catch (error) {
         console.error(error);
       }

@@ -1,5 +1,4 @@
 #import <React/RCTBridgeModule.h>
-#import "RNEvervault-Swift.h"
 
 @interface RCT_EXTERN_MODULE(RNEvervault, NSObject)
 

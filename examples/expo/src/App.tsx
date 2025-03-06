@@ -1,10 +1,14 @@
-import { StyleSheet, Text, View } from "react-native";
+import { EvervaultProvider, Test } from "@evervault/react-native";
+import { StyleSheet, View } from "react-native";
+import { env } from "./lib/env";
 
 export function App() {
   return (
-    <View style={styles.container}>
-      <Text>Hello World</Text>
-    </View>
+    <EvervaultProvider teamId={env.evTeamId} appId={env.evAppId}>
+      <View style={styles.container}>
+        <Test value="Hello, world!" />
+      </View>
+    </EvervaultProvider>
   );
 }
 
