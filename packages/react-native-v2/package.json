@@ -1,0 +1,66 @@
+{
+  "name": "@evervault/react-native",
+  "description": "Evervault SDK for React Native",
+  "version": "2.0.0-alpha.1",
+  "private": true,
+  "source": "./src/index.ts",
+  "main": "./build/index.cjs.js",
+  "module": "./build/index.esm.js",
+  "types": "./build/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./build/index.d.ts",
+        "default": "./build/index.esm.js"
+      },
+      "require": {
+        "types": "./build/index.d.ts",
+        "default": "./build/index.cjs.js"
+      }
+    }
+  },
+  "files": [
+    "src",
+    "ios",
+    "android",
+    "rn-evervault.podspec",
+    "build"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evervault/evervault-js.git"
+  },
+  "author": "Engineering <engineering@evervault.com> (https://evervault.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evervault/evervault-js/issues"
+  },
+  "homepage": "https://github.com/evervault/evervault-js",
+  "scripts": {
+    "build": "rollup -c",
+    "codegen": "rimraf build && rimraf android/app && react-native codegen",
+    "prepare": "pnpm codegen && pnpm build"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "devDependencies": {
+    "@react-native-community/cli": "*",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@types/react": "catalog:",
+    "react": "catalog:",
+    "react-native": "catalog:",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.34.9",
+    "tsconfig": "workspace:*"
+  },
+  "codegenConfig": {
+    "name": "RNEvervaultSpec",
+    "type": "modules",
+    "jsSrcsDir": "src",
+    "android": {
+      "javaPackageName": "com.rnevervault"
+    }
+  }
+}
