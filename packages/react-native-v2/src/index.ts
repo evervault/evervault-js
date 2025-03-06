@@ -7,4 +7,4 @@ export {
   type EvervaultProviderProps,
 } from "./EvervaultProvider";
 
-export { Test } from "./Test";
+export * from "./Card";

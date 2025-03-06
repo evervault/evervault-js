@@ -14,11 +14,6 @@ export function EvervaultProvider({
 }: EvervaultProviderProps) {
   const [ready, setReady] = useState(false);
 
-  const context = useMemo<EvervaultContextValue>(
-    () => ({ teamId, appId, ready }),
-    [teamId, appId, ready]
-  );
-
   useEffect(() => {
     const abortController = new AbortController();
     const signal = abortController.signal;
@@ -36,6 +31,11 @@ export function EvervaultProvider({
     initialize();
     return abortController.abort;
   }, [teamId, appId]);
+
+  const context = useMemo<EvervaultContextValue>(
+    () => ({ teamId, appId, ready }),
+    [teamId, appId, ready]
+  );
 
   return (
     <EvervaultContext.Provider value={context}>

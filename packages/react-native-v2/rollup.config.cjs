@@ -1,6 +1,7 @@
 const { defineConfig } = require("rollup");
 const pkgJson = require("./package.json");
 const typescript = require("@rollup/plugin-typescript");
+const nodeResolve = require("@rollup/plugin-node-resolve");
 
 const peerDependencies = Object.keys(pkgJson.peerDependencies);
 
@@ -18,5 +19,5 @@ module.exports = defineConfig({
       format: "esm",
     },
   ],
-  plugins: [typescript()],
+  plugins: [typescript(), nodeResolve()],
 });
