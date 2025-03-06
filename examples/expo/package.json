@@ -1,0 +1,31 @@
+{
+  "name": "evervault-expo-example",
+  "main": "index.ts",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "expo start",
+    "android": "rimraf android && expo run:android --no-bundler",
+    "ios": "rimraf ios && expo run:ios --no-bundler"
+  },
+  "dependencies": {
+    "@evervault/react-native": "workspace:*",
+    "expo": "catalog:",
+    "expo-dev-client": "catalog:",
+    "expo-splash-screen": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-native": "catalog:",
+    "react-native-gesture-handler": "catalog:",
+    "react-native-reanimated": "catalog:",
+    "react-native-safe-area-context": "catalog:",
+    "react-native-web": "catalog:",
+    "react-native-webview": "catalog:"
+  },
+  "devDependencies": {
+    "@babel/core": "catalog:",
+    "@types/react": "catalog:",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.3.3"
+  },
+  "private": true
+}
