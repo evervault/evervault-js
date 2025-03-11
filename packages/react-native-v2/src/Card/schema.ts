@@ -26,24 +26,32 @@ export const cardFormSchema = z
   .object({
     acceptedBrands: z.array(z.enum(CARD_BRAND_NAMES)),
 
-    name: z.string().min(1),
+    name: z.string().min(1, "Missing name"),
 
     number: z
       .string()
-      .min(1)
-      .refine((value) => validateNumber(value).isValid),
+      .min(1, "Required")
+      .refine((value) => validateNumber(value).isValid, {
+        message: "Invalid card number",
+      }),
 
     expiry: z
       .string()
-      .min(1)
-      .refine((value) => validateExpiry(value).isValid),
+      .min(1, "Required")
+      .refine((value) => validateExpiry(value).isValid, {
+        message: "Invalid expiry",
+      }),
 
     cvc: z
       .string()
-      .min(1)
-      .refine((value) => validateCVC(value).isValid),
+      .min(1, "Required")
+      .refine((value) => validateCVC(value).isValid, {
+        message: "Invalid CVC",
+      }),
   })
   .superRefine((value, ctx) => {
+    if (!value.acceptedBrands.length) return;
+
     const validation = validateNumber(value.number);
     if (!validation.isValid) return;
 

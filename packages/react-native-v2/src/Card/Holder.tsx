@@ -1,52 +1,26 @@
-import { useFormContext } from "react-hook-form";
-import {
-  NativeSyntheticEvent,
-  Platform,
-  TextInput,
-  TextInputFocusEventData,
-  TextInputProps,
-} from "react-native";
+import { Platform } from "react-native";
+import { forwardRef } from "react";
+import { BaseEvervaultInputProps, EvervaultInput } from "../Input";
 import { CardFormValues } from "./schema";
-import { useCallback } from "react";
 
-const CARD_HOLDER_AUTOCOMPLETE = Platform.select({
-  ios: "cc-name" as const,
-  default: "name" as const,
-});
+export type CardHolderProps = BaseEvervaultInputProps;
 
-export type CardHolderProps = Omit<
-  TextInputProps,
-  "onChange" | "onChangeText" | "value"
->;
+export type CardHolder = EvervaultInput;
 
-export function CardHolder(props: CardHolderProps) {
-  const methods = useFormContext<CardFormValues>();
-  const field = methods.register("name");
-
-  const onBlur = useCallback(
-    (event: NativeSyntheticEvent<TextInputFocusEventData>) => {
-      field.onBlur(event);
-      props.onBlur?.(event);
-    },
-    [field.onBlur, props.onBlur]
-  );
-
-  return (
-    <TextInput
-      // Overridable props
-      id={field.name}
-      maxLength={field.maxLength}
-      autoComplete={CARD_HOLDER_AUTOCOMPLETE}
-      keyboardType="default"
-      {...props}
-      // Strict props
-      ref={field.ref}
-      editable={!field.disabled && (props.editable ?? true)}
-      onBlur={onBlur}
-      onChange={field.onChange}
-      onChangeText={undefined}
-      value={undefined}
-      inputMode="text"
-    />
-  );
-}
+export const CardHolder = forwardRef<CardHolder, CardHolderProps>(
+  function CardHolder(props, ref) {
+    return (
+      <EvervaultInput<CardFormValues>
+        {...props}
+        ref={ref}
+        name="name"
+        inputMode="text"
+        autoComplete={Platform.select({
+          ios: "cc-name",
+          default: "name",
+        })}
+        keyboardType="default"
+      />
+    );
+  }
+);

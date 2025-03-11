@@ -5,8 +5,8 @@ import {
   CardNumberValidationResult,
 } from "@evervault/card-validator";
 import type { CardBrandName, CardPayload } from "./types";
-import type { CardFormValues } from "./schema";
-import { DeepPartial, UseFormReturn } from "react-hook-form";
+import { type CardFormValues } from "./schema";
+import { DeepPartial, FieldError, UseFormReturn } from "react-hook-form";
 import { sdk } from "../sdk";
 
 export async function formatPayload(
@@ -33,6 +33,24 @@ export async function formatPayload(
 
   const { cvc, isValid: isCvcValid } = validateCVC(values.cvc ?? "", number);
 
+  const formErrors = form.formState.errors;
+  const isValid = !Object.keys(formErrors).length;
+  const isComplete = areValuesComplete(values);
+
+  const errors: Record<string, string> = {};
+  if (formErrors.name?.message) {
+    errors.name = formErrors.name.message;
+  }
+  if (formErrors.number?.message) {
+    errors.number = formErrors.number.message;
+  }
+  if (formErrors.expiry?.message) {
+    errors.expiry = formErrors.expiry.message;
+  }
+  if (formErrors.cvc?.message) {
+    errors.cvc = formErrors.cvc.message;
+  }
+
   return {
     card: {
       name: values.name ?? null,
@@ -44,17 +62,14 @@ export async function formatPayload(
       number: isNumberValid ? await sdk.encrypt(number) : null,
       cvc: isCvcValid ? await sdk.encrypt(cvc ?? "") : null,
     },
-    isValid: form.formState.isValid,
-    isComplete: isComplete(values),
-    errors:
-      Object.keys(form.formState.errors ?? {}).length > 0
-        ? form.formState.errors
-        : null,
+    isComplete,
+    isValid: isValid && isComplete,
+    errors: isValid ? null : errors,
   };
 }
 
-export function isComplete(values: DeepPartial<CardFormValues>) {
-  if ("name" in values && values.name?.length === 0) {
+export function areValuesComplete(values: DeepPartial<CardFormValues>) {
+  if ("name" in values && !values.name?.length) {
     return false;
   }
 
@@ -80,7 +95,7 @@ export function isAcceptedBrand(
   acceptedBrands: CardBrandName[] | undefined,
   cardNumberValidationResult: CardNumberValidationResult
 ): boolean {
-  if (!acceptedBrands) return true;
+  if (!acceptedBrands?.length) return true;
   const { brand, localBrands } = cardNumberValidationResult;
 
   const isBrandAccepted = brand !== null && acceptedBrands.includes(brand);

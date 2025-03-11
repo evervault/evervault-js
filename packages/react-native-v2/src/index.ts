@@ -8,3 +8,8 @@ export {
 } from "./EvervaultProvider";
 
 export * from "./Card";
+
+export type {
+  EvervaultInput,
+  BaseEvervaultInputProps as EvervaultInputProps,
+} from "./Input";

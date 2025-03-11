@@ -44,8 +44,9 @@ export interface CardPayload {
   isValid: boolean;
   isComplete: boolean;
   errors: null | Partial<{
-    number?: FieldError;
-    cvc?: FieldError;
-    expiry?: FieldError;
+    name?: string;
+    number?: string;
+    expiry?: string;
+    cvc?: string;
   }>;
 }
