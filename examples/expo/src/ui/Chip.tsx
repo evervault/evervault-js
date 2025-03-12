@@ -60,7 +60,7 @@ export function Chip({ children, disabled, style, onPress }: ChipProps) {
 
 const styles = StyleSheet.create({
   chip: {
-    paddingInline: 14,
+    paddingInline: 12,
     paddingBlock: 6,
     borderRadius: 999,
     backgroundColor: "#FBFAFD",

@@ -31,11 +31,7 @@ export const sdk = {
     return true;
   },
 
-  async initialize(
-    teamId: string,
-    appId: string,
-    options?: { signal?: AbortSignal }
-  ) {
+  initialize(teamId: string, appId: string) {
     const evervault = getModule();
 
     if (!teamId) {
@@ -46,11 +42,7 @@ export const sdk = {
       throw new Error("App ID is required.");
     }
 
-    await evervault.initialize(teamId, appId);
-
-    if (options?.signal?.aborted) {
-      throw new Error("Initialization aborted.");
-    }
+    evervault.initialize(teamId, appId);
   },
 
   async encrypt<T>(data: T) {

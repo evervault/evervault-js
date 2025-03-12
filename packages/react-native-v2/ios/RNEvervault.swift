@@ -4,17 +4,10 @@ import Evervault
 class NativeEvervault: NSObject {
     var ev: Evervault?
 
-    @objc(initialize:withAppId:withResolver:withRejecter:)
-    func initialize(teamId: String, appId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-        Task {
-            do {
-                let evervault = Evervault(teamId: teamId, appId: appId)
-                self.ev = evervault
-                resolve(nil)
-            } catch {
-                reject("Error", "Failed to initialize: \(error.localizedDescription)", error)
-            }
-        }
+    @objc(initialize:withAppId:)
+    func initialize(teamId: String, appId: String) {
+        let evervault = Evervault(teamId: teamId, appId: appId)
+        self.ev = evervault
     }
     
     func encrypt(_ value: Any, _ resolve: @escaping RCTPromiseResolveBlock, _ reject: @escaping RCTPromiseRejectBlock) {

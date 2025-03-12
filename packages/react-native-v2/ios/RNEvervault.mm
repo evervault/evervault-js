@@ -2,10 +2,8 @@
 
 @interface RCT_EXTERN_MODULE(NativeEvervault, NSObject)
 
-RCT_EXTERN_METHOD(initialize:(NSString *)teamId 
-                  withAppId:(NSString *)appId 
-                  withResolver:(RCTPromiseResolveBlock)resolve 
-                  withRejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(initialize:(NSString *)teamId
+                  withAppId:(NSString *)appId)
 
 RCT_EXTERN_METHOD(encryptString:(NSString *)value
                  withResolver:(RCTPromiseResolveBlock)resolve

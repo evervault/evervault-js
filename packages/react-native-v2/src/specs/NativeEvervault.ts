@@ -1,7 +1,7 @@
 import { TurboModule, TurboModuleRegistry } from "react-native";
 
 export interface Spec extends TurboModule {
-  initialize(teamId: string, appId: string): Promise<void>;
+  initialize(teamId: string, appId: string): void;
   encryptString(data: string): Promise<string>;
   encryptNumber(data: number): Promise<string>;
   encryptBoolean(data: boolean): Promise<string>;

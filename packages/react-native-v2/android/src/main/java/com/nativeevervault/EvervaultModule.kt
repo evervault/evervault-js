@@ -18,13 +18,8 @@ class NativeEvervaultModule(reactContext: ReactApplicationContext) : NativeEverv
 
   override fun getName() = NAME
 
-  override fun initialize(teamId: String, appId: String, promise: Promise) {
-    try {
-      Evervault.shared.configure(teamId, appId)
-      promise.resolve(null)
-    } catch (e: Exception) {
-      promise.reject("InitializationError", "Failed to initialize Evervault SDK", e)
-    }
+  override fun initialize(teamId: String, appId: String) {
+    Evervault.shared.configure(teamId, appId)
   }
 
   fun convertToReadableArray(value: List<Any>): ReadableArray {

@@ -15,21 +15,8 @@ export function EvervaultProvider({
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const abortController = new AbortController();
-    const signal = abortController.signal;
-
-    async function initialize() {
-      setReady(false);
-      try {
-        await sdk.initialize(teamId, appId, { signal });
-        setReady(true);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    initialize();
-    return () => abortController.abort();
+    sdk.initialize(teamId, appId);
+    setReady(true);
   }, [teamId, appId]);
 
   const context = useMemo<EvervaultContextValue>(
