@@ -38,6 +38,7 @@ export const CardCvc = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
 
   return (
     <EvervaultInput<CardFormValues>
+      placeholder="CVC"
       {...props}
       ref={ref}
       name="cvc"

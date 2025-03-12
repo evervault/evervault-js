@@ -1,21 +1,14 @@
 import {
   ForwardedRef,
   forwardRef,
-  PropsWithRef,
   ReactNode,
   Ref,
   RefObject,
   useCallback,
-  useEffect,
   useImperativeHandle,
   useRef,
 } from "react";
-import {
-  NativeSyntheticEvent,
-  TextInput,
-  TextInputFocusEventData,
-  TextInputProps,
-} from "react-native";
+import { TextInput, TextInputProps } from "react-native";
 import { mergeRefs } from "./utils";
 import { Controller, useFormContext } from "react-hook-form";
 import MaskInput, { Mask, MaskArray } from "react-native-mask-input";
@@ -115,7 +108,6 @@ export const EvervaultInput = forwardRef<
           ref={mergeRefs(inputRef, field.ref)}
           editable={!field.disabled && (props.editable ?? true)}
           onBlur={(evt) => {
-            field.onBlur();
             methods.setValue(field.name, field.value, {
               shouldDirty: true,
               shouldTouch: true,
@@ -132,7 +124,9 @@ export const EvervaultInput = forwardRef<
               shouldValidate: !!fieldState.error || fieldState.isTouched,
             });
           }}
+          // Remove unwanted props
           defaultValue={undefined}
+          onChange={undefined}
         />
       )}
     />

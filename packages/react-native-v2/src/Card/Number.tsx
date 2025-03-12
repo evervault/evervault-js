@@ -1,10 +1,9 @@
-import { ForwardedRef, forwardRef, useCallback } from "react";
+import { forwardRef, useCallback } from "react";
 import { BaseEvervaultInputProps, EvervaultInput, mask } from "../Input";
 import { CardFormValues } from "./schema";
 import { MaskArray } from "react-native-mask-input";
 import { validateNumber } from "@evervault/card-validator";
 import { CardBrandName } from "./types";
-import { mergeRefs } from "../utils";
 
 const DEFAULT_CARD_NUMBER_MASK = mask("9999 9999 9999 9999");
 
@@ -34,6 +33,7 @@ export const CardNumber = forwardRef<CardNumber, CardNumberProps>(
 
     return (
       <EvervaultInput<CardFormValues>
+        placeholder="1234 1234 1234 1234"
         {...props}
         ref={ref}
         name="number"

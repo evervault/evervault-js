@@ -17,11 +17,19 @@ import Animated, {
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export interface ButtonProps extends PropsWithChildren {
+  color?: "primary" | "secondary";
   style?: StyleProp<ViewStyle>;
   disabled?: boolean;
+  onPress?(): void;
 }
 
-export function Button({ children, disabled, style }: ButtonProps) {
+export function Button({
+  children,
+  disabled,
+  style,
+  onPress,
+  color = "primary",
+}: ButtonProps) {
   const pressed = useSharedValue(false);
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -46,12 +54,25 @@ export function Button({ children, disabled, style }: ButtonProps) {
 
   return (
     <AnimatedPressable
-      style={[styles.button, animatedStyle, style]}
+      style={[
+        styles.button,
+        color === "secondary" && styles.buttonSecondary,
+        animatedStyle,
+        style,
+      ]}
       disabled={disabled}
+      onPress={onPress}
       onPressIn={() => pressed.set(true)}
       onPressOut={() => pressed.set(false)}
     >
-      <Text style={styles.buttonText}>{children}</Text>
+      <Text
+        style={[
+          styles.buttonText,
+          color === "secondary" && styles.buttonTextSecondary,
+        ]}
+      >
+        {children}
+      </Text>
     </AnimatedPressable>
   );
 }
@@ -63,10 +84,18 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     width: "100%",
   },
+  buttonSecondary: {
+    backgroundColor: "#FBFAFD",
+    borderWidth: 1,
+    borderColor: "#E9E5F5",
+  },
   buttonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
+  },
+  buttonTextSecondary: {
+    color: "#333",
   },
 });

@@ -12,6 +12,7 @@ export const CardExpiry = forwardRef<CardExpiry, CardExpiryProps>(
   function CardExpiry(props, ref) {
     return (
       <EvervaultInput<CardFormValues>
+        placeholder="MM / YY"
         {...props}
         ref={ref}
         name="expiry"

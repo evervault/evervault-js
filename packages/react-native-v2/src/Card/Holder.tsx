@@ -11,6 +11,7 @@ export const CardHolder = forwardRef<CardHolder, CardHolderProps>(
   function CardHolder(props, ref) {
     return (
       <EvervaultInput<CardFormValues>
+        placeholder="Johnny Appleseed"
         {...props}
         ref={ref}
         name="name"

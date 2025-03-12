@@ -1,10 +1,19 @@
-import { PropsWithChildren, useEffect, useMemo } from "react";
-import { CardConfig, CardPayload } from "./types";
+import {
+  forwardRef,
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+} from "react";
+import { CardBrandName, CardConfig, CardPayload } from "./types";
 import { DeepPartial, FormProvider, useForm } from "react-hook-form";
 import { CardFormValues, cardFormSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEvervault } from "../useEvervault";
 import { formatPayload } from "./utilities";
+
+const DEFAULT_ACCEPTED_BRANDS: CardBrandName[] = [];
 
 const cardFormResolver = zodResolver(cardFormSchema);
 
@@ -15,15 +24,22 @@ export interface CardProps extends PropsWithChildren, CardConfig {
     name?: string;
     number?: string;
   };
-  onChange?(payload: CardPayload): void;
+  onChange?(payload: CardPayload | null): void;
 }
 
-export function Card({
-  children,
-  initialValue,
-  onChange,
-  acceptedBrands = [],
-}: CardProps) {
+export interface Card {
+  reset(): void;
+}
+
+export const Card = forwardRef<Card, CardProps>(function Card(
+  {
+    children,
+    initialValue,
+    onChange,
+    acceptedBrands = DEFAULT_ACCEPTED_BRANDS,
+  },
+  ref
+) {
   const evervault = useEvervault();
 
   const defaultValues = useMemo(
@@ -42,11 +58,15 @@ export function Card({
   });
 
   useEffect(() => {
+    methods.setValue("acceptedBrands", acceptedBrands);
+  }, [acceptedBrands]);
+
+  useEffect(() => {
     if (!evervault.ready) return;
     if (!onChange) return;
 
     let abortController: AbortController | undefined;
-    const subscription = methods.watch((values) => {
+    function handleChange(values: DeepPartial<CardFormValues>) {
       if (abortController) {
         abortController.abort();
       }
@@ -59,10 +79,24 @@ export function Card({
         if (signal.aborted) return;
         onChange?.(payload);
       });
-    });
+    }
 
-    return subscription.unsubscribe;
-  }, [evervault.ready, methods, onChange]);
+    handleChange(methods.getValues());
+    const subscription = methods.watch(handleChange);
+    return () => subscription.unsubscribe();
+  }, [evervault.ready, onChange]);
+
+  useImperativeHandle(
+    ref,
+    useCallback(
+      () => ({
+        reset() {
+          methods.reset();
+        },
+      }),
+      []
+    )
+  );
 
   return <FormProvider {...methods}>{children}</FormProvider>;
-}
+});

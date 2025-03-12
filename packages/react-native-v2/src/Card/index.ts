@@ -1,10 +1,11 @@
-import { Card as CardRoot } from "./Root";
+import { Card as CardRoot, type Card as CardRef } from "./Root";
 import { CardHolder } from "./Holder";
 import { CardExpiry } from "./Expiry";
 import { CardCvc } from "./Cvc";
 import { CardNumber } from "./Number";
 
 export type { CardProps } from "./Root";
+export type Card = CardRef;
 export const Card = Object.assign(CardRoot, {
   Holder: CardHolder,
   Expiry: CardExpiry,
@@ -24,4 +25,4 @@ export { CardCvc };
 export type { CardNumberProps } from "./Number";
 export { CardNumber };
 
-export type { CardPayload } from "./types";
+export type { CardPayload, CardBrandName } from "./types";

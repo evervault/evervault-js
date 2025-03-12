@@ -29,7 +29,7 @@ export function EvervaultProvider({
     }
 
     initialize();
-    return abortController.abort;
+    return () => abortController.abort();
   }, [teamId, appId]);
 
   const context = useMemo<EvervaultContextValue>(

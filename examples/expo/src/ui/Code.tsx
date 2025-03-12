@@ -15,8 +15,8 @@ export function Code({ children, style }: CodeProps) {
 
 const styles = StyleSheet.create({
   pre: {
-    padding: 12,
-    backgroundColor: "#F5F5F5",
+    padding: 14,
+    backgroundColor: "#27203B",
     borderRadius: 12,
     width: "100%",
   },
@@ -25,5 +25,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 20,
     width: "100%",
+    color: "#fff",
   },
 });

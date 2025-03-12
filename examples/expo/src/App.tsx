@@ -4,9 +4,10 @@ import {
   View,
   ScrollView,
   KeyboardAvoidingView,
+  Keyboard,
 } from "react-native";
 import { env } from "./lib/env";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
@@ -18,6 +19,7 @@ import { Field } from "@/src/ui/Field";
 function Form() {
   const insets = useSafeAreaInsets();
 
+  const cardRef = useRef<Card>(null);
   const [payload, setPayload] = useState<CardPayload | null>(null);
 
   return (
@@ -32,53 +34,41 @@ function Form() {
       >
         <View style={styles.container}>
           <View style={styles.form}>
-            <Card onChange={setPayload}>
+            <Card ref={cardRef} onChange={setPayload}>
               <Field label="Cardholder Name" error={payload?.errors?.name}>
-                <Card.Holder
-                  placeholder="Johnny Appleseed"
-                  style={[
-                    styles.input,
-                    payload?.errors?.name && styles.inputError,
-                  ]}
-                />
+                <Card.Holder />
               </Field>
 
               <Field label="Card Number" error={payload?.errors?.number}>
-                <Card.Number
-                  placeholder="1234 1234 1234 1234"
-                  style={[
-                    styles.input,
-                    payload?.errors?.number && styles.inputError,
-                  ]}
-                />
+                <Card.Number />
               </Field>
 
               <View style={styles.row}>
                 <Field label="Expiration Date" error={payload?.errors?.expiry}>
-                  <Card.Expiry
-                    placeholder="MM / YY"
-                    style={[
-                      styles.input,
-                      payload?.errors?.expiry && styles.inputError,
-                    ]}
-                  />
+                  <Card.Expiry />
                 </Field>
 
                 <Field label="CVC" error={payload?.errors?.cvc}>
-                  <Card.Cvc
-                    placeholder="CVC"
-                    style={[
-                      styles.input,
-                      payload?.errors?.cvc && styles.inputError,
-                    ]}
-                  />
+                  <Card.Cvc />
                 </Field>
               </View>
             </Card>
 
-            <Button disabled={!payload?.isValid || !payload.isComplete}>
-              Buy now
-            </Button>
+            <View style={styles.buttons}>
+              <Button
+                disabled={!payload?.isValid || !payload.isComplete}
+                onPress={() => Keyboard.dismiss()}
+              >
+                Pay
+              </Button>
+
+              <Button
+                color="secondary"
+                onPress={() => cardRef.current?.reset()}
+              >
+                Reset
+              </Button>
+            </View>
           </View>
 
           <Code>{JSON.stringify(payload, null, 2)}</Code>
@@ -119,17 +109,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
 
-  input: {
-    borderRadius: 12,
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#E9E5F5",
-    padding: 12,
-    fontSize: 16,
-  },
-  inputError: {
-    backgroundColor: "#FEF5F6",
-    borderColor: "#FBE2E6",
-    color: "#CB1D3E",
+  buttons: {
+    gap: 8,
   },
 });

@@ -1,5 +1,3 @@
-import { FieldError } from "react-hook-form";
-
 export const CARD_BRAND_NAMES = [
   "american-express",
   "visa",
