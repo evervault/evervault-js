@@ -30,11 +30,11 @@ export async function startSession(
     switch (sessionState.status) {
       case "success":
         stopPolling(intervalRef, setIsVisible);
-        callbacks?.onSuccess();
+        callbacks?.onSuccess?.();
         break;
       case "failure":
         stopPolling(intervalRef, setIsVisible);
-        callbacks?.onFailure(new Error("3DS session failed"));
+        callbacks?.onFailure?.(new Error("3DS session failed"));
         break;
       case "action-required":
         setIsVisible(true);
@@ -45,7 +45,7 @@ export async function startSession(
     }
   } catch (error) {
     console.error("Error checking session state", error);
-    callbacks?.onError(new Error("Failed to check 3DS session state"));
+    callbacks?.onError?.(new Error("Failed to check 3DS session state"));
   }
 }
 
@@ -61,17 +61,17 @@ export function pollSession(
       const pollResponse: ThreeDSecureSessionResponse = await session.get();
       if (pollResponse.status === "success") {
         stopPolling(intervalRef, setIsVisible);
-        callbacks?.onSuccess();
+        callbacks?.onSuccess?.();
       } else if (pollResponse.status === "failure") {
         stopPolling(intervalRef, setIsVisible);
-        callbacks?.onFailure(new Error("3DS session failed"));
+        callbacks?.onFailure?.(new Error("3DS session failed"));
       } else {
         setIsVisible(true);
       }
     } catch (error) {
       stopPolling(intervalRef, setIsVisible);
       console.error("Error polling session", error);
-      callbacks?.onError(new Error("Error polling 3DS session"));
+      callbacks?.onError?.(new Error("Error polling 3DS session"));
     }
   }, interval);
 }
@@ -116,7 +116,7 @@ export function threeDSecureSession({
         }
       );
 
-      callbacks?.onFailure(new Error("3DS session cancelled by user"));
+      callbacks?.onFailure?.(new Error("3DS session cancelled by user"));
       stopPolling(intervalRef, setIsVisible);
     } catch (error) {
       console.error("Error cancelling 3DS session", error);
