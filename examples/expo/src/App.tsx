@@ -5,7 +5,20 @@ import { createStaticNavigation } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { CardExample } from "@/src/screens/Card";
 import { ThreeDSecureExample } from "@/src/screens/ThreeDSecure";
-import { Image } from "react-native";
+import { Image, ImageSourcePropType } from "react-native";
+import { EncryptExample } from "@/src/screens/Encrypt";
+
+function tabBarIcon(source: ImageSourcePropType) {
+  return function TabBarIcon({ color, size }: { color: string; size: number }) {
+    return (
+      <Image
+        source={source}
+        style={{ width: size, height: size }}
+        tintColor={color}
+      />
+    );
+  };
+}
 
 const Tabs = createBottomTabNavigator({
   screens: {
@@ -14,15 +27,9 @@ const Tabs = createBottomTabNavigator({
       options: {
         headerShown: false,
         title: "Card",
-        tabBarIcon({ color, size }) {
-          return (
-            <Image
-              source={require("@/assets/images/icons/credit-card.png")}
-              style={{ width: size, height: size }}
-              tintColor={color}
-            />
-          );
-        },
+        tabBarIcon: tabBarIcon(
+          require("@/assets/images/icons/credit-card.png")
+        ),
       },
     },
 
@@ -31,15 +38,18 @@ const Tabs = createBottomTabNavigator({
       options: {
         headerShown: false,
         title: "3DS",
-        tabBarIcon({ color, size }) {
-          return (
-            <Image
-              source={require("@/assets/images/icons/fingerprint.png")}
-              style={{ width: size, height: size }}
-              tintColor={color}
-            />
-          );
-        },
+        tabBarIcon: tabBarIcon(
+          require("@/assets/images/icons/fingerprint.png")
+        ),
+      },
+    },
+
+    Encrypt: {
+      screen: EncryptExample,
+      options: {
+        headerShown: false,
+        title: "Encrypt",
+        tabBarIcon: tabBarIcon(require("@/assets/images/icons/lock.png")),
       },
     },
   },

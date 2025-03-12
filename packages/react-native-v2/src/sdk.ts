@@ -3,6 +3,20 @@ import {
   Spec as NativeEvervaultSpec,
 } from "./specs/NativeEvervault";
 
+export type Encrypted<T> = T extends undefined
+  ? undefined
+  : T extends null
+  ? null
+  : T extends string | number | boolean
+  ? string
+  : T extends object
+  ? {
+      [K in keyof T]: Encrypted<T[K]>;
+    }
+  : T extends Array<infer U>
+  ? Array<Encrypted<U>>
+  : unknown;
+
 function getModule(): NativeEvervaultSpec {
   if (!NativeEvervault) {
     throw new Error("NativeEvervault is not available.");
@@ -39,8 +53,24 @@ export const sdk = {
     }
   },
 
-  async encrypt(data: string) {
+  async encrypt<T>(data: T) {
     const evervault = getModule();
-    return evervault.encrypt(data);
+    if (data === undefined) {
+      return undefined as Encrypted<T>;
+    } else if (data === null) {
+      return null as Encrypted<T>;
+    } else if (typeof data === "string") {
+      return await evervault.encryptString(data);
+    } else if (typeof data === "number") {
+      return await evervault.encryptNumber(data);
+    } else if (typeof data === "boolean") {
+      return await evervault.encryptBoolean(data);
+    } else if (Array.isArray(data)) {
+      return (await evervault.encryptArray(data)) as Encrypted<T>;
+    } else if (typeof data === "object") {
+      return (await evervault.encryptObject(data)) as Encrypted<T>;
+    } else {
+      throw new Error("Unsupported data type.");
+    }
   },
 };

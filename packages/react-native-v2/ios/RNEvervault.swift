@@ -16,9 +16,8 @@ class NativeEvervault: NSObject {
             }
         }
     }
-
-    @objc(encrypt:withResolver:withRejecter:)
-    func encrypt(value: Any, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    
+    func encrypt(_ value: Any, _ resolve: @escaping RCTPromiseResolveBlock, _ reject: @escaping RCTPromiseRejectBlock) {
         Task {
             do {
                 guard let evervault = self.ev else {
@@ -31,5 +30,30 @@ class NativeEvervault: NSObject {
                 reject("Error", "Failed to encrypt: \(error.localizedDescription)", error)
             }
         }
+    }
+
+    @objc(encryptString:withResolver:withRejecter:)
+    func encryptString(value: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        return self.encrypt(value, resolve, reject)
+    }
+
+    @objc(encryptNumber:withResolver:withRejecter:)
+    func encryptNumber(value: Double, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        return self.encrypt(value, resolve, reject)
+    }
+
+    @objc(encryptBoolean:withResolver:withRejecter:)
+    func encryptBoolean(value: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        return self.encrypt(value, resolve, reject)
+    }
+
+    @objc(encryptObject:withResolver:withRejecter:)
+    func encryptObject(value: [String: Any], resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        return self.encrypt(value, resolve, reject)
+    }
+
+    @objc(encryptArray:withResolver:withRejecter:)
+    func encryptArray(value: [Any], resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        return self.encrypt(value, resolve, reject)
     }
 }

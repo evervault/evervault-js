@@ -2,6 +2,9 @@ import { sdk } from "./sdk";
 
 export const verifyInstallation = sdk.verify;
 
+export const encrypt = sdk.encrypt;
+export type { Encrypted } from "./sdk";
+
 export {
   EvervaultProvider,
   type EvervaultProviderProps,
