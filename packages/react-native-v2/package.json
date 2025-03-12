@@ -44,7 +44,8 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "react-native-webview": "*"
   },
   "devDependencies": {
     "@react-native-community/cli": "*",
@@ -53,6 +54,7 @@
     "@types/react": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",
+    "react-native-webview": "catalog:",
     "rimraf": "^6.0.1",
     "rollup": "^4.34.9",
     "tsconfig": "workspace:*"

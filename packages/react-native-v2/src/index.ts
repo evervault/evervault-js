@@ -8,6 +8,7 @@ export {
 } from "./EvervaultProvider";
 
 export * from "./Card";
+export * from "./ThreeDSecure";
 
 export type {
   EvervaultInput,
