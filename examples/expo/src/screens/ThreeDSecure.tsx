@@ -2,18 +2,17 @@ import { easeOutExpo } from "@/src/lib/animate";
 import { env } from "@/src/lib/env";
 import { Button } from "@/src/ui/Button";
 import { Code } from "@/src/ui/Code";
+import { Heading } from "@/src/ui/Heading";
 import { IconButton } from "@/src/ui/IconButton";
 import { ThreeDSecure, useThreeDSecure } from "@evervault/react-native";
 import { useCallback, useState } from "react";
 import { Modal, ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, {
-  Easing,
   FadeIn,
-  FadeInDown,
-  FadeInUp,
   FadeOut,
-  FadeOutDown,
   Keyframe,
+  useAnimatedKeyboard,
+  useAnimatedStyle,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -67,6 +66,17 @@ async function create3DSecureSession(): Promise<{ id: string }> {
   return session;
 }
 
+function KeyboardSpacer() {
+  const insets = useSafeAreaInsets();
+  const keyboard = useAnimatedKeyboard();
+  const style = useAnimatedStyle(() => {
+    return {
+      height: Math.max(keyboard.height.value, insets.bottom),
+    };
+  });
+  return <Animated.View style={style} />;
+}
+
 export function ThreeDSecureExample() {
   const insets = useSafeAreaInsets();
 
@@ -82,16 +92,14 @@ export function ThreeDSecureExample() {
     });
   }, [tds]);
 
-  const cancel = useCallback(() => {
-    tds.cancel();
-  }, [tds]);
-
   return (
     <ScrollView
-      style={[styles.fill, { paddingTop: insets.top }]}
+      style={[styles.scroll, { paddingTop: insets.top }]}
       keyboardDismissMode="interactive"
     >
       <View style={styles.container}>
+        <Heading>3DS</Heading>
+
         <Button onPress={handlePayment}>Pay</Button>
 
         <Code>{JSON.stringify({ ...tds, status }, null, 2)}</Code>
@@ -101,7 +109,7 @@ export function ThreeDSecureExample() {
             visible
             transparent
             accessibilityViewIsModal
-            onRequestClose={cancel}
+            onRequestClose={tds.cancel}
           >
             <Animated.View
               entering={backdropEntering.duration(300)}
@@ -112,14 +120,15 @@ export function ThreeDSecureExample() {
             <Animated.View
               entering={modalEntering.duration(300)}
               exiting={modalExiting.duration(300)}
-              style={[styles.modal, { top: insets.top, bottom: insets.bottom }]}
+              style={[styles.modal, { top: insets.top }]}
             >
               <IconButton
                 source={require("@/assets/images/icons/x.png")}
-                onPress={cancel}
+                onPress={tds.cancel}
                 accessibilityLabel="Close"
               />
               <ThreeDSecure.Frame style={styles.frame} />
+              <KeyboardSpacer />
             </Animated.View>
           </Modal>
         </ThreeDSecure>
@@ -154,16 +163,14 @@ const modalExiting = new Keyframe({
 });
 
 const styles = StyleSheet.create({
-  fill: {
+  scroll: {
     flex: 1,
     backgroundColor: "white",
   },
-
   container: {
     padding: 16,
-    gap: 20,
+    gap: 16,
     flex: 1,
-    alignItems: "center",
   },
 
   backdrop: {
@@ -178,6 +185,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
+    bottom: 0,
     padding: 12,
     gap: 8,
     alignItems: "flex-end",
@@ -186,7 +194,5 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 16,
     overflow: "hidden",
-    flex: 1,
-    width: "100%",
   },
 });

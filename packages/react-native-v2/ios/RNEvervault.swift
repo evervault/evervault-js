@@ -1,7 +1,7 @@
 import Evervault
 
-@objc(RNEvervault)
-class RNEvervault: NSObject {
+@objc(NativeEvervault)
+class NativeEvervault: NSObject {
     var ev: Evervault?
 
     @objc(initialize:withAppId:withResolver:withRejecter:)

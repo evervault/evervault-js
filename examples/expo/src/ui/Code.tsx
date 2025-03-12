@@ -1,5 +1,12 @@
 import { PropsWithChildren } from "react";
-import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
+import {
+  Platform,
+  StyleProp,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
+} from "react-native";
 
 export interface CodeProps extends PropsWithChildren {
   style?: StyleProp<ViewStyle>;
@@ -21,7 +28,10 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   code: {
-    fontFamily: "Menlo",
+    fontFamily: Platform.select({
+      ios: "Menlo",
+      default: "monospace",
+    }),
     fontSize: 12,
     lineHeight: 20,
     width: "100%",

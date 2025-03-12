@@ -1,5 +1,5 @@
 import { useContext, useMemo } from "react";
-import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { StyleProp, StyleSheet, ViewStyle } from "react-native";
 import { useEvervault } from "../useEvervault";
 import { WebView } from "react-native-webview";
 import { CHALLENGE_DOMAIN_3DS } from "./config";
@@ -36,6 +36,7 @@ export function ThreeDSecureFrame({ style }: ThreeDSecureFrameProps) {
     <WebView
       containerStyle={[defaultStyles.webView, style]}
       source={{ uri }}
+      hideKeyboardAccessoryView
       overScrollMode="content"
     />
   );
@@ -44,5 +45,6 @@ export function ThreeDSecureFrame({ style }: ThreeDSecureFrameProps) {
 const defaultStyles = StyleSheet.create({
   webView: {
     flex: 1,
+    width: "100%",
   },
 });

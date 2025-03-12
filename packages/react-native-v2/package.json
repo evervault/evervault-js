@@ -39,7 +39,7 @@
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c --watch",
-    "codegen": "rimraf build && rimraf android/app && react-native codegen",
+    "codegen": "rimraf build android/app && react-native codegen",
     "prepare": "pnpm codegen && pnpm build"
   },
   "peerDependencies": {
@@ -60,11 +60,11 @@
     "tsconfig": "workspace:*"
   },
   "codegenConfig": {
-    "name": "RNEvervaultSpec",
+    "name": "NativeEvervaultSpec",
     "type": "modules",
     "jsSrcsDir": "src",
     "android": {
-      "javaPackageName": "com.rnevervault"
+      "javaPackageName": "com.nativeevervault"
     }
   },
   "dependencies": {

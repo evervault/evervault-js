@@ -3,7 +3,7 @@
   "main": "index.ts",
   "version": "1.0.0",
   "scripts": {
-    "dev": "expo start",
+    "dev": "expo start --localhost",
     "android": "rimraf android && expo run:android --no-bundler",
     "ios": "rimraf ios && expo run:ios --no-bundler"
   },

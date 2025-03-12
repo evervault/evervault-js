@@ -1,11 +1,14 @@
-import { RNEvervault, RNEvervaultSpec } from "./specs/RNEvervault";
+import {
+  NativeEvervault,
+  Spec as NativeEvervaultSpec,
+} from "./specs/NativeEvervault";
 
-function getModule(): RNEvervaultSpec {
-  if (!RNEvervault) {
-    throw new Error("RNEvervault is not available.");
+function getModule(): NativeEvervaultSpec {
+  if (!NativeEvervault) {
+    throw new Error("NativeEvervault is not available.");
   }
 
-  return RNEvervault;
+  return NativeEvervault;
 }
 
 export const sdk = {

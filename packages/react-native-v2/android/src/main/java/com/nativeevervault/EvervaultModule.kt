@@ -1,16 +1,16 @@
-package com.rnevervault
+package com.nativeevervault
 
+import com.nativeevervault.NativeEvervaultSpec
 import com.evervault.sdk.Evervault
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
-import com.rnevervault.NativeRNEvervaultSpec
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class EvervaultModule(reactContext: ReactApplicationContext) : NativeRNEvervaultSpec(reactContext) {
+class NativeEvervaultModule(reactContext: ReactApplicationContext) : NativeEvervaultSpec(reactContext) {
   private val evervaultScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
   override fun getName() = NAME
@@ -39,6 +39,6 @@ class EvervaultModule(reactContext: ReactApplicationContext) : NativeRNEvervault
   }
 
   companion object {
-    const val NAME = "RNEvervault"
+    const val NAME = "NativeEvervault"
   }
 }
