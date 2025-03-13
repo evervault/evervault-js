@@ -24,8 +24,8 @@ export interface CardConfig {
 export type CardField = "name" | "number" | "expiry" | "cvc";
 
 export interface CardExpiry {
-  month: string | null;
-  year: string | null;
+  month: string;
+  year: string;
 }
 
 export interface CardPayload {
@@ -36,7 +36,7 @@ export interface CardPayload {
     number: string | null;
     lastFour: string | null;
     bin: string | null;
-    expiry: CardExpiry;
+    expiry: CardExpiry | null;
     cvc: string | null;
   };
   isValid: boolean;

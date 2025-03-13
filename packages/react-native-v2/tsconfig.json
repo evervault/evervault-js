@@ -10,7 +10,8 @@
     "declarationDir": "build",
     "emitDeclarationOnly": true,
     "declarationMap": true,
-    "outDir": "build"
+    "outDir": "build",
+    "types": ["vitest/globals"]
   },
   "exclude": ["build"]
 }

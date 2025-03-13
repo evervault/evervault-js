@@ -11,7 +11,7 @@ import { DeepPartial, FormProvider, useForm } from "react-hook-form";
 import { CardFormValues, cardFormSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEvervault } from "../useEvervault";
-import { formatPayload } from "./utilities";
+import { formatPayload } from "./utils";
 
 const DEFAULT_ACCEPTED_BRANDS: CardBrandName[] = [];
 

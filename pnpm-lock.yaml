@@ -977,6 +977,9 @@ importers:
       tsconfig:
         specifier: workspace:*
         version: link:../tsconfig
+      vitest:
+        specifier: 'catalog:'
+        version: 2.1.8(@types/node@22.10.7)(jsdom@25.0.1)(lightningcss@1.27.0)(msw@1.3.2(typescript@5.5.4))(terser@5.39.0)
 
   packages/shared:
     dependencies:

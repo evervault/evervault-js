@@ -3,24 +3,9 @@ import {
   validateNumber,
   validateCVC,
   validateExpiry,
-  CardNumberValidationResult,
 } from "@evervault/card-validator";
-import { CARD_BRAND_NAMES, CardBrandName } from "./types";
-
-function isAcceptedBrand(
-  acceptedBrands: CardBrandName[] | undefined,
-  cardNumberValidationResult: CardNumberValidationResult
-): boolean {
-  if (!acceptedBrands) return true;
-  const { brand, localBrands } = cardNumberValidationResult;
-
-  const isBrandAccepted = brand !== null && acceptedBrands.includes(brand);
-  const isLocalBrandAccepted = localBrands.some((localBrand) =>
-    acceptedBrands.includes(localBrand)
-  );
-
-  return isBrandAccepted || isLocalBrandAccepted;
-}
+import { CARD_BRAND_NAMES } from "./types";
+import { isAcceptedBrand } from "./utils";
 
 export const cardFormSchema = z
   .object({
@@ -50,8 +35,6 @@ export const cardFormSchema = z
       }),
   })
   .superRefine((value, ctx) => {
-    if (!value.acceptedBrands.length) return;
-
     const validation = validateNumber(value.number);
     if (!validation.isValid) return;
 

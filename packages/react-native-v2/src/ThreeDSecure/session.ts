@@ -6,7 +6,7 @@ import {
 } from "./types";
 import { EV_API_DOMAIN } from "./config";
 
-function stopPolling(
+export function stopPolling(
   intervalRef: React.MutableRefObject<NodeJS.Timeout | null>,
   setIsVisible: (show: boolean) => void
 ) {

@@ -40,7 +40,8 @@
     "build": "rollup -c",
     "watch": "rollup -c --watch",
     "codegen": "rimraf build android/app && react-native codegen",
-    "prepare": "pnpm codegen && pnpm build"
+    "prepare": "pnpm codegen && pnpm build",
+    "test": "vitest"
   },
   "peerDependencies": {
     "react": "*",
@@ -57,7 +58,8 @@
     "react-native-webview": "catalog:",
     "rimraf": "^6.0.1",
     "rollup": "^4.34.9",
-    "tsconfig": "workspace:*"
+    "tsconfig": "workspace:*",
+    "vitest": "catalog:"
   },
   "codegenConfig": {
     "name": "NativeEvervaultSpec",

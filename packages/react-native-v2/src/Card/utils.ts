@@ -6,7 +6,7 @@ import {
 } from "@evervault/card-validator";
 import type { CardBrandName, CardPayload } from "./types";
 import { type CardFormValues } from "./schema";
-import { DeepPartial, FieldError, UseFormReturn } from "react-hook-form";
+import { DeepPartial, UseFormReturn } from "react-hook-form";
 import { sdk } from "../sdk";
 
 export async function formatPayload(
@@ -98,19 +98,25 @@ export function isAcceptedBrand(
   if (!acceptedBrands?.length) return true;
   const { brand, localBrands } = cardNumberValidationResult;
 
-  const isBrandAccepted = brand !== null && acceptedBrands.includes(brand);
+  const acceptedBrandsSet = new Set(acceptedBrands);
+
+  const isBrandAccepted = brand !== null && acceptedBrandsSet.has(brand);
   const isLocalBrandAccepted = localBrands.some((localBrand) =>
-    acceptedBrands.includes(localBrand)
+    acceptedBrandsSet.has(localBrand)
   );
 
   return isBrandAccepted || isLocalBrandAccepted;
 }
 
-function formatExpiry(expiry: string) {
+export function formatExpiry(expiry: string) {
   const parsedExpiry = validateExpiry(expiry);
 
+  if (!parsedExpiry.isValid) {
+    return null;
+  }
+
   return {
-    month: parsedExpiry.month,
-    year: parsedExpiry.year,
+    month: parsedExpiry.month!,
+    year: parsedExpiry.year!,
   };
 }
