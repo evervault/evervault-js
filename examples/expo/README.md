@@ -35,3 +35,22 @@ You need to install and set up Android Studio and Xcode to compile and run Andro
    ```bash
    pnpm dev
    ```
+
+## Development
+
+If you need to make changes to the SDK while developing, run the following command:
+
+```bash
+pnpm --filter @evervault/react-native watch
+```
+
+If make changes to native code, you will need to re-run the SDK codegen and generate new development builds:
+
+```bash
+# Re-run SDK codegen and build
+pnpm --filter @evervault/react-native prepare
+
+# Generate new development builds
+pnpm ios
+pnpm android
+```

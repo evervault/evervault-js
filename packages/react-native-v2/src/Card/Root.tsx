@@ -24,7 +24,7 @@ export interface CardProps extends PropsWithChildren, CardConfig {
     name?: string;
     number?: string;
   };
-  onChange?(payload: CardPayload | null): void;
+  onChange?(payload: CardPayload): void;
 }
 
 export interface Card {
