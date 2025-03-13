@@ -1,4 +1,10 @@
-import { LegacyRef, MutableRefObject, RefCallback } from "react";
+import {
+  Component,
+  LegacyRef,
+  MutableRefObject,
+  PropsWithChildren,
+  RefCallback,
+} from "react";
 
 // Taken from https://github.com/gregberge/react-merge-refs
 export function mergeRefs<T = any>(
@@ -13,4 +19,23 @@ export function mergeRefs<T = any>(
       }
     });
   };
+}
+
+export class ErrorBoundary extends Component<
+  PropsWithChildren<{ onError?(error: Error): void }>
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    this.props.onError?.(error);
+  }
+
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
 }

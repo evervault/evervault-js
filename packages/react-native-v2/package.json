@@ -53,14 +53,17 @@
     "@react-native-community/cli": "*",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-typescript": "^12.1.2",
+    "@testing-library/react-native": "^13.2.0",
     "@types/react": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",
     "react-native-webview": "catalog:",
+    "react-test-renderer": "18.2.0",
     "rimraf": "^6.0.1",
     "rollup": "^4.34.9",
     "tsconfig": "workspace:*",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "vitest-react-native": "^0.1.5"
   },
   "codegenConfig": {
     "name": "NativeEvervaultSpec",
