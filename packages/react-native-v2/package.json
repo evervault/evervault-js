@@ -41,7 +41,8 @@
     "watch": "rollup -c --watch",
     "codegen": "rimraf build android/app && react-native codegen",
     "prepare": "pnpm codegen && pnpm build",
-    "test": "vitest"
+    "test": "vitest run",
+    "test:watch": "vitest --watch"
   },
   "peerDependencies": {
     "react": "*",
