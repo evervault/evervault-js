@@ -21,21 +21,21 @@
   },
   "files": [
     "src",
+    "build",
     "ios",
     "android",
-    "rn-evervault.podspec",
-    "build"
+    "native-evervault.podspec"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/evervault/evervault-js.git"
+    "url": "git+https://github.com/evervault/js.git"
   },
   "author": "Engineering <engineering@evervault.com> (https://evervault.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/evervault/evervault-js/issues"
+    "url": "https://github.com/evervault/js/issues"
   },
-  "homepage": "https://github.com/evervault/evervault-js",
+  "homepage": "https://github.com/evervault/js",
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c --watch",

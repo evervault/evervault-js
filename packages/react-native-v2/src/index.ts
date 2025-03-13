@@ -10,10 +10,10 @@ export {
   type EvervaultProviderProps,
 } from "./EvervaultProvider";
 
-export * from "./Card";
-export * from "./ThreeDSecure";
-
 export type {
   EvervaultInput,
   BaseEvervaultInputProps as EvervaultInputProps,
 } from "./Input";
+
+export * from "./Card";
+export * from "./ThreeDSecure";
