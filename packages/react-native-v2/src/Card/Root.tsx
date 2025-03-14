@@ -36,11 +36,12 @@ export interface CardProps extends PropsWithChildren, CardConfig {
    *
    * - `onChange`: Validate the form when the user changes a field.
    * - `onBlur`: Validate the form when the user leaves a field.
+   * - `onTouched`: Validate the form when the user touches a field.
    * - `all`: Validate the form when the user changes or leaves a field.
    *
    * @default "all"
    */
-  validationMode?: "onChange" | "onBlur" | "all";
+  validationMode?: "onChange" | "onBlur" | "onTouched" | "all";
 }
 
 export interface Card {
