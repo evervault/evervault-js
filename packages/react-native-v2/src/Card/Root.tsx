@@ -8,58 +8,71 @@ import {
 } from "react";
 import { CardBrandName, CardConfig, CardPayload } from "./types";
 import { DeepPartial, FormProvider, useForm } from "react-hook-form";
-import { CardFormValues, cardFormSchema } from "./schema";
+import { CardFormValues, getCardFormSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEvervault } from "../useEvervault";
 import { formatPayload } from "./utils";
 
 const DEFAULT_ACCEPTED_BRANDS: CardBrandName[] = [];
 
-const cardFormResolver = zodResolver(cardFormSchema);
-
 export interface CardProps extends PropsWithChildren, CardConfig {
-  initialValue?: {
-    cvc?: string;
-    expiry?: string;
+  /**
+   * The default values to use for the form.
+   */
+  defaultValues?: {
     name?: string;
     number?: string;
+    expiry?: string;
+    cvc?: string;
   };
+
+  /**
+   * Triggered whenever the component's state is updated.
+   */
   onChange?(payload: CardPayload): void;
+
+  /**
+   * The validation mode to use for the form.
+   *
+   * - `onChange`: Validate the form when the user changes a field.
+   * - `onBlur`: Validate the form when the user leaves a field.
+   * - `all`: Validate the form when the user changes or leaves a field.
+   *
+   * @default "all"
+   */
+  validationMode?: "onChange" | "onBlur" | "all";
 }
 
 export interface Card {
+  /**
+   * Resets the form to its default values and state.
+   */
   reset(): void;
 }
 
 export const Card = forwardRef<Card, CardProps>(function Card(
   {
     children,
-    initialValue,
+    defaultValues,
     onChange,
     acceptedBrands = DEFAULT_ACCEPTED_BRANDS,
+    validationMode = "all",
   },
   ref
 ) {
   const evervault = useEvervault();
 
-  const defaultValues = useMemo(
-    () => ({
-      ...initialValue,
-      acceptedBrands,
-    }),
-    [initialValue, acceptedBrands]
-  );
+  const resolver = useMemo(() => {
+    const schema = getCardFormSchema(acceptedBrands);
+    return zodResolver(schema);
+  }, [acceptedBrands]);
 
   const methods = useForm<CardFormValues>({
     defaultValues,
-    resolver: cardFormResolver,
-    mode: "all",
+    resolver,
+    mode: validationMode,
     shouldUseNativeValidation: false,
   });
-
-  useEffect(() => {
-    methods.setValue("acceptedBrands", acceptedBrands);
-  }, [acceptedBrands]);
 
   useEffect(() => {
     if (!onChange) return;

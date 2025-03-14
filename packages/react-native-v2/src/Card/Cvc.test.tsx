@@ -28,7 +28,7 @@ it("uses 3 digits for mask by default", async () => {
 
 it("uses 4 digits for mask for american express", async () => {
   const { getByTestId } = render(
-    <Card initialValue={{ number: "378282246310005" }}>
+    <Card defaultValues={{ number: "378282246310005" }}>
       <CardCvc testID="cvc" />
     </Card>,
     { wrapper }
