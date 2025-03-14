@@ -28,14 +28,18 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/evervault/js.git"
+    "url": "git+https://github.com/evervault/evervault-js.git"
   },
   "author": "Engineering <engineering@evervault.com> (https://evervault.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/evervault/js/issues"
+    "url": "https://github.com/evervault/evervault-js/issues"
   },
-  "homepage": "https://github.com/evervault/js",
+  "homepage": "https://docs.evervault.com/sdks/react-native",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c --watch",

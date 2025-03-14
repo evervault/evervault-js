@@ -27,5 +27,5 @@ it("returns the config when used within EvervaultProvider", () => {
 
   expect(result.current.appId).toBe("app_123");
   expect(result.current.teamId).toBe("team_123");
-  expect(result.current.ready).toBe(true);
+  expect(result.current.encrypt).toStrictEqual(expect.any(Function));
 });

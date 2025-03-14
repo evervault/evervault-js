@@ -2,7 +2,7 @@ import { Button } from "@/src/ui/Button";
 import { Chip } from "@/src/ui/Chip";
 import { Code } from "@/src/ui/Code";
 import { Heading } from "@/src/ui/Heading";
-import { encrypt } from "@evervault/react-native";
+import { useEvervault } from "@evervault/react-native";
 import { useCallback, useRef, useState } from "react";
 import {
   Keyboard,
@@ -39,6 +39,7 @@ function format(value: any) {
 }
 
 export function EncryptExample() {
+  const evervault = useEvervault();
   const insets = useSafeAreaInsets();
 
   const editorRef = useRef<TextInput>(null);
@@ -49,12 +50,12 @@ export function EncryptExample() {
     Keyboard.dismiss();
     try {
       const json = JSON.parse(value);
-      const encrypted = await encrypt(json);
+      const encrypted = await evervault.encrypt(json);
       setEncrypted(encrypted);
     } catch (error) {
       console.error(error);
     }
-  }, [value]);
+  }, [value, evervault.encrypt]);
 
   return (
     <ScrollView

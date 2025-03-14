@@ -1,5 +1,5 @@
 import { NativeEvervault } from "./__mocks__/NativeEvervault";
-import { Encrypted, sdk } from "./sdk";
+import { sdk } from "./sdk";
 
 describe("sdk", () => {
   describe("verify", () => {
@@ -28,7 +28,7 @@ describe("sdk", () => {
 
   describe("encrypt", () => {
     it("encrypts an undefined value", async () => {
-      const result = await sdk.encrypt(undefined);
+      const result = await sdk.encrypt("instanceId", undefined);
       expect(result).toBe(undefined);
       expect(NativeEvervault.encryptString).not.toHaveBeenCalled();
       expect(NativeEvervault.encryptNumber).not.toHaveBeenCalled();
@@ -38,7 +38,7 @@ describe("sdk", () => {
     });
 
     it("encrypts a null value", async () => {
-      const result = await sdk.encrypt(null);
+      const result = await sdk.encrypt("instanceId", null);
       expect(result).toBe(null);
       expect(NativeEvervault.encryptString).not.toHaveBeenCalled();
       expect(NativeEvervault.encryptNumber).not.toHaveBeenCalled();
@@ -48,63 +48,75 @@ describe("sdk", () => {
     });
 
     it("encrypts a string", async () => {
-      await sdk.encrypt("hello");
-      expect(NativeEvervault.encryptString).toHaveBeenCalledWith("hello");
-      assertType<Promise<string>>(sdk.encrypt("hello"));
+      await sdk.encrypt("instanceId", "hello");
+      expect(NativeEvervault.encryptString).toHaveBeenCalledWith(
+        "instanceId",
+        "hello"
+      );
+      assertType<Promise<string>>(sdk.encrypt("instanceId", "hello"));
     });
 
     it("encrypts a number", async () => {
-      await sdk.encrypt(123);
-      expect(NativeEvervault.encryptNumber).toHaveBeenCalledWith(123);
-      assertType<Promise<string>>(sdk.encrypt(123));
+      await sdk.encrypt("instanceId", 123);
+      expect(NativeEvervault.encryptNumber).toHaveBeenCalledWith(
+        "instanceId",
+        123
+      );
+      assertType<Promise<string>>(sdk.encrypt("instanceId", 123));
     });
 
     it("encrypts a boolean", async () => {
-      await sdk.encrypt(true);
-      expect(NativeEvervault.encryptBoolean).toHaveBeenCalledWith(true);
-      assertType<Promise<string>>(sdk.encrypt(true));
+      await sdk.encrypt("instanceId", true);
+      expect(NativeEvervault.encryptBoolean).toHaveBeenCalledWith(
+        "instanceId",
+        true
+      );
+      assertType<Promise<string>>(sdk.encrypt("instanceId", true));
     });
 
     it("encrypts an object", async () => {
-      await sdk.encrypt({ a: 1, b: 2 });
-      expect(NativeEvervault.encryptObject).toHaveBeenCalledWith({
+      await sdk.encrypt("instanceId", { a: 1, b: 2 });
+      expect(NativeEvervault.encryptObject).toHaveBeenCalledWith("instanceId", {
         a: 1,
         b: 2,
       });
       assertType<Promise<{ a: string; b: string }>>(
-        sdk.encrypt({ a: 1, b: 2 })
+        sdk.encrypt("instanceId", { a: 1, b: 2 })
       );
     });
 
     it("encrypts a deep object", async () => {
-      await sdk.encrypt({ a: 1, b: { c: 2, d: 3 } });
-      expect(NativeEvervault.encryptObject).toHaveBeenCalledWith({
+      await sdk.encrypt("instanceId", { a: 1, b: { c: 2, d: 3 } });
+      expect(NativeEvervault.encryptObject).toHaveBeenCalledWith("instanceId", {
         a: 1,
         b: { c: 2, d: 3 },
       });
       assertType<Promise<{ a: string; b: { c: string; d: string } }>>(
-        sdk.encrypt({ a: 1, b: { c: 2, d: 3 } })
+        sdk.encrypt("instanceId", { a: 1, b: { c: 2, d: 3 } })
       );
     });
 
     it("encrypts an array", async () => {
-      await sdk.encrypt([1, 2, 3]);
-      expect(NativeEvervault.encryptArray).toHaveBeenCalledWith([1, 2, 3]);
-      assertType<Promise<Array<string>>>(sdk.encrypt([1, 2, 3]));
+      await sdk.encrypt("instanceId", [1, 2, 3]);
+      expect(NativeEvervault.encryptArray).toHaveBeenCalledWith(
+        "instanceId",
+        [1, 2, 3]
+      );
+      assertType<Promise<Array<string>>>(sdk.encrypt("instanceId", [1, 2, 3]));
     });
 
     it("throws an error if the data is not supported", async () => {
       const fn = () => {};
-      await expect(() => sdk.encrypt(fn)).rejects.toThrow(
+      await expect(() => sdk.encrypt("instanceId", fn)).rejects.toThrow(
         "Unsupported data type."
       );
-      assertType<() => Promise<never>>(() => sdk.encrypt(fn));
+      assertType<() => Promise<never>>(() => sdk.encrypt("instanceId", fn));
 
       const symbol = Symbol("test");
-      await expect(() => sdk.encrypt(symbol)).rejects.toThrow(
+      await expect(() => sdk.encrypt("instanceId", symbol)).rejects.toThrow(
         "Unsupported data type."
       );
-      assertType<() => Promise<never>>(() => sdk.encrypt(symbol));
+      assertType<() => Promise<never>>(() => sdk.encrypt("instanceId", symbol));
     });
   });
 });

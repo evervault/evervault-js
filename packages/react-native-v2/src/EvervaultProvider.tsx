@@ -1,6 +1,12 @@
-import { PropsWithChildren, useEffect, useMemo, useState } from "react";
+import {
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { type EvervaultContextValue, EvervaultContext } from "./context";
-import { sdk } from "./sdk";
+import { Encrypted, sdk } from "./sdk";
 
 export interface EvervaultProviderProps extends PropsWithChildren {
   teamId: string;
@@ -12,16 +18,21 @@ export function EvervaultProvider({
   appId,
   children,
 }: EvervaultProviderProps) {
-  const [ready, setReady] = useState(false);
+  const instanceId = useMemo(
+    () => sdk.initialize(teamId, appId),
+    [teamId, appId]
+  );
 
-  useEffect(() => {
-    sdk.initialize(teamId, appId);
-    setReady(true);
-  }, [teamId, appId]);
+  const encrypt = useCallback(
+    function <T>(data: T): Promise<Encrypted<T>> {
+      return sdk.encrypt(instanceId, data);
+    },
+    [instanceId]
+  );
 
   const context = useMemo<EvervaultContextValue>(
-    () => ({ teamId, appId, ready }),
-    [teamId, appId, ready]
+    () => ({ teamId, appId, encrypt }),
+    [teamId, appId, encrypt]
   );
 
   return (

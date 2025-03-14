@@ -33,7 +33,7 @@ export const sdk = {
     return true;
   },
 
-  initialize(teamId: string, appId: string) {
+  initialize(teamId: string, appId: string): string {
     const evervault = getModule();
 
     if (!teamId) {
@@ -44,10 +44,10 @@ export const sdk = {
       throw new Error("App ID is required.");
     }
 
-    evervault.initialize(teamId, appId);
+    return evervault.initialize(teamId, appId);
   },
 
-  async encrypt<T>(data: T): Promise<Encrypted<T>> {
+  async encrypt<T>(instanceId: string, data: T): Promise<Encrypted<T>> {
     const evervault = getModule();
 
     if (data === undefined) {
@@ -55,15 +55,15 @@ export const sdk = {
     } else if (data === null) {
       return null as any;
     } else if (typeof data === "string") {
-      return (await evervault.encryptString(data)) as any;
+      return (await evervault.encryptString(instanceId, data)) as any;
     } else if (typeof data === "number") {
-      return (await evervault.encryptNumber(data)) as any;
+      return (await evervault.encryptNumber(instanceId, data)) as any;
     } else if (typeof data === "boolean") {
-      return (await evervault.encryptBoolean(data)) as any;
+      return (await evervault.encryptBoolean(instanceId, data)) as any;
     } else if (Array.isArray(data)) {
-      return (await evervault.encryptArray(data)) as any;
+      return (await evervault.encryptArray(instanceId, data)) as any;
     } else if (typeof data === "object") {
-      return (await evervault.encryptObject(data)) as any;
+      return (await evervault.encryptObject(instanceId, data)) as any;
     }
 
     throw new Error("Unsupported data type.");

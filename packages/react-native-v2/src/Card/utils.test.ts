@@ -1,4 +1,5 @@
 import { encryptedValue } from "../__mocks__/NativeEvervault";
+import { EncryptFn } from "../context";
 import {
   areValuesComplete,
   formatExpiry,
@@ -9,6 +10,10 @@ import {
 describe("formatPayload", () => {
   const setValue = vi.fn();
 
+  const encrypt = vi.fn<EncryptFn>(
+    () => Promise.resolve(encryptedValue) as any
+  );
+
   it("should format the payload", async () => {
     const result = await formatPayload(
       {
@@ -18,11 +23,14 @@ describe("formatPayload", () => {
         cvc: "123",
       },
       {
-        setValue,
-        formState: {
-          errors: {},
-        },
-      } as any
+        encrypt,
+        form: {
+          setValue,
+          formState: {
+            errors: {},
+          },
+        } as any,
+      }
     );
 
     expect(result).toEqual({
@@ -54,11 +62,14 @@ describe("formatPayload", () => {
         cvc: "1234",
       },
       {
-        setValue,
-        formState: {
-          errors: {},
-        },
-      } as any
+        encrypt,
+        form: {
+          setValue,
+          formState: {
+            errors: {},
+          },
+        } as any,
+      }
     );
 
     expect(setValue).toHaveBeenCalledWith("cvc", "123");
@@ -70,15 +81,18 @@ describe("formatPayload", () => {
         name: "",
       },
       {
-        setValue,
-        formState: {
-          errors: {
-            name: {
-              message: "Required",
+        encrypt,
+        form: {
+          setValue,
+          formState: {
+            errors: {
+              name: {
+                message: "Required",
+              },
             },
           },
-        },
-      } as any
+        } as any,
+      }
     );
 
     expect(result).toEqual({
@@ -106,11 +120,14 @@ describe("formatPayload", () => {
         name: "John Doe",
       },
       {
-        setValue,
-        formState: {
-          errors: {},
-        },
-      } as any
+        encrypt,
+        form: {
+          setValue,
+          formState: {
+            errors: {},
+          },
+        } as any,
+      }
     );
 
     expect(result).toEqual({

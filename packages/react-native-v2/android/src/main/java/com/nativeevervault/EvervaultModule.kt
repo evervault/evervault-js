@@ -15,11 +15,24 @@ import kotlinx.coroutines.withContext
 
 class NativeEvervaultModule(reactContext: ReactApplicationContext) : NativeEvervaultSpec(reactContext) {
   private val evervaultScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+  
+  private val instances = mutableMapOf<String, Evervault>()
 
   override fun getName() = NAME
 
-  override fun initialize(teamId: String, appId: String) {
-    Evervault.shared.configure(teamId, appId)
+  fun getInstanceId(teamId: String, appId: String): String {
+    return "$teamId:$appId"
+  }
+
+  fun getInstance(instanceId: String): Evervault? {
+    return instances[instanceId]
+  }
+
+  override fun initialize(teamId: String, appId: String): String {
+    val instance = Evervault(teamId, appId)
+    val instanceId = getInstanceId(teamId, appId)
+    instances[instanceId] = instance
+    return instanceId
   }
 
   fun convertToReadableArray(value: List<Any>): ReadableArray {
@@ -56,38 +69,43 @@ class NativeEvervaultModule(reactContext: ReactApplicationContext) : NativeEverv
     }
   }
 
-  fun encrypt(value: Any, promise: Promise) {
+  fun encrypt(instanceId: String, value: Any, promise: Promise) {
     evervaultScope.launch {
       try {
-        val encrypted = withContext(context = Dispatchers.IO) {
-          Evervault.shared.encrypt(value)
+        val instance = getInstance(instanceId)
+        if (instance == null) {
+          promise.reject("EncryptionError", "Instance not found", null)
+        } else {
+          val encrypted = withContext(context = Dispatchers.IO) {
+            instance.encrypt(value)
+          }
+          val readable = convertToReadable(encrypted)
+          promise.resolve(readable)
         }
-        val readable = convertToReadable(encrypted)
-        promise.resolve(readable)
       } catch (e: Exception) {
         promise.reject("EncryptionError", "Failed to encrypt with the Evervault SDK: ${e.message}", e)
       }
     }
   }
 
-  override fun encryptString(value: String, promise: Promise) {
-    encrypt(value, promise)
+  override fun encryptString(instanceId: String, value: String, promise: Promise) {
+    encrypt(instanceId, value, promise)
   }
 
-  override fun encryptNumber(value: Double, promise: Promise) {
-    encrypt(value, promise)
+  override fun encryptNumber(instanceId: String, value: Double, promise: Promise) {
+    encrypt(instanceId, value, promise)
   }
 
-  override fun encryptBoolean(value: Boolean, promise: Promise) {
-    encrypt(value, promise)
+  override fun encryptBoolean(instanceId: String, value: Boolean, promise: Promise) {
+    encrypt(instanceId, value, promise)
   }
 
-  override fun encryptObject(value: ReadableMap, promise: Promise) {
-    encrypt(value.toHashMap(), promise)
+  override fun encryptObject(instanceId: String, value: ReadableMap, promise: Promise) {
+    encrypt(instanceId, value.toHashMap(), promise)
   }
 
-  override fun encryptArray(value: ReadableArray, promise: Promise) {
-    encrypt(value.toArrayList(), promise)
+  override fun encryptArray(instanceId: String, value: ReadableArray, promise: Promise) {
+    encrypt(instanceId, value.toArrayList(), promise)
   }
 
   companion object {

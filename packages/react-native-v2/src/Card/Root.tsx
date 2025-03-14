@@ -62,7 +62,6 @@ export const Card = forwardRef<Card, CardProps>(function Card(
   }, [acceptedBrands]);
 
   useEffect(() => {
-    if (!evervault.ready) return;
     if (!onChange) return;
 
     let abortController: AbortController | undefined;
@@ -75,7 +74,10 @@ export const Card = forwardRef<Card, CardProps>(function Card(
       const signal = abortController.signal;
 
       requestAnimationFrame(async () => {
-        const payload = await formatPayload(values, methods);
+        const payload = await formatPayload(values, {
+          encrypt: evervault.encrypt,
+          form: methods,
+        });
         if (signal.aborted) return;
         onChange?.(payload);
       });
@@ -84,7 +86,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     handleChange(methods.getValues());
     const subscription = methods.watch(handleChange);
     return () => subscription.unsubscribe();
-  }, [evervault.ready, onChange]);
+  }, [evervault.encrypt, onChange]);
 
   useImperativeHandle(
     ref,

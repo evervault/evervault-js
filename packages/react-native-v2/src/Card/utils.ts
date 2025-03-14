@@ -7,11 +7,16 @@ import {
 import type { CardBrandName, CardPayload } from "./types";
 import { type CardFormValues } from "./schema";
 import { DeepPartial, UseFormReturn } from "react-hook-form";
-import { sdk } from "../sdk";
+import { type Encrypted, sdk } from "../sdk";
+
+export interface FormatPayloadContext {
+  form: UseFormReturn<CardFormValues>;
+  encrypt<T>(data: T): Promise<Encrypted<T>>;
+}
 
 export async function formatPayload(
   values: DeepPartial<CardFormValues>,
-  form: UseFormReturn<CardFormValues>
+  context: FormatPayloadContext
 ): Promise<CardPayload> {
   const number = values.number?.replace(/\s/g, "") || "";
 
@@ -28,12 +33,12 @@ export async function formatPayload(
     brand !== "american-express" &&
     values.cvc?.length === 4
   ) {
-    form.setValue("cvc", values.cvc?.slice(0, 3));
+    context.form.setValue("cvc", values.cvc?.slice(0, 3));
   }
 
   const { cvc, isValid: isCvcValid } = validateCVC(values.cvc ?? "", number);
 
-  const formErrors = form.formState.errors;
+  const formErrors = context.form.formState.errors;
   const isValid = !Object.keys(formErrors).length;
   const isComplete = areValuesComplete(values);
 
@@ -59,8 +64,8 @@ export async function formatPayload(
       bin,
       lastFour,
       expiry: formatExpiry(values.expiry ?? ""),
-      number: isNumberValid ? await sdk.encrypt(number) : null,
-      cvc: isCvcValid ? await sdk.encrypt(cvc ?? "") : null,
+      number: isNumberValid ? await context.encrypt(number) : null,
+      cvc: isCvcValid ? await context.encrypt(cvc ?? "") : null,
     },
     isComplete,
     isValid: isValid && isComplete,

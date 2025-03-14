@@ -11,8 +11,7 @@ export interface ThreeDSecureProps extends PropsWithChildren {
 }
 
 export function ThreeDSecure({ state, children }: ThreeDSecureProps) {
-  const context = useEvervault();
-  if (!context.ready) return null;
+  useEvervault();
 
   if (!state.session) return null;
 
