@@ -54,7 +54,7 @@ it("calls onChange when mounted", async () => {
       },
       isValid: true,
       isComplete: true,
-      errors: null,
+      errors: {},
     });
   });
 });
@@ -89,7 +89,7 @@ it("renders card components", async () => {
     },
     isValid: true,
     isComplete: true,
-    errors: null,
+    errors: {},
   });
 });
 
@@ -132,7 +132,7 @@ it("calls onChange when the user types", async () => {
     },
     isValid: true,
     isComplete: true,
-    errors: null,
+    errors: {},
   });
 });
 
@@ -164,7 +164,7 @@ it("resets all fields when reset is called", async () => {
     },
     isValid: true,
     isComplete: true,
-    errors: null,
+    errors: {},
   });
 
   await act(() => ref.current?.reset());
@@ -183,7 +183,7 @@ it("resets all fields when reset is called", async () => {
     },
     isValid: false,
     isComplete: false,
-    errors: null,
+    errors: {},
   });
 });
 

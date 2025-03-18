@@ -49,7 +49,7 @@ describe("formatPayload", () => {
       },
       isComplete: true,
       isValid: true,
-      errors: null,
+      errors: {},
     });
   });
 
@@ -143,7 +143,7 @@ describe("formatPayload", () => {
       },
       isComplete: true,
       isValid: true,
-      errors: null,
+      errors: {},
     });
   });
 });
