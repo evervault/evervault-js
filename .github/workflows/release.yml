@@ -61,13 +61,22 @@ jobs:
       repo_path: "packages/card-validator/dist"
     secrets: inherit
   publish-react-native:
+    if: contains(github.ref, 'refs/tags/@evervault/react-native')
+    needs: build
+    uses: ./.github/workflows/npm-publish.yml
+    with:
+      package: "@evervault/react-native"
+      artifact: "react-native-build"
+      repo_path: "packages/react-native-v2"
+    secrets: inherit
+  publish-react-native-old:
     if: contains(github.ref, 'refs/tags/@evervault/evervault-react-native')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
       package: "@evervault/evervault-react-native"
-      artifact: "react-native-build"
-      repo_path: "packages/react-native/lib"
+      artifact: "react-native-old-build"
+      repo_path: "packages/react-native"
     secrets: inherit
   publish-eql:
     if: contains(github.ref, 'refs/tags/@evervault/eql')

@@ -69,7 +69,7 @@ export async function formatPayload(
     },
     isComplete,
     isValid: isValid && isComplete,
-    errors: isValid ? null : errors,
+    errors,
   };
 }
 

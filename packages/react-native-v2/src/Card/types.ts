@@ -31,8 +31,8 @@ export interface CardExpiry {
 export interface CardPayload {
   card: {
     name: string | null;
-    brand: string | null;
-    localBrands: string[] | null;
+    brand: CardBrandName | null;
+    localBrands: CardBrandName[];
     number: string | null;
     lastFour: string | null;
     bin: string | null;
@@ -41,10 +41,10 @@ export interface CardPayload {
   };
   isValid: boolean;
   isComplete: boolean;
-  errors: null | Partial<{
+  errors: {
     name?: string;
     number?: string;
     expiry?: string;
     cvc?: string;
-  }>;
+  };
 }
