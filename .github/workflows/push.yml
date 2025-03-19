@@ -91,7 +91,7 @@ jobs:
     if: needs.create-tags.outputs.has-changesets == 'false'
     strategy:
       matrix:
-        tag: ${{ toJson(needs.create-tags.outputs.tags-to-publish) }}
+        tag: ${{ fromJson(needs.create-tags.outputs.tags-to-publish) }}
     with:
       release-tag: ${{ matrix.tag }}
     secrets: inherit
