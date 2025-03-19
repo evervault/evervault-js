@@ -29,6 +29,7 @@
   "scripts": {
     "test": "vitest run",
     "build": "vite build",
+    "prepare": "pnpm build",
     "clean": "rm -rf .turbo node_modules dist",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

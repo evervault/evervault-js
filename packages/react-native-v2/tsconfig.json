@@ -1,0 +1,17 @@
+{
+  "extends": "tsconfig/base.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": ["dom", "DOM.Iterable", "esnext"],
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
+    "rootDir": "src",
+    "declaration": true,
+    "declarationDir": "build",
+    "emitDeclarationOnly": true,
+    "declarationMap": true,
+    "outDir": "build",
+    "types": ["vitest/globals"]
+  },
+  "exclude": ["build"]
+}

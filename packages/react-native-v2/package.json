@@ -1,0 +1,86 @@
+{
+  "name": "@evervault/react-native",
+  "description": "Evervault SDK for React Native",
+  "version": "2.0.0",
+  "source": "./src/index.ts",
+  "main": "./build/index.cjs.js",
+  "module": "./build/index.esm.js",
+  "types": "./build/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./build/index.d.ts",
+        "default": "./build/index.esm.js"
+      },
+      "require": {
+        "types": "./build/index.d.ts",
+        "default": "./build/index.cjs.js"
+      }
+    }
+  },
+  "files": [
+    "src",
+    "build",
+    "ios",
+    "android",
+    "native-evervault.podspec"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evervault/evervault-js.git"
+  },
+  "author": "Engineering <engineering@evervault.com> (https://evervault.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evervault/evervault-js/issues"
+  },
+  "homepage": "https://docs.evervault.com/sdks/react-native",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c --watch",
+    "codegen": "rimraf build android/app && react-native codegen",
+    "prepare": "pnpm codegen && pnpm build",
+    "test": "vitest run",
+    "test:watch": "vitest --watch"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*",
+    "react-native-webview": "*"
+  },
+  "devDependencies": {
+    "@react-native-community/cli": "*",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@testing-library/react-native": "^13.2.0",
+    "@types/react": "catalog:",
+    "react": "catalog:",
+    "react-native": "catalog:",
+    "react-native-webview": "catalog:",
+    "react-test-renderer": "18.2.0",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.34.9",
+    "tsconfig": "workspace:*",
+    "vitest": "catalog:",
+    "vitest-react-native": "^0.1.5"
+  },
+  "codegenConfig": {
+    "name": "NativeEvervaultSpec",
+    "type": "modules",
+    "jsSrcsDir": "src",
+    "android": {
+      "javaPackageName": "com.nativeevervault"
+    }
+  },
+  "dependencies": {
+    "@evervault/card-validator": "workspace:*",
+    "@hookform/resolvers": "^4.1.3",
+    "react-hook-form": "^7.54.2",
+    "react-native-mask-input": "^1.2.3",
+    "zod": "^3.24.2"
+  }
+}
