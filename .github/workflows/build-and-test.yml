@@ -117,10 +117,10 @@ jobs:
         with:
           name: react-native-build
           path: packages/react-native-v2
-      - name: Upload React Native (old) build
+      - name: Upload React Native v1 build
         uses: actions/upload-artifact@v4
         with:
-          name: react-native-old-build
+          name: react-native-v1-build
           path: packages/react-native
       - name: Upload eql build
         uses: actions/upload-artifact@v4

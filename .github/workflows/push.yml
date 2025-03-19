@@ -40,9 +40,12 @@ jobs:
     with:
       environment: "staging"
     secrets: inherit
-  release:
-    name: Release
+  create-tags:
+    name: Create Tags
     runs-on: ubuntu-latest
+    outputs:
+      has-changesets: ${{ steps.changesets.outputs.hasChangesets }}
+      tags-to-publish: ${{ steps.create-tags.outputs.tags-to-publish }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -72,7 +75,24 @@ jobs:
           HUSKY: 0
           GITHUB_TOKEN: ${{ secrets.SDK_PUBLISH_TOKEN }}
       - name: Create Tags
+        id: create-tags
+        # Changesets deletes the changeset files on version PR, so if false then we need to tag and release the packages
         if: steps.changesets.outputs.hasChangesets == 'false'
-        run: pnpm changeset tag && git push origin --tags
+        run: |-
+          pnpm changeset tag && git push origin --tags
+          TAGS=$(git tag --points-at=HEAD | jq -scR 'split("\n") | map(select(length > 0))')
+          echo "tags-to-publish=$TAGS" >> $GITHUB_OUTPUT
         env:
           HUSKY: 0
+  release:
+    name: Release ${{ matrix.tag }}
+    needs: create-tags
+    # Only attempt releases if we expect to have pushed some tags
+    if: needs.create-tags.outputs.has-changesets == 'false'
+    strategy:
+      matrix:
+        tag: ${{ fromJson(needs.create-tags.outputs.tags-to-publish) }}
+    with:
+      release-tag: ${{ matrix.tag }}
+    secrets: inherit
+    uses: ./.github/workflows/release.yml

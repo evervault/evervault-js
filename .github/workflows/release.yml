@@ -1,11 +1,13 @@
 # Deploy package to production envrionment on release
 # The tag names created by `changeset tag` include the name of the package we want to release
-name: Main Release Workflow
+name: Release Workflow
 on:
-  push:
-    tags:
-      - "@evervault/**"
-      - "@evervault/*"
+  workflow_call:
+    inputs:
+      release-tag:
+        description: "The tag name of the release"
+        required: true
+        type: string
 jobs:
   build:
     uses: ./.github/workflows/build-and-test.yml
@@ -15,35 +17,35 @@ jobs:
       vite-api-url: "https://api.evervault.com"
     secrets: inherit
   deploy-browser:
-    if: contains(github.ref, 'refs/tags/@evervault/browser')
+    if: contains(inputs.release-tag, '@evervault/browser')
     needs: build
     uses: ./.github/workflows/deploy-browser.yml
     with:
       environment: "production"
     secrets: inherit
   deploy-inputs:
-    if: contains(github.ref, 'refs/tags/@evervault/inputs')
+    if: contains(inputs.release-tag, '@evervault/inputs')
     needs: build
     uses: ./.github/workflows/deploy-inputs.yml
     with:
       environment: "production"
     secrets: inherit
   deploy-ui-components:
-    if: contains(github.ref, 'refs/tags/@evervault/ui-components')
+    if: contains(inputs.release-tag, '@evervault/ui-components')
     needs: build
     uses: ./.github/workflows/deploy-ui-components.yml
     with:
       environment: "production"
     secrets: inherit
   deploy-3ds:
-    if: contains(github.ref, 'refs/tags/@evervault/3ds')
+    if: contains(inputs.release-tag, '@evervault/3ds')
     needs: build
     uses: ./.github/workflows/deploy-3ds.yml
     with:
       environment: "production"
     secrets: inherit
   publish-react:
-    if: contains(github.ref, 'refs/tags/@evervault/react')
+    if: contains(inputs.release-tag, '@evervault/react')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
@@ -52,7 +54,7 @@ jobs:
       repo_path: "packages/react/dist"
     secrets: inherit
   publish-card-validator:
-    if: contains(github.ref, 'refs/tags/@evervault/card-validator')
+    if: contains(inputs.release-tag, '@evervault/card-validator')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
@@ -60,8 +62,8 @@ jobs:
       artifact: "card-validator-build"
       repo_path: "packages/card-validator/dist"
     secrets: inherit
-  publish-react-native:
-    if: contains(github.ref, 'refs/tags/@evervault/react-native')
+  publish-react-native-v2:
+    if: contains(inputs.release-tag, '@evervault/react-native')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
@@ -69,17 +71,17 @@ jobs:
       artifact: "react-native-build"
       repo_path: "packages/react-native-v2"
     secrets: inherit
-  publish-react-native-old:
-    if: contains(github.ref, 'refs/tags/@evervault/evervault-react-native')
+  publish-react-native-v1:
+    if: contains(inputs.release-tag, '@evervault/evervault-react-native')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
       package: "@evervault/evervault-react-native"
-      artifact: "react-native-old-build"
+      artifact: "react-native-v1-build"
       repo_path: "packages/react-native"
     secrets: inherit
   publish-eql:
-    if: contains(github.ref, 'refs/tags/@evervault/eql')
+    if: contains(inputs.release-tag, '@evervault/eql')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
@@ -88,7 +90,7 @@ jobs:
       repo_path: "packages/eql/dist"
     secrets: inherit
   publish-js:
-    if: contains(github.ref, 'refs/tags/@evervault/js')
+    if: contains(inputs.release-tag, '@evervault/js')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
