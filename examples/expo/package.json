@@ -1,7 +1,7 @@
 {
   "name": "evervault-expo-example",
   "main": "index.ts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "dev": "expo start --localhost",
     "android": "rimraf android && expo run:android --no-bundler",
