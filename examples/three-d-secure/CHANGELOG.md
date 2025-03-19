@@ -1,12 +1,5 @@
 # example-three-d-secure
 
-## 0.0.36
-
-### Patch Changes
-
-- Updated dependencies [01031db]
-  - @evervault/js@2.0.1
-
 ## 0.0.35
 
 ### Patch Changes

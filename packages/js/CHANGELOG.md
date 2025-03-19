@@ -1,11 +1,5 @@
 # @evervault/js
 
-## 2.0.1
-
-### Patch Changes
-
-- 01031db: Run deployment process for gated packages
-
 ## 2.0.0
 
 ### Major Changes
