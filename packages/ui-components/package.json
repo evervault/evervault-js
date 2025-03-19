@@ -1,7 +1,7 @@
 {
   "name": "@evervault/ui-components",
   "private": false,
-  "version": "1.27.4",
+  "version": "1.27.3",
   "type": "module",
   "scripts": {
     "build": "vite build",

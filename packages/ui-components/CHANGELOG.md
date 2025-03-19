@@ -1,11 +1,5 @@
 # @evervault/ui-components
 
-## 1.27.4
-
-### Patch Changes
-
-- 01031db: Run deployment process for gated packages
-
 ## 1.27.3
 
 ### Patch Changes
