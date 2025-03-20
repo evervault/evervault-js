@@ -34,7 +34,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-turbo-
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4.2.1
         with:
           name: ui-components-build
           path: dist
@@ -83,7 +83,7 @@ jobs:
           aws-secret-access-key: ${{ inputs.environment == 'production' &&  secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY || secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
           aws-region: "us-east-1"
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4.2.1
         with:
           name: ui-components-build
           path: dist
