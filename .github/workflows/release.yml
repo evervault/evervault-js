@@ -17,35 +17,35 @@ jobs:
       vite-api-url: "https://api.evervault.com"
     secrets: inherit
   deploy-browser:
-    if: contains(inputs.release-tag, '@evervault/browser')
+    if: startsWith(inputs.release-tag, '@evervault/browser')
     needs: build
     uses: ./.github/workflows/deploy-browser.yml
     with:
       environment: "production"
     secrets: inherit
   deploy-inputs:
-    if: contains(inputs.release-tag, '@evervault/inputs')
+    if: startsWith(inputs.release-tag, '@evervault/inputs')
     needs: build
     uses: ./.github/workflows/deploy-inputs.yml
     with:
       environment: "production"
     secrets: inherit
   deploy-ui-components:
-    if: contains(inputs.release-tag, '@evervault/ui-components')
+    if: startsWith(inputs.release-tag, '@evervault/ui-components')
     needs: build
     uses: ./.github/workflows/deploy-ui-components.yml
     with:
       environment: "production"
     secrets: inherit
   deploy-3ds:
-    if: contains(inputs.release-tag, '@evervault/3ds')
+    if: startsWith(inputs.release-tag, '@evervault/3ds')
     needs: build
     uses: ./.github/workflows/deploy-3ds.yml
     with:
       environment: "production"
     secrets: inherit
   publish-react:
-    if: contains(inputs.release-tag, '@evervault/react')
+    if: startsWith(inputs.release-tag, '@evervault/react')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
@@ -54,7 +54,7 @@ jobs:
       repo_path: "packages/react/dist"
     secrets: inherit
   publish-card-validator:
-    if: contains(inputs.release-tag, '@evervault/card-validator')
+    if: startsWith(inputs.release-tag, '@evervault/card-validator')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
@@ -63,7 +63,7 @@ jobs:
       repo_path: "packages/card-validator/dist"
     secrets: inherit
   publish-react-native-v2:
-    if: contains(inputs.release-tag, '@evervault/react-native')
+    if: startsWith(inputs.release-tag, '@evervault/react-native')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
@@ -72,7 +72,7 @@ jobs:
       repo_path: "packages/react-native-v2"
     secrets: inherit
   publish-react-native-v1:
-    if: contains(inputs.release-tag, '@evervault/evervault-react-native')
+    if: startsWith(inputs.release-tag, '@evervault/evervault-react-native')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
@@ -81,7 +81,7 @@ jobs:
       repo_path: "packages/react-native"
     secrets: inherit
   publish-eql:
-    if: contains(inputs.release-tag, '@evervault/eql')
+    if: startsWith(inputs.release-tag, '@evervault/eql')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
@@ -90,7 +90,7 @@ jobs:
       repo_path: "packages/eql/dist"
     secrets: inherit
   publish-js:
-    if: contains(inputs.release-tag, '@evervault/js')
+    if: startsWith(inputs.release-tag, '@evervault/js')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
@@ -107,7 +107,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Get package name
         env:
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ inputs.release-tag }}
         id: parse
         run: |
           if [[ "$TAG" == *"evervault-react-native"* ]]; then
