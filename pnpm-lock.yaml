@@ -53,7 +53,7 @@ catalogs:
       version: 0.2.4
     '@types/node':
       specifier: ^22
-      version: 22.10.2
+      version: 22.10.7
     '@types/react':
       specifier: ^18.2.37
       version: 18.2.79
@@ -92,7 +92,7 @@ catalogs:
       version: 5.1.0
     dotenv:
       specifier: ^16.4.5
-      version: 16.4.5
+      version: 16.4.7
     dotenv-cli:
       specifier: ^7.4.1
       version: 7.4.1
@@ -103,8 +103,8 @@ catalogs:
       specifier: ^7.37.1
       version: 7.37.1
     eslint-plugin-react-hooks:
-      specifier: ^5.1.0-rc.0
-      version: 5.1.0-rc-fb9a90fa48-20240614
+      specifier: ^5.2.0
+      version: 5.2.0
     events:
       specifier: ^3.3.0
       version: 3.3.0
@@ -766,7 +766,7 @@ importers:
         version: 7.37.1(eslint@9.12.0)
       eslint-plugin-react-hooks:
         specifier: 'catalog:'
-        version: 5.1.0-rc-fb9a90fa48-20240614(eslint@9.12.0)
+        version: 5.2.0(eslint@9.12.0)
       globals:
         specifier: 'catalog:'
         version: 15.14.0
@@ -5582,8 +5582,8 @@ packages:
     engines: {node: '>=4.0'}
     hasBin: true
 
-  eslint-plugin-react-hooks@5.1.0-rc-fb9a90fa48-20240614:
-    resolution: {integrity: sha512-xsiRwaDNF5wWNC4ZHLut+x/YcAxksUd9Rizt7LaEn3bV8VyYRpXnRJQlLOfYaVy9esk4DFP4zPPnoNVjq5Gc0w==}
+  eslint-plugin-react-hooks@5.2.0:
+    resolution: {integrity: sha512-+f15FfK64YQwZdJNELETdn5ibXEUQmW1DZL6KXhNnc2heoy/sg9VJJeT7n8TlMWouzWqSWavFkIhHyIbIAEapg==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
@@ -15716,7 +15716,7 @@ snapshots:
     optionalDependencies:
       source-map: 0.6.1
 
-  eslint-plugin-react-hooks@5.1.0-rc-fb9a90fa48-20240614(eslint@9.12.0):
+  eslint-plugin-react-hooks@5.2.0(eslint@9.12.0):
     dependencies:
       eslint: 9.12.0
 
