@@ -119,3 +119,4 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           body_path: ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md
+          tag_name: ${{ inputs.release-tag }}
