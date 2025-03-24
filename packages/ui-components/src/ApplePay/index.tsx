@@ -102,6 +102,7 @@ export function ApplePay({ config }: ApplePayProps) {
 
       const {
         billingContact,
+        shippingContact,
         token: { paymentData },
       } = response.details;
 
@@ -123,6 +124,10 @@ export function ApplePay({ config }: ApplePayProps) {
             phoneNumber,
             address,
           };
+        }
+
+        if (shippingContact) {
+          encrypted.shippingContact = shippingContact;
         }
 
         send("EV_APPLE_PAY_AUTH", encrypted);
