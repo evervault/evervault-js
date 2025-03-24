@@ -1,5 +1,19 @@
 # @evervault/ui-components
 
+## 1.28.0
+
+### Minor Changes
+
+- 9be6df7: Add support for requesting payer name, email and phone number with Apple Pay
+
+### Patch Changes
+
+- Updated dependencies [9be6df7]
+  - types@0.13.0
+  - @evervault/react@2.16.0
+  - @evervault/card-validator@1.3.0
+  - shared@1.1.9
+
 ## 1.27.3
 
 ### Patch Changes

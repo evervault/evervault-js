@@ -1,5 +1,17 @@
 # @evervault/browser
 
+## 2.41.0
+
+### Minor Changes
+
+- 9be6df7: Add support for requesting payer name, email and phone number with Apple Pay
+
+### Patch Changes
+
+- Updated dependencies [9be6df7]
+  - types@0.13.0
+  - themes@0.1.13
+
 ## 2.40.2
 
 ### Patch Changes
