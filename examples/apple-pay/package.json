@@ -1,0 +1,17 @@
+{
+  "name": "example-apple-pay",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 4000",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "dependencies": {
+    "@evervault/js": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}
