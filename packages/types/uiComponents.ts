@@ -261,6 +261,12 @@ export type EncryptedApplePayData = Omit<EncryptedDPAN<"apple">, "token"> & {
   };
   paymentDataType: string;
   deviceManufacturerIdentifier: string;
+  shippingContact?: {
+    givenName?: string;
+    familyName?: string;
+    emailAddress?: string;
+    phoneNumber?: string;
+  };
 };
 
 export interface ApplePayClientMessages extends EvervaultFrameClientMessages {
@@ -478,6 +484,7 @@ export interface ApplePayOptions {
   disbursementOverrides?: {
     disbursementDetails?: PaymentDetailsInit;
   };
+  requestPayerDetails?: ("name" | "email" | "phone")[];
 }
 
 export type WalletDimension = string | number;

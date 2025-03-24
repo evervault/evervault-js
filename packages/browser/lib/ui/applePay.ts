@@ -87,6 +87,7 @@ export default class ApplePay {
         transaction: this.#transaction.details,
         paymentOverrides: this.#options.paymentOverrides,
         disbursementOverrides: this.#options.disbursementOverrides,
+        requestPayerDetails: this.#options.requestPayerDetails,
       },
     };
   }
