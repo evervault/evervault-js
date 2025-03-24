@@ -22,6 +22,7 @@ jobs:
     uses: ./.github/workflows/deploy-browser.yml
     with:
       environment: "production"
+      tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   deploy-inputs:
     if: startsWith(inputs.release-tag, '@evervault/inputs')
@@ -29,6 +30,7 @@ jobs:
     uses: ./.github/workflows/deploy-inputs.yml
     with:
       environment: "production"
+      tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   deploy-ui-components:
     if: startsWith(inputs.release-tag, '@evervault/ui-components')
@@ -36,6 +38,7 @@ jobs:
     uses: ./.github/workflows/deploy-ui-components.yml
     with:
       environment: "production"
+      tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   deploy-3ds:
     if: startsWith(inputs.release-tag, '@evervault/3ds')
@@ -43,6 +46,7 @@ jobs:
     uses: ./.github/workflows/deploy-3ds.yml
     with:
       environment: "production"
+      tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   publish-react:
     if: startsWith(inputs.release-tag, '@evervault/react')
@@ -52,6 +56,7 @@ jobs:
       package: "@evervault/react"
       artifact: "react-sdk-build"
       repo_path: "packages/react/dist"
+      tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   publish-card-validator:
     if: startsWith(inputs.release-tag, '@evervault/card-validator')
@@ -61,6 +66,7 @@ jobs:
       package: "@evervault/card-validator"
       artifact: "card-validator-build"
       repo_path: "packages/card-validator/dist"
+      tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   publish-react-native-v2:
     if: startsWith(inputs.release-tag, '@evervault/react-native')
@@ -70,6 +76,7 @@ jobs:
       package: "@evervault/react-native"
       artifact: "react-native-build"
       repo_path: "packages/react-native-v2"
+      tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   publish-react-native-v1:
     if: startsWith(inputs.release-tag, '@evervault/evervault-react-native')
@@ -79,6 +86,7 @@ jobs:
       package: "@evervault/evervault-react-native"
       artifact: "react-native-v1-build"
       repo_path: "packages/react-native"
+      tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   publish-eql:
     if: startsWith(inputs.release-tag, '@evervault/eql')
@@ -88,6 +96,7 @@ jobs:
       package: "@evervault/eql"
       artifact: "eql-build"
       repo_path: "packages/eql/dist"
+      tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   publish-js:
     if: startsWith(inputs.release-tag, '@evervault/js')
@@ -97,25 +106,5 @@ jobs:
       package: "@evervault/js"
       artifact: "evervault-js"
       repo_path: "packages/js/dist"
+      tag_name: ${{ inputs.release-tag }}
     secrets: inherit
-  release:
-    name: Release
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Get package name
-        env:
-          TAG: ${{ inputs.release-tag }}
-        id: parse
-        run: |
-          if [[ "$TAG" == *"evervault-react-native"* ]]; then
-            echo "name=react-native" >> $GITHUB_OUTPUT
-          else
-            name_part=${TAG##*/}
-            echo "name=${name_part%@*}" >> $GITHUB_OUTPUT
-          fi
-      - uses: softprops/action-gh-release@v2
-        with:
-          body_path: ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md
