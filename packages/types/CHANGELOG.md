@@ -1,5 +1,11 @@
 # types
 
+## 0.13.0
+
+### Minor Changes
+
+- 9be6df7: Add support for requesting payer name, email and phone number with Apple Pay
+
 ## 0.12.0
 
 ### Minor Changes
