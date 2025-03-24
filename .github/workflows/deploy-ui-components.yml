@@ -18,7 +18,7 @@ jobs:
   deploy-preview:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
-    name: "Deploy to ${{ inputs.environment }}"
+    name: "[PREVIEW] Deploy to ${{ inputs.environment }}"
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
