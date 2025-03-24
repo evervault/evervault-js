@@ -484,9 +484,7 @@ export interface ApplePayOptions {
   disbursementOverrides?: {
     disbursementDetails?: PaymentDetailsInit;
   };
-  requestPayerName?: boolean;
-  requestPayerEmail?: boolean;
-  requestPayerPhone?: boolean;
+  requestPayerDetails?: ("name" | "email" | "phone")[];
 }
 
 export type WalletDimension = string | number;

@@ -26,6 +26,7 @@ const apple = evervault.ui.applePay(disbursementTransaction, {
   locale: "en-US",
   size: { width: "100%", height: "40px" },
   borderRadius: 10,
+  requestPayerDetails: ["name", "email"],
   allowedCardNetworks: ["visa", "masterCard"],
   process: async (data) => {
     console.log("data", data);

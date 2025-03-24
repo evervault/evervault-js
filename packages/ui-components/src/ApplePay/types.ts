@@ -21,9 +21,7 @@ export interface ApplePayConfig {
   disbursementOverrides?: {
     disbursementDetails?: PaymentDetailsInit;
   };
-  requestPayerName?: boolean;
-  requestPayerEmail?: boolean;
-  requestPayerPhone?: boolean;
+  requestPayerDetails?: ("name" | "email" | "phone")[];
 }
 
 export interface ValidateMerchantResponse {

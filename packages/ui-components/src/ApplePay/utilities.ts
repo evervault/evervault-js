@@ -80,10 +80,10 @@ function buildPaymentSession(
   };
 
   const paymentOptions = {
-    requestPayerName: config.requestPayerName ?? false,
+    requestPayerName: config.requestPayerDetails?.includes("name") ?? false,
     requestBillingAddress: false,
-    requestPayerEmail: config.requestPayerEmail ?? false,
-    requestPayerPhone: config.requestPayerPhone ?? false,
+    requestPayerEmail: config.requestPayerDetails?.includes("email") ?? false,
+    requestPayerPhone: config.requestPayerDetails?.includes("phone") ?? false,
     requestShipping: false,
     shippingType: "shipping",
   };
