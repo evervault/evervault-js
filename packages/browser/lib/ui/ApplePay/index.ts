@@ -30,6 +30,7 @@ export type ApplePayButtonOptions = {
   allowedCardNetworks?: ApplePayCardNetwork[];
   requestPayerDetails?: ("name" | "email" | "phone")[];
   requestBillingAddress?: boolean;
+  requestShipping?: boolean;
   paymentOverrides?: {
     paymentMethodData?: PaymentMethodData[];
     paymentDetails?: PaymentDetailsInit;
@@ -85,6 +86,7 @@ export default class ApplePayButton {
       paymentOverrides: this.#options.paymentOverrides,
       disbursementOverrides: this.#options.disbursementOverrides,
       requestBillingAddress: this.#options.requestBillingAddress,
+      requestShipping: this.#options.requestShipping,
     });
 
     const [response, responseError] = await tryCatch(session.show());
@@ -158,17 +160,7 @@ export default class ApplePayButton {
     return this.#events.on(event, callback);
   }
 
-  get available(): boolean {
-    // TODO
-    return true;
-  }
-
   mount(selector: SelectorType) {
-    if (!this.available) {
-      console.error("Apple pay is not available for this transaction");
-      return;
-    }
-
     const element = resolveSelector(selector);
     this.#button = document.createElement("apple-pay-button");
 

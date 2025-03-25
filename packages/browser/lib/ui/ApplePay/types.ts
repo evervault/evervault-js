@@ -84,6 +84,16 @@ export type ApplePayCardNetwork =
   | "visa"
   | "vPay";
 
+interface OnMerchantValidationEvent extends Event {
+  complete: (data: unknown) => Promise<unknown>;
+  validationURL: string;
+}
+
+export interface ApplePayPaymentRequest extends PaymentRequest {
+  onshippingaddresschange?: (event: PaymentRequestUpdateEvent) => void;
+  onmerchantvalidation?: (event: OnMerchantValidationEvent) => void;
+}
+
 export interface ApplePayConfig {
   transaction: TransactionDetailsWithDomain;
   type: ApplePayButtonType;

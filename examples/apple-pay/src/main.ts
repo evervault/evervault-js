@@ -21,6 +21,7 @@ const transaction = evervault.transactions.create({
 });
 
 const apple = evervault.ui.applePayButton(transaction, {
+  requestShipping: true,
   size: { width: "100%", height: "30px" },
   process: async (data) => {
     console.log("PROCESSS", data);

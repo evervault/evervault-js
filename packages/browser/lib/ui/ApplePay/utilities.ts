@@ -11,6 +11,7 @@ import {
   DisbursementContactDetails,
   ValidateMerchantResponse,
   ApplePayCardNetwork,
+  ApplePayPaymentRequest,
 } from "./types";
 import ApplePayButton from ".";
 
@@ -21,6 +22,7 @@ type BuildSessionOptions = {
   allowedCardNetworks?: ApplePayCardNetwork[];
   requestPayerDetails?: ("name" | "email" | "phone")[];
   requestBillingAddress?: boolean;
+  requestShipping?: boolean;
   paymentOverrides?: {
     paymentMethodData?: PaymentMethodData[];
     paymentDetails?: PaymentDetailsInit;
@@ -41,14 +43,13 @@ export async function buildSession(
     tx.merchantId
   );
 
-  let baseRequest;
+  let baseRequest: ApplePayPaymentRequest;
   if (tx.type === "payment") {
     baseRequest = buildPaymentSession(merchant, config, tx);
   } else {
     baseRequest = buildDisbursementSession(merchant, config, tx);
   }
 
-  // @ts-expect-error - onmerchantvalidation is added by apple and not on the PaymentRequest type
   baseRequest.onmerchantvalidation = async (event) => {
     const merchantSessionPromise = await validateMerchant(
       applePay.client.config.appId,
@@ -56,6 +57,14 @@ export async function buildSession(
       tx
     );
     event.complete(merchantSessionPromise.sessionData);
+  };
+
+  // Apple pay requires subscribing to onshippingaddresschange and calling updateWith
+  // in order to receive shipping data. In future we should allow users to hook into
+  // this event to modify the payment request based on the shipping address.
+  baseRequest.onshippingaddresschange = (event: PaymentRequestUpdateEvent) => {
+    const update: PaymentDetailsUpdate = {};
+    event.updateWith(update);
   };
 
   return baseRequest;
@@ -103,7 +112,7 @@ function buildPaymentSession(
     requestBillingAddress: config.requestBillingAddress ?? false,
     requestPayerEmail: config.requestPayerDetails?.includes("email") ?? false,
     requestPayerPhone: config.requestPayerDetails?.includes("phone") ?? false,
-    requestShipping: false,
+    requestShipping: config.requestShipping ?? false,
     shippingType: "shipping",
   };
 
