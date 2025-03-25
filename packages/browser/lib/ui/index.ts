@@ -16,6 +16,7 @@ import type {
 import { Transaction } from "../resources/transaction";
 import GooglePay from "./googlePay";
 import ApplePay from "./applePay";
+import ApplePayButton, { ApplePayButtonOptions } from "./ApplePay/index";
 
 export default class UIComponents {
   client: EvervaultClient;
@@ -51,5 +52,9 @@ export default class UIComponents {
 
   applePay(tx: Transaction, opts: ApplePayOptions) {
     return new ApplePay(this.client, tx, opts);
+  }
+
+  applePayButton(tx: Transaction, opts: ApplePayButtonOptions) {
+    return new ApplePayButton(this.client, tx, opts);
   }
 }
