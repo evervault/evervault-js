@@ -1,7 +1,6 @@
 import EvervaultClient from "../../main";
 import type { SelectorType } from "types";
 import { resolveSelector } from "../utils";
-import { Transaction } from "../../resources/transaction";
 import { buildSession } from "./utilities";
 import EventManager from "../eventManager";
 import {
@@ -11,6 +10,7 @@ import {
   ApplePayCardNetwork,
 } from "./types";
 import { tryCatch } from "../../utilities";
+import { Transaction } from "../../resources/transaction";
 
 const API = import.meta.env.VITE_API_URL || "https://api.evervault.com";
 const APPLE_PAY_SCRIPT_URL =
@@ -29,6 +29,7 @@ export type ApplePayButtonOptions = {
   size?: { width: string; height: string };
   allowedCardNetworks?: ApplePayCardNetwork[];
   requestPayerDetails?: ("name" | "email" | "phone")[];
+  requestBillingAddress?: boolean;
   paymentOverrides?: {
     paymentMethodData?: PaymentMethodData[];
     paymentDetails?: PaymentDetailsInit;
@@ -77,14 +78,13 @@ export default class ApplePayButton {
   }
 
   async #handleClick() {
-    const merchant = await this.#getMerchant();
-
-    const session = buildSession(this.client.config.appId, merchant, {
+    const session = await buildSession(this, {
       transaction: this.transaction.details,
       allowedCardNetworks: this.#options.allowedCardNetworks,
       requestPayerDetails: this.#options.requestPayerDetails,
       paymentOverrides: this.#options.paymentOverrides,
       disbursementOverrides: this.#options.disbursementOverrides,
+      requestBillingAddress: this.#options.requestBillingAddress,
     });
 
     const [response, responseError] = await tryCatch(session.show());
@@ -108,6 +108,14 @@ export default class ApplePayButton {
       return;
     }
 
+    if (response.details.billingContact) {
+      encrypted.billingContact = response.details.billingContact;
+    }
+
+    if (response.details.shippingContact) {
+      encrypted.shippingContact = response.details.shippingContact;
+    }
+
     let failed = false;
 
     await this.#options.process(encrypted, {
@@ -123,28 +131,6 @@ export default class ApplePayButton {
       this.#events.dispatch("success");
       response.complete("success");
     }
-  }
-
-  async #getMerchant() {
-    const id = this.transaction.details.merchantId;
-    const response = await fetch(`${API}/frontend/merchants/${id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Evervault-App-Id": this.client.config.appId,
-      },
-    });
-
-    if (!response.ok) {
-      console.error(
-        `Failed to fetch merchant details for ${id}`,
-
-        response.status
-      );
-      return undefined;
-    }
-
-    return response.json();
   }
 
   async #exchangeApplePaymentData(response: PaymentResponse) {
@@ -172,7 +158,17 @@ export default class ApplePayButton {
     return this.#events.on(event, callback);
   }
 
+  get available(): boolean {
+    // TODO
+    return true;
+  }
+
   mount(selector: SelectorType) {
+    if (!this.available) {
+      console.error("Apple pay is not available for this transaction");
+      return;
+    }
+
     const element = resolveSelector(selector);
     this.#button = document.createElement("apple-pay-button");
 

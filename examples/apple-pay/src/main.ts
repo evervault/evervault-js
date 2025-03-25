@@ -39,5 +39,4 @@ apple.on("cancel", () => {
   console.log("Apple Pay cancelled");
 });
 
-//
 apple.mount("#apple-pay");

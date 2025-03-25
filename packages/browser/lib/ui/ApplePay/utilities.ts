@@ -7,20 +7,39 @@ import {
 } from "types";
 import {
   ApplePayToken,
-  ApplePayConfig,
   DisbursementContactAddress,
   DisbursementContactDetails,
   ValidateMerchantResponse,
+  ApplePayCardNetwork,
 } from "./types";
+import ApplePayButton from ".";
 
 const API = import.meta.env.VITE_API_URL as string;
 
-export function buildSession(
-  app: string,
-  merchant: MerchantDetail,
-  config: ApplePayConfig
+type BuildSessionOptions = {
+  transaction: TransactionDetailsWithDomain;
+  allowedCardNetworks?: ApplePayCardNetwork[];
+  requestPayerDetails?: ("name" | "email" | "phone")[];
+  requestBillingAddress?: boolean;
+  paymentOverrides?: {
+    paymentMethodData?: PaymentMethodData[];
+    paymentDetails?: PaymentDetailsInit;
+  };
+  disbursementOverrides?: {
+    disbursementDetails?: PaymentDetailsInit;
+  };
+};
+
+export async function buildSession(
+  applePay: ApplePayButton,
+  config: BuildSessionOptions
 ) {
   const { transaction: tx } = config;
+
+  const merchant = await getMerchant(
+    applePay.client.config.appId,
+    tx.merchantId
+  );
 
   let baseRequest;
   if (tx.type === "payment") {
@@ -32,7 +51,7 @@ export function buildSession(
   // @ts-expect-error - onmerchantvalidation is added by apple and not on the PaymentRequest type
   baseRequest.onmerchantvalidation = async (event) => {
     const merchantSessionPromise = await validateMerchant(
-      app,
+      applePay.client.config.appId,
       event.validationURL,
       tx
     );
@@ -44,7 +63,7 @@ export function buildSession(
 
 function buildPaymentSession(
   merchant: MerchantDetail,
-  config: ApplePayConfig,
+  config: BuildSessionOptions,
   tx: PaymentTransactionDetails
 ) {
   const lineItems =
@@ -61,7 +80,7 @@ function buildPaymentSession(
       supportedMethods: "https://apple.com/apple-pay",
       data: {
         version: 3,
-        merchantIdentifier: `merchant.com.evervault.${merchant.id}`,
+        merchantIdentifier: `merchant.com.evervault.${config.transaction.merchantId}`,
         merchantCapabilities: ["supports3DS"],
         supportedNetworks: config.allowedCardNetworks?.map((network) =>
           network.toLowerCase()
@@ -73,7 +92,7 @@ function buildPaymentSession(
 
   const paymentDetails: PaymentDetailsInit = {
     total: {
-      label: `${merchant.name}`,
+      label: merchant.name,
       amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
     },
     displayItems: lineItems,
@@ -81,7 +100,7 @@ function buildPaymentSession(
 
   const paymentOptions = {
     requestPayerName: config.requestPayerDetails?.includes("name") ?? false,
-    requestBillingAddress: false,
+    requestBillingAddress: config.requestBillingAddress ?? false,
     requestPayerEmail: config.requestPayerDetails?.includes("email") ?? false,
     requestPayerPhone: config.requestPayerDetails?.includes("phone") ?? false,
     requestShipping: false,
@@ -102,7 +121,7 @@ function buildPaymentSession(
 
 function buildDisbursementSession(
   merchant: MerchantDetail,
-  config: ApplePayConfig,
+  config: BuildSessionOptions,
   tx: DisbursementTransactionDetails
 ) {
   const lineItems =
@@ -125,7 +144,7 @@ function buildDisbursementSession(
       supportedMethods: "https://apple.com/apple-pay",
       data: {
         version: 3,
-        merchantIdentifier: `merchant.com.evervault.${merchant.id}`,
+        merchantIdentifier: `merchant.com.evervault.${config.transaction.merchantId}`,
         merchantCapabilities,
         supportedNetworks: config.allowedCardNetworks,
         countryCode: tx.country,
@@ -256,6 +275,26 @@ export async function exchangeApplePaymentData(
     },
     body: JSON.stringify(requestBody),
   });
+
+  return response.json();
+}
+
+async function getMerchant(app: string, id: string) {
+  const response = await fetch(`${API}/frontend/merchants/${id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Evervault-App-Id": app,
+    },
+  });
+
+  if (!response.ok) {
+    console.error(
+      `Failed to fetch merchant details for ${id}`,
+      response.status
+    );
+    return undefined;
+  }
 
   return response.json();
 }
