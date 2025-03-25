@@ -4,94 +4,21 @@ import { resolveSelector } from "../utils";
 import { Transaction } from "../../resources/transaction";
 import { buildSession } from "./utilities";
 import EventManager from "../eventManager";
+import {
+  ApplePayButtonLocale,
+  ApplePayButtonStyle,
+  ApplePayButtonType,
+  ApplePayCardNetwork,
+} from "./types";
+import { tryCatch } from "../../utilities";
 
 const API = import.meta.env.VITE_API_URL || "https://api.evervault.com";
 const APPLE_PAY_SCRIPT_URL =
   "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
 
-type ApplePayButtonType =
-  | "add-money"
-  | "book"
-  | "buy"
-  | "check-out"
-  | "continue"
-  | "contribute"
-  | "donate"
-  | "order"
-  | "pay"
-  | "plain"
-  | "reload"
-  | "rent"
-  | "set-up"
-  | "subscribe"
-  | "support"
-  | "tip"
-  | "top-up";
-
-type ApplePayButtonStyle = "black" | "white" | "white-outline";
-
-type ApplePayButtonLocale =
-  | "ar-AB"
-  | "ca-ES"
-  | "cs-CZ"
-  | "da-DK"
-  | "de-DE"
-  | "el-GR"
-  | "en-AU"
-  | "en-GB"
-  | "en-US"
-  | "es-ES"
-  | "es-MX"
-  | "fi-FI"
-  | "fr-CA"
-  | "fr-FR"
-  | "he-IL"
-  | "hi-IN"
-  | "hr-HR"
-  | "hu-HU"
-  | "id-ID"
-  | "it-IT"
-  | "ja-JP"
-  | "ko-KR"
-  | "ms-MY"
-  | "nb-NO"
-  | "nl-NL"
-  | "pl-PL"
-  | "pt-BR"
-  | "pt-PT"
-  | "ro-RO"
-  | "ru-RU"
-  | "sk-SK"
-  | "sv-SE"
-  | "th-TH"
-  | "tr-TR"
-  | "uk-UA"
-  | "vi-VN"
-  | "zh-CN"
-  | "zh-HK"
-  | "zh-TW";
-
-type ApplePayCardNetwork =
-  | "amex"
-  | "bancomat"
-  | "bancontact"
-  | "cartesBancaires"
-  | "chinaUnionPay"
-  | "dankort"
-  | "discover"
-  | "eftpos"
-  | "electron"
-  | "elo"
-  | "girocard"
-  | "interac"
-  | "jcb"
-  | "mada"
-  | "maestro"
-  | "masterCard"
-  | "mir"
-  | "privateLabel"
-  | "visa"
-  | "vPay";
+interface ApplePayError {
+  message: string;
+}
 
 export type ApplePayButtonOptions = {
   type?: ApplePayButtonType;
@@ -112,14 +39,14 @@ export type ApplePayButtonOptions = {
   process: (
     data: unknown,
     helpers: {
-      fail: () => void;
+      fail: (error?: ApplePayError) => void;
     }
   ) => Promise<void>;
 };
 
 interface ApplePayEvents {
   success: () => void;
-  error: () => void;
+  error: (message?: string) => void;
   cancel: () => void;
 }
 
@@ -150,40 +77,51 @@ export default class ApplePayButton {
   }
 
   async #handleClick() {
-    try {
-      const merchant = await this.#getMerchant();
+    const merchant = await this.#getMerchant();
 
-      const session = buildSession(this.client.config.appId, merchant, {
-        transaction: this.transaction.details,
-        allowedCardNetworks: this.#options.allowedCardNetworks,
-        requestPayerDetails: this.#options.requestPayerDetails,
-        paymentOverrides: this.#options.paymentOverrides,
-        disbursementOverrides: this.#options.disbursementOverrides,
-      });
+    const session = buildSession(this.client.config.appId, merchant, {
+      transaction: this.transaction.details,
+      allowedCardNetworks: this.#options.allowedCardNetworks,
+      requestPayerDetails: this.#options.requestPayerDetails,
+      paymentOverrides: this.#options.paymentOverrides,
+      disbursementOverrides: this.#options.disbursementOverrides,
+    });
 
-      const response = await session.show();
+    const [response, responseError] = await tryCatch(session.show());
 
-      const encrypted = await this.#exchangeApplePaymentData(response);
-
-      let failed = false;
-
-      await this.#options.process(encrypted, {
-        fail: () => {
-          failed = true;
-        },
-      });
-
-      if (failed) {
-        await response.complete("fail");
-        this.#events.dispatch("error");
-      } else {
-        this.#events.dispatch("success");
-        await response.complete("success");
-      }
-    } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") {
+    if (responseError) {
+      if (responseError.name === "AbortError") {
         this.#events.dispatch("cancel");
+        return;
       }
+
+      this.#events.dispatch("error", responseError.message);
+      return;
+    }
+
+    const [encrypted, encryptedError] = await tryCatch(
+      this.#exchangeApplePaymentData(response)
+    );
+
+    if (encryptedError) {
+      this.#events.dispatch("error", encryptedError.message);
+      return;
+    }
+
+    let failed = false;
+
+    await this.#options.process(encrypted, {
+      fail: (error?: ApplePayError) => {
+        this.#events.dispatch("error", error?.message);
+        failed = true;
+      },
+    });
+
+    if (failed) {
+      await response.complete("fail");
+    } else {
+      this.#events.dispatch("success");
+      response.complete("success");
     }
   }
 
@@ -209,7 +147,7 @@ export default class ApplePayButton {
     return response.json();
   }
 
-  async #exchangeApplePaymentData(response) {
+  async #exchangeApplePaymentData(response: PaymentResponse) {
     const requestBody = {
       merchantId: this.transaction.details.merchantId,
       encryptedCredentials: response.details.token.paymentData,
@@ -227,12 +165,14 @@ export default class ApplePayButton {
     return res.json();
   }
 
-  on(event: keyof ApplePayEvents, callback: () => void) {
+  on(
+    event: keyof ApplePayEvents,
+    callback: ApplePayEvents[keyof ApplePayEvents]
+  ) {
     return this.#events.on(event, callback);
   }
 
   mount(selector: SelectorType) {
-    console.log("mount");
     const element = resolveSelector(selector);
     this.#button = document.createElement("apple-pay-button");
 
