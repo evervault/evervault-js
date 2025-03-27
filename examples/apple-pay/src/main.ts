@@ -13,41 +13,30 @@ const evervault = await loadEvervault(
   }
 );
 
-const disbursementTransaction = evervault.transactions.create({
+const transaction = evervault.transactions.create({
   amount: 100,
   currency: "USD",
   country: "US",
   merchantId: import.meta.env.VITE_MERCHANT_ID,
 });
 
-const apple = evervault.ui.applePay(disbursementTransaction, {
-  type: "contribute",
-  style: "white-outline",
-  locale: "en-US",
-  size: { width: "100%", height: "40px" },
-  borderRadius: 10,
-  requestPayerDetails: ["name", "email"],
-  allowedCardNetworks: ["visa", "masterCard"],
+const apple = evervault.ui.applePayButton(transaction, {
+  size: { width: "100%", height: "30px" },
   process: async (data) => {
-    console.log("data", data);
-
-    // simulate payment
-    await new Promise((resolve) => {
-      setTimeout(resolve, 1000);
-    });
+    console.log("PROCESSS", data);
   },
+});
+
+apple.on("error", (error) => {
+  console.log("Apple Pay error", error);
+});
+
+apple.on("success", () => {
+  console.log("Apple pay success!");
 });
 
 apple.on("cancel", () => {
   console.log("Apple Pay cancelled");
-});
-
-apple.on("error", (error) => {
-  console.error("Apple Pay error", error);
-});
-
-apple.on("success", () => {
-  console.log("Apple Pay success callback triggered - setting success");
 });
 
 apple.mount("#apple-pay");
