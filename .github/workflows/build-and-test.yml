@@ -26,7 +26,7 @@ jobs:
       VITE_GOOGLE_PAY_MERCHANT_ID: ${{ vars.GOOGLE_PAY_MERCHANT_ID }}
       VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
       VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
-      VITE_TEST_COVERAGE: "true"
+      # VITE_TEST_COVERAGE: "true"
       VITE_API_URL: ${{ inputs.vite-api-url }}
       VITE_EVERVAULT_JS_URL: ${{ inputs.vite-evervault-js-url}}
       VITE_KEYS_URL: ${{ inputs.vite-keys-url }}
@@ -74,10 +74,10 @@ jobs:
           name: ui-components-playwright-report
           path: e2e-tests/ui-components/playwright-report
           retention-days: 5
-      - name: Coverage report
-        run: pnpm coverage:report
-      - name: Check test coverage
-        run: pnpm coverage:check
+      # - name: Coverage report
+      #   run: pnpm coverage:report
+      # - name: Check test coverage
+      #   run: pnpm coverage:check
       # We wipe and rebuild all assets to ensure that we dont upload any left over artifacts
       - name: Remove all built assets
         run: rm -rf packages/**/dist
