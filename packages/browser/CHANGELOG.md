@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.42.1
+
+### Patch Changes
+
+- 99f31d5: Read API URL from client for Apple Pay
+
 ## 2.42.0
 
 ### Minor Changes
