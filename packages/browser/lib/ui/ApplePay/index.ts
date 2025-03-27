@@ -12,7 +12,6 @@ import {
 import { tryCatch } from "../../utilities";
 import { Transaction } from "../../resources/transaction";
 
-const API = import.meta.env.VITE_API_URL || "https://api.evervault.com";
 const APPLE_PAY_SCRIPT_URL =
   "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
 
@@ -141,7 +140,8 @@ export default class ApplePayButton {
       encryptedCredentials: response.details.token.paymentData,
     };
 
-    const res = await fetch(`${API}/frontend/apple-pay/credentials`, {
+    const apiURL = this.client.config.http.apiUrl;
+    const res = await fetch(`${apiURL}/frontend/apple-pay/credentials`, {
       method: "POST",
       headers: {
         "x-Evervault-App-Id": this.client.config.appId,
