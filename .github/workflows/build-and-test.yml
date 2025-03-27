@@ -75,7 +75,7 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           overwrite: true
-          name: ${{ inputs.environment }}-ui-components-playwright-report
+          name: "${{ inputs.environment }}-ui-components-playwright-report"
           path: e2e-tests/ui-components/playwright-report
           retention-days: 5
       - name: Coverage report
@@ -91,59 +91,59 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           overwrite: true
-          name: ${{ inputs.environment }}-browser-sdk-build
+          name: "${{ inputs.environment }}-browser-sdk-build"
           path: packages/browser/dist
       - name: Upload inputs build
         uses: actions/upload-artifact@v4
         with:
           overwrite: true
-          name: ${{ inputs.environment }}-inputs-sdk-build
+          name: "${{ inputs.environment }}-inputs-sdk-build"
           path: packages/inputs/dist
       - name: Upload ui-components build
         uses: actions/upload-artifact@v4
         with:
           overwrite: true
-          name: ${{ inputs.environment }}-ui-components-build
+          name: "${{ inputs.environment }}-ui-components-build"
           path: packages/ui-components/dist
       - name: Upload 3ds build
         uses: actions/upload-artifact@v4
         with:
           overwrite: true
-          name: ${{ inputs.environment }}-3ds-build
+          name: "${{ inputs.environment }}-3ds-build"
           path: packages/3ds/dist
       - name: Upload react build
         uses: actions/upload-artifact@v4
         with:
           overwrite: true
-          name: ${{ inputs.environment }}-react-sdk-build
+          name: "${{ inputs.environment }}-react-sdk-build"
           path: packages/react/dist
       - name: Upload card validator build
         uses: actions/upload-artifact@v4
         with:
           overwrite: true
-          name: ${{ inputs.environment }}-card-validator-build
+          name: "${{ inputs.environment }}-card-validator-build"
           path: packages/card-validator/dist
       - name: Upload React Native build
         uses: actions/upload-artifact@v4
         with:
           overwrite: true
-          name: ${{ inputs.environment }}-react-native-build
+          name: "${{ inputs.environment }}-react-native-build"
           path: packages/react-native-v2
       - name: Upload React Native v1 build
         uses: actions/upload-artifact@v4
         with:
           overwrite: true
-          name: ${{ inputs.environment }}-react-native-v1-build
+          name: "${{ inputs.environment }}-react-native-v1-build"
           path: packages/react-native
       - name: Upload eql build
         uses: actions/upload-artifact@v4
         with:
           overwrite: true
-          name: ${{ inputs.environment }}-eql-build
+          name: "${{ inputs.environment }}-eql-build"
           path: packages/eql/dist
       - name: Upload JS build
         uses: actions/upload-artifact@v4
         with:
           overwrite: true
-          name: ${{ inputs.environment }}-evervault-js
+          name: "${{ inputs.environment }}-evervault-js"
           path: packages/js/dist
