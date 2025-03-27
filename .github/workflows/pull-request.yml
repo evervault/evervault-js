@@ -12,4 +12,5 @@ jobs:
       vite-evervault-js-url: "https://js.evervault.io/v2"
       vite-keys-url: "https://keys.evervault.io"
       vite-api-url: "https://api.evervault.io"
+      environment: "staging"
     secrets: inherit
