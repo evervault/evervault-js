@@ -15,6 +15,7 @@ jobs:
       vite-evervault-js-url: "https://js.evervault.com/v2"
       vite-keys-url: "https://keys.evervault.com"
       vite-api-url: "https://api.evervault.com"
+      environment: "production"
     secrets: inherit
   deploy-browser:
     if: startsWith(inputs.release-tag, '@evervault/browser')

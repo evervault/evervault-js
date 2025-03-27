@@ -40,7 +40,7 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8
         with:
-          name: browser-sdk-build
+          name: ${{ inputs.environment }}-browser-sdk-build
           path: dist
       - name: Rename Build Artifacts
         run: cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
@@ -89,7 +89,7 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8
         with:
-          name: browser-sdk-build
+          name: ${{ inputs.environment }}-browser-sdk-build
           path: dist
       - name: Rename Build Artifacts
         run: cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js

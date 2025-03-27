@@ -13,6 +13,7 @@ jobs:
       vite-evervault-js-url: "https://js.evervault.io/v2"
       vite-keys-url: "https://api.evervault.io/teams"
       vite-api-url: "https://api.evervault.io"
+      environment: "staging"
     secrets: inherit
   deploy-browser:
     needs: build
@@ -43,6 +44,7 @@ jobs:
   create-tags:
     name: Create Tags
     runs-on: ubuntu-latest
+    needs: build
     outputs:
       has-changesets: ${{ steps.changesets.outputs.hasChangesets }}
       tags-to-publish: ${{ steps.create-tags.outputs.tags-to-publish }}
@@ -86,7 +88,7 @@ jobs:
           HUSKY: 0
   release:
     name: Release ${{ matrix.tag }}
-    needs: create-tags
+    needs: [build,create-tags]
     # Only attempt releases if we expect to have pushed some tags
     if: needs.create-tags.outputs.has-changesets == 'false'
     strategy:
