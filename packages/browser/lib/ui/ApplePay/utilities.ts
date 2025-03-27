@@ -1,12 +1,10 @@
 import {
   DisbursementTransactionDetails,
-  EncryptedApplePayData,
   MerchantDetail,
   PaymentTransactionDetails,
   TransactionDetailsWithDomain,
 } from "types";
 import {
-  ApplePayToken,
   DisbursementContactAddress,
   DisbursementContactDetails,
   ValidateMerchantResponse,
