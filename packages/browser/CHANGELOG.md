@@ -1,5 +1,13 @@
 # @evervault/browser
 
+## 2.42.0
+
+### Minor Changes
+
+- ff847c2: Apple Pay Beta
+  A new `applePayButton` component has been introduced to render the Apple Pay Button inside of
+  the main document to allow for third party browser support.
+
 ## 2.41.0
 
 ### Minor Changes
