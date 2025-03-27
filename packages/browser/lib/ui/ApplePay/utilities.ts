@@ -15,8 +15,6 @@ import {
 } from "./types";
 import ApplePayButton from ".";
 
-const API = import.meta.env.VITE_API_URL as string;
-
 type BuildSessionOptions = {
   transaction: TransactionDetailsWithDomain;
   allowedCardNetworks?: ApplePayCardNetwork[];
@@ -38,10 +36,7 @@ export async function buildSession(
 ) {
   const { transaction: tx } = config;
 
-  const merchant = await getMerchant(
-    applePay.client.config.appId,
-    tx.merchantId
-  );
+  const merchant = await getMerchant(applePay, tx.merchantId);
 
   let baseRequest: ApplePayPaymentRequest;
   if (tx.type === "payment") {
@@ -52,7 +47,7 @@ export async function buildSession(
 
   baseRequest.onmerchantvalidation = async (event) => {
     const merchantSessionPromise = await validateMerchant(
-      applePay.client.config.appId,
+      applePay,
       event.validationURL,
       tx
     );
@@ -246,50 +241,36 @@ export function buildAddressObject(
 }
 
 async function validateMerchant(
-  app: string,
+  applePay: ApplePayButton,
   validationUrl: string,
   tx: TransactionDetailsWithDomain
 ): Promise<ValidateMerchantResponse> {
-  const response = await fetch(`${API}/frontend/apple-pay/merchant-session`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Evervault-App-Id": app,
-    },
-    body: JSON.stringify({
-      validationUrl: validationUrl,
-      merchantUuid: tx.merchantId,
-      domain: tx.domain,
-    }),
-  });
+  const app = applePay.client.config.appId;
+  const apiURL = applePay.client.config.http.apiUrl;
+
+  const response = await fetch(
+    `${apiURL}/frontend/apple-pay/merchant-session`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Evervault-App-Id": app,
+      },
+      body: JSON.stringify({
+        validationUrl: validationUrl,
+        merchantUuid: tx.merchantId,
+        domain: tx.domain,
+      }),
+    }
+  );
 
   return response.json();
 }
 
-export async function exchangeApplePaymentData(
-  app: string,
-  token: ApplePayToken,
-  merchantId: string
-): Promise<EncryptedApplePayData> {
-  const requestBody = {
-    merchantId,
-    encryptedCredentials: token,
-  };
-
-  const response = await fetch(`${API}/frontend/apple-pay/credentials`, {
-    method: "POST",
-    headers: {
-      "x-Evervault-App-Id": app,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(requestBody),
-  });
-
-  return response.json();
-}
-
-async function getMerchant(app: string, id: string) {
-  const response = await fetch(`${API}/frontend/merchants/${id}`, {
+async function getMerchant(applePay: ApplePayButton, id: string) {
+  const app = applePay.client.config.appId;
+  const apiURL = applePay.client.config.http.apiUrl;
+  const response = await fetch(`${apiURL}/frontend/merchants/${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
