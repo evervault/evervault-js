@@ -40,7 +40,7 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8
         with:
-          name: ui-components-build
+          name: "${{ inputs.environment }}-ui-components-build"
           path: dist
       - name: S3 Deploy assets
         run: aws s3 cp ./dist/assets s3://${{ vars.UI_COMPONENTS_S3_BUCKET }}/assets/ --recursive
@@ -89,7 +89,7 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8
         with:
-          name: ui-components-build
+          name: "${{ inputs.environment }}-ui-components-build"
           path: dist
       - name: S3 Deploy
         run: aws s3 cp ./dist/index.html s3://${{ vars.UI_COMPONENTS_S3_BUCKET }}/
