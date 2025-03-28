@@ -1,7 +1,7 @@
 import EvervaultClient from "../../main";
 import type { SelectorType } from "types";
 import { resolveSelector } from "../utils";
-import { buildSession } from "./utilities";
+import { buildSession, resolveSize } from "./utilities";
 import EventManager from "../eventManager";
 import {
   ApplePayButtonLocale,
@@ -25,7 +25,7 @@ export type ApplePayButtonOptions = {
   locale?: ApplePayButtonLocale;
   padding?: string;
   borderRadius?: string;
-  size?: { width: string; height: string };
+  size?: { width: string | number; height: string | number };
   allowedCardNetworks?: ApplePayCardNetwork[];
   requestPayerDetails?: ("name" | "email" | "phone")[];
   requestBillingAddress?: boolean;
@@ -197,11 +197,11 @@ export default class ApplePayButton {
     if (this.#options.size) {
       this.#button.style.setProperty(
         "--apple-pay-button-width",
-        this.#options.size.width
+        resolveSize(this.#options.size.width)
       );
       this.#button.style.setProperty(
         "--apple-pay-button-height",
-        this.#options.size.height
+        resolveSize(this.#options.size.height)
       );
     }
 

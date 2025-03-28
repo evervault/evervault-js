@@ -286,3 +286,11 @@ async function getMerchant(applePay: ApplePayButton, id: string) {
 
   return response.json();
 }
+
+export function resolveSize(input: string | number) {
+  if (typeof input === "number") {
+    return `${input}px`;
+  }
+
+  return input;
+}
