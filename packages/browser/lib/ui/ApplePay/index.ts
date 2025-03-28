@@ -1,5 +1,9 @@
 import EvervaultClient from "../../main";
-import type { SelectorType } from "types";
+import type {
+  ApplePayErrorMessage,
+  EncryptedApplePayData,
+  SelectorType,
+} from "types";
 import { resolveSelector } from "../utils";
 import { buildSession, resolveSize } from "./utilities";
 import EventManager from "../eventManager";
@@ -14,10 +18,6 @@ import { Transaction } from "../../resources/transaction";
 
 const APPLE_PAY_SCRIPT_URL =
   "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
-
-interface ApplePayError {
-  message: string;
-}
 
 export type ApplePayButtonOptions = {
   type?: ApplePayButtonType;
@@ -38,9 +38,9 @@ export type ApplePayButtonOptions = {
     disbursementDetails?: PaymentDetailsInit;
   };
   process: (
-    data: unknown,
+    data: EncryptedApplePayData,
     helpers: {
-      fail: (error?: ApplePayError) => void;
+      fail: (error?: ApplePayErrorMessage) => void;
     }
   ) => Promise<void>;
 };
@@ -124,7 +124,7 @@ export default class ApplePayButton {
     let failed = false;
 
     await this.#options.process(encrypted, {
-      fail: (error?: ApplePayError) => {
+      fail: (error?: ApplePayErrorMessage) => {
         this.#events.dispatch("error", error?.message);
         failed = true;
       },
@@ -138,7 +138,9 @@ export default class ApplePayButton {
     }
   }
 
-  async #exchangeApplePaymentData(response: PaymentResponse) {
+  async #exchangeApplePaymentData(
+    response: PaymentResponse
+  ): Promise<EncryptedApplePayData> {
     const requestBody = {
       merchantId: this.transaction.details.merchantId,
       encryptedCredentials: response.details.token.paymentData,
