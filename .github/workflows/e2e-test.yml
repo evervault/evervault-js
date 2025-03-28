@@ -106,9 +106,9 @@ jobs:
     strategy:
       matrix: 
         project: ${{ fromJson(needs.get-e2e-targets.outputs.e2e-test-projects) }}
-        shard: [1,2,3,4,5]
+        shard: [1,2]
         include:
-          - total-shards: 5
+          - total-shards: 2
     timeout-minutes: 25
     runs-on: ubuntu-latest
     env:
