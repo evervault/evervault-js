@@ -70,6 +70,10 @@ export default class ApplePayButton {
   }
 
   #injectScript() {
+    const selector = `script[src="${APPLE_PAY_SCRIPT_URL}"]`;
+    const existing = document.querySelector(selector);
+    if (existing) return;
+
     const script = document.createElement("script");
     script.src = APPLE_PAY_SCRIPT_URL;
     script.async = true;
