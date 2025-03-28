@@ -356,6 +356,10 @@ importers:
         version: 5.5.4
 
   e2e-tests/browser:
+    dependencies:
+      '@evervault/browser':
+        specifier: workspace:*
+        version: link:../../packages/browser
     devDependencies:
       '@repo/test-coverage':
         specifier: workspace:*
@@ -4311,7 +4315,7 @@ packages:
     resolution: {integrity: sha512-SCCPBJtYLdE8PX/7ZQAs1QAZ8Jqwih+0VBLum1EGqmCCQal+MIUqLCzj3ZUy8ufbC0cAM4LRlSTm7IQJwWT4ug==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      vite: ^4.5.6
+      vite: ^4.2.0 || ^5.0.0 || ^6.0.0
 
   '@vitest/expect@2.1.8':
     resolution: {integrity: sha512-8ytZ/fFHq2g4PJVAtDX57mayemKgDR6X3Oa2Foro+EygiOJHUXhCqBAAKQYYajZpFoIfvBCF1j6R6IYRSIUFuw==}

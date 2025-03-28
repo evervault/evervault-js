@@ -10,6 +10,9 @@
     "clean": "rm -rf .turbo node_modules dist",
     "preview": "vite --port 4006"
   },
+  "dependencies": {
+    "@evervault/browser": "workspace:*"
+  },
   "devDependencies": {
     "vite": "catalog:",
     "@repo/test-coverage": "workspace:*"

@@ -1,4 +1,4 @@
-import * as fs from "fs";
+import * as fs from "fs/promises";
 import * as path from "path";
 import * as crypto from "crypto";
 import {
@@ -20,10 +20,10 @@ const istanbulCLIOutput = path.join(__dirname, "../../.nyc_output");
 
 async function collectCoverage(coverage: CoverageMetrics) {
   if (!coverage) return;
-  await fs.promises.mkdir(istanbulCLIOutput, { recursive: true });
+  await fs.mkdir(istanbulCLIOutput, { recursive: true });
   const filename = `playwright_coverage_${generateUUID()}.json`;
   const filepath = path.join(istanbulCLIOutput, filename);
-  fs.writeFileSync(filepath, JSON.stringify(coverage));
+  return fs.writeFile(filepath, JSON.stringify(coverage));
 }
 
 export function generateUUID() {
@@ -60,15 +60,16 @@ export function extendTest(
 
       if (process.env.VITE_TEST_COVERAGE === "true") {
         await page.evaluate(async () => {
+          let promises: Promise<unknown>[] = [];
           // Gather coverage metrics from the parent page
-          await window.collectCoverage(window.__coverage__);
+          promises.push(window.collectCoverage(window.__coverage__));
 
           // Gather coverage metrics from any iframes that are still open
           const frames = document.querySelectorAll(
             "iframe[data-evervault]"
           ) as NodeListOf<HTMLIFrameElement>;
 
-          const promises = Array.from(frames).map((frame) => {
+          const iframePromises = Array.from(frames).map((frame) => {
             const eventID = window.crypto
               .getRandomValues(new Uint32Array(1))
               .toString();
@@ -91,7 +92,7 @@ export function extendTest(
             });
           });
 
-          await Promise.all(promises);
+          await Promise.all(promises.concat(iframePromises));
         });
       }
     },
