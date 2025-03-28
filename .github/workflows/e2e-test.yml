@@ -106,6 +106,12 @@ jobs:
     strategy:
       matrix: 
         project: ${{ fromJson(needs.get-e2e-targets.outputs.e2e-test-projects) }}
+        include:
+          - shard: [1,2,3]
+            total-shards: 3
+          - shard: [1,2,3,4,5,6]
+            total-shards: 6
+            project: "@evervault/e2e-tests"
     timeout-minutes: 25
     runs-on: ubuntu-latest
     env:
@@ -157,11 +163,4 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: pnpm exec playwright install-deps
       - name: E2E test
-        run: pnpm run --filter="${{ matrix.project }}" --if-present e2e:test
-      - name: Generate Coverage Report
-        # Inputs does not export a coverage report
-        if: ${{ inputs.run-code-coverage-checks && matrix.project != '@evervault/inputs-e2e-tests' }}
-        run: pnpm coverage:report
-      # - name: Enforce Coverage Threshold
-      #   if: ${{ inputs.run-code-coverage-checks && matrix.project != '@evervault/inputs-e2e-tests' }}
-      #   run: pnpm coverage:chec 
+        run: pnpm run --filter="${{ matrix.project }}" --if-present e2e:test --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
