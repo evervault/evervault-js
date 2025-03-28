@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.42.3
+
+### Patch Changes
+
+- d034694: Improve types for apple pay process event
+
 ## 2.42.2
 
 ### Patch Changes
