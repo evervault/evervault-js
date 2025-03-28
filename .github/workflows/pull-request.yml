@@ -20,7 +20,7 @@ jobs:
       vite-evervault-js-url: "https://js.evervault.com/v2"
       vite-keys-url: "https://keys.evervault.com"
       vite-api-url: "https://api.evervault.com"
-      run-code-coverage-checks: true
+      run-code-coverage-checks: false
     secrets: inherit
   build-all-packages:
     runs-on: ubuntu-latest

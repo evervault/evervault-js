@@ -101,17 +101,14 @@ jobs:
           E2E_TEST_PROJECTS=$(pnpm m ls --depth=1 --json | jq -cr '[.[] | select(.name|endswith("e2e-tests")) | .name]')
           echo "e2e-test-projects=$E2E_TEST_PROJECTS" >> $GITHUB_OUTPUT
   e2e-test:
-    name: "Run E2E Tests for ${{ matrix.project }}"
+    name: "Run E2E Tests for ${{ matrix.project }} (Shard ${{ matrix.shard }}/${{ matrix.total-shards }})"    
     needs: [prepare-cache, get-e2e-targets]
     strategy:
       matrix: 
         project: ${{ fromJson(needs.get-e2e-targets.outputs.e2e-test-projects) }}
+        shard: [1,2,3,4,5]
         include:
-          - shard: [1,2,3]
-            total-shards: 3
-          - shard: [1,2,3,4,5,6]
-            total-shards: 6
-            project: "@evervault/e2e-tests"
+          - total-shards: 5
     timeout-minutes: 25
     runs-on: ubuntu-latest
     env:
@@ -145,7 +142,7 @@ jobs:
           cache: "pnpm"
       - name: Install deps
         run: pnpm install --frozen-lockfile
-      - name: Build ${{ matrix.project }} with coverage tooling
+      - name: Build ${{ matrix.project }}
         run: pnpm run -r --filter="${{ matrix.project }}..." --if-present build
       # Caching playwright, ref: https://github.com/microsoft/playwright/issues/7249
       - name: Try to restore Playwright from cache
