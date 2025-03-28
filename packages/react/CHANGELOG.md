@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.16.1
+
+### Patch Changes
+
+- 67e08a6: Updates types to match the latest APIs in our browser SDK
+
 ## 2.16.0
 
 ### Minor Changes

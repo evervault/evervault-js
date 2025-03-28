@@ -1,5 +1,11 @@
 # @evervault/js
 
+## 2.0.1
+
+### Patch Changes
+
+- 67e08a6: Updates types to match the latest APIs in our browser SDK
+
 ## 2.0.0
 
 ### Major Changes

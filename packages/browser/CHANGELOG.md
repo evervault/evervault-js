@@ -1,5 +1,13 @@
 # @evervault/browser
 
+## 2.42.2
+
+### Patch Changes
+
+- 0fa1b24: Handle cases when the Apple Pay script may have already been added to the DOM
+- c9da9f5: Add unmount method to Apple Pay component
+- d0142c5: Add support for passing integers for size values in new Apple Pay component
+
 ## 2.42.1
 
 ### Patch Changes
