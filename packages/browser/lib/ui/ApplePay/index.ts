@@ -207,4 +207,10 @@ export default class ApplePayButton {
 
     element.appendChild(this.#button);
   }
+
+  unmount() {
+    if (this.#button) {
+      this.#button.remove();
+    }
+  }
 }
