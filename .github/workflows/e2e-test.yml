@@ -1,0 +1,167 @@
+name: E2E Test
+on:
+  workflow_call:
+    inputs:
+      vite-evervault-js-url:
+        description: "URL where the JS SDK should be loaded from"
+        required: true
+        type: string
+      vite-keys-url:
+        description: "URL where keys will be fetched from"
+        required: true
+        type: string
+      vite-api-url:
+        description: "API endpoint"
+        required: true
+        type: string
+      run-code-coverage-checks:
+        description: "Whether to run code coverage checks or not"
+        required: true
+        type: boolean
+jobs:
+  # Dedicated job to install playwright and save it to cache if its unset
+  # This should let us run the e2e tests in parallel with everything loading playwright from cache
+  prepare-cache:
+    name: "Prepare Cache for E2E Tests"
+    runs-on: ubuntu-latest
+    outputs:
+      cache-key: ${{ steps.playwright-cache.outputs.cache-primary-key }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+      - name: Find playwright version
+        id: playwright-version
+        run: |-
+          PLAYWRIGHT_VERSION=$(ls --json @playwright/test | jq -r '.[].devDependencies."@playwright/test".version')
+          echo "playwright-version=$PLAYWRIGHT_VERSION" >> $GITHUB_OUTPUT
+      # Caching playwright, ref: https://github.com/microsoft/playwright/issues/7249
+      - name: Try to restore Playwright from cache
+        uses: actions/cache/restore@v4
+        id: playwright-cache
+        with:
+          path: "~/.cache/ms-playwright"
+          key: "${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.playwright-version }}"
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+      - name: "[cache-miss] Install Playwright browser binaries & OS dependencies"
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps 
+      # Save playwright version to cache
+      - name: Save Playwright to cache if cache-miss
+        uses: actions/cache/save@v4
+        if: always() && steps.playwright-cache.outputs.cache-hit != 'true'
+        with:
+          path: "~/.cache/ms-playwright"
+          key: ${{ steps.playwright-cache.outputs.cache-primary-key }}
+  get-e2e-targets:
+    name: "Build list of E2E test projects"
+    runs-on: ubuntu-latest
+    outputs:
+      e2e-test-projects: ${{ steps.e2e-targets.outputs.e2e-test-projects }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+      - name: Create list of E2E test projects
+        id: e2e-targets
+        run: |-
+          E2E_TEST_PROJECTS=$(pnpm m ls --depth=1 --json | jq -cr '[.[] | select(.name|endswith("e2e-tests")) | .name]')
+          echo "e2e-test-projects=$E2E_TEST_PROJECTS" >> $GITHUB_OUTPUT
+  e2e-test:
+    name: "Run E2E Tests for ${{ matrix.project }}"
+    needs: [prepare-cache, get-e2e-targets]
+    strategy:
+      matrix: 
+        project: ${{ fromJson(needs.get-e2e-targets.outputs.e2e-test-projects) }}
+    timeout-minutes: 25
+    runs-on: ubuntu-latest
+    env:
+      EV_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+      EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+      VITE_GOOGLE_PAY_MERCHANT_ID: ${{ vars.GOOGLE_PAY_MERCHANT_ID }}
+      VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+      VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+      VITE_API_URL: ${{ inputs.vite-api-url }}
+      VITE_EVERVAULT_JS_URL: ${{ inputs.vite-evervault-js-url }}
+      VITE_KEYS_URL: ${{ inputs.vite-keys-url }}
+      VITE_TEST_COVERAGE: "${{ inputs.run-code-coverage-checks }}"
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+      - name: Build ${{ matrix.project }} with coverage tooling
+        run: pnpm run -r --filter="${{ matrix.project }}..." --if-present build
+      # Caching playwright, ref: https://github.com/microsoft/playwright/issues/7249
+      - name: Try to restore Playwright from cache
+        uses: actions/cache/restore@v4
+        id: playwright-cache
+        with:
+          path: "~/.cache/ms-playwright"
+          key: ${{ needs.prepare-cache.outputs.cache-key }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+      - name: "[cache-miss] Install Playwright browser binaries & OS dependencies"
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps 
+      - name: "[cache-hit] Install Playwright OS Deps"
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps
+      - name: E2E test
+        run: pnpm run --filter="${{ matrix.project }}" --if-present e2e:test
+      - name: Generate Coverage Report
+        # Inputs does not export a coverage report
+        if: ${{ inputs.run-code-coverage-checks && matrix.project != '@evervault/inputs-e2e-tests' }}
+        run: pnpm coverage:report
+      # - name: Enforce Coverage Threshold
+      #   if: ${{ inputs.run-code-coverage-checks && matrix.project != '@evervault/inputs-e2e-tests' }}
+      #   run: pnpm coverage:chec 

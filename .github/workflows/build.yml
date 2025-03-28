@@ -1,0 +1,72 @@
+name: Build Package
+on:
+  workflow_call:
+    inputs:
+      vite-evervault-js-url:
+        description: "URL where the JS SDK should be loaded from"
+        required: true
+        type: string
+      vite-keys-url:
+        description: "URL where keys will be fetched from"
+        required: true
+        type: string
+      vite-api-url:
+        description: "API endpoint"
+        required: true
+        type: string
+      environment:
+        description: "The environment that the URLs reference"
+        required: true
+        type: string
+      package-name:
+        description: "The name of the package to build. This must equal the name in the package.json"
+        required: true
+        type: string
+      upload-artifact:
+        description: "Whether to upload the artefact or not"
+        required: true
+        type: boolean
+      artifact-name:
+        description: "The name of the artifact to upload. Will be uploaded with the environment name as a prefix e.g. staging-<artifact-name>"
+        required: false
+        type: string
+jobs:
+  build:
+    name: "[${{ inputs.environment }}] Build ${{ inputs.package-name }}"
+    runs-on: ubuntu-latest
+    env:
+      VITE_API_URL: ${{ inputs.vite-api-url }}
+      VITE_EVERVAULT_JS_URL: ${{ inputs.vite-evervault-js-url}}
+      VITE_KEYS_URL: ${{ inputs.vite-keys-url }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+      - uses: pnpm/action-setup@v4
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+      - name: Build ${{ inputs.package-name }}
+        run: pnpm run --if-present --filter ${{ inputs.package-name }} build
+      - name: Get path to package
+        id: get-path-to-package
+        run: |-
+          PATH_TO_PACKAGE=$(pnpm list --filter ${{ inputs.package-name }} --json | jq -r '.[0].path')
+          echo "path-to-package=$PATH_TO_PACKAGE" >> $GITHUB_OUTPUT
+      - name: Upload Build Artifacts
+        if: ${{ inputs.upload-artifact }}
+        uses: actions/upload-artifact@v4
+        with:
+          overwrite: false
+          name: "${{ inputs.environment }}-${{ inputs.artifact-name }}"
+          path: ${{ steps.get-path-to-package.outputs.path-to-package }}/dist
