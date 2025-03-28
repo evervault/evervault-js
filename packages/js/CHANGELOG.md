@@ -1,5 +1,11 @@
 # @evervault/js
 
+## 2.0.2
+
+### Patch Changes
+
+- d034694: Improve types for apple pay process event
+
 ## 2.0.1
 
 ### Patch Changes

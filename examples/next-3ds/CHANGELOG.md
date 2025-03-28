@@ -1,5 +1,12 @@
 # example-next-3ds
 
+## 0.1.12
+
+### Patch Changes
+
+- Updated dependencies [d034694]
+  - @evervault/react@2.16.2
+
 ## 0.1.11
 
 ### Patch Changes
