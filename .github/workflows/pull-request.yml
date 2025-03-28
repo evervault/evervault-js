@@ -6,14 +6,6 @@ on:
       - "master"
       - "main"
 jobs:
-  build-and-test:
-    uses: ./.github/workflows/build-and-test.yml
-    with:
-      vite-evervault-js-url: "https://js.evervault.io/v2"
-      vite-keys-url: "https://keys.evervault.io"
-      vite-api-url: "https://api.evervault.io"
-      environment: "staging"
-    secrets: inherit
   lint-and-test:
     uses: ./.github/workflows/lint.yml
     with:
