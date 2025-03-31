@@ -22,22 +22,3 @@ jobs:
       vite-api-url: "https://api.evervault.com"
       run-code-coverage-checks: false
     secrets: inherit
-  build-all-packages:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: ".nvmrc"
-          cache: "pnpm"
-      - name: Install deps
-        run: pnpm install --frozen-lockfile
-      - name: Build all packages
-        run: pnpm run -r --if-present build
-        env:
-          VITE_API_URL: "https://api.evervault.io"
-          VITE_EVERVAULT_JS_URL: "https://js.evervault.io/v2"
-          VITE_KEYS_URL: "https://keys.evervault.io"

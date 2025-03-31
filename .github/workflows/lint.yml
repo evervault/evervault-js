@@ -58,6 +58,8 @@ jobs:
       #   run: pnpm run -r --if-present build
       - name: Formats check
         run: pnpm run -r --if-present format:check
+      - name: Build
+        run: pnpm run -r --if-present build
       - name: Typescript check
         run: pnpm run -r --if-present typecheck
       - name: eslint check
