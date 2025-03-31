@@ -1,9 +1,0 @@
-{
-  "diff": true,
-  "package": "./package.json",
-  "reporter": "spec",
-  "timeout": 5000,
-  "exit": true,
-  "color": true,
-  "ui": "bdd"
-}

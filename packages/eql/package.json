@@ -16,7 +16,7 @@
     "build": "pnpm run build:cjs && pnpm run build:esm",
     "clean": "rm -rf .turbo node_modules dist",
     "prepublish": "pnpm run build",
-    "test": "mocha 'src/**/*.test.js'"
+    "test": "vitest"
   },
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -25,8 +25,7 @@
   ],
   "devDependencies": {
     "@types/node": "catalog:",
-    "chai": "catalog:",
-    "mocha": "catalog:",
-    "peggy": "catalog:"
+    "peggy": "catalog:",
+    "vitest": "catalog:"
   }
 }

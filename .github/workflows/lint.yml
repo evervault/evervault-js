@@ -1,0 +1,59 @@
+name: Lint and Test
+on:
+  workflow_call:
+    inputs:
+      vite-evervault-js-url:
+        description: "URL where the JS SDK should be loaded from"
+        required: true
+        type: string
+      vite-keys-url:
+        description: "URL where keys will be fetched from"
+        required: true
+        type: string
+      vite-api-url:
+        description: "API endpoint"
+        required: true
+        type: string
+jobs:
+  lint:
+    name: "Lint and Test"
+    timeout-minutes: 25
+    runs-on: ubuntu-latest
+    env:
+      EV_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+      EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+      EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+      VITE_GOOGLE_PAY_MERCHANT_ID: ${{ vars.GOOGLE_PAY_MERCHANT_ID }}
+      VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+      VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+      VITE_API_URL: ${{ inputs.vite-api-url }}
+      VITE_EVERVAULT_JS_URL: ${{ inputs.vite-evervault-js-url}}
+      VITE_KEYS_URL: ${{ inputs.vite-keys-url }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+      - uses: pnpm/action-setup@v4
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+      - name: Formats check
+        run: pnpm run -r --filter="@evervault/*" --if-present format:check
+      - name: Build
+        run: pnpm run -r --if-present build
+      - name: Typescript check
+        run: pnpm run -r --filter="@evervault/*" --if-present typecheck
+      - name: eslint check
+        run: pnpm run -r --filter="@evervault/*" --if-present lint
+      - name: Run unit tests
+        run: pnpm -r --if-present test
