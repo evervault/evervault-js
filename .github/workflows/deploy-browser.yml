@@ -15,10 +15,16 @@ on:
         required: false
         type: string
 jobs:
+  get-artifact-name:
+    uses: ./.github/workflows/get-artifact-name.yml
+    with:
+      package-name: "@evervault/browser"
+      environment: ${{ inputs.environment }}
   deploy-preview:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     name: "[PREVIEW] Deploy to ${{ inputs.environment }}"
+    needs: get-artifact-name
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -40,7 +46,7 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8
         with:
-          name: "${{ inputs.environment }}-browser-sdk-build"
+          name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: dist
       - name: Rename Build Artifacts
         run: cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
@@ -76,7 +82,7 @@ jobs:
           action: failed
   deploy:
     runs-on: ubuntu-latest
-    needs: deploy-preview
+    needs: [get-artifact-name, deploy-preview]
     environment: ${{ inputs.environment }}-deploy
     name: "Deploy to ${{ inputs.environment }}"
     steps:
@@ -89,7 +95,7 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8
         with:
-          name: "${{ inputs.environment }}-browser-sdk-build"
+          name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: dist
       - name: Rename Build Artifacts
         run: cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js

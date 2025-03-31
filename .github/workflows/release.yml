@@ -9,13 +9,31 @@ on:
         required: true
         type: string
 jobs:
+  get-package-name-from-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      package-name: ${{ steps.get-package-name.outputs.result }}
+    steps:
+      - uses: actions/github-script@v7
+        id: get-package-name
+        env:
+          RELEASE_TAG: ${{ inputs.release-tag }}
+        with:
+          result-encoding: string
+          script: |
+            const tag = process.env.RELEASE_TAG;
+            const semverPrefix = tag.lastIndexOf('@');
+            return tag.slice(0,semverPrefix);
   build:
-    uses: ./.github/workflows/build-and-test.yml
+    needs: get-package-name-from-tag
+    uses: ./.github/workflows/build.yml
     with:
       vite-evervault-js-url: "https://js.evervault.com/v2"
       vite-keys-url: "https://keys.evervault.com"
       vite-api-url: "https://api.evervault.com"
       environment: "production"
+      package-name: ${{ needs.get-package-name-from-tag.outputs.package-name }}
+      upload-artifact: true
     secrets: inherit
   deploy-browser:
     if: startsWith(inputs.release-tag, '@evervault/browser')

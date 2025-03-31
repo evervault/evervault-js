@@ -11,10 +11,16 @@ on:
         required: false
         type: string
 jobs:
+  get-artifact-name:
+    uses: ./.github/workflows/get-artifact-name.yml
+    with:
+      package-name: "@evervault/3ds"
+      environment: ${{ inputs.environment }}
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     name: "Deploy to ${{ inputs.environment }}"
+    needs: get-artifact-name
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -25,7 +31,7 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8
         with:
-          name: "${{ inputs.environment }}-3ds-build"
+          name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: dist
       - name: S3 Deploy
         run: aws s3 cp dist s3://${{ vars.TDS_AWS_S3_BUCKET }}/ --recursive

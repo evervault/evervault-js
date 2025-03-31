@@ -31,9 +31,15 @@ on:
         required: false
         type: string
 jobs:
+  get-artifact-name:
+    uses: ./.github/workflows/get-artifact-name.yml
+    with:
+      package-name: ${{ inputs.package-name }}
+      environment: ${{ inputs.environment }}
   build:
     name: "[${{ inputs.environment }}] Build ${{ inputs.package-name }}"
     runs-on: ubuntu-latest
+    needs: get-artifact-name
     env:
       VITE_API_URL: ${{ inputs.vite-api-url }}
       VITE_EVERVAULT_JS_URL: ${{ inputs.vite-evervault-js-url}}
@@ -57,7 +63,7 @@ jobs:
       - name: Install deps
         run: pnpm install --frozen-lockfile
       - name: Build ${{ inputs.package-name }}
-        run: pnpm run --if-present --filter ${{ inputs.package-name }} build
+        run: pnpm run --if-present --filter ${{ inputs.package-name }}... build
       - name: Get path to package
         id: get-path-to-package
         run: |-
@@ -68,5 +74,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           overwrite: false
-          name: "${{ inputs.environment }}-${{ inputs.artifact-name }}"
+          name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: ${{ steps.get-path-to-package.outputs.path-to-package }}/dist
