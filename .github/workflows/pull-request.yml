@@ -12,7 +12,6 @@ jobs:
       vite-evervault-js-url: "https://js.evervault.io/v2"
       vite-keys-url: "https://keys.evervault.io"
       vite-api-url: "https://api.evervault.io"
-      run-code-coverage-checks: true
     secrets: inherit
   e2e-test:
     uses: ./.github/workflows/e2e-test.yml

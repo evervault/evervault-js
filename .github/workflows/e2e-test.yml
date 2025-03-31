@@ -100,18 +100,15 @@ jobs:
         run: |-
           E2E_TEST_PROJECTS=$(pnpm m ls --depth=1 --json | jq -cr '[.[] | select(.name|endswith("e2e-tests")) | .name]')
           echo "e2e-test-projects=$E2E_TEST_PROJECTS" >> $GITHUB_OUTPUT
+  # The e2e tests run for quite a long time. Until we can accurately select the appropriate tests to run, we're running them in parallel (2 jobs per project, each with 3-4 worker processes.)
   e2e-test:
-    name: "Run E2E Tests for ${{ matrix.project }} (Shard ${{ matrix.shard }}/${{ matrix.total-shards }})"    
+    name: "Run E2E Tests for ${{ matrix.project }} (Shard ${{ matrix.shard }}/${{ matrix.total-shards }})"
     needs: [prepare-cache, get-e2e-targets]
     strategy:
-      matrix: 
+      matrix:
         project: ${{ fromJson(needs.get-e2e-targets.outputs.e2e-test-projects) }}
-        shard: [1,2]
-        include:
-          - total-shards: 2
-          - project: "@evervault/ui-components-e2e-tests"
-            shard: [1,2,3,4]
-            total-shards: 4
+        total-shards: 2
+        shard: [1, 2]
     timeout-minutes: 25
     runs-on: ubuntu-latest
     env:
@@ -158,7 +155,7 @@ jobs:
             ${{ runner.os }}-playwright-
       - name: "[cache-miss] Install Playwright browser binaries & OS dependencies"
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps 
+        run: pnpm exec playwright install --with-deps
       - name: "[cache-hit] Install Playwright OS Deps"
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: pnpm exec playwright install-deps

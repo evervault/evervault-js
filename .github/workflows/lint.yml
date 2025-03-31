@@ -14,10 +14,6 @@ on:
         description: "API endpoint"
         required: true
         type: string
-      run-code-coverage-checks:
-        description: "Whether to run code coverage checks or not"
-        required: true
-        type: boolean
 jobs:
   lint:
     name: "Lint and Test"
@@ -33,7 +29,6 @@ jobs:
       VITE_API_URL: ${{ inputs.vite-api-url }}
       VITE_EVERVAULT_JS_URL: ${{ inputs.vite-evervault-js-url}}
       VITE_KEYS_URL: ${{ inputs.vite-keys-url }}
-      VITE_TEST_COVERAGE: "${{ inputs.run-code-coverage-checks }}"
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -52,10 +47,6 @@ jobs:
           cache: "pnpm"
       - name: Install deps
         run: pnpm install --frozen-lockfile
-      # TODO: resolve issues with unit test coverage
-      # - name: Build in coverage tooling
-      #   if: ${{ inputs.run-code-coverage-checks }}
-      #   run: pnpm run -r --if-present build
       - name: Formats check
         run: pnpm run -r --filter="@evervault/*" --if-present format:check
       - name: Build
@@ -66,10 +57,3 @@ jobs:
         run: pnpm run -r --filter="@evervault/*" --if-present lint
       - name: Run unit tests
         run: pnpm -r --if-present test
-      # TODO: resolve issues with unit test coverage
-      # - name: Generate Coverage Report
-      #   if: ${{ inputs.run-code-coverage-checks }}
-      #   run: pnpm coverage:report
-      # - name: Enforce Coverage Threshold
-      #   if: ${{ inputs.run-code-coverage-checks }}
-      #   run: pnpm coverage:check
