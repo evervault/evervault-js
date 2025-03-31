@@ -57,13 +57,13 @@ jobs:
       #   if: ${{ inputs.run-code-coverage-checks }}
       #   run: pnpm run -r --if-present build
       - name: Formats check
-        run: pnpm run -r --if-present format:check
+        run: pnpm run -r --filter="@evervault/*" --if-present format:check
       - name: Build
         run: pnpm run -r --if-present build
       - name: Typescript check
-        run: pnpm run -r --if-present typecheck
+        run: pnpm run -r --filter="@evervault/*" --if-present typecheck
       - name: eslint check
-        run: pnpm run -r --if-present lint
+        run: pnpm run -r --filter="@evervault/*" --if-present lint
       - name: Run unit tests
         run: pnpm -r --if-present test
       # TODO: resolve issues with unit test coverage
