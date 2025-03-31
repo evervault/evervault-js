@@ -40,10 +40,10 @@
     "access": "public"
   },
   "scripts": {
+    "prebuild": "pnpm codegen",
     "build": "rollup -c",
     "watch": "rollup -c --watch",
     "codegen": "rimraf build android/app && react-native codegen",
-    "prepare": "pnpm codegen && pnpm build",
     "test": "vitest run",
     "test:watch": "vitest --watch"
   },

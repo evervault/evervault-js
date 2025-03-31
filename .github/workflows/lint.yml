@@ -57,13 +57,13 @@ jobs:
       #   if: ${{ inputs.run-code-coverage-checks }}
       #   run: pnpm run -r --if-present build
       - name: Formats check
-        run: pnpm run format:check
+        run: pnpm run -r --if-present format:check
       - name: Typescript check
-        run: pnpm run typecheck
+        run: pnpm run -r --if-present typecheck
       - name: eslint check
-        run: pnpm run lint
+        run: pnpm run -r --if-present lint
       - name: Run unit tests
-        run: pnpm test
+        run: pnpm -r --if-present test
       # TODO: resolve issues with unit test coverage
       # - name: Generate Coverage Report
       #   if: ${{ inputs.run-code-coverage-checks }}
