@@ -110,9 +110,6 @@ jobs:
         shard: [1, 2]
         include:
           - total-shards: 2
-          - project: "@evervault/ui-components-e2e-tests"
-            shard: [1,2,3,4]
-            total-shards: 4
     timeout-minutes: 25
     runs-on: ubuntu-latest
     env:
