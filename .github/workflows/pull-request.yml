@@ -7,14 +7,14 @@ on:
       - "main"
 jobs:
   lint-and-test:
-    uses: ./.github/workflows/lint.yml
+    uses: ./.github/workflows/actions/lint.yml
     with:
       vite-evervault-js-url: "https://js.evervault.io/v2"
       vite-keys-url: "https://keys.evervault.io"
       vite-api-url: "https://api.evervault.io"
     secrets: inherit
   e2e-test:
-    uses: ./.github/workflows/e2e-test.yml
+    uses: ./.github/workflows/actions/e2e-test.yml
     with:
       vite-evervault-js-url: "https://js.evervault.com/v2"
       vite-keys-url: "https://keys.evervault.com"

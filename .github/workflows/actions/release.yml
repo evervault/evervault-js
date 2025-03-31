@@ -26,7 +26,7 @@ jobs:
             return tag.slice(0,semverPrefix);
   build:
     needs: get-package-name-from-tag
-    uses: ./.github/workflows/build.yml
+    uses: ./.github/workflows/actions/build.yml
     with:
       vite-evervault-js-url: "https://js.evervault.com/v2"
       vite-keys-url: "https://keys.evervault.com"
@@ -38,7 +38,7 @@ jobs:
   deploy-browser:
     if: startsWith(inputs.release-tag, '@evervault/browser')
     needs: build
-    uses: ./.github/workflows/deploy-browser.yml
+    uses: ./.github/workflows/actions/deploy-browser.yml
     with:
       environment: "production"
       tag_name: ${{ inputs.release-tag }}
@@ -46,7 +46,7 @@ jobs:
   deploy-inputs:
     if: startsWith(inputs.release-tag, '@evervault/inputs')
     needs: build
-    uses: ./.github/workflows/deploy-inputs.yml
+    uses: ./.github/workflows/actions/deploy-inputs.yml
     with:
       environment: "production"
       tag_name: ${{ inputs.release-tag }}
@@ -54,7 +54,7 @@ jobs:
   deploy-ui-components:
     if: startsWith(inputs.release-tag, '@evervault/ui-components')
     needs: build
-    uses: ./.github/workflows/deploy-ui-components.yml
+    uses: ./.github/workflows/actions/deploy-ui-components.yml
     with:
       environment: "production"
       tag_name: ${{ inputs.release-tag }}
@@ -62,7 +62,7 @@ jobs:
   deploy-3ds:
     if: startsWith(inputs.release-tag, '@evervault/3ds')
     needs: build
-    uses: ./.github/workflows/deploy-3ds.yml
+    uses: ./.github/workflows/actions/deploy-3ds.yml
     with:
       environment: "production"
       tag_name: ${{ inputs.release-tag }}
@@ -70,7 +70,7 @@ jobs:
   publish-react:
     if: startsWith(inputs.release-tag, '@evervault/react')
     needs: build
-    uses: ./.github/workflows/npm-publish.yml
+    uses: ./.github/workflows/actions/npm-publish.yml
     with:
       package: "@evervault/react"
       artifact: "react-sdk-build"
@@ -80,7 +80,7 @@ jobs:
   publish-card-validator:
     if: startsWith(inputs.release-tag, '@evervault/card-validator')
     needs: build
-    uses: ./.github/workflows/npm-publish.yml
+    uses: ./.github/workflows/actions/npm-publish.yml
     with:
       package: "@evervault/card-validator"
       artifact: "card-validator-build"
@@ -90,7 +90,7 @@ jobs:
   publish-react-native-v2:
     if: startsWith(inputs.release-tag, '@evervault/react-native')
     needs: build
-    uses: ./.github/workflows/npm-publish.yml
+    uses: ./.github/workflows/actions/npm-publish.yml
     with:
       package: "@evervault/react-native"
       artifact: "react-native-build"
@@ -100,7 +100,7 @@ jobs:
   publish-react-native-v1:
     if: startsWith(inputs.release-tag, '@evervault/evervault-react-native')
     needs: build
-    uses: ./.github/workflows/npm-publish.yml
+    uses: ./.github/workflows/actions/npm-publish.yml
     with:
       package: "@evervault/evervault-react-native"
       artifact: "react-native-v1-build"
@@ -110,7 +110,7 @@ jobs:
   publish-eql:
     if: startsWith(inputs.release-tag, '@evervault/eql')
     needs: build
-    uses: ./.github/workflows/npm-publish.yml
+    uses: ./.github/workflows/actions/npm-publish.yml
     with:
       package: "@evervault/eql"
       artifact: "eql-build"
@@ -120,7 +120,7 @@ jobs:
   publish-js:
     if: startsWith(inputs.release-tag, '@evervault/js')
     needs: build
-    uses: ./.github/workflows/npm-publish.yml
+    uses: ./.github/workflows/actions/npm-publish.yml
     with:
       package: "@evervault/js"
       artifact: "evervault-js"

@@ -8,7 +8,7 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
   lint-and-test:
-    uses: ./.github/workflows/lint.yml
+    uses: ./.github/workflows/actions/lint.yml
     with:
       vite-evervault-js-url: "https://js.evervault.io/v2"
       vite-keys-url: "https://api.evervault.io/teams"
@@ -35,7 +35,7 @@ jobs:
           PUBLISHABLE=$(pnpm m ls --depth=1 --json | jq -cr '[.[] | select(.name|startswith("@evervault")) | select(.private == false) | .name]')
           echo "publishable-packages=$PUBLISHABLE" >> $GITHUB_OUTPUT
   build:
-    uses: ./.github/workflows/build.yml
+    uses: ./.github/workflows/actions/build.yml
     needs: get-all-publishable-packages
     strategy:
       matrix:
@@ -50,27 +50,27 @@ jobs:
     secrets: inherit
   deploy-browser:
     needs: [lint-and-test,build]
-    uses: ./.github/workflows/deploy-browser.yml
+    uses: ./.github/workflows/actions/deploy-browser.yml
     with:
       environment: "staging"
       run-preflight-checks: false
     secrets: inherit
   deploy-inputs:
     needs: [lint-and-test,build]
-    uses: ./.github/workflows/deploy-inputs.yml
+    uses: ./.github/workflows/actions/deploy-inputs.yml
     with:
       environment: "staging"
     secrets: inherit
   deploy-ui-components-staging:
     needs: [lint-and-test,build]
-    uses: ./.github/workflows/deploy-ui-components.yml
+    uses: ./.github/workflows/actions/deploy-ui-components.yml
     with:
       environment: "staging"
       run-preflight-checks: false
     secrets: inherit
   deploy-3ds:
     needs: [lint-and-test,build]
-    uses: ./.github/workflows/deploy-3ds.yml
+    uses: ./.github/workflows/actions/deploy-3ds.yml
     with:
       environment: "staging"
     secrets: inherit
@@ -130,4 +130,4 @@ jobs:
     with:
       release-tag: ${{ matrix.tag }}
     secrets: inherit
-    uses: ./.github/workflows/release.yml
+    uses: ./.github/workflows/actions/release.yml
