@@ -1,7 +1,7 @@
-const { readFileSync } = require('node:fs');
-const { resolve } = require('node:path');
-const { expect } = require('chai');
-const peggy = require('peggy');
+import { readFileSync } from 'node:fs';
+import { resolve } from "node:path";
+import peggy from "peggy";
+import { expect, describe, it } from "vitest";
 
 const rawGrammar = readFileSync(resolve(__dirname, './grammar.peggy'), 'utf8');
 const compiledParser = peggy.generate(rawGrammar);

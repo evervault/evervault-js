@@ -29,7 +29,6 @@
   "scripts": {
     "build": "bob build",
     "clean": "del-cli android/build dist",
-    "dev": "nodemon --watch ./src --exec 'bob build' --ext ts,tsx",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
@@ -59,7 +58,6 @@
   },
   "dependencies": {
     "@evervault/card-validator": "workspace:*",
-    "nodemon": "catalog:",
     "react-native-masked-text": "catalog:",
     "react-native-webview": "catalog:"
   },
