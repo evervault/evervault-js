@@ -12,7 +12,7 @@ on:
         type: string
 jobs:
   get-artifact-name:
-    uses: ./.github/workflows/actions/get-artifact-name.yml
+    uses: ./.github/workflows/get-artifact-name.yml
     with:
       package-name: "@evervault/inputs"
       environment: ${{ inputs.environment }}

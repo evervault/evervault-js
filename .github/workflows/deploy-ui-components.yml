@@ -1,4 +1,4 @@
-name: Deploy Browser SDK
+name: Deploy UI Components
 on:
   workflow_call:
     inputs:
@@ -16,9 +16,9 @@ on:
         type: string
 jobs:
   get-artifact-name:
-    uses: ./.github/workflows/actions/get-artifact-name.yml
+    uses: ./.github/workflows/get-artifact-name.yml
     with:
-      package-name: "@evervault/browser"
+      package-name: "@evervault/ui-components"
       environment: ${{ inputs.environment }}
   deploy-preview:
     runs-on: ubuntu-latest
@@ -48,12 +48,12 @@ jobs:
         with:
           name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: dist
-      - name: Rename Build Artifacts
-        run: cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
-      - name: S3 Deploy
-        run: aws s3 cp ./dist/ s3://${{ vars.BROWSER_SDK_S3_BUCKET }}/v2/preview/ --recursive
+      - name: S3 Deploy assets
+        run: aws s3 cp ./dist/assets s3://${{ vars.UI_COMPONENTS_S3_BUCKET }}/assets/ --recursive
+      - name: S3 Deploy preview
+        run: aws s3 cp ./dist/index.html s3://${{ vars.UI_COMPONENTS_S3_BUCKET }}/preview/
       - name: Cloudfront Cache Invalidation
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/v2/preview/index.js"
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/preview/index.html"
       - uses: pnpm/action-setup@v4
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -71,20 +71,20 @@ jobs:
           VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
           VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
           VITE_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
-          VITE_EVERVAULT_JS_URL: https://js.evervault.${{ inputs.environment == 'production' && 'com' || 'io' }}/v2/preview/index.js
-        run: pnpm --filter=@repo/browser-pre-release-tests test-prerelease
+          VITE_UI_COMPONENTS_URL: https://ui-components.evervault.${{ inputs.environment == 'production' && 'com' || 'io' }}/preview/index.html
+        run: pnpm --filter=@repo/ui-components-pre-release-tests test-prerelease
       - name: Notify slack of failed release gate run
         uses: donaltuohy/deployment-slack-alert@v1
         if: ${{ failure() && inputs.run-preflight-checks && steps.preflight.outcome == 'failure' }}
         with:
           webhook: ${{ secrets.PRODUCTION_SLACK_WEBHOOK }}
-          service_name: Browser SDK Preflight check failed for ${{ inputs.environment }}
+          service_name: Ui components Preflight check failed for ${{ inputs.environment }}
           action: failed
   deploy:
     runs-on: ubuntu-latest
-    needs: [get-artifact-name, deploy-preview]
     environment: ${{ inputs.environment }}-deploy
     name: "Deploy to ${{ inputs.environment }}"
+    needs: [get-artifact-name,deploy-preview]
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -97,12 +97,10 @@ jobs:
         with:
           name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: dist
-      - name: Rename Build Artifacts
-        run: cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
       - name: S3 Deploy
-        run: aws s3 cp ./dist/ s3://${{ vars.BROWSER_SDK_S3_BUCKET }}/v2/ --recursive
+        run: aws s3 cp ./dist/index.html s3://${{ vars.UI_COMPONENTS_S3_BUCKET }}/
       - name: Cloudfront Cache Invalidation
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/v2/index.js"
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/index.html"
   create_release:
     name: Create Github Release and Changelog
     runs-on: ubuntu-latest
@@ -127,3 +125,4 @@ jobs:
         with:
           body_path: ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md
           tag_name: ${{ inputs.tag_name }}
+
