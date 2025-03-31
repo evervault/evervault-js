@@ -1,4 +1,4 @@
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { describe, assert, it, beforeAll, afterAll, afterEach } from "vitest";
 import EvervaultClient from "../lib/main";
@@ -50,11 +50,11 @@ const decrypted = {
 };
 
 export const restHandlers = [
-  rest.post("https://api.evervault.com/decrypt", (req, res, ctx) => {
-    if (req.headers.get("Authorization") !== `Token ${execToken}`) {
-      return res(ctx.status(401), ctx.json({}));
+  http.post("https://api.evervault.com/decrypt", ({ request }) => {
+    if (request.headers.get("Authorization") !== `Token ${execToken}`) {
+      return HttpResponse.json({}, { status: 401 });
     }
-    return res(ctx.status(200), ctx.json(decrypted));
+    return HttpResponse.json(decrypted, { status: 200 });
   }),
 ];
 
