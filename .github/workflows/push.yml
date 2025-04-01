@@ -58,29 +58,59 @@ jobs:
     secrets: inherit
   deploy-browser:
     needs: [lint-and-test,e2e-test,build]
-    uses: ./.github/workflows/deploy-browser.yml
+    uses: ./.github/workflows/publish-static-bundle.yml
     with:
-      environment: "staging"
+      stage: "staging"
+      package-name: '@evervault/browser'
+      environment: 'browser-staging'
       run-preflight-checks: false
+      perform-gated-preview-deployment: true
+      cloudfront-preview-path-invalidation: "/v2/preview/index.js"
+      cloudfront-live-path-invalidation: "/v2/index.js"
+      asset-subdomain: "js"
+      s3-bucket-var-name: 'BROWSER_SDK_S3_BUCKET'
+      cloudfront-distribution-id: 'BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID'
     secrets: inherit
   deploy-inputs:
     needs: [lint-and-test,e2e-test,build]
-    uses: ./.github/workflows/deploy-inputs.yml
+    uses: ./.github/workflows/publish-static-bundle.yml
     with:
-      environment: "staging"
-    secrets: inherit
-  deploy-ui-components-staging:
-    needs: [lint-and-test,e2e-test,build]
-    uses: ./.github/workflows/deploy-ui-components.yml
-    with:
-      environment: "staging"
+      stage: "staging"
+      package-name: '@evervault/inputs'
+      environment: 'staging'
       run-preflight-checks: false
+      perform-gated-preview-deployment: false
+      cloudfront-live-path-invalidation: "/index.html,/bundle.js,/v2/*"
+      s3-bucket-var-name: 'INPUTS_S3_BUCKET'
+      cloudfront-distribution-id: 'INPUTS_CLOUDFRONT_DISTRIBUTION_ID'
+    secrets: inherit
+  deploy-ui-components:
+    needs: [lint-and-test,e2e-test,build]
+    uses: ./.github/workflows/publish-static-bundle.yml
+    with:
+      stage: "staging"
+      package-name: '@evervault/ui-components'
+      environment: 'ui-components-staging'
+      run-preflight-checks: false
+      perform-gated-preview-deployment: true
+      s3-bucket-var-name: 'UI_COMPONENTS_S3_BUCKET'
+      cloudfront-preview-path-invalidation: "/preview/index.html"
+      cloudfront-live-path-invalidation: "/index.html,/assets/*"
+      asset-subdomain: "ui-components"
+      cloudfront-distribution-id: 'UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID'
     secrets: inherit
   deploy-3ds:
     needs: [lint-and-test,e2e-test,build]
-    uses: ./.github/workflows/deploy-3ds.yml
+    uses: ./.github/workflows/publish-static-bundle.yml
     with:
-      environment: "staging"
+      stage: "staging"
+      package-name: '@evervault/3ds'
+      environment: 'staging'
+      run-preflight-checks: false
+      perform-gated-preview-deployment: false
+      s3-bucket-var-name: 'TDS_AWS_S3_BUCKET'
+      cloudfront-live-path-invalidation: "/index.html"
+      cloudfront-distribution-id: 'TDS_AWS_CLOUDFRONT_DISTRIBUTION_ID'
     secrets: inherit
   create-tags:
     name: Create Tags
