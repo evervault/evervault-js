@@ -194,6 +194,11 @@ jobs:
         env:
           S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
         run: aws s3 cp ./dist s3://${{ vars[env.S3_BUCKET_VAR] }}/v2/ --recursive
+      - name: S3 Deploy @evervault/3ds
+        if: ${{ inputs.package-name == '@evervault/3ds' }}
+        env:
+          S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
+        run: aws s3 cp dist s3://${{ vars[env.S3_BUCKET_VAR] }}/ --recursive
       - name: Prepare cloudfront payload
         uses: actions/github-script@v7
         id: prepare-cloudfront-payload
