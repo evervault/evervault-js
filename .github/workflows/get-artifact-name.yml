@@ -24,4 +24,4 @@ jobs:
         id: get-artifact-name
         run: |-
           NORMALIZED_PACKAGE_NAME=$(echo "${{ inputs.package-name }}" | sed -e 's/@//g' -e 's/[/]/-/g')
-          echo "artifact-name=${{ inputs.environment }}-$NORMALIZED_ARTIFACT" >> $GITHUB_OUTPUT
+          echo "artifact-name=${{ inputs.environment }}-$NORMALIZED_PACKAGE_NAME" >> $GITHUB_OUTPUT
