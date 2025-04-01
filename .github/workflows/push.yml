@@ -14,6 +14,14 @@ jobs:
       vite-keys-url: "https://api.evervault.io/teams"
       vite-api-url: "https://api.evervault.io"
     secrets: inherit
+  e2e-test:
+    uses: ./.github/workflows/e2e-test.yml
+    with:
+      vite-evervault-js-url: "https://js.evervault.com/v2"
+      vite-keys-url: "https://api.evervault.com/teams"
+      vite-api-url: "https://api.evervault.com"
+      run-code-coverage-checks: false
+    secrets: inherit
   get-all-publishable-packages:
     runs-on: ubuntu-latest
     outputs:
@@ -49,27 +57,27 @@ jobs:
       upload-artifact: true
     secrets: inherit
   deploy-browser:
-    needs: [lint-and-test,build]
+    needs: [lint-and-test,e2e-test,build]
     uses: ./.github/workflows/deploy-browser.yml
     with:
       environment: "staging"
       run-preflight-checks: false
     secrets: inherit
   deploy-inputs:
-    needs: [lint-and-test,build]
+    needs: [lint-and-test,e2e-test,build]
     uses: ./.github/workflows/deploy-inputs.yml
     with:
       environment: "staging"
     secrets: inherit
   deploy-ui-components-staging:
-    needs: [lint-and-test,build]
+    needs: [lint-and-test,e2e-test,build]
     uses: ./.github/workflows/deploy-ui-components.yml
     with:
       environment: "staging"
       run-preflight-checks: false
     secrets: inherit
   deploy-3ds:
-    needs: [lint-and-test,build]
+    needs: [lint-and-test,e2e-test,build]
     uses: ./.github/workflows/deploy-3ds.yml
     with:
       environment: "staging"
@@ -77,7 +85,7 @@ jobs:
   create-tags:
     name: Create Tags
     runs-on: ubuntu-latest
-    needs: [lint-and-test,build]
+    needs: [lint-and-test,e2e-test,build]
     outputs:
       has-changesets: ${{ steps.changesets.outputs.hasChangesets }}
       tags-to-publish: ${{ steps.create-tags.outputs.tags-to-publish }}
@@ -121,7 +129,7 @@ jobs:
           HUSKY: 0
   release:
     name: Release ${{ matrix.tag }}
-    needs: [lint-and-test,build,create-tags]
+    needs: [lint-and-test,e2e-test,build,create-tags]
     # Only attempt releases if we expect to have pushed some tags
     if: needs.create-tags.outputs.has-changesets == 'false'
     strategy:
