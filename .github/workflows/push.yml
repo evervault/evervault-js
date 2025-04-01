@@ -56,31 +56,56 @@ jobs:
       package-name: ${{ matrix.package-name }}
       upload-artifact: true
     secrets: inherit
-  deploy-browser:
+  deploy-static-packages:
     needs: [lint-and-test,e2e-test,build]
-    uses: ./.github/workflows/deploy-browser.yml
+    uses: ./.github/workflows/publish-static-bundle.yml
+    strategy:
+      matrix:
+        package-name: ['@evervault/browser', '@evervault/inputs', '@evervault/ui-components', '@evervault/3ds']
+        include:
+          - package-name: '@evervault/browser'
+            environment: 'browser-staging'
+            run-preflight-checks: false
+            perform-gated-preview-deployment: false
+            cloudfront-preview-path-invalidation: "/v2/preview/index.js"
+            cloudfront-production-path-invalidation: "/v2/index.js"
+            asset-subdomain: "js"
+            s3-bucket-name: ${{ vars.BROWSER_SDK_S3_BUCKET }}
+            cloudfront-distribution-id: 'BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID'
+          - package-name: '@evervault/inputs'
+            environment: 'staging'
+            run-preflight-checks: false
+            perform-gated-preview-deployment: false
+            cloudfront-production-path-invalidation: "/index.html,/bundle.js,/v2/*"
+            s3-bucket-name: ${{ vars.INPUTS_S3_BUCKET }}
+            cloudfront-distribution-id: 'INPUTS_CLOUDFRONT_DISTRIBUTION_ID'
+          - package-name: '@evervault/ui-components'
+            environment: 'ui-components-staging'
+            run-preflight-checks: false
+            perform-gated-preview-deployment: false
+            s3-bucket-name: ${{ vars.UI_COMPONENTS_S3_BUCKET }}
+            cloudfront-preview-path-invalidation: "/preview/index.html"
+            cloudfront-production-path-invalidation: "/index.html,/assets/*"
+            asset-subdomain: "ui-components"
+            cloudfront-distribution-id: 'UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID'
+          - package-name: '@evervault/3ds'
+            environment: 'staging'
+            run-preflight-checks: false
+            perform-gated-preview-deployment: false
+            s3-bucket-name: ${{ vars.TDS_AWS_S3_BUCKET }}
+            cloudfront-production-path-invalidation: "/index.html"
+            cloudfront-distribution-id: 'TDS_AWS_CLOUDFRONT_DISTRIBUTION_ID'
     with:
-      environment: "staging"
-      run-preflight-checks: false
-    secrets: inherit
-  deploy-inputs:
-    needs: [lint-and-test,e2e-test,build]
-    uses: ./.github/workflows/deploy-inputs.yml
-    with:
-      environment: "staging"
-    secrets: inherit
-  deploy-ui-components-staging:
-    needs: [lint-and-test,e2e-test,build]
-    uses: ./.github/workflows/deploy-ui-components.yml
-    with:
-      environment: "staging"
-      run-preflight-checks: false
-    secrets: inherit
-  deploy-3ds:
-    needs: [lint-and-test,e2e-test,build]
-    uses: ./.github/workflows/deploy-3ds.yml
-    with:
-      environment: "staging"
+      stage: "staging"
+      environment: ${{ matrix.environment }}
+      run-preflight-checks: ${{ matrix.run-preflight-checks }}
+      perform-gated-preview-deployment: ${{ matrix.perform-gated-preview-deployment }}
+      package-name: ${{ matrix.package-name }}
+      cloudfront-preview-path-invalidation: ${{ matrix.cloudfront-preview-path-invalidation }}
+      cloudfront-production-path-invalidation: ${{ matrix.cloudfront-production-path-invalidation }}
+      asset-subdomain: ${{ matrix.asset-subdomain }}
+      s3-bucket-name: ${{ matrix.s3-bucket-name }}
+      cloudfront-distribution-id: ${{ matrix.cloudfront-distribution-id }}
     secrets: inherit
   create-tags:
     name: Create Tags

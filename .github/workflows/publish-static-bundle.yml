@@ -1,0 +1,200 @@
+name: Publish Static Bundle
+on:
+  workflow_call:
+    inputs:
+      stage:
+        description: "Stage to deploy to (eg. staging, production)"
+        required: true
+        type: string
+      environment:
+        description: "Name of the github environment used to gate deployments"
+        required: true
+        type: string
+      run-preflight-checks:
+        description: "Flag to enable preflight checks"
+        default: true
+        type: boolean
+      perform-gated-preview-deployment:
+        description: "Flag to enable gated preview deployment"
+        default: false
+        type: boolean
+      tag_name:
+        description: "The tag to be deployed"
+        required: false
+        type: string
+      package-name:
+        description: "The name of the package to be published"
+        required: true
+        type: string
+      cloudfront-distribution-id:
+        description: "The name of the secret which contains the CloudFront distribution ID to invalidate"
+        required: true
+        type: string
+      cloudfront-preview-path-invalidation:
+        description: "The path to invalidate in CloudFront for the preview deployment"
+        required: false
+        type: string
+      cloudfront-production-path-invalidation:
+        description: "The path to invalidate in CloudFront for the release step"
+        required: true
+        type: string
+      asset-subdomain:
+        description: "The Evervault subdomain that the asset is hosted under"
+        required: false
+        type: string
+      s3-bucket-name:
+        description: "The bucket that the assets are hosted in"
+        required: true
+        type: string
+jobs:
+  get-artifact-name:
+    uses: ./.github/workflows/get-artifact-name.yml
+    with:
+      package-name: ${{ inputs.package-name }}
+      environment: ${{ inputs.stage }}
+  deploy-preview:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    if: ${{ inputs.perform-gated-preview-deployment }}
+    name: "[PREVIEW] Deploy ${{ inputs.package-name }} to ${{ inputs.stage }}"
+    needs: get-artifact-name
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ inputs.stage == 'production' &&  secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID || secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ inputs.stage == 'production' &&  secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY || secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
+          aws-region: "us-east-1"
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: ${{ needs.get-artifact-name.outputs.artifact-name }}
+          path: dist
+      - name: S3 Deploy UI-Components assets to preview
+        if: ${{ inputs.package-name == '@evervault/ui-components' }}
+        run: |-
+          aws s3 cp ./dist/assets s3://${{ inputs.s3-bucket-name }}/assets/ --recursive
+          aws s3 cp ./dist/index.html s3://${{ inputs.s3-bucket-name }}/preview/ --recursive
+      - name: S3 Deploy browser sdk assets to preview
+        if: ${{ inputs.package-name == '@evervault/browser' }}
+        run: |-
+          cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
+          aws s3 cp ./dist/ s3://${{ inputs.s3-bucket-name }}/v2/preview/ --recursive
+      - name: Prepare cloudfront payload
+        uses: actions/github-script@v7
+        id: prepare-cloudfront-payload
+        with:
+          script: |
+            const paths = ${{ inputs.cloudfront-preview-path-invalidation }}.split(',').map(path => path.trim()).filter(path => path !== '');
+            return {
+              Paths: {
+                Quantity: paths.length,
+                Items: paths
+              }
+            };
+      - name: Cloudfront Cache Invalidation
+        # Prepare a JSON file for the invalidation batch and send it to cloudfront
+        run: |-
+          echo "${{ steps.prepare-cloudfront-payload.outputs.result }}" > invalidation.json
+          aws cloudfront create-invalidation --distribution-id ${{ secrets[env.CF_DISTRO_SECRET_NAME] }} --invalidation-batch file://invalidation.json
+        env:
+          CF_DISTRO_SECRET_NAME: ${{ inputs.cloudfront-distribution-id }}
+      - uses: pnpm/action-setup@v4
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+      - name: Run prefight checks
+        if: ${{ inputs.run-preflight-checks }}
+        id: preflight
+        env:
+          VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+          VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+          VITE_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+          VITE_EVERVAULT_JS_URL: https://${{ inputs.asset-subdomain }}.evervault.${{ inputs.stage == 'production' && 'com' || 'io' }}${{ inputs.cloudfront-preview-path-invalidation }}
+        run: pnpm --filter=@repo/browser-pre-release-tests test-prerelease
+      - name: Notify slack of failed release gate run
+        uses: donaltuohy/deployment-slack-alert@v1
+        if: ${{ failure() && inputs.run-preflight-checks && steps.preflight.outcome == 'failure' }}
+        with:
+          webhook: ${{ secrets.PRODUCTION_SLACK_WEBHOOK }}
+          service_name: ${{ inputs.package-name }} Preflight check failed for ${{ inputs.stage }}
+          action: failed
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [get-artifact-name, deploy-preview]
+    environment: ${{ inputs.environment }}-deploy
+    name: "Deploy ${{ inputs.package-name }} to ${{ inputs.stage }}"
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ inputs.stage == 'production' &&  secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID || secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ inputs.stage == 'production' &&  secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY || secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
+          aws-region: "us-east-1"
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: ${{ needs.get-artifact-name.outputs.artifact-name }}
+          path: dist
+      - name: S3 Deploy @evervault/browser
+        if: ${{ inputs.package-name == '@evervault/browser' }}
+        run: |-
+          cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
+          aws s3 cp ./dist/ s3://${{ inputs.s3-bucket-name }}/v2/ --recursive
+      - name: S3 Deploy @evervault/ui-components
+        if: ${{ inputs.package-name == '@evervault/ui-components' }}
+        run: aws s3 cp ./dist/index.html s3://${{ inputs.s3-bucket-name }}/
+      - name: S3 Deploy @evervault/inputs
+        if: ${{ inputs.package-name == '@evervault/inputs' }}
+        run: aws s3 cp ./dist s3://${{ inputs.s3-bucket-name }}/v2/ --recursive
+      - name: Prepare cloudfront payload
+        uses: actions/github-script@v7
+        id: prepare-cloudfront-payload
+        with:
+          script: |
+            const paths = ${{ inputs.cloudfront-production-path-invalidation }}.split(',').map(path => path.trim()).filter(path => path !== '');
+            return {
+              Paths: {
+                Quantity: paths.length,
+                Items: paths
+              }
+            };
+      - name: Cloudfront Cache Invalidation
+        # Prepare a JSON file for the invalidation batch and send it to cloudfront
+        run: |- 
+          echo "${{ steps.prepare-cloudfront-payload.outputs.result }}" > invalidation.json
+          aws cloudfront create-invalidation --distribution-id ${{ secrets[env.CF_DISTRO_SECRET_NAME] }} --invalidation-batch file://invalidation.json
+        env:
+          CF_DISTRO_SECRET_NAME: ${{ inputs.cloudfront-distribution-id }}
+  create_release:
+    name: Create Github Release and Changelog
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: ${{ inputs.stage == 'production' }}
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Get package name
+        env:
+          TAG: ${{ inputs.tag_name }}
+        id: parse
+        run: |
+          if [[ "$TAG" == *"evervault-react-native"* ]]; then
+            echo "name=react-native" >> $GITHUB_OUTPUT
+          else
+            name_part=${TAG##*/}
+            echo "name=${name_part%@*}" >> $GITHUB_OUTPUT
+          fi
+      - uses: softprops/action-gh-release@v2
+        with:
+          body_path: ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md
+          tag_name: ${{ inputs.tag_name }}
