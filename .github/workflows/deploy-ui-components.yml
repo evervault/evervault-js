@@ -15,10 +15,16 @@ on:
         required: false
         type: string
 jobs:
+  get-artifact-name:
+    uses: ./.github/workflows/get-artifact-name.yml
+    with:
+      package-name: "@evervault/ui-components"
+      environment: ${{ inputs.environment }}
   deploy-preview:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     name: "[PREVIEW] Deploy to ${{ inputs.environment }}"
+    needs: get-artifact-name
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -40,7 +46,7 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8
         with:
-          name: "${{ inputs.environment }}-ui-components-build"
+          name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: dist
       - name: S3 Deploy assets
         run: aws s3 cp ./dist/assets s3://${{ vars.UI_COMPONENTS_S3_BUCKET }}/assets/ --recursive
@@ -78,7 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}-deploy
     name: "Deploy to ${{ inputs.environment }}"
-    needs: [deploy-preview]
+    needs: [get-artifact-name,deploy-preview]
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -89,7 +95,7 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8
         with:
-          name: "${{ inputs.environment }}-ui-components-build"
+          name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: dist
       - name: S3 Deploy
         run: aws s3 cp ./dist/index.html s3://${{ vars.UI_COMPONENTS_S3_BUCKET }}/

@@ -1,0 +1,27 @@
+# Small reusable workflow to standardize artifact names
+on:
+  workflow_call:
+    inputs:
+      package-name:
+        type: string
+        required: true
+        description: The name of the package that the artifact will contain.
+      environment:
+        type: string
+        required: true
+        description: The environment that the artifact will be used in.
+    outputs:
+      artifact-name:
+        description: The name of the artifact that will be uploaded.
+        value: ${{ jobs.get-normalized-artifact-name.outputs.artifact-name }}
+jobs:
+  get-normalized-artifact-name:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: ${{ steps.get-artifact-name.outputs.artifact-name }}
+    steps:
+      - name: Get artifact name
+        id: get-artifact-name
+        run: |-
+          NORMALIZED_PACKAGE_NAME=$(echo "${{ inputs.package-name }}" | sed -e 's/@//g' -e 's/[/]/-/g')
+          echo "artifact-name=${{ inputs.environment }}-$NORMALIZED_ARTIFACT" >> $GITHUB_OUTPUT
