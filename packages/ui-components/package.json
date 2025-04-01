@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "clean": "rm -rf .turbo dist node_modules",
+    "clean": "rm -rf dist node_modules",
     "dev": "wait-on ../browser/dist && vite",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

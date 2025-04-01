@@ -4,7 +4,7 @@ Evervault JavaScript SDK.
 
 ## Repository structure
 
-This is a monorepo managed with [Turborepo](https://turbo.fyi/) and [pnpm workspaces](https://pnpm.io/workspaces).
+This is a monorepo managed with [pnpm workspaces](https://pnpm.io/workspaces).
 
 ### Public Packages
 
@@ -49,12 +49,6 @@ or
 ```bash
 # Install pnpm globally with npm old-school
 npm install -g pnpm
-```
-
-Install the Turborepo CLI set up globally, so we can link the workspace to Vercel for remote caching.
-
-```bash
-pnpm install turbo --global
 ```
 
 Install the dependencies with:

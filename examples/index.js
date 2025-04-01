@@ -31,8 +31,8 @@ select({
     "dotenv",
     [
       "--",
-      "turbo",
-      "watch",
+      "pnpm",
+      "run",
       "dev",
       "--ui=tui",
       "--filter",
