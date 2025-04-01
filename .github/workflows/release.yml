@@ -36,35 +36,67 @@ jobs:
       upload-artifact: true
     secrets: inherit
   deploy-browser:
+    needs: [build]
     if: startsWith(inputs.release-tag, '@evervault/browser')
-    needs: build
-    uses: ./.github/workflows/deploy-browser.yml
+    uses: ./.github/workflows/publish-static-bundle.yml
     with:
-      environment: "production"
+      package-name: '@evervault/browser'
+      stage: "production"
+      environment: 'browser-production'
+      run-preflight-checks: true
+      perform-gated-preview-deployment: true
+      cloudfront-preview-path-invalidation: "/v2/preview/index.js"
+      cloudfront-production-path-invalidation: "/v2/index.js"
+      asset-subdomain: "js"
+      s3-bucket-name: ${{ vars.BROWSER_SDK_S3_BUCKET }}
+      cloudfront-distribution-id: 'BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID'
       tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   deploy-inputs:
+    needs: [build]
     if: startsWith(inputs.release-tag, '@evervault/inputs')
-    needs: build
-    uses: ./.github/workflows/deploy-inputs.yml
+    uses: ./.github/workflows/publish-static-bundle.yml
     with:
-      environment: "production"
+      package-name: '@evervault/inputs'
+      environment: 'production'
+      run-preflight-checks: false
+      perform-gated-preview-deployment: false
+      cloudfront-production-path-invalidation: "/index.html,/bundle.js,/v2/*"
+      s3-bucket-name: ${{ vars.INPUTS_S3_BUCKET }}
+      cloudfront-distribution-id: 'INPUTS_CLOUDFRONT_DISTRIBUTION_ID'
+      stage: "production"
       tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   deploy-ui-components:
+    needs: [build]
     if: startsWith(inputs.release-tag, '@evervault/ui-components')
-    needs: build
-    uses: ./.github/workflows/deploy-ui-components.yml
+    uses: ./.github/workflows/publish-static-bundle.yml
     with:
-      environment: "production"
+      package-name: '@evervault/ui-components'
+      stage: "production"
+      environment: 'ui-components-production'
+      run-preflight-checks: true
+      perform-gated-preview-deployment: true
+      s3-bucket-name: ${{ vars.UI_COMPONENTS_S3_BUCKET }}
+      cloudfront-preview-path-invalidation: "/preview/index.html"
+      cloudfront-production-path-invalidation: "/index.html,/assets/*"
+      asset-subdomain: "ui-components"
+      cloudfront-distribution-id: 'UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID'
       tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   deploy-3ds:
+    needs: [build]
     if: startsWith(inputs.release-tag, '@evervault/3ds')
-    needs: build
-    uses: ./.github/workflows/deploy-3ds.yml
+    uses: ./.github/workflows/publish-static-bundle.yml
     with:
-      environment: "production"
+      package-name: '@evervault/3ds'
+      stage: "production"
+      environment: 'production'
+      run-preflight-checks: false
+      perform-gated-preview-deployment: false
+      s3-bucket-name: ${{ vars.TDS_AWS_S3_BUCKET }}
+      cloudfront-production-path-invalidation: "/index.html"
+      cloudfront-distribution-id: 'TDS_AWS_CLOUDFRONT_DISTRIBUTION_ID'
       tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   publish-react:
