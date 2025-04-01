@@ -68,32 +68,32 @@ jobs:
             run-preflight-checks: false
             perform-gated-preview-deployment: false
             cloudfront-preview-path-invalidation: "/v2/preview/index.js"
-            cloudfront-production-path-invalidation: "/v2/index.js"
+            cloudfront-live-path-invalidation: "/v2/index.js"
             asset-subdomain: "js"
-            s3-bucket-name: ${{ vars.BROWSER_SDK_S3_BUCKET }}
+            s3-bucket-var-name: 'BROWSER_SDK_S3_BUCKET'
             cloudfront-distribution-id: 'BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID'
           - package-name: '@evervault/inputs'
             environment: 'staging'
             run-preflight-checks: false
             perform-gated-preview-deployment: false
-            cloudfront-production-path-invalidation: "/index.html,/bundle.js,/v2/*"
-            s3-bucket-name: ${{ vars.INPUTS_S3_BUCKET }}
+            cloudfront-live-path-invalidation: "/index.html,/bundle.js,/v2/*"
+            s3-bucket-var-name: 'INPUTS_S3_BUCKET'
             cloudfront-distribution-id: 'INPUTS_CLOUDFRONT_DISTRIBUTION_ID'
           - package-name: '@evervault/ui-components'
             environment: 'ui-components-staging'
             run-preflight-checks: false
             perform-gated-preview-deployment: false
-            s3-bucket-name: ${{ vars.UI_COMPONENTS_S3_BUCKET }}
+            s3-bucket-var-name: 'UI_COMPONENTS_S3_BUCKET'
             cloudfront-preview-path-invalidation: "/preview/index.html"
-            cloudfront-production-path-invalidation: "/index.html,/assets/*"
+            cloudfront-live-path-invalidation: "/index.html,/assets/*"
             asset-subdomain: "ui-components"
             cloudfront-distribution-id: 'UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID'
           - package-name: '@evervault/3ds'
             environment: 'staging'
             run-preflight-checks: false
             perform-gated-preview-deployment: false
-            s3-bucket-name: ${{ vars.TDS_AWS_S3_BUCKET }}
-            cloudfront-production-path-invalidation: "/index.html"
+            s3-bucket-var-name: 'TDS_AWS_S3_BUCKET'
+            cloudfront-live-path-invalidation: "/index.html"
             cloudfront-distribution-id: 'TDS_AWS_CLOUDFRONT_DISTRIBUTION_ID'
     with:
       stage: "staging"
@@ -102,9 +102,9 @@ jobs:
       perform-gated-preview-deployment: ${{ matrix.perform-gated-preview-deployment }}
       package-name: ${{ matrix.package-name }}
       cloudfront-preview-path-invalidation: ${{ matrix.cloudfront-preview-path-invalidation }}
-      cloudfront-production-path-invalidation: ${{ matrix.cloudfront-production-path-invalidation }}
+      cloudfront-live-path-invalidation: ${{ matrix.cloudfront-live-path-invalidation }}
       asset-subdomain: ${{ matrix.asset-subdomain }}
-      s3-bucket-name: ${{ matrix.s3-bucket-name }}
+      s3-bucket-var-name: ${{ matrix.s3-bucket-var-name }}
       cloudfront-distribution-id: ${{ matrix.cloudfront-distribution-id }}
     secrets: inherit
   create-tags:

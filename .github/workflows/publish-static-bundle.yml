@@ -1,3 +1,5 @@
+# This workflow standardizes the release of packages which are hosted on S3 and served behind a Cloudfront CDN.
+# There is significant drift in the file structure across these projects, which makes things harder to standardize, hence the number of inputs to this workflow.
 name: Publish Static Bundle
 on:
   workflow_call:
@@ -7,7 +9,7 @@ on:
         required: true
         type: string
       environment:
-        description: "Name of the github environment used to gate deployments"
+        description: "Name of the github environment used to gate deployments. This will be used by the workflow to resolve the correct values for Github Secrets and Vars."
         required: true
         type: string
       run-preflight-checks:
@@ -19,39 +21,42 @@ on:
         default: false
         type: boolean
       tag_name:
-        description: "The tag to be deployed"
+        description: "The tag to be deployed. Optional. Expected to be given during production releases."
         required: false
         type: string
       package-name:
-        description: "The name of the package to be published"
+        description: "The name of the package to be published e.g. @evervault/browser"
         required: true
         type: string
       cloudfront-distribution-id:
-        description: "The name of the secret which contains the CloudFront distribution ID to invalidate"
+        description: "The name of the secret which contains the CloudFront distribution ID to invalidate. This is due to a limitation of Github Actions where you cannot use secrets in the workflow_call inputs."
         required: true
         type: string
       cloudfront-preview-path-invalidation:
-        description: "The path to invalidate in CloudFront for the preview deployment"
+        description: "Comma separated list of paths to invalidate in CloudFront for the preview deployment. Only set when the preview deployment is enabled."
         required: false
         type: string
-      cloudfront-production-path-invalidation:
-        description: "The path to invalidate in CloudFront for the release step"
+      cloudfront-live-path-invalidation:
+        description: "Comma separated list of paths to invalidate in CloudFront for the live deployment. Must be set."
         required: true
         type: string
       asset-subdomain:
-        description: "The Evervault subdomain that the asset is hosted under"
+        description: "The Evervault subdomain that the asset is hosted under. Only required for packages which perform preflight checks against their hosted asset."
         required: false
         type: string
-      s3-bucket-name:
-        description: "The bucket that the assets are hosted in"
+      s3-bucket-var-name:
+        description: "The name of the Github environment variable which contains the S3 bucket name to deploy to. We need to pass the var name to account for the value changing based on the configured environment."
         required: true
         type: string
 jobs:
+  # Resolve the name of the artifact to be used in the deployment
   get-artifact-name:
     uses: ./.github/workflows/get-artifact-name.yml
     with:
       package-name: ${{ inputs.package-name }}
       environment: ${{ inputs.stage }}
+  # For packages which support preflight testing/deployment previews, we deploy the static bundle under a preview namespace and optionally run a preflight test against it.
+  # This is to ensure that the preview deployment is working as expected before we promote to production.
   deploy-preview:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
@@ -59,6 +64,13 @@ jobs:
     name: "[PREVIEW] Deploy ${{ inputs.package-name }} to ${{ inputs.stage }}"
     needs: get-artifact-name
     steps:
+      # Sanity check that the preview deployment is for a package that we support. This is to prevent the workflow from running in an undefined state.
+      - name: Assert that preview deployment is for a known package
+        uses: actions/github-script@v7
+        if: ${{ inputs.package-name != '@evervault/ui-components' && inputs.package-name != '@evervault/browser' }}
+        with:
+          script: |
+            core.setFailed("Preview deployment has not been implemented for: ${{ inputs.package-name }}. Continuing would be undefined behaviour. Please implement a preview deployment for this package before proceeding.");
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -72,16 +84,30 @@ jobs:
         with:
           name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: dist
+      # The file paths that we upload the built assets to are different for each package, so its easier to read through if we just explicitly upload the files to the correct path
+      # rather than further bloating the workflow with inputs. 
+      #
+      # As it stands, we only support preview deployments for @evervault/ui-components and @evervault/browser. New packages with preview support should extend the below impls, and update the assertion above.
+      # 
+      # ui-components expects its built resources to be uploaded to /assets. These assets are then referenced in the index.html.
+      # To support the deployment preview, we upload the assets, but deploy the index.html to the preview path.
       - name: S3 Deploy UI-Components assets to preview
         if: ${{ inputs.package-name == '@evervault/ui-components' }}
+        env:
+          S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
         run: |-
-          aws s3 cp ./dist/assets s3://${{ inputs.s3-bucket-name }}/assets/ --recursive
-          aws s3 cp ./dist/index.html s3://${{ inputs.s3-bucket-name }}/preview/ --recursive
+          aws s3 cp ./dist/assets s3://${{ vars[env.S3_BUCKET_VAR] }}/assets/ --recursive
+          aws s3 cp ./dist/index.html s3://${{ vars[env.S3_BUCKET_VAR] }}/preview/ --recursive
+      # @evervault/browser requires its build output to be renamed before upload. Once thats done, we upload the renamed files to the preview path under the top level v2 directory.
       - name: S3 Deploy browser sdk assets to preview
         if: ${{ inputs.package-name == '@evervault/browser' }}
+        env:
+          S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
         run: |-
           cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
-          aws s3 cp ./dist/ s3://${{ inputs.s3-bucket-name }}/v2/preview/ --recursive
+          aws s3 cp ./dist/ s3://${{ vars[env.S3_BUCKET_VAR] }}/v2/preview/ --recursive
+      # For Packages which have multiple paths that need to be invalidated, its easier to use the batch invalidation API than it is to programmatically pass the `--paths` flag to the CLI.
+      # As a result, we split the list of paths on comma and create the expected payload (ref: https://docs.aws.amazon.com/cli/latest/reference/cloudfront/create-invalidation.html)
       - name: Prepare cloudfront payload
         uses: actions/github-script@v7
         id: prepare-cloudfront-payload
@@ -94,8 +120,8 @@ jobs:
                 Items: paths
               }
             };
+        # Use the JSON payload generated in the previous step to perform a batch invalidation against the CloudFront CDN.
       - name: Cloudfront Cache Invalidation
-        # Prepare a JSON file for the invalidation batch and send it to cloudfront
         run: |-
           echo "${{ steps.prepare-cloudfront-payload.outputs.result }}" > invalidation.json
           aws cloudfront create-invalidation --distribution-id ${{ secrets[env.CF_DISTRO_SECRET_NAME] }} --invalidation-batch file://invalidation.json
@@ -111,7 +137,7 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
-      - name: Run prefight checks
+      - name: Run preflight checks
         if: ${{ inputs.run-preflight-checks }}
         id: preflight
         env:
@@ -127,6 +153,10 @@ jobs:
           webhook: ${{ secrets.PRODUCTION_SLACK_WEBHOOK }}
           service_name: ${{ inputs.package-name }} Preflight check failed for ${{ inputs.stage }}
           action: failed
+  # The final deployment step is to deploy the static bundle to S3 and invalidate the CloudFront cache.
+  # This will move the static bundle to the live path and make it available to clients in either staging or production as configued.
+  #
+  # The logic for this release process is largely consistent with the preview deployment above.
   deploy:
     runs-on: ubuntu-latest
     needs: [get-artifact-name, deploy-preview]
@@ -146,21 +176,27 @@ jobs:
           path: dist
       - name: S3 Deploy @evervault/browser
         if: ${{ inputs.package-name == '@evervault/browser' }}
+        env:
+          S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
         run: |-
           cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
-          aws s3 cp ./dist/ s3://${{ inputs.s3-bucket-name }}/v2/ --recursive
+          aws s3 cp ./dist/ s3://${{ vars[env.S3_BUCKET_VAR] }}/v2/ --recursive
       - name: S3 Deploy @evervault/ui-components
         if: ${{ inputs.package-name == '@evervault/ui-components' }}
-        run: aws s3 cp ./dist/index.html s3://${{ inputs.s3-bucket-name }}/
+        env:
+          S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
+        run: aws s3 cp ./dist/index.html s3://${{ vars[env.S3_BUCKET_VAR] }}/
       - name: S3 Deploy @evervault/inputs
         if: ${{ inputs.package-name == '@evervault/inputs' }}
-        run: aws s3 cp ./dist s3://${{ inputs.s3-bucket-name }}/v2/ --recursive
+        env:
+          S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
+        run: aws s3 cp ./dist s3://${{ vars[env.S3_BUCKET_VAR] }}/v2/ --recursive
       - name: Prepare cloudfront payload
         uses: actions/github-script@v7
         id: prepare-cloudfront-payload
         with:
           script: |
-            const paths = ${{ inputs.cloudfront-production-path-invalidation }}.split(',').map(path => path.trim()).filter(path => path !== '');
+            const paths = ${{ inputs.cloudfront-live-path-invalidation }}.split(',').map(path => path.trim()).filter(path => path !== '');
             return {
               Paths: {
                 Quantity: paths.length,
@@ -174,6 +210,7 @@ jobs:
           aws cloudfront create-invalidation --distribution-id ${{ secrets[env.CF_DISTRO_SECRET_NAME] }} --invalidation-batch file://invalidation.json
         env:
           CF_DISTRO_SECRET_NAME: ${{ inputs.cloudfront-distribution-id }}
+  # If we just created a production release, take the changelog contents for the provided package and put it into the Github Release body.
   create_release:
     name: Create Github Release and Changelog
     runs-on: ubuntu-latest
