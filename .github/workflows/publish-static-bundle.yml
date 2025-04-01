@@ -160,6 +160,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [get-artifact-name, deploy-preview]
+    # We need to run this step even if the preview deployment is skipped. This is to account for the preview deployment being skipped.
+    # If the preview deployment fails, we should not attempt a live deployment.
+    if: ${{ always() && !failure() }}
     environment: ${{ inputs.environment }}-deploy
     name: "Deploy ${{ inputs.package-name }} to ${{ inputs.stage }}"
     steps:

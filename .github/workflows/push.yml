@@ -64,7 +64,7 @@ jobs:
       package-name: '@evervault/browser'
       environment: 'browser-staging'
       run-preflight-checks: false
-      perform-gated-preview-deployment: false
+      perform-gated-preview-deployment: true
       cloudfront-preview-path-invalidation: "/v2/preview/index.js"
       cloudfront-live-path-invalidation: "/v2/index.js"
       asset-subdomain: "js"
@@ -92,7 +92,7 @@ jobs:
       package-name: '@evervault/ui-components'
       environment: 'ui-components-staging'
       run-preflight-checks: false
-      perform-gated-preview-deployment: false
+      perform-gated-preview-deployment: true
       s3-bucket-var-name: 'UI_COMPONENTS_S3_BUCKET'
       cloudfront-preview-path-invalidation: "/preview/index.html"
       cloudfront-live-path-invalidation: "/index.html,/assets/*"
