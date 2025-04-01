@@ -69,7 +69,7 @@ export default defineConfig({
       timeout: 20 * 3000,
     },
     {
-      command: "pnpm --filter e2e-tests-ui-components-vanilla-server dev",
+      command: "pnpm --filter @repo/e2e-tests-ui-components-vanilla-server dev",
       url: "http://localhost:4005",
       timeout: 20 * 3000,
     },

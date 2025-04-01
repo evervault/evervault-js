@@ -65,7 +65,7 @@ export default defineConfig({
       timeout: 20 * 1000,
     },
     {
-      command: "pnpm --filter=@evervault/browser-e2e-tests preview",
+      command: "pnpm --filter=@repo/browser-e2e-tests preview",
       url: "http://localhost:4006",
       timeout: 20 * 1000,
     },
