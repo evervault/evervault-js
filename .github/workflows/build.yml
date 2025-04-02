@@ -70,9 +70,16 @@ jobs:
           PATH_TO_PACKAGE=$(pnpm list --filter ${{ inputs.package-name }} --json | jq -r '.[0].path')
           echo "path-to-package=$PATH_TO_PACKAGE" >> $GITHUB_OUTPUT
       - name: Upload Build Artifacts
-        if: ${{ inputs.upload-artifact }}
+        if: ${{ inputs.upload-artifact && !endsWith(inputs.package-name, 'react-native') }}
         uses: actions/upload-artifact@v4
         with:
           overwrite: false
           name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: ${{ steps.get-path-to-package.outputs.path-to-package }}/dist
+      - name: Upload Build Artifacts
+        if: ${{ inputs.upload-artifact && endsWith(inputs.package-name, 'react-native') }}
+        uses: actions/upload-artifact@v4
+        with:
+          overwrite: false
+          name: ${{ needs.get-artifact-name.outputs.artifact-name }}
+          path: ${{ steps.get-path-to-package.outputs.path-to-package }}
