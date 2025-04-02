@@ -14,7 +14,7 @@
     "build:cjs": "peggy -o dist/index.js --format commonjs src/grammar.peggy",
     "build:esm": "peggy -o dist/index.mjs --format es src/grammar.peggy",
     "build": "pnpm run build:cjs && pnpm run build:esm",
-    "clean": "rm -rf .turbo node_modules dist",
+    "clean": "rm -rf node_modules dist",
     "prepublish": "pnpm run build",
     "test": "vitest"
   },

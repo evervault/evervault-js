@@ -25,7 +25,7 @@
     "lint:fix": "eslint --fix .",
     "preinstall": "npx only-allow pnpm",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf .turbo node_modules dist"
+    "clean": "rm -rf node_modules dist"
   },
   "devDependencies": {
     "@evervault/browser": "workspace:*",

@@ -26,7 +26,7 @@
   },
   "scripts": {
     "build": "vite build",
-    "clean": "rm -rf .turbo node_modules dist",
+    "clean": "rm -rf node_modules dist",
     "coverage": "vitest --coverage",
     "dev": "concurrently --kill-others --success first \"pnpm dev:build\" \"pnpm dev:preview\"",
     "dev:build": "vite build --watch",

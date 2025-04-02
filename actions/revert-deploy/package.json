@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsup --config packages/tsconfig/app.tsup.config.json",
     "build:watch": "npm run build -- --watch",
-    "clean": "rm -rf .turbo .nyc_output node_modules dist",
+    "clean": "rm -rf .nyc_output node_modules dist",
     "lint": "tsc && eslint .",
     "lint:fix": "eslint --fix ."
   },
