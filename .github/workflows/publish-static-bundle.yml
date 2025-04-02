@@ -127,7 +127,7 @@ jobs:
         # Use the JSON payload generated in the previous step to perform a batch invalidation against the CloudFront CDN.
       - name: Cloudfront Cache Invalidation
         run: |-
-          echo "${{ steps.prepare-cloudfront-payload.outputs.result }}" > invalidation.json
+          echo ${{ toJson(steps.prepare-cloudfront-payload.outputs.result) }} > invalidation.json
           aws cloudfront create-invalidation --distribution-id ${{ secrets[env.CF_DISTRO_SECRET_NAME] }} --invalidation-batch file://invalidation.json
         env:
           CF_DISTRO_SECRET_NAME: ${{ inputs.cloudfront-distribution-id }}
@@ -218,7 +218,7 @@ jobs:
       - name: Cloudfront Cache Invalidation
         # Prepare a JSON file for the invalidation batch and send it to cloudfront
         run: |- 
-          echo "${{ steps.prepare-cloudfront-payload.outputs.result }}" > invalidation.json
+          echo ${{ toJson(steps.prepare-cloudfront-payload.outputs.result) }} > invalidation.json
           aws cloudfront create-invalidation --distribution-id ${{ secrets[env.CF_DISTRO_SECRET_NAME] }} --invalidation-batch file://invalidation.json
         env:
           CF_DISTRO_SECRET_NAME: ${{ inputs.cloudfront-distribution-id }}
