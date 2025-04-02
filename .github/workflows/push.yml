@@ -18,7 +18,7 @@ jobs:
     uses: ./.github/workflows/e2e-test.yml
     with:
       vite-evervault-js-url: "https://js.evervault.com/v2"
-      vite-keys-url: "https://api.evervault.com/teams"
+      vite-keys-url: "https://keys.evervault.com"
       vite-api-url: "https://api.evervault.com"
       run-code-coverage-checks: false
     secrets: inherit
