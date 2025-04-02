@@ -8,8 +8,12 @@ on:
         description: "Stage to deploy to (eg. staging, production)"
         required: true
         type: string
-      environment:
-        description: "Name of the github environment used to gate deployments. This will be used by the workflow to resolve the correct values for Github Secrets and Vars."
+      preview-environment:
+        description: "Name of the github environment used for deployment previews. This will be used by the workflow to resolve the correct values for Github Secrets and Vars."
+        required: false
+        type: string
+      live-environment:
+        description: "Name of the github environment used to live deployments. This will be used by the workflow to resolve the correct values for Github Secrets and Vars."
         required: true
         type: string
       run-preflight-checks:
@@ -59,7 +63,7 @@ jobs:
   # This is to ensure that the preview deployment is working as expected before we promote to production.
   deploy-preview:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.preview-environment }}
     if: ${{ inputs.perform-gated-preview-deployment }}
     name: "[PREVIEW] Deploy ${{ inputs.package-name }} to ${{ inputs.stage }}"
     needs: get-artifact-name
@@ -163,7 +167,7 @@ jobs:
     # We need to run this step even if the preview deployment is skipped. This is to account for the preview deployment being skipped.
     # If the preview deployment fails, we should not attempt a live deployment.
     if: ${{ always() && !failure() }}
-    environment: ${{ inputs.environment }}-deploy
+    environment: ${{ inputs.live-environment }}
     name: "Deploy ${{ inputs.package-name }} to ${{ inputs.stage }}"
     steps:
       - name: Configure AWS Credentials
