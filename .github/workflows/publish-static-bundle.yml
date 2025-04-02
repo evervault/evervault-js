@@ -117,7 +117,7 @@ jobs:
         id: prepare-cloudfront-payload
         with:
           script: |
-            const paths = ${{ inputs.cloudfront-preview-path-invalidation }}.split(',').map(path => path.trim()).filter(path => path !== '');
+            const paths = "${{ inputs.cloudfront-preview-path-invalidation }}".split(",").map(path => path.trim()).filter(path => path !== "");
             return {
               Paths: {
                 Quantity: paths.length,
@@ -208,7 +208,7 @@ jobs:
         id: prepare-cloudfront-payload
         with:
           script: |
-            const paths = ${{ inputs.cloudfront-live-path-invalidation }}.split(',').map(path => path.trim()).filter(path => path !== '');
+            const paths = "${{ inputs.cloudfront-live-path-invalidation }}".split(",").map(path => path.trim()).filter(path => path !== "");
             return {
               Paths: {
                 Quantity: paths.length,
