@@ -162,7 +162,6 @@ jobs:
         run: pnpm exec playwright install-deps
       - name: E2E test
         id: run-e2e-test
-        continue-on-error: true
         run: pnpm run --filter="${{ matrix.project }}" --if-present e2e:test --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
       - name: Get path to package
         if: ${{ failure() && steps.run-e2e-test.outcome == 'failure' }}
