@@ -4,7 +4,7 @@
   "version": "1.1.18",
   "scripts": {
     "e2e:test": "playwright test",
-    "clean": "rm -rf .turbo node_modules dist"
+    "clean": "rm -rf node_modules dist"
   },
   "dependencies": {
     "@evervault/ui-components": "workspace:*"

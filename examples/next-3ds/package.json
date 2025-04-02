@@ -6,7 +6,7 @@
     "dev": "next dev --port 4000",
     "build": "next build",
     "start": "next start",
-    "clean": "rm -rf .turbo node_modules dist"
+    "clean": "rm -rf node_modules dist"
   },
   "dependencies": {
     "react": "catalog:",

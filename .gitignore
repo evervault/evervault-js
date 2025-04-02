@@ -3,7 +3,6 @@ dist
 .next
 e2e-app/evervault.bundle.js
 node_modules
-.turbo
 .idea
 .env
 .env.*

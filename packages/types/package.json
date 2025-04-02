@@ -8,7 +8,7 @@
     "jss": "catalog:"
   },
   "scripts": {
-    "clean": "rm -rf .turbo node_modules",
+    "clean": "rm -rf node_modules",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",

@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite --port 4000",
     "test-prerelease": "playwright test",
-    "clean": "rm -rf .turbo node_modules dist"
+    "clean": "rm -rf node_modules dist"
   },
   "devDependencies": {
     "vite": "catalog:"

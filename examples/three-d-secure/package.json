@@ -7,7 +7,7 @@
     "dev": "concurrently --kill-others \"pnpm run client:dev\" \"pnpm run server:dev\"",
     "client:dev": "vite --port 4000",
     "server:dev": "node api.js",
-    "clean": "rm -rf .turbo node_modules dist"
+    "clean": "rm -rf node_modules dist"
   },
   "dependencies": {
     "@evervault/js": "workspace:*"

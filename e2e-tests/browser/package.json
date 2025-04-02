@@ -7,7 +7,7 @@
     "e2e:test": "playwright test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "clean": "rm -rf .turbo node_modules dist",
+    "clean": "rm -rf node_modules dist",
     "preview": "vite --port 4006"
   },
   "dependencies": {
