@@ -121,6 +121,7 @@ jobs:
     outputs:
       has-changesets: ${{ steps.changesets.outputs.hasChangesets }}
       tags-to-publish: ${{ steps.create-tags.outputs.tags-to-publish }}
+      number-of-tags-to-publish: ${{ steps.create-tags.outputs.number-of-tags }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -156,14 +157,16 @@ jobs:
         run: |-
           pnpm changeset tag && git push origin --tags
           TAGS=$(git tag --points-at=HEAD | jq -scR 'split("\n") | map(select(length > 0))')
+          NUMBER_OF_TAGS=$(echo "$TAGS" | jq 'length')
           echo "tags-to-publish=$TAGS" >> $GITHUB_OUTPUT
+          echo "number-of-tags=$NUMBER_OF_TAGS" >> $GITHUB_OUTPUT
         env:
           HUSKY: 0
   release:
     name: Release ${{ matrix.tag }}
     needs: [lint-and-test,e2e-test,build,create-tags]
     # Only attempt releases if we expect to have pushed some tags
-    if: needs.create-tags.outputs.has-changesets == 'false'
+    if: ${{ needs.create-tags.outputs.has-changesets == 'false' && needs.create-tags.outputs.number-of-tags-to-publish != '0' }}
     strategy:
       matrix:
         tag: ${{ fromJson(needs.create-tags.outputs.tags-to-publish) }}
