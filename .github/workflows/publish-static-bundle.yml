@@ -101,7 +101,7 @@ jobs:
           S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
         run: |-
           aws s3 cp ./dist/assets s3://${{ vars[env.S3_BUCKET_VAR] }}/assets/ --recursive
-          aws s3 cp ./dist/index.html s3://${{ vars[env.S3_BUCKET_VAR] }}/preview/ --recursive
+          aws s3 cp ./dist/index.html s3://${{ vars[env.S3_BUCKET_VAR] }}/preview/
       # @evervault/browser requires its build output to be renamed before upload. Once thats done, we upload the renamed files to the preview path under the top level v2 directory.
       - name: S3 Deploy browser sdk assets to preview
         if: ${{ inputs.package-name == '@evervault/browser' }}
@@ -122,7 +122,8 @@ jobs:
               Paths: {
                 Quantity: paths.length,
                 Items: paths
-              }
+              },
+              CallerReference: `GithubCI-Preview-${{ github.run_id }}`
             };
         # Use the JSON payload generated in the previous step to perform a batch invalidation against the CloudFront CDN.
       - name: Cloudfront Cache Invalidation
@@ -213,7 +214,8 @@ jobs:
               Paths: {
                 Quantity: paths.length,
                 Items: paths
-              }
+              },
+              CallerReference: `GithubCI-Live-${{ github.run_id }}`
             };
       - name: Cloudfront Cache Invalidation
         # Prepare a JSON file for the invalidation batch and send it to cloudfront

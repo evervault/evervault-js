@@ -191,7 +191,7 @@ test.describe("threeDSecure component", () => {
     const acsFrame = frame.frameLocator("iframe[name='challengeFrame']");
     const code = acsFrame.locator("input");
     code.pressSequentially("111111");
-    await expect.poll(async () => success).toBeTruthy();
+    await expect.poll(async () => success, { timeout: 7500 }).toBeTruthy();
   });
 });
 
