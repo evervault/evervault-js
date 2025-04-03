@@ -71,21 +71,12 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: ".nvmrc"
-          cache: "pnpm"
-      - name: Install deps
-        run: pnpm install --frozen-lockfile
       - name: Create list of E2E test projects
         id: e2e-targets
         run: |-
-          E2E_TEST_PROJECTS=$(pnpm m ls --depth=1 --json | jq -cr '[.[] | select(.name|endswith("e2e-tests")) | .name]')
-          echo "e2e-test-projects=$E2E_TEST_PROJECTS" >> $GITHUB_OUTPUT
+          E2E_TEST_PROJECTS=$(ls e2e-tests | gxargs -d '\n' -I '{}' cat e2e-tests/{}/package.json | jq .name)
+          FORMATTED_E2E_PROJECTS=$(echo $E2E_TEST_PROJECTS | jq -rcs)
+          echo "e2e-test-projects=$FORMATTED_E2E_PROJECTS" >> $GITHUB_OUTPUT
   # The e2e tests run for quite a long time. Until we can accurately select the appropriate tests to run, we're running them in parallel (2 jobs per project, each with 3-4 worker processes.)
   e2e-test:
     name: "Run E2E Tests for ${{ matrix.project }} (Shard ${{ matrix.shard }}/${{ matrix.total-shards }})"

@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Build release-gate-tests
-        run: pnpm --filter @ev/revert-s3-deploy... build
+        run: pnpm --filter @repo/revert-s3-deploy... build
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:

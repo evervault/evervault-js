@@ -1,5 +1,5 @@
 {
-  "name": "@ev/revert-s3-deploy",
+  "name": "@repo/revert-s3-deploy",
   "description": "GitHub Actions for revert S3 deployments",
   "private": true,
   "exports": "./dist/index.js",
