@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "dev": "dotenv -- node ./examples/index.js",
+    "dev": "node ./examples/index.js",
     "build": "pnpm run -r --if-present --filter=@evervault/*... build",
     "clean": "pnpm run -r --if-present clean",
     "test": "dotenv -- pnpm run -r --if-present test",
