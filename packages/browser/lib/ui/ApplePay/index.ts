@@ -57,6 +57,7 @@ export default class ApplePayButton {
   #button: HTMLElement | null = null;
   #options: ApplePayButtonOptions;
   #events = new EventManager<ApplePayEvents>();
+  #scriptLoaded = false;
 
   constructor(
     client: EvervaultClient,
@@ -78,6 +79,10 @@ export default class ApplePayButton {
     script.src = APPLE_PAY_SCRIPT_URL;
     script.async = true;
     script.crossOrigin = "anonymous";
+    script.onload = () => {
+      this.#scriptLoaded = true;
+    };
+
     document.body.appendChild(script);
   }
 
@@ -166,7 +171,69 @@ export default class ApplePayButton {
     return this.#events.on(event, callback);
   }
 
-  mount(selector: SelectorType) {
+  async #waitForScript() {
+    if (this.#scriptLoaded) return;
+    const TIMEOUT = 10000;
+
+    return new Promise((resolve, reject) => {
+      const start = Date.now();
+      const interval = setInterval(() => {
+        if (this.#scriptLoaded) {
+          clearInterval(interval);
+          resolve(true);
+        }
+
+        if (Date.now() - start > TIMEOUT) {
+          clearInterval(interval);
+          reject(new Error("Apple Pay SDK script load timeout"));
+        }
+      }, 100);
+    });
+  }
+
+  /**
+   * Checks the availability of Apple Pay on the current device.
+   *
+   * @returns {Promise<"AVAILABLE" | "UNAVAILABLE" | "UNSUPPORTED">} A promise that resolves to a string indicating the availability status of Apple Pay:
+   * - "AVAILABLE": Apple Pay is available and can be used.
+   * - "UNAVAILABLE": Apple Pay is not available due to payment credentials being unavailable.
+   * - "UNSUPPORTED": Apple Pay is not supported on this device or browser.
+   */
+  async availability(): Promise<"AVAILABLE" | "UNAVAILABLE" | "UNSUPPORTED"> {
+    if (typeof window.PaymentRequest === "undefined") return "UNSUPPORTED";
+    await this.#waitForScript();
+
+    // @ts-expect-error The Apple Pay types are for the bundled version of ApplePaySession in safaari, not the version the script loads which adds this method
+    const capabilities = await ApplePaySession.applePayCapabilities(
+      this.transaction.details.merchantId
+    );
+
+    if (capabilities.paymentCredentialStatus === "applePayUnsupported") {
+      return "UNSUPPORTED";
+    }
+
+    if (
+      capabilities.paymentCredentialStatus === "paymentCredentialsUnavailable"
+    ) {
+      return "UNAVAILABLE";
+    }
+
+    return "AVAILABLE";
+  }
+
+  async mount(selector: SelectorType) {
+    const availability = await this.availability();
+
+    if (availability === "UNSUPPORTED") {
+      console.info("Apple pay is not supported on this device.");
+      return;
+    }
+
+    if (availability === "UNAVAILABLE") {
+      console.info("Apple pay is currently uavailable on this device.");
+      return;
+    }
+
     const element = resolveSelector(selector);
     this.#button = document.createElement("apple-pay-button");
 
