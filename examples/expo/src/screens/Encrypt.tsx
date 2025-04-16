@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   View,
 } from "react-native";
@@ -46,6 +47,8 @@ export function EncryptExample() {
   const [value, setValue] = useState(format(STRING_VALUE));
   const [encrypted, setEncrypted] = useState<any>();
 
+  const [error, setError] = useState<Error | null>(null);
+
   const handleEncrypt = useCallback(async () => {
     Keyboard.dismiss();
     try {
@@ -53,7 +56,7 @@ export function EncryptExample() {
       const encrypted = await evervault.encrypt(json);
       setEncrypted(encrypted);
     } catch (error) {
-      console.error(error);
+      setError(error as Error);
     }
   }, [value, evervault.encrypt]);
 
@@ -67,6 +70,8 @@ export function EncryptExample() {
       <View style={styles.header}>
         <Heading>Encrypt</Heading>
       </View>
+
+      {error && <Text style={styles.error}>{error.message}</Text>}
 
       <ScrollView
         style={styles.chipsScroll}
@@ -114,6 +119,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    paddingInline: 16,
+  },
+  error: {
+    color: "red",
     paddingInline: 16,
   },
   body: {

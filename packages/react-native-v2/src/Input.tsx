@@ -1,10 +1,12 @@
 import {
+  createContext,
   ForwardedRef,
   forwardRef,
   ReactNode,
   Ref,
   RefObject,
   useCallback,
+  useContext,
   useImperativeHandle,
   useRef,
 } from "react";
@@ -12,6 +14,14 @@ import { TextInput, TextInputProps } from "react-native";
 import { mergeRefs } from "./utils";
 import { Controller, useFormContext } from "react-hook-form";
 import MaskInput, { Mask, MaskArray } from "react-native-mask-input";
+
+export interface EvervaultInputContextValue {
+  validationMode: "onChange" | "onBlur" | "onTouched" | "all";
+}
+
+export const EvervaultInputContext = createContext<EvervaultInputContextValue>({
+  validationMode: "all",
+});
 
 export type EvervaultInput = Pick<
   TextInput,
@@ -90,6 +100,8 @@ export const EvervaultInput = forwardRef<
   EvervaultInput,
   EvervaultInputProps<Record<string, unknown>>
 >(function EvervaultInput({ name, mask, ...props }, ref) {
+  const { validationMode } = useContext(EvervaultInputContext);
+
   const inputRef = useForwardedInputRef(ref);
 
   const methods = useFormContext();
@@ -108,10 +120,14 @@ export const EvervaultInput = forwardRef<
           ref={mergeRefs(inputRef, field.ref)}
           editable={!field.disabled && (props.editable ?? true)}
           onBlur={(evt) => {
+            const shouldValidate =
+              validationMode === "onBlur" ||
+              validationMode === "onTouched" ||
+              validationMode === "all";
             methods.setValue(field.name, field.value, {
               shouldDirty: true,
               shouldTouch: true,
-              shouldValidate: true,
+              shouldValidate,
             });
             props.onBlur?.(evt);
           }}
@@ -119,9 +135,13 @@ export const EvervaultInput = forwardRef<
           maskAutoComplete={!!mask}
           value={field.value}
           onChangeText={(masked, unmasked) => {
+            const shouldValidate =
+              (validationMode === "onTouched" && fieldState.isTouched) ||
+              ((validationMode === "onChange" || validationMode === "all") &&
+                (!!fieldState.error || fieldState.isTouched));
             methods.setValue(field.name, unmasked, {
               shouldDirty: true,
-              shouldValidate: !!fieldState.error || fieldState.isTouched,
+              shouldValidate,
             });
           }}
           // Remove unwanted props

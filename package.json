@@ -18,7 +18,9 @@
     "coverage:clean": "rm -rf .nyc_output/",
     "coverage:report": "npx nyc --exclude-after-remap=false report",
     "coverage:report:html": "npx nyc --reporter=html --exclude-after-remap=false report && open coverage/index.html",
-    "coverage:check": "npx nyc check-coverage"
+    "coverage:check": "npx nyc check-coverage",
+    "react-native": "pnpm --filter @evervault/react-native",
+    "examples:expo": "pnpm --filter evervault-expo-example"
   },
   "devDependencies": {
     "@changesets/cli": "catalog:",
