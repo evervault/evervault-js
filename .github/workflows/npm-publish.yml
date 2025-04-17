@@ -25,8 +25,15 @@ on:
         required: true
 
 jobs:
+  get-artifact-name:
+    uses: ./.github/workflows/get-artifact-name.yml
+    with:
+      package-name: ${{ inputs.package }}
+      environment: 'production'
+
   publish:
     name: Publish to NPM
+    needs: [get-artifact-name]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -41,7 +48,7 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8
         with:
-          name: production-${{ inputs.artifact }}
+          name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: ${{ inputs.repo_path }}
 
       - uses: pnpm/action-setup@v4
