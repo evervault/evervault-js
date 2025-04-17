@@ -82,6 +82,8 @@ jobs:
         run: |
           if [[ "$TAG" == *"evervault-react-native"* ]]; then
             echo "name=react-native" >> $GITHUB_OUTPUT
+          elif [[ "$TAG" == *"@evervault/react-native"* ]]; then
+            echo "name=react-native-v2" >> $GITHUB_OUTPUT
           else
             name_part=${TAG##*/}
             echo "name=${name_part%@*}" >> $GITHUB_OUTPUT
