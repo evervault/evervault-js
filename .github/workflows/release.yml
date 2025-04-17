@@ -102,7 +102,7 @@ jobs:
       tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   publish-react:
-    if: startsWith(inputs.release-tag, '@evervault/react')
+    if: startsWith(inputs.release-tag, '@evervault/react') && !contains(inputs.release-tag, '@evervault/react-native')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:
