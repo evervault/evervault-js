@@ -1,5 +1,12 @@
 # @evervault/react-native
 
+## 2.1.0
+
+### Minor Changes
+
+- 00966b8: - Add `onError` prop to `Card` component to catch native errors
+  - Fixes `validationMode` not being used by child `Card` components
+
 ## 2.0.0
 
 ### Major Changes
