@@ -10,7 +10,7 @@ This is a monorepo managed with [pnpm workspaces](https://pnpm.io/workspaces).
 
 - `packages/browser` - [Evervault JavaScript SDK for the browser.](https://docs.evervault.com/sdks/javascript).
 - `packages/react` - [The React SDK](https://docs.evervault.com/sdks/reactjs)
-- `packages/react-native` - [React Native SDK](https://docs.evervault.com/sdks/react-native)
+- `packages/react-native-v2` - [React Native SDK](https://docs.evervault.com/sdks/react-native)
 - `packages/card-validator` - card number validator shared between react and react-native
 
 ### Private Packages

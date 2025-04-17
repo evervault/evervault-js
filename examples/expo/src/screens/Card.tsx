@@ -28,6 +28,7 @@ export function CardExample() {
 
   const cardRef = useRef<Card>(null);
   const [payload, setPayload] = useState<CardPayload | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   return (
     <ScrollView
@@ -37,8 +38,15 @@ export function CardExample() {
       <View style={styles.container}>
         <Heading>Card</Heading>
 
+        {error && <Text style={styles.error}>{error.message}</Text>}
+
         <View style={styles.form}>
-          <Card ref={cardRef} onChange={setPayload}>
+          <Card
+            ref={cardRef}
+            validationMode="onBlur"
+            onChange={(p) => setPayload(p)}
+            onError={setError}
+          >
             <Field label="Cardholder Name" error={payload?.errors?.name}>
               <Card.Holder />
             </Field>
@@ -89,6 +97,11 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 16,
     flex: 1,
+  },
+
+  error: {
+    color: "red",
+    paddingInline: 16,
   },
 
   form: {
