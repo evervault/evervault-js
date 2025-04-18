@@ -29,7 +29,7 @@ jobs:
     uses: ./.github/workflows/get-artifact-name.yml
     with:
       package-name: ${{ inputs.package }}
-      environment: 'production'
+      environment: "production"
 
   publish:
     name: Publish to NPM
@@ -75,6 +75,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - name: Get package name
         env:
           TAG: ${{ inputs.tag_name }}
@@ -88,7 +90,12 @@ jobs:
             name_part=${TAG##*/}
             echo "name=${name_part%@*}" >> $GITHUB_OUTPUT
           fi
+      - name: Get release content
+        id: release-content
+        run: |
+          CHANGELOG_CONTENT=$(git diff HEAD~1..HEAD -- ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md | grep '^+' | grep --invert-match '^+++'  | sed 's/^+//' | tail -n +3)
+          echo "content=${CHANGELOG_CONTENT}" >> $GITHUB_OUTPUT
       - uses: softprops/action-gh-release@v2
         with:
-          body_path: ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md
+          body: ${{ steps.release-content.outputs.content }}
           tag_name: ${{ inputs.tag_name }}
