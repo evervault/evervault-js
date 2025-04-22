@@ -1,5 +1,12 @@
 # @evervault/react-native
 
+## 2.2.0
+
+### Minor Changes
+
+- 6128bd5: - Updates Android compile and target SDK version to 35
+  - Updates Android minimum SDK version to 24
+
 ## 2.1.0
 
 ### Minor Changes
