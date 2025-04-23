@@ -231,7 +231,7 @@ export default class ApplePayButton {
 
     if (availability === "unavailable") {
       console.info(
-        "Apple Pay may be uavailable on this device. See the Evervault docs for more information. https://docs.evervault.com/payments/apple-pay#availability"
+        "Apple Pay may be unavailable on this device. See the Evervault docs for more information. https://docs.evervault.com/payments/apple-pay#availability"
       );
     }
 
