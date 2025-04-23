@@ -11,11 +11,9 @@ import type {
   FormOptions,
   ThreeDSecureOptions,
   GooglePayOptions,
-  ApplePayOptions,
 } from "types";
 import { Transaction } from "../resources/transaction";
 import GooglePay from "./googlePay";
-import ApplePay from "./applePay";
 import ApplePayButton, { ApplePayButtonOptions } from "./ApplePay/index";
 
 export default class UIComponents {
@@ -50,10 +48,13 @@ export default class UIComponents {
     return new GooglePay(this.client, tx, opts);
   }
 
-  applePay(tx: Transaction, opts: ApplePayOptions) {
-    return new ApplePay(this.client, tx, opts);
+  applePay(tx: Transaction, opts: ApplePayButtonOptions) {
+    return new ApplePayButton(this.client, tx, opts);
   }
 
+  /**
+   * @deprecated Use `applePay` instead.
+   */
   applePayButton(tx: Transaction, opts: ApplePayButtonOptions) {
     return new ApplePayButton(this.client, tx, opts);
   }

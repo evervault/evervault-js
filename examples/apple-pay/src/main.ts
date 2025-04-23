@@ -27,16 +27,22 @@ const apple = evervault.ui.applePayButton(transaction, {
   },
 });
 
-apple.on("error", (error) => {
-  console.log("Apple Pay error", error);
-});
+const availability = await apple.availability();
 
-apple.on("success", () => {
-  console.log("Apple pay success!");
-});
+if (availability === "available") {
+  apple.on("error", (error) => {
+    console.log("Apple Pay error", error);
+  });
 
-apple.on("cancel", () => {
-  console.log("Apple Pay cancelled");
-});
+  apple.on("success", () => {
+    console.log("Apple pay success!");
+  });
 
-apple.mount("#apple-pay");
+  apple.on("cancel", () => {
+    console.log("Apple Pay cancelled");
+  });
+
+  apple.mount("#apple-pay");
+} else {
+  console.log("Apple Pay is not available");
+}
