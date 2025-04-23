@@ -5,7 +5,7 @@ import type {
   SelectorType,
 } from "types";
 import { resolveSelector } from "../utils";
-import { buildSession, resolveSize } from "./utilities";
+import { buildSession, resolveUnit } from "./utilities";
 import EventManager from "../eventManager";
 import {
   ApplePayButtonLocale,
@@ -24,7 +24,7 @@ export type ApplePayButtonOptions = {
   style?: ApplePayButtonStyle;
   locale?: ApplePayButtonLocale;
   padding?: string;
-  borderRadius?: string;
+  borderRadius?: string | number;
   size?: { width: string | number; height: string | number };
   allowedCardNetworks?: ApplePayCardNetwork[];
   requestPayerDetails?: ("name" | "email" | "phone")[];
@@ -260,18 +260,18 @@ export default class ApplePayButton {
     if (this.#options.borderRadius) {
       this.#button.style.setProperty(
         "--apple-pay-button-border-radius",
-        this.#options.borderRadius
+        resolveUnit(this.#options.borderRadius)
       );
     }
 
     if (this.#options.size) {
       this.#button.style.setProperty(
         "--apple-pay-button-width",
-        resolveSize(this.#options.size.width)
+        resolveUnit(this.#options.size.width)
       );
       this.#button.style.setProperty(
         "--apple-pay-button-height",
-        resolveSize(this.#options.size.height)
+        resolveUnit(this.#options.size.height)
       );
     }
 
