@@ -205,7 +205,7 @@ export default class ApplePayButton {
 
     // @ts-expect-error The Apple Pay types are for the bundled version of ApplePaySession in safaari, not the version the script loads which adds this method
     const capabilities = await ApplePaySession.applePayCapabilities(
-      this.transaction.details.merchantId
+      `merchant.com.evervault.${this.transaction.details.merchantId}`
     );
 
     if (capabilities.paymentCredentialStatus === "applePayUnsupported") {
