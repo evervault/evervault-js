@@ -194,13 +194,13 @@ export default class ApplePayButton {
   /**
    * Checks the availability of Apple Pay on the current device.
    *
-   * @returns {Promise<"AVAILABLE" | "UNAVAILABLE" | "UNSUPPORTED">} A promise that resolves to a string indicating the availability status of Apple Pay:
-   * - "AVAILABLE": Apple Pay is available and can be used.
-   * - "UNAVAILABLE": Apple Pay is not available due to payment credentials being unavailable.
-   * - "UNSUPPORTED": Apple Pay is not supported on this device or browser.
+   * @returns {Promise<"available" | "unavailable" | "unsupported">} A promise that resolves to a string indicating the availability status of Apple Pay:
+   * - "available": Apple Pay is available and can be used.
+   * - "unavailable": Apple Pay is not available due to payment credentials being unavailable.
+   * - "unsupported": Apple Pay is not supported on this device or browser.
    */
-  async availability(): Promise<"AVAILABLE" | "UNAVAILABLE" | "UNSUPPORTED"> {
-    if (typeof window.PaymentRequest === "undefined") return "UNSUPPORTED";
+  async availability(): Promise<"available" | "unavailable" | "unsupported"> {
+    if (typeof window.PaymentRequest === "undefined") return "unsupported";
     await this.#waitForScript();
 
     // @ts-expect-error The Apple Pay types are for the bundled version of ApplePaySession in safari, not the version the script loads which adds this method
@@ -209,27 +209,27 @@ export default class ApplePayButton {
     );
 
     if (capabilities.paymentCredentialStatus === "applePayUnsupported") {
-      return "UNSUPPORTED";
+      return "unsupported";
     }
 
     if (
       capabilities.paymentCredentialStatus === "paymentCredentialsUnavailable"
     ) {
-      return "UNAVAILABLE";
+      return "unavailable";
     }
 
-    return "AVAILABLE";
+    return "available";
   }
 
   async mount(selector: SelectorType) {
     const availability = await this.availability();
 
-    if (availability === "UNSUPPORTED") {
+    if (availability === "unsupported") {
       console.info("Apple Pay is not supported on this device.");
       return;
     }
 
-    if (availability === "UNAVAILABLE") {
+    if (availability === "unavailable") {
       console.info(
         "Apple Pay may be uavailable on this device. See the Evervault docs for more information. https://docs.evervault.com/payments/apple-pay#availability"
       );
