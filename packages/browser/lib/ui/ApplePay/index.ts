@@ -203,7 +203,7 @@ export default class ApplePayButton {
     if (typeof window.PaymentRequest === "undefined") return "UNSUPPORTED";
     await this.#waitForScript();
 
-    // @ts-expect-error The Apple Pay types are for the bundled version of ApplePaySession in safaari, not the version the script loads which adds this method
+    // @ts-expect-error The Apple Pay types are for the bundled version of ApplePaySession in safari, not the version the script loads which adds this method
     const capabilities = await ApplePaySession.applePayCapabilities(
       `merchant.com.evervault.${this.transaction.details.merchantId}`
     );
@@ -225,13 +225,14 @@ export default class ApplePayButton {
     const availability = await this.availability();
 
     if (availability === "UNSUPPORTED") {
-      console.info("Apple pay is not supported on this device.");
+      console.info("Apple Pay is not supported on this device.");
       return;
     }
 
     if (availability === "UNAVAILABLE") {
-      console.info("Apple pay is currently uavailable on this device.");
-      return;
+      console.info(
+        "Apple Pay may be uavailable on this device. See the Evervault docs for more information. https://docs.evervault.com/payments/apple-pay#availability"
+      );
     }
 
     const element = resolveSelector(selector);
