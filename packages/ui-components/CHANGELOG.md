@@ -1,5 +1,17 @@
 # @evervault/ui-components
 
+## 1.29.0
+
+### Minor Changes
+
+- 6cf0f6f: Adds a new `allow3DigitAmexCVC` option which allows you to configure whether or not 3 digit CVC should be treated as invalid or not. The default value is true.
+- 897b7f7: Extend 3ds method timeout
+
+### Patch Changes
+
+- Updated dependencies [6cf0f6f]
+  - @evervault/react@2.17.0
+
 ## 1.28.2
 
 ### Patch Changes
