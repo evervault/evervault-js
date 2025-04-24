@@ -103,6 +103,7 @@ export interface CardOptions {
   translations?: Partial<CardTranslations>;
   autoProgress?: boolean;
   redactCVC?: boolean;
+  allow3DigitAmexCVC?: boolean;
   defaultValues?: {
     name?: string;
   };
