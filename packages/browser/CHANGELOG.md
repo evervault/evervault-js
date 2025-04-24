@@ -1,5 +1,12 @@
 # @evervault/browser
 
+## 2.43.0
+
+### Minor Changes
+
+- 8bc00d1: - Adds a new `availability` method to the Apple Pay component to check if Apple Pay is available on the current device.
+  - Deprecates the old Apple Pay implmentation in favour of the new one which supports third party browsers.
+
 ## 2.42.3
 
 ### Patch Changes
