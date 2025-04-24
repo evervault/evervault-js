@@ -101,6 +101,8 @@ export function isAcceptedBrand(
   cardNumberValidationResult: CardNumberValidationResult
 ): boolean {
   if (!acceptedBrands?.length) return true;
+
+  if (!cardNumberValidationResult.isValid) return false;
   const { brand, localBrands } = cardNumberValidationResult;
 
   const acceptedBrandsSet = new Set(acceptedBrands);

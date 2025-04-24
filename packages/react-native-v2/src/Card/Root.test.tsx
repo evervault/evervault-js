@@ -258,3 +258,39 @@ it("adds Invalid error when input is blurred with an invalid value", async () =>
     });
   });
 });
+
+it("adds 'Brand not accepted' error when brand is not accepted", async () => {
+  const onChange = vi.fn();
+  const { getByTestId } = render(
+    <Card onChange={onChange} acceptedBrands={["american-express"]}>
+      <CardNumber testID="number" />
+    </Card>,
+    { wrapper }
+  );
+
+  const number = getByTestId("number");
+
+  const user = userEvent.setup();
+  await user.type(number, "4242 4242 4242 4242");
+  fireEvent(number, "blur");
+
+  await waitFor(() => {
+    expect(onChange).toHaveBeenLastCalledWith({
+      card: {
+        name: null,
+        brand: "visa",
+        localBrands: [],
+        number: expect.any(String),
+        lastFour: "4242",
+        bin: "42424242",
+        expiry: null,
+        cvc: null,
+      },
+      isValid: false,
+      isComplete: true,
+      errors: {
+        number: "Brand not accepted",
+      },
+    });
+  });
+});
