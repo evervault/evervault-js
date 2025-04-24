@@ -142,18 +142,34 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
-      - name: Run preflight checks
-        if: ${{ inputs.run-preflight-checks }}
-        id: preflight
+      - name: Run browser preflight checks
+        if: ${{ inputs.run-preflight-checks && inputs.package-name == '@evervault/browser' }}
+        id: browser-preflight
         env:
           VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
           VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
           VITE_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
-          VITE_EVERVAULT_JS_URL: https://${{ inputs.asset-subdomain }}.evervault.${{ inputs.stage == 'production' && 'com' || 'io' }}${{ inputs.cloudfront-preview-path-invalidation }}
+          VITE_EVERVAULT_JS_URL: https://js.evervault.${{ inputs.stage == 'production' && 'com' || 'io' }}${{ inputs.cloudfront-preview-path-invalidation }}
         run: pnpm --filter=@repo/browser-pre-release-tests test-prerelease
       - name: Notify slack of failed release gate run
         uses: donaltuohy/deployment-slack-alert@v1
-        if: ${{ failure() && inputs.run-preflight-checks && steps.preflight.outcome == 'failure' }}
+        if: ${{ failure() && inputs.run-preflight-checks && steps.browser-preflight.outcome == 'failure' }}
+        with:
+          webhook: ${{ secrets.PRODUCTION_SLACK_WEBHOOK }}
+          service_name: ${{ inputs.package-name }} Preflight check failed for ${{ inputs.stage }}
+          action: failed
+      - name: Run ui-components preflight checks
+        if: ${{ inputs.run-preflight-checks && inputs.package-name == '@evervault/ui-components' }}
+        id: ui-components-preflight
+        env:
+          VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+          VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+          VITE_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+          VITE_EVERVAULT_JS_URL: https://ui-components.evervault.${{ inputs.stage == 'production' && 'com' || 'io' }}${{ inputs.cloudfront-preview-path-invalidation }}
+        run: pnpm --filter=@repo/ui-components-pre-release-tests test-prerelease
+      - name: Notify slack of failed release gate run
+        uses: donaltuohy/deployment-slack-alert@v1
+        if: ${{ failure() && inputs.run-preflight-checks && steps.ui-components-preflight.outcome == 'failure' }}
         with:
           webhook: ${{ secrets.PRODUCTION_SLACK_WEBHOOK }}
           service_name: ${{ inputs.package-name }} Preflight check failed for ${{ inputs.stage }}
@@ -245,8 +261,20 @@ jobs:
           echo "name=${name_part%@*}" >> $GITHUB_OUTPUT
       - name: Get release content
         id: release-content
+        env:
+          TAG: ${{ inputs.tag_name }}
         run: |
-          CHANGELOG_CONTENT=$(git diff HEAD~1..HEAD -- ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md | grep '^+' | grep --invert-match '^+++'  | sed 's/^+//' | tail -n +3)
+          name_part=${TAG##*/}
+          tag_prefix=${name_part%@*}
+
+          num_existing_tags=$(git tag --sort="version:refname" -l @evervault/$tag_prefix@\* | wc -l)
+          if [[ "$num_existing_tags" -lt 2 ]]; then
+            echo "No previous tags found for @evervault/$tag_prefix, taking entire changelog content"
+            CHANGELOG_CONTENT=$(cat ./packages/${{ steps.parse.outputs.name }}/CHANGELOG.md | tail -n +3)
+          else
+            CHANGELOG_CONTENT=$(git tag --sort="version:refname" -l @evervault/$tag_prefix@\* | tail -n2 | xargs -n2 sh -c 'git diff $0..$1 -- ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md' | grep '^+' | grep --invert-match '^+++'  | sed 's/^+//' | tail -n +3)  
+          fi
+          
           {
             echo 'content<<EOF'
             echo "$CHANGELOG_CONTENT"

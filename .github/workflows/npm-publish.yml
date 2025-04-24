@@ -92,8 +92,19 @@ jobs:
           fi
       - name: Get release content
         id: release-content
+        env:
+          TAG: ${{ inputs.tag_name }}
         run: |
-          CHANGELOG_CONTENT=$(git diff HEAD~1..HEAD -- ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md | grep '^+' | grep --invert-match '^+++'  | sed 's/^+//' | tail -n +3)
+          name_part=${TAG##*/}
+          tag_prefix=${name_part%@*}
+
+          num_existing_tags=$(git tag --sort="version:refname" -l @evervault/$tag_prefix@\* | wc -l)
+          if [[ "$num_existing_tags" -lt 2 ]]; then
+            echo "No previous tags found for @evervault/$tag_prefix, taking entire changelog content"
+            CHANGELOG_CONTENT=$(cat ./packages/${{ steps.parse.outputs.name }}/CHANGELOG.md | tail -n +3)
+          else
+            CHANGELOG_CONTENT=$(git tag --sort="version:refname" -l @evervault/$tag_prefix@\* | tail -n2 | xargs -n2 sh -c 'git diff $0..$1 -- ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md' | grep '^+' | grep --invert-match '^+++'  | sed 's/^+//' | tail -n +3)  
+          fi
           {
             echo 'content<<EOF'
             echo "$CHANGELOG_CONTENT"
