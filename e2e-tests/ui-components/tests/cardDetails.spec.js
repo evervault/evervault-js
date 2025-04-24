@@ -363,6 +363,26 @@ test.describe("card component", () => {
     await expect(frame.getByText("Your CVC is invalid")).not.toBeVisible();
   });
 
+  test("allow3DigitAmexCVC: false only applies to Amex cards", async ({
+    page,
+  }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card({
+        allow3DigitAmexCVC: false,
+      });
+      card.mount("#form");
+    });
+
+    const visa = "4242424242424242";
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill(visa);
+    await frame.getByLabel("CVC").fill("23");
+    await frame.getByLabel("CVC").blur();
+    await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
+    await frame.getByLabel("CVC").fill("123");
+    await expect(frame.getByText("Your CVC is invalid")).not.toBeVisible();
+  });
+
   test("only permits 16 digits for visa", async ({ page }) => {
     await page.evaluate(() => {
       const card = window.evervault.ui.card();
