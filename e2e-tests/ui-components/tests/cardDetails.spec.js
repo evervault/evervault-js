@@ -328,6 +328,41 @@ test.describe("card component", () => {
     await expect(frame.getByLabel("CVC")).toHaveValue("1234");
   });
 
+  test("allows 3 digit CVCs for Amex by default", async ({ page }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card();
+      card.mount("#form");
+    });
+
+    const amex = "378282246310005";
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill(amex);
+    await frame.getByLabel("CVC").fill("12");
+    await frame.getByLabel("CVC").blur();
+    // intentionally make invalid first to test it becomes valid with 3 digits
+    await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
+    await frame.getByLabel("CVC").fill("123");
+    await expect(frame.getByText("Your CVC is invalid")).not.toBeVisible();
+  });
+
+  test("can disable 3 digit amex CVCs", async ({ page }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card({
+        allow3DigitAmexCVC: false,
+      });
+      card.mount("#form");
+    });
+
+    const amex = "378282246310005";
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill(amex);
+    await frame.getByLabel("CVC").fill("123");
+    await frame.getByLabel("CVC").blur();
+    await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
+    await frame.getByLabel("CVC").fill("1233");
+    await expect(frame.getByText("Your CVC is invalid")).not.toBeVisible();
+  });
+
   test("only permits 16 digits for visa", async ({ page }) => {
     await page.evaluate(() => {
       const card = window.evervault.ui.card();
