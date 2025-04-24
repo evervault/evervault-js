@@ -5,7 +5,7 @@ import type {
   SelectorType,
 } from "types";
 import { resolveSelector } from "../utils";
-import { buildSession, resolveSize } from "./utilities";
+import { buildSession, resolveUnit } from "./utilities";
 import EventManager from "../eventManager";
 import {
   ApplePayButtonLocale,
@@ -24,7 +24,7 @@ export type ApplePayButtonOptions = {
   style?: ApplePayButtonStyle;
   locale?: ApplePayButtonLocale;
   padding?: string;
-  borderRadius?: string;
+  borderRadius?: string | number;
   size?: { width: string | number; height: string | number };
   allowedCardNetworks?: ApplePayCardNetwork[];
   requestPayerDetails?: ("name" | "email" | "phone")[];
@@ -57,6 +57,7 @@ export default class ApplePayButton {
   #button: HTMLElement | null = null;
   #options: ApplePayButtonOptions;
   #events = new EventManager<ApplePayEvents>();
+  #scriptLoaded = false;
 
   constructor(
     client: EvervaultClient,
@@ -72,12 +73,19 @@ export default class ApplePayButton {
   #injectScript() {
     const selector = `script[src="${APPLE_PAY_SCRIPT_URL}"]`;
     const existing = document.querySelector(selector);
-    if (existing) return;
+    if (existing) {
+      this.#scriptLoaded = true;
+      return;
+    }
 
     const script = document.createElement("script");
     script.src = APPLE_PAY_SCRIPT_URL;
     script.async = true;
     script.crossOrigin = "anonymous";
+    script.onload = () => {
+      this.#scriptLoaded = true;
+    };
+
     document.body.appendChild(script);
   }
 
@@ -166,7 +174,68 @@ export default class ApplePayButton {
     return this.#events.on(event, callback);
   }
 
-  mount(selector: SelectorType) {
+  async #waitForScript() {
+    if (this.#scriptLoaded) return;
+    const TIMEOUT = 10000;
+
+    return new Promise((resolve, reject) => {
+      const start = Date.now();
+      const interval = setInterval(() => {
+        if (this.#scriptLoaded) {
+          clearInterval(interval);
+          resolve(true);
+        }
+
+        if (Date.now() - start > TIMEOUT) {
+          clearInterval(interval);
+          reject(new Error("Apple Pay SDK script load timeout"));
+        }
+      }, 100);
+    });
+  }
+
+  /**
+   * Checks the availability of Apple Pay on the current device.
+   *
+   * @returns {Promise<"available" | "unavailable" | "unsupported">} A promise that resolves to a string indicating the availability status of Apple Pay:
+   * - "available": Apple Pay is available and can be used.
+   * - "unavailable": Apple Pay is not available due to payment credentials being unavailable.
+   * - "unsupported": Apple Pay is not supported on this device or browser.
+   */
+  async availability(): Promise<"available" | "unavailable" | "unsupported"> {
+    if (typeof window.PaymentRequest === "undefined") return "unsupported";
+    await this.#waitForScript();
+
+    // @ts-expect-error The Apple Pay types are for the bundled version of ApplePaySession in safari, not the version the script loads which adds this method
+    const capabilities = await ApplePaySession.applePayCapabilities(
+      `merchant.com.evervault.${this.transaction.details.merchantId}`
+    );
+
+    if (capabilities.paymentCredentialStatus === "applePayUnsupported") {
+      return "unsupported";
+    }
+
+    if (
+      capabilities.paymentCredentialStatus === "paymentCredentialsUnavailable"
+    ) {
+      return "unavailable";
+    }
+
+    return "available";
+  }
+
+  async mount(selector: SelectorType) {
+    const availability = await this.availability();
+
+    if (availability === "unsupported") {
+      console.info("Apple Pay is not supported on this device.");
+      return;
+    }
+
+    if (availability === "unavailable") {
+      console.info("Apple Pay may be unavailable on this device.");
+    }
+
     const element = resolveSelector(selector);
     this.#button = document.createElement("apple-pay-button");
 
@@ -192,18 +261,18 @@ export default class ApplePayButton {
     if (this.#options.borderRadius) {
       this.#button.style.setProperty(
         "--apple-pay-button-border-radius",
-        this.#options.borderRadius
+        resolveUnit(this.#options.borderRadius)
       );
     }
 
     if (this.#options.size) {
       this.#button.style.setProperty(
         "--apple-pay-button-width",
-        resolveSize(this.#options.size.width)
+        resolveUnit(this.#options.size.width)
       );
       this.#button.style.setProperty(
         "--apple-pay-button-height",
-        resolveSize(this.#options.size.height)
+        resolveUnit(this.#options.size.height)
       );
     }
 
