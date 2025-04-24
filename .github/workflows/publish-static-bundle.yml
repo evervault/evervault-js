@@ -165,7 +165,7 @@ jobs:
           VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
           VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
           VITE_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
-          VITE_EVERVAULT_JS_URL: https://ui-components.evervault.${{ inputs.stage == 'production' && 'com' || 'io' }}${{ inputs.cloudfront-preview-path-invalidation }}
+          VITE_UI_COMPONENTS_URL: https://ui-components.evervault.${{ inputs.stage == 'production' && 'com' || 'io' }}${{ inputs.cloudfront-preview-path-invalidation }}
         run: pnpm --filter=@repo/ui-components-pre-release-tests test-prerelease
       - name: Notify slack of failed release gate run
         uses: donaltuohy/deployment-slack-alert@v1
@@ -274,7 +274,7 @@ jobs:
           else
             CHANGELOG_CONTENT=$(git tag --sort="version:refname" -l @evervault/$tag_prefix@\* | tail -n2 | xargs -n2 sh -c 'git diff $0..$1 -- ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md' | grep '^+' | grep --invert-match '^+++'  | sed 's/^+//' | tail -n +3)  
           fi
-          
+
           {
             echo 'content<<EOF'
             echo "$CHANGELOG_CONTENT"
