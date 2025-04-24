@@ -8,6 +8,8 @@ interface BrowserFingerprintProps {
   onTimeout: () => void;
 }
 
+const THREE_DS_METHOD_TIMEOUT = 7500;
+
 export function BrowserFingerprint({
   action,
   onComplete,
@@ -26,7 +28,10 @@ export function BrowserFingerprint({
       });
     }
 
-    const timeout = setTimeout(onTimeout, 5000);
+    const timeout = setTimeout(() => {
+      window.removeEventListener("message", handleMessage);
+      onTimeout();
+    }, THREE_DS_METHOD_TIMEOUT);
 
     const handleMessage = (e: MessageEvent) => {
       if (isTrampolineMessage(e)) {
