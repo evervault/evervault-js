@@ -44,5 +44,7 @@ if (availability === "available") {
 
   apple.mount("#apple-pay");
 } else {
+  const container = document.getElementById("apple-pay");
+  container!.innerHTML = "Apple Pay is not available on this device";
   console.log("Apple Pay is not available");
 }
