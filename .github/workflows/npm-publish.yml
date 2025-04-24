@@ -94,7 +94,11 @@ jobs:
         id: release-content
         run: |
           CHANGELOG_CONTENT=$(git diff HEAD~1..HEAD -- ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md | grep '^+' | grep --invert-match '^+++'  | sed 's/^+//' | tail -n +3)
-          echo "content=${CHANGELOG_CONTENT}" >> $GITHUB_OUTPUT
+          {
+            echo 'content<<EOF'
+            echo "$CHANGELOG_CONTENT"
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
       - uses: softprops/action-gh-release@v2
         with:
           body: ${{ steps.release-content.outputs.content }}
