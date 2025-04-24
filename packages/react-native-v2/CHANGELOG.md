@@ -1,5 +1,11 @@
 # @evervault/react-native
 
+## 2.2.1
+
+### Patch Changes
+
+- 4c4ea2e: - Fixes acceptedBrands validation for Card component
+
 ## 2.2.0
 
 ### Minor Changes
