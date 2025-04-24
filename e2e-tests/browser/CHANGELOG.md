@@ -1,5 +1,12 @@
 # @evervault/browser-e2e-tests
 
+## 1.0.8
+
+### Patch Changes
+
+- Updated dependencies [6cf0f6f]
+  - @evervault/browser@2.44.0
+
 ## 1.0.7
 
 ### Patch Changes
