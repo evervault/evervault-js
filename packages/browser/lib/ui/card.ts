@@ -113,6 +113,7 @@ export default class Card {
         autoComplete: this.#options.autoComplete,
         autoProgress: this.#options.autoProgress,
         redactCVC: this.#options.redactCVC,
+        allow3DigitAmexCVC: this.#options.allow3DigitAmexCVC,
       },
     };
   }

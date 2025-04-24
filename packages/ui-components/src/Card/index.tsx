@@ -98,7 +98,13 @@ export function Card({ config }: { config: CardConfig }) {
         if (!fields.includes("cvc")) return undefined;
 
         const cvcValidation = validateCVC(values.cvc, values.number);
+
         if (!cvcValidation.isValid) {
+          return "invalid";
+        }
+
+        const allow3DigitAmex = config.allow3DigitAmexCVC ?? true;
+        if (values.cvc?.length === 3 && !allow3DigitAmex) {
           return "invalid";
         }
 

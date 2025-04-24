@@ -34,6 +34,7 @@ export interface CardProps {
   onKeyUp?: (event: FieldEvent) => void;
   onKeyDown?: (event: FieldEvent) => void;
   redactCVC?: boolean;
+  allow3DigitAmexCVC?: boolean;
 }
 
 type CardClass = ReturnType<Evervault["ui"]["card"]>;
@@ -58,6 +59,7 @@ export function Card({
   acceptedBrands,
   defaultValues,
   redactCVC,
+  allow3DigitAmexCVC,
 }: CardProps) {
   const ev = useEvervault();
   const initialized = useRef(false);
@@ -130,6 +132,7 @@ export function Card({
       acceptedBrands,
       defaultValues,
       redactCVC,
+      allow3DigitAmexCVC,
     }),
     [
       theme,
@@ -142,6 +145,7 @@ export function Card({
       acceptedBrands,
       defaultValues,
       redactCVC,
+      allow3DigitAmexCVC,
     ]
   );
 
