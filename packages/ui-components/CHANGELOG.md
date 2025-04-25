@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.29.3
+
+### Patch Changes
+
+- f99c60e: Fixes bug where isComplete could be incorrectly set to true in the validate method response for 3 digit amex CVCs when allow3DigitAmexCVC is false
+
 ## 1.29.2
 
 ### Patch Changes
