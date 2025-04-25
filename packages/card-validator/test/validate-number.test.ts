@@ -981,18 +981,18 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "rupay",
           localBrands: [],
-          bin: "604731",
+          bin: "60473151",
           lastFour: "3708",
           isValid: true,
         },
       },
       {
-        cardNumber: "6521269481150363",
+        cardNumber: "6521089478322290",
         expectedResult: {
           brand: "rupay",
           localBrands: [],
-          bin: "652126",
-          lastFour: "9337",
+          bin: "65210894",
+          lastFour: "2290",
           isValid: true,
         },
       },
