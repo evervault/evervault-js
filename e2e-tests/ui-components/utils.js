@@ -124,7 +124,7 @@ export const VALID_CARDS = {
     brand: "rupay",
     localBrands: [],
     lastFour: "6966",
-    bin: "652104",
+    bin: "65210472",
   },
 };
 
