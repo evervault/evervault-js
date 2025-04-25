@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.29.2
+
+### Patch Changes
+
+- edd5483: Set isComplete to false for 3 digit Amex CVCs when disabled
+
 ## 1.29.1
 
 ### Patch Changes
