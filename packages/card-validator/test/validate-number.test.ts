@@ -973,6 +973,41 @@ const testData: CardTestData[] = [
       },
     ],
   },
+  {
+    scope: "Rupay cards",
+    testCases: [
+      {
+        cardNumber: "6047315126933708",
+        expectedResult: {
+          brand: "rupay",
+          localBrands: [],
+          bin: "604731",
+          lastFour: "3708",
+          isValid: true,
+        },
+      },
+      {
+        cardNumber: "6521269481150363",
+        expectedResult: {
+          brand: "rupay",
+          localBrands: [],
+          bin: "652126",
+          lastFour: "9337",
+          isValid: true,
+        },
+      },
+      {
+        cardNumber: "6069850000000006", // Invalid Luhn check
+        expectedResult: {
+          brand: "rupay",
+          localBrands: [],
+          bin: null,
+          lastFour: null,
+          isValid: false,
+        },
+      },
+    ],
+  },
 ];
 
 describe("validateNumber function tests", () => {
