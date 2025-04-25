@@ -329,38 +329,68 @@ test.describe("card component", () => {
   });
 
   test("allows 3 digit CVCs for Amex by default", async ({ page }) => {
+    let values = {};
+
+    await page.exposeFunction("handleChange", (newValues) => {
+      values = newValues;
+    });
+
     await page.evaluate(() => {
       const card = window.evervault.ui.card();
+      card.on("change", window.handleChange);
       card.mount("#form");
     });
 
     const amex = "378282246310005";
     const frame = page.frameLocator("iframe[data-evervault]");
     await frame.getByLabel("Number").fill(amex);
+    await frame.getByLabel("Expiration").fill(getFutureExpiration());
+    // intentionally make invalid first to test it becomes valid with 3 digits
     await frame.getByLabel("CVC").fill("12");
     await frame.getByLabel("CVC").blur();
-    // intentionally make invalid first to test it becomes valid with 3 digits
     await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
+    await expect.poll(async () => values.isComplete).toBeFalsy();
+    // check it becomes valid with 3 digit CVC
     await frame.getByLabel("CVC").fill("123");
+    await frame.getByLabel("CVC").blur();
     await expect(frame.getByText("Your CVC is invalid")).not.toBeVisible();
+    await expect.poll(async () => values.isComplete).toBeTruthy();
   });
 
   test("can disable 3 digit amex CVCs", async ({ page }) => {
+    let values = {};
+
+    await page.exposeFunction("handleChange", (newValues) => {
+      values = newValues;
+    });
+
     await page.evaluate(() => {
       const card = window.evervault.ui.card({
         allow3DigitAmexCVC: false,
       });
+      card.on("change", window.handleChange);
       card.mount("#form");
     });
 
     const amex = "378282246310005";
     const frame = page.frameLocator("iframe[data-evervault]");
     await frame.getByLabel("Number").fill(amex);
+    await frame.getByLabel("Expiration").fill(getFutureExpiration());
+    // check is invalid with 3 digits
     await frame.getByLabel("CVC").fill("123");
     await frame.getByLabel("CVC").blur();
+    await expect.poll(async () => values.isComplete).toBeFalsy();
     await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
+    // check it becomes valid with 4
     await frame.getByLabel("CVC").fill("1233");
+    await frame.getByLabel("CVC").blur();
+    await expect.poll(async () => values.isComplete).toBeTruthy();
     await expect(frame.getByText("Your CVC is invalid")).not.toBeVisible();
+    // check it becomes invalid again when 3
+    await frame.getByLabel("CVC").fill("123");
+    await frame.getByLabel("CVC").blur();
+    await expect.poll(async () => values.isComplete).toBeFalsy();
+    await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
   });
 
   test("allow3DigitAmexCVC: false only applies to Amex cards", async ({
@@ -635,7 +665,9 @@ test.describe("card component", () => {
     });
 
     await page.evaluate(() => {
-      const card = window.evervault.ui.card();
+      const card = window.evervault.ui.card({
+        allow3DigitAmexCVC: false,
+      });
       card.on("change", window.handleChange);
       card.mount("#form");
     });
@@ -826,6 +858,39 @@ test.describe("card component", () => {
     const cvc = frame.getByLabel("CVC");
     expect(await cvc.getAttribute("type")).toEqual("password");
   });
+
+  test("Can render just a CVC field", async ({ page }) => {
+    let values = {};
+
+    await page.exposeFunction("handleChange", (newValues) => {
+      values = newValues;
+    });
+
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card({
+        fields: ["cvc"],
+      });
+      card.on("change", window.handleChange);
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    // Assert valid and complete with 3
+    await frame.getByLabel("CVC").fill("123");
+    await frame.getByLabel("CVC").blur();
+    await expect.poll(async () => values.isComplete).toBeTruthy();
+    await expect.poll(async () => values.isValid).toBeTruthy();
+    // Assert invalid and incomplete with 2
+    await frame.getByLabel("CVC").fill("12");
+    await frame.getByLabel("CVC").blur();
+    await expect.poll(async () => values.isComplete).toBeFalsy();
+    await expect.poll(async () => values.isValid).toBeFalsy();
+    // Assert valid and complete with 4
+    await frame.getByLabel("CVC").fill("1234");
+    await frame.getByLabel("CVC").blur();
+    await expect.poll(async () => values.isComplete).toBeTruthy();
+    await expect.poll(async () => values.isValid).toBeTruthy();
+  });
 });
 
 async function decrypt(payload) {
@@ -848,4 +913,12 @@ async function decrypt(payload) {
     console.log("decrypt error");
     console.error(e);
   }
+}
+
+function getFutureExpiration() {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() + 1);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = String(date.getFullYear()).slice(-2);
+  return `${month}/${year}`;
 }

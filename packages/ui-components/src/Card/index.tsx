@@ -116,7 +116,9 @@ export function Card({ config }: { config: CardConfig }) {
     onChange: (formState) => {
       const triggerChange = async () => {
         if (!ev) return;
-        const cardData = await changePayload(ev, formState, fields);
+        const cardData = await changePayload(ev, formState, fields, {
+          allow3DigitAmexCVC: config.allow3DigitAmexCVC,
+        });
 
         if (cardData.isComplete) {
           send("EV_COMPLETE", cardData);
