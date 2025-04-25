@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.29.1
+
+### Patch Changes
+
+- f878e4d: Fixes allow3DigitAmexCVC option
+
 ## 1.29.0
 
 ### Minor Changes
