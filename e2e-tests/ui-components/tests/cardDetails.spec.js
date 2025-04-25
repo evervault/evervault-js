@@ -285,6 +285,36 @@ test.describe("card component", () => {
     await expect(frame.getByText("Your card number is invalid")).toBeVisible();
   });
 
+  test("Manual validation when 3 digit amex is diabled", async ({ page }) => {
+    let values = {};
+
+    await page.exposeFunction("handleValidate", (newValues) => {
+      values = newValues;
+    });
+
+    await page.evaluate(() => {
+      window.card = window.evervault.ui.card({
+        allow3DigitAmexCVC: false,
+      });
+
+      window.card.on("validate", window.handleValidate);
+      window.card.mount("#form");
+    });
+
+    const amex = "378282246310005";
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill(amex);
+    await frame.getByLabel("Expiration").fill(getFutureExpiration());
+    await frame.getByLabel("CVC").fill("1234");
+    await page.evaluate(() => window.card.validate());
+    await expect.poll(async () => values.isValid).toBeTruthy();
+    await expect.poll(async () => values.isComplete).toBeTruthy();
+    await frame.getByLabel("CVC").fill("123");
+    await page.evaluate(() => window.card.validate());
+    await expect.poll(async () => values.isValid).toBeFalsy();
+    await expect.poll(async () => values.isComplete).toBeFalsy();
+  });
+
   test("can update config after mount", async ({ page }) => {
     await page.evaluate(() => {
       window.card = window.evervault.ui.card();

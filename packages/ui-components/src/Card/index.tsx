@@ -160,12 +160,14 @@ export function Card({ config }: { config: CardConfig }) {
 
         form.validate((formState) => {
           void (async () => {
-            const data = await changePayload(ev, formState, fields);
+            const data = await changePayload(ev, formState, fields, {
+              allow3DigitAmexCVC: config.allow3DigitAmexCVC,
+            });
             send("EV_VALIDATED", data);
           })();
         });
       }),
-    [ev, on, send, form, fields]
+    [ev, on, send, form, fields, config.allow3DigitAmexCVC]
   );
 
   useEffect(
