@@ -54,7 +54,7 @@ const brands = [
     isLocal: false,
     numberValidationRules: {
       luhnCheck: true,
-      ranges: [6011, [644, 649], [650000, 650999]],
+      ranges: [6011, [644, 649], [650000, 651999], [653150, 659999], 622],
       lengths: [16, 19],
     },
     securityCodeValidationRules: {
@@ -136,7 +136,7 @@ const brands = [
         493698,
         [500000, 504174],
         [504176, 506698],
-        [506779, 508999]
+        [506779, 508999],
       ],
       lengths: [12, 13, 14, 15, 16, 17, 18, 19],
     },
@@ -247,16 +247,7 @@ const brands = [
     isLocal: false,
     numberValidationRules: {
       luhnCheck: true,
-      ranges: [
-        60,
-        81,
-        82,
-        508,
-        [652100, 652849],
-        [652850, 653049],
-        [653050, 653149],
-        [817200, 819899]
-      ],
+      ranges: [60, 81, 82, 508, [652100, 653149], [817200, 819899]],
       lengths: [16],
     },
     securityCodeValidationRules: {
