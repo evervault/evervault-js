@@ -856,6 +856,39 @@ test.describe("card component", () => {
     const cvc = frame.getByLabel("CVC");
     expect(await cvc.getAttribute("type")).toEqual("password");
   });
+
+  test("Can render just a CVC field", async ({ page }) => {
+    let values = {};
+
+    await page.exposeFunction("handleChange", (newValues) => {
+      values = newValues;
+    });
+
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card({
+        fields: ["cvc"],
+      });
+      card.on("change", window.handleChange);
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    // Assert valid and complete with 3
+    await frame.getByLabel("CVC").fill("123");
+    await frame.getByLabel("CVC").blur();
+    await expect.poll(async () => values.isComplete).toBeTruthy();
+    await expect.poll(async () => values.isValid).toBeTruthy();
+    // Assert invalid and incomplete with 2
+    await frame.getByLabel("CVC").fill("12");
+    await frame.getByLabel("CVC").blur();
+    await expect.poll(async () => values.isComplete).toBeFalsy();
+    await expect.poll(async () => values.isValid).toBeFalsy();
+    // Assert valid and complete with 4
+    await frame.getByLabel("CVC").fill("1234");
+    await frame.getByLabel("CVC").blur();
+    await expect.poll(async () => values.isComplete).toBeTruthy();
+    await expect.poll(async () => values.isValid).toBeTruthy();
+  });
 });
 
 async function decrypt(payload) {
