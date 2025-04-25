@@ -665,7 +665,9 @@ test.describe("card component", () => {
     });
 
     await page.evaluate(() => {
-      const card = window.evervault.ui.card();
+      const card = window.evervault.ui.card({
+        allow3DigitAmexCVC: false,
+      });
       card.on("change", window.handleChange);
       card.mount("#form");
     });
