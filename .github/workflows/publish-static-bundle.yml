@@ -266,6 +266,7 @@ jobs:
         run: |
           name_part=${TAG##*/}
           tag_prefix=${name_part%@*}
+          git fetch --tags
 
           num_existing_tags=$(git tag --sort="version:refname" -l @evervault/$tag_prefix@\* | wc -l)
           if [[ "$num_existing_tags" -lt 2 ]]; then
