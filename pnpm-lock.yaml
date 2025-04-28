@@ -743,6 +743,15 @@ importers:
         specifier: 'catalog:'
         version: 2.1.8(@types/node@22.10.7)(jsdom@25.0.1)(lightningcss@1.27.0)(msw@2.7.3(@types/node@22.10.7)(typescript@5.5.4))(terser@5.39.0)
 
+  packages/encryption:
+    devDependencies:
+      tsconfig:
+        specifier: workspace:*
+        version: link:../tsconfig
+      typescript:
+        specifier: 'catalog:'
+        version: 5.5.4
+
   packages/eql:
     devDependencies:
       '@types/node':
@@ -1046,6 +1055,9 @@ importers:
       '@evervault/react':
         specifier: workspace:*
         version: link:../react
+      '@repo/encryption':
+        specifier: workspace:*
+        version: link:../encryption
       '@types/applepayjs':
         specifier: 'catalog:'
         version: 14.0.8
