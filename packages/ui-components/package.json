@@ -17,6 +17,7 @@
   "dependencies": {
     "@evervault/card-validator": "workspace:*",
     "@evervault/react": "workspace:*",
+    "@repo/encryption": "workspace:*",
     "@types/applepayjs": "catalog:",
     "@types/googlepay": "catalog:",
     "imask": "catalog:",
