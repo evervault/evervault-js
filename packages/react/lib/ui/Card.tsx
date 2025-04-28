@@ -66,6 +66,11 @@ export function Card({
   const ref = useRef<HTMLDivElement>(null);
   const [instance, setInstance] = React.useState<CardClass | null>(null);
 
+  const onErrorRef = useRef(onError);
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
+
   // setup ready event listener
   useEffect(() => {
     if (!instance || !onReady) return undefined;
@@ -153,21 +158,26 @@ export function Card({
     if (!ref.current) return;
 
     async function init() {
-      if (initialized.current || !ref.current) return;
-      initialized.current = true;
-      const evervault = await ev;
-      if (!evervault) return;
-      const inst = evervault.ui.card(config);
-      inst.mount(ref.current);
-      setInstance(inst);
+      try {
+        if (initialized.current || !ref.current) return;
+        initialized.current = true;
+        const evervault = await ev;
+        if (!evervault) return;
+        const inst = evervault.ui.card(config);
+        inst.mount(ref.current);
+        setInstance(inst);
+      } catch (err) {
+        onErrorRef.current?.();
+        console.error(err);
+      }
     }
 
     if (instance) {
       instance.update(config);
     } else {
-      init().catch(console.error);
+      init();
     }
-  }, [config, instance]);
+  }, [ev, config, instance]);
 
   return <div ref={ref} />;
 }
