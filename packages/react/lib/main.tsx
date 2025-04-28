@@ -27,6 +27,10 @@ export interface EvervaultProviderProps {
   appId: string;
   customConfig?: CustomConfig;
   children: React.ReactNode | null;
+  /**
+   * Callback function to be called when the Evervault script fails to load.
+   */
+  onLoadError?: () => void;
 }
 
 export interface EvervaultInputProps {
@@ -81,7 +85,10 @@ function injectScript(overrideUrl?: string) {
 type EvervaultClientPromise = Promise<typeof EvervaultClient | undefined>;
 let evervaultPromise: EvervaultClientPromise | null = null;
 
-function loadScript(overrideUrl?: string): EvervaultClientPromise | null {
+function loadScript(
+  overrideUrl?: string,
+  onLoadError?: () => void
+): EvervaultClientPromise | null {
   // Ensure that we only attempt to load Evervault.js at most once
   if (evervaultPromise !== null) {
     return evervaultPromise;
@@ -106,11 +113,13 @@ function loadScript(overrideUrl?: string): EvervaultClientPromise | null {
         if (window.Evervault) {
           resolve(window.Evervault);
         } else {
+          onLoadError?.();
           reject(new Error("Evervault.js not available"));
         }
       });
 
       script.addEventListener("error", () => {
+        onLoadError?.();
         reject(new Error("Failed to load Evervault.js"));
       });
     } catch (error) {
@@ -121,8 +130,13 @@ function loadScript(overrideUrl?: string): EvervaultClientPromise | null {
   return evervaultPromise;
 }
 
-function loadEvervault(overrideUrl?: string): EvervaultClientPromise {
-  const evPromise = Promise.resolve().then(() => loadScript(overrideUrl));
+function loadEvervault(
+  overrideUrl?: string,
+  onLoadError?: () => void
+): EvervaultClientPromise {
+  const evPromise = Promise.resolve().then(() =>
+    loadScript(overrideUrl, onLoadError)
+  );
 
   let loadCalled = false;
 
@@ -144,6 +158,7 @@ export const EvervaultProvider = ({
   appId,
   customConfig,
   children,
+  onLoadError,
   ...props
 }: EvervaultProviderProps) => {
   if (typeof window === "undefined") {
@@ -158,7 +173,7 @@ export const EvervaultProvider = ({
   const ev = React.useMemo<PromisifiedEvervaultClient>(
     () =>
       new PromisifiedEvervaultClient((resolve, reject) => {
-        loadEvervault(customConfig?.jsSdkUrl)
+        loadEvervault(customConfig?.jsSdkUrl, onLoadError)
           .then((Evervault) => {
             if (Evervault !== undefined) {
               resolve(new Evervault(teamId, appId, customConfig));
