@@ -53,7 +53,7 @@ catalogs:
       version: 0.2.4
     '@types/node':
       specifier: ^22
-      version: 22.10.2
+      version: 22.10.7
     '@types/react':
       specifier: ^18.2.37
       version: 18.2.79
@@ -89,7 +89,7 @@ catalogs:
       version: 5.1.0
     dotenv:
       specifier: ^16.4.5
-      version: 16.4.5
+      version: 16.4.7
     dotenv-cli:
       specifier: ^7.4.1
       version: 7.4.1
@@ -743,6 +743,15 @@ importers:
         specifier: 'catalog:'
         version: 2.1.8(@types/node@22.10.7)(jsdom@25.0.1)(lightningcss@1.27.0)(msw@2.7.3(@types/node@22.10.7)(typescript@5.5.4))(terser@5.39.0)
 
+  packages/encryption:
+    devDependencies:
+      tsconfig:
+        specifier: workspace:*
+        version: link:../tsconfig
+      typescript:
+        specifier: 'catalog:'
+        version: 5.5.4
+
   packages/eql:
     devDependencies:
       '@types/node':
@@ -1043,6 +1052,9 @@ importers:
       '@evervault/react':
         specifier: workspace:*
         version: link:../react
+      '@repo/encryption':
+        specifier: workspace:*
+        version: link:../encryption
       '@types/applepayjs':
         specifier: 'catalog:'
         version: 14.0.8
@@ -4327,7 +4339,7 @@ packages:
     resolution: {integrity: sha512-SCCPBJtYLdE8PX/7ZQAs1QAZ8Jqwih+0VBLum1EGqmCCQal+MIUqLCzj3ZUy8ufbC0cAM4LRlSTm7IQJwWT4ug==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      vite: ^4.2.0 || ^5.0.0 || ^6.0.0
+      vite: ^4.5.6
 
   '@vitest/expect@2.1.8':
     resolution: {integrity: sha512-8ytZ/fFHq2g4PJVAtDX57mayemKgDR6X3Oa2Foro+EygiOJHUXhCqBAAKQYYajZpFoIfvBCF1j6R6IYRSIUFuw==}
