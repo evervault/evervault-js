@@ -41,7 +41,8 @@ export type CardBrandName =
   | "hipercard"
   | "hiper"
   | "szep"
-  | "uatp";
+  | "uatp"
+  | "rupay";
 
 export interface CardExpiry {
   month: string | null;
