@@ -3,8 +3,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "tsc --watch",
-    "build": "tsc"
+    "dev": "rollup -c --watch",
+    "build": "rollup -c"
   },
   "exports": {
     ".": {
@@ -13,6 +13,10 @@
     }
   },
   "devDependencies": {
+    "@rollup/plugin-replace": "^6.0.2",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "dotenv": "^16.5.0",
+    "rollup": "^4.34.9",
     "tsconfig": "workspace:*",
     "typescript": "catalog:"
   }
