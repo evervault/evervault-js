@@ -1,6 +1,7 @@
 import typescript from "@rollup/plugin-typescript";
 import replace from "@rollup/plugin-replace";
 import dotenv from "dotenv";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
 dotenv.config({ path: "../../.env" });
 
 export default {
@@ -10,6 +11,7 @@ export default {
     format: "es",
   },
   plugins: [
+    nodeResolve(),
     typescript(),
     replace({
       preventAssignment: true,
