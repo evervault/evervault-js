@@ -13,6 +13,7 @@ export const CARD_BRAND_NAMES = [
   "hiper",
   "szep",
   "uatp",
+  "rupay",
 ] as const;
 
 export type CardBrandName = (typeof CARD_BRAND_NAMES)[number];

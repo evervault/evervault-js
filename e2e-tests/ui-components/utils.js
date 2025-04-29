@@ -116,6 +116,16 @@ export const VALID_CARDS = {
     lastFour: "3727",
     bin: "61013170",
   },
+  rupay: {
+    number: "6521047223246966",
+    month: "01",
+    year: "35",
+    cvc: "123",
+    brand: "rupay",
+    localBrands: [],
+    lastFour: "6966",
+    bin: "65210472",
+  },
 };
 
 export const INVALID_CARDS = {
