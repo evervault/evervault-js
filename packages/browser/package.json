@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@evervault/browser",
-  "version": "2.44.0",
+  "version": "2.44.1",
   "engines": {
     "node": "~18",
     "pnpm": "~9"

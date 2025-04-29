@@ -1,5 +1,16 @@
 # @evervault/react-native
 
+## 2.3.0
+
+### Minor Changes
+
+- 50727af: Add Rupay support to Card Component
+
+### Patch Changes
+
+- Updated dependencies [50727af]
+  - @evervault/card-validator@1.4.0
+
 ## 2.2.1
 
 ### Patch Changes
