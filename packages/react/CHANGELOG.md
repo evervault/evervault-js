@@ -1,5 +1,15 @@
 # @evervault/react
 
+## 2.18.0
+
+### Minor Changes
+
+- 8957f08: Improvements to error handling
+
+  The `EvervaultProvider` component now accepts an `onLoadError` prop which will be called if the Evervault SDK fails to load.
+
+  The `onError` prop that is passed to the `Card` component will now also be called if the Evervault SDK fails to load and is not available when the component attempts to mount.
+
 ## 2.17.0
 
 ### Minor Changes

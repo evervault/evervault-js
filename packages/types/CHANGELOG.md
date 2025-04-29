@@ -1,5 +1,11 @@
 # types
 
+## 0.14.0
+
+### Minor Changes
+
+- 50727af: Add Rupay support to Card Component
+
 ## 0.13.0
 
 ### Minor Changes

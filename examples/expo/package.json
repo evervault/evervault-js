@@ -1,7 +1,7 @@
 {
   "name": "evervault-expo-example",
   "main": "index.ts",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "scripts": {
     "expo": "expo",
     "dev": "expo start --localhost",

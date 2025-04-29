@@ -1,5 +1,11 @@
 # @evervault/card-validator
 
+## 1.4.0
+
+### Minor Changes
+
+- 50727af: Add Rupay support to Card Component
+
 ## 1.3.0
 
 ### Minor Changes

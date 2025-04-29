@@ -1,5 +1,16 @@
 # @evervault/ui-components-e2e-tests
 
+## 1.2.0
+
+### Minor Changes
+
+- 50727af: Add Rupay support to Card Component
+
+### Patch Changes
+
+- Updated dependencies [50727af]
+  - @evervault/ui-components@1.30.0
+
 ## 1.1.22
 
 ### Patch Changes
