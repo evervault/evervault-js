@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.30.1
+
+### Patch Changes
+
+- d2a5c17: Update Google Merchant ID
+
 ## 1.30.0
 
 ### Minor Changes
