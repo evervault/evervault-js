@@ -1,6 +1,6 @@
 import { Card, CardPayload } from "@evervault/react-native";
 import { StyleSheet, View, ScrollView, Keyboard, Text } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Button } from "@/src/ui/Button";
 import { Code } from "@/src/ui/Code";
 import { Field } from "@/src/ui/Field";
@@ -30,6 +30,15 @@ export function CardExample() {
   const [payload, setPayload] = useState<CardPayload | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
+  const [focusedFields, setFocusedFields] = useState<string[]>([]);
+  const shouldObfuscate = focusedFields.length === 0;
+  const onFocus = useCallback((field: string) => {
+    setFocusedFields((prev) => Array.from(new Set([...prev, field])));
+  }, []);
+  const onBlur = useCallback((field: string) => {
+    setFocusedFields((prev) => prev.filter((f) => f !== field));
+  }, []);
+
   return (
     <ScrollView
       style={[styles.scroll, { paddingTop: insets.top }]}
@@ -48,20 +57,34 @@ export function CardExample() {
             onError={setError}
           >
             <Field label="Cardholder Name" error={payload?.errors?.name}>
-              <Card.Holder />
+              <Card.Holder
+                onFocus={() => onFocus("name")}
+                onBlur={() => onBlur("name")}
+              />
             </Field>
 
             <Field label="Card Number" error={payload?.errors?.number}>
-              <Card.Number />
+              <Card.Number
+                obfuscateValue={shouldObfuscate}
+                onFocus={() => onFocus("number")}
+                onBlur={() => onBlur("number")}
+              />
             </Field>
 
             <View style={styles.row}>
               <Field label="Expiration Date" error={payload?.errors?.expiry}>
-                <Card.Expiry />
+                <Card.Expiry
+                  onFocus={() => onFocus("expiry")}
+                  onBlur={() => onBlur("expiry")}
+                />
               </Field>
 
               <Field label="CVC" error={payload?.errors?.cvc}>
-                <Card.Cvc />
+                <Card.Cvc
+                  obfuscateValue={shouldObfuscate}
+                  onFocus={() => onFocus("cvc")}
+                  onBlur={() => onBlur("cvc")}
+                />
               </Field>
             </View>
           </Card>
