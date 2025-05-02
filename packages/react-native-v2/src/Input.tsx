@@ -131,7 +131,7 @@ export const EvervaultInput = forwardRef<
 
   const obfuscationCharacter = useMemo(() => {
     if (typeof obfuscateValue === "string") {
-      return obfuscateValue.slice(0, 1);
+      return obfuscateValue;
     } else {
       return "•";
     }
