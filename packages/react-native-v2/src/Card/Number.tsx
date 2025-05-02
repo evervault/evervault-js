@@ -13,8 +13,12 @@ const CARD_NUMBER_MASKS: Partial<Record<CardBrandName, MaskArray>> = {
 };
 
 export interface CardNumberProps extends BaseEvervaultInputProps {
-  /** Whether to obfuscate the card number value (excluding the last 4 digits). */
-  obfuscateValue?: boolean;
+  /**
+   * Whether to obfuscate the card number value (excluding the last 4 digits).
+   *
+   * If a string is provided, it will be used to obfuscate the value.
+   */
+  obfuscateValue?: boolean | string;
 }
 
 export type CardNumber = EvervaultInput;

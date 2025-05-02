@@ -380,6 +380,18 @@ describe("EvervaultInput", () => {
     await user.type(input, "1234567890");
     expect(input).toHaveProp("value", "(•••) •••-7890");
 
+    rerender(
+      <EvervaultInput
+        testID="phone"
+        mask={phoneMask}
+        name="phone"
+        obfuscateValue="#"
+      />
+    );
+
+    await user.type(input, "1234567890");
+    expect(input).toHaveProp("value", "(###) ###-7890");
+
     const unobfuscatedMask = mask("(999) 999-9999");
     rerender(
       <EvervaultInput

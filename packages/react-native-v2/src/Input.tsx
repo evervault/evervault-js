@@ -8,6 +8,7 @@ import {
   useCallback,
   useContext,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -109,7 +110,7 @@ export interface EvervaultInputProps<Values extends Record<string, unknown>>
   extends BaseEvervaultInputProps {
   name: keyof Values;
   mask?: Mask;
-  obfuscateValue?: boolean;
+  obfuscateValue?: boolean | string;
 }
 
 export const EvervaultInput = forwardRef<
@@ -127,6 +128,14 @@ export const EvervaultInput = forwardRef<
     name,
     shouldUnregister: true,
   });
+
+  const obfuscationCharacter = useMemo(() => {
+    if (typeof obfuscateValue === "string") {
+      return obfuscateValue.slice(0, 1);
+    } else {
+      return "•";
+    }
+  }, [obfuscateValue]);
 
   return (
     <MaskInput
@@ -150,8 +159,8 @@ export const EvervaultInput = forwardRef<
       }}
       mask={mask}
       maskAutoComplete={!!mask}
-      obfuscationCharacter="•"
-      showObfuscatedValue={obfuscateValue}
+      obfuscationCharacter={obfuscationCharacter}
+      showObfuscatedValue={!!obfuscateValue}
       value={field.value}
       onChangeText={(masked, unmasked) => {
         const shouldValidate =

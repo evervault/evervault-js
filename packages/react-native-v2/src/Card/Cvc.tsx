@@ -13,8 +13,12 @@ const CARD_CVC_MASKS: Partial<Record<CardBrandName, Mask>> = {
 };
 
 export interface CardCvcProps extends BaseEvervaultInputProps {
-  /** Whether to obfuscate the entire CVC value. */
-  obfuscateValue?: boolean;
+  /**
+   * Whether to obfuscate the entire CVC value.
+   *
+   * If a string is provided, it will be used to obfuscate the value.
+   */
+  obfuscateValue?: boolean | string;
 }
 
 export type CardCvc = EvervaultInput;
