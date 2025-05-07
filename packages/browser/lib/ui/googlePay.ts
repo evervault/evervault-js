@@ -87,6 +87,7 @@ export default class GooglePay {
         borderRadius: this.#options.borderRadius,
         allowedAuthMethods: this.#options.allowedAuthMethods,
         allowedCardNetworks: this.#options.allowedCardNetworks,
+        billingAddress: this.#options.billingAddress,
       },
     };
   }
