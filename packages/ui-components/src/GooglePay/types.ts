@@ -13,5 +13,5 @@ export interface GooglePayConfig {
   borderRadius: number;
   allowedAuthMethods?: string[];
   allowedCardNetworks?: string[];
-  billingAddress?: GooglePayBillingAddressConfig
+  billingAddress?: GooglePayBillingAddressConfig;
 }

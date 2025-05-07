@@ -32,7 +32,7 @@ export function buildPaymentRequest(
           billingAddressParameters: {
             format: billingAddressFormat(config),
             phoneNumberRequired: phoneNumberRequired(config),
-          }
+          },
         },
         tokenizationSpecification: {
           type: "PAYMENT_GATEWAY",
@@ -91,14 +91,15 @@ export async function exchangePaymentData(
   return response.json();
 }
 
-
 function isBillingRequired(config: GooglePayConfig): boolean {
   const billingConfig = config.billingAddress;
   if (typeof billingConfig === "boolean") return billingConfig;
-  return !!billingConfig
+  return !!billingConfig;
 }
 
-function billingAddressFormat(config: GooglePayConfig): google.payments.api.BillingAddressFormat {
+function billingAddressFormat(
+  config: GooglePayConfig
+): google.payments.api.BillingAddressFormat {
   const billingConfig = config.billingAddress;
   if (typeof billingConfig === "boolean") return "FULL";
   return billingConfig?.format || "FULL";

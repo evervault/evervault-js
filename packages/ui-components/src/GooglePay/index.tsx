@@ -48,9 +48,10 @@ export function GooglePay({ config }: GooglePayProps) {
               config.transaction.merchantId
             );
 
-            const billingAddress = data.paymentMethodData.info?.billingAddress || null;
+            const billingAddress =
+              data.paymentMethodData.info?.billingAddress || null;
             if (billingAddress) {
-              payload.billingAddress = billingAddress
+              payload.billingAddress = billingAddress;
             }
 
             return new Promise((resolve) => {
