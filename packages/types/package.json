@@ -1,11 +1,12 @@
 {
   "name": "types",
   "private": true,
-  "version": "0.14.0",
+  "version": "0.15.0",
   "main": "index.ts",
   "types": "index.ts",
   "dependencies": {
-    "jss": "catalog:"
+    "jss": "catalog:",
+    "@types/googlepay": "catalog:"
   },
   "scripts": {
     "clean": "rm -rf node_modules",
