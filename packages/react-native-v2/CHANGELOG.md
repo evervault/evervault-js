@@ -1,5 +1,11 @@
 # @evervault/react-native
 
+## 2.4.0
+
+### Minor Changes
+
+- 7704fcb: - Adds new `obfuscateValue` prop to Card.Number and Card.Cvc to enable value obfuscation
+
 ## 2.3.0
 
 ### Minor Changes
