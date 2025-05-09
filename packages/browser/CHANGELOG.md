@@ -1,5 +1,42 @@
 # @evervault/browser
 
+## 2.45.0
+
+### Minor Changes
+
+- 311f567: Adds support for requesting billing address information with Google Pay.
+
+  You can now collect billing address information using the `billingAddress` option.
+
+  ```js
+  const googlePay = evervault.ui.googlePay(transaction, {
+      billingAddress: true,
+      process: async () => {
+          ...
+      }
+  });
+  ```
+
+  You can also specific the address format and request a phone number by using an object instead of a boolean.
+
+  ```js
+  const googlePay = evervault.ui.googlePay(transaction, {
+      billingAddress: {
+          format: 'MIn',
+          phoneNumber: true
+      },
+      process: async () => {
+          ...
+      }
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies [311f567]
+  - types@0.15.0
+  - themes@0.1.15
+
 ## 2.44.1
 
 ### Patch Changes
