@@ -27,6 +27,25 @@ describe("mask", () => {
       /\d/,
     ]);
   });
+
+  it("should account for obfuscation", () => {
+    expect(mask("[9999 9999] 9999")).toEqual([
+      [/\d/],
+      [/\d/],
+      [/\d/],
+      [/\d/],
+      " ",
+      [/\d/],
+      [/\d/],
+      [/\d/],
+      [/\d/],
+      " ",
+      /\d/,
+      /\d/,
+      /\d/,
+      /\d/,
+    ]);
+  });
 });
 
 describe("EvervaultInput", () => {
@@ -332,5 +351,70 @@ describe("EvervaultInput", () => {
       "1234567890",
       { shouldDirty: true, shouldValidate: true }
     );
+  });
+
+  it("should obfuscate the value when obfuscateValue=true", async () => {
+    const phoneMask = mask("[(999) 999]-9999");
+    const { rerender } = render(
+      <EvervaultInput testID="phone" mask={phoneMask} name="phone" />,
+      {
+        wrapper: Form,
+      }
+    );
+
+    const input = screen.getByTestId("phone");
+    const user = userEvent.setup();
+
+    await user.type(input, "1234567890");
+    expect(input).toHaveProp("value", "(123) 456-7890");
+
+    rerender(
+      <EvervaultInput
+        testID="phone"
+        mask={phoneMask}
+        name="phone"
+        obfuscateValue
+      />
+    );
+
+    await user.type(input, "1234567890");
+    expect(input).toHaveProp("value", "(•••) •••-7890");
+
+    rerender(
+      <EvervaultInput
+        testID="phone"
+        mask={phoneMask}
+        name="phone"
+        obfuscateValue="#"
+      />
+    );
+
+    await user.type(input, "1234567890");
+    expect(input).toHaveProp("value", "(###) ###-7890");
+
+    rerender(
+      <EvervaultInput
+        testID="phone"
+        mask={phoneMask}
+        name="phone"
+        obfuscateValue="🤔"
+      />
+    );
+
+    await user.type(input, "1234567890");
+    expect(input).toHaveProp("value", "(🤔🤔🤔) 🤔🤔🤔-7890");
+
+    const unobfuscatedMask = mask("(999) 999-9999");
+    rerender(
+      <EvervaultInput
+        testID="phone"
+        mask={unobfuscatedMask}
+        name="phone"
+        obfuscateValue
+      />
+    );
+
+    await user.type(input, "1234567890");
+    expect(input).toHaveProp("value", "(123) 456-7890");
   });
 });
