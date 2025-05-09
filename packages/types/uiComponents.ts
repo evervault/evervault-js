@@ -352,13 +352,25 @@ export interface EncryptedFPAN {
   };
 }
 
-export type EncryptedGooglePayData = EncryptedDPAN<"google"> | EncryptedFPAN;
+export type EncryptedGooglePayData = (
+  | EncryptedDPAN<"google">
+  | EncryptedFPAN
+) & {
+  billingAddress: google.payments.api.Address | null;
+};
 
 export interface GooglePayErrorMessage {
   message: string;
   reason?: google.payments.api.ErrorReason;
   intent?: google.payments.api.CallbackIntent;
 }
+
+export type GooglePayBillingAddressConfig =
+  | boolean
+  | {
+      format?: google.payments.api.BillingAddressFormat;
+      phoneNumber?: boolean;
+    };
 
 export interface GooglePayOptions {
   process: (
@@ -374,6 +386,7 @@ export interface GooglePayOptions {
   size?: { width: WalletDimension; height: WalletDimension };
   allowedAuthMethods?: google.payments.api.CardAuthMethod[];
   allowedCardNetworks?: google.payments.api.CardNetwork[];
+  billingAddress?: GooglePayBillingAddressConfig;
 }
 
 export type ApplePayButtonType =

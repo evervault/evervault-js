@@ -42,11 +42,18 @@ export function GooglePay({ config }: GooglePayProps) {
         environment: apiConfig.googlePayEnvironment,
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
-            const encrypted = await exchangePaymentData(
+            const payload = await exchangePaymentData(
               app,
               data,
               config.transaction.merchantId
             );
+
+            const billingAddress =
+              data.paymentMethodData.info?.billingAddress || null;
+            if (billingAddress) {
+              payload.billingAddress = billingAddress;
+            }
+
             return new Promise((resolve) => {
               on("EV_GOOGLE_PAY_AUTH_COMPLETE", () => {
                 send("EV_GOOGLE_PAY_SUCCESS");
@@ -64,7 +71,8 @@ export function GooglePay({ config }: GooglePayProps) {
                   error: googleError,
                 });
               });
-              send("EV_GOOGLE_PAY_AUTH", encrypted);
+
+              send("EV_GOOGLE_PAY_AUTH", payload);
             });
           },
         },
