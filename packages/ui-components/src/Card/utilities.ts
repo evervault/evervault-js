@@ -4,7 +4,6 @@ import {
   validateCVC,
   CardNumberValidationResult,
 } from "@evervault/card-validator";
-import { PromisifiedEvervaultClient } from "@evervault/react";
 import { UseFormReturn } from "shared";
 import { ICONS } from "./icons";
 import { MagStripeData } from "./useCardReader";
@@ -16,9 +15,10 @@ import type {
   CardPayload,
   SwipedCard,
 } from "types";
+import Encryption from "@repo/encryption";
 
 export async function changePayload(
-  ev: PromisifiedEvervaultClient,
+  en: Encryption,
   form: UseFormReturn<CardForm>,
   fields: CardField[],
   opts?: {
@@ -41,9 +41,9 @@ export async function changePayload(
       localBrands,
       bin,
       lastFour,
-      number: isValidCardNumber ? await encryptedNumber(ev, number) : null,
+      number: isValidCardNumber ? await encryptedNumber(en, number) : null,
       expiry: formatExpiry(expiry),
-      cvc: await encryptedCVC(ev, cvc, number),
+      cvc: await encryptedCVC(en, cvc, number),
     },
     isValid: form.isValid,
     isComplete: isComplete(form, fields, opts),
@@ -88,7 +88,7 @@ function isComplete(
 }
 
 export async function swipePayload(
-  ev: PromisifiedEvervaultClient,
+  en: Encryption,
   values: MagStripeData
 ): Promise<SwipedCard> {
   const { brand, localBrands, bin, lastFour } = validateNumber(values.number);
@@ -100,7 +100,7 @@ export async function swipePayload(
     localBrands,
     bin,
     lastFour,
-    number: await encryptedNumber(ev, values.number),
+    number: await encryptedNumber(en, values.number),
     expiry: {
       month: values.month,
       year: values.year,
@@ -132,19 +132,15 @@ function formatExpiry(expiry: string) {
   };
 }
 
-async function encryptedNumber(ev: PromisifiedEvervaultClient, number: string) {
-  return ev.encrypt(number);
+async function encryptedNumber(en: Encryption, number: string) {
+  return en.encrypt(number);
 }
 
-async function encryptedCVC(
-  ev: PromisifiedEvervaultClient,
-  cvc: string,
-  cardNumber: string
-) {
+async function encryptedCVC(en: Encryption, cvc: string, cardNumber: string) {
   const { isValid } = validateCVC(cvc, cardNumber);
 
   if (!isValid) return null;
-  return ev.encrypt(cvc);
+  return en.encrypt(cvc);
 }
 
 export function collectIcons(icons: boolean | CardIcons) {
