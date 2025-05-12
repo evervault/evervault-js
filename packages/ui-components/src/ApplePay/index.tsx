@@ -105,7 +105,6 @@ export function ApplePay({ config }: ApplePayProps) {
         shippingContact,
         token: { paymentData },
       } = response.details;
-
       try {
         const encrypted: EncryptedApplePayData = await exchangeApplePaymentData(
           app,
