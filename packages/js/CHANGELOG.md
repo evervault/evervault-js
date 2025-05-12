@@ -1,5 +1,11 @@
 # @evervault/js
 
+## 2.1.0
+
+### Minor Changes
+
+- 00fbd72: Updates types to match the latest release for our Browser SDK
+
 ## 2.0.2
 
 ### Patch Changes
