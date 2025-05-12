@@ -1,7 +1,7 @@
 {
   "name": "example-three-d-secure",
   "private": true,
-  "version": "0.0.37",
+  "version": "0.0.38",
   "type": "module",
   "scripts": {
     "dev": "concurrently --kill-others \"pnpm run client:dev\" \"pnpm run server:dev\"",
