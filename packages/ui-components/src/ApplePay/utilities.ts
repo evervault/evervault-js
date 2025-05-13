@@ -26,7 +26,11 @@ export function buildSession(
   if (tx.type === "payment") {
     baseRequest = buildPaymentSession(merchant, config, tx);
   } else {
-    baseRequest = buildDisbursementSession(merchant, config, tx);
+    baseRequest = buildDisbursementSession(
+      merchant,
+      config,
+      tx as DisbursementTransactionDetails
+    );
   }
 
   // @ts-expect-error - onmerchantvalidation is added by apple and not on the PaymentRequest type
