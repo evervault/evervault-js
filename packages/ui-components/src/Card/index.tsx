@@ -314,6 +314,7 @@ export function Card({ config }: { config: CardConfig }) {
             onFocus={handleFocus("cvc")}
             onKeyUp={handleKeyUp("cvc")}
             onKeyDown={handleKeyDown("cvc")}
+            autoComplete={config.autoComplete?.cvc ?? true}
             redact={config.redactCVC}
             {...form.register("cvc", {
               onBlur: handleBlur("cvc"),
