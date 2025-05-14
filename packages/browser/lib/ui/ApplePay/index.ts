@@ -112,6 +112,9 @@ export default class ApplePayButton {
       return;
     }
 
+    const paymentMethodDisplayName =
+      response.details?.token?.paymentMethod?.displayName;
+
     const [encrypted, encryptedError] = await tryCatch(
       this.#exchangeApplePaymentData(response)
     );
@@ -127,6 +130,15 @@ export default class ApplePayButton {
 
     if (response.details.shippingContact) {
       encrypted.shippingContact = response.details.shippingContact;
+    }
+
+    if (paymentMethodDisplayName) {
+      const fourDigitMatch = paymentMethodDisplayName.match(/\b\d{4}\b/);
+      if (fourDigitMatch) {
+        encrypted.card.lastFour = fourDigitMatch[0];
+      } else {
+        encrypted.card.displayName = paymentMethodDisplayName;
+      }
     }
 
     let failed = false;
