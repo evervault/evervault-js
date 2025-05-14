@@ -336,6 +336,7 @@ export interface EncryptedDPAN<P> {
   token: PaymentToken<P>;
   card: {
     brand: string;
+    displayName?: string;
   };
   cryptogram: string;
   eci: string;
