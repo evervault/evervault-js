@@ -132,8 +132,13 @@ export default class ApplePayButton {
       encrypted.shippingContact = response.details.shippingContact;
     }
 
-    if (paymentMethodDisplayName && encrypted.card) {
-      encrypted.card.displayName = paymentMethodDisplayName;
+    if (paymentMethodDisplayName) {
+      const fourDigitMatch = paymentMethodDisplayName.match(/\b\d{4}\b/);
+      if (fourDigitMatch) {
+        encrypted.card.lastFour = fourDigitMatch[0];
+      } else {
+        encrypted.card.displayName = paymentMethodDisplayName;
+      }
     }
 
     let failed = false;
