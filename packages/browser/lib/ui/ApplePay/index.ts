@@ -112,7 +112,7 @@ export default class ApplePayButton {
       return;
     }
 
-    let paymentMethodDisplayName =
+    const paymentMethodDisplayName =
       response.details?.token?.paymentMethod?.displayName;
 
     const [encrypted, encryptedError] = await tryCatch(
