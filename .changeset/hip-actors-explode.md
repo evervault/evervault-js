@@ -1,5 +1,5 @@
 ---
-"example-react-google-wallet": minor
+"@evervault/js": minor
 "@evervault/ui-components": minor
 "types": minor
 ---

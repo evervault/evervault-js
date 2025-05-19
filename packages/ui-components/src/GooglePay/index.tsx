@@ -53,8 +53,7 @@ export function GooglePay({ config }: GooglePayProps) {
 
             const paymentMethodInfo = paymentMethodData?.info;
 
-            const billingAddress =
-              paymentMethodInfo?.billingAddress || null;
+            const billingAddress = paymentMethodInfo?.billingAddress || null;
             if (billingAddress) {
               payload.billingAddress = billingAddress;
             }
@@ -67,7 +66,8 @@ export function GooglePay({ config }: GooglePayProps) {
                 payload.card.lastFour = lastFour[0];
               } else {
                 // If the last four digits are not found, try to get them from the description
-                const descriptionLastFour = paymentMethodData?.description?.match(fourDigitRegex);
+                const descriptionLastFour =
+                  paymentMethodData?.description?.match(fourDigitRegex);
                 if (descriptionLastFour) {
                   payload.card.lastFour = descriptionLastFour[0];
                 }
