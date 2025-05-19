@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.31.1
+
+### Patch Changes
+
+- 3ef3bb6: Set CVC field autoComplete value to cc-csc when auto complete is enabled.
+
 ## 1.31.0
 
 ### Minor Changes
