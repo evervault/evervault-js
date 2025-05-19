@@ -48,10 +48,30 @@ export function GooglePay({ config }: GooglePayProps) {
               config.transaction.merchantId
             );
 
+            const paymentMethodData = data.paymentMethodData;
+            payload.card.displayName = paymentMethodData?.description;
+
+            const paymentMethodInfo = paymentMethodData?.info;
+
             const billingAddress =
-              data.paymentMethodData.info?.billingAddress || null;
+              paymentMethodInfo?.billingAddress || null;
             if (billingAddress) {
               payload.billingAddress = billingAddress;
+            }
+
+            const cardDetails = data.paymentMethodData.info?.cardDetails;
+            if (cardDetails) {
+              const fourDigitRegex = /(\d{4})$/;
+              const lastFour = cardDetails.match(fourDigitRegex);
+              if (lastFour) {
+                payload.card.lastFour = lastFour[0];
+              } else {
+                // If the last four digits are not found, try to get them from the description
+                const descriptionLastFour = paymentMethodData?.description?.match(fourDigitRegex);
+                if (descriptionLastFour) {
+                  payload.card.lastFour = descriptionLastFour[0];
+                }
+              }
             }
 
             return new Promise((resolve) => {
