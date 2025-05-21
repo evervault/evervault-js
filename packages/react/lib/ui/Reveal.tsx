@@ -1,9 +1,9 @@
 import * as React from "react";
-import { ReactNode, useEffect, useRef, useState } from "react";
-import { useEvervault } from "../useEvervault";
-import { RevealClass, RevealContext } from "./RevealContext";
+import { ReactNode } from "react";
+import { RevealContext } from "./RevealContext";
 import { RevealCopyButton } from "./RevealCopyButton";
 import { RevealText } from "./RevealText";
+import { useEvInstance } from "../useEvInstance";
 
 export interface RevealProps {
   request: Request;
@@ -13,10 +13,12 @@ export interface RevealProps {
 }
 
 function Reveal({ request, children, onReady, onError }: RevealProps) {
-  const initialized = useRef(false);
-  const ev = useEvervault();
-  const [instance, setInstance] = useState<RevealClass | null>(null);
-  const ref = useRef<HTMLDivElement>(null);
+  const instance = useEvInstance({
+    onMount(evervault) {
+      return evervault.ui.reveal(request);
+    },
+  });
+  const context = React.useMemo(() => ({ reveal: instance }), [instance]);
 
   // setup ready event listener
   React.useEffect(() => {
@@ -30,27 +32,8 @@ function Reveal({ request, children, onReady, onError }: RevealProps) {
     return instance?.on("error", onError);
   }, [instance, onError]);
 
-  useEffect(() => {
-    if (!ref.current || initialized.current) return;
-
-    async function init() {
-      initialized.current = true;
-      const evervault = await ev;
-      if (!evervault) return;
-      const reveal = evervault.ui.reveal(request);
-      setInstance(reveal);
-    }
-
-    init().catch(console.error);
-  }, [instance, request, ev]);
-
   return (
-    <RevealContext.Provider value={{ reveal: instance }}>
-      <>
-        <div ref={ref} />
-        {children}
-      </>
-    </RevealContext.Provider>
+    <RevealContext.Provider value={context}>{children}</RevealContext.Provider>
   );
 }
 
