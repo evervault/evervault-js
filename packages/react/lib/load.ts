@@ -136,7 +136,7 @@ export function useEvervaultClient({
     );
   }, [id, customConfig?.jsSdkUrl, onLoadError]);
 
-  const client = React.useMemo<PromisifiedEvervaultClient | null>(() => {
+  const client = React.useMemo<PromisifiedEvervaultClient>(() => {
     return new PromisifiedEvervaultClient((resolve, reject) => {
       if (!loadPromise) return;
 

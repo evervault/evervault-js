@@ -17,6 +17,7 @@ function Reveal({ request, children, onReady, onError }: RevealProps) {
     onMount(evervault) {
       return evervault.ui.reveal(request);
     },
+    onMountError: onError,
   });
   const context = React.useMemo(() => ({ reveal: instance }), [instance]);
 

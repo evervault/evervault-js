@@ -42,6 +42,7 @@ export function Pin({
     onUpdate(instance) {
       instance.update(config);
     },
+    onMountError: onError,
   });
 
   // setup ready event listener

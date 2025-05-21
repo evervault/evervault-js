@@ -38,12 +38,13 @@ export function ThreeDSecure({
     onMount(evervault) {
       if (!ref.current) return;
       const inst = evervault.ui.threeDSecure(session, config);
-      inst.mount(ref.current as HTMLElement);
+      inst.mount(ref.current);
       return inst;
     },
     onUpdate(instance) {
       instance.update(config);
     },
+    onMountError: onError,
   });
 
   React.useEffect(() => {
