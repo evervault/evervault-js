@@ -1,6 +1,4 @@
-import type EvervaultClient from "@evervault/browser";
 import type {
-  CustomConfig as BrowserConfig,
   EvervaultRequestProps,
   InputSettings,
   RevealSettings,
@@ -9,6 +7,7 @@ import * as React from "react";
 import * as themes from "themes";
 import { EvervaultContext } from "./context";
 import { useEvervault } from "./useEvervault";
+import { CustomConfig, useEvervaultClient } from "./load";
 
 export type * from "types";
 export { Reveal } from "./ui/Reveal";
@@ -18,8 +17,11 @@ export { ThreeDSecure } from "./ui/ThreeDSecure";
 export { useThreeDSecure } from "./ui/useThreeDSecure";
 export { useEvervault, themes };
 
-export interface CustomConfig extends BrowserConfig {
-  jsSdkUrl: string;
+export type { PromisifiedEvervaultClient } from "./load";
+
+export interface EvervaultProvider {
+  /** Attempts to reload the Evervault script. */
+  reload(): void;
 }
 
 export interface EvervaultProviderProps {
@@ -33,166 +35,33 @@ export interface EvervaultProviderProps {
   onLoadError?: () => void;
 }
 
+export const EvervaultProvider = React.forwardRef<
+  EvervaultProvider,
+  EvervaultProviderProps
+>(({ teamId, appId, customConfig, children, onLoadError, ...props }, ref) => {
+  const { client, reload } = useEvervaultClient({
+    teamId,
+    appId,
+    customConfig,
+    onLoadError,
+  });
+
+  React.useImperativeHandle(ref, () => ({
+    reload,
+  }));
+
+  return (
+    <EvervaultContext.Provider {...props} value={client}>
+      {children}
+    </EvervaultContext.Provider>
+  );
+});
+
 export interface EvervaultInputProps {
   onChange?: (cardData: unknown) => void;
   config?: InputSettings;
   onInputsLoad?: () => void;
 }
-
-export interface EvervaultRevealProps {
-  request: Request | EvervaultRequestProps;
-  config?: RevealSettings;
-  onCopy?: () => void;
-  onRevealLoad?: () => void;
-  onRevealError?: (e: unknown) => void;
-}
-
-export class PromisifiedEvervaultClient extends Promise<EvervaultClient> {
-  public async encrypt(data: unknown) {
-    const ev = await this;
-    return ev.encrypt(data);
-  }
-
-  public async decrypt(token: string, data: unknown) {
-    const ev = await this;
-    return ev.decrypt(token, data);
-  }
-}
-
-const EVERVAULT_URL = "https://js.evervault.com/v2";
-function injectScript(overrideUrl?: string) {
-  const script = document.createElement("script");
-
-  if (overrideUrl && overrideUrl !== "") {
-    script.src = overrideUrl;
-  } else {
-    script.src = EVERVAULT_URL;
-  }
-
-  const headOrBody = document.head || document.body;
-
-  if (!headOrBody) {
-    throw new Error(
-      "Expected document.body not to be null. Evervault.js requires a <body> element."
-    );
-  }
-
-  headOrBody.appendChild(script);
-
-  return script;
-}
-
-type EvervaultClientPromise = Promise<typeof EvervaultClient | undefined>;
-let evervaultPromise: EvervaultClientPromise | null = null;
-
-function loadScript(
-  overrideUrl?: string,
-  onLoadError?: () => void
-): EvervaultClientPromise | null {
-  // Ensure that we only attempt to load Evervault.js at most once
-  if (evervaultPromise !== null) {
-    return evervaultPromise;
-  }
-
-  evervaultPromise = new Promise((resolve, reject) => {
-    if (typeof window === "undefined") {
-      resolve(undefined);
-      return;
-    }
-
-    if (window.Evervault) {
-      console.warn("Evervault has already been loaded");
-      resolve(window.Evervault);
-      return;
-    }
-
-    try {
-      const script = injectScript(overrideUrl);
-
-      script.addEventListener("load", () => {
-        if (window.Evervault) {
-          resolve(window.Evervault);
-        } else {
-          onLoadError?.();
-          reject(new Error("Evervault.js not available"));
-        }
-      });
-
-      script.addEventListener("error", () => {
-        onLoadError?.();
-        reject(new Error("Failed to load Evervault.js"));
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
-
-  return evervaultPromise;
-}
-
-function loadEvervault(
-  overrideUrl?: string,
-  onLoadError?: () => void
-): EvervaultClientPromise {
-  const evPromise = Promise.resolve().then(() =>
-    loadScript(overrideUrl, onLoadError)
-  );
-
-  let loadCalled = false;
-
-  evPromise.catch((err) => {
-    if (!loadCalled) {
-      console.warn(err);
-    }
-  });
-
-  loadCalled = true;
-  return evPromise.then((ev) => {
-    if (typeof window !== "undefined") return window.Evervault;
-    return ev ?? undefined;
-  });
-}
-
-export const EvervaultProvider = ({
-  teamId,
-  appId,
-  customConfig,
-  children,
-  onLoadError,
-  ...props
-}: EvervaultProviderProps) => {
-  if (typeof window === "undefined") {
-    return (
-      <EvervaultContext.Provider value={null}>
-        {children}
-      </EvervaultContext.Provider>
-    );
-  }
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const ev = React.useMemo<PromisifiedEvervaultClient>(
-    () =>
-      new PromisifiedEvervaultClient((resolve, reject) => {
-        loadEvervault(customConfig?.jsSdkUrl, onLoadError)
-          .then((Evervault) => {
-            if (Evervault !== undefined) {
-              resolve(new Evervault(teamId, appId, customConfig));
-            } else {
-              console.error("Evervault.js not available");
-              reject("Evervault.js not available");
-            }
-          })
-          .catch((e) => reject(e));
-      }),
-    []
-  );
-
-  return (
-    <EvervaultContext.Provider {...props} value={ev}>
-      {children}
-    </EvervaultContext.Provider>
-  );
-};
 
 export function EvervaultInput({
   onChange,
@@ -232,6 +101,14 @@ export function EvervaultInput({
   }, [evervault]);
 
   return <div id={id} />;
+}
+
+export interface EvervaultRevealProps {
+  request: Request | EvervaultRequestProps;
+  config?: RevealSettings;
+  onCopy?: () => void;
+  onRevealLoad?: () => void;
+  onRevealError?: (e: unknown) => void;
 }
 
 export function EvervaultReveal({

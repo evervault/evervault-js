@@ -19,12 +19,11 @@ export function RevealText({ path, theme, format }: RevealTextProps) {
   const { reveal } = useRevealContext();
 
   useLayoutEffect(() => {
-    if ((!ref.current || instance) ?? !reveal) return;
+    if (!ref.current) return;
+    if (instance) return;
+    if (!reveal) return;
 
-    const inst = reveal.text(path, {
-      theme,
-      format,
-    });
+    const inst = reveal.text(path, { theme, format });
     inst.mount(ref.current);
     setInstance(inst);
   }, [reveal, path, theme, format, instance]);
