@@ -1,7 +1,7 @@
 import EvervaultClient, {
   CustomConfig as BrowserConfig,
 } from "@evervault/browser";
-import React from "react";
+import React, { useMemo } from "react";
 import { useId } from "react";
 
 export class PromisifiedEvervaultClient extends Promise<EvervaultClient> {
@@ -122,19 +122,20 @@ export function useEvervaultClient({
   onLoadError,
 }: UseEvervaultClientOptions) {
   const id = useId();
+  const [retryAttempt, setRetryAttempt] = React.useState(0);
 
   const [loadPromise, setLoadPromise] =
     React.useState<EvervaultClientPromise | null>(null);
 
   React.useEffect(() => {
-    const loadKey = `${id}-${customConfig?.jsSdkUrl}`;
+    const loadKey = `${id}-${retryAttempt}-${customConfig?.jsSdkUrl}`;
     setLoadPromise(
       loadEvervault(loadKey, {
         overrideUrl: customConfig?.jsSdkUrl,
         onLoadError,
       })
     );
-  }, [id, customConfig?.jsSdkUrl, onLoadError]);
+  }, [id, retryAttempt, customConfig?.jsSdkUrl, onLoadError]);
 
   const client = React.useMemo<PromisifiedEvervaultClient>(() => {
     return new PromisifiedEvervaultClient((resolve, reject) => {
@@ -146,5 +147,9 @@ export function useEvervaultClient({
     });
   }, [loadPromise, teamId, appId, customConfig]);
 
-  return client;
+  const reload = React.useCallback(() => {
+    setRetryAttempt((prev) => prev + 1);
+  }, []);
+
+  return useMemo(() => ({ client, reload }), [client, reload]);
 }

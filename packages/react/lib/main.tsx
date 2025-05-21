@@ -19,6 +19,11 @@ export { useEvervault, themes };
 
 export type { PromisifiedEvervaultClient } from "./load";
 
+export interface EvervaultProvider {
+  /** Attempts to reload the Evervault script. */
+  reload(): void;
+}
+
 export interface EvervaultProviderProps {
   teamId: string;
   appId: string;
@@ -30,40 +35,32 @@ export interface EvervaultProviderProps {
   onLoadError?: () => void;
 }
 
-export const EvervaultProvider = ({
-  teamId,
-  appId,
-  customConfig,
-  children,
-  onLoadError,
-  ...props
-}: EvervaultProviderProps) => {
-  const client = useEvervaultClient({
+export const EvervaultProvider = React.forwardRef<
+  EvervaultProvider,
+  EvervaultProviderProps
+>(({ teamId, appId, customConfig, children, onLoadError, ...props }, ref) => {
+  const { client, reload } = useEvervaultClient({
     teamId,
     appId,
     customConfig,
     onLoadError,
   });
 
+  React.useImperativeHandle(ref, () => ({
+    reload,
+  }));
+
   return (
     <EvervaultContext.Provider {...props} value={client}>
       {children}
     </EvervaultContext.Provider>
   );
-};
+});
 
 export interface EvervaultInputProps {
   onChange?: (cardData: unknown) => void;
   config?: InputSettings;
   onInputsLoad?: () => void;
-}
-
-export interface EvervaultRevealProps {
-  request: Request | EvervaultRequestProps;
-  config?: RevealSettings;
-  onCopy?: () => void;
-  onRevealLoad?: () => void;
-  onRevealError?: (e: unknown) => void;
 }
 
 export function EvervaultInput({
@@ -104,6 +101,14 @@ export function EvervaultInput({
   }, [evervault]);
 
   return <div id={id} />;
+}
+
+export interface EvervaultRevealProps {
+  request: Request | EvervaultRequestProps;
+  config?: RevealSettings;
+  onCopy?: () => void;
+  onRevealLoad?: () => void;
+  onRevealError?: (e: unknown) => void;
 }
 
 export function EvervaultReveal({
