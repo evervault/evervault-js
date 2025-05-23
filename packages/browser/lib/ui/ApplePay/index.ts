@@ -38,7 +38,9 @@ export type ApplePayButtonOptions = {
   disbursementOverrides?: {
     disbursementDetails?: PaymentDetailsInit;
   };
-  onShippingAddressChange?: (event: PaymentRequestUpdateEvent) => Promise<{ amount: number, lineItems?: TransactionLineItem[] }>;
+  onShippingAddressChange?: (
+    event: PaymentRequestUpdateEvent
+  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   process: (
     data: EncryptedApplePayData,
     helpers: {

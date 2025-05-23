@@ -27,7 +27,9 @@ type BuildSessionOptions = {
   disbursementOverrides?: {
     disbursementDetails?: PaymentDetailsInit;
   };
-  onShippingAddressChange?: (event: PaymentRequestUpdateEvent) => Promise<{ amount: number, lineItems?: TransactionLineItem[] }>;
+  onShippingAddressChange?: (
+    event: PaymentRequestUpdateEvent
+  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
 };
 
 export async function buildSession(
@@ -37,6 +39,9 @@ export async function buildSession(
   const { transaction: tx } = config;
 
   const merchant = await getMerchant(applePay, tx.merchantId);
+  if (!merchant) {
+    throw new Error("Merchant not found");
+  }
 
   let baseRequest: ApplePayPaymentRequest;
   if (tx.type === "payment") {
@@ -62,28 +67,40 @@ export async function buildSession(
       const updates = updatePaymentRequest(event, config, tx, merchant); // Do not await this promise
       event.updateWith(updates);
     } else {
-      console.log("onShippingAddressChange not provided, updating with empty shipping options");
+      console.log(
+        "onShippingAddressChange not provided, updating with empty shipping options"
+      );
       // If no handler is provided, just update with empty shipping options
       const update: PaymentDetailsUpdate = {};
-      event.updateWith(update);  
+      event.updateWith(update);
     }
   };
 
   return baseRequest;
 }
 
-async function updatePaymentRequest(event: PaymentRequestUpdateEvent, config: BuildSessionOptions, tx: TransactionDetailsWithDomain, merchant: any): Promise<PaymentDetailsUpdate> {
+async function updatePaymentRequest(
+  event: PaymentRequestUpdateEvent,
+  config: BuildSessionOptions,
+  tx: TransactionDetailsWithDomain,
+  merchant: any
+): Promise<PaymentDetailsUpdate> {
   const updatedTransactionConfig = await config.onShippingAddressChange!(event);
-  const displayItems = (updatedTransactionConfig.lineItems ?? []).map((item) => ({
-    label: item.label,
-    amount: {
-      value: (item.amount / 100).toFixed(2).toString(),
-      currency: tx.currency,
-    },
-  }));
+  const displayItems = (updatedTransactionConfig.lineItems ?? []).map(
+    (item) => ({
+      label: item.label,
+      amount: {
+        value: (item.amount / 100).toFixed(2).toString(),
+        currency: tx.currency,
+      },
+    })
+  );
   const total = {
     label: merchant.name,
-    amount: { currency: tx.currency, value: (updatedTransactionConfig.amount / 100).toFixed(2) },
+    amount: {
+      currency: tx.currency,
+      value: (updatedTransactionConfig.amount / 100).toFixed(2),
+    },
   };
   const updates = {
     displayItems,
@@ -295,7 +312,10 @@ async function validateMerchant(
   return response.json();
 }
 
-async function getMerchant(applePay: ApplePayButton, id: string): Promise<MerchantDetail | undefined> {
+async function getMerchant(
+  applePay: ApplePayButton,
+  id: string
+): Promise<MerchantDetail | undefined> {
   const app = applePay.client.config.appId;
   const apiURL = applePay.client.config.http.apiUrl;
   const response = await fetch(`${apiURL}/frontend/merchants/${id}`, {
