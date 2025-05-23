@@ -3,6 +3,7 @@ import type {
   ApplePayErrorMessage,
   EncryptedApplePayData,
   SelectorType,
+  TransactionLineItem,
 } from "types";
 import { resolveSelector } from "../utils";
 import { buildSession, resolveUnit } from "./utilities";
@@ -37,6 +38,7 @@ export type ApplePayButtonOptions = {
   disbursementOverrides?: {
     disbursementDetails?: PaymentDetailsInit;
   };
+  onShippingAddressChange?: (event: PaymentRequestUpdateEvent) => Promise<{ amount: number, lineItems?: TransactionLineItem[] }>;
   process: (
     data: EncryptedApplePayData,
     helpers: {
@@ -98,6 +100,7 @@ export default class ApplePayButton {
       disbursementOverrides: this.#options.disbursementOverrides,
       requestBillingAddress: this.#options.requestBillingAddress,
       requestShipping: this.#options.requestShipping,
+      onShippingAddressChange: this.#options.onShippingAddressChange,
     });
 
     const [response, responseError] = await tryCatch(session.show());
