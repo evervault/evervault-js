@@ -83,7 +83,7 @@ async function updatePaymentRequest(
   event: PaymentRequestUpdateEvent,
   config: BuildSessionOptions,
   tx: TransactionDetailsWithDomain,
-  merchant: any
+  merchant: MerchantDetail
 ): Promise<PaymentDetailsUpdate> {
   const updatedTransactionConfig = await config.onShippingAddressChange!(event);
   const displayItems = (updatedTransactionConfig.lineItems ?? []).map(
