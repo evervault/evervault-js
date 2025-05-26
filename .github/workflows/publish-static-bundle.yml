@@ -181,9 +181,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [get-artifact-name, deploy-preview]
-    # We need to run this step even if the preview deployment is skipped. This is to account for the preview deployment being skipped.
-    # If the preview deployment fails, we should not attempt a live deployment.
-    if: ${{ always() && !failure() }}
+    # The live deployment should happen if:
+    # - The current package supports preview deployments and the preview deployment was successful.
+    # - The current package does not support preview deployments, in which case we should always deploy to live.
+    #
+    # `always()` ensures that the live deployment runs even if the preview deployment is skipped. This handles cases of packages that do not have a preview step.
+    # `!failure()` ensures that the live deployment does not run if the preview deployment failed.
+    # `!cancelled()` handles the case where a parallel job fails causing the preview deployment to be cancelled.
+    if: ${{ always() && !failure() && !cancelled() }}
     environment: ${{ inputs.live-environment }}
     name: "Deploy ${{ inputs.package-name }} to ${{ inputs.stage }}"
     steps:
