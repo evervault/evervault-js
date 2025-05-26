@@ -21,8 +21,6 @@ import type {
 } from "./Reveal/types";
 import { GooglePay } from "./GooglePay";
 import { GooglePayConfig } from "./GooglePay/types";
-import { ApplePay } from "./ApplePay";
-import { ApplePayConfig } from "./ApplePay/types";
 
 // Use the component query param to determine which component to render
 export function UIComponent() {
@@ -120,10 +118,6 @@ export function UIComponent() {
 
   if (component === "GooglePay") {
     return <GooglePay config={config as GooglePayConfig} />;
-  }
-
-  if (component === "ApplePay") {
-    return <ApplePay config={config as ApplePayConfig} />;
   }
 
   throw new Error(`Unknown component ${component}`);
