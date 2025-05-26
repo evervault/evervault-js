@@ -22,13 +22,16 @@ export function RevealCopyButton({
 
   // setup ready event listener
   React.useEffect(() => {
-    if (!instance || !onCopy) return undefined;
+    if (!reveal) return undefined;
+    if (!onCopy) return undefined;
     return instance?.on("copy", onCopy);
-  }, [instance, onCopy]);
+  }, [instance, reveal, onCopy]);
 
   useLayoutEffect(() => {
-    if ((!ref.current || instance) ?? !reveal) return;
-    const inst = reveal?.copyButton(path, options);
+    if (!ref.current) return;
+    if (instance) return;
+    if (!reveal) return;
+    const inst = reveal.copyButton(path, options);
     inst.mount(ref.current);
     setInstance(inst);
   }, [reveal, path, options, instance]);

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { EvervaultContext } from "./context";
-import type { PromisifiedEvervaultClient } from "./main";
+import type { PromisifiedEvervaultClient } from "./load";
 
 export function useEvervault(): PromisifiedEvervaultClient | null {
   if (typeof window === "undefined") {
