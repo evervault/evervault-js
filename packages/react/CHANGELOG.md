@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.19.0
+
+### Minor Changes
+
+- 1b2014c: Allow retry when Evervault browser SDK fails to load
+
 ## 2.18.0
 
 ### Minor Changes
