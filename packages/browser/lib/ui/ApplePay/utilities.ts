@@ -2,6 +2,7 @@ import {
   DisbursementTransactionDetails,
   MerchantDetail,
   PaymentTransactionDetails,
+  RecurringTransactionDetails,
   TransactionDetailsWithDomain,
 } from "types";
 import {
@@ -39,6 +40,8 @@ export async function buildSession(
   let baseRequest: ApplePayPaymentRequest;
   if (tx.type === "payment") {
     baseRequest = buildPaymentSession(merchant, config, tx);
+  } else if (tx.type === "recurring") {
+    baseRequest = buildRecurringSession(merchant, config, tx);
   } else {
     baseRequest = buildDisbursementSession(merchant, config, tx);
   }
@@ -98,6 +101,93 @@ function buildPaymentSession(
       amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
     },
     displayItems: lineItems,
+  };
+
+  const paymentOptions = {
+    requestPayerName: config.requestPayerDetails?.includes("name") ?? false,
+    requestBillingAddress: config.requestBillingAddress ?? false,
+    requestPayerEmail: config.requestPayerDetails?.includes("email") ?? false,
+    requestPayerPhone: config.requestPayerDetails?.includes("phone") ?? false,
+    requestShipping: config.requestShipping ?? false,
+    shippingType: "shipping",
+  };
+
+  const paymentOverrides = config.paymentOverrides || {};
+
+  const request = new PaymentRequest(
+    paymentOverrides.paymentMethodData || paymentMethodData,
+    paymentOverrides.paymentDetails || paymentDetails,
+    // @ts-expect-error - apple overrides the payment request
+    paymentOptions
+  );
+
+  return request;
+}
+
+function buildRecurringSession(
+  merchant: MerchantDetail,
+  config: BuildSessionOptions,
+  tx: RecurringTransactionDetails
+) {
+  console.log("Building recurring session");
+  const lineItems =
+    tx.lineItems?.map((item) => ({
+      label: item.label,
+      amount: {
+        value: (item.amount / 100).toFixed(2).toString(),
+        currency: tx.currency,
+      },
+    })) || [];
+
+  const paymentMethodData: PaymentMethodData[] = [
+    {
+      supportedMethods: "https://apple.com/apple-pay",
+      data: {
+        version: 3,
+        merchantIdentifier: `merchant.com.evervault.${config.transaction.merchantId}`,
+        merchantCapabilities: ["supports3DS"],
+        supportedNetworks: config.allowedCardNetworks?.map((network) =>
+          network.toLowerCase()
+        ) || ["visa", "masterCard", "amex", "discover"],
+        countryCode: tx.country,
+      },
+    },
+  ];
+
+  const paymentDetails: PaymentDetailsInit = {
+    total: {
+      label: merchant.name,
+      amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
+    },
+    displayItems: lineItems,
+    modifiers: [
+      {
+        supportedMethods: "https://apple.com/apple-pay",
+        data: {
+          recurringPaymentRequest: {
+            paymentDescription: tx.description,
+            regularBilling: {
+              label: tx.regularBilling.label,
+              amount: tx.regularBilling.amount,
+              paymentTiming: "recurring",
+              recurringPaymentStartDate:
+                tx.regularBilling.recurringPaymentStartDate,
+            },
+            trialBilling: tx.trialBilling
+              ? {
+                  label: tx.trialBilling.label,
+                  amount: tx.trialBilling.amount,
+                  paymentTiming: "recurring",
+                  recurringPaymentStartDate:
+                    tx.trialBilling.trialPaymentStartDate,
+                }
+              : undefined,
+            billingAgreement: tx.billingAgreement,
+            managementURL: tx.managementURL,
+          },
+        },
+      },
+    ],
   };
 
   const paymentOptions = {

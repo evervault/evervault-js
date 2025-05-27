@@ -15,6 +15,7 @@ function App() {
       initialized.current = true;
       const evervault = await ev;
       if (!evervault) return;
+      
       const transaction = evervault.transactions.create({
         amount: 4300,
         currency: "USD",
@@ -62,16 +63,42 @@ function App() {
       inst.mount("#google-pay-button");
       setInstance(inst);
 
-      const disbursementTransaction = evervault.transactions.create({
+      /**
+       * Disbursement transaction example
+      
+        const _disbursementTransaction = evervault.transactions.create({
+          amount: 4300,
+          currency: "USD",
+          country: "US",
+          merchantId: "merchant_e930d3f7bf37",
+          requiredRecipientDetails: ["email", "phone", "name", "address"],
+          type: "disbursement",
+        });
+
+       */
+
+      const recurringTransaction = evervault.transactions.create({
+        type: "recurring",
         amount: 4300,
         currency: "USD",
         country: "US",
-        merchantId: "merchant_e930d3f7bf37",
-        requiredRecipientDetails: ["email", "phone", "name", "address"],
-        type: "disbursement",
-      });
+        merchantId: "merchant_ef49637aa232",
+        billingAgreement: "See https://example.com/terms for terms and conditions",
+        managementURL: "https://applepaydemo.apple.com",
+        description: "This is an example of a recurring transaction. Ipsum ut minim amet sit incididunt duis et adipisicing reprehenderit ut. Excepteur occaecat ad velit amet et labore Lorem velit dolore irure culpa nisi sunt officia.",
+        regularBilling: {
+          label: "Monthly Subscription",
+          amount: 4.99,
+          recurringPaymentStartDate: new Date(new Date().setMonth(new Date().getMonth() + 2)),
+        },
+        trialBilling: {
+          label: "Trial Period",
+          amount: 0,
+          trialPaymentStartDate: new Date(),
+        },
+      } as any);
 
-      const apple = evervault.ui.applePay(disbursementTransaction, {
+      const apple = evervault.ui.applePay(recurringTransaction, {
         type: "contribute",
         style: "white-outline",
         locale: "en-US",
