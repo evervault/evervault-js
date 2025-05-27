@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
   await page.waitForFunction(() => window.encryption);
 });
 
-test('Always pass', async ({ page }) => {
+test("Always pass", async ({ page }) => {
   let result;
   page.exposeFunction("setResult", (res) => {
     result = res;
@@ -16,8 +16,8 @@ test('Always pass', async ({ page }) => {
     window.evervault.encrypt(payload).then((res) => {
       window.setResult(res);
     });
-  }, 'evervault');
-  
+  }, "evervault");
+
   await expect.poll(() => result).not.toBe(undefined);
 
   page.evaluate(() => {
@@ -29,6 +29,6 @@ test('Always pass', async ({ page }) => {
     window.encryption.encrypt(payload).then((res) => {
       window.setResult(res);
     });
-  }, 'evervault');
+  }, "evervault");
   await expect.poll(() => result).not.toBe(undefined);
 });
