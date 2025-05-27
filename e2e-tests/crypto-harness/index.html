@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="http://localhost:4007/evervault-browser.main.umd.cjs"></script>
+    <script type="module">
+      // Import the Evervault client
+      import EncryptionClient from "http://localhost:4003/encryption.main.js";
+      console.log('imported', EncryptionClient);
+      window.encryption = new EncryptionClient(
+        "%VITE_EV_TEAM_UUID%",
+        "%VITE_EV_APP_UUID%",
+        {
+          urls: {
+            keysUrl: "https://keys.evervault.com",
+            apiUrl: "https://api.evervault.com",
+          },
+        }
+      );
+    </script>
+  </head>
+
+  <body>
+    <div id="form"></div>
+    <script>
+      window.evervault = new Evervault(
+        "%VITE_EV_TEAM_UUID%",
+        "%VITE_EV_APP_UUID%",
+        {
+          urls: {
+            keysUrl: "https://keys.evervault.com",
+            apiUrl: "https://api.evervault.com",
+          },
+        }
+      );
+    </script>
+  </body>
+</html>

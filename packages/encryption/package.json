@@ -3,23 +3,23 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "rollup -c --watch",
-    "build": "rollup -c"
+    "dev": "vite build --watch",
+    "dev:preview": "vite preview",
+    "build": "vite build",
+    "clean": "rm -rf node_modules dist"
   },
   "exports": {
     ".": {
       "types": "./src/index.ts",
-      "default": "./dist/index.js"
+      "default": "./src/index.ts"
     }
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^16.0.0",
-    "@rollup/plugin-replace": "^6.0.2",
-    "@rollup/plugin-typescript": "^12.1.2",
     "dotenv": "^16.5.0",
-    "rollup": "^4.34.9",
     "tsconfig": "workspace:*",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "wait-on": "catalog:"
   },
   "dependencies": {
     "asn1js": "^3.0.6"

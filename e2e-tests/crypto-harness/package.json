@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "name": "@repo/crypto-harness",
+  "version": "0.0.0",
+  "decription": "Series of tests to ensure the crypto library matches the browser library",
+  "scripts": {
+    "dev:test": "playwright test",
+    "e2e:test": "playwright test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "clean": "rm -rf node_modules dist",
+    "preview": "vite --port 4009"
+  },
+  "dependencies": {
+    "@evervault/browser": "workspace:*",
+    "@repo/encryption": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "catalog:",
+    "@repo/test-coverage": "workspace:*"
+  }
+}
