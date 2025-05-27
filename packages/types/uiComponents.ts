@@ -528,8 +528,20 @@ export interface PaymentTransactionDetails extends BaseTransactionDetails {
   type: "payment";
 }
 
-// Disbursement-specific fields
+export interface RecurringTransactionDetails extends BaseTransactionDetails {
+  type: "recurring";
+  managementURL: string;
+  billingAgreement: string;
+  description: string;
+  regularBilling: TransactionLineItem & {
+    recurringPaymentStartDate: Date;
+  };
+  trialBilling?: TransactionLineItem & {
+    trialPaymentStartDate: Date;
+  };
+}
 
+// Disbursement-specific fields
 export type RequiredRecipientDetail = "email" | "phone" | "name" | "address";
 export interface DisbursementTransactionDetails extends BaseTransactionDetails {
   type: "disbursement";
@@ -539,6 +551,7 @@ export interface DisbursementTransactionDetails extends BaseTransactionDetails {
 
 export type TransactionDetails =
   | PaymentTransactionDetails
+  | RecurringTransactionDetails
   | DisbursementTransactionDetails;
 
 export type TransactionDetailsWithDomain = TransactionDetails & {
