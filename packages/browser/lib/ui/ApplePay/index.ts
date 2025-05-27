@@ -138,13 +138,6 @@ export default class ApplePayButton {
       const lastFour = paymentMethodDisplayName.match(fourDigitRegex);
       if (lastFour) {
         encrypted.card.lastFour = lastFour[0];
-      } else {
-        // If the last four digits are not found, try to get them from the description
-        const descriptionLastFour =
-          paymentMethodDisplayName.match(fourDigitRegex);
-        if (descriptionLastFour) {
-          encrypted.card.lastFour = descriptionLastFour[0];
-        }
       }
     }
 
