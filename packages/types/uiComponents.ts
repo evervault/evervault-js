@@ -336,6 +336,8 @@ export interface EncryptedDPAN<P> {
   token: PaymentToken<P>;
   card: {
     brand: string;
+    lastFour?: string;
+    displayName?: string;
   };
   cryptogram: string;
   eci: string;
@@ -345,6 +347,8 @@ export interface EncryptedFPAN {
   card: {
     brand: string;
     number: string;
+    lastFour?: string;
+    displayName?: string;
     expiry: {
       month: string;
       year: string;
@@ -356,7 +360,7 @@ export type EncryptedGooglePayData = (
   | EncryptedDPAN<"google">
   | EncryptedFPAN
 ) & {
-  billingAddress: google.payments.api.Address | null;
+  billingAddress?: google.payments.api.Address | null;
 };
 
 export interface GooglePayErrorMessage {

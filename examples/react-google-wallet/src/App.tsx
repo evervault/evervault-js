@@ -20,7 +20,7 @@ function App() {
         amount: 4300,
         currency: "USD",
         country: "US",
-        merchantId: "merchant_e930d3f7bf37",
+        merchantId: import.meta.env.VITE_MERCHANT_ID,
       });
 
       const inst = evervault.ui.googlePay(transaction, {
@@ -74,7 +74,6 @@ function App() {
           requiredRecipientDetails: ["email", "phone", "name", "address"],
           type: "disbursement",
         });
-
        */
 
       const recurringTransaction = evervault.transactions.create({
