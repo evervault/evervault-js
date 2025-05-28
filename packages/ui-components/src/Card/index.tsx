@@ -3,6 +3,7 @@ import {
   validateCVC,
   validateExpiry,
 } from "@evervault/card-validator";
+import { useEvervault } from "@evervault/react";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useForm, useTranslations } from "shared";
 import { Error } from "../Common/Error";
@@ -28,7 +29,6 @@ import type {
   CardFrameClientMessages,
   CardFrameHostMessages,
 } from "types";
-import { useEncryption } from "../EncryptionProvider";
 
 export function Card({ config }: { config: CardConfig }) {
   const cvc = useRef<HTMLInputElement | null>(null);
@@ -37,7 +37,7 @@ export function Card({ config }: { config: CardConfig }) {
     CardFrameClientMessages
   >();
 
-  const en = useEncryption();
+  const ev = useEvervault();
   const { t } = useTranslations(DEFAULT_TRANSLATIONS, config?.translations);
 
   const { acceptedBrands } = config;
@@ -115,7 +115,8 @@ export function Card({ config }: { config: CardConfig }) {
     },
     onChange: (formState) => {
       const triggerChange = async () => {
-        const cardData = await changePayload(en, formState, fields, {
+        if (!ev) return;
+        const cardData = await changePayload(ev, formState, fields, {
           allow3DigitAmexCVC: config.allow3DigitAmexCVC,
         });
 
@@ -139,7 +140,8 @@ export function Card({ config }: { config: CardConfig }) {
     });
 
     async function triggerSwipe() {
-      const swipeData = await swipePayload(en, card);
+      if (!ev) return;
+      const swipeData = await swipePayload(ev, card);
       send("EV_SWIPE", swipeData);
     }
 
@@ -154,16 +156,18 @@ export function Card({ config }: { config: CardConfig }) {
   useEffect(
     () =>
       on("EV_VALIDATE", () => {
+        if (!ev) return;
+
         form.validate((formState) => {
           void (async () => {
-            const data = await changePayload(en, formState, fields, {
+            const data = await changePayload(ev, formState, fields, {
               allow3DigitAmexCVC: config.allow3DigitAmexCVC,
             });
             send("EV_VALIDATED", data);
           })();
         });
       }),
-    [en, on, send, form, fields, config.allow3DigitAmexCVC]
+    [ev, on, send, form, fields, config.allow3DigitAmexCVC]
   );
 
   useEffect(

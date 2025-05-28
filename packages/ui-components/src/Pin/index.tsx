@@ -1,3 +1,4 @@
+import { useEvervault } from "@evervault/react";
 import {
   ClipboardEvent,
   useCallback,
@@ -11,7 +12,6 @@ import { useMask } from "../utilities/useMask";
 import { useMessaging } from "../utilities/useMessaging";
 import type { PinConfig } from "./types";
 import type { EvervaultFrameHostMessages, PinFrameClientMessages } from "types";
-import { useEncryption } from "../EncryptionProvider";
 
 const MODES = {
   numeric: {
@@ -23,7 +23,7 @@ const MODES = {
 };
 
 export function Pin({ config }: { config: PinConfig }) {
-  const en = useEncryption();
+  const ev = useEvervault();
   const triggerChange = useRef(false);
   const ref = useRef<HTMLFieldSetElement | null>(null);
   const [pin, setPin] = useState("");
@@ -47,8 +47,8 @@ export function Pin({ config }: { config: PinConfig }) {
     triggerChange.current = false;
 
     const publishChange = async () => {
-      if (!en) return;
-      const encrypted = await en.encrypt(pin);
+      if (!ev) return;
+      const encrypted = await ev.encrypt(pin);
       const isComplete = pin.length === length;
       const payload = { isComplete, value: encrypted };
       messages.send("EV_CHANGE", payload);
