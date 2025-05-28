@@ -31,6 +31,10 @@ type BuildSessionOptions = {
   onShippingAddressChange?: (
     event: PaymentRequestUpdateEvent
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
+  prepareTransaction?: () => Promise<{
+    amount?: number;
+    lineItems?: TransactionLineItem[];
+  }>;
 };
 
 export async function buildSession(
