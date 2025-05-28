@@ -129,7 +129,7 @@ function App() {
         requestShipping: true,
         onShippingAddressChange: async (event: PaymentRequestUpdateEvent) => {
           const newAddress = (event.target as any | null)?.shippingAddress;
-          if (!newAddress) return;
+          if (!newAddress) return { amount: transaction.details.amount, lineItems: getLineItems() };
 
           const shipping = await calculateShipping(newAddress.region);
           const newAmount = transaction.details.amount + shipping;
@@ -137,7 +137,7 @@ function App() {
           return {
             amount: newAmount,
             lineItems: [
-              ...getLineItems(),
+              ...(getLineItems() ?? []),
               {
                 label: "Shipping",
                 amount: shipping,
