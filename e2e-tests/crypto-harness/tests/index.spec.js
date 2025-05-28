@@ -14,7 +14,6 @@ test.beforeEach(async ({ page }) => {
     Date.now = () => testTime;
 
     crypto.getRandomValues = (buffer) => {
-      console.log("intercepted random values called");
       const arr = new Array(buffer.byteLength);
       const zeroedBuf = new Uint8Array(arr);
       buffer.buffer = zeroedBuf;
@@ -24,15 +23,12 @@ test.beforeEach(async ({ page }) => {
     function memoize(fn) {
       const invocationMap = {};
       return (...args) => {
-        console.log("memoized function entered");
         const serializedArgs = JSON.stringify(args);
         if (invocationMap[serializedArgs] != null) {
-          console.log("returning memoized invocation");
           return invocationMap[serializedArgs];
         }
         const invocation = fn(...args);
         invocationMap[serializedArgs] = invocation;
-        console.log("tracking invocation");
         return invocation;
       };
     }
