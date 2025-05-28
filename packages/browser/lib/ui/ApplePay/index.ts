@@ -115,15 +115,10 @@ export default class ApplePayButton {
       if (amount) {
         this.transaction.details.amount = amount;
       }
-      const existingLabels = new Set(
-        (this.transaction.details.lineItems ?? []).map((item) => item.label)
-      );
 
-      const lineItemsToAdd = (lineItems ?? []).filter(
-        (item) => !existingLabels.has(item.label)
-      );
-
-      this.transaction.details.lineItems?.push(...lineItemsToAdd);
+      if (lineItems) {
+        this.transaction.details.lineItems = lineItems;
+      }
     }
 
     const [response, responseError] = await tryCatch(session.show());
