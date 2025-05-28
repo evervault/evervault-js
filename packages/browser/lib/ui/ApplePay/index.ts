@@ -41,6 +41,10 @@ export type ApplePayButtonOptions = {
   onShippingAddressChange?: (
     event: PaymentRequestUpdateEvent
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
+  prepareTransaction?: () => Promise<{
+    amount?: number;
+    lineItems?: TransactionLineItem[];
+  }>;
   process: (
     data: EncryptedApplePayData,
     helpers: {
@@ -103,7 +107,19 @@ export default class ApplePayButton {
       requestBillingAddress: this.#options.requestBillingAddress,
       requestShipping: this.#options.requestShipping,
       onShippingAddressChange: this.#options.onShippingAddressChange,
+      prepareTransaction: this.#options.prepareTransaction,
     });
+
+    if (this.#options.prepareTransaction) {
+      const { amount, lineItems } = await this.#options.prepareTransaction();
+      if (amount) {
+        this.transaction.details.amount = amount;
+      }
+
+      if (lineItems) {
+        this.transaction.details.lineItems = lineItems;
+      }
+    }
 
     const [response, responseError] = await tryCatch(session.show());
 
