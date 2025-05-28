@@ -70,7 +70,7 @@ export default defineConfig({
       timeout: 20 * 1000,
     },
     {
-      command: "pnpm --filter=@repo/crypto-harness preview",
+      command: "pnpm --filter=@repo/crypto-harness-e2e-tests preview",
       url: "http://localhost:4009",
       timeout: 20 * 1000,
     },
