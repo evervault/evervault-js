@@ -84,8 +84,7 @@ function App() {
 
       /**
        * Disbursement transaction example
-      
-        const _disbursementTransaction = evervault.transactions.create({
+        const disbursementTransaction = evervault.transactions.create({
           amount: 4300,
           currency: "USD",
           country: "US",
@@ -95,26 +94,30 @@ function App() {
         });
        */
 
-      const recurringTransaction = evervault.transactions.create({
-        type: "recurring",
-        amount: 4300,
-        currency: "USD",
-        country: "US",
-        merchantId: "merchant_ef49637aa232",
-        billingAgreement: "See https://example.com/terms for terms and conditions",
-        managementURL: "https://applepaydemo.apple.com",
-        description: "This is an example of a recurring transaction. Ipsum ut minim amet sit incididunt duis et adipisicing reprehenderit ut. Excepteur occaecat ad velit amet et labore Lorem velit dolore irure culpa nisi sunt officia.",
-        regularBilling: {
-          label: "Monthly Subscription",
-          amount: 4.99,
-          recurringPaymentStartDate: new Date(new Date().setMonth(new Date().getMonth() + 2)),
-        },
-        trialBilling: {
-          label: "Trial Period",
-          amount: 0,
-          trialPaymentStartDate: new Date(),
-        },
-      } as any);
+      /**
+       * Recurring transaction example
+        const recurringTransaction = evervault.transactions.create({
+          type: "recurring",
+          amount: 4300,
+          currency: "USD",
+          country: "US",
+          merchantId: "merchant_ef49637aa232",
+          billingAgreement: "See https://example.com/terms for terms and conditions",
+          managementURL: "https://applepaydemo.apple.com",
+          description: "This is an example of a recurring transaction. Ipsum ut minim amet sit incididunt duis et adipisicing reprehenderit ut. Excepteur occaecat ad velit amet et labore Lorem velit dolore irure culpa nisi sunt officia.",
+          regularBilling: {
+            label: "Monthly Subscription",
+            amount: 4.99,
+            recurringPaymentStartDate: new Date(new Date().setMonth(new Date().getMonth() + 2)),
+          },
+          trialBilling: {
+            label: "Trial Period",
+            amount: 0,
+            trialPaymentStartDate: new Date(),
+          },
+        });
+       */
+      
 
       const apple = evervault.ui.applePay(transaction, {
         type: "contribute",
