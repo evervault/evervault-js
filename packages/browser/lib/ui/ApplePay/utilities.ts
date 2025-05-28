@@ -4,6 +4,7 @@ import {
   PaymentTransactionDetails,
   RecurringTransactionDetails,
   TransactionDetailsWithDomain,
+  TransactionLineItem,
 } from "types";
 import {
   DisbursementContactAddress,
@@ -27,6 +28,9 @@ type BuildSessionOptions = {
   disbursementOverrides?: {
     disbursementDetails?: PaymentDetailsInit;
   };
+  onShippingAddressChange?: (
+    event: PaymentRequestUpdateEvent
+  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
 };
 
 export async function buildSession(
@@ -36,6 +40,9 @@ export async function buildSession(
   const { transaction: tx } = config;
 
   const merchant = await getMerchant(applePay, tx.merchantId);
+  if (!merchant) {
+    throw new Error("Merchant not found");
+  }
 
   let baseRequest: ApplePayPaymentRequest;
   if (tx.type === "payment") {
@@ -56,14 +63,49 @@ export async function buildSession(
   };
 
   // Apple pay requires subscribing to onshippingaddresschange and calling updateWith
-  // in order to receive shipping data. In future we should allow users to hook into
-  // this event to modify the payment request based on the shipping address.
+  // in order to receive shipping data.
   baseRequest.onshippingaddresschange = (event: PaymentRequestUpdateEvent) => {
-    const update: PaymentDetailsUpdate = {};
-    event.updateWith(update);
+    if (config.onShippingAddressChange) {
+      const updates = updatePaymentRequest(event, config, tx, merchant); // Do not await this promise
+      event.updateWith(updates);
+    } else {
+      // If no handler is provided, just update with empty shipping options
+      const update: PaymentDetailsUpdate = {};
+      event.updateWith(update);
+    }
   };
 
   return baseRequest;
+}
+
+async function updatePaymentRequest(
+  event: PaymentRequestUpdateEvent,
+  config: BuildSessionOptions,
+  tx: TransactionDetailsWithDomain,
+  merchant: MerchantDetail
+): Promise<PaymentDetailsUpdate> {
+  const updatedTransactionConfig = await config.onShippingAddressChange!(event);
+  const displayItems = (updatedTransactionConfig.lineItems ?? []).map(
+    (item) => ({
+      label: item.label,
+      amount: {
+        value: (item.amount / 100).toFixed(2).toString(),
+        currency: tx.currency,
+      },
+    })
+  );
+  const total = {
+    label: merchant.name,
+    amount: {
+      currency: tx.currency,
+      value: (updatedTransactionConfig.amount / 100).toFixed(2),
+    },
+  };
+  const updates = {
+    displayItems,
+    total,
+  };
+  return updates;
 }
 
 function buildPaymentSession(
@@ -110,6 +152,7 @@ function buildPaymentSession(
     requestPayerPhone: config.requestPayerDetails?.includes("phone") ?? false,
     requestShipping: config.requestShipping ?? false,
     shippingType: "shipping",
+    onShippingAddressChange: config.onShippingAddressChange,
   };
 
   const paymentOverrides = config.paymentOverrides || {};
@@ -355,7 +398,10 @@ async function validateMerchant(
   return response.json();
 }
 
-async function getMerchant(applePay: ApplePayButton, id: string) {
+async function getMerchant(
+  applePay: ApplePayButton,
+  id: string
+): Promise<MerchantDetail | undefined> {
   const app = applePay.client.config.appId;
   const apiURL = applePay.client.config.http.apiUrl;
   const response = await fetch(`${apiURL}/frontend/merchants/${id}`, {

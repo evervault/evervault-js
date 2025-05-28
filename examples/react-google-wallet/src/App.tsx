@@ -1,6 +1,24 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
-import { useEvervault } from "@evervault/react";
+import { TransactionLineItem, useEvervault } from "@evervault/react";
 import "./App.css";
+
+function getLineItems(): TransactionLineItem[] {
+  return [
+    {
+      label: "First Edition \"The Great Gatsby\" (1925)",
+      amount: 245000,
+    },
+    {
+      label: "Signed \"One Hundred Years of Solitude\" (1967)",
+      amount: 185000,
+    }
+  ];
+}
+
+async function calculateShipping(region: string) {
+  const newShipping = region === "Dublin" ? 1000 : 0;
+  return Promise.resolve(newShipping);
+}
 
 function App() {
   const [name, setName] = useState("");
@@ -17,10 +35,11 @@ function App() {
       if (!evervault) return;
       
       const transaction = evervault.transactions.create({
-        amount: 4300,
+        amount: 430000,
         currency: "USD",
         country: "US",
         merchantId: import.meta.env.VITE_MERCHANT_ID,
+        lineItems: getLineItems(),
       });
 
       const inst = evervault.ui.googlePay(transaction, {
@@ -97,13 +116,32 @@ function App() {
         },
       } as any);
 
-      const apple = evervault.ui.applePay(recurringTransaction, {
+      const apple = evervault.ui.applePay(transaction, {
         type: "contribute",
         style: "white-outline",
         locale: "en-US",
         size: { width: "100%", height: "80px" },
         borderRadius: 10,
         allowedCardNetworks: ["visa", "masterCard"],
+        requestShipping: true,
+        onShippingAddressChange: async (event: PaymentRequestUpdateEvent) => {
+          const newAddress = (event.target as any | null)?.shippingAddress;
+          if (!newAddress) return;
+
+          const shipping = await calculateShipping(newAddress.region);
+          const newAmount = transaction.details.amount + shipping;
+
+          return {
+            amount: newAmount,
+            lineItems: [
+              ...getLineItems(),
+              {
+                label: "Shipping",
+                amount: shipping,
+              },
+            ],
+          };
+        },
         process: async (data, {}) => {
           console.log("Sending encrypted data to merchant", data);
 
@@ -231,3 +269,4 @@ function App() {
 }
 
 export default App;
+
