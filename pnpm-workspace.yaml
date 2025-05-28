@@ -3,6 +3,7 @@ packages:
   - packages/*
   - examples/*
   - e2e-tests/**
+  - pre-release/**
 catalog:
   "@actions/core": ^1.11.1
   "@actions/github": ^6.0.0

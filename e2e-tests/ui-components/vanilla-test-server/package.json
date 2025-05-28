@@ -1,5 +1,5 @@
 {
-  "name": "e2e-tests-ui-components-vanilla-server",
+  "name": "@repo/e2e-tests-ui-components-vanilla-server",
   "private": true,
   "version": "0.0.44",
   "type": "module",
