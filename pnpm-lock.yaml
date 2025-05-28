@@ -1084,9 +1084,6 @@ importers:
       '@evervault/react':
         specifier: workspace:*
         version: link:../react
-      '@repo/encryption':
-        specifier: workspace:*
-        version: link:../encryption
       '@types/applepayjs':
         specifier: 'catalog:'
         version: 14.0.8
