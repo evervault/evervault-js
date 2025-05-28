@@ -21,28 +21,8 @@ export function generateKeyPairs() {
       ecdhP256KeyUncompressed: r1Keys.uncompressedPublicKey.toString("base64"),
     },
     privateKeys: {
-      ecdhPrivateKey: koblitzKeys.privateKey.toString("base64"),
-      ecdhP256PrivateKey: r1Keys.privateKey.toString("base64"),
+      ecdhPrivateKey: koblitzKeys.privateKey,
+      ecdhP256PrivateKey: r1Keys.privateKey,
     },
-  };
-}
-
-export function memoize(fn) {
-  const invocationMap = {};
-  return (...args) => {
-    console.log("memoized function entered");
-    const serializedArgs = JSON.stringify(args);
-    const hasher = createHash("sha1");
-    hasher.update(serializedArgs);
-    const hashedArgs = hasher.digest("hex");
-    console.log("hashed arguments", hashedArgs);
-    if (invocationMap[hashedArgs] != null) {
-      console.log("returning memoized invocation");
-      return invocationMap[hashedArgs];
-    }
-    const invocation = fn(...args);
-    invocationMap[hashedArgs] = invocation;
-    console.log("tracking invocation");
-    return invocation;
   };
 }
