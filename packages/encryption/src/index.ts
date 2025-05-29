@@ -19,7 +19,6 @@ export default class Encryption {
     this.#cryptoPromise = this.#setupCrypto();
   }
 
-  // TODO: Improve types here and remove use of any
   async encrypt(data: unknown, role?: string): Promise<any> {
     // Ignore empty strings — encrypting an empty string in Safari causes an Operation Specific Error.
     if (isEmptyString(data)) {
