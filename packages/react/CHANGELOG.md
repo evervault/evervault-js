@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.20.0
+
+### Minor Changes
+
+- 8dec7e4: Add recurring payment support for Apple Pay
+
 ## 2.19.0
 
 ### Minor Changes
