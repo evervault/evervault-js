@@ -1,5 +1,24 @@
 # @evervault/ui-components
 
+## 1.32.0
+
+### Minor Changes
+
+- 2640be6: Expose last four digits of underlying card number for Google Pay
+- 8dec7e4: Add recurring payment support for Apple Pay
+
+### Patch Changes
+
+- Updated dependencies [df76034]
+- Updated dependencies [31c1ac8]
+- Updated dependencies [e503d31]
+- Updated dependencies [2640be6]
+- Updated dependencies [8dec7e4]
+  - types@0.16.0
+  - @evervault/react@2.20.0
+  - @evervault/card-validator@1.4.0
+  - shared@1.1.12
+
 ## 1.31.2
 
 ### Patch Changes
