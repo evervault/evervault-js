@@ -127,8 +127,7 @@ function App() {
         borderRadius: 10,
         allowedCardNetworks: ["visa", "masterCard"],
         requestShipping: true,
-        onShippingAddressChange: async (event: PaymentRequestUpdateEvent) => {
-          const newAddress = (event.target as any | null)?.shippingAddress;
+        onShippingAddressChange: async (newAddress) => {
           if (!newAddress) return { amount: transaction.details.amount, lineItems: getLineItems() };
 
           const shipping = await calculateShipping(newAddress.region);

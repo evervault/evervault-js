@@ -13,6 +13,7 @@ import {
   ApplePayButtonStyle,
   ApplePayButtonType,
   ApplePayCardNetwork,
+  ShippingAddress,
 } from "./types";
 import { tryCatch } from "../../utilities";
 import { Transaction } from "../../resources/transaction";
@@ -39,7 +40,7 @@ export type ApplePayButtonOptions = {
     disbursementDetails?: PaymentDetailsInit;
   };
   onShippingAddressChange?: (
-    event: PaymentRequestUpdateEvent
+    newAddress: ShippingAddress
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   prepareTransaction?: () => Promise<{
     amount?: number;

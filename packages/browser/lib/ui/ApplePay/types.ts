@@ -89,6 +89,19 @@ interface OnMerchantValidationEvent extends Event {
   validationURL: string;
 }
 
+export interface ShippingAddress {
+  addressLine: string[];
+  city: string;
+  country: string;
+  dependentLocality: string;
+  organization: string;
+  phone: string;
+  postalCode: string;
+  recipient: string;
+  region: string;
+  sortingCode: string;
+}
+
 export interface ApplePayPaymentRequest extends PaymentRequest {
   onshippingaddresschange?: (event: PaymentRequestUpdateEvent) => void;
   onmerchantvalidation?: (event: OnMerchantValidationEvent) => void;
