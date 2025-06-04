@@ -12,6 +12,7 @@ import {
   ValidateMerchantResponse,
   ApplePayCardNetwork,
   ApplePayPaymentRequest,
+  ShippingAddress,
 } from "./types";
 import ApplePayButton from ".";
 
@@ -29,7 +30,7 @@ type BuildSessionOptions = {
     disbursementDetails?: PaymentDetailsInit;
   };
   onShippingAddressChange?: (
-    event: PaymentRequestUpdateEvent
+    newAddress: ShippingAddress
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   prepareTransaction?: () => Promise<{
     amount?: number;
@@ -69,8 +70,13 @@ export async function buildSession(
   // Apple pay requires subscribing to onshippingaddresschange and calling updateWith
   // in order to receive shipping data.
   baseRequest.onshippingaddresschange = (event: PaymentRequestUpdateEvent) => {
+    const target = event.target as unknown as { shippingAddress?: ShippingAddress };
+    if (!target.shippingAddress) {
+      return;
+    }
+
     if (config.onShippingAddressChange) {
-      const updates = updatePaymentRequest(event, config, tx, merchant); // Do not await this promise
+      const updates = updatePaymentRequest(target.shippingAddress, config, tx, merchant); // Do not await this promise
       event.updateWith(updates);
     } else {
       // If no handler is provided, just update with empty shipping options
@@ -83,12 +89,12 @@ export async function buildSession(
 }
 
 async function updatePaymentRequest(
-  event: PaymentRequestUpdateEvent,
+  newAddress: ShippingAddress,
   config: BuildSessionOptions,
   tx: TransactionDetailsWithDomain,
   merchant: MerchantDetail
 ): Promise<PaymentDetailsUpdate> {
-  const updatedTransactionConfig = await config.onShippingAddressChange!(event);
+  const updatedTransactionConfig = await config.onShippingAddressChange!(newAddress);
   const displayItems = (updatedTransactionConfig.lineItems ?? []).map(
     (item) => ({
       label: item.label,
