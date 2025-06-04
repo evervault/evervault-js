@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChallengeNextAction, TrampolineMessage } from "./types";
 import {
   isTrampolineMessage,
@@ -6,29 +6,35 @@ import {
   useThreeDSMessaging,
 } from "./utilities";
 
-export function ChallengeFrame({
-  nextAction,
-  onLoad,
-}: {
+export interface ChallengeFrameProps {
   nextAction: ChallengeNextAction;
-  onLoad: () => void;
-}) {
-  const initialized = useRef(false);
-  const frame = useRef<HTMLIFrameElement>(null);
+  onLoad(): void;
+}
+
+export function ChallengeFrame({ nextAction, onLoad }: ChallengeFrameProps) {
+  const frame = useRef<HTMLIFrameElement>();
+  const frameRef = useCallback(
+    (node: HTMLIFrameElement) => {
+      if (!frame.current) {
+        postRedirectFrame(node, nextAction.url, {
+          creq: nextAction.creq,
+        });
+      }
+      frame.current = node;
+    },
+    [nextAction.creq, nextAction.url]
+  );
+
   const [loaded, setLoaded] = useState(false);
   const { send } = useThreeDSMessaging();
 
+  const onFrameLoad = useCallback(() => {
+    setLoaded(true);
+    onLoad();
+  }, [onLoad]);
+
   useEffect(() => {
-    if (!frame.current) return;
-
-    if (!initialized.current) {
-      initialized.current = true;
-      postRedirectFrame(frame.current, nextAction.url, {
-        creq: nextAction.creq,
-      });
-    }
-
-    const handleMessage = (e: MessageEvent) => {
+    function handleMessage(e: MessageEvent) {
       if (isTrampolineMessage(e)) {
         if (check3DSSuccess(e)) {
           send("EV_SUCCESS", cresForOutcome(e.data.cres));
@@ -36,20 +42,18 @@ export function ChallengeFrame({
           send("EV_FAILURE", cresForOutcome(e.data.cres));
         }
       }
-    };
+    }
 
-    const handleFrameLoad = () => {
-      setLoaded(true);
-      onLoad();
-    };
-
-    frame.current.addEventListener("load", handleFrameLoad);
     window.addEventListener("message", handleMessage);
-  }, []);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, [send]);
 
   return (
     <iframe
-      ref={frame}
+      ref={frameRef}
+      onLoad={onFrameLoad}
       name="challengeFrame"
       allow="payment *; publickey-credentials-get *"
       sandbox="allow-forms allow-scripts allow-same-origin allow-pointer-lock"

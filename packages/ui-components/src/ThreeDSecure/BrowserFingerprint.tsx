@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { BrowserFingerprintNextAction } from "./types";
 import { isTrampolineMessage, postRedirectFrame } from "./utilities";
 
@@ -15,42 +15,45 @@ export function BrowserFingerprint({
   onComplete,
   onTimeout,
 }: BrowserFingerprintProps) {
-  const initialized = useRef(false);
-  const frame = useRef<HTMLIFrameElement>(null);
+  const frame = useRef<HTMLIFrameElement>();
+  const frameRef = useCallback(
+    (node: HTMLIFrameElement) => {
+      if (!frame.current) {
+        postRedirectFrame(node, action.url, {
+          threeDSMethodData: action.data,
+        });
+      }
+      frame.current = node;
+    },
+    [action.data, action.url]
+  );
 
   useEffect(() => {
-    if (!frame.current) return;
-
-    if (!initialized.current) {
-      initialized.current = true;
-      postRedirectFrame(frame.current, action.url, {
-        threeDSMethodData: action.data,
-      });
-    }
-
-    const timeout = setTimeout(() => {
-      window.removeEventListener("message", handleMessage);
-      onTimeout();
-    }, THREE_DS_METHOD_TIMEOUT);
+    const timeout: { current?: NodeJS.Timeout } = {};
 
     const handleMessage = (e: MessageEvent) => {
       if (isTrampolineMessage(e)) {
         onComplete();
-        clearTimeout(timeout);
+        if (timeout.current) clearTimeout(timeout.current);
       }
     };
 
     window.addEventListener("message", handleMessage);
 
+    timeout.current = setTimeout(() => {
+      window.removeEventListener("message", handleMessage);
+      onTimeout();
+    }, THREE_DS_METHOD_TIMEOUT);
+
     return () => {
-      clearTimeout(timeout);
+      if (timeout.current) clearTimeout(timeout.current);
       window.removeEventListener("message", handleMessage);
     };
-  }, []);
+  }, [onComplete, onTimeout]);
 
   return (
     <iframe
-      ref={frame}
+      ref={frameRef}
       name="browserFingerprintFrame"
       allow="payment *; publickey-credentials-get *"
       sandbox="allow-forms allow-scripts allow-same-origin allow-pointer-lock"
