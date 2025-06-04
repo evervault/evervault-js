@@ -70,13 +70,20 @@ export async function buildSession(
   // Apple pay requires subscribing to onshippingaddresschange and calling updateWith
   // in order to receive shipping data.
   baseRequest.onshippingaddresschange = (event: PaymentRequestUpdateEvent) => {
-    const target = event.target as unknown as { shippingAddress?: ShippingAddress };
+    const target = event.target as unknown as {
+      shippingAddress?: ShippingAddress;
+    };
     if (!target.shippingAddress) {
       return;
     }
 
     if (config.onShippingAddressChange) {
-      const updates = updatePaymentRequest(target.shippingAddress, config, tx, merchant); // Do not await this promise
+      const updates = updatePaymentRequest(
+        target.shippingAddress,
+        config,
+        tx,
+        merchant
+      ); // Do not await this promise
       event.updateWith(updates);
     } else {
       // If no handler is provided, just update with empty shipping options
@@ -94,7 +101,9 @@ async function updatePaymentRequest(
   tx: TransactionDetailsWithDomain,
   merchant: MerchantDetail
 ): Promise<PaymentDetailsUpdate> {
-  const updatedTransactionConfig = await config.onShippingAddressChange!(newAddress);
+  const updatedTransactionConfig = await config.onShippingAddressChange!(
+    newAddress
+  );
   const displayItems = (updatedTransactionConfig.lineItems ?? []).map(
     (item) => ({
       label: item.label,

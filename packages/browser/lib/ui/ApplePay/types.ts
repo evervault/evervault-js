@@ -90,16 +90,16 @@ interface OnMerchantValidationEvent extends Event {
 }
 
 export interface ShippingAddress {
-    addressLine: string[];
-    city: string;
-    country: string;
-    dependentLocality: string;
-    organization: string;
-    phone: string;
-    postalCode: string;
-    recipient: string;
-    region: string;
-    sortingCode: string;
+  addressLine: string[];
+  city: string;
+  country: string;
+  dependentLocality: string;
+  organization: string;
+  phone: string;
+  postalCode: string;
+  recipient: string;
+  region: string;
+  sortingCode: string;
 }
 
 export interface ApplePayPaymentRequest extends PaymentRequest {
