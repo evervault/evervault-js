@@ -1,5 +1,16 @@
 # @evervault/js
 
+## 2.2.0
+
+### Minor Changes
+
+- df76034: Add prepareTransaction method to Apple Pay button config
+- 31c1ac8: Expose underlying payment card display name for Apple Pay
+- e503d31: Add support for onShippingAddressChange hook for Apple Pay
+- 2640be6: Expose last four digits of underlying card number for Google Pay
+- cd08b80: Better types for ApplePay onShippingAddressChange
+- 8dec7e4: Add recurring payment support for Apple Pay
+
 ## 2.1.0
 
 ### Minor Changes
