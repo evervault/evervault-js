@@ -99,6 +99,17 @@ export default class ApplePayButton {
   }
 
   async #handleClick() {
+    if (this.#options.prepareTransaction) {
+      const { amount, lineItems } = await this.#options.prepareTransaction();
+      if (amount) {
+        this.transaction.details.amount = amount;
+      }
+
+      if (lineItems) {
+        this.transaction.details.lineItems = lineItems;
+      }
+    }
+
     const session = await buildSession(this, {
       transaction: this.transaction.details,
       allowedCardNetworks: this.#options.allowedCardNetworks,
@@ -110,17 +121,6 @@ export default class ApplePayButton {
       onShippingAddressChange: this.#options.onShippingAddressChange,
       prepareTransaction: this.#options.prepareTransaction,
     });
-
-    if (this.#options.prepareTransaction) {
-      const { amount, lineItems } = await this.#options.prepareTransaction();
-      if (amount) {
-        this.transaction.details.amount = amount;
-      }
-
-      if (lineItems) {
-        this.transaction.details.lineItems = lineItems;
-      }
-    }
 
     const [response, responseError] = await tryCatch(session.show());
 
