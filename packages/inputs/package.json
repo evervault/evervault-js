@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@evervault/inputs",
-  "version": "2.18.16",
+  "version": "2.18.17",
   "description": "Repo for the backend for Evervault Inputs",
   "types": "./src/types.d.ts",
   "scripts": {
