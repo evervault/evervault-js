@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { BrowserFingerprint } from "./BrowserFingerprint";
 import { ChallengeFrame } from "./ChallengeFrame";
 import { ThreeDSecureLoading } from "./Loading";
@@ -29,31 +29,35 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
     config.failOnChallenge ?? false
   );
 
-  const handleTimeout = () => {
+  const handleChallengeFrameLoad = useCallback(() => {
+    setChallengeFrameReady(true);
+  }, []);
+
+  const handleTimeout = useCallback(() => {
     void refetch({ browserFingerprint: "timeout" });
-  };
+  }, [refetch]);
 
-  const handleFingerprintComplete = () => {
+  const handleFingerprintComplete = useCallback(() => {
     void refetch({ browserFingerprint: "complete" });
-  };
+  }, [refetch]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     send("EV_CANCEL");
-  };
+  }, [send]);
 
   useEffect(() => {
     if (session?.status === "success") {
       send("EV_SUCCESS");
-    }
-
-    if (session?.status === "failure") {
+    } else if (session?.status === "failure") {
       send("EV_FAILURE");
     }
+  }, [session?.status, send]);
 
+  useEffect(() => {
     if (isChallengeAction(session?.nextAction) && config.failOnChallenge) {
       // if next step is challenge, and the failOnChallenge config has been passed,
       // call up to the parent to see if the challenge should be shown.
-      on("EV_FAIL_ON_CHALLENGE_RESULT", (shouldFail) => {
+      const unsubscribe = on("EV_FAIL_ON_CHALLENGE_RESULT", (shouldFail) => {
         if (shouldFail) {
           send("EV_FAILURE_FORCED_DUE_TO_CHALLENGE");
         } else {
@@ -62,8 +66,10 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
       });
 
       send("EV_FAIL_ON_CHALLENGE");
+
+      return () => unsubscribe();
     }
-  }, [session]);
+  }, [session?.nextAction, config.failOnChallenge, send, on]);
 
   return (
     <Overlay enabled={config.isOverlay} onCancel={handleCancel}>
@@ -83,7 +89,7 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
         {isChallengeAction(session?.nextAction) && !failOnChallenge && (
           <ChallengeFrame
             nextAction={session.nextAction}
-            onLoad={() => setChallengeFrameReady(true)}
+            onLoad={handleChallengeFrameLoad}
           />
         )}
       </div>
