@@ -3,6 +3,7 @@ import type {
   ApplePayErrorMessage,
   EncryptedApplePayData,
   SelectorType,
+  TransactionLineItem,
 } from "types";
 import { resolveSelector } from "../utils";
 import { buildSession, resolveUnit } from "./utilities";
@@ -12,6 +13,7 @@ import {
   ApplePayButtonStyle,
   ApplePayButtonType,
   ApplePayCardNetwork,
+  ShippingAddress,
 } from "./types";
 import { tryCatch } from "../../utilities";
 import { Transaction } from "../../resources/transaction";
@@ -37,6 +39,13 @@ export type ApplePayButtonOptions = {
   disbursementOverrides?: {
     disbursementDetails?: PaymentDetailsInit;
   };
+  onShippingAddressChange?: (
+    newAddress: ShippingAddress
+  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
+  prepareTransaction?: () => Promise<{
+    amount?: number;
+    lineItems?: TransactionLineItem[];
+  }>;
   process: (
     data: EncryptedApplePayData,
     helpers: {
@@ -90,6 +99,17 @@ export default class ApplePayButton {
   }
 
   async #handleClick() {
+    if (this.#options.prepareTransaction) {
+      const { amount, lineItems } = await this.#options.prepareTransaction();
+      if (amount) {
+        this.transaction.details.amount = amount;
+      }
+
+      if (lineItems) {
+        this.transaction.details.lineItems = lineItems;
+      }
+    }
+
     const session = await buildSession(this, {
       transaction: this.transaction.details,
       allowedCardNetworks: this.#options.allowedCardNetworks,
@@ -98,6 +118,8 @@ export default class ApplePayButton {
       disbursementOverrides: this.#options.disbursementOverrides,
       requestBillingAddress: this.#options.requestBillingAddress,
       requestShipping: this.#options.requestShipping,
+      onShippingAddressChange: this.#options.onShippingAddressChange,
+      prepareTransaction: this.#options.prepareTransaction,
     });
 
     const [response, responseError] = await tryCatch(session.show());
@@ -111,6 +133,9 @@ export default class ApplePayButton {
       this.#events.dispatch("error", responseError.message);
       return;
     }
+
+    const paymentMethodDisplayName =
+      response.details?.token?.paymentMethod?.displayName;
 
     const [encrypted, encryptedError] = await tryCatch(
       this.#exchangeApplePaymentData(response)
@@ -127,6 +152,15 @@ export default class ApplePayButton {
 
     if (response.details.shippingContact) {
       encrypted.shippingContact = response.details.shippingContact;
+    }
+
+    encrypted.card.displayName = paymentMethodDisplayName;
+    if (paymentMethodDisplayName) {
+      const fourDigitRegex = /(\d{4})$/;
+      const lastFour = paymentMethodDisplayName.match(fourDigitRegex);
+      if (lastFour) {
+        encrypted.card.lastFour = lastFour[0];
+      }
     }
 
     let failed = false;

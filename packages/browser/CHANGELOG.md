@@ -1,5 +1,26 @@
 # @evervault/browser
 
+## 2.46.0
+
+### Minor Changes
+
+- df76034: Add prepareTransaction method to Apple Pay button config
+- 31c1ac8: Expose underlying payment card display name for Apple Pay
+- e503d31: Add support for onShippingAddressChange hook for Apple Pay
+- cd08b80: Better types for ApplePay onShippingAddressChange
+- 8dec7e4: Add recurring payment support for Apple Pay
+
+### Patch Changes
+
+- c4db698: Fix prepareTransaction function for ApplePay
+- Updated dependencies [df76034]
+- Updated dependencies [31c1ac8]
+- Updated dependencies [e503d31]
+- Updated dependencies [2640be6]
+- Updated dependencies [8dec7e4]
+  - types@0.16.0
+  - themes@0.1.16
+
 ## 2.45.0
 
 ### Minor Changes

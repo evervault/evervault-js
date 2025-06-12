@@ -2,13 +2,17 @@ import {
   TransactionDetailsWithDomain,
   CreateTransactionDetails,
   DisbursementTransactionDetails,
+  RecurringTransactionDetails,
 } from "types";
 
 export class Transaction {
   details: TransactionDetailsWithDomain;
 
   constructor(
-    details: CreateTransactionDetails | DisbursementTransactionDetails
+    details:
+      | CreateTransactionDetails
+      | RecurringTransactionDetails
+      | DisbursementTransactionDetails
   ) {
     this.details = {
       ...details,
