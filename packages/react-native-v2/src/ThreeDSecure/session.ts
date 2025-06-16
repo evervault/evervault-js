@@ -3,6 +3,7 @@ import {
   ThreeDSecureSessionsParams,
   ThreeDSecureSession,
   ThreeDSecureSessionResponse,
+  ThreeDSecureOptions,
 } from "./types";
 import { EV_API_DOMAIN } from "./config";
 
@@ -20,58 +21,109 @@ export function stopPolling(
 
 export async function startSession(
   session: ThreeDSecureSession,
-  callbacks: ThreeDSecureCallbacks | undefined,
+  options: ThreeDSecureOptions | undefined,
   intervalRef: React.MutableRefObject<NodeJS.Timeout | null>,
   setIsVisible: (show: boolean) => void
 ) {
   try {
     const sessionState = await session.get();
 
+    function fail() {
+      stopPolling(intervalRef, setIsVisible);
+      options?.onFailure?.(new Error("3DS session failed"));
+    }
+
     switch (sessionState.status) {
-      case "success":
+      case "success": {
         stopPolling(intervalRef, setIsVisible);
-        callbacks?.onSuccess?.();
+        options?.onSuccess?.();
         break;
-      case "failure":
-        stopPolling(intervalRef, setIsVisible);
-        callbacks?.onFailure?.(new Error("3DS session failed"));
+      }
+
+      case "failure": {
+        fail();
         break;
-      case "action-required":
+      }
+
+      case "action-required": {
+        const failOnChallenge =
+          typeof options?.failOnChallenge === "function"
+            ? await options.failOnChallenge()
+            : options?.failOnChallenge ?? false;
+        if (failOnChallenge) {
+          fail();
+          break;
+        }
+
+        const event = new Event("requestChallenge");
+        options?.onRequestChallenge?.(event);
+        console.log("event", event);
+        if (event.defaultPrevented) {
+          fail();
+          break;
+        }
+
         setIsVisible(true);
-        pollSession(session, callbacks, intervalRef, setIsVisible);
-        break;
-      default:
-        break;
+        pollSession(session, options, intervalRef, setIsVisible);
+      }
     }
   } catch (error) {
     console.error("Error checking session state", error);
-    callbacks?.onError?.(new Error("Failed to check 3DS session state"));
+    options?.onError?.(new Error("Failed to check 3DS session state"));
   }
 }
 
 export function pollSession(
   session: ThreeDSecureSession,
-  callbacks: ThreeDSecureCallbacks | undefined,
+  options: ThreeDSecureOptions | undefined,
   intervalRef: React.MutableRefObject<NodeJS.Timeout | null>,
   setIsVisible: (show: boolean) => void,
   interval = 3000
 ) {
+  function fail() {
+    stopPolling(intervalRef, setIsVisible);
+    options?.onFailure?.(new Error("3DS session failed"));
+  }
+
   intervalRef.current = setInterval(async () => {
     try {
       const pollResponse: ThreeDSecureSessionResponse = await session.get();
-      if (pollResponse.status === "success") {
-        stopPolling(intervalRef, setIsVisible);
-        callbacks?.onSuccess?.();
-      } else if (pollResponse.status === "failure") {
-        stopPolling(intervalRef, setIsVisible);
-        callbacks?.onFailure?.(new Error("3DS session failed"));
-      } else {
-        setIsVisible(true);
+      switch (pollResponse.status) {
+        case "success": {
+          stopPolling(intervalRef, setIsVisible);
+          options?.onSuccess?.();
+          break;
+        }
+
+        case "failure": {
+          fail();
+          break;
+        }
+
+        case "action-required": {
+          const failOnChallenge =
+            typeof options?.failOnChallenge === "function"
+              ? await options.failOnChallenge()
+              : options?.failOnChallenge ?? false;
+          if (failOnChallenge) {
+            fail();
+            break;
+          }
+
+          const event = new Event("requestChallenge");
+          options?.onRequestChallenge?.(event);
+          if (event.defaultPrevented) {
+            fail();
+            break;
+          }
+
+          setIsVisible(true);
+        }
       }
     } catch (error) {
       stopPolling(intervalRef, setIsVisible);
       console.error("Error polling session", error);
-      callbacks?.onError?.(new Error("Error polling 3DS session"));
+      options?.onError?.(new Error("Error polling 3DS session"));
     }
   }, interval);
 }
@@ -79,7 +131,7 @@ export function pollSession(
 export function threeDSecureSession({
   sessionId,
   appId,
-  callbacks,
+  options,
   intervalRef,
   setIsVisible,
 }: ThreeDSecureSessionsParams): ThreeDSecureSession {
@@ -116,7 +168,7 @@ export function threeDSecureSession({
         }
       );
 
-      callbacks?.onFailure?.(new Error("3DS session cancelled by user"));
+      options?.onFailure?.(new Error("3DS session cancelled by user"));
       stopPolling(intervalRef, setIsVisible);
     } catch (error) {
       console.error("Error cancelling 3DS session", error);

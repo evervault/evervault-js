@@ -11,18 +11,18 @@ export function useThreeDSecure(): ThreeDSecureState {
   const [isVisible, setIsVisible] = useState(false);
 
   const start = useCallback<ThreeDSecureState["start"]>(
-    (sessionId, callbacks) => {
+    (sessionId, options) => {
       const session = threeDSecureSession({
         sessionId,
         appId,
-        callbacks,
+        options,
         intervalRef,
         setIsVisible,
       });
 
       setSession(session);
 
-      startSession(session, callbacks, intervalRef, setIsVisible);
+      startSession(session, options, intervalRef, setIsVisible);
     },
     [appId]
   );

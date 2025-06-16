@@ -24,13 +24,17 @@ describe("stopPolling", () => {
 });
 
 describe("startSession", () => {
-  const callbacks = {
+  const options = {
     onSuccess: vi.fn(),
     onFailure: vi.fn(),
     onError: vi.fn(),
   };
   const intervalRef = { current: null };
   const setIsVisible = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it("should start a successful session", async () => {
     const session: ThreeDSecureSession = {
@@ -39,10 +43,10 @@ describe("startSession", () => {
       sessionId: "123",
     };
 
-    await startSession(session, callbacks, intervalRef, setIsVisible);
+    await startSession(session, options, intervalRef, setIsVisible);
 
     expect(session.get).toHaveBeenCalled();
-    expect(callbacks.onSuccess).toHaveBeenCalled();
+    expect(options.onSuccess).toHaveBeenCalled();
   });
 
   it("should start a failed session", async () => {
@@ -52,10 +56,10 @@ describe("startSession", () => {
       sessionId: "123",
     };
 
-    await startSession(session, callbacks, intervalRef, setIsVisible);
+    await startSession(session, options, intervalRef, setIsVisible);
 
     expect(session.get).toHaveBeenCalled();
-    expect(callbacks.onFailure).toHaveBeenCalledWith(
+    expect(options.onFailure).toHaveBeenCalledWith(
       new Error("3DS session failed")
     );
   });
@@ -67,10 +71,94 @@ describe("startSession", () => {
       sessionId: "123",
     };
 
-    await startSession(session, callbacks, intervalRef, setIsVisible);
+    await startSession(session, options, intervalRef, setIsVisible);
 
     expect(session.get).toHaveBeenCalled();
     expect(setIsVisible).toHaveBeenCalledWith(true);
+  });
+
+  it("should fail the session when failOnChallenge is true and a challenge is required", async () => {
+    const session: ThreeDSecureSession = {
+      cancel: vi.fn(),
+      get: vi.fn(() => Promise.resolve({ status: "action-required" }) as any),
+      sessionId: "123",
+    };
+
+    await startSession(
+      session,
+      { ...options, failOnChallenge: true },
+      intervalRef,
+      setIsVisible
+    );
+
+    expect(session.get).toHaveBeenCalled();
+    expect(options.onFailure).toHaveBeenCalledWith(
+      new Error("3DS session failed")
+    );
+  });
+
+  it("should fail the session when failOnChallenge is a function that returns true and a challenge is required", async () => {
+    const session: ThreeDSecureSession = {
+      cancel: vi.fn(),
+      get: vi.fn(() => Promise.resolve({ status: "action-required" }) as any),
+      sessionId: "123",
+    };
+
+    await startSession(
+      session,
+      { ...options, failOnChallenge: () => Promise.resolve(true) },
+      intervalRef,
+      setIsVisible
+    );
+
+    expect(session.get).toHaveBeenCalled();
+    expect(options.onFailure).toHaveBeenCalledWith(
+      new Error("3DS session failed")
+    );
+  });
+
+  it("should call onRequestChallenge when a challenge is required", async () => {
+    const session: ThreeDSecureSession = {
+      cancel: vi.fn(),
+      get: vi.fn(() => Promise.resolve({ status: "action-required" }) as any),
+      sessionId: "123",
+    };
+
+    const onRequestChallenge = vi.fn();
+
+    await startSession(
+      session,
+      { ...options, onRequestChallenge },
+      intervalRef,
+      setIsVisible
+    );
+
+    expect(session.get).toHaveBeenCalled();
+    expect(onRequestChallenge).toHaveBeenCalled();
+    expect(options.onFailure).not.toHaveBeenCalled();
+  });
+
+  it("should fail the session when onRequestChallenge is called and default is prevented", async () => {
+    const session: ThreeDSecureSession = {
+      cancel: vi.fn(),
+      get: vi.fn(() => Promise.resolve({ status: "action-required" }) as any),
+      sessionId: "123",
+    };
+
+    const onRequestChallenge = vi.fn((event: Event) => event.preventDefault());
+
+    await startSession(
+      session,
+      { ...options, onRequestChallenge },
+      intervalRef,
+      setIsVisible
+    );
+
+    expect(session.get).toHaveBeenCalled();
+    expect(onRequestChallenge).toHaveBeenCalled();
+    expect(options.onFailure).toHaveBeenCalledWith(
+      new Error("3DS session failed")
+    );
   });
 
   it("should call onError if the session fails to start", async () => {
@@ -84,14 +172,14 @@ describe("startSession", () => {
       .spyOn(console, "error")
       .mockImplementation(() => {});
 
-    await startSession(session, callbacks, intervalRef, setIsVisible);
+    await startSession(session, options, intervalRef, setIsVisible);
 
     expect(session.get).toHaveBeenCalled();
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       "Error checking session state",
       new Error("Failed to start session")
     );
-    expect(callbacks.onError).toHaveBeenCalledWith(
+    expect(options.onError).toHaveBeenCalledWith(
       new Error("Failed to check 3DS session state")
     );
   });
@@ -193,7 +281,7 @@ describe("pollSession", () => {
 });
 
 describe("threeDSecureSession", () => {
-  const callbacks = {
+  const options = {
     onSuccess: vi.fn(),
     onFailure: vi.fn(),
     onError: vi.fn(),
@@ -205,7 +293,7 @@ describe("threeDSecureSession", () => {
     const session = threeDSecureSession({
       sessionId: "123",
       appId: "app_123",
-      callbacks,
+      options,
       intervalRef,
       setIsVisible,
     });
@@ -220,7 +308,7 @@ describe("threeDSecureSession", () => {
     const session = threeDSecureSession({
       sessionId: "123",
       appId: "app_123",
-      callbacks,
+      options,
       intervalRef,
       setIsVisible,
     });
@@ -250,7 +338,7 @@ describe("threeDSecureSession", () => {
     const session = threeDSecureSession({
       sessionId: "123",
       appId: "app_123",
-      callbacks,
+      options,
       intervalRef,
       setIsVisible,
     });
@@ -275,7 +363,7 @@ describe("threeDSecureSession", () => {
     const session = threeDSecureSession({
       sessionId: "123",
       appId: "app_123",
-      callbacks,
+      options,
       intervalRef,
       setIsVisible,
     });
@@ -297,7 +385,7 @@ describe("threeDSecureSession", () => {
       }
     );
 
-    expect(callbacks.onFailure).toHaveBeenCalledWith(
+    expect(options.onFailure).toHaveBeenCalledWith(
       new Error("3DS session cancelled by user")
     );
   });
@@ -306,7 +394,7 @@ describe("threeDSecureSession", () => {
     const session = threeDSecureSession({
       sessionId: "123",
       appId: "app_123",
-      callbacks,
+      options,
       intervalRef,
       setIsVisible,
     });
