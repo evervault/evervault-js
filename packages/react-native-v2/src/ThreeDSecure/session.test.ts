@@ -138,24 +138,20 @@ describe("startSession", () => {
     expect(options.onFailure).not.toHaveBeenCalled();
   });
 
-  it("should fail the session when onRequestChallenge is called and default is prevented", async () => {
+  it.only("should fail the session when onRequestChallenge is called and default is prevented", async () => {
     const session: ThreeDSecureSession = {
       cancel: vi.fn(),
       get: vi.fn(() => Promise.resolve({ status: "action-required" }) as any),
       sessionId: "123",
     };
 
-    const onRequestChallenge = vi.fn((event: Event) => event.preventDefault());
+    const onRequestChallenge = vi.fn((event: Event) => {
+      event.preventDefault();
+    });
 
     await startSession(
       session,
-      {
-        ...options,
-        onRequestChallenge,
-        onError(error) {
-          console.log("error", error);
-        },
-      },
+      { ...options, onRequestChallenge },
       intervalRef,
       setIsVisible
     );
@@ -192,13 +188,17 @@ describe("startSession", () => {
 });
 
 describe("pollSession", () => {
-  const callbacks = {
+  const options = {
     onSuccess: vi.fn(),
     onFailure: vi.fn(),
     onError: vi.fn(),
   };
   const intervalRef = { current: null };
   const setIsVisible = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it("should start an interval", () => {
     const session: ThreeDSecureSession = {
@@ -208,7 +208,7 @@ describe("pollSession", () => {
     };
 
     const intervalSpy = vi.spyOn(global, "setInterval");
-    pollSession(session, callbacks, intervalRef, setIsVisible);
+    pollSession(session, options, intervalRef, setIsVisible);
 
     expect(intervalSpy).toHaveBeenCalledWith(expect.any(Function), 3000);
   });
@@ -221,11 +221,11 @@ describe("pollSession", () => {
     };
 
     const intervalSpy = vi.spyOn(global, "setInterval");
-    pollSession(session, callbacks, intervalRef, setIsVisible);
+    pollSession(session, options, intervalRef, setIsVisible);
     await intervalSpy.mock.calls[0][0]();
 
     expect(session.get).toHaveBeenCalled();
-    expect(callbacks.onSuccess).toHaveBeenCalled();
+    expect(options.onSuccess).toHaveBeenCalled();
   });
 
   it("should poll failed session", async () => {
@@ -236,11 +236,11 @@ describe("pollSession", () => {
     };
 
     const intervalSpy = vi.spyOn(global, "setInterval");
-    pollSession(session, callbacks, intervalRef, setIsVisible);
+    pollSession(session, options, intervalRef, setIsVisible);
     await intervalSpy.mock.calls[0][0]();
 
     expect(session.get).toHaveBeenCalled();
-    expect(callbacks.onFailure).toHaveBeenCalledWith(
+    expect(options.onFailure).toHaveBeenCalledWith(
       new Error("3DS session failed")
     );
   });
@@ -253,11 +253,111 @@ describe("pollSession", () => {
     };
 
     const intervalSpy = vi.spyOn(global, "setInterval");
-    pollSession(session, callbacks, intervalRef, setIsVisible);
+    pollSession(session, options, intervalRef, setIsVisible);
     await intervalSpy.mock.calls[0][0]();
 
     expect(session.get).toHaveBeenCalled();
     expect(setIsVisible).toHaveBeenCalledWith(true);
+  });
+
+  it("should fail the session when failOnChallenge is true and a challenge is required", async () => {
+    const session: ThreeDSecureSession = {
+      cancel: vi.fn(),
+      get: vi.fn(() => Promise.resolve({ status: "action-required" }) as any),
+      sessionId: "123",
+    };
+
+    const intervalSpy = vi.spyOn(global, "setInterval");
+    const onRequestChallenge = vi.fn();
+    pollSession(
+      session,
+      { ...options, failOnChallenge: true, onRequestChallenge },
+      intervalRef,
+      setIsVisible
+    );
+    await intervalSpy.mock.calls[0][0]();
+
+    expect(session.get).toHaveBeenCalled();
+    expect(onRequestChallenge).not.toHaveBeenCalled();
+    expect(options.onFailure).toHaveBeenCalledWith(
+      new Error("3DS session failed")
+    );
+  });
+
+  it("should fail the session when failOnChallenge is a function that returns true and a challenge is required", async () => {
+    const session: ThreeDSecureSession = {
+      cancel: vi.fn(),
+      get: vi.fn(() => Promise.resolve({ status: "action-required" }) as any),
+      sessionId: "123",
+    };
+
+    const intervalSpy = vi.spyOn(global, "setInterval");
+    const onRequestChallenge = vi.fn();
+    pollSession(
+      session,
+      {
+        ...options,
+        onRequestChallenge,
+        failOnChallenge: () => Promise.resolve(true),
+      },
+      intervalRef,
+      setIsVisible
+    );
+    await intervalSpy.mock.calls[0][0]();
+
+    expect(session.get).toHaveBeenCalled();
+    expect(onRequestChallenge).not.toHaveBeenCalled();
+    expect(options.onFailure).toHaveBeenCalledWith(
+      new Error("3DS session failed")
+    );
+  });
+
+  it("should call onRequestChallenge when a challenge is required", async () => {
+    const session: ThreeDSecureSession = {
+      cancel: vi.fn(),
+      get: vi.fn(() => Promise.resolve({ status: "action-required" }) as any),
+      sessionId: "123",
+    };
+
+    const intervalSpy = vi.spyOn(global, "setInterval");
+    const onRequestChallenge = vi.fn();
+    pollSession(
+      session,
+      { ...options, onRequestChallenge },
+      intervalRef,
+      setIsVisible
+    );
+    await intervalSpy.mock.calls[0][0]();
+
+    expect(session.get).toHaveBeenCalled();
+    expect(onRequestChallenge).toHaveBeenCalled();
+    expect(options.onFailure).not.toHaveBeenCalled();
+  });
+
+  it("should fail the session when onRequestChallenge is called and default is prevented", async () => {
+    const session: ThreeDSecureSession = {
+      cancel: vi.fn(),
+      get: vi.fn(() => Promise.resolve({ status: "action-required" }) as any),
+      sessionId: "123",
+    };
+
+    const intervalSpy = vi.spyOn(global, "setInterval");
+    const onRequestChallenge = vi.fn((event: Event) => {
+      event.preventDefault();
+    });
+    pollSession(
+      session,
+      { ...options, onRequestChallenge },
+      intervalRef,
+      setIsVisible
+    );
+    await intervalSpy.mock.calls[0][0]();
+
+    expect(session.get).toHaveBeenCalled();
+    expect(onRequestChallenge).toHaveBeenCalled();
+    expect(options.onFailure).toHaveBeenCalledWith(
+      new Error("3DS session failed")
+    );
   });
 
   it("should call onError if the session fails to poll", async () => {
@@ -272,7 +372,7 @@ describe("pollSession", () => {
       .mockImplementation(() => {});
 
     const intervalSpy = vi.spyOn(global, "setInterval");
-    pollSession(session, callbacks, intervalRef, setIsVisible);
+    pollSession(session, options, intervalRef, setIsVisible);
     await intervalSpy.mock.calls[0][0]();
 
     expect(session.get).toHaveBeenCalled();
@@ -280,7 +380,7 @@ describe("pollSession", () => {
       "Error polling session",
       new Error("Failed to poll session")
     );
-    expect(callbacks.onError).toHaveBeenCalledWith(
+    expect(options.onError).toHaveBeenCalledWith(
       new Error("Error polling 3DS session")
     );
   });

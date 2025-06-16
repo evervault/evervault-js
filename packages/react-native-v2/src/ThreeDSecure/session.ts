@@ -55,9 +55,8 @@ export async function startSession(
           break;
         }
 
-        const event = new Event("requestChallenge");
+        const event = new Event("requestChallenge", { cancelable: true });
         options?.onRequestChallenge?.(event);
-        console.log("event", event);
         if (event.defaultPrevented) {
           fail();
           break;
@@ -110,7 +109,7 @@ export function pollSession(
             break;
           }
 
-          const event = new Event("requestChallenge");
+          const event = new Event("requestChallenge", { cancelable: true });
           options?.onRequestChallenge?.(event);
           if (event.defaultPrevented) {
             fail();
