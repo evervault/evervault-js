@@ -6,6 +6,7 @@ import {
   ThreeDSecureOptions,
 } from "./types";
 import { EV_API_DOMAIN } from "./config";
+import { ThreeDSecureEvent } from "./event";
 
 export function stopPolling(
   intervalRef: React.MutableRefObject<NodeJS.Timeout | null>,
@@ -55,7 +56,7 @@ export async function startSession(
           break;
         }
 
-        const event = new Event("requestChallenge", { cancelable: true });
+        const event = new ThreeDSecureEvent("requestChallenge", session);
         options?.onRequestChallenge?.(event);
         if (event.defaultPrevented) {
           fail();
@@ -109,7 +110,7 @@ export function pollSession(
             break;
           }
 
-          const event = new Event("requestChallenge", { cancelable: true });
+          const event = new ThreeDSecureEvent("requestChallenge", session);
           options?.onRequestChallenge?.(event);
           if (event.defaultPrevented) {
             fail();

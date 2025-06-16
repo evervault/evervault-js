@@ -1,4 +1,4 @@
-import { PropsWithChildren } from "react";
+import { ThreeDSecureEvent } from "./event";
 
 export interface ThreeDSecureCallbacks {
   /**
@@ -10,7 +10,7 @@ export interface ThreeDSecureCallbacks {
    * The 'requestChallenge' event will be fired if the 3DS authentication process requires a challenge.
    * If you'd like to fail the authentication, you should call `preventDefault` on the passed event.
    */
-  onRequestChallenge?(event: Event): void;
+  onRequestChallenge?(event: ThreeDSecureEvent): void;
 
   /**
    * The 'failure' event will be fired if the 3DS authentication process fails. You should use this event to handle the failure and inform the user and prompt them to try again.

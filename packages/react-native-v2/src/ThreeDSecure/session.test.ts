@@ -1,4 +1,5 @@
 import { EV_API_DOMAIN } from "./config";
+import { ThreeDSecureEvent } from "./event";
 import {
   pollSession,
   startSession,
@@ -145,7 +146,7 @@ describe("startSession", () => {
       sessionId: "123",
     };
 
-    const onRequestChallenge = vi.fn((event: Event) => {
+    const onRequestChallenge = vi.fn((event: ThreeDSecureEvent) => {
       event.preventDefault();
     });
 
@@ -342,7 +343,7 @@ describe("pollSession", () => {
     };
 
     const intervalSpy = vi.spyOn(global, "setInterval");
-    const onRequestChallenge = vi.fn((event: Event) => {
+    const onRequestChallenge = vi.fn((event: ThreeDSecureEvent) => {
       event.preventDefault();
     });
     pollSession(

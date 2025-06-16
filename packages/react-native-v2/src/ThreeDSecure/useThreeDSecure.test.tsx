@@ -2,6 +2,7 @@ import { PropsWithChildren } from "react";
 import { EvervaultProvider } from "../EvervaultProvider";
 import { act, renderHook } from "@testing-library/react-native";
 import { useThreeDSecure } from "./useThreeDSecure";
+import { ThreeDSecureEvent } from "./event";
 
 function wrapper({ children }: PropsWithChildren) {
   return (
@@ -108,7 +109,9 @@ it("fails the session when onRequestChallenge is called and defaultPrevented is 
     json: () => Promise.resolve({ status: "action-required" }),
   } as any);
 
-  let onRequestChallenge = vi.fn((event: Event) => event.preventDefault());
+  let onRequestChallenge = vi.fn((event: ThreeDSecureEvent) =>
+    event.preventDefault()
+  );
   await act(() =>
     result.current.start("session_123", {
       ...callbacks,
