@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.32.1
+
+### Patch Changes
+
+- 2992de7: Prevents double CReq submissions for 3D-Secure flow
+
 ## 1.32.0
 
 ### Minor Changes
