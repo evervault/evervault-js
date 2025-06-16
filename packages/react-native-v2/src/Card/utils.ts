@@ -5,19 +5,27 @@ import {
   CardNumberValidationResult,
 } from "@evervault/card-validator";
 import type { CardBrandName, CardPayload } from "./types";
-import { type CardFormValues } from "./schema";
+import { getCardSchema, type CardFormValues } from "./schema";
 import { DeepPartial, UseFormReturn } from "react-hook-form";
 import { type Encrypted, sdk } from "../sdk";
+import { z } from "zod";
+
+function isAmex(brand: CardBrandName | null) {
+  return brand === "american-express";
+}
 
 export interface FormatPayloadContext {
-  form: UseFormReturn<CardFormValues>;
+  schema: z.ZodObject<{ card: ReturnType<typeof getCardSchema> }>;
+  form: UseFormReturn<{ card: CardFormValues }>;
   encrypt<T>(data: T): Promise<Encrypted<T>>;
 }
 
 export async function formatPayload(
-  values: DeepPartial<CardFormValues>,
+  { card }: DeepPartial<{ card: CardFormValues }>,
   context: FormatPayloadContext
 ): Promise<CardPayload> {
+  const values = card ?? {};
+
   const number = values.number?.replace(/\s/g, "") || "";
 
   const {
@@ -28,17 +36,17 @@ export async function formatPayload(
     isValid: isNumberValid,
   } = validateNumber(number);
 
-  if (
-    number.length > 0 &&
-    brand !== "american-express" &&
-    values.cvc?.length === 4
-  ) {
-    context.form.setValue("cvc", values.cvc?.slice(0, 3));
+  if (number.length > 0 && !isAmex(brand) && values.cvc?.length === 4) {
+    context.form.setValue("card.cvc", values.cvc?.slice(0, 3));
   }
 
-  const { cvc, isValid: isCvcValid } = validateCVC(values.cvc ?? "", number);
+  let { cvc, isValid: isCvcValid } = validateCVC(values.cvc ?? "", number);
+  const allow3DigitAmex = context.allow3DigitAmexCVC ?? true;
+  if (isAmex(brand) && cvc?.length === 3 && !allow3DigitAmex) {
+    isCvcValid = false;
+  }
 
-  const formErrors = context.form.formState.errors;
+  const formErrors = context.form.formState.errors.card ?? {};
   const isValid = !Object.keys(formErrors).length;
   const isComplete = areValuesComplete(values);
 

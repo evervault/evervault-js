@@ -146,6 +146,44 @@ describe("formatPayload", () => {
       errors: {},
     });
   });
+
+  it.only("should block 3 digit CVCs for American Express if allow3DigitAmexCVC is false", async () => {
+    const result = await formatPayload(
+      {
+        name: "John Doe",
+        number: "378282246310005",
+        cvc: "123",
+      },
+      {
+        encrypt,
+        form: {
+          setValue,
+          formState: {
+            errors: {},
+          },
+        } as any,
+        allow3DigitAmexCVC: false,
+      }
+    );
+
+    expect(result).toEqual({
+      card: {
+        name: "John Doe",
+        brand: "american-express",
+        localBrands: [],
+        bin: "378282",
+        lastFour: "0005",
+        expiry: null,
+        number: encryptedValue,
+        cvc: null,
+      },
+      isComplete: false,
+      isValid: false,
+      errors: {
+        cvc: "Invalid CVC",
+      },
+    });
+  });
 });
 
 describe("areValuesComplete", () => {

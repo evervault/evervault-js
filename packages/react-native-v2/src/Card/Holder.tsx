@@ -10,11 +10,11 @@ export type CardHolder = EvervaultInput;
 export const CardHolder = forwardRef<CardHolder, CardHolderProps>(
   function CardHolder(props, ref) {
     return (
-      <EvervaultInput<CardFormValues>
+      <EvervaultInput<{ card: CardFormValues }>
         placeholder="Johnny Appleseed"
         {...props}
         ref={ref}
-        name="name"
+        name="card.name"
         inputMode="text"
         autoComplete={Platform.select({
           ios: "cc-name",

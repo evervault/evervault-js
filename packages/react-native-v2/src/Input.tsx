@@ -14,7 +14,12 @@ import {
 } from "react";
 import { TextInput, TextInputProps } from "react-native";
 import { mergeRefs } from "./utils";
-import { Controller, useController, useFormContext } from "react-hook-form";
+import {
+  Controller,
+  Path,
+  useController,
+  useFormContext,
+} from "react-hook-form";
 import MaskInput, { Mask, MaskArray } from "react-native-mask-input";
 
 export interface EvervaultInputContextValue {
@@ -108,7 +113,7 @@ export function mask(format: string): MaskArray {
 
 export interface EvervaultInputProps<Values extends Record<string, unknown>>
   extends BaseEvervaultInputProps {
-  name: keyof Values;
+  name: Path<Values>;
   mask?: Mask;
   obfuscateValue?: boolean | string;
 }

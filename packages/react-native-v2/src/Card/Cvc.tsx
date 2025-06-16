@@ -27,9 +27,9 @@ export const CardCvc = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
   props,
   ref
 ) {
-  const methods = useFormContext<CardFormValues>();
+  const methods = useFormContext<{ card: CardFormValues }>();
 
-  const number = methods.watch("number");
+  const number = methods.watch("card.number");
   const mask = useMemo<Mask>(() => {
     if (!number) {
       return DEFAULT_CARD_CVC_MASK;
@@ -44,11 +44,11 @@ export const CardCvc = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
   }, [number]);
 
   return (
-    <EvervaultInput<CardFormValues>
+    <EvervaultInput<{ card: CardFormValues }>
       placeholder="CVC"
       {...props}
       ref={ref}
-      name="cvc"
+      name="card.cvc"
       mask={mask}
       inputMode="numeric"
       autoComplete="cc-csc"
