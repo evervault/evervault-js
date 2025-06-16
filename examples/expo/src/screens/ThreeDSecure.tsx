@@ -86,6 +86,8 @@ export function ThreeDSecureExample() {
   const handlePayment = useCallback(async () => {
     const session = await create3DSecureSession();
     tds.start(session.id, {
+      failOnChallenge: () =>
+        new Promise((resolve) => setTimeout(() => resolve(true), 2000)),
       onSuccess: () => setStatus("success"),
       onFailure: () => setStatus("failure"),
       onError: () => setStatus("failure"),
