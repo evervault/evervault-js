@@ -138,7 +138,7 @@ describe("startSession", () => {
     expect(options.onFailure).not.toHaveBeenCalled();
   });
 
-  it.only("should fail the session when onRequestChallenge is called and default is prevented", async () => {
+  it("should fail the session when onRequestChallenge is called and default is prevented", async () => {
     const session: ThreeDSecureSession = {
       cancel: vi.fn(),
       get: vi.fn(() => Promise.resolve({ status: "action-required" }) as any),
