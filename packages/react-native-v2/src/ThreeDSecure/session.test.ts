@@ -149,7 +149,13 @@ describe("startSession", () => {
 
     await startSession(
       session,
-      { ...options, onRequestChallenge },
+      {
+        ...options,
+        onRequestChallenge,
+        onError(error) {
+          console.log("error", error);
+        },
+      },
       intervalRef,
       setIsVisible
     );
