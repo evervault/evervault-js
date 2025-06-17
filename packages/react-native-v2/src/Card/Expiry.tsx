@@ -11,11 +11,11 @@ export type CardExpiry = EvervaultInput;
 export const CardExpiry = forwardRef<CardExpiry, CardExpiryProps>(
   function CardExpiry(props, ref) {
     return (
-      <EvervaultInput<CardFormValues>
+      <EvervaultInput<{ card: CardFormValues }>
         placeholder="MM / YY"
         {...props}
         ref={ref}
-        name="expiry"
+        name="card.expiry"
         mask={CARD_EXPIRY_MASK}
         inputMode="numeric"
         autoComplete="cc-exp"

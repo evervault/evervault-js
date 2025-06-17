@@ -52,7 +52,6 @@ export function CardExample() {
         <View style={styles.form}>
           <Card
             ref={cardRef}
-            validationMode="onBlur"
             onChange={(p) => setPayload(p)}
             onError={setError}
           >

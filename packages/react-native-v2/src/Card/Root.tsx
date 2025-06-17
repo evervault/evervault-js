@@ -9,12 +9,12 @@ import {
 } from "react";
 import { CardBrandName, CardConfig, CardPayload } from "./types";
 import { DeepPartial, FormProvider, useForm } from "react-hook-form";
-import { CardFormValues, getCardFormSchema } from "./schema";
+import { CardFormValues, cardSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEvervault } from "../useEvervault";
 import { formatPayload } from "./utils";
 import { EvervaultInputContext, EvervaultInputContextValue } from "../Input";
-import { EvervaultContextValue } from "../context";
+import { z } from "zod";
 
 const DEFAULT_ACCEPTED_BRANDS: CardBrandName[] = [];
 
@@ -62,22 +62,35 @@ export interface Card {
 export const Card = forwardRef<Card, CardProps>(function Card(
   {
     children,
-    defaultValues,
+    defaultValues: cardDefaultValues,
     onChange,
     onError,
     acceptedBrands = DEFAULT_ACCEPTED_BRANDS,
+    allow3DigitAmexCVC = true,
     validationMode = "all",
   },
   ref
 ) {
   const evervault = useEvervault();
 
-  const resolver = useMemo(() => {
-    const schema = getCardFormSchema(acceptedBrands);
-    return zodResolver(schema);
-  }, [acceptedBrands]);
+  const schema = useMemo(
+    () => cardSchema({ acceptedBrands, allow3DigitAmexCVC }),
+    [acceptedBrands, allow3DigitAmexCVC]
+  );
 
-  const methods = useForm<CardFormValues>({
+  const resolver = useMemo(
+    () => zodResolver(z.object({ card: schema })),
+    [schema]
+  );
+
+  const defaultValues = useMemo(
+    () => ({
+      card: cardDefaultValues,
+    }),
+    [cardDefaultValues]
+  );
+
+  const methods = useForm<{ card: CardFormValues }>({
     defaultValues,
     resolver,
     mode: validationMode,
@@ -101,7 +114,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     if (!onChange) return;
 
     let abortController: AbortController | undefined;
-    function handleChange(values: DeepPartial<CardFormValues>) {
+    function handleChange(values: DeepPartial<{ card: CardFormValues }>) {
       if (abortController) {
         abortController.abort();
       }
@@ -113,7 +126,11 @@ export const Card = forwardRef<Card, CardProps>(function Card(
         try {
           const payload = await formatPayload(values, {
             encrypt: evervault.encrypt,
-            form: methods,
+            errors: methods.formState.errors.card ?? {},
+            options: {
+              acceptedBrands,
+              allow3DigitAmexCVC,
+            },
           });
           if (signal.aborted) return;
           onChangeRef.current?.(payload);
@@ -126,7 +143,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     handleChange(methods.getValues());
     const subscription = methods.watch(handleChange);
     return () => subscription.unsubscribe();
-  }, [evervault.encrypt]);
+  }, [evervault.encrypt, acceptedBrands, allow3DigitAmexCVC]);
 
   useImperativeHandle(
     ref,

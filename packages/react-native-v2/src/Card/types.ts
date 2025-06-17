@@ -26,6 +26,13 @@ export interface CardConfig {
    * @default []
    */
   acceptedBrands?: CardBrandName[];
+
+  /**
+   * Whether to allow 3-digit CVCs for American Express cards.
+   *
+   * @default true
+   */
+  allow3DigitAmexCVC?: boolean;
 }
 
 export type CardField = "name" | "number" | "expiry" | "cvc";

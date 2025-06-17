@@ -39,11 +39,11 @@ export const CardNumber = forwardRef<CardNumber, CardNumberProps>(
     }, []);
 
     return (
-      <EvervaultInput<CardFormValues>
+      <EvervaultInput<{ card: CardFormValues }>
         placeholder="1234 1234 1234 1234"
         {...props}
         ref={ref}
-        name="number"
+        name="card.number"
         mask={mask}
         inputMode="numeric"
         autoComplete="cc-number"

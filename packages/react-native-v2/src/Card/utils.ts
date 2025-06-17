@@ -1,95 +1,111 @@
 import {
   validateNumber,
   validateExpiry,
-  validateCVC,
   CardNumberValidationResult,
 } from "@evervault/card-validator";
 import type { CardBrandName, CardPayload } from "./types";
-import { type CardFormValues } from "./schema";
-import { DeepPartial, UseFormReturn } from "react-hook-form";
-import { type Encrypted, sdk } from "../sdk";
+import {
+  CardFormSchemaOptions,
+  cardSchema,
+  parseCard,
+  ParsedCardResult,
+  type CardFormValues,
+} from "./schema";
+import { DeepPartial, FieldErrors } from "react-hook-form";
+import { type Encrypted } from "../sdk";
+import { z } from "zod";
+
+function getError(error: z.ZodError | undefined, path: string[]) {
+  if (!error) return undefined;
+  return error.issues.find((issue) => issue.path.join(".") === path.join("."));
+}
+
+function hasError(error: z.ZodError | undefined, path: string[]) {
+  return !!getError(error, path);
+}
 
 export interface FormatPayloadContext {
-  form: UseFormReturn<CardFormValues>;
+  options: CardFormSchemaOptions;
+  errors: FieldErrors<CardFormValues>;
   encrypt<T>(data: T): Promise<Encrypted<T>>;
 }
 
 export async function formatPayload(
-  values: DeepPartial<CardFormValues>,
+  { card }: DeepPartial<{ card: CardFormValues }>,
   context: FormatPayloadContext
 ): Promise<CardPayload> {
-  const number = values.number?.replace(/\s/g, "") || "";
+  const values = card ?? {};
+  const parsed = parseCard(values, context.options);
 
-  const {
-    brand,
-    localBrands,
-    bin,
-    lastFour,
-    isValid: isNumberValid,
-  } = validateNumber(number);
+  const isValid = !Object.keys(context.errors).length;
+  const isComplete = areValuesComplete(values, parsed);
 
-  if (
-    number.length > 0 &&
-    brand !== "american-express" &&
-    values.cvc?.length === 4
-  ) {
-    context.form.setValue("cvc", values.cvc?.slice(0, 3));
-  }
-
-  const { cvc, isValid: isCvcValid } = validateCVC(values.cvc ?? "", number);
-
-  const formErrors = context.form.formState.errors;
-  const isValid = !Object.keys(formErrors).length;
-  const isComplete = areValuesComplete(values);
-
-  const errors: Record<string, string> = {};
-  if (formErrors.name?.message) {
-    errors.name = formErrors.name.message;
-  }
-  if (formErrors.number?.message) {
-    errors.number = formErrors.number.message;
-  }
-  if (formErrors.expiry?.message) {
-    errors.expiry = formErrors.expiry.message;
-  }
-  if (formErrors.cvc?.message) {
-    errors.cvc = formErrors.cvc.message;
-  }
-
-  return {
+  const payload: CardPayload = {
     card: {
-      name: values.name ?? null,
-      brand,
-      localBrands,
-      bin,
-      lastFour,
-      expiry: formatExpiry(values.expiry ?? ""),
-      number: isNumberValid ? await context.encrypt(number) : null,
-      cvc: isCvcValid ? await context.encrypt(cvc ?? "") : null,
+      name: null,
+      brand: null,
+      localBrands: [],
+      number: null,
+      lastFour: null,
+      bin: null,
+      expiry: null,
+      cvc: null,
     },
+    isValid,
     isComplete,
-    isValid: isValid && isComplete,
-    errors,
+    errors: {},
   };
+
+  if (context.errors.name?.message) {
+    payload.errors.name = context.errors.name.message;
+  } else if (parsed.data.name) {
+    payload.card.name = parsed.data.name;
+  }
+
+  if (context.errors.number?.message) {
+    payload.errors.number = context.errors.number.message;
+  } else if (parsed.data.number) {
+    const result = validateNumber(parsed.data.number);
+    payload.card.brand = result.brand;
+    payload.card.localBrands = result.localBrands;
+    payload.card.bin = result.bin;
+    payload.card.lastFour = result.lastFour;
+    payload.card.number = await context.encrypt(parsed.data.number);
+  }
+
+  if (context.errors.expiry?.message) {
+    payload.errors.expiry = context.errors.expiry.message;
+  } else if (parsed.data.expiry) {
+    const expiry = validateExpiry(parsed.data.expiry);
+    payload.card.expiry = { month: expiry.month!, year: expiry.year! };
+  }
+
+  if (context.errors.cvc?.message) {
+    payload.errors.cvc = context.errors.cvc.message;
+  } else if (parsed.data.cvc) {
+    payload.card.cvc = await context.encrypt(parsed.data.cvc);
+  }
+
+  return payload;
 }
 
-export function areValuesComplete(values: DeepPartial<CardFormValues>) {
-  if ("name" in values && !values.name?.length) {
+export function areValuesComplete(
+  values: DeepPartial<CardFormValues>,
+  parsed: ParsedCardResult
+) {
+  if ("name" in values && hasError(parsed.error, ["name"])) {
     return false;
   }
 
-  if ("number" in values && !validateNumber(values.number ?? "").isValid) {
+  if ("number" in values && hasError(parsed.error, ["number"])) {
     return false;
   }
 
-  if ("expiry" in values && !validateExpiry(values.expiry ?? "").isValid) {
+  if ("expiry" in values && hasError(parsed.error, ["expiry"])) {
     return false;
   }
 
-  if (
-    "cvc" in values &&
-    !validateCVC(values.cvc ?? "", values.number).isValid
-  ) {
+  if ("cvc" in values && hasError(parsed.error, ["cvc"])) {
     return false;
   }
 
@@ -113,17 +129,4 @@ export function isAcceptedBrand(
   );
 
   return isBrandAccepted || isLocalBrandAccepted;
-}
-
-export function formatExpiry(expiry: string) {
-  const parsedExpiry = validateExpiry(expiry);
-
-  if (!parsedExpiry.isValid) {
-    return null;
-  }
-
-  return {
-    month: parsedExpiry.month!,
-    year: parsedExpiry.year!,
-  };
 }
