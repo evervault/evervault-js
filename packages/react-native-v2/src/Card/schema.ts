@@ -22,6 +22,7 @@ export function getCardSchema(options: CardFormSchemaOptions) {
       number: z
         .string()
         .min(1, "Required")
+        .transform((value) => value.replace(/\s/g, ""))
         .refine((value) => validateNumber(value).isValid, {
           message: "Invalid card number",
         })
@@ -44,6 +45,17 @@ export function getCardSchema(options: CardFormSchemaOptions) {
         .refine((value) => validateCVC(value).isValid, {
           message: "Invalid CVC",
         }),
+    })
+    .transform((data) => {
+      const { brand } = validateNumber(data.number);
+      if (brand && brand !== "american-express" && data.cvc.length > 3) {
+        return {
+          ...data,
+          cvc: data.cvc.slice(0, 3),
+        };
+      } else {
+        return data;
+      }
     })
     .refine(
       (data) => {

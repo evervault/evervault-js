@@ -10,8 +10,13 @@ import { DeepPartial, UseFormReturn } from "react-hook-form";
 import { type Encrypted, sdk } from "../sdk";
 import { z } from "zod";
 
-function isAmex(brand: CardBrandName | null) {
-  return brand === "american-express";
+function getError(error: z.ZodError | undefined, path: string[]) {
+  if (!error) return undefined;
+  return error.issues.find((issue) => issue.path.join(".") === path.join("."));
+}
+
+function hasError(error: z.ZodError | undefined, path: string[]) {
+  return !!getError(error, path);
 }
 
 export interface FormatPayloadContext {
@@ -25,79 +30,80 @@ export async function formatPayload(
   context: FormatPayloadContext
 ): Promise<CardPayload> {
   const values = card ?? {};
-
-  const number = values.number?.replace(/\s/g, "") || "";
-
-  const {
-    brand,
-    localBrands,
-    bin,
-    lastFour,
-    isValid: isNumberValid,
-  } = validateNumber(number);
-
-  if (number.length > 0 && !isAmex(brand) && values.cvc?.length === 4) {
-    context.form.setValue("card.cvc", values.cvc?.slice(0, 3));
-  }
-
-  let { cvc, isValid: isCvcValid } = validateCVC(values.cvc ?? "", number);
-  const allow3DigitAmex = context.allow3DigitAmexCVC ?? true;
-  if (isAmex(brand) && cvc?.length === 3 && !allow3DigitAmex) {
-    isCvcValid = false;
-  }
+  const parsed = context.schema.safeParse({ card: values });
 
   const formErrors = context.form.formState.errors.card ?? {};
   const isValid = !Object.keys(formErrors).length;
-  const isComplete = areValuesComplete(values);
+  const isComplete = areValuesComplete(values, context.schema);
 
-  const errors: Record<string, string> = {};
-  if (formErrors.name?.message) {
-    errors.name = formErrors.name.message;
-  }
-  if (formErrors.number?.message) {
-    errors.number = formErrors.number.message;
-  }
-  if (formErrors.expiry?.message) {
-    errors.expiry = formErrors.expiry.message;
-  }
-  if (formErrors.cvc?.message) {
-    errors.cvc = formErrors.cvc.message;
-  }
-
-  return {
+  const payload: CardPayload = {
     card: {
-      name: values.name ?? null,
-      brand,
-      localBrands,
-      bin,
-      lastFour,
-      expiry: formatExpiry(values.expiry ?? ""),
-      number: isNumberValid ? await context.encrypt(number) : null,
-      cvc: isCvcValid ? await context.encrypt(cvc ?? "") : null,
+      name: null,
+      brand: null,
+      localBrands: [],
+      number: null,
+      lastFour: null,
+      bin: null,
+      expiry: null,
+      cvc: null,
     },
+    isValid,
     isComplete,
-    isValid: isValid && isComplete,
-    errors,
+    errors: {},
   };
+
+  if (formErrors.name?.message) {
+    payload.errors.name = formErrors.name.message;
+  } else if (values.name && !hasError(parsed.error, ["card", "name"])) {
+    payload.card.name = values.name;
+  }
+
+  if (formErrors.number?.message) {
+    payload.errors.number = formErrors.number.message;
+  } else if (values.number && !hasError(parsed.error, ["card", "number"])) {
+    const number = formatNumber(values.number);
+    const result = validateNumber(number);
+    payload.card.brand = result.brand;
+    payload.card.localBrands = result.localBrands;
+    payload.card.bin = result.bin;
+    payload.card.lastFour = result.lastFour;
+    payload.card.number = await context.encrypt(number);
+  }
+
+  if (formErrors.expiry?.message) {
+    payload.errors.expiry = formErrors.expiry.message;
+  } else if (values.expiry && !hasError(parsed.error, ["card", "expiry"])) {
+    payload.card.expiry = formatExpiry(values.expiry);
+  }
+
+  if (formErrors.cvc?.message) {
+    payload.errors.cvc = formErrors.cvc.message;
+  } else if (values.cvc && !hasError(parsed.error, ["card", "cvc"])) {
+    payload.card.cvc = await context.encrypt(values.cvc);
+  }
+
+  return payload;
 }
 
-export function areValuesComplete(values: DeepPartial<CardFormValues>) {
-  if ("name" in values && !values.name?.length) {
+export function areValuesComplete(
+  values: DeepPartial<CardFormValues>,
+  schema: z.ZodObject<{ card: ReturnType<typeof getCardSchema> }>
+) {
+  const parsed = schema.safeParse({ card: values });
+
+  if ("name" in values && hasError(parsed.error, ["card", "name"])) {
     return false;
   }
 
-  if ("number" in values && !validateNumber(values.number ?? "").isValid) {
+  if ("number" in values && hasError(parsed.error, ["card", "number"])) {
     return false;
   }
 
-  if ("expiry" in values && !validateExpiry(values.expiry ?? "").isValid) {
+  if ("expiry" in values && hasError(parsed.error, ["card", "expiry"])) {
     return false;
   }
 
-  if (
-    "cvc" in values &&
-    !validateCVC(values.cvc ?? "", values.number).isValid
-  ) {
+  if ("cvc" in values && hasError(parsed.error, ["card", "cvc"])) {
     return false;
   }
 
@@ -134,4 +140,8 @@ export function formatExpiry(expiry: string) {
     month: parsedExpiry.month!,
     year: parsedExpiry.year!,
   };
+}
+
+export function formatNumber(number: string) {
+  return number.replace(/\s/g, "");
 }
