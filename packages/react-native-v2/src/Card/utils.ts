@@ -1,13 +1,18 @@
 import {
   validateNumber,
   validateExpiry,
-  validateCVC,
   CardNumberValidationResult,
 } from "@evervault/card-validator";
 import type { CardBrandName, CardPayload } from "./types";
-import { getCardSchema, type CardFormValues } from "./schema";
-import { DeepPartial, UseFormReturn } from "react-hook-form";
-import { type Encrypted, sdk } from "../sdk";
+import {
+  CardFormSchemaOptions,
+  cardSchema,
+  parseCard,
+  ParsedCardResult,
+  type CardFormValues,
+} from "./schema";
+import { DeepPartial, FieldErrors } from "react-hook-form";
+import { type Encrypted } from "../sdk";
 import { z } from "zod";
 
 function getError(error: z.ZodError | undefined, path: string[]) {
@@ -20,8 +25,8 @@ function hasError(error: z.ZodError | undefined, path: string[]) {
 }
 
 export interface FormatPayloadContext {
-  schema: z.ZodObject<{ card: ReturnType<typeof getCardSchema> }>;
-  form: UseFormReturn<{ card: CardFormValues }>;
+  options: CardFormSchemaOptions;
+  errors: FieldErrors<CardFormValues>;
   encrypt<T>(data: T): Promise<Encrypted<T>>;
 }
 
@@ -30,11 +35,10 @@ export async function formatPayload(
   context: FormatPayloadContext
 ): Promise<CardPayload> {
   const values = card ?? {};
-  const parsed = context.schema.safeParse({ card: values });
+  const parsed = parseCard(values, context.options);
 
-  const formErrors = context.form.formState.errors.card ?? {};
-  const isValid = !Object.keys(formErrors).length;
-  const isComplete = areValuesComplete(values, context.schema);
+  const isValid = !Object.keys(context.errors).length;
+  const isComplete = areValuesComplete(values, parsed);
 
   const payload: CardPayload = {
     card: {
@@ -52,34 +56,34 @@ export async function formatPayload(
     errors: {},
   };
 
-  if (formErrors.name?.message) {
-    payload.errors.name = formErrors.name.message;
-  } else if (values.name && !hasError(parsed.error, ["card", "name"])) {
-    payload.card.name = values.name;
+  if (context.errors.name?.message) {
+    payload.errors.name = context.errors.name.message;
+  } else if (parsed.data.name) {
+    payload.card.name = parsed.data.name;
   }
 
-  if (formErrors.number?.message) {
-    payload.errors.number = formErrors.number.message;
-  } else if (values.number && !hasError(parsed.error, ["card", "number"])) {
-    const number = formatNumber(values.number);
-    const result = validateNumber(number);
+  if (context.errors.number?.message) {
+    payload.errors.number = context.errors.number.message;
+  } else if (parsed.data.number) {
+    const result = validateNumber(parsed.data.number);
     payload.card.brand = result.brand;
     payload.card.localBrands = result.localBrands;
     payload.card.bin = result.bin;
     payload.card.lastFour = result.lastFour;
-    payload.card.number = await context.encrypt(number);
+    payload.card.number = await context.encrypt(parsed.data.number);
   }
 
-  if (formErrors.expiry?.message) {
-    payload.errors.expiry = formErrors.expiry.message;
-  } else if (values.expiry && !hasError(parsed.error, ["card", "expiry"])) {
-    payload.card.expiry = formatExpiry(values.expiry);
+  if (context.errors.expiry?.message) {
+    payload.errors.expiry = context.errors.expiry.message;
+  } else if (parsed.data.expiry) {
+    const expiry = validateExpiry(parsed.data.expiry);
+    payload.card.expiry = { month: expiry.month!, year: expiry.year! };
   }
 
-  if (formErrors.cvc?.message) {
-    payload.errors.cvc = formErrors.cvc.message;
-  } else if (values.cvc && !hasError(parsed.error, ["card", "cvc"])) {
-    payload.card.cvc = await context.encrypt(values.cvc);
+  if (context.errors.cvc?.message) {
+    payload.errors.cvc = context.errors.cvc.message;
+  } else if (parsed.data.cvc) {
+    payload.card.cvc = await context.encrypt(parsed.data.cvc);
   }
 
   return payload;
@@ -87,23 +91,21 @@ export async function formatPayload(
 
 export function areValuesComplete(
   values: DeepPartial<CardFormValues>,
-  schema: z.ZodObject<{ card: ReturnType<typeof getCardSchema> }>
+  parsed: ParsedCardResult
 ) {
-  const parsed = schema.safeParse({ card: values });
-
-  if ("name" in values && hasError(parsed.error, ["card", "name"])) {
+  if ("name" in values && hasError(parsed.error, ["name"])) {
     return false;
   }
 
-  if ("number" in values && hasError(parsed.error, ["card", "number"])) {
+  if ("number" in values && hasError(parsed.error, ["number"])) {
     return false;
   }
 
-  if ("expiry" in values && hasError(parsed.error, ["card", "expiry"])) {
+  if ("expiry" in values && hasError(parsed.error, ["expiry"])) {
     return false;
   }
 
-  if ("cvc" in values && hasError(parsed.error, ["card", "cvc"])) {
+  if ("cvc" in values && hasError(parsed.error, ["cvc"])) {
     return false;
   }
 
@@ -127,21 +129,4 @@ export function isAcceptedBrand(
   );
 
   return isBrandAccepted || isLocalBrandAccepted;
-}
-
-export function formatExpiry(expiry: string) {
-  const parsedExpiry = validateExpiry(expiry);
-
-  if (!parsedExpiry.isValid) {
-    return null;
-  }
-
-  return {
-    month: parsedExpiry.month!,
-    year: parsedExpiry.year!,
-  };
-}
-
-export function formatNumber(number: string) {
-  return number.replace(/\s/g, "");
 }

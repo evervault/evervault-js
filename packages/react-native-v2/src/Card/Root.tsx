@@ -9,7 +9,7 @@ import {
 } from "react";
 import { CardBrandName, CardConfig, CardPayload } from "./types";
 import { DeepPartial, FormProvider, useForm } from "react-hook-form";
-import { CardFormValues, getCardSchema } from "./schema";
+import { CardFormValues, cardSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEvervault } from "../useEvervault";
 import { formatPayload } from "./utils";
@@ -73,14 +73,15 @@ export const Card = forwardRef<Card, CardProps>(function Card(
 ) {
   const evervault = useEvervault();
 
-  const schema = useMemo(() => {
-    const card = getCardSchema({ acceptedBrands, allow3DigitAmexCVC });
-    return z.object({ card });
-  }, [acceptedBrands, allow3DigitAmexCVC]);
+  const schema = useMemo(
+    () => cardSchema({ acceptedBrands, allow3DigitAmexCVC }),
+    [acceptedBrands, allow3DigitAmexCVC]
+  );
 
-  const resolver = useMemo(() => {
-    return zodResolver(schema);
-  }, [schema]);
+  const resolver = useMemo(
+    () => zodResolver(z.object({ card: schema })),
+    [schema]
+  );
 
   const defaultValues = useMemo(
     () => ({
@@ -125,8 +126,11 @@ export const Card = forwardRef<Card, CardProps>(function Card(
         try {
           const payload = await formatPayload(values, {
             encrypt: evervault.encrypt,
-            form: methods,
-            schema,
+            errors: methods.formState.errors.card ?? {},
+            options: {
+              acceptedBrands,
+              allow3DigitAmexCVC,
+            },
           });
           if (signal.aborted) return;
           onChangeRef.current?.(payload);
@@ -139,7 +143,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     handleChange(methods.getValues());
     const subscription = methods.watch(handleChange);
     return () => subscription.unsubscribe();
-  }, [evervault.encrypt, schema, allow3DigitAmexCVC]);
+  }, [evervault.encrypt, acceptedBrands, allow3DigitAmexCVC]);
 
   useImperativeHandle(
     ref,
