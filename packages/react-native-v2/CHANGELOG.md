@@ -1,5 +1,13 @@
 # @evervault/react-native
 
+## 2.5.0
+
+### Minor Changes
+
+- 18e2bf6: - Support `failOnChallenge` option in `useThreeDSecure()`
+  - Support `failOnChallenge` option in `session.start()`
+  - Support `onRequestChallenge` callback in `session.start()`
+
 ## 2.4.0
 
 ### Minor Changes
