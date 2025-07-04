@@ -92,10 +92,12 @@ export function validateNumber(cardNumber: string): CardNumberValidationResult {
       return isLengthValid && isLuhnValid;
     });
 
+  const canShowBin = cardNumber.length > 5;
+
   return {
     brand: globalBrands.length > 0 ? globalBrands[0].name : null,
     localBrands: localBrands.map((brand) => brand.name),
-    bin: isValid ? getBin(cardNumber) : null,
+    bin: canShowBin ? getBin(cardNumber) : null,
     lastFour: isValid
       ? sanitizedCardNumber.substring(sanitizedCardNumber.length - 4)
       : null,
