@@ -13,6 +13,7 @@ import {
   ApplePayButtonStyle,
   ApplePayButtonType,
   ApplePayCardNetwork,
+  PaymentMethodUpdate,
   ShippingAddress,
 } from "./types";
 import { tryCatch } from "../../utilities";
@@ -29,7 +30,7 @@ export type ApplePayButtonOptions = {
   borderRadius?: string | number;
   size?: { width: string | number; height: string | number };
   allowedCardNetworks?: ApplePayCardNetwork[];
-  requestPayerDetails?: ("name" | "email" | "phone")[];
+  requestPayerDetails?: ("name" | "email" | "phone" | "postalAddress")[];
   requestBillingAddress?: boolean;
   requestShipping?: boolean;
   paymentOverrides?: {
@@ -39,6 +40,9 @@ export type ApplePayButtonOptions = {
   disbursementOverrides?: {
     disbursementDetails?: PaymentDetailsInit;
   };
+  onPaymentMethodChange?: (
+    newPaymentMethod: PaymentMethodUpdate
+  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   onShippingAddressChange?: (
     newAddress: ShippingAddress
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
@@ -118,6 +122,7 @@ export default class ApplePayButton {
       disbursementOverrides: this.#options.disbursementOverrides,
       requestBillingAddress: this.#options.requestBillingAddress,
       requestShipping: this.#options.requestShipping,
+      onPaymentMethodChange: this.#options.onPaymentMethodChange,
       onShippingAddressChange: this.#options.onShippingAddressChange,
       prepareTransaction: this.#options.prepareTransaction,
     });
