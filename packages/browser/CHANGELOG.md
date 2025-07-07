@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.47.0
+
+### Minor Changes
+
+- 4c34f72: Expose onPaymentMethodChange hook for Apple Pay
+
 ## 2.46.0
 
 ### Minor Changes

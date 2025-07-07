@@ -1,5 +1,11 @@
 # evervault-expo-example
 
+## 1.0.8
+
+### Patch Changes
+
+- @evervault/react-native@2.5.1
+
 ## 1.0.7
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @evervault/js
 
+## 2.3.0
+
+### Minor Changes
+
+- 4c34f72: Expose onPaymentMethodChange hook for Apple Pay
+- 3f9e24b: Expose BIN when input length > 5
+
 ## 2.2.0
 
 ### Minor Changes

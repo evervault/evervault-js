@@ -1,5 +1,11 @@
 # @evervault/card-validator
 
+## 1.5.0
+
+### Minor Changes
+
+- 3f9e24b: Expose BIN when input length > 5
+
 ## 1.4.0
 
 ### Minor Changes
