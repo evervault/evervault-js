@@ -13,13 +13,14 @@ import {
   ApplePayCardNetwork,
   ApplePayPaymentRequest,
   ShippingAddress,
+  PaymentMethodUpdate,
 } from "./types";
 import ApplePayButton from ".";
 
 type BuildSessionOptions = {
   transaction: TransactionDetailsWithDomain;
   allowedCardNetworks?: ApplePayCardNetwork[];
-  requestPayerDetails?: ("name" | "email" | "phone")[];
+  requestPayerDetails?: ("name" | "email" | "phone" | "postalAddress")[];
   requestBillingAddress?: boolean;
   requestShipping?: boolean;
   paymentOverrides?: {
@@ -29,6 +30,9 @@ type BuildSessionOptions = {
   disbursementOverrides?: {
     disbursementDetails?: PaymentDetailsInit;
   };
+  onPaymentMethodChange?: (
+    newPaymentMethod: PaymentMethodUpdate
+  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   onShippingAddressChange?: (
     newAddress: ShippingAddress
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
@@ -86,24 +90,34 @@ export async function buildSession(
       ); // Do not await this promise
       event.updateWith(updates);
     } else {
-      // If no handler is provided, just update with empty shipping options
       const update: PaymentDetailsUpdate = {};
       event.updateWith(update);
     }
   };
 
+  // @ts-expect-error - Apple Pay overrides PaymentRequest properties
+  baseRequest.onpaymentmethodchange = (event: PaymentMethodChangeEvent) => {
+    const target = event.methodDetails as PaymentMethodUpdate;
+
+    if (config.onPaymentMethodChange) {
+      const updates = updatePaymentMethod(target, config, tx, merchant);
+      return event.updateWith(updates);
+    }
+
+    return event.updateWith({});
+  };
+
   return baseRequest;
 }
 
-async function updatePaymentRequest(
-  newAddress: ShippingAddress,
-  config: BuildSessionOptions,
+async function createPaymentUpdate(
+  updatedTransactionConfig: {
+    amount: number;
+    lineItems?: TransactionLineItem[];
+  },
   tx: TransactionDetailsWithDomain,
   merchant: MerchantDetail
 ): Promise<PaymentDetailsUpdate> {
-  const updatedTransactionConfig = await config.onShippingAddressChange!(
-    newAddress
-  );
   const displayItems = (updatedTransactionConfig.lineItems ?? []).map(
     (item) => ({
       label: item.label,
@@ -120,11 +134,34 @@ async function updatePaymentRequest(
       value: (updatedTransactionConfig.amount / 100).toFixed(2),
     },
   };
-  const updates = {
+  return {
     displayItems,
     total,
   };
-  return updates;
+}
+
+async function updatePaymentRequest(
+  newAddress: ShippingAddress,
+  config: BuildSessionOptions,
+  tx: TransactionDetailsWithDomain,
+  merchant: MerchantDetail
+): Promise<PaymentDetailsUpdate> {
+  const updatedTransactionConfig = await config.onShippingAddressChange!(
+    newAddress
+  );
+  return createPaymentUpdate(updatedTransactionConfig, tx, merchant);
+}
+
+async function updatePaymentMethod(
+  newMethod: PaymentMethodUpdate,
+  config: BuildSessionOptions,
+  tx: TransactionDetailsWithDomain,
+  merchant: MerchantDetail
+): Promise<PaymentDetailsUpdate> {
+  const updatedTransactionConfig = await config.onPaymentMethodChange!(
+    newMethod
+  );
+  return createPaymentUpdate(updatedTransactionConfig, tx, merchant);
 }
 
 function buildPaymentSession(
@@ -169,6 +206,8 @@ function buildPaymentSession(
     requestBillingAddress: config.requestBillingAddress ?? false,
     requestPayerEmail: config.requestPayerDetails?.includes("email") ?? false,
     requestPayerPhone: config.requestPayerDetails?.includes("phone") ?? false,
+    requestPostalAddress:
+      config.requestPayerDetails?.includes("postalAddress") ?? false,
     requestShipping: config.requestShipping ?? false,
     shippingType: "shipping",
     onShippingAddressChange: config.onShippingAddressChange,
