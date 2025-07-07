@@ -102,6 +102,26 @@ export interface ShippingAddress {
   sortingCode: string;
 }
 
+export interface BillingContact {
+  addressLines?: string[];
+  administrativeArea?: string;
+  country?: string;
+  countryCode?: string;
+  familyName?: string;
+  givenName?: string;
+  locality?: string;
+  phoneticFamilyName?: string;
+  phoneticGivenName?: string;
+  postalCode?: string;
+  subAdministrativeArea?: string;
+  subLocality?: string;
+}
+
+export interface PaymentMethodUpdate {
+  type?: string;
+  billingContact?: BillingContact;
+}
+
 export interface ApplePayPaymentRequest extends PaymentRequest {
   onshippingaddresschange?: (event: PaymentRequestUpdateEvent) => void;
   onmerchantvalidation?: (event: OnMerchantValidationEvent) => void;
@@ -123,7 +143,7 @@ export interface ApplePayConfig {
   disbursementOverrides?: {
     disbursementDetails?: PaymentDetailsInit;
   };
-  requestPayerDetails?: ("name" | "email" | "phone")[];
+  requestPayerDetails?: ("name" | "email" | "phone" | "postalAddress")[];
 }
 
 export interface ValidateMerchantResponse {
