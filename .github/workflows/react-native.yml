@@ -22,7 +22,7 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
       - name: Build
-        run: pnpm examples:expo android
+        run: pnpm examples:expo ios
   build_android:
     name: Build Android Examples
     runs-on: macos-15
