@@ -1,0 +1,41 @@
+# Deploy packages to staging enviroments on push to master
+name: React Native Workflow
+on:
+  push:
+    paths:
+      - 'examples/react-*/**'
+      - 'packages/react-native*/**'
+      - '.github/**'
+jobs:
+  build_ios:
+    name: Build iOS Examples
+    runs-on: macos-15
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm examples:expo android
+  build_android:
+    name: Build Android Examples
+    runs-on: macos-15
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm examples:expo android
