@@ -21,7 +21,7 @@ android {
   namespace "com.nativeevervault"
 
   defaultConfig {
-    minSdkVersion safeExtGet('minSdkVersion', 24)
+    minSdkVersion safeExtGet('minSdkVersion', 26)
     targetSdkVersion safeExtGet('targetSdkVersion', 35)
   }
 }
@@ -33,6 +33,6 @@ repositories {
 
 dependencies {
   implementation 'com.facebook.react:react-native'
-  implementation 'com.evervault.sdk:evervault-inputs:2.0.0'
-  implementation 'com.evervault.sdk:evervault-core:2.0.0'
+  implementation("com.evervault.sdk:evervault-core:1.2")
+  implementation("com.evervault.sdk:evervault-inputs:2.0.0")
 }
