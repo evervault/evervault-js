@@ -29,10 +29,22 @@
         default = pkgs.mkShell {
           # The Nix packages provided in the environment
           packages = with pkgs; [
-            nodejs_22
+            nodejs_18 # Match CI and avoid unsupported engine warnings
             corepack_22 # Required for pnpm
+            cocoapods
           ];
-        };
+          
+          shellHook = ''
+            echo "[INFO] Using Node: $(node -v)"
+            export DEVELOPER_DIR="/Applications/Xcode.app/Contents/Developer"
+            export PATH="$DEVELOPER_DIR/usr/bin:$PATH"
+
+            if [[ "$system" == *darwin* ]]; then
+              export SDKROOT="$(xcrun --sdk iphoneos --show-sdk-path || true)"
+              echo "[INFO] Xcode SDK root: $SDKROOT"
+            fi
+          '';
+          };
       });
     };
 }
