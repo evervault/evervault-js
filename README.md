@@ -101,6 +101,18 @@ Merge the version PR that the changeset bot created to bump the version numbers.
 This will bump the versions of the packages and create a git tag for the release.
 This will trigger a workflow to deploy them to AWS and/or publish to NPM, and create a new release on GitHub.
 
+## React-Native Development
+
+Reference of commands (run from the root of this project):
+* `pnpm react-native codegen` rebuilds Android + iOS based on changes to those files
+* `pnpm react-native watch` starts a watch process for rebuilding the RN SDK
+* `pnpm react-native build` just builds the RN SDK
+* `pnpm react-native test` runs the unit test suite
+and for the Expo example
+* `pnpm examples:expo ios` rebuilds the iOS bundle
+* `pnpm examples:expo android` rebuilds the Android bundle
+* `pnpm examples:expo dev` starts up the Metro server
+
 ## Environments
 
 | Package             | Production                             | Staging                                |
