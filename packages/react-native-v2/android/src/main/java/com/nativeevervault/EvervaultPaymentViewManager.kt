@@ -7,6 +7,7 @@ import com.facebook.react.viewmanagers.EvervaultPaymentViewManagerInterface.Tran
 import com.facebook.react.uimanager.ViewManagerDelegate
 import com.facebook.react.viewmanagers.EvervaultPaymentViewManagerDelegate
 import com.facebook.react.fabric.FabricViewManager
+import com.nativeevervault.EvervaultPaymentView
 
 class EvervaultPaymentViewManager :
     FabricViewManager<EvervaultPaymentView>(),
