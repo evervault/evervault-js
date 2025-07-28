@@ -29,6 +29,7 @@
         default = pkgs.mkShell {
           # The Nix packages provided in the environment
           packages = with pkgs; [
+            openjdk17
             nodejs_18 # Match CI and avoid unsupported engine warnings
             corepack_22 # Required for pnpm
             cocoapods
@@ -37,11 +38,19 @@
           shellHook = ''
             echo "[INFO] Using Node: $(node -v)"
             export DEVELOPER_DIR="/Applications/Xcode.app/Contents/Developer"
+            # Use Xcode's toolchain
+            export DEVELOPER_DIR="/Applications/Xcode.app/Contents/Developer"
+            export PATH="$DEVELOPER_DIR/Toolchains/XcodeDefault.xctoolchain/usr/bin:$PATH"
             export PATH="$DEVELOPER_DIR/usr/bin:$PATH"
 
             if [[ "$system" == *darwin* ]]; then
+              export ANDROID_HOME="$HOME/Library/Android/sdk"
+              export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
+              echo "[INFO] ANDROID_HOME set to $ANDROID_HOME"
+
               export SDKROOT="$(xcrun --sdk iphoneos --show-sdk-path || true)"
               echo "[INFO] Xcode SDK root: $SDKROOT"
+              echo "[INFO] clang path: $(which clang)"
             fi
           '';
           };
