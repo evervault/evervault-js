@@ -1,9 +1,10 @@
+package com.nativeevervault
+
 import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.runtime.setContent
 import androidx.lifecycle.ViewModelProvider
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.uimanager.ThemedReactContext
@@ -11,6 +12,7 @@ import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.facebook.react.views.view.ReactViewGroup
 
 import com.evervault.googlepay.EvervaultPayViewModel
 import com.evervault.googlepay.EvervaultPayViewModelFactory
@@ -23,22 +25,25 @@ import com.evervault.googlepay.EvervaultPaymentButton
 import com.evervault.googlepay.EvervaultButtonTheme
 import com.evervault.googlepay.EvervaultButtonType
 
-class EvervaultPaymentView(context: ThemedReactContext) : ComposeView(context) {
+class EvervaultPaymentView(context: ThemedReactContext) : ReactViewGroup(context) {
     private var viewModel: EvervaultPayViewModel? = null
     private var config: Config? = null
     private var transaction: Transaction? = null
-    private var buttonType: EvervaultButtonType = EvervaultButtonType.PAY
-    private var buttonTheme: EvervaultButtonTheme = EvervaultButtonTheme.BLACK
+    private var buttonType: EvervaultButtonType = EvervaultButtonType.Pay
+    private var buttonTheme: EvervaultButtonTheme = EvervaultButtonTheme.Light
     private var borderRadius: Int = 4
     private var allowedAuthMethods: List<String> = listOf("PAN_ONLY", "CRYPTOGRAM_3DS")
     private var allowedCardNetworks: List<CardNetwork> = listOf(CardNetwork.VISA, CardNetwork.MASTERCARD)
+    
+    private val composeView: ComposeView = ComposeView(context)
 
     init {
+        addView(composeView)
         setupComposeView()
     }
 
     private fun setupComposeView() {
-        setContent {
+        composeView.setContent {
             // Only render the button if we have the required configuration
             if (viewModel != null && transaction != null) {
                 EvervaultPaymentButton(
@@ -50,7 +55,7 @@ class EvervaultPaymentView(context: ThemedReactContext) : ComposeView(context) {
                     allowedAuthMethods = allowedAuthMethods,
                     allowedCardNetworks = allowedCardNetworks,
                     modifier = Modifier.fillMaxWidth(),
-                    onSuccess = { 
+                    onSuccess = {
                         sendEvent("success", null)
                     },
                     onError = { error ->

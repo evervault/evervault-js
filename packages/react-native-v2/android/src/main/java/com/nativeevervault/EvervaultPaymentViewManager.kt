@@ -5,6 +5,7 @@ import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
+import com.nativeevervault.EvervaultPaymentView
 
 class EvervaultPaymentViewManager : SimpleViewManager<EvervaultPaymentView>() {
 
@@ -45,17 +46,6 @@ class EvervaultPaymentViewManager : SimpleViewManager<EvervaultPaymentView>() {
     @ReactProp(name = "borderRadius")
     fun setBorderRadius(view: EvervaultPaymentView, value: Int) {
         view.setBorderRadius(value)
-    }
-
-    @ReactProp(name = "allowedAuthMethods")
-    fun setAllowedAuthMethods(view: EvervaultPaymentView, value: ReadableArray?) {
-        if (value != null) {
-            val methods = mutableListOf<String>()
-            for (i in 0 until value.size()) {
-                methods.add(value.getString(i) ?: "")
-            }
-            view.setAllowedAuthMethods(methods)
-        }
     }
 
     @ReactProp(name = "allowedCardNetworks")
