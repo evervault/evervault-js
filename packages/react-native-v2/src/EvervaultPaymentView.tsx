@@ -6,32 +6,22 @@ import {
   ButtonType, 
   ButtonTheme, 
   AuthMethod, 
-  CardNetwork 
+  CardNetwork, 
+  NativeProps
 } from './EvervaultPaymentViewNativeComponent';
+import { WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
 
-interface EvervaultPaymentViewProps extends ViewProps {
-  config: Config;
-  transaction: Transaction;
-  buttonType?: ButtonType;
-  buttonTheme?: ButtonTheme;
-  borderRadius?: number;
-  allowedAuthMethods?: AuthMethod[];
-  allowedCardNetworks?: CardNetwork[];
-  onSuccess?: () => void;
-  onError?: (error: string) => void;
-  onCancel?: () => void;
-}
+type EvervaultPaymentViewProps = NativeProps;
 
 const NativeEvervaultPaymentView = requireNativeComponent('EvervaultPaymentView');
 
 export const EvervaultPaymentView: React.FC<EvervaultPaymentViewProps> = ({
   config,
   transaction,
-  buttonType = ButtonType.PAY,
-  buttonTheme = ButtonTheme.BLACK,
+  buttonType = 'pay',
+  buttonTheme = 'black',
   borderRadius = 4,
-  allowedAuthMethods = [AuthMethod.PAN_ONLY, AuthMethod.CRYPTOGRAM_3DS],
-  allowedCardNetworks = [CardNetwork.VISA, CardNetwork.MASTERCARD],
+  allowedCardNetworks = ['VISA', 'MASTERCARD'],
   onSuccess,
   onError,
   onCancel,
@@ -44,7 +34,6 @@ export const EvervaultPaymentView: React.FC<EvervaultPaymentViewProps> = ({
       buttonType={buttonType}
       buttonTheme={buttonTheme}
       borderRadius={borderRadius}
-      allowedAuthMethods={allowedAuthMethods}
       allowedCardNetworks={allowedCardNetworks}
       onSuccess={onSuccess}
       onError={onError}
@@ -61,4 +50,4 @@ export type {
   ButtonTheme,
   AuthMethod,
   CardNetwork
-}; 
+};
