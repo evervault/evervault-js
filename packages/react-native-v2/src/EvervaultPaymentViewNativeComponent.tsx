@@ -32,7 +32,7 @@ export interface NativeProps extends ViewProps {
   buttonType?: WithDefault<ButtonType, 'pay'>;
   buttonTheme?: WithDefault<ButtonTheme, 'white'>;
   borderRadius?: Double;
-  allowedCardNetworks?: WithDefault<CardNetwork[], '["VISA","MASTERCARD"]'>;
+  allowedCardNetworks: string;
   onSuccess?: DirectEventHandler<null>;
   onError?: DirectEventHandler<{ error: string }>;
   onCancel?: DirectEventHandler<null>;
