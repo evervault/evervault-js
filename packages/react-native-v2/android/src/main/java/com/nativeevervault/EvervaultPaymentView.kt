@@ -13,6 +13,7 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.views.view.ReactViewGroup
+import com.google.gson.Gson
 
 import com.evervault.googlepay.EvervaultPayViewModel
 import com.evervault.googlepay.EvervaultPayViewModelFactory
@@ -20,10 +21,12 @@ import com.evervault.googlepay.Config
 import com.evervault.googlepay.Transaction
 import com.evervault.googlepay.Amount
 import com.evervault.googlepay.LineItem
+import com.evervault.googlepay.CardAuthMethod
 import com.evervault.googlepay.CardNetwork
 import com.evervault.googlepay.EvervaultPaymentButton
 import com.evervault.googlepay.EvervaultButtonTheme
 import com.evervault.googlepay.EvervaultButtonType
+import com.evervault.googlepay.EvervaultConstants
 
 class EvervaultPaymentView(context: ThemedReactContext) : ReactViewGroup(context) {
     private var viewModel: EvervaultPayViewModel? = null
@@ -32,11 +35,11 @@ class EvervaultPaymentView(context: ThemedReactContext) : ReactViewGroup(context
     private var buttonType: EvervaultButtonType = EvervaultButtonType.Pay
     private var buttonTheme: EvervaultButtonTheme = EvervaultButtonTheme.Light
     private var borderRadius: Int = 4
-    private var allowedAuthMethods: List<String> = listOf("PAN_ONLY", "CRYPTOGRAM_3DS")
     private var allowedCardNetworks: List<CardNetwork> = listOf(CardNetwork.VISA, CardNetwork.MASTERCARD)
-    
-    private val composeView: ComposeView = ComposeView(context)
+    private var allowedAuthMethods: List<CardAuthMethod> = listOf(CardAuthMethod.PAN_ONLY, CardAuthMethod.CRYPTOGRAM_3DS)
 
+    private val composeView: ComposeView = ComposeView(context)
+    
     init {
         addView(composeView)
         setupComposeView()
@@ -45,28 +48,13 @@ class EvervaultPaymentView(context: ThemedReactContext) : ReactViewGroup(context
     private fun setupComposeView() {
         composeView.setContent {
             // Only render the button if we have the required configuration
-            if (viewModel != null && transaction != null) {
+            if (transaction != null && viewModel != null) {
                 EvervaultPaymentButton(
-                    viewModel = viewModel!!,
-                    transaction = transaction!!,
-                    type = buttonType,
-                    theme = buttonTheme,
-                    borderRadius = borderRadius,
-                    allowedAuthMethods = allowedAuthMethods,
-                    allowedCardNetworks = allowedCardNetworks,
                     modifier = Modifier.fillMaxWidth(),
-                    onSuccess = {
-                        sendEvent("success", null)
-                    },
-                    onError = { error ->
-                        val params = Arguments.createMap().apply {
-                            putString("error", error)
-                        }
-                        sendEvent("error", params)
-                    },
-                    onCancel = {
-                        sendEvent("cancel", null)
-                    }
+                    paymentRequest = transaction!!,
+                    model = viewModel!!,
+                    type = buttonType,
+                    theme = buttonTheme
                 )
             }
         }
@@ -82,11 +70,20 @@ class EvervaultPaymentView(context: ThemedReactContext) : ReactViewGroup(context
     fun setConfig(configMap: ReadableMap) {
         val appId = configMap.getString("appId")
         val merchantId = configMap.getString("merchantId")
-        
-        if (appId != null && merchantId != null) {
+        val allowedAuthMethods = Gson().fromJson(configMap.getString("allowedAuthMethods"), Array<String>::class.java)
+            .toList()
+            .map { authMethodFromString(it) }
+        val allowedCardNetworks = Gson().fromJson(configMap.getString("allowedCardNetworks"), Array<String>::class.java)
+            .toList()
+            .map { cardNetworkFromString(it) }
+
+        if (appId != null && merchantId != null && allowedAuthMethods != null && allowedCardNetworks != null) {
             config = Config(
                 appId = appId,
-                merchantId = merchantId
+                merchantId = merchantId,
+                environment = EvervaultConstants.ENVIRONMENT_PRODUCTION,
+                supportedNetworks = allowedCardNetworks,
+                supportedMethods = allowedAuthMethods
             )
             
             // Create the ViewModel with the new config
@@ -95,65 +92,59 @@ class EvervaultPaymentView(context: ThemedReactContext) : ReactViewGroup(context
     }
 
     fun setTransactionFromMap(transactionMap: ReadableMap) {
-        val amount = transactionMap.getDouble("amount")
-        val currency = transactionMap.getString("currency") ?: "USD"
-        val country = transactionMap.getString("country") ?: "US"
-        val merchantId = transactionMap.getString("merchantId")
+        val total = transactionMap.getString("total") ?: return
+        val currency = transactionMap.getString("currency") ?: return
+        val country = transactionMap.getString("country") ?: return
         
-        if (merchantId != null) {
-            val lineItems = mutableListOf<LineItem>()
-            
-            // Parse line items if present
-            if (transactionMap.hasKey("lineItems")) {
-                val lineItemsArray = transactionMap.getArray("lineItems")
-                for (i in 0 until lineItemsArray.size()) {
-                    val item = lineItemsArray.getMap(i)
-                    val itemAmount = item.getDouble("amount")
-                    val itemLabel = item.getString("label") ?: ""
-                    val itemQuantity = item.getInt("quantity")
-                    
-                    lineItems.add(
-                        LineItem(
-                            amount = Amount(itemAmount),
-                            label = itemLabel,
-                            quantity = itemQuantity
-                        )
+        val lineItems = mutableListOf<LineItem>()
+        
+        // Parse line items if present
+        if (transactionMap.hasKey("lineItems")) {
+            val lineItemsArray = transactionMap.getArray("lineItems")
+            for (i in 0 until (lineItemsArray?.size() ?: 0)) {
+                val item = lineItemsArray?.getMap(i) ?: continue
+                val itemAmount = item.getString("amount") ?: continue
+                val itemLabel = item.getString("label") ?: continue
+
+                lineItems.add(
+                    LineItem(
+                        label = itemLabel,
+                        amount = Amount(itemAmount)
                     )
-                }
+                )
             }
-            
-            transaction = Transaction(
-                amount = Amount(amount),
-                currency = currency,
-                country = country,
-                merchantId = merchantId,
-                lineItems = lineItems
-            )
-            
-            // Update the compose view
-            setupComposeView()
         }
+        
+        transaction = Transaction(
+            country = country,
+            currency = currency,
+            total = Amount(total),
+            lineItems = lineItems.toTypedArray()
+        )
+        
+        // Update the compose view
+        setupComposeView()
     }
 
     fun setButtonType(type: String) {
         buttonType = when (type.uppercase()) {
-            "PLAIN" -> EvervaultButtonType.PLAIN
-            "BOOK" -> EvervaultButtonType.BOOK
-            "BUY" -> EvervaultButtonType.BUY
-            "CHECKOUT" -> EvervaultButtonType.CHECKOUT
-            "ORDER" -> EvervaultButtonType.ORDER
-            "SUBSCRIBE" -> EvervaultButtonType.SUBSCRIBE
-            "PAY" -> EvervaultButtonType.PAY
-            else -> EvervaultButtonType.PAY
+            "PLAIN" -> EvervaultButtonType.Plain
+            "BOOK" -> EvervaultButtonType.Book
+            "BUY" -> EvervaultButtonType.Buy
+            "CHECKOUT" -> EvervaultButtonType.Checkout
+            "ORDER" -> EvervaultButtonType.Order
+            "SUBSCRIBE" -> EvervaultButtonType.Subscribe
+            "PAY" -> EvervaultButtonType.Pay
+            else -> EvervaultButtonType.Pay
         }
         setupComposeView()
     }
 
     fun setButtonTheme(theme: String) {
         buttonTheme = when (theme.uppercase()) {
-            "WHITE" -> EvervaultButtonTheme.WHITE
-            "BLACK" -> EvervaultButtonTheme.BLACK
-            else -> EvervaultButtonTheme.BLACK
+            "LIGHT" -> EvervaultButtonTheme.Light
+            "DARK" -> EvervaultButtonTheme.Dark
+            else -> EvervaultButtonTheme.Dark
         }
         setupComposeView()
     }
@@ -164,28 +155,41 @@ class EvervaultPaymentView(context: ThemedReactContext) : ReactViewGroup(context
     }
 
     fun setAllowedAuthMethods(methods: List<String>) {
-        allowedAuthMethods = methods
+        allowedAuthMethods = methods.map { method ->
+            authMethodFromString(method)
+        }
         setupComposeView()
+    }
+
+    private fun authMethodFromString(method: String): CardAuthMethod {
+        return when (method.uppercase()) {
+            "PAN_ONLY" -> CardAuthMethod.PAN_ONLY
+            "CRYPTOGRAM_3DS" -> CardAuthMethod.CRYPTOGRAM_3DS
+            else -> CardAuthMethod.PAN_ONLY
+        }
+    }
+
+    private fun cardNetworkFromString(network: String): CardNetwork {
+        return when (network.uppercase()) {
+            "VISA" -> CardNetwork.VISA
+            "MASTERCARD" -> CardNetwork.MASTERCARD
+            "AMEX" -> CardNetwork.AMEX
+            "DISCOVER" -> CardNetwork.DISCOVER
+            "JCB" -> CardNetwork.JCB
+            else -> CardNetwork.VISA
+        }
     }
 
     fun setAllowedCardNetworks(networks: List<String>) {
         allowedCardNetworks = networks.map { network ->
-            when (network.uppercase()) {
-                "VISA" -> CardNetwork.VISA
-                "MASTERCARD" -> CardNetwork.MASTERCARD
-                "AMEX" -> CardNetwork.AMEX
-                "DISCOVER" -> CardNetwork.DISCOVER
-                "JCB" -> CardNetwork.JCB
-                "INTERAC" -> CardNetwork.INTERAC
-                else -> CardNetwork.VISA
-            }
+            cardNetworkFromString(network)
         }
         setupComposeView()
     }
 
     private fun createViewModel() {
         if (config != null) {
-            val activity = context.currentActivity as? ComponentActivity
+            val activity = (context as? ReactContext)?.currentActivity as? ComponentActivity
             if (activity != null) {
                 val factory = EvervaultPayViewModelFactory(activity.application, config!!)
                 viewModel = ViewModelProvider(activity, factory)[EvervaultPayViewModel::class.java]

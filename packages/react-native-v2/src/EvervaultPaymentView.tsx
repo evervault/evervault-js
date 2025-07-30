@@ -11,7 +11,14 @@ import {
 } from './EvervaultPaymentViewNativeComponent';
 import { WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
 
-type EvervaultPaymentViewProps = NativeProps;
+type EvervaultPaymentViewProps = {
+  config: Config;
+  transaction: Transaction;
+  buttonType?: WithDefault<ButtonType, 'pay'>;
+  buttonTheme?: WithDefault<ButtonTheme, 'white'>;
+  borderRadius?: number;
+  allowedCardNetworks?: CardNetwork[];
+};
 
 const NativeEvervaultPaymentView = requireNativeComponent('EvervaultPaymentView');
 
@@ -22,9 +29,6 @@ export const EvervaultPaymentView: React.FC<EvervaultPaymentViewProps> = ({
   buttonTheme = 'black',
   borderRadius = 4,
   allowedCardNetworks = ['VISA', 'MASTERCARD'],
-  onSuccess,
-  onError,
-  onCancel,
   ...props
 }) => {
   return (
@@ -34,10 +38,7 @@ export const EvervaultPaymentView: React.FC<EvervaultPaymentViewProps> = ({
       buttonType={buttonType}
       buttonTheme={buttonTheme}
       borderRadius={borderRadius}
-      allowedCardNetworks={allowedCardNetworks}
-      onSuccess={onSuccess}
-      onError={onError}
-      onCancel={onCancel}
+      allowedCardNetworks={JSON.stringify(allowedCardNetworks)}
       {...props}
     />
   );
