@@ -6,7 +6,6 @@ import { GooglePayConfig } from "./types";
 import { useMessaging } from "../utilities/useMessaging";
 import { GooglePayClientMessages, GooglePayHostMessages } from "types";
 import { useSearchParams } from "../utilities/useSearchParams";
-import { apiConfig } from "../utilities/config";
 import { getMerchant } from "../utilities/useMerchant";
 
 interface GooglePayProps {
@@ -39,7 +38,7 @@ export function GooglePay({ config }: GooglePayProps) {
 
     async function onLoad() {
       const paymentsClient = new google.payments.api.PaymentsClient({
-        environment: config.environment ?? apiConfig.googlePayEnvironment,
+        environment: config.environment ?? "PRODUCTION",
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
             const payload = await exchangePaymentData(

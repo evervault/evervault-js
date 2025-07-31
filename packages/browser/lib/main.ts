@@ -58,6 +58,8 @@ export default class EvervaultClient {
   #cryptoPromise: Promise<CoreCrypto>;
   ui: UIComponents;
 
+  isSandbox?: boolean;
+
   /**
    * The SDK constructor accepts two parameters:
    * - Your Team ID
@@ -80,8 +82,7 @@ export default class EvervaultClient {
       teamId,
       appId,
       customConfig?.urls,
-      customConfig?.publicKey,
-      customConfig?.appKey?.isSandbox
+      customConfig?.publicKey
     );
 
     const context = getContext(
@@ -159,6 +160,7 @@ export default class EvervaultClient {
       appKey = appPublicKey;
     } else {
       appKey = await this.http.getCageKey();
+      this.isSandbox = appKey.isSandbox;
     }
 
     const keyPair = await window.crypto.subtle.generateKey(

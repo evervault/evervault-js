@@ -84,15 +84,13 @@ export interface Config {
   input: InputConfig;
   components: ComponentsConfig;
   debugKey: typeof debugKey;
-  isSandbox?: boolean;
 }
 
 export default function Config(
   teamId: string,
   appId: string,
   customUrls?: ConfigUrls,
-  publicKey?: string,
-  isSandbox?: boolean
+  publicKey?: string
 ): Config {
   return {
     teamId,
@@ -115,7 +113,6 @@ export default function Config(
       ),
     },
     debugKey,
-    isSandbox,
   };
 }
 
