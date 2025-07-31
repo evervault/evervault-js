@@ -50,6 +50,7 @@ export default function Http(
 
       return {
         ...body,
+        isSandbox: true,
         isDebugMode: headers.get("X-Evervault-Inputs-Debug-Mode") === "true",
       };
     } catch (err) {

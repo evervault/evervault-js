@@ -37,6 +37,7 @@ export function GooglePay({ config }: GooglePayProps) {
     called.current = true;
 
     async function onLoad() {
+      console.log("config.environment", config.environment);
       const paymentsClient = new google.payments.api.PaymentsClient({
         environment: config.environment ?? "PRODUCTION",
         paymentDataCallbacks: {

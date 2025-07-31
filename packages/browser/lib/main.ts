@@ -159,8 +159,10 @@ export default class EvervaultClient {
     } else if (appPublicKey) {
       appKey = appPublicKey;
     } else {
+      console.log("loading cage key");
       appKey = await this.http.getCageKey();
       this.isSandbox = appKey.isSandbox;
+      console.log("loaded cage key", this.isSandbox);
     }
 
     const keyPair = await window.crypto.subtle.generateKey(

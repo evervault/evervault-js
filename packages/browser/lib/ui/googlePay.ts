@@ -23,14 +23,14 @@ export default class GooglePay {
   #options: GooglePayOptions;
   #frame: EvervaultFrame<GooglePayClientMessages, GooglePayHostMessages>;
   #events = new EventManager<GooglePayEvents>();
-  #isSandbox?: boolean;
+  private client: EvervaultClient;
 
   constructor(
     client: EvervaultClient,
     transaction: Transaction,
     options: GooglePayOptions
   ) {
-    this.#isSandbox = client.isSandbox;
+    this.client = client;
     this.#options = options;
     this.#transaction = transaction;
     this.#frame = new EvervaultFrame(client, "GooglePay", {
@@ -90,7 +90,7 @@ export default class GooglePay {
         allowedAuthMethods: this.#options.allowedAuthMethods,
         allowedCardNetworks: this.#options.allowedCardNetworks,
         billingAddress: this.#options.billingAddress,
-        environment: this.#isSandbox ? "TEST" : "PRODUCTION",
+        environment: this.client.isSandbox === undefined ? undefined : this.client.isSandbox ? "TEST" : "PRODUCTION",
       },
     };
   }
