@@ -114,6 +114,11 @@ export interface CardOptions {
     expiry?: boolean;
     cvc?: boolean;
   };
+  validation?: {
+    name?: {
+      regex?: RegExp;
+    };
+  };
 }
 
 export interface FormOptions {
