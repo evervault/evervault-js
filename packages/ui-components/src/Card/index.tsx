@@ -71,7 +71,7 @@ export function Card({ config }: { config: CardConfig }) {
         // Check custom regex validation if provided
         if (config.validation?.name?.regex) {
           if (!config.validation.name.regex.test(values.name)) {
-            return "invalid";
+            return "regex";
           }
         }
 
