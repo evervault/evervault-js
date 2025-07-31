@@ -80,7 +80,8 @@ export default class EvervaultClient {
       teamId,
       appId,
       customConfig?.urls,
-      customConfig?.publicKey
+      customConfig?.publicKey,
+      customConfig?.appKey?.isSandbox
     );
 
     const context = getContext(

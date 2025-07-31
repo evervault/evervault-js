@@ -8,6 +8,7 @@ export interface CageKey {
   ecdhKey: string;
   ecdhP256Key: string;
   ecdhP256KeyUncompressed: string;
+  isSandbox: boolean;
   isDebugMode: boolean;
 }
 

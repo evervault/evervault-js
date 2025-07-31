@@ -39,7 +39,7 @@ export function GooglePay({ config }: GooglePayProps) {
 
     async function onLoad() {
       const paymentsClient = new google.payments.api.PaymentsClient({
-        environment: apiConfig.googlePayEnvironment,
+        environment: config.environment,
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
             const payload = await exchangePaymentData(
