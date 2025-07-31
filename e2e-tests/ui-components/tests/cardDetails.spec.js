@@ -921,6 +921,26 @@ test.describe("card component", () => {
     await expect.poll(async () => values.isComplete).toBeTruthy();
     await expect.poll(async () => values.isValid).toBeTruthy();
   });
+
+  test("Can add custom validation for the name field", async ({ page }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card({
+        fields: ["name", "number", "expiry", "cvc"],
+        validation: {
+          name: {
+            regex: /^[^0-9]+$/,
+          },
+        },
+      });
+
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Card Holder").fill("Test Person 123");
+    await frame.getByLabel("Card Holder").blur();
+    await expect(frame.getByText("Please enter a valid name")).toBeVisible();
+  });
 });
 
 async function decrypt(payload) {
