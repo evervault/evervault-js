@@ -13,32 +13,35 @@ const evervault = await loadEvervault(
   }
 );
 
-const transaction = evervault.transactions.create({
-  amount: 1000,
-  currency: "USD",
-  country: "US",
-  merchantId: import.meta.env.VITE_MERCHANT_ID,
-  lineItems: [{ label: "Product", amount: 1000 }],
+const card = evervault.ui.card({
+  icons: true,
+  theme: evervault.ui.themes.clean(),
+  autoProgress: true,
 });
 
-const google = evervault.ui.googlePay(transaction, {
-  type: "pay",
-  locale: "en",
-  size: { width: "100%", height: "80px" },
-  borderRadius: 10,
-  allowedCardNetworks: ["VISA", "MASTERCARD"], 
-  process: async (data, {}) => {
-    console.log("Google Pay data", data);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-  },
+card.on("change", (values) => {
+  console.log("Change", values);
 });
 
-google.on("success", (data) => {
-  console.log("Google Pay success", data);
-});
+card.mount("#form");
 
-google.on("error", (error) => {
-  console.log("Google Pay error", error);
-});
+const btn = document.getElementById("purchase");
+const output = document.getElementById("output");
 
-google.mount("#form");
+btn?.addEventListener("click", () => {
+  if (!output) return;
+  output.innerText = "";
+  card.validate();
+
+  if (card.values.isComplete) {
+    console.log("Valid!", card.values);
+    const { number, expiry, cvc } = card.values.card;
+    output.innerHTML += "Thank you for your purchase! <br /><br />";
+    output.innerHTML += `Your card number is ${number} <br /><br />`;
+    output.innerHTML += `Your card expiry is ${expiry.month}/${expiry.year} <br /><br />`;
+    output.innerHTML += `Your card cvc is ${cvc}`;
+  } else {
+    console.log("Invalid!", card.values);
+    output.innerText = "Please enter valid card details";
+  }
+});
