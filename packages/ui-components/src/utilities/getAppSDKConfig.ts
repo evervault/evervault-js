@@ -9,21 +9,22 @@ export function getDefaultAppSDKConfig(): AppSDKConfig {
 }
 
 export async function getAppSDKConfig(app: string): Promise<AppSDKConfig> {
-  const response = await fetch(`${API}/frontend/sdk/config`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Evervault-App-Id": app,
-    },
-  });
+  try {
+    const response = await fetch(`${API}/frontend/sdk/config`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Evervault-App-Id": app,
+      },
+    });
 
-  if (!response.ok) {
-    console.error(
-      `Failed to fetch app SDK config details for ${app}`,
-      response.status
-    );
-    return getDefaultAppSDKConfig();
+    if (response.ok) {
+      return response.json() as Promise<AppSDKConfig>;
+    }
+
+    console.error(`Failed to fetch app SDK config details for ${app}`);
+  } catch (error) {
+    console.error(`Failed to fetch app SDK config details for ${app}`, error);
   }
-
-  return response.json() as Promise<AppSDKConfig>;
+  return getDefaultAppSDKConfig();
 }
