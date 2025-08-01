@@ -531,6 +531,19 @@ importers:
         specifier: ^5.3.3
         version: 5.7.3
 
+  examples/google-pay:
+    dependencies:
+      '@evervault/js':
+        specifier: workspace:*
+        version: link:../../packages/js
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 5.5.4
+      vite:
+        specifier: 'catalog:'
+        version: 5.4.11(@types/node@22.10.7)(lightningcss@1.27.0)(terser@5.39.0)
+
   examples/next-3ds:
     dependencies:
       '@evervault/react':

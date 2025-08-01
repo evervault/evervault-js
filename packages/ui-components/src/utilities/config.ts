@@ -6,10 +6,6 @@ const environment: Environment =
 
 const isProduction = environment === "production";
 
-const googlePayEnvironment: google.payments.api.Environment = isProduction
-  ? "PRODUCTION"
-  : "TEST";
-
 const apiUrl: string = isProduction
   ? "https://api.evervault.com"
   : import.meta.env.VITE_API_URL ?? "https://api.evervault.io";
@@ -23,7 +19,6 @@ const GOOGLE_PAY_MERCHANT_ID: string | undefined = import.meta.env
 
 const apiConfig = {
   environment,
-  googlePayEnvironment,
   apiUrl,
   keysUrl,
   googlePayMerchantId: GOOGLE_PAY_MERCHANT_ID,

@@ -6,8 +6,8 @@ import { GooglePayConfig } from "./types";
 import { useMessaging } from "../utilities/useMessaging";
 import { GooglePayClientMessages, GooglePayHostMessages } from "types";
 import { useSearchParams } from "../utilities/useSearchParams";
-import { apiConfig } from "../utilities/config";
 import { getMerchant } from "../utilities/useMerchant";
+import { getAppSDKConfig } from "../utilities/getAppSDKConfig";
 
 interface GooglePayProps {
   config: GooglePayConfig;
@@ -38,8 +38,9 @@ export function GooglePay({ config }: GooglePayProps) {
     called.current = true;
 
     async function onLoad() {
+      const appConfig = await getAppSDKConfig(app);
       const paymentsClient = new google.payments.api.PaymentsClient({
-        environment: apiConfig.googlePayEnvironment,
+        environment: appConfig.isSandbox ? "TEST" : "PRODUCTION",
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
             const payload = await exchangePaymentData(

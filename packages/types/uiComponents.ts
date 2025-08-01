@@ -495,7 +495,6 @@ export interface ApplePayOptions {
   borderRadius?: number;
   size?: { width: WalletDimension; height: WalletDimension };
   allowedCardNetworks?: ApplePayCardNetwork[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   paymentOverrides?: {
     paymentMethodData?: PaymentMethodData[];
     paymentDetails?: PaymentDetailsInit;
@@ -583,4 +582,8 @@ export interface ApplePayToken {
 export interface MerchantDetail {
   id: string;
   name: string;
+}
+
+export interface AppSDKConfig {
+  isSandbox: boolean;
 }
