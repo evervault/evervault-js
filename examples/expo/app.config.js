@@ -62,6 +62,22 @@ module.exports = {
           backgroundColor: "#ffffff",
         },
       ],
+      [
+        // Customize build properties here:
+        // https://docs.expo.dev/versions/latest/sdk/build-properties/
+        'expo-build-properties',
+        {
+          android: {
+            minSdkVersion: 26,
+          },
+        },
+      ],
+      ["./plugins/addSPMDependenciesToMainTarget.js", {
+        "version": "da5e13cadb0db4b63dcedc4f4504058af85d7b09",
+        "repositoryUrl": "https://github.com/evervault/evervault-pay",
+        "repoName": "evervault-pay",
+        "productName": "EvervaultPay"
+      }],
       ...plugins,
     ],
   },
