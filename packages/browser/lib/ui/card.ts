@@ -114,6 +114,7 @@ export default class Card {
         autoProgress: this.#options.autoProgress,
         redactCVC: this.#options.redactCVC,
         allow3DigitAmexCVC: this.#options.allow3DigitAmexCVC,
+        validation: this.#options.validation,
       },
     };
   }

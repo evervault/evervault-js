@@ -34,6 +34,7 @@ export interface CardProps {
   onKeyDown?: (event: FieldEvent) => void;
   redactCVC?: boolean;
   allow3DigitAmexCVC?: boolean;
+  validation?: CardOptions["validation"];
 }
 
 export function Card({
@@ -57,6 +58,7 @@ export function Card({
   defaultValues,
   redactCVC,
   allow3DigitAmexCVC,
+  validation,
 }: CardProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -73,6 +75,7 @@ export function Card({
       defaultValues,
       redactCVC,
       allow3DigitAmexCVC,
+      validation,
     }),
     [
       theme,
@@ -86,6 +89,7 @@ export function Card({
       defaultValues,
       redactCVC,
       allow3DigitAmexCVC,
+      validation,
     ]
   );
 
