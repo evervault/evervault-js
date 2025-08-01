@@ -583,3 +583,7 @@ export interface MerchantDetail {
   id: string;
   name: string;
 }
+
+export interface AppSDKConfig {
+  isSandbox: boolean;
+}

@@ -8,7 +8,6 @@ export interface CageKey {
   ecdhKey: string;
   ecdhP256Key: string;
   ecdhP256KeyUncompressed: string;
-  isSandbox: boolean;
   isDebugMode: boolean;
 }
 
@@ -50,7 +49,6 @@ export default function Http(
 
       return {
         ...body,
-        isSandbox: true,
         isDebugMode: headers.get("X-Evervault-Inputs-Debug-Mode") === "true",
       };
     } catch (err) {
