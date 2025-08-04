@@ -4,15 +4,13 @@ import type { DirectEventHandler, Double, WithDefault } from 'react-native/Libra
 
 export type LineItem = {
   label: string;
-  amount: Double;
-  quantity: Double;
+  amount: string;
 };
 
 export type Transaction = {
-  amount: Double;
+  total: string;
   currency: string;
   country: string;
-  merchantId: string;
   lineItems?: LineItem[];
 };
 
@@ -22,20 +20,39 @@ export type Config = {
 };
 
 export type ButtonType = 'plain' | 'book' | 'buy' | 'checkout' | 'order' | 'subscribe' | 'pay';
-export type ButtonTheme = 'white' | 'black';
+export type ButtonTheme = 'light' | 'dark' | 'automatic';
 export type AuthMethod = 'PAN_ONLY' | 'CRYPTOGRAM_3DS';
-export type CardNetwork = 'VISA' | 'MASTERCARD' | 'AMEX' | 'DISCOVER' | 'JCB' | 'INTERAC';
+export type CardNetwork = 'VISA' | 'MASTERCARD' | 'AMEX' | 'DISCOVER' | 'JCB';
 
 export interface NativeProps extends ViewProps {
   config: Config;
   transaction: Transaction;
   buttonType?: WithDefault<ButtonType, 'pay'>;
-  buttonTheme?: WithDefault<ButtonTheme, 'white'>;
+  buttonTheme?: WithDefault<ButtonTheme, 'automatic'>;
   borderRadius?: Double;
-  allowedCardNetworks: string;
-  onSuccess?: DirectEventHandler<null>;
-  onError?: DirectEventHandler<{ error: string }>;
-  onCancel?: DirectEventHandler<null>;
+  allowedCardNetworks?: CardNetwork[];
+  onDidAuthorizePayment?: DirectEventHandler<{
+    networkToken: {
+      number: string;
+      expiry: { month: string; year: string };
+      rawExpiry: string;
+      tokenServiceProvider: string;
+    };
+    card: {
+      brand?: string;
+      funding?: string;
+      segment?: string;
+      country?: string;
+      currency?: string;
+      issuer?: string;
+    };
+    cryptogram: string;
+    eci?: string;
+    paymentDataType: string;
+    deviceManufacturerIdentifier: string;
+  }>;
+  onDidFinishWithResult?: DirectEventHandler<{ success: boolean; error?: string }>;
+  onPrepareTransaction?: DirectEventHandler<null>;
 }
 
 export default codegenNativeComponent<NativeProps>(

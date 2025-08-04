@@ -15,9 +15,12 @@ type EvervaultPaymentViewProps = {
   config: Config;
   transaction: Transaction;
   buttonType?: WithDefault<ButtonType, 'pay'>;
-  buttonTheme?: WithDefault<ButtonTheme, 'white'>;
+  buttonTheme?: WithDefault<ButtonTheme, 'automatic'>;
   borderRadius?: number;
   allowedCardNetworks?: CardNetwork[];
+  onDidAuthorizePayment?: (data: any) => void;
+  onDidFinishWithResult?: (data: { success: boolean; error?: string }) => void;
+  onPrepareTransaction?: () => void;
 };
 
 const NativeEvervaultPaymentView = requireNativeComponent('EvervaultPaymentView');
@@ -26,9 +29,12 @@ export const EvervaultPaymentView: React.FC<EvervaultPaymentViewProps> = ({
   config,
   transaction,
   buttonType = 'pay',
-  buttonTheme = 'black',
+  buttonTheme = 'automatic',
   borderRadius = 4,
   allowedCardNetworks = ['VISA', 'MASTERCARD'],
+  onDidAuthorizePayment,
+  onDidFinishWithResult,
+  onPrepareTransaction,
   ...props
 }) => {
   return (
@@ -38,7 +44,10 @@ export const EvervaultPaymentView: React.FC<EvervaultPaymentViewProps> = ({
       buttonType={buttonType}
       buttonTheme={buttonTheme}
       borderRadius={borderRadius}
-      allowedCardNetworks={JSON.stringify(allowedCardNetworks)}
+      allowedCardNetworks={allowedCardNetworks}
+      onDidAuthorizePayment={onDidAuthorizePayment}
+      onDidFinishWithResult={onDidFinishWithResult}
+      onPrepareTransaction={onPrepareTransaction}
       {...props}
     />
   );
