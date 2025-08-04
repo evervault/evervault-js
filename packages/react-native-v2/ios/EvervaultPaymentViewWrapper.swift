@@ -13,11 +13,7 @@ class EvervaultPaymentViewWrapper: UIView {
     private var buttonStyle: ButtonStyle = .automatic
     private var borderRadius: CGFloat = 4.0
     private var allowedCardNetworks: [Network] = [.visa, .masterCard]
-    
-    private var reactContext: RCTBridge? {
-        return (superview as? RCTView)?.bridge ?? (superview?.superview as? RCTView)?.bridge
-    }
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
@@ -140,9 +136,15 @@ class EvervaultPaymentViewWrapper: UIView {
         paymentView?.layer.cornerRadius = borderRadius
     }
     
-    @objc func setAllowedCardNetworks(_ networks: NSArray) {
-        allowedCardNetworks = networks.compactMap { network in
-            parseCardNetwork(network as? String ?? "")
+    @objc func setAllowedCardNetworks(_ networksJson: NSString) {
+        if let data = networksJson.data(using: String.Encoding.utf8.rawValue),
+           let networks = try? JSONSerialization.jsonObject(with: data, options: []) as? [String] {
+            allowedCardNetworks = networks.compactMap { network in
+                parseCardNetwork(network)
+            }
+        } else {
+            // Fallback to default networks if JSON parsing fails
+            allowedCardNetworks = [.visa, .masterCard]
         }
         createPaymentView()
     }
@@ -178,12 +180,6 @@ class EvervaultPaymentViewWrapper: UIView {
         default: return nil
         }
     }
-    
-    private func sendEvent(_ eventName: String, params: [String: Any]? = nil) {
-        // For now, we'll use a simpler approach that works with the current setup
-        // The event will be handled by the React Native bridge
-        print("EvervaultPaymentView:\(eventName) - \(params ?? [:])")
-    }
 }
 
 extension EvervaultPaymentViewWrapper: EvervaultPaymentViewDelegate {
@@ -211,24 +207,34 @@ extension EvervaultPaymentViewWrapper: EvervaultPaymentViewDelegate {
             "paymentDataType": result?.paymentDataType ?? "",
             "deviceManufacturerIdentifier": result?.deviceManufacturerIdentifier ?? ""
         ]
-        
-        sendEvent("didAuthorizePayment", params: responseData)
+
+//        self.bridge.sendEvent("didAuthorizePayment", params: responseData)
     }
     
     func evervaultPaymentView(_ view: EvervaultPaymentView, didFinishWithResult result: Result<Void, EvervaultError>) {
-        switch result {
-        case .success:
-            sendEvent("didFinishWithResult", params: ["success": true])
-        case .failure(let error):
-            sendEvent("didFinishWithResult", params: [
-                "success": false,
-                "error": error.localizedDescription
-            ])
-        }
+//        switch result {
+//        case .success:
+//            sendEvent("didFinishWithResult", params: ["success": true])
+//        case .failure(let error):
+//            sendEvent("didFinishWithResult", params: [
+//                "success": false,
+//                "error": error.localizedDescription
+//            ])
+//        }
     }
     
     func evervaultPaymentView(_ view: EvervaultPaymentView, prepareTransaction transaction: inout Transaction) {
         // Allow React Native to modify the transaction if needed
-        sendEvent("prepareTransaction")
+//        sendEvent("prepareTransaction")
+    }
+    
+    func evervaultPaymentView(_ view: EvervaultPaymentView, didSelectShippingContact contact: PKContact) async -> PKPaymentRequestShippingContactUpdate? {
+        // For now, return nil to use default behavior
+        return nil
+    }
+    
+    func evervaultPaymentView(_ view: EvervaultPaymentView, didUpdatePaymentMethod paymentMethod: PKPaymentMethod) async -> PKPaymentRequestPaymentMethodUpdate? {
+        // For now, return nil to use default behavior
+        return nil
     }
 }

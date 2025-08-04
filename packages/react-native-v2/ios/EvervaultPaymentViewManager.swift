@@ -34,7 +34,7 @@ class EvervaultPaymentViewManager: RCTViewManager {
         view.setBorderRadius(borderRadius)
     }
     
-    @objc func setAllowedCardNetworks(_ view: EvervaultPaymentViewWrapper, networks: NSArray) {
+    @objc func setAllowedCardNetworks(_ view: EvervaultPaymentViewWrapper, networks: NSString) {
         view.setAllowedCardNetworks(networks)
     }
 } 

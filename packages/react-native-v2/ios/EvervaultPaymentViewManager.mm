@@ -7,6 +7,6 @@ RCT_EXPORT_VIEW_PROPERTY(transaction, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(buttonType, NSString)
 RCT_EXPORT_VIEW_PROPERTY(buttonTheme, NSString)
 RCT_EXPORT_VIEW_PROPERTY(borderRadius, NSNumber)
-RCT_EXPORT_VIEW_PROPERTY(allowedCardNetworks, NSArray)
+RCT_EXPORT_VIEW_PROPERTY(allowedCardNetworks, NSString)
 
 @end 

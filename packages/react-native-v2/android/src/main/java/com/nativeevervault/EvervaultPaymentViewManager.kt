@@ -49,13 +49,19 @@ class EvervaultPaymentViewManager : SimpleViewManager<EvervaultPaymentView>() {
     }
 
     @ReactProp(name = "allowedCardNetworks")
-    fun setAllowedCardNetworks(view: EvervaultPaymentView, value: ReadableArray?) {
+    fun setAllowedCardNetworks(view: EvervaultPaymentView, value: String?) {
         if (value != null) {
-            val networks = mutableListOf<String>()
-            for (i in 0 until value.size()) {
-                networks.add(value.getString(i) ?: "")
+            try {
+                val networks = mutableListOf<String>()
+                val jsonArray = org.json.JSONArray(value)
+                for (i in 0 until jsonArray.length()) {
+                    networks.add(jsonArray.getString(i))
+                }
+                view.setAllowedCardNetworks(networks)
+            } catch (e: Exception) {
+                // Fallback to default networks if JSON parsing fails
+                view.setAllowedCardNetworks(listOf("VISA", "MASTERCARD"))
             }
-            view.setAllowedCardNetworks(networks)
         }
     }
 }
