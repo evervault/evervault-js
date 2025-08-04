@@ -72,12 +72,6 @@ module.exports = {
           },
         },
       ],
-      ["./plugins/addSPMDependenciesToMainTarget.js", {
-        "version": "da5e13cadb0db4b63dcedc4f4504058af85d7b09",
-        "repositoryUrl": "https://github.com/evervault/evervault-pay",
-        "repoName": "evervault-pay",
-        "productName": "EvervaultPay"
-      }],
       ...plugins,
     ],
   },

@@ -17,11 +17,6 @@ Pod::Spec.new do |s|
 
   install_modules_dependencies(s)
   s.dependency "Evervault", '~> 0.3.2'
-  
-  spm_dependency(s,
-    url: 'https://github.com/evervault/evervault-pay',
-    requirement: {commit: 'main'},
-    products: ['EvervaultPay']
-  )
+  s.dependency "EvervaultPayment"
 
 end
