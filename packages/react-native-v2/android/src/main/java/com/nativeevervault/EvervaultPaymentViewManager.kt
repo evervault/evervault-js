@@ -42,26 +42,4 @@ class EvervaultPaymentViewManager : SimpleViewManager<EvervaultPaymentView>() {
             view.setButtonTheme(value)
         }
     }
-
-    @ReactProp(name = "borderRadius")
-    fun setBorderRadius(view: EvervaultPaymentView, value: Int) {
-        view.setBorderRadius(value)
-    }
-
-    @ReactProp(name = "allowedCardNetworks")
-    fun setAllowedCardNetworks(view: EvervaultPaymentView, value: String?) {
-        if (value != null) {
-            try {
-                val networks = mutableListOf<String>()
-                val jsonArray = org.json.JSONArray(value)
-                for (i in 0 until jsonArray.length()) {
-                    networks.add(jsonArray.getString(i))
-                }
-                view.setAllowedCardNetworks(networks)
-            } catch (e: Exception) {
-                // Fallback to default networks if JSON parsing fails
-                view.setAllowedCardNetworks(listOf("VISA", "MASTERCARD"))
-            }
-        }
-    }
 }

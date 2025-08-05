@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { EvervaultPaymentView, Config, Transaction } from './EvervaultPaymentView';
+import { EvervaultPaymentView, Config, Transaction } from './EvervaultPaymentView.android';
 
 const ExampleUsage: React.FC = () => {
   const config: Config = {

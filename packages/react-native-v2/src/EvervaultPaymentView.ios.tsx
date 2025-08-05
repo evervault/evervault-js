@@ -8,7 +8,7 @@ import {
   AuthMethod, 
   CardNetwork, 
   NativeProps
-} from './EvervaultPaymentViewNativeComponent';
+} from './EvervaultPaymentViewNativeComponent.ios';
 import { WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
 
 type EvervaultPaymentViewProps = {
@@ -16,7 +16,6 @@ type EvervaultPaymentViewProps = {
   transaction: Transaction;
   buttonType?: WithDefault<ButtonType, 'pay'>;
   buttonTheme?: WithDefault<ButtonTheme, 'automatic'>;
-  borderRadius?: number;
   allowedCardNetworks?: CardNetwork[];
   onDidAuthorizePayment?: (data: any) => void;
   onDidFinishWithResult?: (data: { success: boolean; error?: string }) => void;
@@ -30,7 +29,6 @@ export const EvervaultPaymentView: React.FC<EvervaultPaymentViewProps> = ({
   transaction,
   buttonType = 'pay',
   buttonTheme = 'automatic',
-  borderRadius = 4,
   allowedCardNetworks = ['VISA', 'MASTERCARD'],
   onDidAuthorizePayment,
   onDidFinishWithResult,
@@ -43,7 +41,6 @@ export const EvervaultPaymentView: React.FC<EvervaultPaymentViewProps> = ({
       transaction={transaction}
       buttonType={buttonType}
       buttonTheme={buttonTheme}
-      borderRadius={borderRadius}
       allowedCardNetworks={JSON.stringify(allowedCardNetworks)}
       onDidAuthorizePayment={onDidAuthorizePayment}
       onDidFinishWithResult={onDidFinishWithResult}

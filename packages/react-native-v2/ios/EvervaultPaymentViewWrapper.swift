@@ -11,8 +11,6 @@ class EvervaultPaymentViewWrapper: UIView {
     private var transaction: [String: Any]?
     private var buttonType: ButtonType = .buy
     private var buttonStyle: ButtonStyle = .automatic
-    private var borderRadius: CGFloat = 4.0
-    private var allowedCardNetworks: [Network] = [.visa, .masterCard]
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -25,54 +23,55 @@ class EvervaultPaymentViewWrapper: UIView {
     }
     
     private func setupView() {
-        backgroundColor = .clear
+        self.backgroundColor = .clear
     }
     
     private func createPaymentView() {
-        guard let config = config,
-              let transaction = transaction,
+        guard let config = self.config,
+              let transaction = self.transaction,
               let appId = config["appId"] as? String,
-              let merchantId = config["merchantId"] as? String else {
+              let merchantId = config["merchantId"] as? String,
+              let allowedCardNetworks = config["allowedCardNetworks"] as? String else {
             return
         }
         
         // Parse transaction
-        guard let transactionObj = parseTransaction(transaction) else {
+        guard let transactionObj = self.parseTransaction(transaction) else {
             return
         }
-        
+
+        // Remove the payment view if it exists
+        self.paymentView?.removeFromSuperview()
+        self.paymentView?.delegate = nil
+        self.paymentView = nil
+
         // Create the payment view
-        paymentView = EvervaultPaymentView(
+        let paymentView = EvervaultPaymentView(
             appId: appId,
             appleMerchantId: merchantId,
             transaction: transactionObj,
-            supportedNetworks: allowedCardNetworks,
-            buttonStyle: buttonStyle,
-            buttonType: buttonType
+            supportedNetworks: self.parseAllowedCardNetworks(allowedCardNetworks),
+            buttonStyle: self.buttonStyle,
+            buttonType: self.buttonType
         )
         
-        paymentView?.delegate = self
+        paymentView.delegate = self
         
         // Add to view hierarchy
-        if let paymentView = paymentView {
-            addSubview(paymentView)
-            paymentView.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                paymentView.topAnchor.constraint(equalTo: topAnchor),
-                paymentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-                paymentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-                paymentView.bottomAnchor.constraint(equalTo: bottomAnchor)
-            ])
-            
-            // Apply border radius
-            paymentView.layer.cornerRadius = borderRadius
-            paymentView.layer.masksToBounds = true
-        }
+        self.addSubview(paymentView)
+        paymentView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            paymentView.topAnchor.constraint(equalTo: self.topAnchor),
+            paymentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            paymentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            paymentView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+        ])
+
+        self.paymentView = paymentView
     }
     
     private func parseTransaction(_ transactionDict: [String: Any]) -> Transaction? {
-        guard let total = transactionDict["total"] as? String,
-              let currency = transactionDict["currency"] as? String,
+        guard let currency = transactionDict["currency"] as? String,
               let country = transactionDict["country"] as? String else {
             return nil
         }
@@ -81,22 +80,13 @@ class EvervaultPaymentViewWrapper: UIView {
         var lineItems: [SummaryItem] = []
         if let lineItemsArray = transactionDict["lineItems"] as? [[String: Any]] {
             for item in lineItemsArray {
-                if let amount = item["amount"] as? String,
-                   let label = item["label"] as? String {
+                if let amount = item["amount"] as? String, let label = item["label"] as? String {
                     lineItems.append(SummaryItem(
                         label: label,
                         amount: Amount(amount)
                     ))
                 }
             }
-        }
-        
-        // If no line items provided, create a default one from total
-        if lineItems.isEmpty {
-            lineItems.append(SummaryItem(
-                label: "Total",
-                amount: Amount(total)
-            ))
         }
         
         do {
@@ -111,60 +101,69 @@ class EvervaultPaymentViewWrapper: UIView {
         }
     }
     
-    @objc func setConfig(_ configDict: NSDictionary) {
-        config = configDict as? [String: Any]
-        createPaymentView()
+    @objc
+    func setConfig(_ configDict: NSDictionary) {
+        self.config = configDict as? [String: Any]
+        self.createPaymentView()
     }
     
-    @objc func setTransaction(_ transactionDict: NSDictionary) {
-        transaction = transactionDict as? [String: Any]
-        createPaymentView()
+    @objc
+    func setTransaction(_ transactionDict: NSDictionary) {
+        self.transaction = transactionDict as? [String: Any]
+        self.createPaymentView()
     }
     
-    @objc func setButtonType(_ buttonTypeString: NSString) {
-        buttonType = parseButtonType(buttonTypeString as String)
-        createPaymentView()
+    @objc
+    func setButtonType(_ buttonTypeString: String) {
+        self.buttonType = self.parseButtonType(buttonTypeString)
+        self.createPaymentView()
     }
     
-    @objc func setButtonTheme(_ buttonThemeString: NSString) {
-        buttonStyle = parseButtonStyle(buttonThemeString as String)
-        createPaymentView()
+    @objc
+    func setButtonTheme(_ buttonThemeString: String) {
+        self.buttonStyle = self.parseButtonStyle(buttonThemeString)
+        self.createPaymentView()
     }
     
-    @objc func setBorderRadius(_ radius: NSNumber) {
-        borderRadius = CGFloat(truncating: radius)
-        paymentView?.layer.cornerRadius = borderRadius
-    }
-    
-    @objc func setAllowedCardNetworks(_ networksJson: NSString) {
+    private func parseAllowedCardNetworks(_ networksJson: NSString) -> [Network] {
         if let data = networksJson.data(using: String.Encoding.utf8.rawValue),
            let networks = try? JSONSerialization.jsonObject(with: data, options: []) as? [String] {
-            allowedCardNetworks = networks.compactMap { network in
+            return allowedCardNetworks = networks.compactMap { network in
                 parseCardNetwork(network)
             }
-        } else {
-            // Fallback to default networks if JSON parsing fails
-            allowedCardNetworks = [.visa, .masterCard]
         }
-        createPaymentView()
+        // Fallback to default networks if JSON parsing fails
+        return [.visa, .masterCard]
     }
     
     private func parseButtonType(_ type: String) -> ButtonType {
         switch type.uppercased() {
         case "PLAIN": return .plain
-        case "BOOK": return .book
         case "BUY": return .buy
+        case "SETUP": return .setup
+        case "IN_STORE": return .inStore
+        case "DONATE": return .donate
         case "CHECKOUT": return .checkout
-        case "ORDER": return .order
+        case "BOOK": return .book
         case "SUBSCRIBE": return .subscribe
+        case "RELOAD": return .reload
+        case "ADD_MONEY": return .addMoney
+        case "TOP_UP": return .topUp
+        case "ORDER": return .order
+        case "RENT": return .rent
+        case "SUPPORT": return .support
+        case "CONTRIBUTE": return .contribute
+        case "TIP": return .tip
+        case "CONTINUE": return .continue
         default: return .buy
         }
     }
     
     private func parseButtonStyle(_ style: String) -> ButtonStyle {
         switch style.uppercased() {
-        case "LIGHT": return .white
-        case "DARK": return .black
+        case "WHITE": return .white
+        case "WHITE_OUTLINE": return .whiteOutline
+        case "BLACK": return .black
         case "AUTOMATIC": return .automatic
         default: return .automatic
         }
@@ -184,28 +183,32 @@ class EvervaultPaymentViewWrapper: UIView {
 
 extension EvervaultPaymentViewWrapper: EvervaultPaymentViewDelegate {
     func evervaultPaymentView(_ view: EvervaultPaymentView, didAuthorizePayment result: ApplePayResponse?) {
+        guard let result = result else {
+            return
+        }
+
         let responseData: [String: Any] = [
             "networkToken": [
-                "number": result?.networkToken.number ?? "",
+                "number": result.networkToken.number ?? "",
                 "expiry": [
-                    "month": result?.networkToken.expiry.month ?? "",
-                    "year": result?.networkToken.expiry.year ?? ""
+                    "month": result.networkToken.expiry.month ?? "",
+                    "year": result.networkToken.expiry.year ?? ""
                 ],
-                "rawExpiry": result?.networkToken.rawExpiry ?? "",
-                "tokenServiceProvider": result?.networkToken.tokenServiceProvider ?? ""
+                "rawExpiry": result.networkToken.rawExpiry ?? "",
+                "tokenServiceProvider": result.networkToken.tokenServiceProvider ?? ""
             ],
             "card": [
-                "brand": result?.card.brand ?? "",
-                "funding": result?.card.funding ?? "",
-                "segment": result?.card.segment ?? "",
-                "country": result?.card.country ?? "",
-                "currency": result?.card.currency ?? "",
-                "issuer": result?.card.issuer ?? ""
+                "brand": result.card.brand ?? "",
+                "funding": result.card.funding ?? "",
+                "segment": result.card.segment ?? "",
+                "country": result.card.country ?? "",
+                "currency": result.card.currency ?? "",
+                "issuer": result.card.issuer ?? ""
             ],
-            "cryptogram": result?.cryptogram ?? "",
-            "eci": result?.eci ?? "",
-            "paymentDataType": result?.paymentDataType ?? "",
-            "deviceManufacturerIdentifier": result?.deviceManufacturerIdentifier ?? ""
+            "cryptogram": result.cryptogram ?? "",
+            "eci": result.eci ?? "",
+            "paymentDataType": result.paymentDataType ?? "",
+            "deviceManufacturerIdentifier": result.deviceManufacturerIdentifier ?? ""
         ]
 
 //        self.bridge.sendEvent("didAuthorizePayment", params: responseData)

@@ -29,12 +29,4 @@ class EvervaultPaymentViewManager: RCTViewManager {
     @objc func setButtonTheme(_ view: EvervaultPaymentViewWrapper, buttonTheme: NSString) {
         view.setButtonTheme(buttonTheme)
     }
-    
-    @objc func setBorderRadius(_ view: EvervaultPaymentViewWrapper, borderRadius: NSNumber) {
-        view.setBorderRadius(borderRadius)
-    }
-    
-    @objc func setAllowedCardNetworks(_ view: EvervaultPaymentViewWrapper, networks: NSString) {
-        view.setAllowedCardNetworks(networks)
-    }
 } 

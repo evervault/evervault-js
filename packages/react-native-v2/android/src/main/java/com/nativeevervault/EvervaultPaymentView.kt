@@ -33,13 +33,9 @@ class EvervaultPaymentView(context: ThemedReactContext) : ReactViewGroup(context
     private var config: Config? = null
     private var transaction: Transaction? = null
     private var buttonType: EvervaultButtonType = EvervaultButtonType.Pay
-    private var buttonTheme: EvervaultButtonTheme = EvervaultButtonTheme.Light
-    private var borderRadius: Int = 4
-    private var allowedCardNetworks: List<CardNetwork> = listOf(CardNetwork.VISA, CardNetwork.MASTERCARD)
-    private var allowedAuthMethods: List<CardAuthMethod> = listOf(CardAuthMethod.PAN_ONLY, CardAuthMethod.CRYPTOGRAM_3DS)
-
+    private var buttonTheme: EvervaultButtonTheme = EvervaultButtonTheme.Dark
     private val composeView: ComposeView = ComposeView(context)
-    
+
     init {
         addView(composeView)
         setupComposeView()
@@ -70,6 +66,11 @@ class EvervaultPaymentView(context: ThemedReactContext) : ReactViewGroup(context
     fun setConfig(configMap: ReadableMap) {
         val appId = configMap.getString("appId")
         val merchantId = configMap.getString("merchantId")
+        val environment = when (configMap.getString("environment")) {
+            "staging" -> EvervaultConstants.ENVIRONMENT_TEST
+            "production" -> EvervaultConstants.ENVIRONMENT_PRODUCTION
+            else -> EvervaultConstants.ENVIRONMENT_PRODUCTION
+        }
         val allowedAuthMethods = Gson().fromJson(configMap.getString("allowedAuthMethods"), Array<String>::class.java)
             .toList()
             .map { authMethodFromString(it) }
@@ -81,7 +82,7 @@ class EvervaultPaymentView(context: ThemedReactContext) : ReactViewGroup(context
             config = Config(
                 appId = appId,
                 merchantId = merchantId,
-                environment = EvervaultConstants.ENVIRONMENT_PRODUCTION,
+                environment = environment,
                 supportedNetworks = allowedCardNetworks,
                 supportedMethods = allowedAuthMethods
             )
@@ -149,18 +150,6 @@ class EvervaultPaymentView(context: ThemedReactContext) : ReactViewGroup(context
         setupComposeView()
     }
 
-    fun setBorderRadius(radius: Int) {
-        borderRadius = radius
-        setupComposeView()
-    }
-
-    fun setAllowedAuthMethods(methods: List<String>) {
-        allowedAuthMethods = methods.map { method ->
-            authMethodFromString(method)
-        }
-        setupComposeView()
-    }
-
     private fun authMethodFromString(method: String): CardAuthMethod {
         return when (method.uppercase()) {
             "PAN_ONLY" -> CardAuthMethod.PAN_ONLY
@@ -178,13 +167,6 @@ class EvervaultPaymentView(context: ThemedReactContext) : ReactViewGroup(context
             "JCB" -> CardNetwork.JCB
             else -> CardNetwork.VISA
         }
-    }
-
-    fun setAllowedCardNetworks(networks: List<String>) {
-        allowedCardNetworks = networks.map { network ->
-            cardNetworkFromString(network)
-        }
-        setupComposeView()
     }
 
     private fun createViewModel() {
@@ -206,4 +188,3 @@ class EvervaultPaymentView(context: ThemedReactContext) : ReactViewGroup(context
         }
     }
 }
-

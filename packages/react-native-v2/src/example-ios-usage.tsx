@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
-import { EvervaultPaymentView } from './EvervaultPaymentView';
-import { Config, Transaction } from './EvervaultPaymentViewNativeComponent';
+import { EvervaultPaymentView } from './EvervaultPaymentView.android';
+import { Config, Transaction } from './EvervaultPaymentViewNativeComponent.android';
 
 const ExampleIOSUsage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
