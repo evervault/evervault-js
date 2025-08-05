@@ -14,5 +14,4 @@ export interface GooglePayConfig {
   allowedAuthMethods?: string[];
   allowedCardNetworks?: string[];
   billingAddress?: GooglePayBillingAddressConfig;
-  environment?: "PRODUCTION" | "TEST";
 }
