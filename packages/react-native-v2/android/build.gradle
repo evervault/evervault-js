@@ -21,7 +21,7 @@ android {
   namespace "com.nativeevervault"
 
   defaultConfig {
-    minSdkVersion safeExtGet('minSdkVersion', 24)
+    minSdkVersion safeExtGet('minSdkVersion', 26)
     targetSdkVersion safeExtGet('targetSdkVersion', 35)
   }
 }
@@ -29,9 +29,29 @@ android {
 repositories {
   mavenCentral()
   google()
+  maven { url 'https://jitpack.io' }
 }
 
 dependencies {
   implementation 'com.facebook.react:react-native'
-  implementation 'com.evervault.sdk:evervault-core:1.1'
+  implementation("com.evervault.sdk:evervault-core:1.2")
+  implementation("com.evervault.sdk:evervault-inputs:2.0.0")
+  api("com.github.evervault:evervault-pay:android-v0.0.22")
+
+  // Compose dependencies
+  implementation platform('androidx.compose:compose-bom:2024.02.00')
+  implementation 'androidx.compose.ui:ui'
+  implementation 'androidx.compose.ui:ui-tooling-preview'
+  implementation 'androidx.compose.material3:material3'
+  implementation 'androidx.compose.runtime:runtime'
+  implementation 'androidx.activity:activity-compose:1.8.2'
+  implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0'
+  implementation 'com.google.code.gson:gson:2.10.1'
+
+  // Google Pay dependencies
+  implementation 'com.google.android.gms:play-services-wallet:19.3.0'
+  
+  // Lifecycle dependencies
+  implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
+  implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
 }
