@@ -26,6 +26,11 @@ export interface CardConfig {
     expiry?: boolean;
     cvc?: boolean;
   };
+  validation?: {
+    name?: {
+      regex?: RegExp;
+    };
+  };
 }
 
 export interface CardForm {
