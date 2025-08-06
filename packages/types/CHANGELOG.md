@@ -1,5 +1,12 @@
 # types
 
+## 0.17.0
+
+### Minor Changes
+
+- c191a58: Add `validation` option to the Card Collection component to allow for customizing validation logic. Currently only supports adding regex validation for the card holder name.
+- e50568a: Test sandbox apps in production for Google Pay
+
 ## 0.16.0
 
 ### Minor Changes

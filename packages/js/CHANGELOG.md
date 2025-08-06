@@ -1,5 +1,11 @@
 # @evervault/js
 
+## 2.4.0
+
+### Minor Changes
+
+- e50568a: Test sandbox apps in production for Google Pay
+
 ## 2.3.0
 
 ### Minor Changes

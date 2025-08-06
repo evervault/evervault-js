@@ -1,5 +1,18 @@
 # @evervault/browser
 
+## 2.48.0
+
+### Minor Changes
+
+- c191a58: Add `validation` option to the Card Collection component to allow for customizing validation logic. Currently only supports adding regex validation for the card holder name.
+
+### Patch Changes
+
+- Updated dependencies [c191a58]
+- Updated dependencies [e50568a]
+  - types@0.17.0
+  - themes@0.1.17
+
 ## 2.47.0
 
 ### Minor Changes
