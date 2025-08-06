@@ -1,5 +1,21 @@
 # @evervault/ui-components
 
+## 1.33.0
+
+### Minor Changes
+
+- c191a58: Add `validation` option to the Card Collection component to allow for customizing validation logic. Currently only supports adding regex validation for the card holder name.
+- e50568a: Test sandbox apps in production for Google Pay
+
+### Patch Changes
+
+- Updated dependencies [c191a58]
+- Updated dependencies [e50568a]
+  - @evervault/react@2.21.0
+  - types@0.17.0
+  - @evervault/card-validator@1.5.0
+  - shared@1.1.14
+
 ## 1.32.2
 
 ### Patch Changes
