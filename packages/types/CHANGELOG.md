@@ -1,5 +1,11 @@
 # types
 
+## 0.18.0
+
+### Minor Changes
+
+- f7adade: Fix casing of AppConfig.is_sandbox field used for Google Pay
+
 ## 0.17.0
 
 ### Minor Changes

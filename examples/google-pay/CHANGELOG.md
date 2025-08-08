@@ -1,5 +1,12 @@
 # google-pay
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [f7adade]
+  - @evervault/js@2.5.0
+
 ## 0.1.0
 
 ### Minor Changes
