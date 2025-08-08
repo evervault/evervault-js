@@ -1,7 +1,7 @@
 {
   "name": "themes",
   "private": true,
-  "version": "0.1.17",
+  "version": "0.1.18",
   "main": "index.ts",
   "types": "index.ts",
   "dependencies": {

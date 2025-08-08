@@ -1,5 +1,19 @@
 # @evervault/ui-components
 
+## 1.34.0
+
+### Minor Changes
+
+- f7adade: Fix casing of AppConfig.is_sandbox field used for Google Pay
+
+### Patch Changes
+
+- Updated dependencies [f7adade]
+  - types@0.18.0
+  - @evervault/card-validator@1.5.0
+  - @evervault/react@2.21.0
+  - shared@1.1.15
+
 ## 1.33.0
 
 ### Minor Changes

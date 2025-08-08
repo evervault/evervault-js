@@ -1,5 +1,13 @@
 # @evervault/browser
 
+## 2.48.1
+
+### Patch Changes
+
+- Updated dependencies [f7adade]
+  - types@0.18.0
+  - themes@0.1.18
+
 ## 2.48.0
 
 ### Minor Changes
