@@ -590,5 +590,5 @@ export interface MerchantDetail {
 }
 
 export interface AppSDKConfig {
-  isSandbox: boolean;
+  is_sandbox: boolean;
 }
