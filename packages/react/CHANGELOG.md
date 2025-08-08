@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.21.0
+
+### Minor Changes
+
+- c191a58: Add `validation` option to the Card Collection component to allow for customizing validation logic. Currently only supports adding regex validation for the card holder name.
+
 ## 2.20.0
 
 ### Minor Changes
