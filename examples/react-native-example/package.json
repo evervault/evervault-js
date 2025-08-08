@@ -1,6 +1,6 @@
 {
   "name": "react-native-example",
-  "version": "1.0.23",
+  "version": "1.0.25",
   "main": "./App.tsx",
   "scripts": {
     "start": "expo start",

@@ -68,6 +68,13 @@ export function Card({ config }: { config: CardConfig }) {
           return "invalid";
         }
 
+        // Check custom regex validation if provided
+        if (config.validation?.name?.regex) {
+          if (!config.validation.name.regex.test(values.name)) {
+            return "regex";
+          }
+        }
+
         return undefined;
       },
       number: (values) => {
@@ -97,8 +104,16 @@ export function Card({ config }: { config: CardConfig }) {
       cvc: (values) => {
         if (!fields.includes("cvc")) return undefined;
 
+        const cardValidation = validateNumber(values.number);
         const cvcValidation = validateCVC(values.cvc, values.number);
+
         if (!cvcValidation.isValid) {
+          return "invalid";
+        }
+
+        const allow3DigitAmex = config.allow3DigitAmexCVC ?? true;
+        const isAmex = cardValidation.brand === "american-express";
+        if (isAmex && values.cvc?.length === 3 && !allow3DigitAmex) {
           return "invalid";
         }
 
@@ -108,7 +123,9 @@ export function Card({ config }: { config: CardConfig }) {
     onChange: (formState) => {
       const triggerChange = async () => {
         if (!ev) return;
-        const cardData = await changePayload(ev, formState, fields);
+        const cardData = await changePayload(ev, formState, fields, {
+          allow3DigitAmexCVC: config.allow3DigitAmexCVC,
+        });
 
         if (cardData.isComplete) {
           send("EV_COMPLETE", cardData);
@@ -150,12 +167,14 @@ export function Card({ config }: { config: CardConfig }) {
 
         form.validate((formState) => {
           void (async () => {
-            const data = await changePayload(ev, formState, fields);
+            const data = await changePayload(ev, formState, fields, {
+              allow3DigitAmexCVC: config.allow3DigitAmexCVC,
+            });
             send("EV_VALIDATED", data);
           })();
         });
       }),
-    [ev, on, send, form, fields]
+    [ev, on, send, form, fields, config.allow3DigitAmexCVC]
   );
 
   useEffect(
@@ -302,6 +321,7 @@ export function Card({ config }: { config: CardConfig }) {
             onFocus={handleFocus("cvc")}
             onKeyUp={handleKeyUp("cvc")}
             onKeyDown={handleKeyDown("cvc")}
+            autoComplete={config.autoComplete?.cvc ?? true}
             redact={config.redactCVC}
             {...form.register("cvc", {
               onBlur: handleBlur("cvc"),

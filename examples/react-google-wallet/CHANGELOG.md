@@ -1,5 +1,73 @@
 # example-react-google-wallet
 
+## 0.3.19
+
+### Patch Changes
+
+- Updated dependencies [c191a58]
+  - @evervault/browser@2.48.0
+  - @evervault/react@2.21.0
+
+## 0.3.18
+
+### Patch Changes
+
+- Updated dependencies [4c34f72]
+  - @evervault/browser@2.47.0
+  - @evervault/react@2.20.0
+
+## 0.3.17
+
+### Patch Changes
+
+- Updated dependencies [df76034]
+- Updated dependencies [c4db698]
+- Updated dependencies [31c1ac8]
+- Updated dependencies [e503d31]
+- Updated dependencies [cd08b80]
+- Updated dependencies [8dec7e4]
+  - @evervault/browser@2.46.0
+  - @evervault/react@2.20.0
+
+## 0.3.16
+
+### Patch Changes
+
+- Updated dependencies [1b2014c]
+  - @evervault/react@2.19.0
+
+## 0.3.15
+
+### Patch Changes
+
+- Updated dependencies [311f567]
+  - @evervault/browser@2.45.0
+  - @evervault/react@2.18.0
+
+## 0.3.14
+
+### Patch Changes
+
+- Updated dependencies [8957f08]
+  - @evervault/react@2.18.0
+  - @evervault/browser@2.44.1
+
+## 0.3.13
+
+### Patch Changes
+
+- Updated dependencies [6cf0f6f]
+  - @evervault/browser@2.44.0
+  - @evervault/react@2.17.0
+
+## 0.3.12
+
+### Patch Changes
+
+- Updated dependencies [8bc00d1]
+  - @evervault/browser@2.43.0
+  - @evervault/react@2.16.2
+
 ## 0.3.11
 
 ### Patch Changes

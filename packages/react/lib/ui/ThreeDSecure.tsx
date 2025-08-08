@@ -1,7 +1,6 @@
-import type Evervault from "@evervault/browser";
 import * as React from "react";
-import { useEvervault } from "../useEvervault";
 import type { ComponentError, ThemeDefinition } from "types";
+import { useEvInstance } from "../useEvInstance";
 
 export interface ThreeDSecureProps {
   session: string;
@@ -14,8 +13,6 @@ export interface ThreeDSecureProps {
   failOnChallenge?: boolean | (() => boolean) | (() => Promise<boolean>);
 }
 
-type ThreeDSecureInstance = ReturnType<Evervault["ui"]["threeDSecure"]>;
-
 export function ThreeDSecure({
   session,
   theme,
@@ -26,12 +23,29 @@ export function ThreeDSecure({
   onFailure,
   failOnChallenge,
 }: ThreeDSecureProps) {
-  const ev = useEvervault();
-  const initialized = React.useRef(false);
   const ref = React.useRef<HTMLDivElement>(null);
-  const [instance, setInstance] = React.useState<ThreeDSecureInstance | null>(
-    null
+
+  const config = React.useMemo(
+    () => ({
+      theme,
+      size,
+      failOnChallenge,
+    }),
+    [theme, size, failOnChallenge]
   );
+
+  const instance = useEvInstance({
+    onMount(evervault) {
+      if (!ref.current) return;
+      const inst = evervault.ui.threeDSecure(session, config);
+      inst.mount(ref.current);
+      return inst;
+    },
+    onUpdate(instance) {
+      instance.update(config);
+    },
+    onMountError: onError,
+  });
 
   React.useEffect(() => {
     if (!instance || !onReady) return undefined;
@@ -52,33 +66,6 @@ export function ThreeDSecure({
     if (!instance || !onError) return undefined;
     return instance?.on("error", onError);
   }, [instance, onError]);
-
-  const config = React.useMemo(
-    () => ({
-      theme,
-      size,
-      failOnChallenge,
-    }),
-    [theme, size, failOnChallenge]
-  );
-
-  React.useLayoutEffect(() => {
-    async function init() {
-      if (initialized.current) return;
-      initialized.current = true;
-      const evervault = await ev;
-      if (!evervault) return;
-      const inst = evervault.ui.threeDSecure(session, config);
-      inst.mount(ref.current as HTMLElement);
-      setInstance(inst);
-    }
-
-    if (instance) {
-      instance.update(config);
-    } else {
-      init().catch(console.error);
-    }
-  }, [instance, session, config]);
 
   return <div ref={ref} />;
 }

@@ -1,5 +1,38 @@
 # themes
 
+## 0.1.17
+
+### Patch Changes
+
+- Updated dependencies [c191a58]
+- Updated dependencies [e50568a]
+  - types@0.17.0
+
+## 0.1.16
+
+### Patch Changes
+
+- Updated dependencies [df76034]
+- Updated dependencies [31c1ac8]
+- Updated dependencies [e503d31]
+- Updated dependencies [2640be6]
+- Updated dependencies [8dec7e4]
+  - types@0.16.0
+
+## 0.1.15
+
+### Patch Changes
+
+- Updated dependencies [311f567]
+  - types@0.15.0
+
+## 0.1.14
+
+### Patch Changes
+
+- Updated dependencies [50727af]
+  - types@0.14.0
+
 ## 0.1.13
 
 ### Patch Changes

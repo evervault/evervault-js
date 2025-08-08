@@ -1,5 +1,58 @@
 # @evervault/inputs
 
+## 2.18.19
+
+### Patch Changes
+
+- Updated dependencies [c191a58]
+  - @evervault/browser@2.48.0
+
+## 2.18.18
+
+### Patch Changes
+
+- Updated dependencies [4c34f72]
+  - @evervault/browser@2.47.0
+
+## 2.18.17
+
+### Patch Changes
+
+- Updated dependencies [df76034]
+- Updated dependencies [c4db698]
+- Updated dependencies [31c1ac8]
+- Updated dependencies [e503d31]
+- Updated dependencies [cd08b80]
+- Updated dependencies [8dec7e4]
+  - @evervault/browser@2.46.0
+
+## 2.18.16
+
+### Patch Changes
+
+- Updated dependencies [311f567]
+  - @evervault/browser@2.45.0
+
+## 2.18.15
+
+### Patch Changes
+
+- @evervault/browser@2.44.1
+
+## 2.18.14
+
+### Patch Changes
+
+- Updated dependencies [6cf0f6f]
+  - @evervault/browser@2.44.0
+
+## 2.18.13
+
+### Patch Changes
+
+- Updated dependencies [8bc00d1]
+  - @evervault/browser@2.43.0
+
 ## 2.18.12
 
 ### Patch Changes

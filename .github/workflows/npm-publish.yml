@@ -25,8 +25,15 @@ on:
         required: true
 
 jobs:
+  get-artifact-name:
+    uses: ./.github/workflows/get-artifact-name.yml
+    with:
+      package-name: ${{ inputs.package }}
+      environment: "production"
+
   publish:
     name: Publish to NPM
+    needs: [get-artifact-name]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -41,7 +48,7 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8
         with:
-          name: production-${{ inputs.artifact }}
+          name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: ${{ inputs.repo_path }}
 
       - uses: pnpm/action-setup@v4
@@ -61,13 +68,15 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.PUBLIC_REPO_NPM_PUBLISH }}
           NPM_CONFIG_PROVENANCE: true
   create_release:
-    name: Create Github Release and Changelog
+    name: Create Github Release
     runs-on: ubuntu-latest
     needs: publish
     continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - name: Get package name
         env:
           TAG: ${{ inputs.tag_name }}
@@ -75,11 +84,36 @@ jobs:
         run: |
           if [[ "$TAG" == *"evervault-react-native"* ]]; then
             echo "name=react-native" >> $GITHUB_OUTPUT
+          elif [[ "$TAG" == *"@evervault/react-native"* ]]; then
+            echo "name=react-native-v2" >> $GITHUB_OUTPUT
           else
             name_part=${TAG##*/}
             echo "name=${name_part%@*}" >> $GITHUB_OUTPUT
           fi
+      - name: Get release content
+        id: release-content
+        env:
+          TAG: ${{ inputs.tag_name }}
+        run: |
+          name_part=${TAG##*/}
+          tag_prefix=${name_part%@*}
+
+          num_existing_tags=$(git ls-remote --sort="version:refname" --tags origin @evervault/$tag_prefix@\* | wc -l)
+          if [[ "$num_existing_tags" -lt 2 ]]; then
+            echo "No previous tags found for @evervault/$tag_prefix, taking entire changelog content"
+            CHANGELOG_CONTENT=$(cat ./packages/${{ steps.parse.outputs.name }}/CHANGELOG.md | tail -n +3)
+          else
+            echo "Previous tags found for @evervault/$tag_prefix, taking diff between two most recent tags"
+            git fetch --tags origin
+            CHANGELOG_CONTENT=$(git tag --sort="version:refname" -l @evervault/$tag_prefix@\* | tail -n2 | xargs -n2 sh -c 'git diff $0..$1 -- ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md' | grep '^+' | grep --invert-match '^+++'  | sed 's/^+//' | tail -n +3)  
+          fi
+
+          {
+            echo 'content<<EOF'
+            echo "$CHANGELOG_CONTENT"
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
       - uses: softprops/action-gh-release@v2
         with:
-          body_path: ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md
+          body: ${{ steps.release-content.outputs.content }}
           tag_name: ${{ inputs.tag_name }}

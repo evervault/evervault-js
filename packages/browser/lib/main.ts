@@ -16,6 +16,7 @@ import { Transaction } from "./resources/transaction";
 import {
   CreateTransactionDetails,
   DisbursementTransactionDetails,
+  RecurringTransactionDetails,
 } from "types";
 
 export type * from "types";
@@ -321,7 +322,10 @@ export default class EvervaultClient {
   get transactions() {
     return {
       create: (
-        details: CreateTransactionDetails | DisbursementTransactionDetails
+        details:
+          | CreateTransactionDetails
+          | RecurringTransactionDetails
+          | DisbursementTransactionDetails
       ) => new Transaction(details),
     };
   }

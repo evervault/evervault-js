@@ -42,7 +42,8 @@ jobs:
     with:
       package-name: '@evervault/browser'
       stage: "production"
-      environment: 'browser-production'
+      preview-environment: 'browser-production'
+      live-environment: 'browser-production-deploy'
       run-preflight-checks: true
       perform-gated-preview-deployment: true
       cloudfront-preview-path-invalidation: "/v2/preview/index.js"
@@ -58,7 +59,7 @@ jobs:
     uses: ./.github/workflows/publish-static-bundle.yml
     with:
       package-name: '@evervault/inputs'
-      environment: 'production'
+      live-environment: 'production'
       run-preflight-checks: false
       perform-gated-preview-deployment: false
       cloudfront-live-path-invalidation: "/index.html,/bundle.js,/v2/*"
@@ -74,7 +75,8 @@ jobs:
     with:
       package-name: '@evervault/ui-components'
       stage: "production"
-      environment: 'ui-components-production'
+      preview-environment: 'ui-components-production'
+      live-environment: 'ui-components-production'
       run-preflight-checks: true
       perform-gated-preview-deployment: true
       s3-bucket-var-name: 'UI_COMPONENTS_S3_BUCKET'
@@ -91,7 +93,7 @@ jobs:
     with:
       package-name: '@evervault/3ds'
       stage: "production"
-      environment: 'production'
+      live-environment: 'production'
       run-preflight-checks: false
       perform-gated-preview-deployment: false
       s3-bucket-var-name: 'TDS_AWS_S3_BUCKET'
@@ -100,7 +102,7 @@ jobs:
       tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   publish-react:
-    if: startsWith(inputs.release-tag, '@evervault/react')
+    if: startsWith(inputs.release-tag, '@evervault/react') && !contains(inputs.release-tag, '@evervault/react-native')
     needs: build
     uses: ./.github/workflows/npm-publish.yml
     with:

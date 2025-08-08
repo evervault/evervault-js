@@ -6,13 +6,20 @@ import { validateNumber } from "@evervault/card-validator";
 import { useFormContext } from "react-hook-form";
 import { CardBrandName } from "./types";
 
-const DEFAULT_CARD_CVC_MASK = mask("999");
+const DEFAULT_CARD_CVC_MASK = mask("[999]");
 
 const CARD_CVC_MASKS: Partial<Record<CardBrandName, Mask>> = {
-  "american-express": mask("9999"),
+  "american-express": mask("[9999]"),
 };
 
-export type CardCvcProps = BaseEvervaultInputProps;
+export interface CardCvcProps extends BaseEvervaultInputProps {
+  /**
+   * Whether to obfuscate the entire CVC value.
+   *
+   * If a string is provided, it will be used to obfuscate the value.
+   */
+  obfuscateValue?: boolean | string;
+}
 
 export type CardCvc = EvervaultInput;
 

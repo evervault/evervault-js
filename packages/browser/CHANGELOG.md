@@ -1,5 +1,103 @@
 # @evervault/browser
 
+## 2.48.0
+
+### Minor Changes
+
+- c191a58: Add `validation` option to the Card Collection component to allow for customizing validation logic. Currently only supports adding regex validation for the card holder name.
+
+### Patch Changes
+
+- Updated dependencies [c191a58]
+- Updated dependencies [e50568a]
+  - types@0.17.0
+  - themes@0.1.17
+
+## 2.47.0
+
+### Minor Changes
+
+- 4c34f72: Expose onPaymentMethodChange hook for Apple Pay
+
+## 2.46.0
+
+### Minor Changes
+
+- df76034: Add prepareTransaction method to Apple Pay button config
+- 31c1ac8: Expose underlying payment card display name for Apple Pay
+- e503d31: Add support for onShippingAddressChange hook for Apple Pay
+- cd08b80: Better types for ApplePay onShippingAddressChange
+- 8dec7e4: Add recurring payment support for Apple Pay
+
+### Patch Changes
+
+- c4db698: Fix prepareTransaction function for ApplePay
+- Updated dependencies [df76034]
+- Updated dependencies [31c1ac8]
+- Updated dependencies [e503d31]
+- Updated dependencies [2640be6]
+- Updated dependencies [8dec7e4]
+  - types@0.16.0
+  - themes@0.1.16
+
+## 2.45.0
+
+### Minor Changes
+
+- 311f567: Adds support for requesting billing address information with Google Pay.
+
+  You can now collect billing address information using the `billingAddress` option.
+
+  ```js
+  const googlePay = evervault.ui.googlePay(transaction, {
+      billingAddress: true,
+      process: async () => {
+          ...
+      }
+  });
+  ```
+
+  You can also specific the address format and request a phone number by using an object instead of a boolean.
+
+  ```js
+  const googlePay = evervault.ui.googlePay(transaction, {
+      billingAddress: {
+          format: 'MIn',
+          phoneNumber: true
+      },
+      process: async () => {
+          ...
+      }
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies [311f567]
+  - types@0.15.0
+  - themes@0.1.15
+
+## 2.44.1
+
+### Patch Changes
+
+- Updated dependencies [50727af]
+  - types@0.14.0
+  - themes@0.1.14
+
+## 2.44.0
+
+### Minor Changes
+
+- 6cf0f6f: Adds a new `allow3DigitAmexCVC` option which allows you to configure whether or not 3 digit CVC should be treated as invalid or not. The default value is true.
+
+## 2.43.0
+
+### Minor Changes
+
+- 8bc00d1: - Adds a new `availability` method to the Apple Pay component to check if Apple Pay is available on the current device.
+  - Deprecates the old Apple Pay implmentation in favour of the new one which supports third party browsers.
+
 ## 2.42.3
 
 ### Patch Changes

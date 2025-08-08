@@ -1,16 +1,13 @@
-import type Evervault from "@evervault/browser";
 import * as React from "react";
-import { useLayoutEffect, useMemo, useRef } from "react";
-import { useEvervault } from "../useEvervault";
+import { useMemo, useRef } from "react";
 import type { PinOptions, PinPayload } from "types";
+import { useEvInstance } from "../useEvInstance";
 
 export type PinProps = PinOptions & {
   onReady?: () => void;
   onError?: () => void;
   onChange?: (data: PinPayload) => void;
 };
-
-type PinClass = ReturnType<Evervault["ui"]["pin"]>;
 
 export function Pin({
   theme,
@@ -22,10 +19,31 @@ export function Pin({
   onChange,
   onError,
 }: PinProps) {
-  const ev = useEvervault();
-  const initialized = useRef(false);
-  const [instance, setInstance] = React.useState<PinClass | null>(null);
   const ref = useRef<HTMLDivElement>(null);
+
+  const config = useMemo(
+    () => ({
+      theme,
+      length,
+      autoFocus,
+      mode,
+      inputType,
+    }),
+    [theme, length, autoFocus, mode, inputType]
+  );
+
+  const instance = useEvInstance({
+    onMount(evervault) {
+      if (!ref.current) return;
+      const inst = evervault.ui.pin(config);
+      inst.mount(ref.current);
+      return inst;
+    },
+    onUpdate(instance) {
+      instance.update(config);
+    },
+    onMountError: onError,
+  });
 
   // setup ready event listener
   React.useEffect(() => {
@@ -44,36 +62,6 @@ export function Pin({
     if (!instance || !onChange) return undefined;
     return instance?.on("change", onChange);
   }, [instance, onChange]);
-
-  const config = useMemo(
-    () => ({
-      theme,
-      length,
-      autoFocus,
-      mode,
-      inputType,
-    }),
-    [theme, length, autoFocus, mode, inputType]
-  );
-
-  useLayoutEffect(() => {
-    if (!ref.current) return;
-    async function init() {
-      if (initialized.current || !ref.current) return;
-      initialized.current = true;
-      const evervault = await ev;
-      if (!evervault) return;
-      const inst = evervault.ui.pin(config);
-      inst.mount(ref.current);
-      setInstance(inst);
-    }
-
-    if (instance) {
-      instance.update(config);
-    } else {
-      init().catch(console.error);
-    }
-  }, [instance, config]);
 
   return <div ref={ref} />;
 }

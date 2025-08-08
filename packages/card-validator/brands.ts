@@ -42,7 +42,7 @@ const brands = [
     isLocal: false,
     numberValidationRules: {
       luhnCheck: true,
-      ranges: [[300, 305], 36, 38, 39],
+      ranges: [[300, 305], 3095, 36, 38, 39],
       lengths: [14, 16, 19],
     },
     securityCodeValidationRules: {
@@ -54,7 +54,7 @@ const brands = [
     isLocal: false,
     numberValidationRules: {
       luhnCheck: true,
-      ranges: [6011, [644, 649], 65],
+      ranges: [6011, [644, 649], [650000, 651999], [653150, 659999], 622],
       lengths: [16, 19],
     },
     securityCodeValidationRules: {
@@ -66,7 +66,16 @@ const brands = [
     isLocal: false,
     numberValidationRules: {
       luhnCheck: true,
-      ranges: [2131, 1800, [3528, 3589]],
+      ranges: [
+        2131,
+        1800,
+        [3088, 3094],
+        [3096, 3102],
+        [3112, 3120],
+        [3158, 3159],
+        [3337, 3349],
+        [3528, 3589],
+      ],
       lengths: [16, 17, 18, 19],
     },
     securityCodeValidationRules: {
@@ -114,16 +123,20 @@ const brands = [
     numberValidationRules: {
       luhnCheck: true,
       ranges: [
+        5018,
+        5020,
+        5038,
+        5893,
+        6101,
+        6304,
+        6759,
+        6761,
+        6762,
+        6763,
         493698,
         [500000, 504174],
         [504176, 506698],
         [506779, 508999],
-        [56, 59],
-        60,
-        61,
-        63,
-        64,
-        67,
         69,
       ],
       lengths: [12, 13, 14, 15, 16, 17, 18, 19],
@@ -228,6 +241,18 @@ const brands = [
     },
     securityCodeValidationRules: {
       lengths: [0],
+    },
+  },
+  {
+    name: "rupay",
+    isLocal: false,
+    numberValidationRules: {
+      luhnCheck: true,
+      ranges: [60, 81, 82, 508, [652100, 653149], [817200, 819899]],
+      lengths: [16],
+    },
+    securityCodeValidationRules: {
+      lengths: [3],
     },
   },
 ] as CardBrand[];

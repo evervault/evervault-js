@@ -16,6 +16,7 @@ export interface CardConfig {
   translations?: Partial<CardTranslations>;
   autoProgress?: boolean;
   redactCVC?: boolean;
+  allow3DigitAmexCVC?: boolean;
   defaultValues?: {
     name?: string;
   };
@@ -24,6 +25,11 @@ export interface CardConfig {
     number?: boolean;
     expiry?: boolean;
     cvc?: boolean;
+  };
+  validation?: {
+    name?: {
+      regex?: RegExp;
+    };
   };
 }
 

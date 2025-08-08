@@ -41,7 +41,8 @@ export type CardBrandName =
   | "hipercard"
   | "hiper"
   | "szep"
-  | "uatp";
+  | "uatp"
+  | "rupay";
 
 export interface CardExpiry {
   month: string | null;
@@ -103,6 +104,7 @@ export interface CardOptions {
   translations?: Partial<CardTranslations>;
   autoProgress?: boolean;
   redactCVC?: boolean;
+  allow3DigitAmexCVC?: boolean;
   defaultValues?: {
     name?: string;
   };
@@ -111,6 +113,11 @@ export interface CardOptions {
     number?: boolean;
     expiry?: boolean;
     cvc?: boolean;
+  };
+  validation?: {
+    name?: {
+      regex?: RegExp;
+    };
   };
 }
 
@@ -334,6 +341,8 @@ export interface EncryptedDPAN<P> {
   token: PaymentToken<P>;
   card: {
     brand: string;
+    lastFour?: string;
+    displayName?: string;
   };
   cryptogram: string;
   eci: string;
@@ -343,6 +352,8 @@ export interface EncryptedFPAN {
   card: {
     brand: string;
     number: string;
+    lastFour?: string;
+    displayName?: string;
     expiry: {
       month: string;
       year: string;
@@ -350,13 +361,25 @@ export interface EncryptedFPAN {
   };
 }
 
-export type EncryptedGooglePayData = EncryptedDPAN<"google"> | EncryptedFPAN;
+export type EncryptedGooglePayData = (
+  | EncryptedDPAN<"google">
+  | EncryptedFPAN
+) & {
+  billingAddress?: google.payments.api.Address | null;
+};
 
 export interface GooglePayErrorMessage {
   message: string;
   reason?: google.payments.api.ErrorReason;
   intent?: google.payments.api.CallbackIntent;
 }
+
+export type GooglePayBillingAddressConfig =
+  | boolean
+  | {
+      format?: google.payments.api.BillingAddressFormat;
+      phoneNumber?: boolean;
+    };
 
 export interface GooglePayOptions {
   process: (
@@ -372,6 +395,7 @@ export interface GooglePayOptions {
   size?: { width: WalletDimension; height: WalletDimension };
   allowedAuthMethods?: google.payments.api.CardAuthMethod[];
   allowedCardNetworks?: google.payments.api.CardNetwork[];
+  billingAddress?: GooglePayBillingAddressConfig;
 }
 
 export type ApplePayButtonType =
@@ -476,7 +500,6 @@ export interface ApplePayOptions {
   borderRadius?: number;
   size?: { width: WalletDimension; height: WalletDimension };
   allowedCardNetworks?: ApplePayCardNetwork[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   paymentOverrides?: {
     paymentMethodData?: PaymentMethodData[];
     paymentDetails?: PaymentDetailsInit;
@@ -513,8 +536,20 @@ export interface PaymentTransactionDetails extends BaseTransactionDetails {
   type: "payment";
 }
 
-// Disbursement-specific fields
+export interface RecurringTransactionDetails extends BaseTransactionDetails {
+  type: "recurring";
+  managementURL: string;
+  billingAgreement: string;
+  description: string;
+  regularBilling: TransactionLineItem & {
+    recurringPaymentStartDate: Date;
+  };
+  trialBilling?: TransactionLineItem & {
+    trialPaymentStartDate: Date;
+  };
+}
 
+// Disbursement-specific fields
 export type RequiredRecipientDetail = "email" | "phone" | "name" | "address";
 export interface DisbursementTransactionDetails extends BaseTransactionDetails {
   type: "disbursement";
@@ -524,6 +559,7 @@ export interface DisbursementTransactionDetails extends BaseTransactionDetails {
 
 export type TransactionDetails =
   | PaymentTransactionDetails
+  | RecurringTransactionDetails
   | DisbursementTransactionDetails;
 
 export type TransactionDetailsWithDomain = TransactionDetails & {
@@ -551,4 +587,8 @@ export interface ApplePayToken {
 export interface MerchantDetail {
   id: string;
   name: string;
+}
+
+export interface AppSDKConfig {
+  isSandbox: boolean;
 }

@@ -1,5 +1,39 @@
 # @evervault/react
 
+## 2.21.0
+
+### Minor Changes
+
+- c191a58: Add `validation` option to the Card Collection component to allow for customizing validation logic. Currently only supports adding regex validation for the card holder name.
+
+## 2.20.0
+
+### Minor Changes
+
+- 8dec7e4: Add recurring payment support for Apple Pay
+
+## 2.19.0
+
+### Minor Changes
+
+- 1b2014c: Allow retry when Evervault browser SDK fails to load
+
+## 2.18.0
+
+### Minor Changes
+
+- 8957f08: Improvements to error handling
+
+  The `EvervaultProvider` component now accepts an `onLoadError` prop which will be called if the Evervault SDK fails to load.
+
+  The `onError` prop that is passed to the `Card` component will now also be called if the Evervault SDK fails to load and is not available when the component attempts to mount.
+
+## 2.17.0
+
+### Minor Changes
+
+- 6cf0f6f: Adds a new `allow3DigitAmexCVC` option which allows you to configure whether or not 3 digit CVC should be treated as invalid or not. The default value is true.
+
 ## 2.16.2
 
 ### Patch Changes

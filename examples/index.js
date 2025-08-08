@@ -32,15 +32,13 @@ select({
     [
       "--",
       "pnpm",
-      "run",
-      "dev",
-      "--ui=tui",
       "--filter",
       "@evervault/ui-components",
       "--filter",
       "@evervault/browser",
       "--filter",
       `${example}`,
+      "dev",
     ],
     {
       stdio: "inherit",

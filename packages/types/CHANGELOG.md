@@ -1,5 +1,59 @@
 # types
 
+## 0.17.0
+
+### Minor Changes
+
+- c191a58: Add `validation` option to the Card Collection component to allow for customizing validation logic. Currently only supports adding regex validation for the card holder name.
+- e50568a: Test sandbox apps in production for Google Pay
+
+## 0.16.0
+
+### Minor Changes
+
+- df76034: Add prepareTransaction method to Apple Pay button config
+- 31c1ac8: Expose underlying payment card display name for Apple Pay
+- e503d31: Add support for onShippingAddressChange hook for Apple Pay
+- 2640be6: Expose last four digits of underlying card number for Google Pay
+- 8dec7e4: Add recurring payment support for Apple Pay
+
+## 0.15.0
+
+### Minor Changes
+
+- 311f567: Adds support for requesting billing address information with Google Pay.
+
+  You can now collect billing address information using the `billingAddress` option.
+
+  ```js
+  const googlePay = evervault.ui.googlePay(transaction, {
+      billingAddress: true,
+      process: async () => {
+          ...
+      }
+  });
+  ```
+
+  You can also specific the address format and request a phone number by using an object instead of a boolean.
+
+  ```js
+  const googlePay = evervault.ui.googlePay(transaction, {
+      billingAddress: {
+          format: 'MIn',
+          phoneNumber: true
+      },
+      process: async () => {
+          ...
+      }
+  });
+  ```
+
+## 0.14.0
+
+### Minor Changes
+
+- 50727af: Add Rupay support to Card Component
+
 ## 0.13.0
 
 ### Minor Changes

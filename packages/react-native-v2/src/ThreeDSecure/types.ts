@@ -1,10 +1,16 @@
-import { PropsWithChildren } from "react";
+import { ThreeDSecureEvent } from "./event";
 
 export interface ThreeDSecureCallbacks {
   /**
    * The error event will be fired if the component fails to load.
    */
   onError?(error: Error): void;
+
+  /**
+   * The 'requestChallenge' event will be fired if the 3DS authentication process requires a challenge.
+   * If you'd like to fail the authentication, you should call `preventDefault` on the passed event.
+   */
+  onRequestChallenge?(event: ThreeDSecureEvent): void;
 
   /**
    * The 'failure' event will be fired if the 3DS authentication process fails. You should use this event to handle the failure and inform the user and prompt them to try again.
@@ -18,6 +24,13 @@ export interface ThreeDSecureCallbacks {
    * Your backend can use the [Retrieve 3DS Session](https://docs.evervault.com/api-reference#retrieveThreeDSSession) endpoint to retrieve the cryptogram for the session and complete the payment.
    */
   onSuccess?(): void;
+}
+
+export interface ThreeDSecureOptions extends ThreeDSecureCallbacks {
+  /**
+   * If set to `true` (or a function that returns `true`), the authentication will fail if a challenge is required.
+   */
+  failOnChallenge?: boolean | (() => Promise<boolean>);
 }
 
 export interface ThreeDSecureInitialState {
@@ -44,7 +57,7 @@ export interface ThreeDSecureSessionResponse {
 
 export interface ThreeDSecureSessionsParams {
   appId: string;
-  callbacks?: ThreeDSecureCallbacks;
+  options?: ThreeDSecureOptions;
   intervalRef: React.MutableRefObject<NodeJS.Timeout | null>;
   sessionId: string;
   setIsVisible: (show: boolean) => void;
@@ -61,7 +74,7 @@ export interface ThreeDSecureState extends ThreeDSecureInitialState {
    * The `start()` function is used to kick off the 3DS authentication process.
    *
    * @param sessionId The 3DS session ID. A 3DS session can be created using the [Evervault API](https://docs.evervault.com/api-reference#createThreeDSSession).
-   * @param callbacks The callbacks to be called when the 3DS authentication process is finished.
+   * @param options The options to be used for the 3DS authentication process.
    */
-  start(sessionId: string, callbacks?: ThreeDSecureCallbacks): void;
+  start(sessionId: string, options?: ThreeDSecureOptions): void;
 }

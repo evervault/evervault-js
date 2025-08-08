@@ -13,11 +13,18 @@ export const CARD_BRAND_NAMES = [
   "hiper",
   "szep",
   "uatp",
+  "rupay",
 ] as const;
 
 export type CardBrandName = (typeof CARD_BRAND_NAMES)[number];
 
 export interface CardConfig {
+  /**
+   * The brands that are accepted by the card form.
+   * Pass an empty array to accept all brands.
+   *
+   * @default []
+   */
   acceptedBrands?: CardBrandName[];
 }
 

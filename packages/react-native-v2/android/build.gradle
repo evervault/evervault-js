@@ -17,8 +17,13 @@ apply plugin: 'com.facebook.react'
 apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
-  compileSdkVersion safeExtGet('compileSdkVersion', 33)
+  compileSdkVersion safeExtGet('compileSdkVersion', 35)
   namespace "com.nativeevervault"
+
+  defaultConfig {
+    minSdkVersion safeExtGet('minSdkVersion', 24)
+    targetSdkVersion safeExtGet('targetSdkVersion', 35)
+  }
 }
 
 repositories {

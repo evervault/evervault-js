@@ -61,7 +61,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "visa",
           localBrands: [],
-          bin: null,
+          bin: "422222",
           lastFour: null,
           isValid: false,
         },
@@ -81,7 +81,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "visa",
           localBrands: [],
-          bin: null,
+          bin: "44620300",
           lastFour: null,
           isValid: false,
         },
@@ -111,7 +111,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "visa",
           localBrands: [],
-          bin: null,
+          bin: "44620300",
           lastFour: null,
           isValid: false,
         },
@@ -121,7 +121,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "visa",
           localBrands: [],
-          bin: null,
+          bin: "44620300",
           lastFour: null,
           isValid: false,
         },
@@ -176,7 +176,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "mastercard",
           localBrands: [],
-          bin: null,
+          bin: "555555",
           lastFour: null,
           isValid: false,
         },
@@ -196,7 +196,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "mastercard",
           localBrands: [],
-          bin: null,
+          bin: "55555555",
           lastFour: null,
           isValid: false,
         },
@@ -241,7 +241,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "american-express",
           localBrands: [],
-          bin: null,
+          bin: "343434",
           lastFour: null,
           isValid: false,
         },
@@ -251,7 +251,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "american-express",
           localBrands: [],
-          bin: null,
+          bin: "343434",
           lastFour: null,
           isValid: false,
         },
@@ -396,7 +396,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "diners-club",
           localBrands: [],
-          bin: null,
+          bin: "361489",
           lastFour: null,
           isValid: false,
         },
@@ -506,7 +506,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "discover",
           localBrands: [],
-          bin: null,
+          bin: "601111",
           lastFour: null,
           isValid: false,
         },
@@ -696,7 +696,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: null,
           localBrands: ["szep"],
-          bin: null,
+          bin: "308678",
           lastFour: null,
           isValid: false,
         },
@@ -706,7 +706,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: null,
           localBrands: ["szep"],
-          bin: null,
+          bin: "30867825",
           lastFour: null,
           isValid: false,
         },
@@ -736,7 +736,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "maestro",
           localBrands: ["szep"],
-          bin: null,
+          bin: "610131",
           lastFour: null,
           isValid: false,
         },
@@ -751,7 +751,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "visa",
           localBrands: ["elo"],
-          bin: null,
+          bin: "431274",
           lastFour: null,
           isValid: false,
         },
@@ -761,7 +761,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "visa",
           localBrands: ["elo"],
-          bin: null,
+          bin: "451416",
           lastFour: null,
           isValid: false,
         },
@@ -771,7 +771,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "visa",
           localBrands: ["elo"],
-          bin: null,
+          bin: "457393",
           lastFour: null,
           isValid: false,
         },
@@ -781,7 +781,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "visa",
           localBrands: ["elo"],
-          bin: null,
+          bin: "401178",
           lastFour: null,
           isValid: false,
         },
@@ -791,7 +791,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "visa",
           localBrands: ["elo"],
-          bin: null,
+          bin: "401179",
           lastFour: null,
           isValid: false,
         },
@@ -801,7 +801,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "visa",
           localBrands: ["elo"],
-          bin: null,
+          bin: "438935",
           lastFour: null,
           isValid: false,
         },
@@ -811,7 +811,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "visa",
           localBrands: ["elo"],
-          bin: null,
+          bin: "457631",
           lastFour: null,
           isValid: false,
         },
@@ -821,7 +821,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "visa",
           localBrands: ["elo"],
-          bin: null,
+          bin: "457632",
           lastFour: null,
           isValid: false,
         },
@@ -831,7 +831,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "visa",
           localBrands: ["elo"],
-          bin: null,
+          bin: "45763211",
           lastFour: null,
           isValid: false,
         },
@@ -861,7 +861,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: null,
           localBrands: ["elo"],
-          bin: null,
+          bin: "504175",
           lastFour: null,
           isValid: false,
         },
@@ -871,7 +871,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: null,
           localBrands: ["elo"],
-          bin: null,
+          bin: "627780",
           lastFour: null,
           isValid: false,
         },
@@ -891,7 +891,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "discover",
           localBrands: ["elo"],
-          bin: null,
+          bin: "650033",
           lastFour: null,
           isValid: false,
         },
@@ -901,7 +901,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "discover",
           localBrands: ["elo"],
-          bin: null,
+          bin: "65003311",
           lastFour: null,
           isValid: false,
         },
@@ -946,7 +946,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "uatp",
           localBrands: [],
-          bin: null,
+          bin: "123456",
           lastFour: null,
           isValid: false,
         },
@@ -956,7 +956,7 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "uatp",
           localBrands: [],
-          bin: null,
+          bin: "12345678",
           lastFour: null,
           isValid: false,
         },
@@ -966,7 +966,42 @@ const testData: CardTestData[] = [
         expectedResult: {
           brand: "uatp",
           localBrands: [],
-          bin: null,
+          bin: "12345678",
+          lastFour: null,
+          isValid: false,
+        },
+      },
+    ],
+  },
+  {
+    scope: "Rupay cards",
+    testCases: [
+      {
+        cardNumber: "6047315126933708",
+        expectedResult: {
+          brand: "rupay",
+          localBrands: [],
+          bin: "60473151",
+          lastFour: "3708",
+          isValid: true,
+        },
+      },
+      {
+        cardNumber: "6521089478322290",
+        expectedResult: {
+          brand: "rupay",
+          localBrands: [],
+          bin: "65210894",
+          lastFour: "2290",
+          isValid: true,
+        },
+      },
+      {
+        cardNumber: "6069850000000006", // Invalid Luhn check
+        expectedResult: {
+          brand: "rupay",
+          localBrands: [],
+          bin: "60698500",
           lastFour: null,
           isValid: false,
         },

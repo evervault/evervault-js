@@ -1,5 +1,17 @@
 # @evervault/card-validator
 
+## 1.5.0
+
+### Minor Changes
+
+- 3f9e24b: Expose BIN when input length > 5
+
+## 1.4.0
+
+### Minor Changes
+
+- 50727af: Add Rupay support to Card Component
+
 ## 1.3.0
 
 ### Minor Changes

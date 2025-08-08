@@ -62,7 +62,8 @@ jobs:
     with:
       stage: "staging"
       package-name: '@evervault/browser'
-      environment: 'browser-staging'
+      preview-environment: 'staging-deploy'
+      live-environment: 'browser-staging-deploy'
       run-preflight-checks: false
       perform-gated-preview-deployment: true
       cloudfront-preview-path-invalidation: "/v2/preview/index.js"
@@ -77,7 +78,7 @@ jobs:
     with:
       stage: "staging"
       package-name: '@evervault/inputs'
-      environment: 'staging'
+      live-environment: 'staging'
       run-preflight-checks: false
       perform-gated-preview-deployment: false
       cloudfront-live-path-invalidation: "/index.html,/bundle.js,/v2/*"
@@ -90,7 +91,8 @@ jobs:
     with:
       stage: "staging"
       package-name: '@evervault/ui-components'
-      environment: 'ui-components-staging'
+      preview-environment: 'staging'
+      live-environment: 'ui-components-staging-deploy'
       run-preflight-checks: false
       perform-gated-preview-deployment: true
       s3-bucket-var-name: 'UI_COMPONENTS_S3_BUCKET'
@@ -105,7 +107,7 @@ jobs:
     with:
       stage: "staging"
       package-name: '@evervault/3ds'
-      environment: 'staging'
+      live-environment: 'staging'
       run-preflight-checks: false
       perform-gated-preview-deployment: false
       s3-bucket-var-name: 'TDS_AWS_S3_BUCKET'
@@ -119,6 +121,7 @@ jobs:
     outputs:
       has-changesets: ${{ steps.changesets.outputs.hasChangesets }}
       tags-to-publish: ${{ steps.create-tags.outputs.tags-to-publish }}
+      number-of-tags-to-publish: ${{ steps.create-tags.outputs.number-of-tags }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -154,14 +157,16 @@ jobs:
         run: |-
           pnpm changeset tag && git push origin --tags
           TAGS=$(git tag --points-at=HEAD | jq -scR 'split("\n") | map(select(length > 0))')
+          NUMBER_OF_TAGS=$(echo "$TAGS" | jq 'length')
           echo "tags-to-publish=$TAGS" >> $GITHUB_OUTPUT
+          echo "number-of-tags=$NUMBER_OF_TAGS" >> $GITHUB_OUTPUT
         env:
           HUSKY: 0
   release:
     name: Release ${{ matrix.tag }}
     needs: [lint-and-test,e2e-test,build,create-tags]
     # Only attempt releases if we expect to have pushed some tags
-    if: needs.create-tags.outputs.has-changesets == 'false'
+    if: ${{ needs.create-tags.outputs.has-changesets == 'false' && needs.create-tags.outputs.number-of-tags-to-publish != '0' }}
     strategy:
       matrix:
         tag: ${{ fromJson(needs.create-tags.outputs.tags-to-publish) }}

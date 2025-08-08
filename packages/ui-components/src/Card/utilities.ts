@@ -20,7 +20,10 @@ import type {
 export async function changePayload(
   ev: PromisifiedEvervaultClient,
   form: UseFormReturn<CardForm>,
-  fields: CardField[]
+  fields: CardField[],
+  opts?: {
+    allow3DigitAmexCVC?: boolean;
+  }
 ): Promise<CardPayload> {
   const { name, number, expiry, cvc } = form.values;
   const {
@@ -43,12 +46,18 @@ export async function changePayload(
       cvc: await encryptedCVC(ev, cvc, number),
     },
     isValid: form.isValid,
-    isComplete: isComplete(form, fields),
+    isComplete: isComplete(form, fields, opts),
     errors: Object.keys(form.errors ?? {}).length > 0 ? form.errors : null,
   };
 }
 
-function isComplete(form: UseFormReturn<CardForm>, fields: CardField[]) {
+function isComplete(
+  form: UseFormReturn<CardForm>,
+  fields: CardField[],
+  opts?: {
+    allow3DigitAmexCVC?: boolean;
+  }
+) {
   if (fields.includes("name")) {
     if (form.values.name.length === 0) return false;
   }
@@ -64,8 +73,15 @@ function isComplete(form: UseFormReturn<CardForm>, fields: CardField[]) {
   }
 
   if (fields.includes("cvc")) {
+    const cardValidation = validateNumber(form.values.number);
     const cvcValidation = validateCVC(form.values.cvc, form.values.number);
     if (!cvcValidation.isValid) return false;
+
+    const allow3DigitAmex = opts?.allow3DigitAmexCVC ?? true;
+    const isAmex = cardValidation.brand === "american-express";
+    if (isAmex && form.values.cvc?.length === 3 && !allow3DigitAmex) {
+      return false;
+    }
   }
 
   return true;

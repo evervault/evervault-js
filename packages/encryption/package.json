@@ -1,0 +1,27 @@
+{
+  "name": "@repo/encryption",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite build --watch",
+    "dev:preview": "vite preview",
+    "build": "vite build",
+    "clean": "rm -rf node_modules dist"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "devDependencies": {
+    "dotenv": "^16.5.0",
+    "tsconfig": "workspace:*",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "wait-on": "catalog:"
+  },
+  "dependencies": {
+    "asn1js": "^3.0.6"
+  }
+}

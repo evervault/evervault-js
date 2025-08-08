@@ -1,5 +1,158 @@
 # @evervault/ui-components
 
+## 1.33.0
+
+### Minor Changes
+
+- c191a58: Add `validation` option to the Card Collection component to allow for customizing validation logic. Currently only supports adding regex validation for the card holder name.
+- e50568a: Test sandbox apps in production for Google Pay
+
+### Patch Changes
+
+- Updated dependencies [c191a58]
+- Updated dependencies [e50568a]
+  - @evervault/react@2.21.0
+  - types@0.17.0
+  - @evervault/card-validator@1.5.0
+  - shared@1.1.14
+
+## 1.32.2
+
+### Patch Changes
+
+- Updated dependencies [3f9e24b]
+  - @evervault/card-validator@1.5.0
+  - @evervault/react@2.20.0
+  - shared@1.1.13
+
+## 1.32.1
+
+### Patch Changes
+
+- 2992de7: Prevents double CReq submissions for 3D-Secure flow
+
+## 1.32.0
+
+### Minor Changes
+
+- 2640be6: Expose last four digits of underlying card number for Google Pay
+- 8dec7e4: Add recurring payment support for Apple Pay
+
+### Patch Changes
+
+- Updated dependencies [df76034]
+- Updated dependencies [31c1ac8]
+- Updated dependencies [e503d31]
+- Updated dependencies [2640be6]
+- Updated dependencies [8dec7e4]
+  - types@0.16.0
+  - @evervault/react@2.20.0
+  - @evervault/card-validator@1.4.0
+  - shared@1.1.12
+
+## 1.31.2
+
+### Patch Changes
+
+- Updated dependencies [1b2014c]
+  - @evervault/react@2.19.0
+
+## 1.31.1
+
+### Patch Changes
+
+- 3ef3bb6: Set CVC field autoComplete value to cc-csc when auto complete is enabled.
+
+## 1.31.0
+
+### Minor Changes
+
+- 311f567: Adds support for requesting billing address information with Google Pay.
+
+  You can now collect billing address information using the `billingAddress` option.
+
+  ```js
+  const googlePay = evervault.ui.googlePay(transaction, {
+      billingAddress: true,
+      process: async () => {
+          ...
+      }
+  });
+  ```
+
+  You can also specific the address format and request a phone number by using an object instead of a boolean.
+
+  ```js
+  const googlePay = evervault.ui.googlePay(transaction, {
+      billingAddress: {
+          format: 'MIn',
+          phoneNumber: true
+      },
+      process: async () => {
+          ...
+      }
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies [311f567]
+  - types@0.15.0
+  - @evervault/react@2.18.0
+  - @evervault/card-validator@1.4.0
+  - shared@1.1.11
+
+## 1.30.1
+
+### Patch Changes
+
+- d2a5c17: Update Google Merchant ID
+
+## 1.30.0
+
+### Minor Changes
+
+- 50727af: Add Rupay support to Card Component
+
+### Patch Changes
+
+- Updated dependencies [8957f08]
+- Updated dependencies [50727af]
+  - @evervault/react@2.18.0
+  - @evervault/card-validator@1.4.0
+  - types@0.14.0
+  - shared@1.1.10
+
+## 1.29.3
+
+### Patch Changes
+
+- f99c60e: Fixes bug where isComplete could be incorrectly set to true in the validate method response for 3 digit amex CVCs when allow3DigitAmexCVC is false
+
+## 1.29.2
+
+### Patch Changes
+
+- edd5483: Set isComplete to false for 3 digit Amex CVCs when disabled
+
+## 1.29.1
+
+### Patch Changes
+
+- f878e4d: Fixes allow3DigitAmexCVC option
+
+## 1.29.0
+
+### Minor Changes
+
+- 6cf0f6f: Adds a new `allow3DigitAmexCVC` option which allows you to configure whether or not 3 digit CVC should be treated as invalid or not. The default value is true.
+- 897b7f7: Extend 3ds method timeout
+
+### Patch Changes
+
+- Updated dependencies [6cf0f6f]
+  - @evervault/react@2.17.0
+
 ## 1.28.2
 
 ### Patch Changes

@@ -8,8 +8,12 @@ on:
         description: "Stage to deploy to (eg. staging, production)"
         required: true
         type: string
-      environment:
-        description: "Name of the github environment used to gate deployments. This will be used by the workflow to resolve the correct values for Github Secrets and Vars."
+      preview-environment:
+        description: "Name of the github environment used for deployment previews. This will be used by the workflow to resolve the correct values for Github Secrets and Vars."
+        required: false
+        type: string
+      live-environment:
+        description: "Name of the github environment used to live deployments. This will be used by the workflow to resolve the correct values for Github Secrets and Vars."
         required: true
         type: string
       run-preflight-checks:
@@ -59,7 +63,7 @@ jobs:
   # This is to ensure that the preview deployment is working as expected before we promote to production.
   deploy-preview:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.preview-environment }}
     if: ${{ inputs.perform-gated-preview-deployment }}
     name: "[PREVIEW] Deploy ${{ inputs.package-name }} to ${{ inputs.stage }}"
     needs: get-artifact-name
@@ -97,7 +101,7 @@ jobs:
           S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
         run: |-
           aws s3 cp ./dist/assets s3://${{ vars[env.S3_BUCKET_VAR] }}/assets/ --recursive
-          aws s3 cp ./dist/index.html s3://${{ vars[env.S3_BUCKET_VAR] }}/preview/ --recursive
+          aws s3 cp ./dist/index.html s3://${{ vars[env.S3_BUCKET_VAR] }}/preview/
       # @evervault/browser requires its build output to be renamed before upload. Once thats done, we upload the renamed files to the preview path under the top level v2 directory.
       - name: S3 Deploy browser sdk assets to preview
         if: ${{ inputs.package-name == '@evervault/browser' }}
@@ -113,17 +117,18 @@ jobs:
         id: prepare-cloudfront-payload
         with:
           script: |
-            const paths = ${{ inputs.cloudfront-preview-path-invalidation }}.split(',').map(path => path.trim()).filter(path => path !== '');
+            const paths = "${{ inputs.cloudfront-preview-path-invalidation }}".split(",").map(path => path.trim()).filter(path => path !== "");
             return {
               Paths: {
                 Quantity: paths.length,
                 Items: paths
-              }
+              },
+              CallerReference: `GithubCI-Preview-${{ github.run_id }}`
             };
         # Use the JSON payload generated in the previous step to perform a batch invalidation against the CloudFront CDN.
       - name: Cloudfront Cache Invalidation
         run: |-
-          echo "${{ steps.prepare-cloudfront-payload.outputs.result }}" > invalidation.json
+          echo ${{ toJson(steps.prepare-cloudfront-payload.outputs.result) }} > invalidation.json
           aws cloudfront create-invalidation --distribution-id ${{ secrets[env.CF_DISTRO_SECRET_NAME] }} --invalidation-batch file://invalidation.json
         env:
           CF_DISTRO_SECRET_NAME: ${{ inputs.cloudfront-distribution-id }}
@@ -137,18 +142,34 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
-      - name: Run preflight checks
-        if: ${{ inputs.run-preflight-checks }}
-        id: preflight
+      - name: Run browser preflight checks
+        if: ${{ inputs.run-preflight-checks && inputs.package-name == '@evervault/browser' }}
+        id: browser-preflight
         env:
           VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
           VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
           VITE_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
-          VITE_EVERVAULT_JS_URL: https://${{ inputs.asset-subdomain }}.evervault.${{ inputs.stage == 'production' && 'com' || 'io' }}${{ inputs.cloudfront-preview-path-invalidation }}
+          VITE_EVERVAULT_JS_URL: https://js.evervault.${{ inputs.stage == 'production' && 'com' || 'io' }}${{ inputs.cloudfront-preview-path-invalidation }}
         run: pnpm --filter=@repo/browser-pre-release-tests test-prerelease
       - name: Notify slack of failed release gate run
         uses: donaltuohy/deployment-slack-alert@v1
-        if: ${{ failure() && inputs.run-preflight-checks && steps.preflight.outcome == 'failure' }}
+        if: ${{ failure() && inputs.run-preflight-checks && steps.browser-preflight.outcome == 'failure' }}
+        with:
+          webhook: ${{ secrets.PRODUCTION_SLACK_WEBHOOK }}
+          service_name: ${{ inputs.package-name }} Preflight check failed for ${{ inputs.stage }}
+          action: failed
+      - name: Run ui-components preflight checks
+        if: ${{ inputs.run-preflight-checks && inputs.package-name == '@evervault/ui-components' }}
+        id: ui-components-preflight
+        env:
+          VITE_EV_TEAM_UUID: ${{ secrets.TESTS_TEAM_UUID }}
+          VITE_EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
+          VITE_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
+          VITE_UI_COMPONENTS_URL: https://ui-components.evervault.${{ inputs.stage == 'production' && 'com' || 'io' }}${{ inputs.cloudfront-preview-path-invalidation }}
+        run: pnpm --filter=@repo/ui-components-pre-release-tests test-prerelease
+      - name: Notify slack of failed release gate run
+        uses: donaltuohy/deployment-slack-alert@v1
+        if: ${{ failure() && inputs.run-preflight-checks && steps.ui-components-preflight.outcome == 'failure' }}
         with:
           webhook: ${{ secrets.PRODUCTION_SLACK_WEBHOOK }}
           service_name: ${{ inputs.package-name }} Preflight check failed for ${{ inputs.stage }}
@@ -160,10 +181,15 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [get-artifact-name, deploy-preview]
-    # We need to run this step even if the preview deployment is skipped. This is to account for the preview deployment being skipped.
-    # If the preview deployment fails, we should not attempt a live deployment.
-    if: ${{ always() && !failure() }}
-    environment: ${{ inputs.environment }}-deploy
+    # The live deployment should happen if:
+    # - The current package supports preview deployments and the preview deployment was successful.
+    # - The current package does not support preview deployments, in which case we should always deploy to live.
+    #
+    # `always()` ensures that the live deployment runs even if the preview deployment is skipped. This handles cases of packages that do not have a preview step.
+    # `!failure()` ensures that the live deployment does not run if the preview deployment failed.
+    # `!cancelled()` handles the case where a parallel job fails causing the preview deployment to be cancelled.
+    if: ${{ always() && !failure() && !cancelled() }}
+    environment: ${{ inputs.live-environment }}
     name: "Deploy ${{ inputs.package-name }} to ${{ inputs.stage }}"
     steps:
       - name: Configure AWS Credentials
@@ -204,42 +230,64 @@ jobs:
         id: prepare-cloudfront-payload
         with:
           script: |
-            const paths = ${{ inputs.cloudfront-live-path-invalidation }}.split(',').map(path => path.trim()).filter(path => path !== '');
+            const paths = "${{ inputs.cloudfront-live-path-invalidation }}".split(",").map(path => path.trim()).filter(path => path !== "");
             return {
               Paths: {
                 Quantity: paths.length,
                 Items: paths
-              }
+              },
+              CallerReference: `GithubCI-Live-${{ github.run_id }}`
             };
       - name: Cloudfront Cache Invalidation
         # Prepare a JSON file for the invalidation batch and send it to cloudfront
         run: |- 
-          echo "${{ steps.prepare-cloudfront-payload.outputs.result }}" > invalidation.json
+          echo ${{ toJson(steps.prepare-cloudfront-payload.outputs.result) }} > invalidation.json
           aws cloudfront create-invalidation --distribution-id ${{ secrets[env.CF_DISTRO_SECRET_NAME] }} --invalidation-batch file://invalidation.json
         env:
           CF_DISTRO_SECRET_NAME: ${{ inputs.cloudfront-distribution-id }}
   # If we just created a production release, take the changelog contents for the provided package and put it into the Github Release body.
   create_release:
     name: Create Github Release and Changelog
-    runs-on: ubuntu-latest
     needs: deploy
     if: ${{ inputs.stage == 'production' }}
+    runs-on: ubuntu-latest
     continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - name: Get package name
         env:
           TAG: ${{ inputs.tag_name }}
         id: parse
         run: |
-          if [[ "$TAG" == *"evervault-react-native"* ]]; then
-            echo "name=react-native" >> $GITHUB_OUTPUT
+          name_part=${TAG##*/}
+          echo "name=${name_part%@*}" >> $GITHUB_OUTPUT
+      - name: Get release content
+        id: release-content
+        env:
+          TAG: ${{ inputs.tag_name }}
+        run: |
+          name_part=${TAG##*/}
+          tag_prefix=${name_part%@*}
+
+          num_existing_tags=$(git ls-remote --sort="version:refname" --tags origin @evervault/$tag_prefix@\* | wc -l)
+          if [[ "$num_existing_tags" -lt 2 ]]; then
+            echo "No previous tags found for @evervault/$tag_prefix, taking entire changelog content"
+            CHANGELOG_CONTENT=$(cat ./packages/${{ steps.parse.outputs.name }}/CHANGELOG.md | tail -n +3)
           else
-            name_part=${TAG##*/}
-            echo "name=${name_part%@*}" >> $GITHUB_OUTPUT
+            echo "Previous tags found for @evervault/$tag_prefix, taking diff between two most recent tags"
+            git fetch --tags origin
+            CHANGELOG_CONTENT=$(git tag --sort="version:refname" -l @evervault/$tag_prefix@\* | tail -n2 | xargs -n2 sh -c 'git diff $0..$1 -- ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md' | grep '^+' | grep --invert-match '^+++'  | sed 's/^+//' | tail -n +3)  
           fi
+
+          {
+            echo 'content<<EOF'
+            echo "$CHANGELOG_CONTENT"
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
       - uses: softprops/action-gh-release@v2
         with:
-          body_path: ${{ github.workspace }}/packages/${{ steps.parse.outputs.name }}/CHANGELOG.md
+          body: ${{ steps.release-content.outputs.content }}
           tag_name: ${{ inputs.tag_name }}

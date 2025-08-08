@@ -1,6 +1,24 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
-import { useEvervault } from "@evervault/react";
+import { TransactionLineItem, useEvervault } from "@evervault/react";
 import "./App.css";
+
+function getLineItems(): TransactionLineItem[] {
+  return [
+    {
+      label: "First Edition \"The Great Gatsby\" (1925)",
+      amount: 245000,
+    },
+    {
+      label: "Signed \"One Hundred Years of Solitude\" (1967)",
+      amount: 185000,
+    }
+  ];
+}
+
+async function calculateShipping(region: string) {
+  const newShipping = region === "Dublin" ? 1000 : 0;
+  return Promise.resolve(newShipping);
+}
 
 function App() {
   const [name, setName] = useState("");
@@ -15,11 +33,13 @@ function App() {
       initialized.current = true;
       const evervault = await ev;
       if (!evervault) return;
+      
       const transaction = evervault.transactions.create({
-        amount: 4300,
+        amount: 430000,
         currency: "USD",
         country: "US",
-        merchantId: "merchant_e930d3f7bf37",
+        merchantId: import.meta.env.VITE_MERCHANT_ID,
+        lineItems: getLineItems(),
       });
 
       const inst = evervault.ui.googlePay(transaction, {
@@ -62,22 +82,68 @@ function App() {
       inst.mount("#google-pay-button");
       setInstance(inst);
 
-      const disbursementTransaction = evervault.transactions.create({
-        amount: 4300,
-        currency: "USD",
-        country: "US",
-        merchantId: "merchant_e930d3f7bf37",
-        requiredRecipientDetails: ["email", "phone", "name", "address"],
-        type: "disbursement",
-      });
+      /**
+       * Disbursement transaction example
+        const disbursementTransaction = evervault.transactions.create({
+          amount: 4300,
+          currency: "USD",
+          country: "US",
+          merchantId: "merchant_e930d3f7bf37",
+          requiredRecipientDetails: ["email", "phone", "name", "address"],
+          type: "disbursement",
+        });
+       */
 
-      const apple = evervault.ui.applePay(disbursementTransaction, {
+      /**
+       * Recurring transaction example
+        const recurringTransaction = evervault.transactions.create({
+          type: "recurring",
+          amount: 4300,
+          currency: "USD",
+          country: "US",
+          merchantId: "merchant_ef49637aa232",
+          billingAgreement: "See https://example.com/terms for terms and conditions",
+          managementURL: "https://applepaydemo.apple.com",
+          description: "This is an example of a recurring transaction. Ipsum ut minim amet sit incididunt duis et adipisicing reprehenderit ut. Excepteur occaecat ad velit amet et labore Lorem velit dolore irure culpa nisi sunt officia.",
+          regularBilling: {
+            label: "Monthly Subscription",
+            amount: 4.99,
+            recurringPaymentStartDate: new Date(new Date().setMonth(new Date().getMonth() + 2)),
+          },
+          trialBilling: {
+            label: "Trial Period",
+            amount: 0,
+            trialPaymentStartDate: new Date(),
+          },
+        });
+       */
+      
+
+      const apple = evervault.ui.applePay(transaction, {
         type: "contribute",
         style: "white-outline",
         locale: "en-US",
         size: { width: "100%", height: "80px" },
         borderRadius: 10,
         allowedCardNetworks: ["visa", "masterCard"],
+        requestShipping: true,
+        onShippingAddressChange: async (newAddress) => {
+          if (!newAddress) return { amount: transaction.details.amount, lineItems: getLineItems() };
+
+          const shipping = await calculateShipping(newAddress.region);
+          const newAmount = transaction.details.amount + shipping;
+
+          return {
+            amount: newAmount,
+            lineItems: [
+              ...(getLineItems() ?? []),
+              {
+                label: "Shipping",
+                amount: shipping,
+              },
+            ],
+          };
+        },
         process: async (data, {}) => {
           console.log("Sending encrypted data to merchant", data);
 
@@ -205,3 +271,4 @@ function App() {
 }
 
 export default App;
+

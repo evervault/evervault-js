@@ -6,6 +6,7 @@ export const DEFAULT_TRANSLATIONS: CardTranslations = {
     placeholder: "Name",
     errors: {
       invalid: "Please enter your full name",
+      regex: "Please enter a valid name",
     },
   },
   number: {

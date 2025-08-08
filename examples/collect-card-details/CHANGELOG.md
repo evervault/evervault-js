@@ -1,5 +1,43 @@
 # example-ui-components
 
+## 0.3.1
+
+### Patch Changes
+
+- Updated dependencies [e50568a]
+  - @evervault/js@2.4.0
+
+## 0.3.0
+
+### Minor Changes
+
+- 3f9e24b: Expose BIN when input length > 5
+
+### Patch Changes
+
+- Updated dependencies [4c34f72]
+- Updated dependencies [3f9e24b]
+  - @evervault/js@2.3.0
+
+## 0.2.14
+
+### Patch Changes
+
+- Updated dependencies [df76034]
+- Updated dependencies [31c1ac8]
+- Updated dependencies [e503d31]
+- Updated dependencies [2640be6]
+- Updated dependencies [cd08b80]
+- Updated dependencies [8dec7e4]
+  - @evervault/js@2.2.0
+
+## 0.2.13
+
+### Patch Changes
+
+- Updated dependencies [00fbd72]
+  - @evervault/js@2.1.0
+
 ## 0.2.12
 
 ### Patch Changes

@@ -1,5 +1,101 @@
 # @evervault/ui-components-e2e-tests
 
+## 1.2.8
+
+### Patch Changes
+
+- Updated dependencies [c191a58]
+- Updated dependencies [e50568a]
+  - @evervault/ui-components@1.33.0
+
+## 1.2.7
+
+### Patch Changes
+
+- @evervault/ui-components@1.32.2
+
+## 1.2.6
+
+### Patch Changes
+
+- Updated dependencies [2992de7]
+  - @evervault/ui-components@1.32.1
+
+## 1.2.5
+
+### Patch Changes
+
+- Updated dependencies [2640be6]
+- Updated dependencies [8dec7e4]
+  - @evervault/ui-components@1.32.0
+
+## 1.2.4
+
+### Patch Changes
+
+- @evervault/ui-components@1.31.2
+
+## 1.2.3
+
+### Patch Changes
+
+- Updated dependencies [3ef3bb6]
+  - @evervault/ui-components@1.31.1
+
+## 1.2.2
+
+### Patch Changes
+
+- Updated dependencies [311f567]
+  - @evervault/ui-components@1.31.0
+
+## 1.2.1
+
+### Patch Changes
+
+- Updated dependencies [d2a5c17]
+  - @evervault/ui-components@1.30.1
+
+## 1.2.0
+
+### Minor Changes
+
+- 50727af: Add Rupay support to Card Component
+
+### Patch Changes
+
+- Updated dependencies [50727af]
+  - @evervault/ui-components@1.30.0
+
+## 1.1.22
+
+### Patch Changes
+
+- Updated dependencies [f99c60e]
+  - @evervault/ui-components@1.29.3
+
+## 1.1.21
+
+### Patch Changes
+
+- Updated dependencies [edd5483]
+  - @evervault/ui-components@1.29.2
+
+## 1.1.20
+
+### Patch Changes
+
+- Updated dependencies [f878e4d]
+  - @evervault/ui-components@1.29.1
+
+## 1.1.19
+
+### Patch Changes
+
+- Updated dependencies [6cf0f6f]
+- Updated dependencies [897b7f7]
+  - @evervault/ui-components@1.29.0
+
 ## 1.1.18
 
 ### Patch Changes

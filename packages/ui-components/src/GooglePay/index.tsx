@@ -6,8 +6,9 @@ import { GooglePayConfig } from "./types";
 import { useMessaging } from "../utilities/useMessaging";
 import { GooglePayClientMessages, GooglePayHostMessages } from "types";
 import { useSearchParams } from "../utilities/useSearchParams";
-import { apiConfig } from "../utilities/config";
 import { getMerchant } from "../utilities/useMerchant";
+import { getAppSDKConfig } from "../utilities/getAppSDKConfig";
+import { apiConfig } from "../utilities/config";
 
 interface GooglePayProps {
   config: GooglePayConfig;
@@ -38,15 +39,49 @@ export function GooglePay({ config }: GooglePayProps) {
     called.current = true;
 
     async function onLoad() {
+      const appConfig = await getAppSDKConfig(app);
       const paymentsClient = new google.payments.api.PaymentsClient({
-        environment: apiConfig.googlePayEnvironment,
+        // Always use 'test' in staging, but use the resolved environment in production
+        environment:
+          apiConfig.environment === "staging"
+            ? "TEST"
+            : appConfig.isSandbox
+            ? "TEST"
+            : "PRODUCTION",
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
-            const encrypted = await exchangePaymentData(
+            const payload = await exchangePaymentData(
               app,
               data,
               config.transaction.merchantId
             );
+
+            const paymentMethodData = data.paymentMethodData;
+            payload.card.displayName = paymentMethodData?.description;
+
+            const paymentMethodInfo = paymentMethodData?.info;
+
+            const billingAddress = paymentMethodInfo?.billingAddress || null;
+            if (billingAddress) {
+              payload.billingAddress = billingAddress;
+            }
+
+            const cardDetails = data.paymentMethodData.info?.cardDetails;
+            if (cardDetails) {
+              const fourDigitRegex = /(\d{4})$/;
+              const lastFour = cardDetails.match(fourDigitRegex);
+              if (lastFour) {
+                payload.card.lastFour = lastFour[0];
+              } else {
+                // If the last four digits are not found, try to get them from the description
+                const descriptionLastFour =
+                  paymentMethodData?.description?.match(fourDigitRegex);
+                if (descriptionLastFour) {
+                  payload.card.lastFour = descriptionLastFour[0];
+                }
+              }
+            }
+
             return new Promise((resolve) => {
               on("EV_GOOGLE_PAY_AUTH_COMPLETE", () => {
                 send("EV_GOOGLE_PAY_SUCCESS");
@@ -64,7 +99,8 @@ export function GooglePay({ config }: GooglePayProps) {
                   error: googleError,
                 });
               });
-              send("EV_GOOGLE_PAY_AUTH", encrypted);
+
+              send("EV_GOOGLE_PAY_AUTH", payload);
             });
           },
         },

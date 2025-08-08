@@ -5,6 +5,7 @@ import {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
 } from "react";
 import { CardBrandName, CardConfig, CardPayload } from "./types";
 import { DeepPartial, FormProvider, useForm } from "react-hook-form";
@@ -12,6 +13,8 @@ import { CardFormValues, getCardFormSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEvervault } from "../useEvervault";
 import { formatPayload } from "./utils";
+import { EvervaultInputContext, EvervaultInputContextValue } from "../Input";
+import { EvervaultContextValue } from "../context";
 
 const DEFAULT_ACCEPTED_BRANDS: CardBrandName[] = [];
 
@@ -30,6 +33,11 @@ export interface CardProps extends PropsWithChildren, CardConfig {
    * Triggered whenever the component's state is updated.
    */
   onChange?(payload: CardPayload): void;
+
+  /**
+   * Triggered when a native error occurs.
+   */
+  onError?(error: Error): void;
 
   /**
    * The validation mode to use for the form.
@@ -56,6 +64,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     children,
     defaultValues,
     onChange,
+    onError,
     acceptedBrands = DEFAULT_ACCEPTED_BRANDS,
     validationMode = "all",
   },
@@ -75,6 +84,19 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     shouldUseNativeValidation: false,
   });
 
+  const inputContext = useMemo<EvervaultInputContextValue>(
+    () => ({
+      validationMode,
+    }),
+    [validationMode]
+  );
+
+  // Use refs to prevent closures from being captured
+  const onChangeRef = useRef<typeof onChange>(onChange);
+  onChangeRef.current = onChange;
+  const onErrorRef = useRef<typeof onError>(onError);
+  onErrorRef.current = onError;
+
   useEffect(() => {
     if (!onChange) return;
 
@@ -88,19 +110,23 @@ export const Card = forwardRef<Card, CardProps>(function Card(
       const signal = abortController.signal;
 
       requestAnimationFrame(async () => {
-        const payload = await formatPayload(values, {
-          encrypt: evervault.encrypt,
-          form: methods,
-        });
-        if (signal.aborted) return;
-        onChange?.(payload);
+        try {
+          const payload = await formatPayload(values, {
+            encrypt: evervault.encrypt,
+            form: methods,
+          });
+          if (signal.aborted) return;
+          onChangeRef.current?.(payload);
+        } catch (error) {
+          onErrorRef.current?.(error as Error);
+        }
       });
     }
 
     handleChange(methods.getValues());
     const subscription = methods.watch(handleChange);
     return () => subscription.unsubscribe();
-  }, [evervault.encrypt, onChange]);
+  }, [evervault.encrypt]);
 
   useImperativeHandle(
     ref,
@@ -114,5 +140,11 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     )
   );
 
-  return <FormProvider {...methods}>{children}</FormProvider>;
+  return (
+    <FormProvider {...methods}>
+      <EvervaultInputContext.Provider value={inputContext}>
+        {children}
+      </EvervaultInputContext.Provider>
+    </FormProvider>
+  );
 });

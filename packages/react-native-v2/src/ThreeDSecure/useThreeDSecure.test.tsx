@@ -2,6 +2,7 @@ import { PropsWithChildren } from "react";
 import { EvervaultProvider } from "../EvervaultProvider";
 import { act, renderHook } from "@testing-library/react-native";
 import { useThreeDSecure } from "./useThreeDSecure";
+import { ThreeDSecureEvent } from "./event";
 
 function wrapper({ children }: PropsWithChildren) {
   return (
@@ -17,6 +18,10 @@ const callbacks = {
   onFailure: vi.fn(),
 };
 
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
 it("returns the correct state", () => {
   const { result } = renderHook(() => useThreeDSecure(), {
     wrapper,
@@ -31,7 +36,7 @@ it("returns the correct state", () => {
 });
 
 it("starts a session when action is required", async () => {
-  const { result, rerender } = renderHook(() => useThreeDSecure(), {
+  const { result } = renderHook(() => useThreeDSecure(), {
     wrapper,
   });
 
@@ -47,6 +52,112 @@ it("starts a session when action is required", async () => {
     get: expect.any(Function),
   });
   expect(result.current.isVisible).toBe(true);
+});
+
+it("fails the session when failOnChallenge is true and a challenge is required", async () => {
+  const { result } = renderHook(() => useThreeDSecure(), {
+    wrapper,
+  });
+
+  vi.spyOn(global, "fetch").mockResolvedValue({
+    json: () => Promise.resolve({ status: "action-required" }),
+  } as any);
+
+  const onRequestChallenge = vi.fn();
+
+  await act(() =>
+    result.current.start("session_123", {
+      ...callbacks,
+      onRequestChallenge,
+      failOnChallenge: true,
+    })
+  );
+
+  expect(callbacks.onFailure).toHaveBeenCalled();
+  expect(onRequestChallenge).not.toHaveBeenCalled();
+});
+
+it("fails the session when failOnChallenge is a function that returns true and a challenge is required", async () => {
+  const { result } = renderHook(() => useThreeDSecure(), {
+    wrapper,
+  });
+
+  vi.spyOn(global, "fetch").mockResolvedValue({
+    json: () => Promise.resolve({ status: "action-required" }),
+  } as any);
+
+  const onRequestChallenge = vi.fn();
+
+  await act(() =>
+    result.current.start("session_123", {
+      ...callbacks,
+      onRequestChallenge,
+      failOnChallenge: () => Promise.resolve(true),
+    })
+  );
+
+  expect(callbacks.onFailure).toHaveBeenCalled();
+  expect(onRequestChallenge).not.toHaveBeenCalled();
+});
+
+it("fails the session when failOnChallenge resolves true at hook level and a challenge is required", async () => {
+  const { result } = renderHook(
+    () =>
+      useThreeDSecure({
+        failOnChallenge: () => Promise.resolve(true),
+      }),
+    {
+      wrapper,
+    }
+  );
+
+  vi.spyOn(global, "fetch").mockResolvedValue({
+    json: () => Promise.resolve({ status: "action-required" }),
+  } as any);
+
+  const onRequestChallenge = vi.fn();
+  await act(() =>
+    result.current.start("session_123", {
+      ...callbacks,
+      onRequestChallenge,
+    })
+  );
+
+  expect(onRequestChallenge).not.toHaveBeenCalled();
+  expect(callbacks.onFailure).toHaveBeenCalled();
+});
+
+it("fails the session when onRequestChallenge is called and defaultPrevented is true", async () => {
+  const { result } = renderHook(() => useThreeDSecure(), {
+    wrapper,
+  });
+
+  vi.spyOn(global, "fetch").mockResolvedValue({
+    json: () => Promise.resolve({ status: "action-required" }),
+  } as any);
+
+  let onRequestChallenge = vi.fn((event: ThreeDSecureEvent) =>
+    event.preventDefault()
+  );
+  await act(() =>
+    result.current.start("session_123", {
+      ...callbacks,
+      onRequestChallenge,
+    })
+  );
+  expect(onRequestChallenge).toHaveBeenCalled();
+  expect(callbacks.onFailure).toHaveBeenCalled();
+
+  let onFailure = vi.fn();
+  onRequestChallenge = vi.fn();
+  await act(() =>
+    result.current.start("session_123", {
+      onFailure,
+      onRequestChallenge,
+    })
+  );
+  expect(onRequestChallenge).toHaveBeenCalled();
+  expect(onFailure).not.toHaveBeenCalled();
 });
 
 it("calls the success callback when the session is successful", async () => {
