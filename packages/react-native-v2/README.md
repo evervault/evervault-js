@@ -8,8 +8,6 @@ The [Evervault](https://evervault.com/) React Native SDK is a toolkit for encryp
 
 Before starting with the Evervault React Native SDK, you will need to [create an account](https://app.evervault.com/register) and a team.
 
-For full installation support, [book time here](https://calendly.com/evervault/support).
-
 ## Documentation
 
 See the Evervault [React Native SDK documentation](https://docs.evervault.com/sdks/react-native).
