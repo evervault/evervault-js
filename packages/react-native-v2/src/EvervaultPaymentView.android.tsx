@@ -1,60 +1,60 @@
-import React from 'react';
-import { requireNativeComponent, ViewProps } from 'react-native';
-import { 
-  Config, 
-  Transaction, 
-  ButtonType, 
-  ButtonTheme, 
-  AuthMethod, 
-  CardNetwork, 
-  NativeProps
-} from './EvervaultPaymentViewNativeComponent.android';
-import { WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
+// import React from 'react';
+// import { requireNativeComponent, ViewProps } from 'react-native';
+// import { 
+//   Config, 
+//   Transaction, 
+//   ButtonType, 
+//   ButtonTheme, 
+//   AuthMethod, 
+//   CardNetwork, 
+//   NativeProps
+// } from './EvervaultPaymentViewNativeComponent.android';
+// import { WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
 
-type EvervaultPaymentViewProps = {
-  config: Config;
-  transaction: Transaction;
-  buttonType?: WithDefault<ButtonType, 'pay'>;
-  buttonTheme?: WithDefault<ButtonTheme, 'automatic'>;
-  allowedCardNetworks?: CardNetwork[];
-  onDidAuthorizePayment?: (data: any) => void;
-  onDidFinishWithResult?: (data: { success: boolean; error?: string }) => void;
-  onPrepareTransaction?: () => void;
-};
+// type EvervaultPaymentViewProps = {
+//   config: Config;
+//   transaction: Transaction;
+//   buttonType?: WithDefault<ButtonType, 'pay'>;
+//   buttonTheme?: WithDefault<ButtonTheme, 'automatic'>;
+//   allowedCardNetworks?: CardNetwork[];
+//   onDidAuthorizePayment?: (data: any) => void;
+//   onDidFinishWithResult?: (data: { success: boolean; error?: string }) => void;
+//   onPrepareTransaction?: () => void;
+// };
 
-const NativeEvervaultPaymentView = requireNativeComponent('EvervaultPaymentView');
+// const NativeEvervaultPaymentView = requireNativeComponent('EvervaultPaymentView');
 
-export const EvervaultPaymentView: React.FC<EvervaultPaymentViewProps> = ({
-  config,
-  transaction,
-  buttonType = 'pay',
-  buttonTheme = 'automatic',
-  allowedCardNetworks = ['VISA', 'MASTERCARD'],
-  onDidAuthorizePayment,
-  onDidFinishWithResult,
-  onPrepareTransaction,
-  ...props
-}) => {
-  return (
-    <NativeEvervaultPaymentView
-      config={config}
-      transaction={transaction}
-      buttonType={buttonType}
-      buttonTheme={buttonTheme}
-      allowedCardNetworks={JSON.stringify(allowedCardNetworks)}
-      onDidAuthorizePayment={onDidAuthorizePayment}
-      onDidFinishWithResult={onDidFinishWithResult}
-      onPrepareTransaction={onPrepareTransaction}
-      {...props}
-    />
-  );
-};
+// export const EvervaultPaymentView: React.FC<EvervaultPaymentViewProps> = ({
+//   config,
+//   transaction,
+//   buttonType = 'pay',
+//   buttonTheme = 'automatic',
+//   allowedCardNetworks = ['VISA', 'MASTERCARD'],
+//   onDidAuthorizePayment,
+//   onDidFinishWithResult,
+//   onPrepareTransaction,
+//   ...props
+// }) => {
+//   return (
+//     <NativeEvervaultPaymentView
+//       config={config}
+//       transaction={transaction}
+//       buttonType={buttonType}
+//       buttonTheme={buttonTheme}
+//       allowedCardNetworks={JSON.stringify(allowedCardNetworks)}
+//       onDidAuthorizePayment={onDidAuthorizePayment}
+//       onDidFinishWithResult={onDidFinishWithResult}
+//       onPrepareTransaction={onPrepareTransaction}
+//       {...props}
+//     />
+//   );
+// };
 
-export type {
-  Config,
-  Transaction,
-  ButtonType,
-  ButtonTheme,
-  AuthMethod,
-  CardNetwork
-};
+// export type {
+//   Config,
+//   Transaction,
+//   ButtonType,
+//   ButtonTheme,
+//   AuthMethod,
+//   CardNetwork
+// };

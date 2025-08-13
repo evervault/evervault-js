@@ -1,5 +1,5 @@
 import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
-import type { ViewProps } from 'react-native';
+import { requireNativeComponent, type ViewProps } from 'react-native';
 import type { DirectEventHandler, Double, WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
 
 export type LineItem = {
@@ -57,3 +57,15 @@ export interface NativeProps extends ViewProps {
 export default codegenNativeComponent<NativeProps>(
   'EvervaultPaymentView'
 );
+
+export type EvervaultPaymentViewProps = {
+    config: Config;
+    transaction: Transaction;
+    buttonType?: WithDefault<ButtonType, 'pay'>;
+    buttonTheme?: WithDefault<ButtonTheme, 'automatic'>;
+    allowedCardNetworks?: string;
+    onDidAuthorizePayment?: (data: any) => void;
+    onDidFinishWithResult?: (data: { success: boolean; error?: string }) => void;
+    onPrepareTransaction?: () => void;
+  };
+  

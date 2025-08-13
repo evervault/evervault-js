@@ -125,13 +125,13 @@ class EvervaultPaymentViewWrapper: UIView {
         self.createPaymentView()
     }
     
-    private func parseAllowedCardNetworks(_ networksJson: NSString) -> [Network] {
-        if let data = networksJson.data(using: String.Encoding.utf8.rawValue),
-           let networks = try? JSONSerialization.jsonObject(with: data, options: []) as? [String] {
-            return allowedCardNetworks = networks.compactMap { network in
-                parseCardNetwork(network)
-            }
-        }
+    private func parseAllowedCardNetworks(_ networksJson: String) -> [Network] {
+//        if let data = networksJson.data(using: String.Encoding.utf8.rawValue),
+//           let networks = try? JSONSerialization.jsonObject(with: data, options: []) as? [String] {
+//            return allowedCardNetworks = networks.compactMap { network in
+//                parseCardNetwork(network)
+//            }
+//        }
         // Fallback to default networks if JSON parsing fails
         return [.visa, .masterCard]
     }
@@ -140,7 +140,7 @@ class EvervaultPaymentViewWrapper: UIView {
         switch type.uppercased() {
         case "PLAIN": return .plain
         case "BUY": return .buy
-        case "SETUP": return .setup
+//        case "SETUP": return .setup
         case "IN_STORE": return .inStore
         case "DONATE": return .donate
         case "CHECKOUT": return .checkout
