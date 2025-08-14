@@ -62,6 +62,16 @@ module.exports = {
           backgroundColor: "#ffffff",
         },
       ],
+      [
+        // Customize build properties here:
+        // https://docs.expo.dev/versions/latest/sdk/build-properties/
+        'expo-build-properties',
+        {
+          android: {
+            minSdkVersion: 26,
+          },
+        },
+      ],
       ...plugins,
     ],
   },
