@@ -1,10 +1,15 @@
 import { requireNativeComponent } from "react-native";
-import { EvervaultPaymentViewProps } from "./types";
+import { ApplePayButtonProps } from "./types";
 export * from './types';
 
-const NativeEvervaultPaymentView = requireNativeComponent<EvervaultPaymentViewProps>('EvervaultPaymentView');
+const NativeEvervaultPaymentView = requireNativeComponent<ApplePayButtonProps>('EvervaultPaymentView');
 
-export const ApplePayButton: React.FC<EvervaultPaymentViewProps> = ({
+export const isApplePayAvailable = () => {
+  // TODO: Call the native method to check if Apple Pay is available
+  return true;
+}
+
+export const ApplePayButton: React.FC<ApplePayButtonProps> = ({
     config,
     transaction,
     buttonType = 'pay',

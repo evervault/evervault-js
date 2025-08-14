@@ -1,6 +1,5 @@
-import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
-import { requireNativeComponent, type ViewProps } from 'react-native';
-import type { DirectEventHandler, Double, WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
+import { ViewProps } from "react-native";
+import { DirectEventHandler, WithDefault } from "react-native/Libraries/Types/CodegenTypes";
 
 export type LineItem = {
   label: string;
@@ -54,18 +53,13 @@ interface NativeProps extends ViewProps {
   onPrepareTransaction?: DirectEventHandler<null>;
 }
 
-// export default codegenNativeComponent<NativeProps>(
-//   'EvervaultPaymentView'
-// );
-
-export type ApplePayButtonProps = {
+export type GooglePayButtonProps = {
     config: Config;
     transaction: Transaction;
     buttonType?: WithDefault<ButtonType, 'pay'>;
     buttonTheme?: WithDefault<ButtonTheme, 'automatic'>;
-    allowedCardNetworks?: string;
+    allowedCardNetworks?: CardNetwork[];
     onDidAuthorizePayment?: (data: any) => void;
     onDidFinishWithResult?: (data: { success: boolean; error?: string }) => void;
     onPrepareTransaction?: () => void;
   };
-  
