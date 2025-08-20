@@ -1,5 +1,11 @@
 # @evervault/js
 
+## 2.5.0
+
+### Minor Changes
+
+- f7adade: Fix casing of AppConfig.is_sandbox field used for Google Pay
+
 ## 2.4.0
 
 ### Minor Changes

@@ -1,5 +1,12 @@
 # themes
 
+## 0.1.18
+
+### Patch Changes
+
+- Updated dependencies [f7adade]
+  - types@0.18.0
+
 ## 0.1.17
 
 ### Patch Changes

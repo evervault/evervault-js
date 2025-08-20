@@ -45,7 +45,7 @@ export function GooglePay({ config }: GooglePayProps) {
         environment:
           apiConfig.environment === "staging"
             ? "TEST"
-            : appConfig.isSandbox
+            : appConfig.is_sandbox
             ? "TEST"
             : "PRODUCTION",
         paymentDataCallbacks: {

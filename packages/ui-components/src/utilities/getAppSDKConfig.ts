@@ -4,7 +4,7 @@ const API = import.meta.env.VITE_API_URL as string;
 
 export function getDefaultAppSDKConfig(): AppSDKConfig {
   return {
-    isSandbox: false,
+    is_sandbox: false,
   };
 }
 
