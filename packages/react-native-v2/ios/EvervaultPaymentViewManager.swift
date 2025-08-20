@@ -21,12 +21,4 @@ class EvervaultPaymentViewManager: RCTViewManager {
     @objc func setTransaction(_ view: EvervaultPaymentViewWrapper, transaction: NSDictionary) {
         view.setTransaction(transaction)
     }
-    
-    @objc func setButtonType(_ view: EvervaultPaymentViewWrapper, buttonType: String) {
-        view.setButtonType(buttonType)
-    }
-    
-    @objc func setButtonTheme(_ view: EvervaultPaymentViewWrapper, buttonTheme: String) {
-        view.setButtonTheme(buttonTheme)
-    }
 } 

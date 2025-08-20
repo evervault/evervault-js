@@ -2,34 +2,52 @@ import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNati
 import { requireNativeComponent, type ViewProps } from 'react-native';
 import type { DirectEventHandler, Double, WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
 
-export type LineItem = {
-  label: string;
-  amount: string;
+export class Amount {
+  public value: string;
+
+  constructor(value: string) {
+    this.value = value;
+  }
 };
 
-export type Transaction = {
-  total: string;
+export type SummaryItem = {
+  label: string;
+  amount: Amount;
+};
+
+export type OneOffTransaction = {
   currency: string;
   country: string;
-  lineItems?: LineItem[];
+  paymentSummaryItems: SummaryItem[];
+  // TODO: Add other fields
+}
+
+export type RecurringTransaction = {
+  // TODO: Add other fields
 };
+
+export type DisbursementTransaction = {
+  // TODO: Add other fields
+};
+
+export type Transaction = OneOffTransaction | RecurringTransaction | DisbursementTransaction;
 
 export type Config = {
   appId: string;
   merchantId: string;
+  supportedNetworks: CardNetwork[];
+  buttonType: string;
+  buttonTheme: string;
 };
 
-export type ButtonType = 'plain' | 'book' | 'buy' | 'checkout' | 'order' | 'subscribe' | 'pay';
-export type ButtonTheme = 'light' | 'dark' | 'automatic';
+export type ButtonType = 'plain' | 'book' | 'buy' | 'checkout' | 'order' | 'subscribe' | 'pay' | 'in_store' | 'donate' | 'reload' | 'add_money' | 'top_up' | 'rent' | 'support' | 'contribute' | 'tip' | 'continue';
+export type ButtonTheme = 'automatic' | 'white' | 'white_outline' | 'black';
 export type AuthMethod = 'PAN_ONLY' | 'CRYPTOGRAM_3DS';
-export type CardNetwork = 'VISA' | 'MASTERCARD' | 'AMEX' | 'DISCOVER' | 'JCB';
+export type CardNetwork = 'visa' | 'mastercard' | 'amex' | 'discover' | 'jcb';
 
-interface NativeProps extends ViewProps {
+export interface NativeProps extends ViewProps {
   config: Config;
   transaction: Transaction;
-  buttonType?: WithDefault<ButtonType, 'pay'>;
-  buttonTheme?: WithDefault<ButtonTheme, 'automatic'>;
-  allowedCardNetworks?: string;
   onDidAuthorizePayment?: DirectEventHandler<{
     networkToken: {
       number: string;
@@ -54,18 +72,14 @@ interface NativeProps extends ViewProps {
   onPrepareTransaction?: DirectEventHandler<null>;
 }
 
-// export default codegenNativeComponent<NativeProps>(
-//   'EvervaultPaymentView'
-// );
-
 export type ApplePayButtonProps = {
-    config: Config;
+    appId: string;
+    merchantId: string;
+    buttonType?: ButtonType;
+    buttonTheme?: ButtonTheme;
+    allowedCardNetworks?: CardNetwork[];
     transaction: Transaction;
-    buttonType?: WithDefault<ButtonType, 'pay'>;
-    buttonTheme?: WithDefault<ButtonTheme, 'automatic'>;
-    allowedCardNetworks?: string;
     onDidAuthorizePayment?: (data: any) => void;
     onDidFinishWithResult?: (data: { success: boolean; error?: string }) => void;
     onPrepareTransaction?: () => void;
   };
-  

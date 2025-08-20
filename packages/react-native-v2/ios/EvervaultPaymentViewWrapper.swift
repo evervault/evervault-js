@@ -9,8 +9,6 @@ class EvervaultPaymentViewWrapper: UIView {
     private var paymentView: EvervaultPaymentView?
     private var config: [String: Any]?
     private var transaction: [String: Any]?
-    private var buttonType: ButtonType = .buy
-    private var buttonStyle: ButtonStyle = .automatic
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -31,9 +29,14 @@ class EvervaultPaymentViewWrapper: UIView {
               let transaction = self.transaction,
               let appId = config["appId"] as? String,
               let merchantId = config["merchantId"] as? String,
-              let allowedCardNetworks = config["allowedCardNetworks"] as? String else {
+              let supportedNetworks = config["supportedNetworks"] as? String,
+              let buttonType = config["buttonType"] as? String,
+              let buttonStyle = config["buttonStyle"] as? String else {
             return
         }
+
+        let buttonType = self.parseButtonType(buttonType)
+        let buttonStyle = self.parseButtonStyle(buttonStyle)
         
         // Parse transaction
         guard let transactionObj = self.parseTransaction(transaction) else {
@@ -50,9 +53,9 @@ class EvervaultPaymentViewWrapper: UIView {
             appId: appId,
             appleMerchantId: merchantId,
             transaction: transactionObj,
-            supportedNetworks: self.parseAllowedCardNetworks(allowedCardNetworks),
-            buttonStyle: self.buttonStyle,
-            buttonType: self.buttonType
+            supportedNetworks: self.parseAllowedCardNetworks(supportedNetworks),
+            buttonStyle: buttonStyle,
+            buttonType: buttonType
         )
         
         paymentView.delegate = self
@@ -71,6 +74,7 @@ class EvervaultPaymentViewWrapper: UIView {
     }
     
     private func parseTransaction(_ transactionDict: [String: Any]) -> Transaction? {
+        // TODO: Use swift native JSON deserialization on transactionDict
         guard let currency = transactionDict["currency"] as? String,
               let country = transactionDict["country"] as? String else {
             return nil
@@ -78,8 +82,9 @@ class EvervaultPaymentViewWrapper: UIView {
         
         // Parse line items
         var lineItems: [SummaryItem] = []
-        if let lineItemsArray = transactionDict["lineItems"] as? [[String: Any]] {
+        if let lineItemsArray = transactionDict["paymentSummaryItems"] as? [[String: Any]] {
             for item in lineItemsArray {
+                // TODO: This is an amount object, not a string.
                 if let amount = item["amount"] as? String, let label = item["label"] as? String {
                     lineItems.append(SummaryItem(
                         label: label,
@@ -113,18 +118,6 @@ class EvervaultPaymentViewWrapper: UIView {
         self.createPaymentView()
     }
     
-    @objc
-    func setButtonType(_ buttonTypeString: String) {
-        self.buttonType = self.parseButtonType(buttonTypeString)
-        self.createPaymentView()
-    }
-    
-    @objc
-    func setButtonTheme(_ buttonThemeString: String) {
-        self.buttonStyle = self.parseButtonStyle(buttonThemeString)
-        self.createPaymentView()
-    }
-    
     private func parseAllowedCardNetworks(_ networksJson: String) -> [Network] {
 //        if let data = networksJson.data(using: String.Encoding.utf8.rawValue),
 //           let networks = try? JSONSerialization.jsonObject(with: data, options: []) as? [String] {
@@ -138,44 +131,43 @@ class EvervaultPaymentViewWrapper: UIView {
     
     private func parseButtonType(_ type: String) -> ButtonType {
         switch type.uppercased() {
-        case "PLAIN": return .plain
-        case "BUY": return .buy
-//        case "SETUP": return .setup
-        case "IN_STORE": return .inStore
-        case "DONATE": return .donate
-        case "CHECKOUT": return .checkout
-        case "BOOK": return .book
-        case "SUBSCRIBE": return .subscribe
-        case "RELOAD": return .reload
-        case "ADD_MONEY": return .addMoney
-        case "TOP_UP": return .topUp
-        case "ORDER": return .order
-        case "RENT": return .rent
-        case "SUPPORT": return .support
-        case "CONTRIBUTE": return .contribute
-        case "TIP": return .tip
-        case "CONTINUE": return .continue
+        case "plain": return .plain
+        case "buy": return .buy
+        case "in_store": return .inStore
+        case "donate": return .donate
+        case "checkout": return .checkout
+        case "book": return .book
+        case "subscribe": return .subscribe
+        case "reload": return .reload
+        case "add_money": return .addMoney
+        case "top_up": return .topUp
+        case "order": return .order
+        case "rent": return .rent
+        case "support": return .support
+        case "contribute": return .contribute
+        case "tip": return .tip
+        case "continue": return .continue
         default: return .buy
         }
     }
     
     private func parseButtonStyle(_ style: String) -> ButtonStyle {
         switch style.uppercased() {
-        case "WHITE": return .white
-        case "WHITE_OUTLINE": return .whiteOutline
-        case "BLACK": return .black
-        case "AUTOMATIC": return .automatic
+        case "white": return .white
+        case "white_outline": return .whiteOutline
+        case "black": return .black
+        case "automatic": return .automatic
         default: return .automatic
         }
     }
     
     private func parseCardNetwork(_ network: String) -> Network? {
         switch network.uppercased() {
-        case "VISA": return .visa
-        case "MASTERCARD": return .masterCard
-        case "AMEX": return .amex
-        case "DISCOVER": return .discover
-        case "JCB": return .JCB
+        case "visa": return .visa
+        case "mastercard": return .masterCard
+        case "amex": return .amex
+        case "discover": return .discover
+        case "jcb": return .JCB
         default: return nil
         }
     }

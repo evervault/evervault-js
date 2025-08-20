@@ -4,7 +4,5 @@
 
 RCT_EXPORT_VIEW_PROPERTY(config, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(transaction, NSDictionary)
-RCT_EXPORT_VIEW_PROPERTY(buttonType, NSString)
-RCT_EXPORT_VIEW_PROPERTY(buttonTheme, NSString)
 
-@end 
+@end

@@ -62,4 +62,4 @@ export type GooglePayButtonProps = {
     onDidAuthorizePayment?: (data: any) => void;
     onDidFinishWithResult?: (data: { success: boolean; error?: string }) => void;
     onPrepareTransaction?: () => void;
-  };
+};

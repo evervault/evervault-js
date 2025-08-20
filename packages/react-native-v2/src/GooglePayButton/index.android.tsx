@@ -1,6 +1,7 @@
 import { requireNativeComponent } from "react-native";
 import { WithDefault } from "react-native/Libraries/Types/CodegenTypes";
 import { ButtonTheme, ButtonType, CardNetwork, Config, Transaction, GooglePayButtonProps } from "./types";
+export * from './types';
 
 const NativeEvervaultPaymentView = requireNativeComponent('EvervaultPaymentView');
 
