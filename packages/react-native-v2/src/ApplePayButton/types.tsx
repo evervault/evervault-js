@@ -1,5 +1,4 @@
-import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
-import { requireNativeComponent, type ViewProps } from 'react-native';
+import { type ViewProps } from 'react-native';
 import type { DirectEventHandler, Double, WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
 
 export class Amount {
@@ -40,6 +39,36 @@ export type Config = {
   buttonTheme: string;
 };
 
+export type ApplePayNetworkTokenExpiry = {
+  month: string;
+  year: string;
+}
+
+export type ApplePayNetworkToken = {
+  number: string;
+  expiry: ApplePayNetworkTokenExpiry;
+  rawExpiry: string;
+  tokenServiceProvider: string;
+};
+
+export type ApplePayCard = {
+  brand?: string;
+  funding?: string;
+  segment?: string;
+  country?: string;
+  currency?: string;
+  issuer?: string;
+};
+
+export type ApplePayResponse = {
+  networkToken: ApplePayNetworkToken;
+  card: ApplePayCard;
+  cryptogram: string;
+  eci?: string;
+  paymentDataType: string;
+  deviceManufacturerIdentifier: string;
+}
+
 export type ButtonType = 'plain' | 'book' | 'buy' | 'checkout' | 'order' | 'subscribe' | 'pay' | 'in_store' | 'donate' | 'reload' | 'add_money' | 'top_up' | 'rent' | 'support' | 'contribute' | 'tip' | 'continue';
 export type ButtonTheme = 'automatic' | 'white' | 'white_outline' | 'black';
 export type AuthMethod = 'PAN_ONLY' | 'CRYPTOGRAM_3DS';
@@ -77,9 +106,11 @@ export type ApplePayButtonProps = {
     merchantId: string;
     buttonType?: ButtonType;
     buttonTheme?: ButtonTheme;
-    allowedCardNetworks?: CardNetwork[];
+    supportedNetworks?: CardNetwork[];
     transaction: Transaction;
-    onDidAuthorizePayment?: (data: any) => void;
+    onDidAuthorizePayment?: (data: ApplePayResponse) => void;
     onDidFinishWithResult?: (data: { success: boolean; error?: string }) => void;
-    onPrepareTransaction?: () => void;
+    onPrepareTransaction?: (data: Transaction) => void;
+
+    // TODO: Add shipping callback methods.
   };

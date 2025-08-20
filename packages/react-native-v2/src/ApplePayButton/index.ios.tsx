@@ -9,10 +9,15 @@ export const isApplePayAvailable = () => {
   return true;
 }
 
+export const isApplePayDisbursementAvailable = () => {
+  // TODO: Call the native method to check if Apple Pay Disbursement is available
+  return false;
+}
+
 export const ApplePayButton: React.FC<ApplePayButtonProps> = ({
     appId,
     merchantId,
-    supportedNetworks = ['visa', 'mastercard'],
+    supportedNetworks = ['visa', 'mastercard', 'amex', 'discover', 'jcb'],
     buttonType = 'buy',
     buttonTheme = 'automatic',
     transaction,
