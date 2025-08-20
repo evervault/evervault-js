@@ -28,18 +28,4 @@ class EvervaultPaymentViewManager : SimpleViewManager<EvervaultPaymentView>() {
             view.setTransactionFromMap(value)
         }
     }
-
-    @ReactProp(name = "buttonType")
-    fun setButtonType(view: EvervaultPaymentView, value: String?) {
-        if (value != null) {
-            view.setButtonType(value)
-        }
-    }
-
-    @ReactProp(name = "buttonTheme")
-    fun setButtonTheme(view: EvervaultPaymentView, value: String?) {
-        if (value != null) {
-            view.setButtonTheme(value)
-        }
-    }
 }

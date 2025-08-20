@@ -66,33 +66,32 @@ class EvervaultPaymentView(context: ThemedReactContext) : ReactViewGroup(context
     fun setConfig(configMap: ReadableMap) {
         val appId = configMap.getString("appId")
         val merchantId = configMap.getString("merchantId")
-        val environment = when (configMap.getString("environment")) {
-            "staging" -> EvervaultConstants.ENVIRONMENT_TEST
-            "production" -> EvervaultConstants.ENVIRONMENT_PRODUCTION
-            else -> EvervaultConstants.ENVIRONMENT_PRODUCTION
-        }
-        val allowedAuthMethods = Gson().fromJson(configMap.getString("allowedAuthMethods"), Array<String>::class.java)
-            .toList()
-            .map { authMethodFromString(it) }
-        val allowedCardNetworks = Gson().fromJson(configMap.getString("allowedCardNetworks"), Array<String>::class.java)
+        val supportedNetworks = Gson().fromJson(configMap.getString("supportedNetworks"), Array<String>::class.java)
             .toList()
             .map { cardNetworkFromString(it) }
-
-        if (appId != null && merchantId != null && allowedAuthMethods != null && allowedCardNetworks != null) {
+        val supportedMethods = Gson().fromJson(configMap.getString("supportedMethods"), Array<String>::class.java)
+            .toList()
+            .map { authMethodFromString(it) }
+        val buttonType = configMap.getString("buttonType")?.let { buttonTypeFromString(it) }
+        val buttonTheme = configMap.getString("buttonTheme")?.let { buttonThemeFromString(it) }
+        
+        if (appId != null && merchantId != null && supportedMethods != null && supportedNetworks != null) {
             config = Config(
                 appId = appId,
                 merchantId = merchantId,
-                environment = environment,
-                supportedNetworks = allowedCardNetworks,
-                supportedMethods = allowedAuthMethods
+                supportedNetworks = supportedNetworks,
+                supportedMethods = supportedMethods
             )
-            
+            this.buttonType = buttonType ?: EvervaultButtonType.Pay
+            this.buttonTheme = buttonTheme ?: EvervaultButtonTheme.Dark
+
             // Create the ViewModel with the new config
             createViewModel()
         }
     }
 
     fun setTransactionFromMap(transactionMap: ReadableMap) {
+        // TODO: Total is an amount object, not a string.
         val total = transactionMap.getString("total") ?: return
         val currency = transactionMap.getString("currency") ?: return
         val country = transactionMap.getString("country") ?: return

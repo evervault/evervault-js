@@ -1,31 +1,30 @@
 import { requireNativeComponent } from "react-native";
-import { WithDefault } from "react-native/Libraries/Types/CodegenTypes";
-import { ButtonTheme, ButtonType, CardNetwork, Config, Transaction, GooglePayButtonProps } from "./types";
+import { GooglePayButtonProps, NativeProps } from "./types";
 export * from './types';
 
-const NativeEvervaultPaymentView = requireNativeComponent('EvervaultPaymentView');
+const NativeEvervaultPaymentView = requireNativeComponent<NativeProps>('EvervaultPaymentView');
 
 export const GooglePayButton: React.FC<GooglePayButtonProps> = ({
-  config,
+  appId,
+  merchantId,
+  supportedNetworks = ['VISA', 'MASTERCARD', 'AMEX', 'DISCOVER', 'JCB'],
+  supportedMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
   transaction,
   buttonType = 'pay',
-  buttonTheme = 'automatic',
-  allowedCardNetworks = ['VISA', 'MASTERCARD'],
-  onDidAuthorizePayment,
-  onDidFinishWithResult,
-  onPrepareTransaction,
+  buttonTheme = 'dark',
   ...props
 }) => {
   return (
     <NativeEvervaultPaymentView
-      config={config}
+      config={{
+        appId,
+        merchantId,
+        supportedNetworks,
+        supportedMethods,
+        buttonType,
+        buttonTheme,
+      }}
       transaction={transaction}
-      buttonType={buttonType}
-      buttonTheme={buttonTheme}
-      allowedCardNetworks={JSON.stringify(allowedCardNetworks)}
-      onDidAuthorizePayment={onDidAuthorizePayment}
-      onDidFinishWithResult={onDidFinishWithResult}
-      onPrepareTransaction={onPrepareTransaction}
       {...props}
     />
   );

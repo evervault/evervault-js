@@ -101,11 +101,7 @@ export interface NativeProps extends ViewProps {
   onPrepareTransaction?: DirectEventHandler<null>;
 }
 
-export type ApplePayButtonProps = {
-    appId: string;
-    merchantId: string;
-    buttonType?: ButtonType;
-    buttonTheme?: ButtonTheme;
+export type ApplePayButtonProps = Config & {
     supportedNetworks?: CardNetwork[];
     transaction: Transaction;
     onDidAuthorizePayment?: (data: ApplePayResponse) => void;
@@ -113,4 +109,4 @@ export type ApplePayButtonProps = {
     onPrepareTransaction?: (data: Transaction) => void;
 
     // TODO: Add shipping callback methods.
-  };
+};
