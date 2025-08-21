@@ -4,7 +4,7 @@ import React
 import EvervaultPayment
 import PassKit
 
-@objc(EvervaultPaymentViewWrapper)
+@objc
 class EvervaultPaymentViewWrapper: UIView {
     private var paymentView: EvervaultPaymentView?
     private var config: [String: Any]?
@@ -30,13 +30,13 @@ class EvervaultPaymentViewWrapper: UIView {
               let appId = config["appId"] as? String,
               let merchantId = config["merchantId"] as? String,
               let supportedNetworks = config["supportedNetworks"] as? String,
-              let buttonType = config["buttonType"] as? String,
-              let buttonStyle = config["buttonStyle"] as? String else {
+              let buttonTypeOpt = config["buttonType"] as? String,
+              let buttonStyleOpt = config["buttonStyle"] as? String else {
             return
         }
 
-        let buttonType = self.parseButtonType(buttonType)
-        let buttonStyle = self.parseButtonStyle(buttonStyle)
+        let buttonType = self.parseButtonType(buttonTypeOpt)
+        let buttonStyle = self.parseButtonStyle(buttonStyleOpt)
         
         // Parse transaction
         guard let transactionObj = self.parseTransaction(transaction) else {

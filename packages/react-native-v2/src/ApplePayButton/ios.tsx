@@ -1,8 +1,8 @@
-import { requireNativeComponent } from "react-native";
-import { ApplePayButtonProps, NativeProps } from "./types";
+import { ApplePayButtonProps } from "./types";
+import NativeApplePayButton from '../specs/ApplePayButtonNativeComponent';
+import { Fragment } from "react/jsx-runtime";
+import { Text } from "react-native";
 export * from './types';
-
-const NativeEvervaultPaymentView = requireNativeComponent<NativeProps>('EvervaultPaymentView');
 
 export const isApplePayAvailable = () => {
   // TODO: Call the native method to check if Apple Pay is available
@@ -27,7 +27,9 @@ export const ApplePayButton: React.FC<ApplePayButtonProps> = ({
     ...props
   }) => {
     return (
-      <NativeEvervaultPaymentView
+      <Fragment>
+        <Text>Hello</Text>
+      <NativeApplePayButton
         config={{
           appId,
           merchantId,
@@ -42,5 +44,6 @@ export const ApplePayButton: React.FC<ApplePayButtonProps> = ({
         // onPrepareTransaction={onPrepareTransaction}
         {...props}
       />
+      </Fragment>
     );
   };

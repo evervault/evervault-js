@@ -1,12 +1,13 @@
+import { Platform } from 'react-native';
 import { ApplePayButtonProps } from './types';
 
+console.log('Platform', Platform.OS);
+let ApplePayButton: React.FC<ApplePayButtonProps>;
+if (Platform.OS === 'ios') {
+    ApplePayButton = require('./ios').ApplePayButton
+} else {
+    ApplePayButton = require('./default').ApplePayButton
+}
+
 export * from './types';
-export const ApplePayButton: React.FC<ApplePayButtonProps> = () => null;
-
-/**
- * Apple pay is not available on web or on Android.
- */
-export const isApplePayAvailable = () => false;
-
-
-export const isApplePayDisbursementAvailable = () => false;
+export { ApplePayButton };

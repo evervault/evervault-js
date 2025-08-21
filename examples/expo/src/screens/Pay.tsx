@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, SafeAreaView } from 'react-native';
 import { ApplePayButton } from '@evervault/react-native';
 
 export const PayExample: React.FC = () => {
@@ -54,22 +54,21 @@ export const PayExample: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Evervault Apple Pay Example</Text>
       <Text style={styles.subtitle}>iOS Integration</Text>
       
       <View style={styles.paymentContainer}>
-        <EvervaultPaymentView
-          config={config}
+        <ApplePayButton
+          appId={config.appId}
+          merchantId={config.merchantId}
           transaction={transaction}
           buttonType="buy"
           buttonTheme="automatic"
-          borderRadius={8}
-          allowedCardNetworks={['VISA', 'MASTERCARD', 'AMEX']}
-          onDidAuthorizePayment={handleDidAuthorizePayment}
-          onDidFinishWithResult={handleDidFinishWithResult}
-          onPrepareTransaction={handlePrepareTransaction}
-          style={styles.paymentButton}
+          supportedNetworks={['visa', 'mastercard', 'amex', 'discover', 'jcb']}
+          // onDidAuthorizePayment={handleDidAuthorizePayment}
+          // onDidFinishWithResult={handleDidFinishWithResult}
+          // onPrepareTransaction={handlePrepareTransaction}
         />
       </View>
       
@@ -81,7 +80,7 @@ export const PayExample: React.FC = () => {
         Note: This example requires a valid Apple Merchant ID and Evervault App ID.
         Make sure Apple Pay is enabled on your device.
       </Text>
-    </View>
+    </SafeAreaView>
   );
 };
 

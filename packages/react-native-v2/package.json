@@ -3,9 +3,10 @@
   "description": "Evervault SDK for React Native",
   "version": "2.5.1",
   "source": "./src/index.ts",
-  "main": "./build/index.cjs.js",
+  "main": "./build/index.js",
   "module": "./build/index.esm.js",
   "types": "./build/index.d.ts",
+  "react-native": "./build/index.js",
   "exports": {
     ".": {
       "import": {
@@ -14,7 +15,7 @@
       },
       "require": {
         "types": "./build/index.d.ts",
-        "default": "./build/index.cjs.js"
+        "default": "./build/index.js"
       }
     }
   },
@@ -23,7 +24,8 @@
     "build",
     "ios",
     "android",
-    "native-evervault.podspec"
+    "native-evervault.podspec",
+    "!build/**/*.map"
   ],
   "repository": {
     "type": "git",
@@ -70,7 +72,7 @@
   },
   "codegenConfig": {
     "name": "NativeEvervaultSpec",
-    "type": "modules",
+    "type": "all",
     "jsSrcsDir": "src",
     "android": {
       "javaPackageName": "com.nativeevervault"

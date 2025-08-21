@@ -3,8 +3,8 @@ import React
 import EvervaultPayment
 import PassKit
 
-@objc(EvervaultPaymentViewManager)
-class EvervaultPaymentViewManager: RCTViewManager {
+@objc(ApplePayButton)
+class ApplePayButton: RCTViewManager {
     
     override func view() -> UIView! {
         return EvervaultPaymentViewWrapper()
@@ -21,4 +21,4 @@ class EvervaultPaymentViewManager: RCTViewManager {
     @objc func setTransaction(_ view: EvervaultPaymentViewWrapper, transaction: NSDictionary) {
         view.setTransaction(transaction)
     }
-} 
+}

@@ -1,8 +1,6 @@
-import { requireNativeComponent } from "react-native";
-import { GooglePayButtonProps, NativeProps } from "./types";
+import { GooglePayButtonProps } from "./types";
+import NativeGooglePayButton from '../specs/GooglePayButtonNativeComponent';
 export * from './types';
-
-const NativeEvervaultPaymentView = requireNativeComponent<NativeProps>('EvervaultPaymentView');
 
 export const GooglePayButton: React.FC<GooglePayButtonProps> = ({
   appId,
@@ -15,7 +13,7 @@ export const GooglePayButton: React.FC<GooglePayButtonProps> = ({
   ...props
 }) => {
   return (
-    <NativeEvervaultPaymentView
+    <NativeGooglePayButton
       config={{
         appId,
         merchantId,
