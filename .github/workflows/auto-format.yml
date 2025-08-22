@@ -38,43 +38,21 @@ jobs:
           COMMIT_MSG=$(git log -1 --pretty=%B)
           echo "commit-message=$COMMIT_MSG" >> $GITHUB_OUTPUT
 
-      - name: Run format check
-        id: format-check
+      - name: Apply formatting
         run: |
-          # Run the same checks that were in the husky pre-push hook
-          echo "Running format check..."
-          pnpm format:check || echo "format-failed=true" >> $GITHUB_OUTPUT
-          
-          echo "Running typecheck..."
-          pnpm typecheck || echo "typecheck-failed=true" >> $GITHUB_OUTPUT
-          
-          echo "Running lint..."
-          pnpm lint || echo "lint-failed=true" >> $GITHUB_OUTPUT
-
-      - name: Check if formatting is needed
-        id: needs-format
-        run: |
-          if [ "${{ steps.format-check.outputs.format-failed }}" = "true" ] || [ "${{ steps.format-check.outputs.typecheck-failed }}" = "true" ] || [ "${{ steps.format-check.outputs.lint-failed }}" = "true" ]; then
-            echo "needs-format=true" >> $GITHUB_OUTPUT
-          else
-            echo "needs-format=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Auto format if needed
-        if: steps.needs-format.outputs.needs-format == 'true'
-        run: |
-          echo "Auto-formatting code..."
+          echo "Applying formatting..."
           pnpm format
-          pnpm lint:fix
 
-      - name: Check for changes
+      - name: Check for formatting changes
         id: changes
-        if: steps.needs-format.outputs.needs-format == 'true'
         run: |
           if [ -n "$(git status --porcelain)" ]; then
             echo "has-changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected after formatting:"
+            git status --porcelain
           else
             echo "has-changes=false" >> $GITHUB_OUTPUT
+            echo "No formatting changes needed"
           fi
 
       - name: Commit and push changes
