@@ -1,0 +1,88 @@
+name: Auto Format
+
+on:
+  push:
+    branches-ignore:
+      - master
+      - main
+
+jobs:
+  auto-format:
+    name: Auto Format
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.5.0
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Get current commit message
+        id: commit-msg
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "commit-message=$COMMIT_MSG" >> $GITHUB_OUTPUT
+
+      - name: Run format check
+        id: format-check
+        run: |
+          # Run the same checks that were in the husky pre-push hook
+          echo "Running format check..."
+          pnpm format:check || echo "format-failed=true" >> $GITHUB_OUTPUT
+          
+          echo "Running typecheck..."
+          pnpm typecheck || echo "typecheck-failed=true" >> $GITHUB_OUTPUT
+          
+          echo "Running lint..."
+          pnpm lint || echo "lint-failed=true" >> $GITHUB_OUTPUT
+
+      - name: Check if formatting is needed
+        id: needs-format
+        run: |
+          if [ "${{ steps.format-check.outputs.format-failed }}" = "true" ] || [ "${{ steps.format-check.outputs.typecheck-failed }}" = "true" ] || [ "${{ steps.format-check.outputs.lint-failed }}" = "true" ]; then
+            echo "needs-format=true" >> $GITHUB_OUTPUT
+          else
+            echo "needs-format=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Auto format if needed
+        if: steps.needs-format.outputs.needs-format == 'true'
+        run: |
+          echo "Auto-formatting code..."
+          pnpm format
+          pnpm lint:fix
+
+      - name: Check for changes
+        id: changes
+        if: steps.needs-format.outputs.needs-format == 'true'
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.has-changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git add -A
+          git commit -m "[Autoformat] ${{ steps.commit-msg.outputs.commit-message }}"
+          git push

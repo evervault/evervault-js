@@ -123,9 +123,6 @@ catalogs:
     globals:
       specifier: ^15.10.0
       version: 15.14.0
-    husky:
-      specifier: ^9.1.1
-      version: 9.1.7
     imask:
       specifier: ^7.6.1
       version: 7.6.1
@@ -293,9 +290,6 @@ importers:
       eslint-config-custom:
         specifier: workspace:*
         version: link:packages/eslint-config-custom
-      husky:
-        specifier: 'catalog:'
-        version: 9.1.7
       jsdom:
         specifier: 'catalog:'
         version: 22.1.0
@@ -5981,11 +5975,6 @@ packages:
   human-signals@2.1.0:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
-
-  husky@9.1.7:
-    resolution: {integrity: sha512-5gs5ytaNjBrh5Ow3zrvdUUY+0VxIuWVL4i9irt6friV+BqdCfmV11CQTWMiBYWHbXhco+J1kHfTOUkePhCDvMA==}
-    engines: {node: '>=18'}
-    hasBin: true
 
   hyphenate-style-name@1.0.4:
     resolution: {integrity: sha512-ygGZLjmXfPHj+ZWh6LwbC37l43MhfztxetbFCoYTM2VjkIUpeHgSNn7QIyVFj7YQ1Wl9Cbw5sholVJPzWvC2MQ==}
@@ -15579,8 +15568,6 @@ snapshots:
   human-signals@1.1.1: {}
 
   human-signals@2.1.0: {}
-
-  husky@9.1.7: {}
 
   hyphenate-style-name@1.0.4: {}
 
