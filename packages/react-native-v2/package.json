@@ -3,18 +3,18 @@
   "description": "Evervault SDK for React Native",
   "version": "2.5.1",
   "source": "./src/index.ts",
-  "main": "./build/index.cjs.js",
-  "module": "./build/index.esm.js",
+  "main": "./build/index.js",
+  "module": "./build/index.js",
   "types": "./build/index.d.ts",
   "exports": {
     ".": {
       "import": {
         "types": "./build/index.d.ts",
-        "default": "./build/index.esm.js"
+        "default": "./build/index.js"
       },
       "require": {
         "types": "./build/index.d.ts",
-        "default": "./build/index.cjs.js"
+        "default": "./build/index.js"
       }
     }
   },
@@ -41,8 +41,8 @@
   },
   "scripts": {
     "prebuild": "pnpm codegen",
-    "build": "rollup -c",
-    "watch": "rollup -c --watch",
+    "build": "tsc",
+    "watch": "tsc --watch",
     "codegen": "rimraf build android/app && react-native codegen",
     "test": "vitest run",
     "test:watch": "vitest --watch"
@@ -54,8 +54,6 @@
   },
   "devDependencies": {
     "@react-native-community/cli": "*",
-    "@rollup/plugin-node-resolve": "^16.0.0",
-    "@rollup/plugin-typescript": "^12.1.2",
     "@testing-library/react-native": "^13.2.0",
     "@types/react": "catalog:",
     "react": "catalog:",
@@ -63,8 +61,8 @@
     "react-native-webview": "catalog:",
     "react-test-renderer": "18.2.0",
     "rimraf": "^6.0.1",
-    "rollup": "^4.34.9",
     "tsconfig": "workspace:*",
+    "typescript": "catalog:",
     "vitest": "catalog:",
     "vitest-react-native": "^0.1.5"
   },
