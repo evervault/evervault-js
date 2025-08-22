@@ -16,6 +16,7 @@
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
     "types": ["vitest/globals"]
   },
   "include": ["src/**/*"],
