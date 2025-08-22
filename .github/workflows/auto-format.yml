@@ -63,4 +63,4 @@ jobs:
           
           git add -A
           git commit -m "[Autoformat] ${{ steps.commit-msg.outputs.commit-message }}"
-          git push
+          git push --no-verify
