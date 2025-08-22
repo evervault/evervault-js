@@ -1,0 +1,66 @@
+name: Auto Format
+
+on:
+  push:
+    branches-ignore:
+      - master
+      - main
+
+jobs:
+  auto-format:
+    name: Auto Format
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.5.0
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Get current commit message
+        id: commit-msg
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "commit-message=$COMMIT_MSG" >> $GITHUB_OUTPUT
+
+      - name: Apply formatting
+        run: |
+          echo "Applying formatting..."
+          pnpm format
+
+      - name: Check for formatting changes
+        id: changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected after formatting:"
+            git status --porcelain
+          else
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+            echo "No formatting changes needed"
+          fi
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.has-changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git add -A
+          git commit -m "[Autoformat] ${{ steps.commit-msg.outputs.commit-message }}"
+          git push --no-verify
