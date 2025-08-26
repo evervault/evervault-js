@@ -36,8 +36,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_EV_JS_PRODUCTION_OIDC_ROLE_ARN }}
           aws-region: us-east-1
       - name: Run S3 Rollback
         uses: ./actions/revert-deploy
