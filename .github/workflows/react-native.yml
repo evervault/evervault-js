@@ -6,6 +6,8 @@ on:
       - 'examples/react-*/**'
       - 'packages/react-native*/**'
       - '.github/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
 jobs:
   build_ios:
     name: Build iOS Examples
