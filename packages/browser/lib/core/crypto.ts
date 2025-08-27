@@ -1,6 +1,7 @@
 import { EncryptionSubConfig } from "../config";
 import { uint8ArrayToBase64String, utf8StringToUint8Array } from "../encoding";
-import { Datatypes,
+import {
+  Datatypes,
   errors,
   concatUint8Arrays,
   ecPointCompress,
