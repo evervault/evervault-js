@@ -30,7 +30,8 @@ RCT_EXTERN_METHOD(encryptArray:(NSString *)instanceId
                   withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
 
-+ (BOOL)requiresMainQueueSetup {
++ (BOOL)requiresMainQueueSetup
+{
   return NO;
 }
 
