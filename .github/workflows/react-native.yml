@@ -27,7 +27,7 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
       - name: Build
-        run: pnpm examples:expo ios
+        run: pnpm examples:expo ios:release
   build_android:
     name: Build Android Examples
     runs-on: ubuntu-latest
@@ -51,4 +51,4 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          script: pnpm examples:expo android
+          script: pnpm examples:expo android:release
