@@ -1,10 +1,10 @@
 # Build and Test packages on pull requests
 name: Pull Request Workflow
 on:
-  push:
-    branches-ignore:
-      - master
-      - main
+  pull_request:
+    branches:
+      - "master"
+      - "main"
 jobs:
   lint-and-test:
     uses: ./.github/workflows/lint.yml
