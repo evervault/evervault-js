@@ -39,7 +39,7 @@ catalog:
   eslint-plugin-react-hooks: ^5.1.0-rc.0
   events: ^3.3.0
   expo: ~52.0.38
-  expo-dev-client: ~5.2.4
+  expo-dev-client: ~5.0.20
   expo-splash-screen: ~0.29.22
   expo-status-bar: ~1.12.1
   express: ^4
