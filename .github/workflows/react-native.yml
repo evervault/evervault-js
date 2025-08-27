@@ -1,10 +1,10 @@
-# Deploy packages to staging enviroments on push to master
+# Build iOS and Android examples for @evervault/react-native
 name: React Native Workflow
 on:
   push:
     paths:
-      - 'examples/react-*/**'
-      - 'packages/react-native*/**'
+      - 'examples/expo/**'
+      - 'packages/react-native-v2/**'
       - '.github/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
