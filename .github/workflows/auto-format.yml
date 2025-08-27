@@ -57,18 +57,14 @@ jobs:
             echo "No formatting changes needed"
           fi
 
-      - name: Commit changes
-        if: steps.changes.outputs.has-changes == 'true'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          
-          git add -A
-          git commit -m "[Autoformat] ${{ steps.commit-msg.outputs.commit-message }}"
-      - name: Push changes
+      - name: Commit and Push changes
         if: steps.changes.outputs.has-changes == 'true'
         run: |
           git config user.name "autoformat[bot]"
           git config user.email "autoformat@evervault.com"
+
+          git add -A
+          git commit -m "[Autoformat] ${{ steps.commit-msg.outputs.commit-message }}"
+
           git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}
           git push origin HEAD:${{ github.ref }} --no-verify
