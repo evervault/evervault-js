@@ -7,9 +7,9 @@
     "jsx": "react-jsx",
     "moduleResolution": "node",
     "rootDir": "src",
-    "declaration": true,
-    "outDir": "build",
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals"],
+    "declaration": false,
+    "declarationMap": false
   },
   "include": ["src/**/*"],
   "exclude": [

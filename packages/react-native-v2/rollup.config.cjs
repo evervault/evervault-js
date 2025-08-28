@@ -13,7 +13,11 @@ function platformResolution() {
         if (file.type === "chunk") {
           file.code = file.code
             // Handle require() calls
-            .replace(/require\(['"`](.+?)\/index\.js['"`]\)/g, "require('$1')");
+            .replace(/require\(['"`](.+?)\/index\.js['"`]\)/g, "require('$1')")
+            // Handle ES6 imports if you use them
+            .replace(/from ['"`](.+?)\/index\.js['"`]/g, "from '$1'")
+            // Handle dynamic imports
+            .replace(/import\(['"`](.+?)\/index\.js['"`]\)/g, "import('$1')");
         }
       });
     },
@@ -29,26 +33,44 @@ const external = [
   "react/jsx-runtime",
 ];
 
-module.exports = defineConfig({
-  input,
-  external,
-  output: {
-    entryFileNames: "[name].js",
-    format: "cjs",
-    dir: "build",
-    exports: "named",
-    sourcemap: true,
-    preserveModules: true,
-    preserveModulesRoot: "src",
+module.exports = defineConfig([
+  {
+    input,
+    external,
+    output: {
+      dir: "build/cjs",
+      format: "cjs",
+      exports: "named",
+      preserveModules: true,
+      preserveModulesRoot: "src",
+    },
+    plugins: [
+      resolve(),
+      typescript({
+        declaration: false,
+        declarationMap: false,
+      }),
+      platformResolution(),
+    ],
   },
-  plugins: [
-    resolve(),
-    typescript({
-      tsconfig: "./tsconfig.json",
-      declaration: true,
-      declarationDir: "./build",
-      rootDir: "./src", // Ensure proper mapping
-    }),
-    platformResolution(),
-  ],
-});
+  {
+    input,
+    external,
+    output: {
+      dir: "build/esm",
+      format: "esm",
+      exports: "named",
+      preserveModules: true,
+      preserveModulesRoot: "src",
+    },
+    plugins: [
+      resolve(),
+      typescript({
+        declaration: true,
+        declarationDir: "build/esm",
+        declarationMap: false,
+      }),
+      platformResolution(),
+    ],
+  },
+]);
