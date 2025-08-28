@@ -78,8 +78,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ inputs.stage == 'production' &&  secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID || secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
-          aws-secret-access-key: ${{ inputs.stage == 'production' &&  secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY || secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
+          role-to-assume: ${{ inputs.stage == 'production' &&  secrets.AWS_EV_JS_PRODUCTION_OIDC_ROLE_ARN || secrets.AWS_EV_JS_STAGING_OIDC_ROLE_ARN }}
           aws-region: "us-east-1"
       - name: Check out code
         uses: actions/checkout@v4
@@ -195,8 +194,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ inputs.stage == 'production' &&  secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID || secrets.PUBLIC_REPO_AWS_ACCESS_KEY_ID_STAGING }}
-          aws-secret-access-key: ${{ inputs.stage == 'production' &&  secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY || secrets.PUBLIC_REPO_AWS_SECRET_ACCESS_KEY_STAGING }}
+          role-to-assume: ${{ inputs.stage == 'production' &&  secrets.AWS_EV_JS_PRODUCTION_OIDC_ROLE_ARN || secrets.AWS_EV_JS_STAGING_OIDC_ROLE_ARN }}
           aws-region: "us-east-1"
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8
