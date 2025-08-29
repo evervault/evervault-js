@@ -56,7 +56,11 @@ jobs:
             echo "has-changes=false" >> $GITHUB_OUTPUT
             echo "No formatting changes needed"
           fi
-
+      - name: Set up Git
+        if: steps.changes.outputs.has-changes == 'true'
+        run: |-
+          git config user.email "autoformat@evervault.com"
+          git config user.name "Evervault Bot"
       - name: Commit and Push changes
         if: steps.changes.outputs.has-changes == 'true'
         run: |
