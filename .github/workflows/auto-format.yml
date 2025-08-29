@@ -60,6 +60,6 @@ jobs:
       - name: Commit and Push changes
         if: steps.changes.outputs.has-changes == 'true'
         run: |
-          git add -a
+          git add -A
           git commit -m "[Autoformat] ${{ steps.commit-msg.outputs.commit-message }}"
           git push origin HEAD:${{ github.ref }} --no-verify
