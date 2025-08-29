@@ -86,7 +86,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v5.0.0
         with:
           name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: dist
@@ -200,7 +200,7 @@ jobs:
           role-to-assume: ${{ inputs.stage == 'production' &&  secrets.AWS_EV_JS_PRODUCTION_OIDC_ROLE_ARN || secrets.AWS_EV_JS_STAGING_OIDC_ROLE_ARN }}
           aws-region: "us-east-1"
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v5.0.0
         with:
           name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: dist
