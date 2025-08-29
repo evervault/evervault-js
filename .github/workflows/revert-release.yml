@@ -12,6 +12,9 @@ on:
           - 3ds
           - ui-comps
           - inputs
+permissions:
+  contents: read
+  id-token: write
 jobs:
   revert-release:
     runs-on: ubuntu-latest
