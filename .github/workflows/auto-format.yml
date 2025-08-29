@@ -18,7 +18,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          ssh-key: "${{ secrets.COMMIT_KEY }}"
           fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
@@ -60,11 +60,6 @@ jobs:
       - name: Commit and Push changes
         if: steps.changes.outputs.has-changes == 'true'
         run: |
-          git config user.name "autoformat[bot]"
-          git config user.email "autoformat@evervault.com"
-
-          git add -A
+          git add -a
           git commit -m "[Autoformat] ${{ steps.commit-msg.outputs.commit-message }}"
-
-          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}
           git push origin HEAD:${{ github.ref }} --no-verify
