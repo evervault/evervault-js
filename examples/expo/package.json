@@ -4,12 +4,13 @@
   "version": "1.0.8",
   "scripts": {
     "expo": "expo",
-    "dev": "expo start --localhost",
-    "android": "rimraf android && expo run:android --no-bundler",
-    "android:release": "rimraf android && expo run:android --no-bundler --variant release",
+    "dev": "pnpm react-native-lib-build && expo start --localhost",
+    "react-native-lib-build": "pnpm --workspace-root react-native build",
+    "android": "pnpm react-native-lib-build && rimraf android && expo run:android --no-bundler",
+    "android:release": "pnpm android --variant release",
     "android:release:proguard": "PROGUARD_ENABLED=true pnpm android:release",
-    "ios": "rimraf ios && expo run:ios --no-bundler",
-    "ios:release": "rimraf ios && expo run:ios --no-bundler --configuration Release"
+    "ios": "pnpm react-native-lib-build && rimraf ios && expo run:ios --no-bundler",
+    "ios:release": "pnpm ios --configuration Release"
   },
   "dependencies": {
     "@evervault/react-native": "workspace:*",
