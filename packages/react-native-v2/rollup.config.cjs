@@ -32,7 +32,7 @@ const external = [
   ...Object.keys(pkgJson.peerDependencies),
   "react/jsx-runtime",
   // Externalize React Native internal modules to avoid parsing Flow
-  /^react-native\/Libraries\/.*/,
+  /^react-native\/.*/,
 ];
 
 module.exports = defineConfig([

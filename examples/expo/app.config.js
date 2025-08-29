@@ -1,6 +1,25 @@
-const plugins = [];
+const buildProperties = {
+  android: {
+    minSdkVersion: 26,
+  },
+  ios: {},
+};
 
+// Use local EvervaultPayment pod
+if (process.env.EV_PAY_PATH) {
+  buildProperties.ios.extraPods = [
+    {
+      name: "EvervaultPayment",
+      path: process.env.EV_PAY_PATH,
+    },
+  ];
+}
+
+// Enable ProGuard
 if (process.env.PROGUARD_ENABLED === "true") {
+  buildProperties.android.enableProguardInReleaseBuilds = true;
+  buildProperties.android.enableShrinkResourcesInReleaseBuilds = true;
+
   const extraProguardRules = `
     # Rules for Evervault RN SDK
     -keep class com.nativeevervault.** { *; }
@@ -16,17 +35,7 @@ if (process.env.PROGUARD_ENABLED === "true") {
     # Rules for React Native Screens
     -dontwarn org.slf4j.impl.StaticLoggerBinder
   `;
-
-  plugins.push([
-    "expo-build-properties",
-    {
-      android: {
-        enableProguardInReleaseBuilds: true,
-        enableShrinkResourcesInReleaseBuilds: true,
-        extraProguardRules,
-      },
-    },
-  ]);
+  buildProperties.android.extraProguardRules = extraProguardRules;
 
   console.log("ProGuard enabled.");
 }
@@ -62,17 +71,9 @@ module.exports = {
           backgroundColor: "#ffffff",
         },
       ],
-      [
-        // Customize build properties here:
-        // https://docs.expo.dev/versions/latest/sdk/build-properties/
-        'expo-build-properties',
-        {
-          android: {
-            minSdkVersion: 26,
-          },
-        },
-      ],
-      ...plugins,
+      // Customize build properties here:
+      // https://docs.expo.dev/versions/latest/sdk/build-properties/
+      ["expo-build-properties", buildProperties],
     ],
   },
 };

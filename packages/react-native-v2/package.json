@@ -63,6 +63,11 @@
     "jsSrcsDir": "src",
     "android": {
       "javaPackageName": "com.nativeevervault"
+    },
+    "ios": {
+      "componentProvider": {
+        "ApplePayButton": "ApplePayButton"
+      }
     }
   },
   "dependencies": {
