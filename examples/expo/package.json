@@ -6,10 +6,10 @@
     "expo": "expo",
     "build-lib": "pnpm --workspace-root react-native build",
     "dev": "expo start --localhost",
-    "android": "pnpm build-lib && rimraf android && expo run:android --no-bundler",
+    "android": "rimraf android && expo run:android --no-bundler",
     "android:release": "pnpm android --variant release",
     "android:release:proguard": "PROGUARD_ENABLED=true pnpm android:release",
-    "ios": "pnpm build-lib && rimraf ios && expo run:ios --no-bundler",
+    "ios": "rimraf ios && expo run:ios --no-bundler",
     "ios:release": "pnpm ios --configuration Release"
   },
   "dependencies": {
