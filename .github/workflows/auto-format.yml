@@ -1,0 +1,69 @@
+name: Auto Format
+
+on:
+  push:
+    branches-ignore:
+      - master
+      - main
+
+jobs:
+  auto-format:
+    name: Auto Format
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          ssh-key: "${{ secrets.COMMIT_KEY }}"
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.5.0
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Get current commit message
+        id: commit-msg
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "commit-message=$COMMIT_MSG" >> $GITHUB_OUTPUT
+
+      - name: Apply formatting
+        run: |
+          echo "Applying formatting..."
+          pnpm format
+
+      - name: Check for formatting changes
+        id: changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected after formatting:"
+            git status --porcelain
+          else
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+            echo "No formatting changes needed"
+          fi
+      - name: Set up Git
+        if: steps.changes.outputs.has-changes == 'true'
+        run: |-
+          git config user.email "autoformat@evervault.com"
+          git config user.name "Evervault Bot"
+      - name: Commit and Push changes
+        if: steps.changes.outputs.has-changes == 'true'
+        run: |
+          git add -A
+          git commit -m "[Autoformat] ${{ steps.commit-msg.outputs.commit-message }}"
+          git push origin HEAD:${{ github.ref }} --no-verify
