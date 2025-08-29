@@ -1,6 +1,12 @@
 import { EncryptionSubConfig } from "../config";
 import { uint8ArrayToBase64String, utf8StringToUint8Array } from "../encoding";
-import { Datatypes, errors, concatUint8Arrays, ecPointCompress, crc32 } from "../utils";
+import {
+  Datatypes,
+  errors,
+  concatUint8Arrays,
+  ecPointCompress,
+  crc32,
+} from "../utils";
 
 function generateBytes(byteLength: number): Uint8Array {
   const randomBytes = new Uint8Array(byteLength);
