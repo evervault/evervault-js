@@ -38,7 +38,7 @@ catalog:
   eslint-plugin-react: ^7.37.1
   eslint-plugin-react-hooks: ^5.1.0-rc.0
   events: ^3.3.0
-  expo: ~52.0.38
+  expo: ~52.0.47
   expo-dev-client: ~5.0.20
   expo-splash-screen: ~0.29.22
   expo-status-bar: ~1.12.1
@@ -66,7 +66,7 @@ catalog:
   prettier: ^2.8.8
   react: ^18.2.0
   react-dom: ^18.2.0
-  react-native: 0.76.7
+  react-native: 0.76.9
   react-native-builder-bob: ^0.23.2
   react-native-gesture-handler: ~2.20.2
   react-native-mask-input: ^1.2.3

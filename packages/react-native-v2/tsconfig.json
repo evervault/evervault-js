@@ -2,16 +2,21 @@
   "extends": "tsconfig/base.json",
   "compilerOptions": {
     "target": "esnext",
+    "module": "esnext",
     "lib": ["dom", "DOM.Iterable", "esnext"],
     "jsx": "react-jsx",
     "moduleResolution": "node",
     "rootDir": "src",
-    "declaration": true,
-    "declarationDir": "build",
-    "emitDeclarationOnly": true,
-    "declarationMap": true,
-    "outDir": "build",
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals"],
+    "declaration": false,
+    "declarationMap": false
   },
-  "exclude": ["build"]
+  "include": ["src/**/*"],
+  "exclude": [
+    "build",
+    "node_modules",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "__mocks__"
+  ]
 }
