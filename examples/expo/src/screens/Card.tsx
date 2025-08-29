@@ -1,4 +1,4 @@
-import { ApplePayButton, Card, CardPayload } from "@evervault/react-native";
+import { Card, CardPayload } from "@evervault/react-native";
 import { StyleSheet, View, ScrollView, Keyboard, Text } from "react-native";
 import React, { useCallback, useRef, useState } from "react";
 import { Button } from "@/src/ui/Button";
@@ -48,8 +48,6 @@ export function CardExample() {
         <Heading>Card</Heading>
 
         {error && <Text style={styles.error}>{error.message}</Text>}
-
-        <ApplePayButton onPress={() => console.log("pressed")} />
 
         <View style={styles.form}>
           <Card

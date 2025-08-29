@@ -19,4 +19,3 @@ export type {
 
 export * from "./Card";
 export * from "./ThreeDSecure";
-export * from "./ApplePayButton";
