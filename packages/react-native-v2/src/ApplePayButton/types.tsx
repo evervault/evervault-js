@@ -4,14 +4,11 @@
 //   Config,
 //   Transaction,
 // } from "../specs/ApplePayButtonNativeComponent";
+import { NativeProps } from "../specs/ApplePayButtonViewNativeComponent";
 
 import type { ViewProps } from "react-native";
 
-export interface ApplePayButtonProps extends ViewProps {
-  red: number;
-  green: number;
-  blue: number;
-}
+export interface ApplePayButtonProps extends NativeProps {}
 
 // export type ButtonType =
 //   | "plain"

@@ -28,6 +28,7 @@ export const ApplePayButton: React.FC<ApplePayButtonProps> = ({
   red,
   green,
   blue,
+  onRedChange,
   ...props
 }) => {
   return (
@@ -37,6 +38,7 @@ export const ApplePayButton: React.FC<ApplePayButtonProps> = ({
         red={red}
         green={green}
         blue={blue}
+        onRedChange={onRedChange}
         // transaction={transaction}
         // TODO: Add handlers
         // onDidAuthorizePayment={onDidAuthorizePayment}

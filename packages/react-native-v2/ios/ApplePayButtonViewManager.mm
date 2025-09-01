@@ -30,4 +30,6 @@ RCT_CUSTOM_VIEW_PROPERTY(blue, NSNumber, ApplePayButton)
   [view setBlue:json];
 }
 
+RCT_EXPORT_VIEW_PROPERTY(onRedChange, RCTDirectEventBlock)
+
 @end

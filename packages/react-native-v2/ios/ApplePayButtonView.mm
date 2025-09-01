@@ -24,6 +24,11 @@ using namespace facebook::react;
     return concreteComponentDescriptorProvider<ApplePayButtonViewComponentDescriptor>();
 }
 
+- (const ApplePayButtonViewEventEmitter &)eventEmitter
+{
+  return static_cast<const ApplePayButtonViewEventEmitter &>(*_eventEmitter);
+}
+
 - (instancetype)initWithFrame:(CGRect)frame
 {
   if (self = [super initWithFrame:frame]) {
@@ -44,6 +49,10 @@ using namespace facebook::react;
     const auto &newViewProps = *std::static_pointer_cast<ApplePayButtonViewProps const>(props);
 
     if (oldViewProps.red != newViewProps.red) {
+        if (_eventEmitter) {
+            ApplePayButtonViewEventEmitter::OnRedChange event{newViewProps.red};
+            self.eventEmitter.onRedChange(event);
+        }
         [_view setRed:@(newViewProps.red)];
     }
 
