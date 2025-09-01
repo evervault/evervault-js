@@ -1,5 +1,12 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, Alert, SafeAreaView } from "react-native";
+import React, { useMemo, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  SafeAreaView,
+  TextInput,
+} from "react-native";
 import { ApplePayButton } from "@evervault/react-native";
 
 export const PayExample: React.FC = () => {
@@ -49,14 +56,28 @@ export const PayExample: React.FC = () => {
     // You can modify the transaction here if needed
   };
 
+  const [red, setRed] = useState("0");
+  const redNum = useMemo(() => {
+    const num = parseInt(red);
+    if (isNaN(num)) return 0;
+    return num;
+  }, [red]);
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Evervault Apple Pay Example</Text>
       <Text style={styles.subtitle}>iOS Integration</Text>
 
+      <TextInput
+        keyboardType="numeric"
+        value={red}
+        onChangeText={setRed}
+        placeholder="Red"
+      />
+
       <View style={styles.paymentContainer}>
         <ApplePayButton
-          red={75}
+          red={redNum}
           green={255}
           blue={255}
           style={{ width: 100, height: 200 }}

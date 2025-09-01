@@ -11,7 +11,7 @@
 
 using namespace facebook::react;
 
-@interface ApplePayButtonView () <RCTApplePayButtonViewViewProtocol>
+@interface ApplePayButtonView () <RCTApplePayButtonViewViewProtocol, ApplePayButtonDelegate>
 
 @end
 
@@ -36,6 +36,7 @@ using namespace facebook::react;
     _props = defaultProps;
 
     _view = [[ApplePayButton alloc] init];
+    _view.delegate = self;
 
     self.contentView = _view;
   }
@@ -49,10 +50,6 @@ using namespace facebook::react;
     const auto &newViewProps = *std::static_pointer_cast<ApplePayButtonViewProps const>(props);
 
     if (oldViewProps.red != newViewProps.red) {
-        if (_eventEmitter) {
-            ApplePayButtonViewEventEmitter::OnRedChange event{newViewProps.red};
-            self.eventEmitter.onRedChange(event);
-        }
         [_view setRed:@(newViewProps.red)];
     }
 
@@ -65,6 +62,15 @@ using namespace facebook::react;
     }
 
     [super updateProps:props oldProps:oldProps];
+}
+
+#pragma mark - ApplePayButtonDelegate
+
+- (void)applePayButton:(ApplePayButton *)button didChangeRedValue:(NSInteger)red {
+    if (_eventEmitter) {
+        ApplePayButtonViewEventEmitter::OnRedChange event{static_cast<int>(red)};
+        self.eventEmitter.onRedChange(event);
+    }
 }
 
 Class<RCTComponentViewProtocol> ApplePayButtonViewCls(void)

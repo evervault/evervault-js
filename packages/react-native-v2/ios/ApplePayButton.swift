@@ -1,10 +1,17 @@
 import UIKit
 
+@objc public protocol ApplePayButtonDelegate: AnyObject {
+    func applePayButton(_ button: ApplePayButton, didChangeRedValue red: Int)
+}
+
 @objc public class ApplePayButton: UIView {
 
   private var red: Int = 0
   private var green: Int = 0
   private var blue: Int = 0
+  
+  // Delegate for handling events
+  @objc public weak var delegate: ApplePayButtonDelegate?
 
   //initWithFrame to init view from code
   @objc override init(frame: CGRect) {
@@ -19,7 +26,7 @@ import UIKit
   }
 
   private func setupView() {
-    backgroundColor = UIColor.red
+    setColor()
   }
 
   private func setColor() {
@@ -29,6 +36,9 @@ import UIKit
   @objc public func setRed(_ red: NSNumber) {
     self.red = red.intValue
     setColor()
+    
+    // Notify delegate of red change
+    delegate?.applePayButton(self, didChangeRedValue: red.intValue)
   }
 
   @objc public func setGreen(_ green: NSNumber) {
