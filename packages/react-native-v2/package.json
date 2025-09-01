@@ -42,7 +42,11 @@
     "react-native-webview": "*"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
     "@react-native-community/cli": "*",
+    "@react-native/babel-preset": "^0.81.1",
+    "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-typescript": "^12.1.2",
     "@testing-library/react-native": "^13.2.0",
@@ -61,9 +65,17 @@
   "codegenConfig": {
     "name": "NativeEvervaultSpec",
     "type": "all",
-    "jsSrcsDir": "src",
+    "jsSrcsDir": "./src",
     "android": {
       "javaPackageName": "com.nativeevervault"
+    },
+    "ios": {
+      "componentProvider": {
+        "ApplePayButtonView": "ApplePayButtonView"
+      },
+      "modulesProvider": {
+        "NativeEvervault": "NativeEvervault"
+      }
     }
   },
   "dependencies": {

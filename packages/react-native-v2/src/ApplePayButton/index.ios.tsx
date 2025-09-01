@@ -1,5 +1,5 @@
 import { ApplePayButtonProps } from "./types";
-import NativeApplePayButton from "../specs/ApplePayButtonNativeComponent";
+import ApplePayButtonView from "../specs/ApplePayButtonViewNativeComponent";
 import { Fragment } from "react/jsx-runtime";
 import { Text } from "react-native";
 export * from "./types";
@@ -15,29 +15,25 @@ export const isApplePayDisbursementAvailable = () => {
 };
 
 export const ApplePayButton: React.FC<ApplePayButtonProps> = ({
-  appId,
-  merchantId,
-  supportedNetworks = ["visa", "mastercard", "amex", "discover", "jcb"],
-  buttonType = "buy",
-  buttonTheme = "automatic",
-  transaction,
-  onDidAuthorizePayment,
-  onDidFinishWithResult,
-  onPrepareTransaction,
+  // appId,
+  // merchantId,
+  // supportedNetworks = ["visa", "mastercard", "amex", "discover", "jcb"],
+  // buttonType = "buy",
+  // buttonTheme = "automatic",
+  // transaction,
+  // onDidAuthorizePayment,
+  // onDidFinishWithResult,
+  // onPrepareTransaction,
+  // ...props
+  text,
   ...props
 }) => {
   return (
     <Fragment>
-      <Text>Hello</Text>
-      <NativeApplePayButton
-        config={{
-          appId,
-          merchantId,
-          supportedNetworks,
-          buttonType,
-          buttonTheme,
-        }}
-        transaction={transaction}
+      <Text>{text}</Text>
+      <ApplePayButtonView
+        color="#ff00ff"
+        // transaction={transaction}
         // TODO: Add handlers
         // onDidAuthorizePayment={onDidAuthorizePayment}
         // onDidFinishWithResult={onDidFinishWithResult}

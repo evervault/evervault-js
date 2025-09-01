@@ -1,15 +1,45 @@
-import { ApplePayResponse, CardNetwork, Config, Transaction } from '../specs/ApplePayButtonNativeComponent';
+// import {
+//   ApplePayResponse,
+//   CardNetwork,
+//   Config,
+//   Transaction,
+// } from "../specs/ApplePayButtonNativeComponent";
 
-export type ButtonType = 'plain' | 'book' | 'buy' | 'checkout' | 'order' | 'subscribe' | 'pay' | 'in_store' | 'donate' | 'reload' | 'add_money' | 'top_up' | 'rent' | 'support' | 'contribute' | 'tip' | 'continue';
-export type ButtonTheme = 'automatic' | 'white' | 'white_outline' | 'black';
-export type AuthMethod = 'PAN_ONLY' | 'CRYPTOGRAM_3DS';
+import type { ViewProps } from "react-native";
 
-export type ApplePayButtonProps = Omit<Config, 'supportedNetworks'> & {
-    supportedNetworks?: CardNetwork[];
-    transaction: Transaction;
-    onDidAuthorizePayment?: (data: ApplePayResponse) => void;
-    onDidFinishWithResult?: (data: { success: boolean; error?: string }) => void;
-    onPrepareTransaction?: (data: Transaction) => void;
+export interface ApplePayButtonProps extends ViewProps {
+  text: string;
+}
 
-    // TODO: Add shipping callback methods.
-};
+// export type ButtonType =
+//   | "plain"
+//   | "book"
+//   | "buy"
+//   | "checkout"
+//   | "order"
+//   | "subscribe"
+//   | "pay"
+//   | "in_store"
+//   | "donate"
+//   | "reload"
+//   | "add_money"
+//   | "top_up"
+//   | "rent"
+//   | "support"
+//   | "contribute"
+//   | "tip"
+//   | "continue";
+// export type ButtonTheme = "automatic" | "white" | "white_outline" | "black";
+// export type AuthMethod = "PAN_ONLY" | "CRYPTOGRAM_3DS";
+
+// export type ApplePayButtonProps = Omit<Config, "supportedNetworks"> & {
+//   supportedNetworks?: CardNetwork[];
+//   transaction: Transaction;
+//   onDidAuthorizePayment?: (data: ApplePayResponse) => void;
+//   onDidFinishWithResult?: (data: { success: boolean; error?: string }) => void;
+//   onPrepareTransaction?: (data: Transaction) => void;
+
+//   // TODO: Add shipping callback methods.
+// };
+
+// export type { Config, Transaction, ApplePayResponse, CardNetwork };

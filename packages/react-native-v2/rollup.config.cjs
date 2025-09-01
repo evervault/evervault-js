@@ -3,6 +3,7 @@ const glob = require("glob");
 const pkgJson = require("./package.json");
 const typescript = require("@rollup/plugin-typescript");
 const resolve = require("@rollup/plugin-node-resolve");
+const babel = require("@rollup/plugin-babel");
 
 function platformResolution() {
   return {
@@ -52,6 +53,9 @@ module.exports = defineConfig([
         declaration: false,
         declarationMap: false,
       }),
+      babel({
+        babelHelpers: "bundled",
+      }),
       platformResolution(),
     ],
   },
@@ -71,6 +75,9 @@ module.exports = defineConfig([
         declaration: true,
         declarationDir: "build/esm",
         declarationMap: false,
+      }),
+      babel({
+        babelHelpers: "bundled",
       }),
       platformResolution(),
     ],
