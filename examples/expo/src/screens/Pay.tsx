@@ -56,7 +56,9 @@ export const PayExample: React.FC = () => {
 
       <View style={styles.paymentContainer}>
         <ApplePayButton
-          text="Hello World"
+          red={0}
+          green={50}
+          blue={100}
           style={{ width: 200, height: 100 }}
           // appId="your-evervault-app-id"
           // merchantId="your-apple-merchant-id"

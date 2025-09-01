@@ -25,14 +25,18 @@ export const ApplePayButton: React.FC<ApplePayButtonProps> = ({
   // onDidFinishWithResult,
   // onPrepareTransaction,
   // ...props
-  text,
+  red,
+  green,
+  blue,
   ...props
 }) => {
   return (
     <Fragment>
-      <Text>{text}</Text>
+      <Text>Hello World</Text>
       <ApplePayButtonView
-        color="#ff00ff"
+        red={red}
+        green={green}
+        blue={blue}
         // transaction={transaction}
         // TODO: Add handlers
         // onDidAuthorizePayment={onDidAuthorizePayment}

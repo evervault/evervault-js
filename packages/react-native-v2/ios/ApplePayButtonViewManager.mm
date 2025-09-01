@@ -1,6 +1,7 @@
 #import <React/RCTViewManager.h>
 #import <React/RCTUIManager.h>
 #import "RCTBridge.h"
+#import "native_evervault-Swift.h"
 
 @interface ApplePayButtonViewManager : RCTViewManager
 @end
@@ -11,12 +12,22 @@ RCT_EXPORT_MODULE(ApplePayButtonView)
 
 - (UIView *)view
 {
-  return [[UIView alloc] init];
+  return [[ApplePayButton alloc] init];
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(color, NSString, UIView)
+RCT_CUSTOM_VIEW_PROPERTY(red, NSNumber, ApplePayButton)
 {
-  [view setBackgroundColor: [[UIColor alloc] initWithRed:255.0 green:0.0 blue:255.0 alpha:1.0]];
+  [view setRed:json];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(green, NSNumber, ApplePayButton)
+{
+  [view setGreen:json];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(blue, NSNumber, ApplePayButton)
+{
+  [view setBlue:json];
 }
 
 @end

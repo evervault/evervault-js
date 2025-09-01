@@ -8,7 +8,9 @@
 import type { ViewProps } from "react-native";
 
 export interface ApplePayButtonProps extends ViewProps {
-  text: string;
+  red: number;
+  green: number;
+  blue: number;
 }
 
 // export type ButtonType =

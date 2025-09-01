@@ -7,6 +7,7 @@
 #import <react/renderer/components/NativeEvervaultSpec/RCTComponentViewHelpers.h>
 
 #import "RCTFabricComponentsPlugins.h"
+#import "native_evervault-Swift.h"
 
 using namespace facebook::react;
 
@@ -15,7 +16,7 @@ using namespace facebook::react;
 @end
 
 @implementation ApplePayButtonView {
-    UIView * _view;
+    ApplePayButton * _view;
 }
 
 + (ComponentDescriptorProvider)componentDescriptorProvider
@@ -29,7 +30,7 @@ using namespace facebook::react;
     static const auto defaultProps = std::make_shared<const ApplePayButtonViewProps>();
     _props = defaultProps;
 
-    _view = [[UIView alloc] init];
+    _view = [[ApplePayButton alloc] init];
 
     self.contentView = _view;
   }
@@ -42,9 +43,16 @@ using namespace facebook::react;
     const auto &oldViewProps = *std::static_pointer_cast<ApplePayButtonViewProps const>(_props);
     const auto &newViewProps = *std::static_pointer_cast<ApplePayButtonViewProps const>(props);
 
-    if (oldViewProps.color != newViewProps.color) {
-        NSString * colorToConvert = [[NSString alloc] initWithUTF8String: newViewProps.color.c_str()];
-        [_view setBackgroundColor: [[UIColor alloc] initWithRed:255.0 green:0.0 blue:255.0 alpha:1.0]];
+    if (oldViewProps.red != newViewProps.red) {
+        [_view setRed:@(newViewProps.red)];
+    }
+
+    if (oldViewProps.green != newViewProps.green) {
+        [_view setGreen:@(newViewProps.green)];
+    }
+
+    if (oldViewProps.blue != newViewProps.blue) {
+        [_view setBlue:@(newViewProps.blue)];
     }
 
     [super updateProps:props oldProps:oldProps];
