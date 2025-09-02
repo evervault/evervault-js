@@ -40,6 +40,11 @@ RCT_CUSTOM_VIEW_PROPERTY(buttonStyle, NSString, ApplePayButton)
   [view setButtonStyle:json];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(transaction, NSDictionary, ApplePayButton)
+{
+  [view setTransaction:json];
+}
+
 RCT_EXPORT_VIEW_PROPERTY(onAuthorizePayment, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onFinishWithResult, RCTDirectEventBlock)
 

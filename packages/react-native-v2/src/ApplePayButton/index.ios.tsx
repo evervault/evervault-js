@@ -5,11 +5,12 @@ import {
 } from "./types";
 import ApplePayButtonView, {
   AuthorizePaymentEvent,
+  DateComponents,
   FinishWithResultEvent,
 } from "../specs/ApplePayButtonViewNativeComponent";
-import { Fragment } from "react/jsx-runtime";
 import { NativeSyntheticEvent, Text } from "react-native";
 import { useCallback, useMemo } from "react";
+import { toDateComponents } from "./utilities";
 
 export const isApplePayAvailable = () => {
   // TODO: Call the native method to check if Apple Pay is available
@@ -22,6 +23,7 @@ export const isApplePayDisbursementAvailable = () => {
 };
 
 export const ApplePayButton: React.FC<ApplePayButtonProps> = ({
+  transaction,
   supportedNetworks = [],
   onFinishWithResult,
   onAuthorizePayment,
@@ -49,16 +51,36 @@ export const ApplePayButton: React.FC<ApplePayButtonProps> = ({
     [onAuthorizePayment]
   );
 
-  const parsedNetworks = useMemo(() => {
+  const preparedNetworks = useMemo(() => {
     return supportedNetworks.flatMap(
       (network) => supportedNetworkMap[network] ?? []
     );
   }, [supportedNetworks]);
 
+  const preparedTransaction = useMemo(() => {
+    return {
+      ...transaction,
+      shippingMethods: transaction.shippingMethods?.map((method) => {
+        const dateRange = method.dateRange
+          ? {
+              start: toDateComponents(method.dateRange.start),
+              end: toDateComponents(method.dateRange.end),
+            }
+          : undefined;
+
+        return {
+          ...method,
+          dateRange,
+        };
+      }),
+    };
+  }, [transaction]);
+
   return (
     <ApplePayButtonView
       {...props}
-      supportedNetworks={parsedNetworks}
+      transaction={preparedTransaction}
+      supportedNetworks={preparedNetworks}
       onFinishWithResult={handleFinishWithResult}
       onAuthorizePayment={handleAuthorizePayment}
     />

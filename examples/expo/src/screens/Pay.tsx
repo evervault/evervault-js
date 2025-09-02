@@ -49,6 +49,34 @@ export const PayExample: React.FC = () => {
             <ApplePayButton
               appId="your-evervault-app-id"
               merchantId="your-apple-merchant-id"
+              transaction={{
+                type: "oneOff",
+                country: "US",
+                currency: "USD",
+                paymentSummaryItems: [
+                  {
+                    label: "Test Item A",
+                    amount: "100",
+                  },
+                  {
+                    label: "Test Item B",
+                    amount: "200",
+                  },
+                ],
+                requiredShippingContactFields: ["name"],
+                shippingType: "delivery",
+                shippingMethods: [
+                  {
+                    label: "Test Method",
+                    amount: "5",
+                    detail: "This is a test method",
+                    dateRange: {
+                      start: "2025-01-01",
+                      end: "2025-01-01",
+                    },
+                  },
+                ],
+              }}
               supportedNetworks={[
                 "visa",
                 "mastercard",

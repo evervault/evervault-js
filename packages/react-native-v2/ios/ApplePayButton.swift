@@ -13,21 +13,18 @@ import PassKit
   private var paymentView: EvervaultPaymentView?
 
   private var appId: String?
-  private var merchantId: String?
-  private var supportedNetworks: [PKPaymentNetwork] = []
-  private var buttonType: PKPaymentButtonType = .plain
-  private var buttonStyle: PKPaymentButtonStyle = .automatic
-
   @objc public func setAppId(_ appId: String) {
     self.appId = appId
     setupPaymentView()
   }
   
+  private var merchantId: String?
   @objc public func setMerchantId(_ merchantId: String) {
     self.merchantId = merchantId
     setupPaymentView()
   }
   
+  private var supportedNetworks: [PKPaymentNetwork] = []
   @objc public func setSupportedNetworks(_ inputSupportedNetworks: [String]) {
     var supportedNetworks = [PKPaymentNetwork]()
     for network in inputSupportedNetworks {
@@ -37,6 +34,7 @@ import PassKit
     setupPaymentView()
   }
   
+  private var buttonType: PKPaymentButtonType = .plain
   @objc public func setButtonType(_ inputButtonType: String) {
     switch inputButtonType {
     case "buy":
@@ -53,6 +51,7 @@ import PassKit
     setupPaymentView()
   }
   
+  private var buttonStyle: PKPaymentButtonStyle = .automatic
   @objc public func setButtonStyle(_ inputButtonStyle: String) {
     switch inputButtonStyle {
     case "white":
@@ -67,9 +66,83 @@ import PassKit
     setupPaymentView()
   }
 
-  // private var red: Int = 0
-  // private var green: Int = 0
-  // private var blue: Int = 0
+  private var transaction: Transaction?
+  @objc public func setTransaction(_ inputTransaction: NSDictionary) {
+    guard let transaction = try? self.prepareTransaction(inputTransaction) else {
+      return
+    }
+    self.transaction = transaction
+    setupPaymentView()
+  }
+
+  private func prepareShippingType(_ inputShippingType: String?) -> ShippingType {
+    switch inputShippingType {
+    case "delivery":
+      return .delivery
+    case "storePickup":
+      return .storePickup
+    case "servicePickup":
+      return .servicePickup
+    default:
+      return .shipping
+    }
+  }
+
+  private func prepareDateComponents(_ inputDateComponents: NSDictionary) throws -> DateComponents {
+    let year = inputDateComponents["year"] as! Int
+    let month = inputDateComponents["month"] as! Int
+    let day = inputDateComponents["day"] as! Int
+    return DateComponents(year: year, month: month, day: day)
+  }
+
+  private func prepareShippingMethod(_ inputShippingMethod: NSDictionary) throws -> ShippingMethod {
+    let label = inputShippingMethod["label"] as! String
+    let amount = inputShippingMethod["amount"] as! String
+    let shippingMethod = ShippingMethod(label: label, amount: NSDecimalNumber(string: amount))
+
+    if let detail = inputShippingMethod["detail"] as? String {
+      shippingMethod.detail = detail
+    }
+    if let identifier = inputShippingMethod["identifier"] as? String {
+      shippingMethod.identifier = identifier
+    }
+    if let start = inputShippingMethod["start"] as? NSDictionary, let end = inputShippingMethod["end"] as? NSDictionary {
+      let start = try self.prepareDateComponents(start)
+      let end = try self.prepareDateComponents(end)
+      shippingMethod.dateComponentsRange = PKDateComponentsRange(start: start, end: end)
+    }
+
+    return shippingMethod
+  }
+
+  private func prepareTransaction(_ inputTransaction: NSDictionary) throws -> Transaction {
+    let type = inputTransaction["type"] as! String
+    let country = inputTransaction["country"] as! String
+    let currency = inputTransaction["currency"] as! String
+    let paymentSummaryItems = (inputTransaction["paymentSummaryItems"] as! [NSDictionary]).map { (item) -> SummaryItem in
+      return SummaryItem(label: item["label"] as! String, amount: Amount(item["amount"] as! String))
+    }
+    let shippingType = self.prepareShippingType(inputTransaction["shippingType"] as? String)
+    let shippingMethods = try (inputTransaction["shippingMethods"] as! [NSDictionary]).map { (method) -> ShippingMethod in
+      return try self.prepareShippingMethod(method)
+    }
+    let requiredShippingContactFields = (inputTransaction["requiredShippingContactFields"] as! [String]).map { (field) -> ContactField in
+      return ContactField(rawValue: field)
+    }
+
+    switch type {
+      default:
+        let oneOffTransaction = try! OneOffPaymentTransaction(
+          country: country,
+          currency: currency,
+          paymentSummaryItems: paymentSummaryItems,
+          shippingType: shippingType,
+          shippingMethods: shippingMethods,
+          requiredShippingContactFields: Set(requiredShippingContactFields)
+        )
+        return Transaction.oneOffPayment(oneOffTransaction)
+    }
+  }
   
   // Delegate for handling events
   @objc public weak var delegate: ApplePayButtonDelegate?
@@ -92,7 +165,8 @@ import PassKit
 
   private func setupPaymentView() {
     guard let appId = self.appId,
-          let merchantId = self.merchantId else {
+          let merchantId = self.merchantId,
+          let transaction = self.transaction else {
       return
     }
 
@@ -100,26 +174,18 @@ import PassKit
     self.paymentView?.delegate = nil
     self.paymentView = nil
 
-    guard let transaction = try? OneOffPaymentTransaction(
-      country: "abc", 
-      currency: "USD",
-      paymentSummaryItems: [
-        SummaryItem(label: "Test", amount: Amount("100")),
-      ]
-    ) else {
-      return
-    }
-
     let paymentView = EvervaultPaymentView(
       appId: appId,
       appleMerchantId: merchantId,
-      transaction: Transaction.oneOffPayment(transaction),
+      transaction: transaction,
       supportedNetworks: supportedNetworks,
       buttonStyle: buttonStyle,
       buttonType: buttonType,
     )
+
     paymentView.delegate = self
     self.addSubview(paymentView)
+
     paymentView.translatesAutoresizingMaskIntoConstraints = false
     NSLayoutConstraint.activate([
       paymentView.topAnchor.constraint(equalTo: self.topAnchor),
@@ -127,6 +193,7 @@ import PassKit
       paymentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
       paymentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
     ])
+    
     self.paymentView = paymentView
   }
 }

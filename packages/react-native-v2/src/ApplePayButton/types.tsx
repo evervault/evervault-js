@@ -3,6 +3,9 @@ import {
   ButtonStyle,
   ButtonType,
   AuthorizePaymentEvent,
+  SummaryItem,
+  Transaction,
+  ShippingMethod,
 } from "../specs/ApplePayButtonViewNativeComponent";
 
 export interface ApplePayNetworkTokenExpiry {
@@ -34,6 +37,57 @@ export interface ApplePayResponse {
   paymentDataType: string;
   deviceManufacturerIdentifier: string;
 }
+
+export interface ApplePaySummaryItem {
+  label: string;
+  amount: `${number}`;
+}
+
+export type ApplePayShippingType = NonNullable<Transaction["shippingType"]>;
+
+export interface ApplePayShippingMethod extends ApplePaySummaryItem {
+  detail?: string;
+  identifier?: string;
+  dateRange?: {
+    start: Date | string | number;
+    end: Date | string | number;
+  };
+}
+
+// https://developer.apple.com/documentation/passkit/pkcontactfield
+export type ApplePayContactField =
+  | "emailAddress"
+  | "name"
+  | "phoneNumber"
+  | "phoneticName"
+  | "postalAddress";
+
+export interface BaseApplePayTransaction {
+  country: string;
+  currency: string;
+  paymentSummaryItems: ApplePaySummaryItem[];
+  shippingType?: ApplePayShippingType;
+  shippingMethods?: ApplePayShippingMethod[];
+  requiredShippingContactFields?: ApplePayContactField[];
+}
+
+export interface ApplePayOneOffTransaction extends BaseApplePayTransaction {
+  type: "oneOff";
+}
+
+export interface ApplePayDisbursementTransaction
+  extends BaseApplePayTransaction {
+  type: "disbursement";
+}
+
+export interface ApplePayRecurringTransaction extends BaseApplePayTransaction {
+  type: "recurring";
+}
+
+export type ApplePayTransaction =
+  | ApplePayOneOffTransaction
+  | ApplePayDisbursementTransaction
+  | ApplePayRecurringTransaction;
 
 // Map RN networks to PKPaymentNetwork
 // https://developer.apple.com/documentation/passkit/pkpaymentnetwork
@@ -71,8 +125,12 @@ export type ApplePayAuthorizedPaymentEvent = AuthorizePaymentEvent;
 export interface ApplePayButtonProps
   extends Omit<
     NativeProps,
-    "supportedNetworks" | "onFinishWithResult" | "onAuthorizePayment"
+    | "transaction"
+    | "supportedNetworks"
+    | "onFinishWithResult"
+    | "onAuthorizePayment"
   > {
+  transaction: ApplePayTransaction;
   supportedNetworks?: ApplePaySupportedNetwork[];
   onFinishWithResult?: (event: ApplePayFinishWithResultEvent) => void;
   onAuthorizePayment?: (event: ApplePayResponse) => void;

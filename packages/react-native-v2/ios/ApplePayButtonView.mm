@@ -70,6 +70,74 @@ using namespace facebook::react;
         [_view setButtonStyle:[NSString stringWithUTF8String:toString(newViewProps.buttonStyle).c_str()]];
     }
 
+    // Convert ApplePayButtonViewTransactionStruct to NSDictionary
+    NSMutableDictionary *transactionDict = [NSMutableDictionary dictionary];
+    
+    // Convert type enum to string
+    transactionDict[@"type"] = [NSString stringWithUTF8String:toString(newViewProps.transaction.type).c_str()];
+    
+    // Convert basic string fields
+    transactionDict[@"country"] = [NSString stringWithUTF8String:newViewProps.transaction.country.c_str()];
+    transactionDict[@"currency"] = [NSString stringWithUTF8String:newViewProps.transaction.currency.c_str()];
+    
+    // Convert shipping type enum to string
+    transactionDict[@"shippingType"] = [NSString stringWithUTF8String:toString(newViewProps.transaction.shippingType).c_str()];
+    
+    // Convert payment summary items array
+    NSMutableArray *paymentSummaryItems = [NSMutableArray arrayWithCapacity:newViewProps.transaction.paymentSummaryItems.size()];
+    for (const auto &item : newViewProps.transaction.paymentSummaryItems) {
+        NSDictionary *itemDict = @{
+            @"label": [NSString stringWithUTF8String:item.label.c_str()],
+            @"amount": [NSString stringWithUTF8String:item.amount.c_str()]
+        };
+        [paymentSummaryItems addObject:itemDict];
+    }
+    transactionDict[@"paymentSummaryItems"] = paymentSummaryItems;
+    
+    // Convert shipping methods array
+    NSMutableArray *shippingMethods = [NSMutableArray arrayWithCapacity:newViewProps.transaction.shippingMethods.size()];
+    for (const auto &method : newViewProps.transaction.shippingMethods) {
+        NSDictionary *dateRangeDict = nil;
+        // Only add dateRange if at least one of the fields is non-zero (or non-default)
+        if (method.dateRange.start.year != 0 ||
+            method.dateRange.start.month != 0 ||
+            method.dateRange.start.day != 0 ||
+            method.dateRange.end.year != 0 ||
+            method.dateRange.end.month != 0 ||
+            method.dateRange.end.day != 0) {
+            dateRangeDict = @{
+                @"start": @{
+                    @"year": @(method.dateRange.start.year),
+                    @"month": @(method.dateRange.start.month),
+                    @"day": @(method.dateRange.start.day)
+                },
+                @"end": @{
+                    @"year": @(method.dateRange.end.year),
+                    @"month": @(method.dateRange.end.month),
+                    @"day": @(method.dateRange.end.day)
+                }
+            };
+        }
+        
+        NSDictionary *methodDict = @{
+            @"label": [NSString stringWithUTF8String:method.label.c_str()],
+            @"amount": [NSString stringWithUTF8String:method.amount.c_str()],
+            @"detail": [NSString stringWithUTF8String:method.detail.c_str()],
+            @"identifier": [NSString stringWithUTF8String:method.identifier.c_str()],
+            @"dateRange": dateRangeDict
+        };
+        [shippingMethods addObject:methodDict];
+    }
+    transactionDict[@"shippingMethods"] = shippingMethods;
+    
+    // Convert required shipping contact fields array
+    NSMutableArray *requiredFields = [NSMutableArray arrayWithCapacity:newViewProps.transaction.requiredShippingContactFields.size()];
+    for (const auto &field : newViewProps.transaction.requiredShippingContactFields) {
+        [requiredFields addObject:[NSString stringWithUTF8String:field.c_str()]];
+    }
+    transactionDict[@"requiredShippingContactFields"] = requiredFields;
+    [_view setTransaction:transactionDict];
+
     [super updateProps:props oldProps:oldProps];
 }
 

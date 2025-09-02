@@ -6,6 +6,39 @@ import {
 } from "react-native/Libraries/Types/CodegenTypes";
 import codegenNativeComponent from "react-native/Libraries/Utilities/codegenNativeComponent";
 
+export interface SummaryItem {
+  label: string;
+  amount: string;
+}
+
+export interface DateComponents {
+  year: Int32;
+  month: Int32;
+  day: Int32;
+}
+
+export interface ShippingMethod extends SummaryItem {
+  detail?: string;
+  identifier?: string;
+  dateRange?: {
+    start: DateComponents;
+    end: DateComponents;
+  };
+}
+
+export interface Transaction {
+  type?: WithDefault<"oneOff" | "disbursement" | "recurring", "oneOff">;
+  country: string;
+  currency: string;
+  paymentSummaryItems: SummaryItem[];
+  shippingType?: WithDefault<
+    "shipping" | "delivery" | "servicePickup" | "storePickup",
+    "shipping"
+  >;
+  shippingMethods?: ShippingMethod[];
+  requiredShippingContactFields?: string[];
+}
+
 export interface AuthorizePaymentEvent {
   card: {
     brand: string | null;
@@ -39,6 +72,7 @@ export interface FinishWithResultEvent {
 export interface NativeProps extends ViewProps {
   appId: string;
   merchantId: string;
+  transaction: Transaction;
   // https://developer.apple.com/documentation/passkit/pkpaymentnetwork
   supportedNetworks?: string[];
   // TODO: https://developer.apple.com/documentation/PassKit/PKPaymentButtonType
