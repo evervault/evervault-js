@@ -6,15 +6,14 @@
 // } from "../specs/ApplePayButtonNativeComponent";
 import { NativeProps } from "../specs/ApplePayButtonViewNativeComponent";
 
-import type { ViewProps } from "react-native";
+export type FinishWithResultEvent =
+  | { success: true }
+  | { success: false; error: string };
 
-export interface ApplePayButtonProps {
-  appId: NativeProps["appId"];
-  merchantId: NativeProps["merchantId"];
+export interface ApplePayButtonProps
+  extends Omit<NativeProps, "supportedNetworks" | "onFinishWithResult"> {
   supportedNetworks?: ("visa" | "masterCard" | "amex" | "discover")[];
-  buttonType?: NativeProps["buttonType"];
-  buttonStyle?: NativeProps["buttonStyle"];
-  style?: NativeProps["style"];
+  onFinishWithResult?: (data: FinishWithResultEvent) => void;
 }
 
 // export type ButtonType =

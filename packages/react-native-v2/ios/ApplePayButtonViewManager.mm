@@ -40,21 +40,7 @@ RCT_CUSTOM_VIEW_PROPERTY(buttonStyle, NSString, ApplePayButton)
   [view setButtonStyle:json];
 }
 
-// RCT_CUSTOM_VIEW_PROPERTY(config, NSDictionary, ApplePayButton)
-// {
-//   [view setConfigWithAppId:json[@"appId"] merchantId:json[@"merchantId"] supportedNetworks:json[@"supportedNetworks"] buttonType:json[@"buttonType"] buttonStyle:json[@"buttonStyle"]];
-// }
-
-// RCT_CUSTOM_VIEW_PROPERTY(green, NSNumber, ApplePayButton)
-// {
-//   [view setGreen:json];
-// }
-
-// RCT_CUSTOM_VIEW_PROPERTY(blue, NSNumber, ApplePayButton)
-// {
-//   [view setBlue:json];
-// }
-
-RCT_EXPORT_VIEW_PROPERTY(onRedChange, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onAuthorizePayment, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onFinishWithResult, RCTDirectEventBlock)
 
 @end

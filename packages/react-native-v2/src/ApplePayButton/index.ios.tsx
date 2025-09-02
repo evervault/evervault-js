@@ -1,7 +1,8 @@
-import { ApplePayButtonProps } from "./types";
+import { ApplePayButtonProps, FinishWithResultEvent } from "./types";
 import ApplePayButtonView from "../specs/ApplePayButtonViewNativeComponent";
 import { Fragment } from "react/jsx-runtime";
-import { Text } from "react-native";
+import { NativeSyntheticEvent, Text } from "react-native";
+import { useCallback } from "react";
 export * from "./types";
 
 export const isApplePayAvailable = () => {
@@ -15,32 +16,32 @@ export const isApplePayDisbursementAvailable = () => {
 };
 
 export const ApplePayButton: React.FC<ApplePayButtonProps> = ({
-  appId,
-  merchantId,
   supportedNetworks = [],
   buttonType = "plain",
   buttonStyle = "automatic",
+  onFinishWithResult,
   ...props
 }) => {
+  const handleFinishWithResult = useCallback(
+    (evt: NativeSyntheticEvent<FinishWithResultEvent>) => {
+      if (evt.nativeEvent.success) {
+        onFinishWithResult?.({ success: true });
+      } else {
+        onFinishWithResult?.({ success: false, error: evt.nativeEvent.error });
+      }
+    },
+    [onFinishWithResult]
+  );
+
   return (
     <Fragment>
       <Text>Hello World</Text>
       <ApplePayButtonView
-        appId={appId}
-        merchantId={merchantId}
+        {...props}
         supportedNetworks={supportedNetworks}
         buttonType={buttonType}
         buttonStyle={buttonStyle}
-        // red={red}
-        // green={green}
-        // blue={blue}
-        // onRedChange={onRedChange}
-        // transaction={transaction}
-        // TODO: Add handlers
-        // onDidAuthorizePayment={onDidAuthorizePayment}
-        // onDidFinishWithResult={onDidFinishWithResult}
-        // onPrepareTransaction={onPrepareTransaction}
-        {...props}
+        onFinishWithResult={handleFinishWithResult}
       />
     </Fragment>
   );

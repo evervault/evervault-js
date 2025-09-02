@@ -75,10 +75,21 @@ using namespace facebook::react;
 
 #pragma mark - ApplePayButtonDelegate
 
-- (void)applePayButton:(ApplePayButton *)button didChangeRedValue:(NSInteger)red {
+- (void)applePayButton:(ApplePayButton *)button didAuthorizePayment:(NSDictionary *)payment {
     if (_eventEmitter) {
-        ApplePayButtonViewEventEmitter::OnRedChange event{static_cast<int>(red)};
-        self.eventEmitter.onRedChange(event);
+        ApplePayButtonViewEventEmitter::OnAuthorizePaymentToken token{{}, {}};
+        ApplePayButtonViewEventEmitter::OnAuthorizePayment response{token};
+        self.eventEmitter.onAuthorizePayment(response);
+    }
+}
+
+- (void)applePayButton:(ApplePayButton *)button didFinishWithSuccess:(BOOL)success error:(NSString *)error {
+    if (_eventEmitter) {
+        ApplePayButtonViewEventEmitter::OnFinishWithResult event{
+            success,
+            error ? std::string([error UTF8String]) : std::string()
+        };
+        self.eventEmitter.onFinishWithResult(event);
     }
 }
 

@@ -1,14 +1,21 @@
 import type { HostComponent, ViewProps } from "react-native";
 import {
   DirectEventHandler,
-  Int32,
   WithDefault,
 } from "react-native/Libraries/Types/CodegenTypes";
 import codegenNativeComponent from "react-native/Libraries/Utilities/codegenNativeComponent";
 
-type RedChangeEvent = {
-  red: Int32;
-};
+export interface AuthorizePaymentEvent {
+  token: {
+    paymentData: {};
+    paymentMethod: {};
+  };
+}
+
+export interface FinishWithResultEvent {
+  success: boolean;
+  error: string;
+}
 
 export interface NativeProps extends ViewProps {
   appId: string;
@@ -25,7 +32,8 @@ export interface NativeProps extends ViewProps {
     "white" | "whiteOutline" | "black" | "automatic",
     "automatic"
   >;
-  readonly onRedChange?: DirectEventHandler<RedChangeEvent>;
+  readonly onAuthorizePayment?: DirectEventHandler<AuthorizePaymentEvent>;
+  readonly onFinishWithResult?: DirectEventHandler<FinishWithResultEvent>;
 }
 
 export type ButtonType = NonNullable<NativeProps["buttonType"]>;

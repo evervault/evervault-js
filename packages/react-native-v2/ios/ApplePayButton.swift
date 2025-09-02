@@ -5,10 +5,11 @@ import EvervaultPayment
 import PassKit
 
 @objc public protocol ApplePayButtonDelegate: AnyObject {
-    func applePayButton(_ button: ApplePayButton, didChangeRedValue red: Int)
+  func applePayButton(_ button: ApplePayButton, didAuthorizePayment result: NSDictionary?)
+  func applePayButton(_ button: ApplePayButton, didFinishWithSuccess success: Bool, error: NSString?)
 }
 
-@objc public class ApplePayButton: UIView, EvervaultPaymentViewDelegate {    
+@objc public class ApplePayButton: UIView {    
   private var paymentView: EvervaultPaymentView?
 
   private var appId: String?
@@ -128,12 +129,21 @@ import PassKit
     ])
     self.paymentView = paymentView
   }
-  
+}
+
+extension ApplePayButton: EvervaultPaymentViewDelegate {
   public func evervaultPaymentView(_ view: EvervaultPayment.EvervaultPaymentView, didAuthorizePayment result: EvervaultPayment.ApplePayResponse?) {
-    // TODO: delegate?.applePayButton(self, didAuthorizePayment: result)
+    if let response = result.dictionary {
+      delegate?.applePayButton(self, didAuthorizePayment: response as NSDictionary)
+    }
   }
 
   public func evervaultPaymentView(_ view: EvervaultPayment.EvervaultPaymentView, didFinishWithResult result: Result<Void, EvervaultPayment.EvervaultError>) {
-    // TODO: delegate?.applePayButton(self, didFinishWithResult: result)
+    switch result {
+    case .success:
+      delegate?.applePayButton(self, didFinishWithSuccess: true, error: nil)
+    case .failure(let error):
+      delegate?.applePayButton(self, didFinishWithSuccess: false, error: error.localizedDescription as NSString?)
+    }
   }
 }

@@ -82,6 +82,8 @@ export const PayExample: React.FC = () => {
           supportedNetworks={["visa", "masterCard", "amex", "discover"]}
           buttonType="addMoney"
           buttonStyle="automatic"
+          onAuthorizePayment={(e) => console.log(e.nativeEvent)}
+          onFinishWithResult={console.log}
           style={{ width: "100%", height: 50 }}
           // onRedChange={(event) => {
           //   console.log("Red changed:", event.nativeEvent.red);
