@@ -17,7 +17,7 @@ RCT_EXPORT_MODULE(ApplePayButtonView)
 
 RCT_CUSTOM_VIEW_PROPERTY(config, NSDictionary, ApplePayButton)
 {
-  [view setConfig:json];
+  [view setConfigWithAppId:json[@"appId"] merchantId:json[@"merchantId"] supportedNetworks:json[@"supportedNetworks"] buttonType:json[@"buttonType"] buttonStyle:json[@"buttonStyle"]];
 }
 
 // RCT_CUSTOM_VIEW_PROPERTY(green, NSNumber, ApplePayButton)

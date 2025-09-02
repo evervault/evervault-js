@@ -9,9 +9,18 @@ import PassKit
 }
 
 @objc public class ApplePayButton: UIView {
-  private var config: [String: Any]?
-  @objc public func setConfig(_ config: [String: Any]) {
-    self.config = config
+  private var appId: String?
+  private var merchantId: String?
+  private var supportedNetworks: [String]?
+  private var buttonType: String?
+  private var buttonStyle: String?
+
+  @objc public func setConfig(appId: String, merchantId: String, supportedNetworks: [String], buttonType: String, buttonStyle: String) {
+    self.appId = appId
+    self.merchantId = merchantId
+    self.supportedNetworks = supportedNetworks
+    self.buttonType = buttonType
+    self.buttonStyle = buttonStyle
     setupPaymentView()
   }
 
@@ -39,12 +48,11 @@ import PassKit
   }
 
   private func setupPaymentView() {
-    guard let config = self.config,
-          let appId = config["appId"] as? String,
-          let merchantId = config["merchantId"] as? String,
-          let supportedNetworks = config["supportedNetworks"] as? [String],
-          let buttonType = config["buttonType"] as? String,
-          let buttonStyle = config["buttonStyle"] as? String else {
+    guard let appId = self.appId,
+          let merchantId = self.merchantId,
+          let supportedNetworks = self.supportedNetworks,
+          let buttonType = self.buttonType,
+          let buttonStyle = self.buttonStyle else {
       return
     }
     

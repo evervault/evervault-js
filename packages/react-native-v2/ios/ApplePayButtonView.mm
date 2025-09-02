@@ -49,15 +49,19 @@ using namespace facebook::react;
     const auto &oldViewProps = *std::static_pointer_cast<ApplePayButtonViewProps const>(_props);
     const auto &newViewProps = *std::static_pointer_cast<ApplePayButtonViewProps const>(props);
 
-    // Convert C++ struct to NSDictionary for Swift
-    NSDictionary *configDict = @{
-        @"appId": [NSString stringWithUTF8String:newViewProps.config.appId.c_str()],
-        @"merchantId": [NSString stringWithUTF8String:newViewProps.config.merchantId.c_str()],
-        @"supportedNetworks": [self convertStringVectorToArray:newViewProps.config.supportedNetworks],
-        @"buttonType": [NSString stringWithUTF8String:newViewProps.config.buttonType.c_str()],
-        @"buttonStyle": [NSString stringWithUTF8String:newViewProps.config.buttonStyle.c_str()]
-    };
-    [_view setConfig:configDict];
+    // Simpler conversion using ObjC literals and std::transform for supportedNetworks
+    NSString *appId = @(newViewProps.config.appId.c_str());
+    NSString *merchantId = @(newViewProps.config.merchantId.c_str());
+    NSArray<NSString *> *supportedNetworks = ({
+        std::vector<std::string> const &vec = newViewProps.config.supportedNetworks;
+        NSMutableArray *arr = [NSMutableArray arrayWithCapacity:vec.size()];
+        for (const auto &s : vec) [arr addObject:@(s.c_str())];
+        [arr copy];
+    });
+    NSString *buttonType = @(newViewProps.config.buttonType.c_str());
+    NSString *buttonStyle = @(newViewProps.config.buttonStyle.c_str());
+
+    [_view setConfigWithAppId:appId merchantId:merchantId supportedNetworks:supportedNetworks buttonType:buttonType buttonStyle:buttonStyle];
 
     // if (oldViewProps.red != newViewProps.red) {
     //     [_view setRed:@(newViewProps.red)];
@@ -74,13 +78,13 @@ using namespace facebook::react;
     [super updateProps:props oldProps:oldProps];
 }
 
-- (NSArray<NSString *> *)convertStringVectorToArray:(const std::vector<std::string> &)vector {
-    NSMutableArray<NSString *> *array = [NSMutableArray arrayWithCapacity:vector.size()];
-    for (const auto &str : vector) {
-        [array addObject:[NSString stringWithUTF8String:str.c_str()]];
-    }
-    return [array copy];
-}
+// - (NSArray<NSString *> *)convertStringVectorToArray:(const std::vector<std::string> &)vector {
+//     NSMutableArray<NSString *> *array = [NSMutableArray arrayWithCapacity:vector.size()];
+//     for (const auto &str : vector) {
+//         [array addObject:[NSString stringWithUTF8String:str.c_str()]];
+//     }
+//     return [array copy];
+// }
 
 #pragma mark - ApplePayButtonDelegate
 
