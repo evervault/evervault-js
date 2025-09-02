@@ -63,7 +63,7 @@ export const PayExample: React.FC = () => {
                     amount: "200",
                   },
                 ],
-                requiredShippingContactFields: ["name"],
+                requiredShippingContactFields: ["name", "emailAddress"],
                 shippingType: "delivery",
                 shippingMethods: [
                   {
@@ -72,7 +72,7 @@ export const PayExample: React.FC = () => {
                     detail: "This is a test method",
                     dateRange: {
                       start: "2025-01-01",
-                      end: "2025-01-01",
+                      end: "2025-03-04",
                     },
                   },
                 ],

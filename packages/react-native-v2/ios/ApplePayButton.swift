@@ -68,11 +68,13 @@ import PassKit
 
   private var transaction: Transaction?
   @objc public func setTransaction(_ inputTransaction: NSDictionary) {
-    guard let transaction = try? self.prepareTransaction(inputTransaction) else {
-      return
+    do {
+      self.transaction = try self.prepareTransaction(inputTransaction)
+      setupPaymentView()
+    } catch {
+      // NOTE: this will silently fail for the initial value because event emitters are not set up yet
+      delegate?.applePayButton(self, didFinishWithSuccess: false, code: String(describing: error) as NSString?, error: error.localizedDescription as NSString?)
     }
-    self.transaction = transaction
-    setupPaymentView()
   }
 
   private func prepareShippingType(_ inputShippingType: String?) -> ShippingType {
@@ -85,6 +87,23 @@ import PassKit
       return .servicePickup
     default:
       return .shipping
+    }
+  }
+
+  private func prepareContactField(_ inputContactField: String?) throws -> ContactField {
+    switch inputContactField {
+    case "emailAddress":
+      return .emailAddress
+    case "name":
+      return .name
+    case "phoneNumber":
+      return .phoneNumber
+    case "phoneticName":
+      return .phoneticName
+    case "postalAddress":
+      return .postalAddress
+    default:
+      throw NSError(domain: "ApplePayButton", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid contact field: \(inputContactField ?? "nil")"])
     }
   }
 
@@ -129,13 +148,13 @@ import PassKit
     let shippingMethods = try (inputTransaction["shippingMethods"] as! [NSDictionary]).map { (method) -> ShippingMethod in
       return try self.prepareShippingMethod(method)
     }
-    let requiredShippingContactFields = (inputTransaction["requiredShippingContactFields"] as! [String]).map { (field) -> ContactField in
-      return ContactField(rawValue: field)
+    let requiredShippingContactFields = try (inputTransaction["requiredShippingContactFields"] as! [String]).map { (field) -> ContactField in
+      return try self.prepareContactField(field)
     }
 
     switch type {
       default:
-        let oneOffTransaction = try! OneOffPaymentTransaction(
+        let oneOffTransaction = try OneOffPaymentTransaction(
           country: country,
           currency: currency,
           paymentSummaryItems: paymentSummaryItems,
@@ -143,7 +162,7 @@ import PassKit
           shippingMethods: shippingMethods,
           requiredShippingContactFields: Set(requiredShippingContactFields)
         )
-        return Transaction.oneOffPayment(oneOffTransaction)
+        return .oneOffPayment(oneOffTransaction)
     }
   }
   
@@ -202,13 +221,13 @@ import PassKit
 }
 
 extension ApplePayButton: EvervaultPaymentViewDelegate {
-  public func evervaultPaymentView(_ view: EvervaultPayment.EvervaultPaymentView, didAuthorizePayment result: EvervaultPayment.ApplePayResponse?) {
+  public func evervaultPaymentView(_ view: EvervaultPaymentView, didAuthorizePayment result: ApplePayResponse?) {
     if let response = result.dictionary {
       delegate?.applePayButton(self, didAuthorizePayment: response as NSDictionary)
     }
   }
 
-  public func evervaultPaymentView(_ view: EvervaultPayment.EvervaultPaymentView, didFinishWithResult result: Result<Void, EvervaultPayment.EvervaultError>) {
+  public func evervaultPaymentView(_ view: EvervaultPaymentView, didFinishWithResult result: Result<Void, EvervaultError>) {
     switch result {
     case .success:
       delegate?.applePayButton(self, didFinishWithSuccess: true, code: nil, error: nil)
@@ -216,6 +235,21 @@ extension ApplePayButton: EvervaultPaymentViewDelegate {
       print(error)
       delegate?.applePayButton(self, didFinishWithSuccess: false, code: String(describing: error) as NSString?, error: error.localizedDescription as NSString?)
     }
+  }
+
+  public func evervaultPaymentView(_ view: EvervaultPaymentView, prepareTransaction transaction: inout Transaction) {
+    // To wait for RN (React Native) to respond before setting up the payment view,
+    // you need to make the flow asynchronous. Typically, you would:
+    // 1. Notify the delegate (JS side) to prepare/modify the transaction.
+    // 2. Wait for a callback from JS (e.g., via a method like `updateTransaction`).
+    // 3. Only after receiving the updated transaction from JS, proceed to set up the payment view.
+
+    // Step 1: Notify JS to prepare/modify the transaction.
+    // delegate?.applePayButton(self, prepareTransaction: transaction as NSDictionary)
+    // Step 2: Do NOT proceed with payment view setup here.
+    // Instead, expect the JS side to call back (e.g., via a method exposed to RN)
+    // with the updated transaction, at which point you continue the flow.
+    
   }
 }
 

@@ -145,8 +145,6 @@ using namespace facebook::react;
 
 - (void)applePayButton:(ApplePayButton *)button didAuthorizePayment:(NSDictionary *)payment {
     if (_eventEmitter) {
-        NSLog(@"didAuthorizePayment: %@", payment);
-        
         // Create the nested structs
         ApplePayButtonViewEventEmitter::OnAuthorizePaymentCard card{
             std::string([payment[@"card"][@"brand"] UTF8String]),
@@ -156,19 +154,16 @@ using namespace facebook::react;
             std::string([payment[@"card"][@"issuer"] UTF8String]),
             std::string([payment[@"card"][@"segment"] UTF8String])
         };
-        
         ApplePayButtonViewEventEmitter::OnAuthorizePaymentNetworkTokenExpiry expiry{
             [payment[@"networkToken"][@"expiry"][@"month"] intValue],
             [payment[@"networkToken"][@"expiry"][@"year"] intValue]
         };
-        
         ApplePayButtonViewEventEmitter::OnAuthorizePaymentNetworkToken networkToken{
             expiry,
             std::string([payment[@"networkToken"][@"number"] UTF8String]),
             std::string([payment[@"networkToken"][@"rawExpiry"] UTF8String]),
             std::string([payment[@"networkToken"][@"tokenServiceProvider"] UTF8String])
         };
-        
         // Create the main struct
         ApplePayButtonViewEventEmitter::OnAuthorizePayment response{
             card,
@@ -178,7 +173,6 @@ using namespace facebook::react;
             networkToken,
             std::string([payment[@"paymentDataType"] UTF8String])
         };
-        
         self.eventEmitter.onAuthorizePayment(response);
     }
 }
