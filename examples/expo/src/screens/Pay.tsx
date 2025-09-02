@@ -6,8 +6,13 @@ import {
   Alert,
   SafeAreaView,
   TextInput,
+  ScrollView,
 } from "react-native";
-import { ApplePayButton } from "@evervault/react-native";
+import {
+  ApplePayAuthorizedPaymentEvent,
+  ApplePayButton,
+} from "@evervault/react-native";
+import { Code } from "@/src/ui/Code";
 
 export const PayExample: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -24,83 +29,56 @@ export const PayExample: React.FC = () => {
   //   ],
   // };
 
-  const handleDidAuthorizePayment = (data: any) => {
-    console.log("Payment authorized:", data);
-    setIsProcessing(false);
-
-    // Handle the payment response
-    // The data contains the encrypted payment token that you can send to your backend
-    Alert.alert(
-      "Payment Successful",
-      "Your payment has been processed successfully!"
-    );
-  };
-
-  const handleDidFinishWithResult = (data: {
-    success: boolean;
-    error?: string;
-  }) => {
-    console.log("Payment finished:", data);
-    setIsProcessing(false);
-
-    if (!data.success) {
-      Alert.alert(
-        "Payment Failed",
-        data.error || "An error occurred during payment processing."
-      );
-    }
-  };
-
   const handlePrepareTransaction = () => {
     console.log("Preparing transaction...");
     // You can modify the transaction here if needed
   };
 
-  const [red, setRed] = useState("0");
-  const redNum = useMemo(() => {
-    const num = parseInt(red);
-    if (isNaN(num)) return 0;
-    return num;
-  }, [red]);
+  const [event, setEvent] = useState<ApplePayAuthorizedPaymentEvent | null>(
+    null
+  );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Evervault Apple Pay Example</Text>
-      <Text style={styles.subtitle}>iOS Integration</Text>
+    <ScrollView>
+      <SafeAreaView>
+        <View style={styles.container}>
+          <Text style={styles.title}>Evervault Apple Pay Example</Text>
+          <Text style={styles.subtitle}>iOS Integration</Text>
 
-      <TextInput
-        keyboardType="numeric"
-        value={red}
-        onChangeText={setRed}
-        placeholder="Red"
-      />
+          <View style={styles.paymentContainer}>
+            <ApplePayButton
+              appId="your-evervault-app-id"
+              merchantId="your-apple-merchant-id"
+              supportedNetworks={[
+                "visa",
+                "mastercard",
+                "amex",
+                "discover",
+                "jcb",
+              ]}
+              buttonType="addMoney"
+              buttonStyle="automatic"
+              onAuthorizePayment={setEvent}
+              onFinishWithResult={console.log}
+              // transaction={transaction}
+              // onPrepareTransaction={handlePrepareTransaction}
+              style={{ width: "100%", height: 50 }}
+            />
+          </View>
 
-      <View style={styles.paymentContainer}>
-        <ApplePayButton
-          appId="your-evervault-app-id"
-          merchantId="your-apple-merchant-id"
-          supportedNetworks={["visa", "mastercard", "amex", "discover", "jcb"]}
-          buttonType="addMoney"
-          buttonStyle="automatic"
-          onAuthorizePayment={console.log}
-          onFinishWithResult={console.log}
-          // transaction={transaction}
-          // onDidAuthorizePayment={handleDidAuthorizePayment}
-          // onDidFinishWithResult={handleDidFinishWithResult}
-          // onPrepareTransaction={handlePrepareTransaction}
-          style={{ width: "100%", height: 50 }}
-        />
-      </View>
+          <Code>{event ? JSON.stringify(event, null, 2) : "null"}</Code>
 
-      {isProcessing && (
-        <Text style={styles.processingText}>Processing payment...</Text>
-      )}
+          {isProcessing && (
+            <Text style={styles.processingText}>Processing payment...</Text>
+          )}
 
-      <Text style={styles.note}>
-        Note: This example requires a valid Apple Merchant ID and Evervault App
-        ID. Make sure Apple Pay is enabled on your device.
-      </Text>
-    </SafeAreaView>
+          <Text style={styles.note}>
+            Note: This example requires a valid Apple Merchant ID and Evervault
+            App ID. Make sure Apple Pay is enabled on your device.
+          </Text>
+        </View>
+      </SafeAreaView>
+    </ScrollView>
   );
 };
 
@@ -108,6 +86,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    gap: 20,
     backgroundColor: "#f5f5f5",
   },
   title: {
@@ -124,8 +103,6 @@ const styles = StyleSheet.create({
   },
   paymentContainer: {
     alignItems: "center",
-    marginBottom: 20,
-    padding: 20,
   },
   paymentButton: {
     width: "100%",

@@ -56,15 +56,12 @@ export const ApplePayButton: React.FC<ApplePayButtonProps> = ({
   }, [supportedNetworks]);
 
   return (
-    <Fragment>
-      <Text>Hello World</Text>
-      <ApplePayButtonView
-        {...props}
-        supportedNetworks={parsedNetworks}
-        onFinishWithResult={handleFinishWithResult}
-        onAuthorizePayment={handleAuthorizePayment}
-      />
-    </Fragment>
+    <ApplePayButtonView
+      {...props}
+      supportedNetworks={parsedNetworks}
+      onFinishWithResult={handleFinishWithResult}
+      onAuthorizePayment={handleAuthorizePayment}
+    />
   );
 };
 

@@ -5,6 +5,36 @@ import {
   AuthorizePaymentEvent,
 } from "../specs/ApplePayButtonViewNativeComponent";
 
+export interface ApplePayNetworkTokenExpiry {
+  month: number;
+  year: number;
+}
+
+export interface ApplePayNetworkToken {
+  number: string;
+  expiry: ApplePayNetworkTokenExpiry;
+  rawExpiry: string;
+  tokenServiceProvider: string;
+}
+
+export interface ApplePayCard {
+  brand: string | null;
+  funding: string | null;
+  segment: string | null;
+  country: string | null;
+  currency: string | null;
+  issuer: string | null;
+}
+
+export interface ApplePayResponse {
+  networkToken: ApplePayNetworkToken;
+  card: ApplePayCard;
+  cryptogram: string;
+  eci: number | null;
+  paymentDataType: string;
+  deviceManufacturerIdentifier: string;
+}
+
 // Map RN networks to PKPaymentNetwork
 // https://developer.apple.com/documentation/passkit/pkpaymentnetwork
 export const supportedNetworkMap = Object.freeze({
@@ -45,5 +75,5 @@ export interface ApplePayButtonProps
   > {
   supportedNetworks?: ApplePaySupportedNetwork[];
   onFinishWithResult?: (event: ApplePayFinishWithResultEvent) => void;
-  onAuthorizePayment?: (event: AuthorizePaymentEvent) => void;
+  onAuthorizePayment?: (event: ApplePayResponse) => void;
 }

@@ -78,8 +78,39 @@ using namespace facebook::react;
 - (void)applePayButton:(ApplePayButton *)button didAuthorizePayment:(NSDictionary *)payment {
     if (_eventEmitter) {
         NSLog(@"didAuthorizePayment: %@", payment);
-        ApplePayButtonViewEventEmitter::OnAuthorizePaymentToken token{{}, {}};
-        ApplePayButtonViewEventEmitter::OnAuthorizePayment response{token};
+        
+        // Create the nested structs
+        ApplePayButtonViewEventEmitter::OnAuthorizePaymentCard card{
+            std::string([payment[@"card"][@"brand"] UTF8String]),
+            std::string([payment[@"card"][@"country"] UTF8String]),
+            std::string([payment[@"card"][@"currency"] UTF8String]),
+            std::string([payment[@"card"][@"funding"] UTF8String]),
+            std::string([payment[@"card"][@"issuer"] UTF8String]),
+            std::string([payment[@"card"][@"segment"] UTF8String])
+        };
+        
+        ApplePayButtonViewEventEmitter::OnAuthorizePaymentNetworkTokenExpiry expiry{
+            [payment[@"networkToken"][@"expiry"][@"month"] intValue],
+            [payment[@"networkToken"][@"expiry"][@"year"] intValue]
+        };
+        
+        ApplePayButtonViewEventEmitter::OnAuthorizePaymentNetworkToken networkToken{
+            expiry,
+            std::string([payment[@"networkToken"][@"number"] UTF8String]),
+            std::string([payment[@"networkToken"][@"rawExpiry"] UTF8String]),
+            std::string([payment[@"networkToken"][@"tokenServiceProvider"] UTF8String])
+        };
+        
+        // Create the main struct
+        ApplePayButtonViewEventEmitter::OnAuthorizePayment response{
+            card,
+            std::string([payment[@"cryptogram"] UTF8String]),
+            std::string([payment[@"deviceManufacturerIdentifier"] UTF8String]),
+            [payment[@"eci"] intValue],
+            networkToken,
+            std::string([payment[@"paymentDataType"] UTF8String])
+        };
+        
         self.eventEmitter.onAuthorizePayment(response);
     }
 }

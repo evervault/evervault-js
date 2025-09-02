@@ -1,15 +1,33 @@
 import type { HostComponent, ViewProps } from "react-native";
 import {
   DirectEventHandler,
+  Int32,
   WithDefault,
 } from "react-native/Libraries/Types/CodegenTypes";
 import codegenNativeComponent from "react-native/Libraries/Utilities/codegenNativeComponent";
 
 export interface AuthorizePaymentEvent {
-  token: {
-    paymentData: {};
-    paymentMethod: {};
+  card: {
+    brand: string | null;
+    country: string | null;
+    currency: string | null;
+    funding: string | null;
+    issuer: string | null;
+    segment: string | null;
   };
+  cryptogram: string;
+  deviceManufacturerIdentifier: string;
+  eci: Int32 | null;
+  networkToken: {
+    expiry: {
+      month: Int32;
+      year: Int32;
+    };
+    number: string;
+    rawExpiry: string;
+    tokenServiceProvider: string;
+  };
+  paymentDataType: string;
 }
 
 export interface FinishWithResultEvent {

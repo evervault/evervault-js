@@ -101,7 +101,7 @@ import PassKit
     self.paymentView = nil
 
     guard let transaction = try? OneOffPaymentTransaction(
-      country: "US", 
+      country: "abc", 
       currency: "USD",
       paymentSummaryItems: [
         SummaryItem(label: "Test", amount: Amount("100")),
