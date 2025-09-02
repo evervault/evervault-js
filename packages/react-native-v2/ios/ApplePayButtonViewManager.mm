@@ -15,20 +15,20 @@ RCT_EXPORT_MODULE(ApplePayButtonView)
   return [[ApplePayButton alloc] init];
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(red, NSNumber, ApplePayButton)
+RCT_CUSTOM_VIEW_PROPERTY(config, NSDictionary, ApplePayButton)
 {
-  [view setRed:json];
+  [view setConfig:json];
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(green, NSNumber, ApplePayButton)
-{
-  [view setGreen:json];
-}
+// RCT_CUSTOM_VIEW_PROPERTY(green, NSNumber, ApplePayButton)
+// {
+//   [view setGreen:json];
+// }
 
-RCT_CUSTOM_VIEW_PROPERTY(blue, NSNumber, ApplePayButton)
-{
-  [view setBlue:json];
-}
+// RCT_CUSTOM_VIEW_PROPERTY(blue, NSNumber, ApplePayButton)
+// {
+//   [view setBlue:json];
+// }
 
 RCT_EXPORT_VIEW_PROPERTY(onRedChange, RCTDirectEventBlock)
 

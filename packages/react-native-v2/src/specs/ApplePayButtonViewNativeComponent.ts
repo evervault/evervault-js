@@ -10,9 +10,16 @@ type RedChangeEvent = {
 };
 
 export interface NativeProps extends ViewProps {
-  red: Int32;
-  green: Int32;
-  blue: Int32;
+  config: {
+    appId: string;
+    merchantId: string;
+    supportedNetworks: string[];
+    buttonType: string;
+    buttonStyle: string;
+  };
+  // red: Int32;
+  // green: Int32;
+  // blue: Int32;
   readonly onRedChange?: DirectEventHandler<RedChangeEvent>;
 }
 

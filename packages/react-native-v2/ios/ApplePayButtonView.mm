@@ -49,19 +49,37 @@ using namespace facebook::react;
     const auto &oldViewProps = *std::static_pointer_cast<ApplePayButtonViewProps const>(_props);
     const auto &newViewProps = *std::static_pointer_cast<ApplePayButtonViewProps const>(props);
 
-    if (oldViewProps.red != newViewProps.red) {
-        [_view setRed:@(newViewProps.red)];
-    }
+    // Convert C++ struct to NSDictionary for Swift
+    NSDictionary *configDict = @{
+        @"appId": [NSString stringWithUTF8String:newViewProps.config.appId.c_str()],
+        @"merchantId": [NSString stringWithUTF8String:newViewProps.config.merchantId.c_str()],
+        @"supportedNetworks": [self convertStringVectorToArray:newViewProps.config.supportedNetworks],
+        @"buttonType": [NSString stringWithUTF8String:newViewProps.config.buttonType.c_str()],
+        @"buttonStyle": [NSString stringWithUTF8String:newViewProps.config.buttonStyle.c_str()]
+    };
+    [_view setConfig:configDict];
 
-    if (oldViewProps.green != newViewProps.green) {
-        [_view setGreen:@(newViewProps.green)];
-    }
+    // if (oldViewProps.red != newViewProps.red) {
+    //     [_view setRed:@(newViewProps.red)];
+    // }
 
-    if (oldViewProps.blue != newViewProps.blue) {
-        [_view setBlue:@(newViewProps.blue)];
-    }
+    // if (oldViewProps.green != newViewProps.green) {
+    //     [_view setGreen:@(newViewProps.green)];
+    // }
+
+    // if (oldViewProps.blue != newViewProps.blue) {
+    //     [_view setBlue:@(newViewProps.blue)];
+    // }
 
     [super updateProps:props oldProps:oldProps];
+}
+
+- (NSArray<NSString *> *)convertStringVectorToArray:(const std::vector<std::string> &)vector {
+    NSMutableArray<NSString *> *array = [NSMutableArray arrayWithCapacity:vector.size()];
+    for (const auto &str : vector) {
+        [array addObject:[NSString stringWithUTF8String:str.c_str()]];
+    }
+    return [array copy];
 }
 
 #pragma mark - ApplePayButtonDelegate
