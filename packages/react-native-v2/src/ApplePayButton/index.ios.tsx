@@ -1,9 +1,15 @@
-import { ApplePayButtonProps, FinishWithResultEvent } from "./types";
-import ApplePayButtonView from "../specs/ApplePayButtonViewNativeComponent";
+import {
+  ApplePayButtonProps,
+  ApplePayError,
+  supportedNetworkMap,
+} from "./types";
+import ApplePayButtonView, {
+  AuthorizePaymentEvent,
+  FinishWithResultEvent,
+} from "../specs/ApplePayButtonViewNativeComponent";
 import { Fragment } from "react/jsx-runtime";
 import { NativeSyntheticEvent, Text } from "react-native";
-import { useCallback } from "react";
-export * from "./types";
+import { useCallback, useMemo } from "react";
 
 export const isApplePayAvailable = () => {
   // TODO: Call the native method to check if Apple Pay is available
@@ -17,9 +23,8 @@ export const isApplePayDisbursementAvailable = () => {
 
 export const ApplePayButton: React.FC<ApplePayButtonProps> = ({
   supportedNetworks = [],
-  buttonType = "plain",
-  buttonStyle = "automatic",
   onFinishWithResult,
+  onAuthorizePayment,
   ...props
 }) => {
   const handleFinishWithResult = useCallback(
@@ -27,22 +32,40 @@ export const ApplePayButton: React.FC<ApplePayButtonProps> = ({
       if (evt.nativeEvent.success) {
         onFinishWithResult?.({ success: true });
       } else {
-        onFinishWithResult?.({ success: false, error: evt.nativeEvent.error });
+        onFinishWithResult?.({
+          success: false,
+          code: evt.nativeEvent.code as ApplePayError,
+          error: evt.nativeEvent.error,
+        });
       }
     },
     [onFinishWithResult]
   );
+
+  const handleAuthorizePayment = useCallback(
+    (evt: NativeSyntheticEvent<AuthorizePaymentEvent>) => {
+      onAuthorizePayment?.(evt.nativeEvent);
+    },
+    [onAuthorizePayment]
+  );
+
+  const parsedNetworks = useMemo(() => {
+    return supportedNetworks.flatMap(
+      (network) => supportedNetworkMap[network] ?? []
+    );
+  }, [supportedNetworks]);
 
   return (
     <Fragment>
       <Text>Hello World</Text>
       <ApplePayButtonView
         {...props}
-        supportedNetworks={supportedNetworks}
-        buttonType={buttonType}
-        buttonStyle={buttonStyle}
+        supportedNetworks={parsedNetworks}
         onFinishWithResult={handleFinishWithResult}
+        onAuthorizePayment={handleAuthorizePayment}
       />
     </Fragment>
   );
 };
+
+export * from "./types";

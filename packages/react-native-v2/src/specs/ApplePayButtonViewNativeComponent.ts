@@ -14,6 +14,7 @@ export interface AuthorizePaymentEvent {
 
 export interface FinishWithResultEvent {
   success: boolean;
+  code: string;
   error: string;
 }
 

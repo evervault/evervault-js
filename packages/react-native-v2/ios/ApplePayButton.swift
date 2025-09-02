@@ -6,7 +6,7 @@ import PassKit
 
 @objc public protocol ApplePayButtonDelegate: AnyObject {
   func applePayButton(_ button: ApplePayButton, didAuthorizePayment result: NSDictionary?)
-  func applePayButton(_ button: ApplePayButton, didFinishWithSuccess success: Bool, error: NSString?)
+  func applePayButton(_ button: ApplePayButton, didFinishWithSuccess success: Bool, code: NSString?, error: NSString?)
 }
 
 @objc public class ApplePayButton: UIView {    
@@ -141,9 +141,11 @@ extension ApplePayButton: EvervaultPaymentViewDelegate {
   public func evervaultPaymentView(_ view: EvervaultPayment.EvervaultPaymentView, didFinishWithResult result: Result<Void, EvervaultPayment.EvervaultError>) {
     switch result {
     case .success:
-      delegate?.applePayButton(self, didFinishWithSuccess: true, error: nil)
+      delegate?.applePayButton(self, didFinishWithSuccess: true, code: nil, error: nil)
     case .failure(let error):
-      delegate?.applePayButton(self, didFinishWithSuccess: false, error: error.localizedDescription as NSString?)
+      print(error)
+      delegate?.applePayButton(self, didFinishWithSuccess: false, code: String(describing: error) as NSString?, error: error.localizedDescription as NSString?)
     }
   }
 }
+

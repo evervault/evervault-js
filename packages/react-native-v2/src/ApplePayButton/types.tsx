@@ -1,50 +1,49 @@
-// import {
-//   ApplePayResponse,
-//   CardNetwork,
-//   Config,
-//   Transaction,
-// } from "../specs/ApplePayButtonNativeComponent";
-import { NativeProps } from "../specs/ApplePayButtonViewNativeComponent";
+import {
+  NativeProps,
+  ButtonStyle,
+  ButtonType,
+  AuthorizePaymentEvent,
+} from "../specs/ApplePayButtonViewNativeComponent";
 
-export type FinishWithResultEvent =
+// Map RN networks to PKPaymentNetwork
+// https://developer.apple.com/documentation/passkit/pkpaymentnetwork
+export const supportedNetworkMap = Object.freeze({
+  visa: "visa",
+  mastercard: "masterCard",
+  amex: "amex",
+  discover: "discover",
+  jcb: "JCB",
+});
+
+export type ApplePaySupportedNetwork = keyof typeof supportedNetworkMap;
+
+export type ApplePayButtonStyle = ButtonStyle;
+
+export type ApplePayButtonType = ButtonType;
+
+export type ApplePayError =
+  | "InvalidTransactionError"
+  | "EmptyTransactionError"
+  | "InvalidCurrencyError"
+  | "InvalidCountryError"
+  | "ApplePayUnavailableError"
+  | "ApplePayPaymentSheetError"
+  | "UnsupportedVersionError"
+  | "ApplePayAuthorizationError"
+  | "InternalError";
+
+export type ApplePayFinishWithResultEvent =
   | { success: true }
-  | { success: false; error: string };
+  | { success: false; code: ApplePayError; error: string };
+
+export type ApplePayAuthorizedPaymentEvent = AuthorizePaymentEvent;
 
 export interface ApplePayButtonProps
-  extends Omit<NativeProps, "supportedNetworks" | "onFinishWithResult"> {
-  supportedNetworks?: ("visa" | "masterCard" | "amex" | "discover")[];
-  onFinishWithResult?: (data: FinishWithResultEvent) => void;
+  extends Omit<
+    NativeProps,
+    "supportedNetworks" | "onFinishWithResult" | "onAuthorizePayment"
+  > {
+  supportedNetworks?: ApplePaySupportedNetwork[];
+  onFinishWithResult?: (event: ApplePayFinishWithResultEvent) => void;
+  onAuthorizePayment?: (event: AuthorizePaymentEvent) => void;
 }
-
-// export type ButtonType =
-//   | "plain"
-//   | "book"
-//   | "buy"
-//   | "checkout"
-//   | "order"
-//   | "subscribe"
-//   | "pay"
-//   | "in_store"
-//   | "donate"
-//   | "reload"
-//   | "add_money"
-//   | "top_up"
-//   | "rent"
-//   | "support"
-//   | "contribute"
-//   | "tip"
-//   | "continue";
-// export type ButtonTheme = "automatic" | "white" | "white_outline" | "black";
-// export type AuthMethod = "PAN_ONLY" | "CRYPTOGRAM_3DS";
-
-// export type ApplePayButtonProps = Omit<Config, "supportedNetworks"> & {
-//   supportedNetworks?: CardNetwork[];
-//   transaction: Transaction;
-//   onDidAuthorizePayment?: (data: ApplePayResponse) => void;
-//   onDidFinishWithResult?: (data: { success: boolean; error?: string }) => void;
-//   onPrepareTransaction?: (data: Transaction) => void;
-
-//   // TODO: Add shipping callback methods.
-// };
-
-// export type { Config, Transaction, ApplePayResponse, CardNetwork };

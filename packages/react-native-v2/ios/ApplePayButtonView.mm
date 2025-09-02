@@ -77,16 +77,18 @@ using namespace facebook::react;
 
 - (void)applePayButton:(ApplePayButton *)button didAuthorizePayment:(NSDictionary *)payment {
     if (_eventEmitter) {
+        NSLog(@"didAuthorizePayment: %@", payment);
         ApplePayButtonViewEventEmitter::OnAuthorizePaymentToken token{{}, {}};
         ApplePayButtonViewEventEmitter::OnAuthorizePayment response{token};
         self.eventEmitter.onAuthorizePayment(response);
     }
 }
 
-- (void)applePayButton:(ApplePayButton *)button didFinishWithSuccess:(BOOL)success error:(NSString *)error {
+- (void)applePayButton:(ApplePayButton *)button didFinishWithSuccess:(BOOL)success code:(NSString *)code error:(NSString *)error {
     if (_eventEmitter) {
         ApplePayButtonViewEventEmitter::OnFinishWithResult event{
             success,
+            code ? std::string([code UTF8String]) : std::string(),
             error ? std::string([error UTF8String]) : std::string()
         };
         self.eventEmitter.onFinishWithResult(event);
