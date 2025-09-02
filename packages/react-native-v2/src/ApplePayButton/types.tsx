@@ -8,7 +8,13 @@ import { NativeProps } from "../specs/ApplePayButtonViewNativeComponent";
 
 import type { ViewProps } from "react-native";
 
-export interface ApplePayButtonProps extends NativeProps {}
+export interface ApplePayButtonProps {
+  appId: NativeProps["appId"];
+  merchantId: NativeProps["merchantId"];
+  supportedNetworks?: ("visa" | "masterCard" | "amex" | "discover")[];
+  buttonType?: NativeProps["buttonType"];
+  buttonStyle?: NativeProps["buttonStyle"];
+}
 
 // export type ButtonType =
 //   | "plain"

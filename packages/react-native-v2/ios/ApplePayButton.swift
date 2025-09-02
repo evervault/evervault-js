@@ -11,16 +11,56 @@ import PassKit
 @objc public class ApplePayButton: UIView {
   private var appId: String?
   private var merchantId: String?
-  private var supportedNetworks: [String]?
-  private var buttonType: String?
-  private var buttonStyle: String?
+  private var supportedNetworks: [PKPaymentNetwork] = []
+  private var buttonType: PKPaymentButtonType = .plain
+  private var buttonStyle: PKPaymentButtonStyle = .automatic
 
-  @objc public func setConfig(appId: String, merchantId: String, supportedNetworks: [String], buttonType: String, buttonStyle: String) {
+  @objc public func setAppId(_ appId: String) {
     self.appId = appId
+    setupPaymentView()
+  }
+  
+  @objc public func setMerchantId(_ merchantId: String) {
     self.merchantId = merchantId
+    setupPaymentView()
+  }
+  
+  @objc public func setSupportedNetworks(_ inputSupportedNetworks: [String]) {
+    var supportedNetworks = [PKPaymentNetwork]()
+    for network in inputSupportedNetworks {
+      supportedNetworks.append(PKPaymentNetwork(network))
+    }
     self.supportedNetworks = supportedNetworks
-    self.buttonType = buttonType
-    self.buttonStyle = buttonStyle
+    setupPaymentView()
+  }
+  
+  @objc public func setButtonType(_ inputButtonType: String) {
+    switch inputButtonType {
+    case "buy":
+      self.buttonType = .buy
+    case "addMoney":
+      self.buttonType = .addMoney
+    case "book":
+      self.buttonType = .book
+    case "checkout":
+      self.buttonType = .checkout
+    default:
+      self.buttonType = .plain
+    }
+    setupPaymentView()
+  }
+  
+  @objc public func setButtonStyle(_ inputButtonStyle: String) {
+    switch inputButtonStyle {
+    case "white":
+      self.buttonStyle = .white
+    case "whiteOutline":
+      self.buttonStyle = .whiteOutline
+    case "black":
+      self.buttonStyle = .black
+    default:
+      self.buttonStyle = .automatic
+    }
     setupPaymentView()
   }
 
@@ -49,10 +89,7 @@ import PassKit
 
   private func setupPaymentView() {
     guard let appId = self.appId,
-          let merchantId = self.merchantId,
-          let supportedNetworks = self.supportedNetworks,
-          let buttonType = self.buttonType,
-          let buttonStyle = self.buttonStyle else {
+          let merchantId = self.merchantId else {
       return
     }
     

@@ -14,23 +14,23 @@ export const isApplePayDisbursementAvailable = () => {
   return false;
 };
 
-export const ApplePayButton: React.FC<ApplePayButtonProps> = (
-  // appId,
-  // merchantId,
-  // supportedNetworks = ["visa", "mastercard", "amex", "discover", "jcb"],
-  // buttonType = "buy",
-  // buttonTheme = "automatic",
-  // transaction,
-  // onDidAuthorizePayment,
-  // onDidFinishWithResult,
-  // onPrepareTransaction,
-  // ...props
-  props
-) => {
+export const ApplePayButton: React.FC<ApplePayButtonProps> = ({
+  appId,
+  merchantId,
+  supportedNetworks = [],
+  buttonType = "plain",
+  buttonStyle = "automatic",
+  ...props
+}) => {
   return (
     <Fragment>
       <Text>Hello World</Text>
       <ApplePayButtonView
+        appId={appId}
+        merchantId={merchantId}
+        supportedNetworks={supportedNetworks}
+        buttonType={buttonType}
+        buttonStyle={buttonStyle}
         // red={red}
         // green={green}
         // blue={blue}

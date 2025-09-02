@@ -77,23 +77,15 @@ export const PayExample: React.FC = () => {
 
       <View style={styles.paymentContainer}>
         <ApplePayButton
-          config={{
-            appId: "your-evervault-app-id",
-            merchantId: "your-apple-merchant-id",
-            supportedNetworks: [
-              "visa",
-              "mastercard",
-              "amex",
-              "discover",
-              "jcb",
-            ],
-            buttonType: "buy",
-            buttonStyle: "automatic",
-          }}
-          style={{ width: 100, height: 200 }}
-          onRedChange={(event) => {
-            console.log("Red changed:", event.nativeEvent.red);
-          }}
+          appId="your-evervault-app-id"
+          merchantId="your-apple-merchant-id"
+          supportedNetworks={["visa", "masterCard", "amex", "discover"]}
+          buttonType="buy"
+          buttonStyle="automatic"
+          // style={{ width: 100, height: 200 }}
+          // onRedChange={(event) => {
+          //   console.log("Red changed:", event.nativeEvent.red);
+          // }}
           // appId="your-evervault-app-id"
           // merchantId="your-apple-merchant-id"
           // transaction={transaction}
