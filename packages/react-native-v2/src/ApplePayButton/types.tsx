@@ -14,6 +14,7 @@ export interface ApplePayButtonProps {
   supportedNetworks?: ("visa" | "masterCard" | "amex" | "discover")[];
   buttonType?: NativeProps["buttonType"];
   buttonStyle?: NativeProps["buttonStyle"];
+  style?: NativeProps["style"];
 }
 
 // export type ButtonType =

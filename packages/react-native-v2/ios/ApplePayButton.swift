@@ -8,7 +8,9 @@ import PassKit
     func applePayButton(_ button: ApplePayButton, didChangeRedValue red: Int)
 }
 
-@objc public class ApplePayButton: UIView {
+@objc public class ApplePayButton: UIView, EvervaultPaymentViewDelegate {    
+  private var paymentView: EvervaultPaymentView?
+
   private var appId: String?
   private var merchantId: String?
   private var supportedNetworks: [PKPaymentNetwork] = []
@@ -92,29 +94,46 @@ import PassKit
           let merchantId = self.merchantId else {
       return
     }
-    
-    print("appId: \(appId), merchantId: \(merchantId), supportedNetworks: \(supportedNetworks), buttonType: \(buttonType), buttonStyle: \(buttonStyle)")
+
+    self.paymentView?.removeFromSuperview()
+    self.paymentView?.delegate = nil
+    self.paymentView = nil
+
+    guard let transaction = try? OneOffPaymentTransaction(
+      country: "US", 
+      currency: "USD",
+      paymentSummaryItems: [
+        SummaryItem(label: "Test", amount: Amount("100")),
+      ]
+    ) else {
+      return
+    }
+
+    let paymentView = EvervaultPaymentView(
+      appId: appId,
+      appleMerchantId: merchantId,
+      transaction: Transaction.oneOffPayment(transaction),
+      supportedNetworks: supportedNetworks,
+      buttonStyle: buttonStyle,
+      buttonType: buttonType,
+    )
+    paymentView.delegate = self
+    self.addSubview(paymentView)
+    paymentView.translatesAutoresizingMaskIntoConstraints = false
+    NSLayoutConstraint.activate([
+      paymentView.topAnchor.constraint(equalTo: self.topAnchor),
+      paymentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+      paymentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+      paymentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+    ])
+    self.paymentView = paymentView
+  }
+  
+  public func evervaultPaymentView(_ view: EvervaultPayment.EvervaultPaymentView, didAuthorizePayment result: EvervaultPayment.ApplePayResponse?) {
+    // TODO: delegate?.applePayButton(self, didAuthorizePayment: result)
   }
 
-  // private func setColor() {
-  //   backgroundColor = UIColor(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: 1.0)
-  // }
-
-  // @objc public func setRed(_ red: NSNumber) {
-  //   self.red = red.intValue
-  //   setColor()
-    
-  //   // Notify delegate of red change
-  //   delegate?.applePayButton(self, didChangeRedValue: red.intValue)
-  // }
-
-  // @objc public func setGreen(_ green: NSNumber) {
-  //   self.green = green.intValue
-  //   setColor()
-  // }
-
-  // @objc public func setBlue(_ blue: NSNumber) {
-  //   self.blue = blue.intValue
-  //   setColor()
-  // }
+  public func evervaultPaymentView(_ view: EvervaultPayment.EvervaultPaymentView, didFinishWithResult result: Result<Void, EvervaultPayment.EvervaultError>) {
+    // TODO: delegate?.applePayButton(self, didFinishWithResult: result)
+  }
 }

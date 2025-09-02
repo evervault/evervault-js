@@ -70,28 +70,8 @@ using namespace facebook::react;
         [_view setButtonStyle:[NSString stringWithUTF8String:toString(newViewProps.buttonStyle).c_str()]];
     }
 
-    // if (oldViewProps.red != newViewProps.red) {
-    //     [_view setRed:@(newViewProps.red)];
-    // }
-
-    // if (oldViewProps.green != newViewProps.green) {
-    //     [_view setGreen:@(newViewProps.green)];
-    // }
-
-    // if (oldViewProps.blue != newViewProps.blue) {
-    //     [_view setBlue:@(newViewProps.blue)];
-    // }
-
     [super updateProps:props oldProps:oldProps];
 }
-
-// - (NSArray<NSString *> *)convertStringVectorToArray:(const std::vector<std::string> &)vector {
-//     NSMutableArray<NSString *> *array = [NSMutableArray arrayWithCapacity:vector.size()];
-//     for (const auto &str : vector) {
-//         [array addObject:[NSString stringWithUTF8String:str.c_str()]];
-//     }
-//     return [array copy];
-// }
 
 #pragma mark - ApplePayButtonDelegate
 

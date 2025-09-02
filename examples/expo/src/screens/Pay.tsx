@@ -80,9 +80,9 @@ export const PayExample: React.FC = () => {
           appId="your-evervault-app-id"
           merchantId="your-apple-merchant-id"
           supportedNetworks={["visa", "masterCard", "amex", "discover"]}
-          buttonType="buy"
+          buttonType="addMoney"
           buttonStyle="automatic"
-          // style={{ width: 100, height: 200 }}
+          style={{ width: "100%", height: 50 }}
           // onRedChange={(event) => {
           //   console.log("Red changed:", event.nativeEvent.red);
           // }}
@@ -131,6 +131,7 @@ const styles = StyleSheet.create({
   paymentContainer: {
     alignItems: "center",
     marginBottom: 20,
+    padding: 20,
   },
   paymentButton: {
     width: "100%",
