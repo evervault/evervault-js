@@ -89,10 +89,11 @@ import PassKit
   }
 
   private func prepareDateComponents(_ inputDateComponents: NSDictionary) throws -> DateComponents {
+    let calendar = Calendar.current
     let year = inputDateComponents["year"] as! Int
     let month = inputDateComponents["month"] as! Int
     let day = inputDateComponents["day"] as! Int
-    return DateComponents(year: year, month: month, day: day)
+    return DateComponents(calendar: calendar, year: year, month: month, day: day)
   }
 
   private func prepareShippingMethod(_ inputShippingMethod: NSDictionary) throws -> ShippingMethod {
@@ -106,10 +107,12 @@ import PassKit
     if let identifier = inputShippingMethod["identifier"] as? String {
       shippingMethod.identifier = identifier
     }
-    if let start = inputShippingMethod["start"] as? NSDictionary, let end = inputShippingMethod["end"] as? NSDictionary {
-      let start = try self.prepareDateComponents(start)
-      let end = try self.prepareDateComponents(end)
-      shippingMethod.dateComponentsRange = PKDateComponentsRange(start: start, end: end)
+    if let dateRange = inputShippingMethod["dateRange"] as? NSDictionary,
+      let start = dateRange["start"] as? NSDictionary,
+      let end = dateRange["end"] as? NSDictionary {
+      let startComponents = try self.prepareDateComponents(start)
+      let endComponents = try self.prepareDateComponents(end)
+      shippingMethod.dateComponentsRange = PKDateComponentsRange(start: startComponents, end: endComponents)
     }
 
     return shippingMethod

@@ -10,7 +10,7 @@ export function toDateComponents(date: Date | string | number): DateComponents {
   const object = toDate(date);
   return {
     year: object.getFullYear(),
-    month: object.getMonth(),
+    month: object.getMonth() + 1,
     day: object.getDate(),
   };
 }
