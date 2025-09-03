@@ -122,9 +122,9 @@ open class HybridEvervaultSdkSpec_cxx {
   }
   
   @inline(__always)
-  public final func encryptString(instanceId: std.string, data: std.string) -> bridge.Result_std__shared_ptr_Promise_std__string___ {
+  public final func encrypt(instanceId: std.string, json: std.string) -> bridge.Result_std__shared_ptr_Promise_std__string___ {
     do {
-      let __result = try self.__implementation.encryptString(instanceId: String(instanceId), data: String(data))
+      let __result = try self.__implementation.encrypt(instanceId: String(instanceId), json: String(json))
       let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__string__ in
         let __promise = bridge.create_std__shared_ptr_Promise_std__string__()
         let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__string__(__promise)
@@ -137,88 +137,6 @@ open class HybridEvervaultSdkSpec_cxx {
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
       return bridge.create_Result_std__shared_ptr_Promise_std__string___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func encryptNumber(instanceId: std.string, data: Double) -> bridge.Result_std__shared_ptr_Promise_std__string___ {
-    do {
-      let __result = try self.__implementation.encryptNumber(instanceId: String(instanceId), data: data)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__string__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_std__string__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__string__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(std.string(__result)) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_std__string___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_std__string___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func encryptBoolean(instanceId: std.string, data: Bool) -> bridge.Result_std__shared_ptr_Promise_std__string___ {
-    do {
-      let __result = try self.__implementation.encryptBoolean(instanceId: String(instanceId), data: data)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__string__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_std__string__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__string__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(std.string(__result)) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_std__string___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_std__string___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func encryptObject(instanceId: std.string, data: margelo.nitro.SharedAnyMap) -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_AnyMap____ {
-    do {
-      let __result = try self.__implementation.encryptObject(instanceId: String(instanceId), data: AnyMap(withCppPart: data))
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__shared_ptr_AnyMap___ in
-        let __promise = bridge.create_std__shared_ptr_Promise_std__shared_ptr_AnyMap___()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_AnyMap___(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result.cppPart) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_AnyMap____(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_AnyMap____(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func encryptArray(instanceId: std.string, data: bridge.std__vector_std__shared_ptr_AnyMap__) -> bridge.Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_AnyMap_____ {
-    do {
-      let __result = try self.__implementation.encryptArray(instanceId: String(instanceId), data: data.map({ __item in AnyMap(withCppPart: __item) }))
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__vector_std__shared_ptr_AnyMap____ in
-        let __promise = bridge.create_std__shared_ptr_Promise_std__vector_std__shared_ptr_AnyMap____()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__vector_std__shared_ptr_AnyMap____(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve({ () -> bridge.std__vector_std__shared_ptr_AnyMap__ in
-              var __vector = bridge.create_std__vector_std__shared_ptr_AnyMap__(__result.count)
-              for __item in __result {
-                __vector.push_back(__item.cppPart)
-              }
-              return __vector
-            }()) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_AnyMap_____(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_AnyMap_____(__exceptionPtr)
     }
   }
 }

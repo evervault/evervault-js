@@ -15,11 +15,7 @@ namespace margelo::nitro::evervault {
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridMethod("initialize", &HybridEvervaultSdkSpec::initialize);
-      prototype.registerHybridMethod("encryptString", &HybridEvervaultSdkSpec::encryptString);
-      prototype.registerHybridMethod("encryptNumber", &HybridEvervaultSdkSpec::encryptNumber);
-      prototype.registerHybridMethod("encryptBoolean", &HybridEvervaultSdkSpec::encryptBoolean);
-      prototype.registerHybridMethod("encryptObject", &HybridEvervaultSdkSpec::encryptObject);
-      prototype.registerHybridMethod("encryptArray", &HybridEvervaultSdkSpec::encryptArray);
+      prototype.registerHybridMethod("encrypt", &HybridEvervaultSdkSpec::encrypt);
     });
   }
 

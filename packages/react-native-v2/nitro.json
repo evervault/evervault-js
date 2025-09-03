@@ -5,8 +5,8 @@
     "iosModuleName": "NativeEvervault"
   },
   "android": {
-    "androidNamespace": ["evervault"],
-    "androidCxxLibName": "NitroEvervault"
+    "androidNamespace": ["nativeevervault"],
+    "androidCxxLibName": "NativeEvervault"
   },
   "autolinking": {
     "EvervaultSdk": {

@@ -10,7 +10,8 @@
     "build",
     "ios",
     "android",
-    "native-evervault.podspec"
+    "nitrogen",
+    "NativeEvervault.podspec"
   ],
   "repository": {
     "type": "git",

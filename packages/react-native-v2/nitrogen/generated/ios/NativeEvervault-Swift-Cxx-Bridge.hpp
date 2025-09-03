@@ -8,8 +8,6 @@
 #pragma once
 
 // Forward declarations of C++ defined types
-// Forward declaration of `AnyMap` to properly resolve imports.
-namespace NitroModules { class AnyMap; }
 // Forward declaration of `HybridEvervaultSdkSpec` to properly resolve imports.
 namespace margelo::nitro::evervault { class HybridEvervaultSdkSpec; }
 
@@ -19,7 +17,6 @@ namespace NativeEvervault { class HybridEvervaultSdkSpec_cxx; }
 
 // Include C++ defined types
 #include "HybridEvervaultSdkSpec.hpp"
-#include <NitroModules/AnyMap.hpp>
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/PromiseHolder.hpp>
 #include <NitroModules/Result.hpp>
@@ -27,7 +24,6 @@ namespace NativeEvervault { class HybridEvervaultSdkSpec_cxx; }
 #include <functional>
 #include <memory>
 #include <string>
-#include <vector>
 
 /**
  * Contains specialized versions of C++ templated types so they can be accessed from Swift,
@@ -91,85 +87,6 @@ namespace margelo::nitro::evervault::bridge::swift {
     return Func_void_std__exception_ptr_Wrapper(std::move(value));
   }
   
-  // pragma MARK: std::shared_ptr<Promise<std::shared_ptr<AnyMap>>>
-  /**
-   * Specialized version of `std::shared_ptr<Promise<std::shared_ptr<AnyMap>>>`.
-   */
-  using std__shared_ptr_Promise_std__shared_ptr_AnyMap___ = std::shared_ptr<Promise<std::shared_ptr<AnyMap>>>;
-  inline std::shared_ptr<Promise<std::shared_ptr<AnyMap>>> create_std__shared_ptr_Promise_std__shared_ptr_AnyMap___() noexcept {
-    return Promise<std::shared_ptr<AnyMap>>::create();
-  }
-  inline PromiseHolder<std::shared_ptr<AnyMap>> wrap_std__shared_ptr_Promise_std__shared_ptr_AnyMap___(std::shared_ptr<Promise<std::shared_ptr<AnyMap>>> promise) noexcept {
-    return PromiseHolder<std::shared_ptr<AnyMap>>(std::move(promise));
-  }
-  
-  // pragma MARK: std::function<void(const std::shared_ptr<AnyMap>& /* result */)>
-  /**
-   * Specialized version of `std::function<void(const std::shared_ptr<AnyMap>&)>`.
-   */
-  using Func_void_std__shared_ptr_AnyMap_ = std::function<void(const std::shared_ptr<AnyMap>& /* result */)>;
-  /**
-   * Wrapper class for a `std::function<void(const std::shared_ptr<AnyMap>& / * result * /)>`, this can be used from Swift.
-   */
-  class Func_void_std__shared_ptr_AnyMap__Wrapper final {
-  public:
-    explicit Func_void_std__shared_ptr_AnyMap__Wrapper(std::function<void(const std::shared_ptr<AnyMap>& /* result */)>&& func): _function(std::make_unique<std::function<void(const std::shared_ptr<AnyMap>& /* result */)>>(std::move(func))) {}
-    inline void call(std::shared_ptr<AnyMap> result) const noexcept {
-      _function->operator()(result);
-    }
-  private:
-    std::unique_ptr<std::function<void(const std::shared_ptr<AnyMap>& /* result */)>> _function;
-  } SWIFT_NONCOPYABLE;
-  Func_void_std__shared_ptr_AnyMap_ create_Func_void_std__shared_ptr_AnyMap_(void* _Nonnull swiftClosureWrapper) noexcept;
-  inline Func_void_std__shared_ptr_AnyMap__Wrapper wrap_Func_void_std__shared_ptr_AnyMap_(Func_void_std__shared_ptr_AnyMap_ value) noexcept {
-    return Func_void_std__shared_ptr_AnyMap__Wrapper(std::move(value));
-  }
-  
-  // pragma MARK: std::vector<std::shared_ptr<AnyMap>>
-  /**
-   * Specialized version of `std::vector<std::shared_ptr<AnyMap>>`.
-   */
-  using std__vector_std__shared_ptr_AnyMap__ = std::vector<std::shared_ptr<AnyMap>>;
-  inline std::vector<std::shared_ptr<AnyMap>> create_std__vector_std__shared_ptr_AnyMap__(size_t size) noexcept {
-    std::vector<std::shared_ptr<AnyMap>> vector;
-    vector.reserve(size);
-    return vector;
-  }
-  
-  // pragma MARK: std::shared_ptr<Promise<std::vector<std::shared_ptr<AnyMap>>>>
-  /**
-   * Specialized version of `std::shared_ptr<Promise<std::vector<std::shared_ptr<AnyMap>>>>`.
-   */
-  using std__shared_ptr_Promise_std__vector_std__shared_ptr_AnyMap____ = std::shared_ptr<Promise<std::vector<std::shared_ptr<AnyMap>>>>;
-  inline std::shared_ptr<Promise<std::vector<std::shared_ptr<AnyMap>>>> create_std__shared_ptr_Promise_std__vector_std__shared_ptr_AnyMap____() noexcept {
-    return Promise<std::vector<std::shared_ptr<AnyMap>>>::create();
-  }
-  inline PromiseHolder<std::vector<std::shared_ptr<AnyMap>>> wrap_std__shared_ptr_Promise_std__vector_std__shared_ptr_AnyMap____(std::shared_ptr<Promise<std::vector<std::shared_ptr<AnyMap>>>> promise) noexcept {
-    return PromiseHolder<std::vector<std::shared_ptr<AnyMap>>>(std::move(promise));
-  }
-  
-  // pragma MARK: std::function<void(const std::vector<std::shared_ptr<AnyMap>>& /* result */)>
-  /**
-   * Specialized version of `std::function<void(const std::vector<std::shared_ptr<AnyMap>>&)>`.
-   */
-  using Func_void_std__vector_std__shared_ptr_AnyMap__ = std::function<void(const std::vector<std::shared_ptr<AnyMap>>& /* result */)>;
-  /**
-   * Wrapper class for a `std::function<void(const std::vector<std::shared_ptr<AnyMap>>& / * result * /)>`, this can be used from Swift.
-   */
-  class Func_void_std__vector_std__shared_ptr_AnyMap___Wrapper final {
-  public:
-    explicit Func_void_std__vector_std__shared_ptr_AnyMap___Wrapper(std::function<void(const std::vector<std::shared_ptr<AnyMap>>& /* result */)>&& func): _function(std::make_unique<std::function<void(const std::vector<std::shared_ptr<AnyMap>>& /* result */)>>(std::move(func))) {}
-    inline void call(std::vector<std::shared_ptr<AnyMap>> result) const noexcept {
-      _function->operator()(result);
-    }
-  private:
-    std::unique_ptr<std::function<void(const std::vector<std::shared_ptr<AnyMap>>& /* result */)>> _function;
-  } SWIFT_NONCOPYABLE;
-  Func_void_std__vector_std__shared_ptr_AnyMap__ create_Func_void_std__vector_std__shared_ptr_AnyMap__(void* _Nonnull swiftClosureWrapper) noexcept;
-  inline Func_void_std__vector_std__shared_ptr_AnyMap___Wrapper wrap_Func_void_std__vector_std__shared_ptr_AnyMap__(Func_void_std__vector_std__shared_ptr_AnyMap__ value) noexcept {
-    return Func_void_std__vector_std__shared_ptr_AnyMap___Wrapper(std::move(value));
-  }
-  
   // pragma MARK: std::shared_ptr<HybridEvervaultSdkSpec>
   /**
    * Specialized version of `std::shared_ptr<HybridEvervaultSdkSpec>`.
@@ -198,24 +115,6 @@ namespace margelo::nitro::evervault::bridge::swift {
   }
   inline Result_std__shared_ptr_Promise_std__string___ create_Result_std__shared_ptr_Promise_std__string___(const std::exception_ptr& error) noexcept {
     return Result<std::shared_ptr<Promise<std::string>>>::withError(error);
-  }
-  
-  // pragma MARK: Result<std::shared_ptr<Promise<std::shared_ptr<AnyMap>>>>
-  using Result_std__shared_ptr_Promise_std__shared_ptr_AnyMap____ = Result<std::shared_ptr<Promise<std::shared_ptr<AnyMap>>>>;
-  inline Result_std__shared_ptr_Promise_std__shared_ptr_AnyMap____ create_Result_std__shared_ptr_Promise_std__shared_ptr_AnyMap____(const std::shared_ptr<Promise<std::shared_ptr<AnyMap>>>& value) noexcept {
-    return Result<std::shared_ptr<Promise<std::shared_ptr<AnyMap>>>>::withValue(value);
-  }
-  inline Result_std__shared_ptr_Promise_std__shared_ptr_AnyMap____ create_Result_std__shared_ptr_Promise_std__shared_ptr_AnyMap____(const std::exception_ptr& error) noexcept {
-    return Result<std::shared_ptr<Promise<std::shared_ptr<AnyMap>>>>::withError(error);
-  }
-  
-  // pragma MARK: Result<std::shared_ptr<Promise<std::vector<std::shared_ptr<AnyMap>>>>>
-  using Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_AnyMap_____ = Result<std::shared_ptr<Promise<std::vector<std::shared_ptr<AnyMap>>>>>;
-  inline Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_AnyMap_____ create_Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_AnyMap_____(const std::shared_ptr<Promise<std::vector<std::shared_ptr<AnyMap>>>>& value) noexcept {
-    return Result<std::shared_ptr<Promise<std::vector<std::shared_ptr<AnyMap>>>>>::withValue(value);
-  }
-  inline Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_AnyMap_____ create_Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_AnyMap_____(const std::exception_ptr& error) noexcept {
-    return Result<std::shared_ptr<Promise<std::vector<std::shared_ptr<AnyMap>>>>>::withError(error);
   }
 
 } // namespace margelo::nitro::evervault::bridge::swift

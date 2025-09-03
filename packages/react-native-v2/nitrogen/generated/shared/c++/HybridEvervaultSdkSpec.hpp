@@ -13,13 +13,10 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
-// Forward declaration of `AnyMap` to properly resolve imports.
-namespace NitroModules { class AnyMap; }
+
 
 #include <string>
 #include <NitroModules/Promise.hpp>
-#include <NitroModules/AnyMap.hpp>
-#include <vector>
 
 namespace margelo::nitro::evervault {
 
@@ -53,11 +50,7 @@ namespace margelo::nitro::evervault {
     public:
       // Methods
       virtual std::string initialize(const std::string& teamId, const std::string& appId) = 0;
-      virtual std::shared_ptr<Promise<std::string>> encryptString(const std::string& instanceId, const std::string& data) = 0;
-      virtual std::shared_ptr<Promise<std::string>> encryptNumber(const std::string& instanceId, double data) = 0;
-      virtual std::shared_ptr<Promise<std::string>> encryptBoolean(const std::string& instanceId, bool data) = 0;
-      virtual std::shared_ptr<Promise<std::shared_ptr<AnyMap>>> encryptObject(const std::string& instanceId, const std::shared_ptr<AnyMap>& data) = 0;
-      virtual std::shared_ptr<Promise<std::vector<std::shared_ptr<AnyMap>>>> encryptArray(const std::string& instanceId, const std::vector<std::shared_ptr<AnyMap>>& data) = 0;
+      virtual std::shared_ptr<Promise<std::string>> encrypt(const std::string& instanceId, const std::string& json) = 0;
 
     protected:
       // Hybrid Setup

@@ -37,22 +37,14 @@ export const sdk = {
   },
 
   async encrypt<T>(instanceId: string, data: T): Promise<Encrypted<T>> {
-    if (data === undefined) {
+    if (typeof data === "undefined") {
       return undefined as any;
     } else if (data === null) {
       return null as any;
-    } else if (typeof data === "string") {
-      return (await evervault.encryptString(instanceId, data)) as any;
-    } else if (typeof data === "number") {
-      return (await evervault.encryptNumber(instanceId, data)) as any;
-    } else if (typeof data === "boolean") {
-      return (await evervault.encryptBoolean(instanceId, data)) as any;
-    } else if (Array.isArray(data)) {
-      return (await evervault.encryptArray(instanceId, data)) as any;
-    } else if (typeof data === "object") {
-      return (await evervault.encryptObject(instanceId, data as any)) as any;
     }
 
-    throw new Error("Unsupported data type.");
+    const json = JSON.stringify(data);
+    const encryptedJson = await evervault.encrypt(instanceId, json);
+    return JSON.parse(encryptedJson);
   },
 };

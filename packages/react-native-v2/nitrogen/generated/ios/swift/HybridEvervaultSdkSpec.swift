@@ -15,11 +15,7 @@ public protocol HybridEvervaultSdkSpec_protocol: HybridObject {
 
   // Methods
   func initialize(teamId: String, appId: String) throws -> String
-  func encryptString(instanceId: String, data: String) throws -> Promise<String>
-  func encryptNumber(instanceId: String, data: Double) throws -> Promise<String>
-  func encryptBoolean(instanceId: String, data: Bool) throws -> Promise<String>
-  func encryptObject(instanceId: String, data: AnyMap) throws -> Promise<AnyMap>
-  func encryptArray(instanceId: String, data: [AnyMap]) throws -> Promise<[AnyMap]>
+  func encrypt(instanceId: String, json: String) throws -> Promise<String>
 }
 
 /// See ``HybridEvervaultSdkSpec``

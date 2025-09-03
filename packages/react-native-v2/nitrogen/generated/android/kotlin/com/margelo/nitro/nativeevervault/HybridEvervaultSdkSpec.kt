@@ -5,7 +5,7 @@
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///
 
-package com.margelo.nitro.evervault
+package com.margelo.nitro.nativeevervault
 
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
@@ -46,23 +46,7 @@ abstract class HybridEvervaultSdkSpec: HybridObject() {
   
   @DoNotStrip
   @Keep
-  abstract fun encryptString(instanceId: String, data: String): Promise<String>
-  
-  @DoNotStrip
-  @Keep
-  abstract fun encryptNumber(instanceId: String, data: Double): Promise<String>
-  
-  @DoNotStrip
-  @Keep
-  abstract fun encryptBoolean(instanceId: String, data: Boolean): Promise<String>
-  
-  @DoNotStrip
-  @Keep
-  abstract fun encryptObject(instanceId: String, data: AnyMap): Promise<AnyMap>
-  
-  @DoNotStrip
-  @Keep
-  abstract fun encryptArray(instanceId: String, data: Array<AnyMap>): Promise<Array<AnyMap>>
+  abstract fun encrypt(instanceId: String, json: String): Promise<String>
 
   private external fun initHybrid(): HybridData
 

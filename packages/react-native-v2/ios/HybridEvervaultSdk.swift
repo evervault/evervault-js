@@ -19,32 +19,21 @@ class HybridEvervaultSdk : HybridEvervaultSdkSpec {
       return instanceId
   }
 
-  func encrypt<T, U>(instanceId: String, _ data: T) throws -> Promise<U> {
+  func encrypt(instanceId: String, json: String) throws -> Promise<String> {
     return Promise.async {
         guard let instance = self.getInstance(instanceId) else {
               throw RuntimeError.error(withMessage: "Instance not found.")
         }
-        return try await instance.encrypt(data) as! U
+
+        let obj = try JSONSerialization.jsonObject(with: Data(json.utf8), options: [.fragmentsAllowed])
+        let encrypted = try await instance.encrypt(obj)
+        let result = try JSONSerialization.data(withJSONObject: encrypted, options: [.fragmentsAllowed])
+        
+        guard let string = String(data: result, encoding: .utf8) else {
+            throw RuntimeError.error(withMessage: "JSON encoding error.")
+        }
+
+        return string
     }
-  }
-
-  func encryptString(instanceId: String, data: String) throws -> Promise<String> {
-    return try self.encrypt(instanceId: instanceId, data)
-  }
-
-  func encryptNumber(instanceId: String, data: Double) throws -> Promise<String> {
-    return try self.encrypt(instanceId: instanceId, data)
-  }
-
-  func encryptBoolean(instanceId: String, data: Bool) throws -> Promise<String> {
-    return try self.encrypt(instanceId: instanceId, data)
-  }
-
-  func encryptObject(instanceId: String, data: AnyMap) throws -> Promise<AnyMap> {
-      return try self.encrypt(instanceId: instanceId, data)
-  }
-
-  func encryptArray(instanceId: String, data: [AnyMap]) throws -> Promise<[AnyMap]> {
-      return try self.encrypt(instanceId: instanceId, data)
   }
 }

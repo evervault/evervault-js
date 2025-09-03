@@ -21,7 +21,7 @@ namespace margelo::nitro::evervault {
   class JHybridEvervaultSdkSpec: public jni::HybridClass<JHybridEvervaultSdkSpec, JHybridObject>,
                                  public virtual HybridEvervaultSdkSpec {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/evervault/HybridEvervaultSdkSpec;";
+    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/nativeevervault/HybridEvervaultSdkSpec;";
     static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
     static void registerNatives();
 
@@ -54,11 +54,7 @@ namespace margelo::nitro::evervault {
   public:
     // Methods
     std::string initialize(const std::string& teamId, const std::string& appId) override;
-    std::shared_ptr<Promise<std::string>> encryptString(const std::string& instanceId, const std::string& data) override;
-    std::shared_ptr<Promise<std::string>> encryptNumber(const std::string& instanceId, double data) override;
-    std::shared_ptr<Promise<std::string>> encryptBoolean(const std::string& instanceId, bool data) override;
-    std::shared_ptr<Promise<std::shared_ptr<AnyMap>>> encryptObject(const std::string& instanceId, const std::shared_ptr<AnyMap>& data) override;
-    std::shared_ptr<Promise<std::vector<std::shared_ptr<AnyMap>>>> encryptArray(const std::string& instanceId, const std::vector<std::shared_ptr<AnyMap>>& data) override;
+    std::shared_ptr<Promise<std::string>> encrypt(const std::string& instanceId, const std::string& json) override;
 
   private:
     friend HybridBase;

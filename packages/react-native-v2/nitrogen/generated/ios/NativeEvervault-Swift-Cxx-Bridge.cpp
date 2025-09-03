@@ -29,22 +29,6 @@ namespace margelo::nitro::evervault::bridge::swift {
     };
   }
   
-  // pragma MARK: std::function<void(const std::shared_ptr<AnyMap>& /* result */)>
-  Func_void_std__shared_ptr_AnyMap_ create_Func_void_std__shared_ptr_AnyMap_(void* _Nonnull swiftClosureWrapper) noexcept {
-    auto swiftClosure = NativeEvervault::Func_void_std__shared_ptr_AnyMap_::fromUnsafe(swiftClosureWrapper);
-    return [swiftClosure = std::move(swiftClosure)](const std::shared_ptr<AnyMap>& result) mutable -> void {
-      swiftClosure.call(result);
-    };
-  }
-  
-  // pragma MARK: std::function<void(const std::vector<std::shared_ptr<AnyMap>>& /* result */)>
-  Func_void_std__vector_std__shared_ptr_AnyMap__ create_Func_void_std__vector_std__shared_ptr_AnyMap__(void* _Nonnull swiftClosureWrapper) noexcept {
-    auto swiftClosure = NativeEvervault::Func_void_std__vector_std__shared_ptr_AnyMap__::fromUnsafe(swiftClosureWrapper);
-    return [swiftClosure = std::move(swiftClosure)](const std::vector<std::shared_ptr<AnyMap>>& result) mutable -> void {
-      swiftClosure.call(result);
-    };
-  }
-  
   // pragma MARK: std::shared_ptr<HybridEvervaultSdkSpec>
   std::shared_ptr<HybridEvervaultSdkSpec> create_std__shared_ptr_HybridEvervaultSdkSpec_(void* _Nonnull swiftUnsafePointer) noexcept {
     NativeEvervault::HybridEvervaultSdkSpec_cxx swiftPart = NativeEvervault::HybridEvervaultSdkSpec_cxx::fromUnsafe(swiftUnsafePointer);

@@ -12,13 +12,10 @@
 // Forward declaration of `HybridEvervaultSdkSpec_cxx` to properly resolve imports.
 namespace NativeEvervault { class HybridEvervaultSdkSpec_cxx; }
 
-// Forward declaration of `AnyMap` to properly resolve imports.
-namespace NitroModules { class AnyMap; }
+
 
 #include <string>
 #include <NitroModules/Promise.hpp>
-#include <NitroModules/AnyMap.hpp>
-#include <vector>
 
 #include "NativeEvervault-Swift-Cxx-Umbrella.hpp"
 
@@ -69,40 +66,8 @@ namespace margelo::nitro::evervault {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<Promise<std::string>> encryptString(const std::string& instanceId, const std::string& data) override {
-      auto __result = _swiftPart.encryptString(instanceId, data);
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
-    inline std::shared_ptr<Promise<std::string>> encryptNumber(const std::string& instanceId, double data) override {
-      auto __result = _swiftPart.encryptNumber(instanceId, std::forward<decltype(data)>(data));
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
-    inline std::shared_ptr<Promise<std::string>> encryptBoolean(const std::string& instanceId, bool data) override {
-      auto __result = _swiftPart.encryptBoolean(instanceId, std::forward<decltype(data)>(data));
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
-    inline std::shared_ptr<Promise<std::shared_ptr<AnyMap>>> encryptObject(const std::string& instanceId, const std::shared_ptr<AnyMap>& data) override {
-      auto __result = _swiftPart.encryptObject(instanceId, data);
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
-    inline std::shared_ptr<Promise<std::vector<std::shared_ptr<AnyMap>>>> encryptArray(const std::string& instanceId, const std::vector<std::shared_ptr<AnyMap>>& data) override {
-      auto __result = _swiftPart.encryptArray(instanceId, data);
+    inline std::shared_ptr<Promise<std::string>> encrypt(const std::string& instanceId, const std::string& json) override {
+      auto __result = _swiftPart.encrypt(instanceId, json);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
