@@ -30,13 +30,14 @@
     "prebuild": "pnpm codegen",
     "build": "rollup -c",
     "watch": "rollup -c --watch",
-    "codegen": "rimraf build android/app && react-native codegen",
+    "codegen": "nitro-codegen",
     "test": "vitest run",
     "test:watch": "vitest --watch"
   },
   "peerDependencies": {
     "react": "*",
     "react-native": "*",
+    "react-native-nitro-modules": "*",
     "react-native-webview": "*"
   },
   "devDependencies": {
@@ -46,8 +47,10 @@
     "@testing-library/react-native": "^13.2.0",
     "@types/react": "catalog:",
     "glob": "^11.0.3",
+    "nitro-codegen": "^0.29.2",
     "react": "catalog:",
     "react-native": "catalog:",
+    "react-native-nitro-modules": "^0.29.2",
     "react-native-webview": "catalog:",
     "react-test-renderer": "18.2.0",
     "rimraf": "^6.0.1",
@@ -55,14 +58,6 @@
     "tsconfig": "workspace:*",
     "vitest": "catalog:",
     "vitest-react-native": "^0.1.5"
-  },
-  "codegenConfig": {
-    "name": "NativeEvervaultSpec",
-    "type": "modules",
-    "jsSrcsDir": "src",
-    "android": {
-      "javaPackageName": "com.nativeevervault"
-    }
   },
   "dependencies": {
     "@evervault/card-validator": "workspace:*",

@@ -23,6 +23,7 @@
     "react-dom": "catalog:",
     "react-native": "catalog:",
     "react-native-gesture-handler": "catalog:",
+    "react-native-nitro-modules": "^0.29.2",
     "react-native-reanimated": "catalog:",
     "react-native-safe-area-context": "^4.12.0",
     "react-native-screens": "~4.4.0",

@@ -1,7 +1,7 @@
-import {
-  NativeEvervault,
-  Spec as NativeEvervaultSpec,
-} from "./specs/NativeEvervault";
+import { NitroModules } from "react-native-nitro-modules";
+import { EvervaultSdk } from "./nitro/EvervaultSdk.nitro";
+
+const evervault = NitroModules.createHybridObject<EvervaultSdk>("EvervaultSdk");
 
 export type Encrypted<T> = T extends undefined
   ? undefined
@@ -19,23 +19,12 @@ export type Encrypted<T> = T extends undefined
   ? Array<Encrypted<U>>
   : never;
 
-function getModule(): NativeEvervaultSpec {
-  if (!NativeEvervault) {
-    throw new Error("NativeEvervault is not available.");
-  }
-
-  return NativeEvervault;
-}
-
 export const sdk = {
   verify() {
-    getModule();
     return true;
   },
 
   initialize(teamId: string, appId: string): string {
-    const evervault = getModule();
-
     if (!teamId) {
       throw new Error("Team ID is required.");
     }
@@ -48,8 +37,6 @@ export const sdk = {
   },
 
   async encrypt<T>(instanceId: string, data: T): Promise<Encrypted<T>> {
-    const evervault = getModule();
-
     if (data === undefined) {
       return undefined as any;
     } else if (data === null) {
@@ -63,7 +50,7 @@ export const sdk = {
     } else if (Array.isArray(data)) {
       return (await evervault.encryptArray(instanceId, data)) as any;
     } else if (typeof data === "object") {
-      return (await evervault.encryptObject(instanceId, data)) as any;
+      return (await evervault.encryptObject(instanceId, data as any)) as any;
     }
 
     throw new Error("Unsupported data type.");
