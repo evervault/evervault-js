@@ -90,6 +90,25 @@ using namespace facebook::react;
     }
 }
 
+- (void)applePayButton:(ApplePayButton *)button didRequestTransaction:(NSString *)request {
+    if (_eventEmitter) {
+        ApplePayButtonComponentViewEventEmitter::OnPrepareTransaction event{[request UTF8String]};
+        self.eventEmitter.onPrepareTransaction(event);
+    }
+}
+
+#pragma mark - Commands
+
+- (void)handleCommand:(const NSString *)commandName args:(const NSArray *)args
+{
+    RCTApplePayButtonComponentViewHandleCommand(self, commandName, args);
+}
+
+- (void)prepareTransaction:(const NSString *)transaction
+{
+    [_view prepareTransaction:[NSString stringWithUTF8String:transaction.UTF8String]];
+}
+
 Class<RCTComponentViewProtocol> ApplePayButtonComponentViewCls(void)
 {
     return ApplePayButtonComponentView.class;

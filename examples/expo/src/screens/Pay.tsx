@@ -38,6 +38,18 @@ export function PayExample() {
           paymentType="book"
           onAuthorizePayment={setResponse}
           onError={console.log}
+          onPrepareTransaction={async () => {
+            return {
+              type: "oneOffPayment",
+              country: "US",
+              currency: "USD",
+              paymentSummaryItems: [
+                { label: "Product", amount: "30.00" },
+                { label: "Product 2", amount: "0.01" },
+                { label: "Total", amount: "30.01" },
+              ],
+            };
+          }}
         />
         <Code style={styles.code}>{format(response)}</Code>
       </View>

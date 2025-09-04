@@ -5,6 +5,7 @@ import EvervaultPayment
 import PassKit
 
 @objc public protocol ApplePayButtonDelegate: AnyObject {
+    func applePayButton(_ button: ApplePayButton, didRequestTransaction request: NSString)
   func applePayButton(_ button: ApplePayButton, didAuthorizePayment result: NSString)
   func applePayButton(_ button: ApplePayButton, didError result: NSString)
 }
@@ -92,6 +93,16 @@ import PassKit
     setupView()
   }
 
+    private var didPrepareTransaction: ((Transaction) -> Void)?
+  @objc public func prepareTransaction(_ json: String) {
+      guard let didPrepareTransaction = self.didPrepareTransaction,
+            let data = json.data(using: .utf8),
+            let transaction = try? JSONDecoder().decode(PreparedTransaction.self, from: data) else {
+          return
+      }
+      didPrepareTransaction(transaction.value)
+  }
+
   private func setupView() {
     self.backgroundColor = .clear
   }
@@ -99,18 +110,7 @@ import PassKit
   private func setupPaymentView() {
     guard let appId = self.appId,
           let merchantId = self.merchantId,
-          let transaction = try? Transaction.oneOffPayment(
-            .init(
-              country: "US",
-              currency: "USD",
-              paymentSummaryItems: [
-                .init(label: "Product", amount: Amount("100.00")),
-              ],
-              shippingType: .shipping,
-              shippingMethods: [],
-              requiredShippingContactFields: [],
-            )
-          ) else {
+          let transaction = Transaction.empty else {
       return
     }
 
@@ -143,6 +143,28 @@ import PassKit
 }
 
 extension ApplePayButton: EvervaultPaymentViewDelegate {
+    // TODO: make this delegate method async instead of runloop
+    // TODO: dimiss sheet if transaction is never prepared
+    public func evervaultPaymentView(_ view: EvervaultPaymentView, prepareTransaction transaction: inout Transaction) {
+        var preparedTransaction: Transaction? = nil
+        self.didPrepareTransaction = { prepared in
+            preparedTransaction = prepared
+        }
+        delegate?.applePayButton(self, didRequestTransaction: "null")
+        
+        // Since didPrepareTransaction is a closure that will be called asynchronously,
+        // we need to wait for it to be called before proceeding.
+        // We'll use a RunLoop to wait until preparedTransaction is set or a timeout occurs.
+        let timeout: TimeInterval = 2.0 // seconds
+        let start = Date()
+        while preparedTransaction == nil && Date().timeIntervalSince(start) < timeout {
+            RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.01))
+        }
+        if let preparedTransaction = preparedTransaction {
+            transaction = preparedTransaction
+        }
+    }
+    
   public func evervaultPaymentView(_ view: EvervaultPaymentView, didAuthorizePayment result: ApplePayResponse?) {
       guard let data = try? JSONEncoder().encode(result),
             let response = NSString(data: data, encoding: NSUTF8StringEncoding) else {
@@ -161,6 +183,7 @@ extension ApplePayButton: EvervaultPaymentViewDelegate {
   }
 }
 
+// TODO: move to EvervaultPayment
 extension EvervaultError: @retroactive Encodable {
     enum CodingKeys: String, CodingKey {
         case code
@@ -171,5 +194,66 @@ extension EvervaultError: @retroactive Encodable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(String(describing: self), forKey: .code)
         try container.encode(localizedDescription, forKey: .detail)
+    }
+}
+
+extension Transaction {
+    static let empty: Transaction? = try? .oneOffPayment(.init(country: "US", currency: "USD", paymentSummaryItems: [.init(label: "Empty", amount: Amount("0.00"))]))
+}
+
+// TODO: move to EvervaultPayment
+extension OneOffPaymentTransaction: @retroactive Decodable {
+    enum CodingKeys: String, CodingKey {
+        case country
+        case currency
+        case paymentSummaryItems
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        let country = try values.decode(String.self, forKey: .country)
+        let currency = try values.decode(String.self, forKey: .currency)
+        let paymentSummaryItems = try values.decode([SummaryItem].self, forKey: .paymentSummaryItems)
+        // TODO: add shipping type, shipping methods, and required shipping contact fields
+        try self.init(country: country, currency: currency, paymentSummaryItems: paymentSummaryItems)
+    }
+}
+
+// TODO: move to EvervaultPayment
+struct PreparedTransaction: Decodable {
+  let value: Transaction
+
+  enum CodingKeys: String, CodingKey {
+    case type
+  }
+
+  public init(_ transaction: Transaction) {
+    self.value = transaction
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    let type = try values.decode(String.self, forKey: .type)
+    switch type {
+    case "oneOffPayment":
+      self.init(try Transaction.oneOffPayment(.init(from: decoder)))
+    default:
+        throw EvervaultError.InvalidTransactionError
+    }
+  }
+}
+
+// TODO: move to EvervaultPayment
+extension SummaryItem: @retroactive Decodable {
+    enum CodingKeys: String, CodingKey {
+        case label
+        case amount
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        let label = try values.decode(String.self, forKey: .label)
+        let amount = try values.decode(String.self, forKey: .amount)
+        self.init(label: label, amount: Amount(amount))
     }
 }

@@ -16,5 +16,6 @@ RCT_EXPORT_VIEW_PROPERTY(paymentType, NSString)
 RCT_EXPORT_VIEW_PROPERTY(appearance, NSString)
 RCT_EXPORT_VIEW_PROPERTY(onAuthorizePayment, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onError, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onPrepareTransaction, RCTDirectEventBlock)
 
 @end

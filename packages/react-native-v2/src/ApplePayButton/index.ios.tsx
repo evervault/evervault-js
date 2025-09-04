@@ -1,5 +1,7 @@
-import { useCallback } from "react";
+import { ElementRef, useCallback, useRef } from "react";
 import ApplePayButtonNativeComponent, {
+  ApplePayButtonComponent,
+  Commands,
   NativeProps,
 } from "../specs/ApplePayButtonNativeComponent";
 import { useEvervault } from "../useEvervault";
@@ -13,8 +15,11 @@ export function ApplePayButton({
   appearance = "automatic",
   onAuthorizePayment,
   onError,
+  onPrepareTransaction,
   ...props
 }: ApplePayButtonProps) {
+  const ref = useRef<ElementRef<ApplePayButtonComponent> | null>(null);
+
   const evervault = useEvervault();
 
   const handleAuthorizePayment = useCallback<
@@ -41,8 +46,19 @@ export function ApplePayButton({
     [onError]
   );
 
+  const handlePrepareTransaction = useCallback<
+    NonNullable<NativeProps["onPrepareTransaction"]>
+  >(async () => {
+    const view = ref.current;
+    if (!view) return;
+    const transaction = await onPrepareTransaction();
+    const json = JSON.stringify(transaction);
+    Commands.prepareTransaction(view, json);
+  }, [onPrepareTransaction]);
+
   return (
     <ApplePayButtonNativeComponent
+      ref={ref}
       appId={evervault.appId}
       merchantId={merchantId}
       supportedNetworks={supportedNetworks}
@@ -50,6 +66,7 @@ export function ApplePayButton({
       appearance={appearance}
       onAuthorizePayment={handleAuthorizePayment}
       onError={handleError}
+      onPrepareTransaction={handlePrepareTransaction}
       {...props}
     />
   );
