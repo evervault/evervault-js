@@ -37,7 +37,7 @@ export function PayExample() {
           appearance="automatic"
           paymentType="book"
           onAuthorizePayment={setResponse}
-          onFinishWithResult={console.log}
+          onError={console.log}
         />
         <Code style={styles.code}>{format(response)}</Code>
       </View>

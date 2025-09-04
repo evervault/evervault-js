@@ -83,10 +83,10 @@ using namespace facebook::react;
     }
 }
 
-- (void)applePayButton:(ApplePayButton *)button didFinishWithResult:(NSString *)result {
+- (void)applePayButton:(ApplePayButton *)button didError:(NSString *)result {
     if (_eventEmitter) {
-        ApplePayButtonComponentViewEventEmitter::OnFinishWithResult event{[result UTF8String]};
-        self.eventEmitter.onFinishWithResult(event);
+        ApplePayButtonComponentViewEventEmitter::OnError event{[result UTF8String]};
+        self.eventEmitter.onError(event);
     }
 }
 

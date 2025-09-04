@@ -9,7 +9,9 @@
     "android:release": "pnpm android --variant release",
     "android:release:proguard": "PROGUARD_ENABLED=true pnpm android:release",
     "ios": "rimraf ios && expo run:ios --no-bundler",
-    "ios:release": "pnpm ios --configuration Release"
+    "ios:release": "pnpm ios --configuration Release",
+    "xcode": "open ios/evervaultexpoexample.xcworkspace",
+    "pod": "cd ios && pod"
   },
   "dependencies": {
     "@evervault/react-native": "workspace:*",

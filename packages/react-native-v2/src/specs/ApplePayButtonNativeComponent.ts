@@ -10,7 +10,7 @@ export interface NativeProps extends ViewProps {
   appearance: string;
 
   readonly onAuthorizePayment?: DirectEventHandler<{ data: string }>;
-  readonly onFinishWithResult?: DirectEventHandler<{ data: string }>;
+  readonly onError?: DirectEventHandler<{ data: string }>;
 }
 
 export type ApplePayButtonComponent = HostComponent<NativeProps>;

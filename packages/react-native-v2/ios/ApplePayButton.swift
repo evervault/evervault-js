@@ -6,7 +6,7 @@ import PassKit
 
 @objc public protocol ApplePayButtonDelegate: AnyObject {
   func applePayButton(_ button: ApplePayButton, didAuthorizePayment result: NSString)
-  func applePayButton(_ button: ApplePayButton, didFinishWithResult result: NSString)
+  func applePayButton(_ button: ApplePayButton, didError result: NSString)
 }
 
 @objc public class ApplePayButton: UIView {    
@@ -144,17 +144,32 @@ import PassKit
 
 extension ApplePayButton: EvervaultPaymentViewDelegate {
   public func evervaultPaymentView(_ view: EvervaultPaymentView, didAuthorizePayment result: ApplePayResponse?) {
-    if let response = result {
-      delegate?.applePayButton(self, didAuthorizePayment: "{ \"test\": \"test\" }")
-    }
+      guard let data = try? JSONEncoder().encode(result),
+            let response = NSString(data: data, encoding: NSUTF8StringEncoding) else {
+          return
+      }
+      delegate?.applePayButton(self, didAuthorizePayment: response)
   }
 
   public func evervaultPaymentView(_ view: EvervaultPaymentView, didFinishWithResult result: Result<Void, EvervaultError>) {
-    switch result {
-    case .success:
-      delegate?.applePayButton(self, didFinishWithResult: "{ \"success\": true }" as NSString)
-    case .failure(let error):
-      delegate?.applePayButton(self, didFinishWithResult: "{ \"success\": false, \"error\": \"\(error.localizedDescription)\" }" as NSString)
-    }
+      guard case .failure(let error) = result,
+            let data = try? JSONEncoder().encode(error),
+            let response = NSString(data: data, encoding: NSUTF8StringEncoding) else {
+          return
+      }
+      delegate?.applePayButton(self, didError: response)
   }
+}
+
+extension EvervaultError: @retroactive Encodable {
+    enum CodingKeys: String, CodingKey {
+        case code
+        case detail
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(String(describing: self), forKey: .code)
+        try container.encode(localizedDescription, forKey: .detail)
+    }
 }

@@ -15,6 +15,6 @@ RCT_EXPORT_VIEW_PROPERTY(supportedNetworks, NSArray)
 RCT_EXPORT_VIEW_PROPERTY(paymentType, NSString)
 RCT_EXPORT_VIEW_PROPERTY(appearance, NSString)
 RCT_EXPORT_VIEW_PROPERTY(onAuthorizePayment, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onFinishWithResult, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onError, RCTDirectEventBlock)
 
 @end

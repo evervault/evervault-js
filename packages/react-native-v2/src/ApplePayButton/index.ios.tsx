@@ -3,7 +3,8 @@ import ApplePayButtonNativeComponent, {
   NativeProps,
 } from "../specs/ApplePayButtonNativeComponent";
 import { useEvervault } from "../useEvervault";
-import { ApplePayButtonProps, ApplePayResponse, Result } from "./types";
+import { ApplePayButtonProps } from "./types";
+import { responseSchema, errorSchema } from "./schema";
 
 export function ApplePayButton({
   merchantId,
@@ -11,7 +12,7 @@ export function ApplePayButton({
   paymentType = "plain",
   appearance = "automatic",
   onAuthorizePayment,
-  onFinishWithResult,
+  onError,
   ...props
 }: ApplePayButtonProps) {
   const evervault = useEvervault();
@@ -20,20 +21,24 @@ export function ApplePayButton({
     NonNullable<NativeProps["onAuthorizePayment"]>
   >(
     (event) => {
-      const response = JSON.parse(event.nativeEvent.data) as ApplePayResponse;
-      onAuthorizePayment?.(response);
+      const json = JSON.parse(event.nativeEvent.data);
+      const response = responseSchema.safeParse(json);
+      if (response.success) {
+        onAuthorizePayment?.(response.data);
+      }
     },
     [onAuthorizePayment]
   );
 
-  const handleFinishWithResult = useCallback<
-    NonNullable<NativeProps["onFinishWithResult"]>
-  >(
+  const handleError = useCallback<NonNullable<NativeProps["onError"]>>(
     (event) => {
-      const result = JSON.parse(event.nativeEvent.data) as Result<void, string>;
-      onFinishWithResult?.(result);
+      const json = JSON.parse(event.nativeEvent.data);
+      const error = errorSchema.safeParse(json);
+      if (error.success) {
+        onError?.(error.data);
+      }
     },
-    [onFinishWithResult]
+    [onError]
   );
 
   return (
@@ -44,7 +49,7 @@ export function ApplePayButton({
       paymentType={paymentType}
       appearance={appearance}
       onAuthorizePayment={handleAuthorizePayment}
-      onFinishWithResult={handleFinishWithResult}
+      onError={handleError}
       {...props}
     />
   );
