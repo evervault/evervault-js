@@ -53,7 +53,7 @@ on:
         required: true
         type: string
 permissions:
-  contents: read
+  contents: write
   id-token: write
 jobs:
   # Resolve the name of the artifact to be used in the deployment
