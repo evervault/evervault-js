@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.34.1
+
+### Patch Changes
+
+- cc087cc: Fixes bug where card validation would initially fail when using payment autofill on Chrome on iOS
+
 ## 1.34.0
 
 ### Minor Changes
