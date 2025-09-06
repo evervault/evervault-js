@@ -31,6 +31,8 @@ const input = glob.sync("src/**/*.{ts,tsx}", {
 const external = [
   ...Object.keys(pkgJson.peerDependencies),
   "react/jsx-runtime",
+  // Externalize React Native internal modules to avoid parsing Flow
+  /^react-native\/.*/,
 ];
 
 module.exports = defineConfig([
@@ -41,6 +43,7 @@ module.exports = defineConfig([
       dir: "build/cjs",
       format: "cjs",
       exports: "named",
+      sourcemap: true,
       preserveModules: true,
       preserveModulesRoot: "src",
     },
@@ -60,6 +63,7 @@ module.exports = defineConfig([
       dir: "build/esm",
       format: "esm",
       exports: "named",
+      sourcemap: true,
       preserveModules: true,
       preserveModulesRoot: "src",
     },
