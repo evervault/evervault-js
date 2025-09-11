@@ -84,7 +84,7 @@ jobs:
           role-to-assume: ${{ inputs.stage == 'production' &&  secrets.AWS_EV_JS_PRODUCTION_OIDC_ROLE_ARN || secrets.AWS_EV_JS_STAGING_OIDC_ROLE_ARN }}
           aws-region: "us-east-1"
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.8
         with:
@@ -255,7 +255,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
       - name: Get package name
