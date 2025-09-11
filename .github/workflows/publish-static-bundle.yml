@@ -73,7 +73,7 @@ jobs:
     steps:
       # Sanity check that the preview deployment is for a package that we support. This is to prevent the workflow from running in an undefined state.
       - name: Assert that preview deployment is for a known package
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         if: ${{ inputs.package-name != '@evervault/ui-components' && inputs.package-name != '@evervault/browser' }}
         with:
           script: |
@@ -115,7 +115,7 @@ jobs:
       # For Packages which have multiple paths that need to be invalidated, its easier to use the batch invalidation API than it is to programmatically pass the `--paths` flag to the CLI.
       # As a result, we split the list of paths on comma and create the expected payload (ref: https://docs.aws.amazon.com/cli/latest/reference/cloudfront/create-invalidation.html)
       - name: Prepare cloudfront payload
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         id: prepare-cloudfront-payload
         with:
           script: |
@@ -227,7 +227,7 @@ jobs:
           S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
         run: aws s3 cp dist s3://${{ vars[env.S3_BUCKET_VAR] }}/ --recursive
       - name: Prepare cloudfront payload
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         id: prepare-cloudfront-payload
         with:
           script: |
