@@ -37,8 +37,12 @@ jobs:
       - name: Get current commit message
         id: commit-msg
         run: |
-          COMMIT_MSG=$(git log -1 --pretty=%B)
-          echo "commit-message=$COMMIT_MSG" >> $GITHUB_OUTPUT
+          COMMIT_MSG="$(git log -1 --pretty=%B)"
+          {
+            echo 'commit-message<<EOF'
+            echo "$COMMIT_MSG"
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
 
       - name: Apply formatting
         run: |
