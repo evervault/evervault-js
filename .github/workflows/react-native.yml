@@ -3,11 +3,11 @@ name: React Native Workflow
 on:
   push:
     paths:
-      - 'examples/expo/**'
-      - 'packages/react-native-v2/**'
-      - '.github/**'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
+      - "examples/expo/**"
+      - "packages/react-native-v2/**"
+      - ".github/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
 jobs:
   build_ios:
     name: Build iOS Examples
@@ -15,7 +15,9 @@ jobs:
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: latest-stable
+          # xcode-version: latest-stable
+          # Temporarily use V16.4 while Github rolls out v26 update
+          xcode-version: 16.4
       - name: Checkout Repo
         uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
