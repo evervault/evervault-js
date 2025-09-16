@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.22.0
+
+### Minor Changes
+
+- ae4549b: Add imperative handle for Card ref to allow manually triggering validation
+
 ## 2.21.0
 
 ### Minor Changes
