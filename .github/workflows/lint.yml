@@ -31,7 +31,7 @@ jobs:
       VITE_KEYS_URL: ${{ inputs.vite-keys-url }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
