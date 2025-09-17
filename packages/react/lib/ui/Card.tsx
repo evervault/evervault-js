@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useImperativeHandle } from "react";
 import type {
   CardBrandName,
   CardField,
@@ -12,6 +12,11 @@ import type {
   ThemeDefinition,
 } from "types";
 import { useEvInstance } from "../useEvInstance";
+import EvervaultClient from "@evervault/browser";
+
+export interface CardRef {
+  validate: () => void;
+}
 
 export interface CardProps {
   autoFocus?: boolean;
@@ -24,6 +29,7 @@ export interface CardProps {
   onSwipe?: (data: SwipedCard) => void;
   onChange?: (data: CardPayload) => void;
   onComplete?: (data: CardPayload) => void;
+  onValidate?: (data: CardPayload) => void;
   autoComplete?: CardOptions["autoComplete"];
   autoProgress?: boolean;
   acceptedBrands?: CardBrandName[];
@@ -37,30 +43,49 @@ export interface CardProps {
   validation?: CardOptions["validation"];
 }
 
-export function Card({
-  theme,
-  icons,
-  fields,
-  autoFocus,
-  translations,
-  onSwipe,
-  onReady,
-  onError,
-  onChange,
-  onComplete,
-  onFocus,
-  onBlur,
-  onKeyUp,
-  onKeyDown,
-  autoComplete,
-  autoProgress,
-  acceptedBrands,
-  defaultValues,
-  redactCVC,
-  allow3DigitAmexCVC,
-  validation,
-}: CardProps) {
-  const ref = useRef<HTMLDivElement>(null);
+type CardInstance = ReturnType<EvervaultClient["ui"]["card"]>;
+
+export const Card = React.forwardRef<CardRef, CardProps>(function Card(
+  {
+    theme,
+    icons,
+    fields,
+    autoFocus,
+    translations,
+    onSwipe,
+    onReady,
+    onError,
+    onChange,
+    onComplete,
+    onValidate,
+    onFocus,
+    onBlur,
+    onKeyUp,
+    onKeyDown,
+    autoComplete,
+    autoProgress,
+    acceptedBrands,
+    defaultValues,
+    redactCVC,
+    allow3DigitAmexCVC,
+    validation,
+  }: CardProps,
+  forwardedRef
+) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const inst = useRef<CardInstance | null>(null);
+
+  useImperativeHandle(
+    forwardedRef,
+    () => {
+      return {
+        validate: () => {
+          inst.current?.validate();
+        },
+      };
+    },
+    []
+  );
 
   const config = useMemo(
     () => ({
@@ -105,6 +130,8 @@ export function Card({
     },
     onMountError: onError,
   });
+
+  inst.current = instance;
 
   // setup ready event listener
   useEffect(() => {
@@ -160,5 +187,11 @@ export function Card({
     return instance?.on("keydown", onKeyDown);
   }, [instance, onKeyDown]);
 
+  // setup validate event listener
+  useEffect(() => {
+    if (!instance || !onValidate) return undefined;
+    return instance?.on("validate", onValidate);
+  }, [instance, onValidate]);
+
   return <div ref={ref} />;
-}
+});
