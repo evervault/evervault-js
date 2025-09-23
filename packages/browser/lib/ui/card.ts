@@ -96,6 +96,7 @@ export default class Card {
       isValid: false,
       isComplete: false,
       errors: null,
+      fingerprintId: null,
     };
   }
 

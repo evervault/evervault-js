@@ -48,6 +48,7 @@ export async function completePayment(id: string): Promise<void> {
     `/payments/3ds-sessions/${id}`
   );
 
+  console.log("Session:", session.id); // eslint-disable-line no-console
   console.log("Cryptogram:", session.cryptogram); // eslint-disable-line no-console
 
   // You can now use the cryptogram to authorize the payment with your payment provider.

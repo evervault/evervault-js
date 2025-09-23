@@ -34,6 +34,7 @@ const server = createServer(async (request, response) => {
     const { session } = await parseBody(request);
     const data = await evervaultAPI("GET", `/payments/3ds-sessions/${session}`);
     // The cryptogram can be accessed from data.cryptogram
+    console.log("Data:", data.id);
     console.log("Cryptogram:", data.cryptogram);
 
     response.setHeader("Content-Type", "application/json");
@@ -81,13 +82,8 @@ async function createThreeDSSession(payload) {
     },
     payment: {
       type: "one-off",
-      amount: 1000,
+      amount: 1,
       currency: "eur",
-    },
-    acquirer: {
-      bin: "444444",
-      merchantIdentifier: "837223891854392",
-      country: "ie",
     },
   });
 }

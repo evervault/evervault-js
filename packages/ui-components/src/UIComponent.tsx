@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Card } from "./Card";
+import { CardWithProfiling, CardWithProfilingConfig } from "./CardWithProfiling";
 import { Form } from "./Form";
 import { FormConfig } from "./Form/types";
 import { Pin } from "./Pin";
@@ -8,6 +9,8 @@ import { RevealRequest } from "./Reveal/RevealRequest";
 import { RevealText } from "./Reveal/RevealText";
 import { ThreeDSecure } from "./ThreeDSecure";
 import { ThreeDSecureConfig } from "./ThreeDSecure/types";
+import { ThreeDSecureWithProfiling } from "./ThreeDSecureWithProfiling";
+import { ThreeDSecureWithProfilingConfig } from "./ThreeDSecureWithProfiling/types";
 import { resize } from "./utilities/resize";
 import { useMessaging } from "./utilities/useMessaging";
 import { useSearchParams } from "./utilities/useSearchParams";
@@ -92,6 +95,10 @@ export function UIComponent() {
     return <Card config={config as CardConfig} />;
   }
 
+  if (component === "CardWithProfiling") {
+    return <CardWithProfiling config={config as CardWithProfilingConfig} />;
+  }
+
   if (component === "Pin") {
     return <Pin config={config as PinConfig} />;
   }
@@ -114,6 +121,10 @@ export function UIComponent() {
 
   if (component === "ThreeDSecure") {
     return <ThreeDSecure config={config as ThreeDSecureConfig} />;
+  }
+
+  if (component === "ThreeDSecureWithProfiling") {
+    return <ThreeDSecureWithProfiling config={config as ThreeDSecureWithProfilingConfig} />;
   }
 
   if (component === "GooglePay") {

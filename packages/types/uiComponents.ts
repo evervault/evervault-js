@@ -67,6 +67,7 @@ export interface CardPayload {
     cvc?: string;
     expiry?: string;
   }>;
+  fingerprintId?: string | null;
 }
 
 export type CardField = "name" | "number" | "expiry" | "cvc";

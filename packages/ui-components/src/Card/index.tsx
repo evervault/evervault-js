@@ -36,7 +36,6 @@ export function Card({ config }: { config: CardConfig }) {
     CardFrameHostMessages,
     CardFrameClientMessages
   >();
-
   const ev = useEvervault();
   const { t } = useTranslations(DEFAULT_TRANSLATIONS, config?.translations);
 

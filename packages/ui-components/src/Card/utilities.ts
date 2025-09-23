@@ -23,6 +23,7 @@ export async function changePayload(
   fields: CardField[],
   opts?: {
     allow3DigitAmexCVC?: boolean;
+    fingerprintId?: string;
   }
 ): Promise<CardPayload> {
   const { name, number, expiry, cvc } = form.values;
@@ -48,6 +49,7 @@ export async function changePayload(
     isValid: form.isValid,
     isComplete: isComplete(form, fields, opts),
     errors: Object.keys(form.errors ?? {}).length > 0 ? form.errors : null,
+    fingerprintId: opts?.fingerprintId ?? null,
   };
 }
 
@@ -89,7 +91,7 @@ function isComplete(
 
 export async function swipePayload(
   ev: PromisifiedEvervaultClient,
-  values: MagStripeData
+  values: MagStripeData,
 ): Promise<SwipedCard> {
   const { brand, localBrands, bin, lastFour } = validateNumber(values.number);
 
