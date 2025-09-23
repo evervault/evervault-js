@@ -49,7 +49,9 @@ interface UseProfiledSessionReturn {
   isLoading: boolean;
 }
 
-export function useProfiledSession(sessionId: string): UseProfiledSessionReturn {
+export function useProfiledSession(
+  sessionId: string
+): UseProfiledSessionReturn {
   const initialized = useRef(false);
   const { app } = useSearchParams();
   const [session, setSession] = useState<ProfiledSessionData | null>(null);

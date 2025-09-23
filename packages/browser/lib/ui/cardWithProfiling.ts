@@ -172,7 +172,10 @@ export default class CardWithProfiling {
     return this;
   }
 
-  on<T extends keyof CardWithProfilingEvents>(event: T, callback: CardWithProfilingEvents[T]) {
+  on<T extends keyof CardWithProfilingEvents>(
+    event: T,
+    callback: CardWithProfilingEvents[T]
+  ) {
     return this.#events.on(event, callback);
   }
 

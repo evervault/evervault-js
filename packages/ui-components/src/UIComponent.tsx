@@ -1,6 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Card } from "./Card";
-import { CardWithProfiling, CardWithProfilingConfig } from "./CardWithProfiling";
+import {
+  CardWithProfiling,
+  CardWithProfilingConfig,
+} from "./CardWithProfiling";
 import { Form } from "./Form";
 import { FormConfig } from "./Form/types";
 import { Pin } from "./Pin";
@@ -124,7 +127,11 @@ export function UIComponent() {
   }
 
   if (component === "ThreeDSecureWithProfiling") {
-    return <ThreeDSecureWithProfiling config={config as ThreeDSecureWithProfilingConfig} />;
+    return (
+      <ThreeDSecureWithProfiling
+        config={config as ThreeDSecureWithProfilingConfig}
+      />
+    );
   }
 
   if (component === "GooglePay") {

@@ -91,7 +91,7 @@ function isComplete(
 
 export async function swipePayload(
   ev: PromisifiedEvervaultClient,
-  values: MagStripeData,
+  values: MagStripeData
 ): Promise<SwipedCard> {
   const { brand, localBrands, bin, lastFour } = validateNumber(values.number);
 

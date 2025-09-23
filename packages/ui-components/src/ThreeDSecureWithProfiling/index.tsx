@@ -15,10 +15,10 @@ function defaultSize(): { width: string; height: string } {
   return { width: "500px", height: "600px" };
 }
 
-export function ThreeDSecureWithProfiling({ 
-  config 
-}: { 
-  config: ThreeDSecureWithProfilingConfig 
+export function ThreeDSecureWithProfiling({
+  config,
+}: {
+  config: ThreeDSecureWithProfilingConfig;
 }) {
   const { send, on } = useThreeDSMessaging();
   const container = useRef<HTMLDivElement>(null);
@@ -74,14 +74,13 @@ export function ThreeDSecureWithProfiling({
   }, [error, send]);
 
   const showLoading = !session || !challengeFrameReady;
-  const showChallenge = session?.nextAction?.type === "challenge" && !failOnChallenge;
+  const showChallenge =
+    session?.nextAction?.type === "challenge" && !failOnChallenge;
 
   return (
     <Overlay enabled={config.isOverlay} onCancel={handleCancel}>
       <div ref={container} style={size}>
-        {showLoading && (
-          <ThreeDSecureLoading session={config.session} />
-        )}
+        {showLoading && <ThreeDSecureLoading session={config.session} />}
 
         {showChallenge && (
           <ChallengeFrame

@@ -50,7 +50,6 @@ export default class UIComponents {
     return new ThreeDSecure(this.client, session, opts);
   }
 
-
   threeDSecureWithProfiling(session: string, opts?: ThreeDSecureOptions) {
     return new ThreeDSecureWithProfiling(this.client, session, opts);
   }

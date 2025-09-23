@@ -53,13 +53,13 @@ async function createProfilingSession(
     if (response.status === 429) {
       throw new Error("Too many profiling requests. Please try again later.");
     }
-    
+
     const errorText = await response.text().catch(() => "Unknown error");
     throw new Error(`Failed to create profiling session: ${errorText}`);
   }
 
   const data = await response.json();
-  
+
   // Validate response structure
   if (!data.id || !data.nextAction) {
     throw new Error("Invalid profiling session response from server");
@@ -79,65 +79,74 @@ async function createProfilingSession(
   };
 }
 
-export function useEarlyProfiling(options: UseEarlyProfilingOptions): UseEarlyProfilingReturn {
+export function useEarlyProfiling(
+  options: UseEarlyProfilingOptions
+): UseEarlyProfilingReturn {
   const { enabled, onError } = options;
   const { app } = useSearchParams();
-  
-  const [profilingSession, setProfilingSession] = useState<ProfilingSession | null>(null);
+
+  const [profilingSession, setProfilingSession] =
+    useState<ProfilingSession | null>(null);
   const [profilingError, setProfilingError] = useState<Error | null>(null);
   const [isProfilingActive, setIsProfilingActive] = useState(false);
-  
+
   const profiledBins = useRef<Set<string>>(new Set());
   const isInitiatingProfiling = useRef(false);
 
-  const shouldStartProfiling = useCallback((cardNumber: string): boolean => {
-    if (!enabled || !app) return false;
-    
-    const cleanNumber = cardNumber.replace(/\D/g, '');
-    
-    // Need at least 6 digits for BIN identification
-    if (cleanNumber.length < 6) return false;
-    
-    const bin = cleanNumber.substring(0, 10);
-    
-    // Don't profile the same BIN twice
-    if (profiledBins.current.has(bin)) return false;
-    
-    // Don't start if already profiling
-    if (isProfilingActive || isInitiatingProfiling.current) return false;
-    
-    return true;
-  }, [enabled, app, isProfilingActive]);
+  const shouldStartProfiling = useCallback(
+    (cardNumber: string): boolean => {
+      if (!enabled || !app) return false;
 
-  const startProfiling = useCallback(async (cardNumber: string): Promise<void> => {
-    if (!enabled || !app || isInitiatingProfiling.current) return;
-    
-    const cleanNumber = cardNumber.replace(/\D/g, '');
-    const bin = cleanNumber.substring(0, 6);
-    
-    if (profiledBins.current.has(bin)) return;
-    
-    isInitiatingProfiling.current = true;
-    setIsProfilingActive(true);
-    setProfilingError(null);
-    
-    try {
-      const browserInfo = getBrowserInfo();
-      const session = await createProfilingSession(app, bin, browserInfo);
-      
-      profiledBins.current.add(bin);
-      setProfilingSession(session);
-      
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error("Unknown profiling error");
-      setProfilingError(err);
-      setIsProfilingActive(false);
-      onError?.(err);
-    } finally {
-      isInitiatingProfiling.current = false;
-    }
-  }, [enabled, app, onError]);
-  
+      const cleanNumber = cardNumber.replace(/\D/g, "");
+
+      // Need at least 6 digits for BIN identification
+      if (cleanNumber.length < 6) return false;
+
+      const bin = cleanNumber.substring(0, 10);
+
+      // Don't profile the same BIN twice
+      if (profiledBins.current.has(bin)) return false;
+
+      // Don't start if already profiling
+      if (isProfilingActive || isInitiatingProfiling.current) return false;
+
+      return true;
+    },
+    [enabled, app, isProfilingActive]
+  );
+
+  const startProfiling = useCallback(
+    async (cardNumber: string): Promise<void> => {
+      if (!enabled || !app || isInitiatingProfiling.current) return;
+
+      const cleanNumber = cardNumber.replace(/\D/g, "");
+      const bin = cleanNumber.substring(0, 6);
+
+      if (profiledBins.current.has(bin)) return;
+
+      isInitiatingProfiling.current = true;
+      setIsProfilingActive(true);
+      setProfilingError(null);
+
+      try {
+        const browserInfo = getBrowserInfo();
+        const session = await createProfilingSession(app, bin, browserInfo);
+
+        profiledBins.current.add(bin);
+        setProfilingSession(session);
+      } catch (error) {
+        const err =
+          error instanceof Error ? error : new Error("Unknown profiling error");
+        setProfilingError(err);
+        setIsProfilingActive(false);
+        onError?.(err);
+      } finally {
+        isInitiatingProfiling.current = false;
+      }
+    },
+    [enabled, app, onError]
+  );
+
   return {
     shouldStartProfiling,
     startProfiling,

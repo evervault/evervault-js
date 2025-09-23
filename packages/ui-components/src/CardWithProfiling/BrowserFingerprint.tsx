@@ -43,9 +43,9 @@ function postRedirectFrame(
 }
 
 async function updateProfilingSession(
-  appId: string, 
-  sessionId: string, 
-  result: "complete" | "timeout",
+  appId: string,
+  sessionId: string,
+  result: "complete" | "timeout"
 ): Promise<void> {
   const payload = {
     browserFingerprint: result,
@@ -61,7 +61,9 @@ async function updateProfilingSession(
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to update profiling session: ${response.statusText}`);
+    throw new Error(
+      `Failed to update profiling session: ${response.statusText}`
+    );
   }
 }
 
@@ -71,39 +73,48 @@ export function BrowserFingerprint({
 }: BrowserFingerprintProps) {
   const frame = useRef<HTMLIFrameElement>();
   const { app } = useSearchParams();
-  
+
   const frameRef = useCallback(
     (node: HTMLIFrameElement) => {
       if (node && !frame.current) {
         frame.current = node;
-        
+
         // Set a unique name for the frame
         node.name = `profiling_frame_${session.sessionId}`;
-        
+
         // Post the profiling data to the issuer's endpoint
         try {
           postRedirectFrame(node, session.nextAction.url, {
             threeDSMethodData: session.nextAction.data,
           });
         } catch (error) {
-          onError(error instanceof Error ? error : new Error("Failed to initialize profiling frame"));
+          onError(
+            error instanceof Error
+              ? error
+              : new Error("Failed to initialize profiling frame")
+          );
         }
       }
     },
     [session, onError]
   );
 
-  const handleProfilingComplete = useCallback(async (
-    result: "complete" | "timeout", 
-  ) => {
-    try {
-      if (app) {
-        await updateProfilingSession(app, session.sessionId, result);
+  const handleProfilingComplete = useCallback(
+    async (result: "complete" | "timeout") => {
+      try {
+        if (app) {
+          await updateProfilingSession(app, session.sessionId, result);
+        }
+      } catch (error) {
+        onError(
+          error instanceof Error
+            ? error
+            : new Error("Failed to update profiling session")
+        );
       }
-    } catch (error) {
-      onError(error instanceof Error ? error : new Error("Failed to update profiling session"));
-    }
-  }, [app, session.sessionId, onError]);
+    },
+    [app, session.sessionId, onError]
+  );
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -111,9 +122,9 @@ export function BrowserFingerprint({
       void handleProfilingComplete("timeout");
     }, PROFILING_TIMEOUT);
     const messageListener = () => {
-        clearTimeout(timeout);
-        window.removeEventListener("message", messageListener);
-        void handleProfilingComplete("complete");
+      clearTimeout(timeout);
+      window.removeEventListener("message", messageListener);
+      void handleProfilingComplete("complete");
     };
 
     window.addEventListener("message", messageListener);

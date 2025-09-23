@@ -38,7 +38,11 @@ export interface CardWithProfilingConfig extends CardConfig {
   onProfilingError?: (error: unknown) => void;
 }
 
-export function CardWithProfiling({ config }: { config: CardWithProfilingConfig }) {
+export function CardWithProfiling({
+  config,
+}: {
+  config: CardWithProfilingConfig;
+}) {
   const cvc = useRef<HTMLInputElement | null>(null);
   const { on, send } = useMessaging<
     CardFrameHostMessages,
@@ -142,9 +146,9 @@ export function CardWithProfiling({ config }: { config: CardWithProfilingConfig 
     onChange: (formState) => {
       const triggerChange = async () => {
         if (!ev) return;
-        
+
         // Check if we should start profiling based on card number length (6+ digits)
-        const cardNumber = formState.values.number.replace(/\D/g, '');
+        const cardNumber = formState.values.number.replace(/\D/g, "");
         if (shouldStartProfiling(cardNumber)) {
           await startProfiling(cardNumber);
         }
@@ -365,7 +369,7 @@ export function CardWithProfiling({ config }: { config: CardWithProfilingConfig 
 
       {/* Hidden profiling iframe */}
       {profilingSession && (
-        <BrowserFingerprint 
+        <BrowserFingerprint
           session={profilingSession}
           onError={(error) => {
             console.warn("3DS profiling failed:", error);
@@ -374,7 +378,7 @@ export function CardWithProfiling({ config }: { config: CardWithProfilingConfig 
       )}
 
       {profilingError && (
-        <div style={{ display: 'none' }} data-testid="profiling-error">
+        <div style={{ display: "none" }} data-testid="profiling-error">
           {profilingError.message}
         </div>
       )}
