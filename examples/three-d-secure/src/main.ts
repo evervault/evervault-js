@@ -17,7 +17,7 @@ const evervault = await loadEvervault(
 // First we mount a card UI Component to safely collect the users
 // payment details.
 const theme = evervault.ui.themes.clean();
-const card = evervault.ui.card({ theme });
+const card = evervault.ui.cardWithProfiling({ theme });
 card.mount("#form");
 
 // Handle the purchase button click event
@@ -38,6 +38,7 @@ async function handleSubmit() {
       number: card.values.card.number,
       expiry: card.values.card.expiry,
       cvc: card.values.card.cvc,
+      fingerprintId: card.values.fingerprintId,
     }),
   });
 
@@ -51,7 +52,7 @@ async function handleSubmit() {
 
   // Once a 3DS session has be initiated we can use the session ID to create
   // a 3DS UI Component to handle the 3DS process.
-  const tds = evervault.ui.threeDSecure(session);
+  const tds = evervault.ui.threeDSecureWithProfiling(session);
 
   // The 'success' event is emitted when the 3DS process has finished successfully
   tds.on("success", () => {

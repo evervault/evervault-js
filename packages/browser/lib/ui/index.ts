@@ -15,6 +15,8 @@ import type {
 import { Transaction } from "../resources/transaction";
 import GooglePay from "./googlePay";
 import ApplePayButton, { ApplePayButtonOptions } from "./ApplePay/index";
+import CardWithProfiling from "./cardWithProfiling";
+import ThreeDSecureWithProfiling from "./threeDSecureWithProfiling";
 
 export default class UIComponents {
   client: EvervaultClient;
@@ -26,6 +28,10 @@ export default class UIComponents {
 
   card(opts?: CardOptions) {
     return new Card(this.client, opts);
+  }
+
+  cardWithProfiling(opts?: CardOptions) {
+    return new CardWithProfiling(this.client, opts);
   }
 
   pin(opts?: PinOptions) {
@@ -42,6 +48,11 @@ export default class UIComponents {
 
   threeDSecure(session: string, opts?: ThreeDSecureOptions) {
     return new ThreeDSecure(this.client, session, opts);
+  }
+
+
+  threeDSecureWithProfiling(session: string, opts?: ThreeDSecureOptions) {
+    return new ThreeDSecureWithProfiling(this.client, session, opts);
   }
 
   googlePay(tx: Transaction, opts: GooglePayOptions) {
