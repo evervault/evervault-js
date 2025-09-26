@@ -1,5 +1,11 @@
 # @evervault/js
 
+## 2.6.0
+
+### Minor Changes
+
+- 1e3cd99: Bugfix: GooglePay locale is not passed to the PaymentsClient
+
 ## 2.5.0
 
 ### Minor Changes
