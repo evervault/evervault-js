@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.35.0
+
+### Minor Changes
+
+- 1e3cd99: Bugfix: GooglePay locale is not passed to the PaymentsClient
+
 ## 1.34.2
 
 ### Patch Changes
