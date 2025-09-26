@@ -115,6 +115,7 @@ export function GooglePay({ config }: GooglePayProps) {
         const paymentRequest = buildPaymentRequest(config, merchant);
         await paymentsClient.isReadyToPay(paymentRequest);
         const btn = paymentsClient.createButton({
+          buttonLocale: config.locale || "en",
           buttonType: config.type || "plain",
           buttonColor: config.color || "black",
           buttonRadius: config.borderRadius || 4,
