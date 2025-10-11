@@ -7,6 +7,7 @@ import { CardExample } from "@/src/screens/Card";
 import { ThreeDSecureExample } from "@/src/screens/ThreeDSecure";
 import { Image, ImageSourcePropType } from "react-native";
 import { EncryptExample } from "@/src/screens/Encrypt";
+import { PayExample } from "@/src/screens/Pay";
 
 function tabBarIcon(source: ImageSourcePropType) {
   return function TabBarIcon({ color, size }: { color: string; size: number }) {
@@ -30,6 +31,15 @@ const Tabs = createBottomTabNavigator({
         tabBarIcon: tabBarIcon(
           require("@/assets/images/icons/credit-card.png")
         ),
+      },
+    },
+
+    Pay: {
+      screen: PayExample,
+      options: {
+        headerShown: false,
+        title: "Pay",
+        tabBarIcon: tabBarIcon(require("@/assets/images/icons/smartphone.png")),
       },
     },
 

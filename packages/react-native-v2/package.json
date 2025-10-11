@@ -58,10 +58,18 @@
   },
   "codegenConfig": {
     "name": "NativeEvervaultSpec",
-    "type": "modules",
+    "type": "all",
     "jsSrcsDir": "src",
     "android": {
       "javaPackageName": "com.nativeevervault"
+    },
+    "ios": {
+      "componentProvider": {
+        "ApplePayButtonComponentView": "ApplePayButtonComponentView"
+      },
+      "modulesProvider": {
+        "NativeEvervault": "NativeEvervault"
+      }
     }
   },
   "dependencies": {
