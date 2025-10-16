@@ -31,6 +31,7 @@ const google = evervault.ui.googlePay(transaction, {
     console.log("Google Pay data", data);
     await new Promise((resolve) => setTimeout(resolve, 2000));
   },
+  buttonSize: { width: "240px", height: "40px" }
 });
 
 google.on("success", (data) => {

@@ -157,8 +157,8 @@ export function GooglePay({ config }: GooglePayProps) {
 
   const containerStyle: CSSProperties = {
     position: "relative",
-    width: "100vw",
-    height: "100vh",
+    width: config.buttonSize?.width || "100vw",
+    height: config.buttonSize?.height || "100vh",
     display: "flex",
   };
 
