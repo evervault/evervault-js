@@ -20,8 +20,6 @@ interface FrameOptions {
   size?: {
     width: string;
     height: string;
-    minWidth?: string;
-    minHeight?: string;
   };
 }
 
@@ -70,27 +68,10 @@ export class EvervaultFrame<
     }
   }
 
-  setSize(size: {
-    width: string;
-    height: string;
-    minWidth?: string;
-    minHeight?: string;
-  }) {
+  setSize(size: { width: string; height: string }) {
     this.#size = size;
     this.iframe.style.width = size.width;
     this.iframe.style.height = size.height;
-
-    if (size.minWidth) {
-      this.iframe.style.minWidth = size.minWidth;
-    } else {
-      this.iframe.style.minWidth = "";
-    }
-
-    if (size.minHeight) {
-      this.iframe.style.minHeight = size.minHeight;
-    } else {
-      this.iframe.style.minHeight = "";
-    }
   }
 
   // After instantiating the EvervaultFrame class, it needs to be mounted
