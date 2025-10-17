@@ -5,4 +5,4 @@
 "types": minor
 ---
 
-feat: Add button size parameter
+feat: track min-width and min-height of GPay button
