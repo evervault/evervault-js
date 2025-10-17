@@ -134,13 +134,35 @@ export function GooglePay({ config }: GooglePayProps) {
           },
         });
 
-        container.current?.appendChild(btn);
-
         if (container.current) {
+          container.current.appendChild(btn);
+
           setSize({
             width: container.current.offsetWidth,
             height: container.current.offsetHeight,
           });
+
+          const gpayButton = btn.querySelector("button");
+          if (gpayButton) {
+            const minSize: { minWidth?: number; minHeight?: number } = {};
+            const computedStyle = getComputedStyle(gpayButton);
+            if (computedStyle.minWidth) {
+              const minWidth = Number.parseFloat(computedStyle.minWidth);
+              if (!Number.isNaN(minWidth)) {
+                minSize.minWidth = minWidth;
+              }
+            }
+            if (computedStyle.minHeight) {
+              const minHeight = Number.parseFloat(computedStyle.minHeight);
+              if (!Number.isNaN(minHeight)) {
+                minSize.minHeight = minHeight;
+              }
+            }
+            setSize({
+              height: container.current.offsetHeight,
+              ...minSize,
+            });
+          }
         }
       } catch (err) {
         console.log("cancelled");
@@ -157,8 +179,8 @@ export function GooglePay({ config }: GooglePayProps) {
 
   const containerStyle: CSSProperties = {
     position: "relative",
-    width: config.buttonSize?.width || "100vw",
-    height: config.buttonSize?.height || "100vh",
+    width: "100vw",
+    height: "100vh",
     display: "flex",
   };
 

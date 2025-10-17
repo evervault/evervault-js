@@ -1,7 +1,6 @@
 import {
   GooglePayBillingAddressConfig,
   GooglePayButtonColor,
-  GooglePayButtonSize,
   GooglePayButtonType,
   TransactionDetailsWithDomain,
 } from "types";
@@ -15,5 +14,4 @@ export interface GooglePayConfig {
   allowedAuthMethods?: string[];
   allowedCardNetworks?: string[];
   billingAddress?: GooglePayBillingAddressConfig;
-  buttonSize?: GooglePayButtonSize;
 }

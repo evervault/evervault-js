@@ -145,7 +145,12 @@ export interface ComponentError {
 
 export interface EvervaultFrameClientMessages {
   EV_ERROR: ComponentError | undefined;
-  EV_RESIZE: { height: number; width?: number };
+  EV_RESIZE: {
+    height: number;
+    width?: number;
+    minWidth?: number;
+    minHeight?: number;
+  };
   EV_FRAME_READY: undefined;
   EV_FRAME_HANDSHAKE: undefined;
 }
@@ -284,6 +289,7 @@ export interface ApplePayClientMessages extends EvervaultFrameClientMessages {
 }
 
 export type GooglePayButtonType =
+  | "short"
   | "book"
   | "buy"
   | "checkout"
@@ -327,11 +333,6 @@ export type GooglePayButtonLocale =
   | "tr"
   | "uk"
   | "zh";
-
-export interface GooglePayButtonSize {
-  width: string;
-  height: string;
-}
 
 interface PaymentToken<P> {
   tokenServiceProvider: P;

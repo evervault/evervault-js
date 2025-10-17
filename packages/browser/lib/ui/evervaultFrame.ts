@@ -17,7 +17,12 @@ interface FrameConfiguration {
 
 interface FrameOptions {
   allow?: string;
-  size?: { width: string; height: string };
+  size?: {
+    width: string;
+    height: string;
+    minWidth?: string;
+    minHeight?: string;
+  };
 }
 
 // The EvervaultFrame class is responsible for creating and managing the iframe
@@ -65,10 +70,27 @@ export class EvervaultFrame<
     }
   }
 
-  setSize(size: { width: string; height: string }) {
+  setSize(size: {
+    width: string;
+    height: string;
+    minWidth?: string;
+    minHeight?: string;
+  }) {
     this.#size = size;
     this.iframe.style.width = size.width;
     this.iframe.style.height = size.height;
+
+    if (size.minWidth) {
+      this.iframe.style.minWidth = size.minWidth;
+    } else {
+      this.iframe.style.minWidth = "";
+    }
+
+    if (size.minHeight) {
+      this.iframe.style.minHeight = size.minHeight;
+    } else {
+      this.iframe.style.minHeight = "";
+    }
   }
 
   // After instantiating the EvervaultFrame class, it needs to be mounted
@@ -214,10 +236,14 @@ export class EvervaultFrame<
   }
 
   #setupListeners() {
-    this.on("EV_RESIZE", ({ height, width }) => {
-      if (!this.iframe || this.#size) return;
-      this.iframe.style.height = `${height}px`;
-      if (width) this.iframe.style.width = `${width}px`;
+    this.on("EV_RESIZE", ({ height, width, minWidth, minHeight }) => {
+      if (!this.iframe) return;
+      if (!this.#size) {
+        this.iframe.style.height = `${height}px`;
+        if (width) this.iframe.style.width = `${width}px`;
+      }
+      if (minWidth) this.iframe.style.minWidth = `${minWidth}px`;
+      if (minHeight) this.iframe.style.minHeight = `${minHeight}px`;
     });
   }
 }
