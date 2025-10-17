@@ -402,7 +402,6 @@ export interface GooglePayOptions {
   allowedAuthMethods?: google.payments.api.CardAuthMethod[];
   allowedCardNetworks?: google.payments.api.CardNetwork[];
   billingAddress?: GooglePayBillingAddressConfig;
-  buttonSize?: GooglePayButtonSize;
 }
 
 export type ApplePayButtonType =
