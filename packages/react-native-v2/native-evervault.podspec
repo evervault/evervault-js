@@ -17,4 +17,6 @@ Pod::Spec.new do |s|
 
   install_modules_dependencies(s)
   s.dependency "Evervault", '~> 0.3.2'
+  s.dependency "EvervaultPayment"
+
 end

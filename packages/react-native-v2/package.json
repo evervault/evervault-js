@@ -4,13 +4,15 @@
   "version": "2.5.1",
   "source": "./src/index.ts",
   "main": "./build/cjs/index.js",
+  "react-native": "./build/esm/index.js",
   "module": "./build/esm/index.js",
   "types": "./build/esm/index.d.ts",
   "files": [
     "build",
     "ios",
     "android",
-    "native-evervault.podspec"
+    "native-evervault.podspec",
+    "!build/**/*.map"
   ],
   "repository": {
     "type": "git",
@@ -58,7 +60,7 @@
   },
   "codegenConfig": {
     "name": "NativeEvervaultSpec",
-    "type": "modules",
+    "type": "all",
     "jsSrcsDir": "src",
     "android": {
       "javaPackageName": "com.nativeevervault"
