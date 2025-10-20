@@ -1,5 +1,19 @@
 # @evervault/ui-components
 
+## 1.36.0
+
+### Minor Changes
+
+- a128f57: feat: track min-width and min-height of GPay button
+
+### Patch Changes
+
+- Updated dependencies [a128f57]
+  - types@0.19.0
+  - @evervault/react@2.22.0
+  - @evervault/card-validator@1.5.0
+  - shared@1.1.16
+
 ## 1.35.0
 
 ### Minor Changes

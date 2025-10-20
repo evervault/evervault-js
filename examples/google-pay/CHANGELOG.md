@@ -1,5 +1,15 @@
 # google-pay
 
+## 0.2.0
+
+### Minor Changes
+
+- a128f57: feat: track min-width and min-height of GPay button
+
+### Patch Changes
+
+- @evervault/js@2.6.0
+
 ## 0.1.2
 
 ### Patch Changes

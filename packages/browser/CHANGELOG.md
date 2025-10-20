@@ -1,5 +1,17 @@
 # @evervault/browser
 
+## 2.49.0
+
+### Minor Changes
+
+- a128f57: feat: track min-width and min-height of GPay button
+
+### Patch Changes
+
+- Updated dependencies [a128f57]
+  - types@0.19.0
+  - themes@0.1.19
+
 ## 2.48.1
 
 ### Patch Changes
