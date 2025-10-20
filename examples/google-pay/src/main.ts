@@ -22,11 +22,11 @@ const transaction = evervault.transactions.create({
 });
 
 const google = evervault.ui.googlePay(transaction, {
-  type: "pay",
+  type: "short",
   locale: "en",
-  size: { width: "100%", height: "80px" },
+  size: { width: "100%", height: "40px" },
   borderRadius: 10,
-  allowedCardNetworks: ["VISA", "MASTERCARD"], 
+  allowedCardNetworks: ["VISA", "MASTERCARD"],
   process: async (data, {}) => {
     console.log("Google Pay data", data);
     await new Promise((resolve) => setTimeout(resolve, 2000));

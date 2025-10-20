@@ -5,7 +5,12 @@ export function resize() {
   setSize({ height });
 }
 
-export function setSize(size: { width?: number; height: number }) {
+export function setSize(size: {
+  width?: number;
+  height: number;
+  minWidth?: number;
+  minHeight?: number;
+}) {
   const { location } = window;
   const searchParams = new URLSearchParams(location.search);
   const frame = searchParams.get("id");

@@ -17,7 +17,10 @@ interface FrameConfiguration {
 
 interface FrameOptions {
   allow?: string;
-  size?: { width: string; height: string };
+  size?: {
+    width: string;
+    height: string;
+  };
 }
 
 // The EvervaultFrame class is responsible for creating and managing the iframe
@@ -214,10 +217,14 @@ export class EvervaultFrame<
   }
 
   #setupListeners() {
-    this.on("EV_RESIZE", ({ height, width }) => {
-      if (!this.iframe || this.#size) return;
-      this.iframe.style.height = `${height}px`;
-      if (width) this.iframe.style.width = `${width}px`;
+    this.on("EV_RESIZE", ({ height, width, minWidth, minHeight }) => {
+      if (!this.iframe) return;
+      if (!this.#size) {
+        this.iframe.style.height = `${height}px`;
+        if (width) this.iframe.style.width = `${width}px`;
+      }
+      if (minWidth) this.iframe.style.minWidth = `${minWidth}px`;
+      if (minHeight) this.iframe.style.minHeight = `${minHeight}px`;
     });
   }
 }
