@@ -1,5 +1,11 @@
 # types
 
+## 0.19.0
+
+### Minor Changes
+
+- a128f57: feat: track min-width and min-height of GPay button
+
 ## 0.18.0
 
 ### Minor Changes
