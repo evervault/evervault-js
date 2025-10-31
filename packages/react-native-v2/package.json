@@ -35,9 +35,9 @@
     "test:watch": "vitest --watch"
   },
   "peerDependencies": {
-    "react": "*",
-    "react-native": "*",
-    "react-native-webview": "*"
+    "react": ">=18.0.0",
+    "react-native": ">=0.76.0",
+    "react-native-webview": ">=13.0.0"
   },
   "devDependencies": {
     "@react-native-community/cli": "*",
