@@ -1,5 +1,11 @@
 # @evervault/react-native
 
+## 2.6.0
+
+### Minor Changes
+
+- ca1a25b: Added explicit peer dependency versions
+
 ## 2.5.1
 
 ### Patch Changes
