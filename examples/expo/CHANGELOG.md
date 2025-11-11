@@ -1,5 +1,12 @@
 # evervault-expo-example
 
+## 1.0.10
+
+### Patch Changes
+
+- Updated dependencies [d6e6a06]
+  - @evervault/react-native@2.6.1
+
 ## 1.0.9
 
 ### Patch Changes

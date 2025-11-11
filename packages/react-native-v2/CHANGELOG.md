@@ -1,5 +1,11 @@
 # @evervault/react-native
 
+## 2.6.1
+
+### Patch Changes
+
+- d6e6a06: Include src directory in uploaded files
+
 ## 2.6.0
 
 ### Minor Changes
