@@ -28,7 +28,7 @@ jobs:
       publishable-packages: ${{ steps.get-publishable-packages.outputs.publishable-packages }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -124,7 +124,7 @@ jobs:
       number-of-tags-to-publish: ${{ steps.create-tags.outputs.number-of-tags }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ssh-key: "${{ secrets.COMMIT_KEY }}"
       - name: Set up Git
