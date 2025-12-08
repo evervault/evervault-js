@@ -1,5 +1,13 @@
 # @evervault/browser
 
+## 2.49.1
+
+### Patch Changes
+
+- Updated dependencies [5bd4977]
+  - types@0.20.0
+  - themes@0.1.20
+
 ## 2.49.0
 
 ### Minor Changes

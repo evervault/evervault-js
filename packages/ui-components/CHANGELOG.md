@@ -1,5 +1,19 @@
 # @evervault/ui-components
 
+## 1.37.0
+
+### Minor Changes
+
+- 5bd4977: Support custom price labels
+
+### Patch Changes
+
+- Updated dependencies [5bd4977]
+  - types@0.20.0
+  - @evervault/card-validator@1.5.0
+  - @evervault/react@2.22.0
+  - shared@1.1.17
+
 ## 1.36.0
 
 ### Minor Changes
