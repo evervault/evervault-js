@@ -1,5 +1,11 @@
 # types
 
+## 0.20.0
+
+### Minor Changes
+
+- 5bd4977: Support custom price labels
+
 ## 0.19.0
 
 ### Minor Changes
