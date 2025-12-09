@@ -1,5 +1,11 @@
 # @evervault/js
 
+## 2.7.0
+
+### Minor Changes
+
+- 68464e6: feat: support price label in Apple Pay
+
 ## 2.6.0
 
 ### Minor Changes
