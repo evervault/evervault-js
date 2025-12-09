@@ -128,7 +128,7 @@ async function createPaymentUpdate(
     })
   );
   const total = {
-    label: merchant.name,
+    label: tx.priceLabel ?? merchant.name,
     amount: {
       currency: tx.currency,
       value: (updatedTransactionConfig.amount / 100).toFixed(2),
@@ -257,7 +257,7 @@ function buildRecurringSession(
 
   const paymentDetails: PaymentDetailsInit = {
     total: {
-      label: merchant.name,
+      label: tx.priceLabel ?? merchant.name,
       amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
     },
     displayItems: lineItems,
@@ -353,7 +353,7 @@ function buildDisbursementSession(
 
   const paymentDetails = {
     total: {
-      label: merchant.name,
+      label: tx.priceLabel ?? merchant.name,
       amount: {
         value: calculatedTotal.toString(),
         currency: tx.currency,
