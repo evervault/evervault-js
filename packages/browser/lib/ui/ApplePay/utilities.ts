@@ -195,7 +195,7 @@ function buildPaymentSession(
 
   const paymentDetails: PaymentDetailsInit = {
     total: {
-      label: merchant.name,
+      label: tx.priceLabel ?? merchant.name,
       amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
     },
     displayItems: lineItems,
@@ -276,12 +276,12 @@ function buildRecurringSession(
             },
             trialBilling: tx.trialBilling
               ? {
-                  label: tx.trialBilling.label,
-                  amount: tx.trialBilling.amount,
-                  paymentTiming: "recurring",
-                  recurringPaymentStartDate:
-                    tx.trialBilling.trialPaymentStartDate,
-                }
+                label: tx.trialBilling.label,
+                amount: tx.trialBilling.amount,
+                paymentTiming: "recurring",
+                recurringPaymentStartDate:
+                  tx.trialBilling.trialPaymentStartDate,
+              }
               : undefined,
             billingAgreement: tx.billingAgreement,
             managementURL: tx.managementURL,
@@ -365,14 +365,14 @@ function buildDisbursementSession(
         data: {
           disbursementRequest: tx.requiredRecipientDetails
             ? {
-                requiredRecipientContactFields: tx.requiredRecipientDetails.map(
-                  (field) => {
-                    if (field === "address") {
-                      return "postalAddress";
-                    } else return field;
-                  }
-                ),
-              }
+              requiredRecipientContactFields: tx.requiredRecipientDetails.map(
+                (field) => {
+                  if (field === "address") {
+                    return "postalAddress";
+                  } else return field;
+                }
+              ),
+            }
             : {},
           // ORDER OF THESE IS IMPORTANT - IT BREAKS IF NOT IN THIS ORDER
           additionalLineItems: [
@@ -383,12 +383,12 @@ function buildDisbursementSession(
             ...(lineItems ? lineItems : []),
             ...(tx.instantTransfer
               ? [
-                  {
-                    label: tx.instantTransfer.label,
-                    amount: tx.instantTransfer.amount,
-                    disbursementLineItemType: "instantFundsOutFee",
-                  },
-                ]
+                {
+                  label: tx.instantTransfer.label,
+                  amount: tx.instantTransfer.amount,
+                  disbursementLineItemType: "instantFundsOutFee",
+                },
+              ]
               : []),
             {
               label: "Apple Pay Demo",
