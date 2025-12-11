@@ -363,6 +363,8 @@ export interface EncryptedDPAN<P> {
   };
   cryptogram: string;
   eci: string;
+  messageId?: string;
+  messageExpiration?: string;
 }
 
 export interface EncryptedFPAN {
@@ -376,6 +378,8 @@ export interface EncryptedFPAN {
       year: string;
     };
   };
+  messageId?: string;
+  messageExpiration?: string;
 }
 
 export type EncryptedGooglePayData = (
