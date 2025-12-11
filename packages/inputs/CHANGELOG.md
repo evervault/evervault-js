@@ -1,5 +1,11 @@
 # @evervault/inputs
 
+## 2.18.24
+
+### Patch Changes
+
+- @evervault/browser@2.50.1
+
 ## 2.18.23
 
 ### Patch Changes

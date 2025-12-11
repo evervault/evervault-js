@@ -1,5 +1,12 @@
 # example-ui-components
 
+## 0.3.5
+
+### Patch Changes
+
+- Updated dependencies [aead3ed]
+  - @evervault/js@2.8.0
+
 ## 0.3.4
 
 ### Patch Changes

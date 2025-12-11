@@ -1,5 +1,11 @@
 # @evervault/browser-e2e-tests
 
+## 1.0.18
+
+### Patch Changes
+
+- @evervault/browser@2.50.1
+
 ## 1.0.17
 
 ### Patch Changes

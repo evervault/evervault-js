@@ -1,5 +1,11 @@
 # types
 
+## 0.21.0
+
+### Minor Changes
+
+- aead3ed: expose messageId and messageExpiration fields in Google Pay response
+
 ## 0.20.0
 
 ### Minor Changes

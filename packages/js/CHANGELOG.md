@@ -1,5 +1,11 @@
 # @evervault/js
 
+## 2.8.0
+
+### Minor Changes
+
+- aead3ed: expose messageId and messageExpiration fields in Google Pay response
+
 ## 2.7.0
 
 ### Minor Changes
