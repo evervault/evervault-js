@@ -50,7 +50,7 @@ export function buildPaymentRequest(
     } as unknown as google.payments.api.MerchantInfo,
     transactionInfo: {
       totalPriceStatus: "FINAL",
-      totalPriceLabel: `Pay ${merchant.name}`,
+      totalPriceLabel: tx.priceLabel ?? `Pay ${merchant.name}`,
       totalPrice: (tx.amount / 100).toFixed(2).toString(),
       currencyCode: tx.currency,
       countryCode: tx.country,

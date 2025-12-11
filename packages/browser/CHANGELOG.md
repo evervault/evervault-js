@@ -1,5 +1,19 @@
 # @evervault/browser
 
+## 2.50.0
+
+### Minor Changes
+
+- 68464e6: feat: support price label in Apple Pay
+
+## 2.49.1
+
+### Patch Changes
+
+- Updated dependencies [5bd4977]
+  - types@0.20.0
+  - themes@0.1.20
+
 ## 2.49.0
 
 ### Minor Changes

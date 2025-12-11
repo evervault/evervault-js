@@ -538,6 +538,7 @@ interface BaseTransactionDetails {
   currency: string;
   country: string;
   merchantId: string;
+  priceLabel?: string;
   lineItems?: TransactionLineItem[];
 }
 
