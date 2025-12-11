@@ -79,6 +79,7 @@ export default class GooglePay {
 
   get config() {
     return {
+      theme: this.#options.theme,
       config: {
         transaction: this.#transaction.details,
         type: this.#options.type,
