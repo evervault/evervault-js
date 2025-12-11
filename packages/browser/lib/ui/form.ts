@@ -21,7 +21,9 @@ export default class Form {
 
   constructor(client: EvervaultClient, options?: FormOptions) {
     this.#options = options ?? {};
-    this.#frame = new EvervaultFrame(client, "Form");
+    this.#frame = new EvervaultFrame(client, "Form", {
+      colorScheme: this.#options.colorScheme,
+    });
 
     this.#frame.on("EV_FRAME_READY", () => {
       this.#events.dispatch("ready");

@@ -3,6 +3,7 @@ import { generateID, resolveSelector } from "./utils";
 import type { EvervaultFrameMessageDetail } from "./types";
 import type EvervaultClient from "../main";
 import type {
+  ColorScheme,
   EvervaultFrameClientMessages,
   EvervaultFrameHostMessages,
   SelectorType,
@@ -16,6 +17,7 @@ interface FrameConfiguration {
 }
 
 interface FrameOptions {
+  colorScheme?: ColorScheme;
   allow?: string;
   size?: {
     width: string;
@@ -49,7 +51,7 @@ export class EvervaultFrame<
     this.#client = client;
     this.iframe = document.createElement("iframe");
     this.iframe.id = this.#id;
-    this.iframe.src = this.#generateUrl(component);
+    this.iframe.src = this.#generateUrl(component, options);
     this.iframe.dataset.evervault = "component";
     this.iframe.style.height = "0";
     this.iframe.style.border = "none";
@@ -207,12 +209,15 @@ export class EvervaultFrame<
     return this.#client.config.components.url;
   }
 
-  #generateUrl(component: string) {
+  #generateUrl(component: string, options?: FrameOptions) {
     const url = new URL(this.url);
     url.searchParams.set("id", this.#id);
     url.searchParams.set("app", this.#client.config.appId);
     url.searchParams.set("team", this.#client.config.teamId);
     url.searchParams.set("component", component);
+    if (options?.colorScheme) {
+      url.searchParams.set("colorScheme", options.colorScheme);
+    }
     return url.toString();
   }
 
