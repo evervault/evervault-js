@@ -10,6 +10,15 @@ import type {
   ThemeDefinition,
 } from "types";
 
+const VALID_COLOR_SCHEMES: ColorScheme[] = [
+  "normal",
+  "light",
+  "dark",
+  "only light",
+  "only dark",
+  "light dark",
+];
+
 interface FrameConfiguration {
   theme?: ThemeDefinition;
   config?: unknown;
@@ -215,9 +224,15 @@ export class EvervaultFrame<
     url.searchParams.set("app", this.#client.config.appId);
     url.searchParams.set("team", this.#client.config.teamId);
     url.searchParams.set("component", component);
-    if (options?.colorScheme) {
+
+    // Validate the color scheme (to prevent injection) and add to search params
+    if (
+      options?.colorScheme &&
+      VALID_COLOR_SCHEMES.includes(options?.colorScheme)
+    ) {
       url.searchParams.set("colorScheme", options.colorScheme);
     }
+
     return url.toString();
   }
 
