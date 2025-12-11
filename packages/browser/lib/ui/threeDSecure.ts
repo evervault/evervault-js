@@ -36,7 +36,9 @@ export default class ThreeDSecure {
     this.#session = session;
     this.#options = options ?? {};
     this.#isOverlay = false;
-    this.#frame = new EvervaultFrame(client, "ThreeDSecure");
+    this.#frame = new EvervaultFrame(client, "ThreeDSecure", {
+      colorScheme: this.#options.colorScheme,
+    });
     this.#client = client;
 
     this.#frame.on("EV_SUCCESS", (cres) => {

@@ -28,7 +28,9 @@ export default class Pin {
 
   constructor(client: EvervaultClient, options?: PinOptions) {
     this.#options = options ?? {};
-    this.#frame = new EvervaultFrame(client, "Pin");
+    this.#frame = new EvervaultFrame(client, "Pin", {
+      colorScheme: this.#options.colorScheme,
+    });
 
     this.#frame.on("EV_CHANGE", (payload) => {
       this.values = payload;

@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title></title>
+
+    <script>
+      const search = new URLSearchParams(window.location.search);
+      const colorScheme = search.get("colorScheme");
+      if (colorScheme) {
+        document.documentElement.style.colorScheme = colorScheme;
+      }
+    </script>
   </head>
 
   <body>
