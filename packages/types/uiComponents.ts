@@ -375,6 +375,7 @@ export type EncryptedGooglePayData = (
   | EncryptedDPAN<"google">
   | EncryptedFPAN
 ) & {
+  email?: string | null;
   billingAddress?: google.payments.api.Address | null;
 };
 
@@ -392,6 +393,7 @@ export type GooglePayBillingAddressConfig =
     };
 
 export interface GooglePayOptions {
+  emailRequired?: boolean;
   process: (
     data: EncryptedGooglePayData,
     helpers: {
