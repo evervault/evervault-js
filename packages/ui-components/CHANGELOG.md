@@ -1,5 +1,15 @@
 # @evervault/ui-components
 
+## 1.37.1
+
+### Patch Changes
+
+- Updated dependencies [aead3ed]
+  - types@0.21.0
+  - @evervault/card-validator@1.5.0
+  - @evervault/react@2.22.0
+  - shared@1.1.18
+
 ## 1.37.0
 
 ### Minor Changes

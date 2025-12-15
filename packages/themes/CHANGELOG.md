@@ -1,5 +1,12 @@
 # themes
 
+## 0.1.21
+
+### Patch Changes
+
+- Updated dependencies [aead3ed]
+  - types@0.21.0
+
 ## 0.1.20
 
 ### Patch Changes

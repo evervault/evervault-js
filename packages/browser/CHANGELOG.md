@@ -1,5 +1,13 @@
 # @evervault/browser
 
+## 2.50.1
+
+### Patch Changes
+
+- Updated dependencies [aead3ed]
+  - types@0.21.0
+  - themes@0.1.21
+
 ## 2.50.0
 
 ### Minor Changes
