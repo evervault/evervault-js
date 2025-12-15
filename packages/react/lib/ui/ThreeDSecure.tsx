@@ -1,9 +1,10 @@
 import * as React from "react";
-import type { ComponentError, ThemeDefinition } from "types";
+import type { ColorScheme, ComponentError, ThemeDefinition } from "types";
 import { useEvInstance } from "../useEvInstance";
 
 export interface ThreeDSecureProps {
   session: string;
+  colorScheme?: ColorScheme;
   theme?: ThemeDefinition;
   size?: { width: string; height: string };
   onReady?: () => void;
@@ -15,6 +16,7 @@ export interface ThreeDSecureProps {
 
 export function ThreeDSecure({
   session,
+  colorScheme,
   theme,
   size,
   onReady,
@@ -27,11 +29,12 @@ export function ThreeDSecure({
 
   const config = React.useMemo(
     () => ({
+      colorScheme,
       theme,
       size,
       failOnChallenge,
     }),
-    [theme, size, failOnChallenge]
+    [colorScheme, theme, size, failOnChallenge]
   );
 
   const instance = useEvInstance({

@@ -1,9 +1,10 @@
 import type Evervault from "@evervault/browser";
 import { useCallback, useEffect, useRef } from "react";
-import { ComponentError, ThemeDefinition } from "types";
+import { ColorScheme, ComponentError, ThemeDefinition } from "types";
 import { useEvervault } from "../useEvervault";
 
 interface UseThreeDSecureOptions {
+  colorScheme?: ColorScheme;
   theme?: ThemeDefinition;
   size?: { width: string; height: string };
   failOnChallenge?: boolean | (() => boolean) | (() => Promise<boolean>);
