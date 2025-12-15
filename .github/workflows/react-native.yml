@@ -11,7 +11,7 @@ on:
 jobs:
   build_ios:
     name: Build iOS Examples
-    runs-on: macos-15
+    runs-on: macos-15-large
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -34,7 +34,7 @@ jobs:
         run: pnpm examples:expo ios:release
   build_android:
     name: Build Android Examples
-    runs-on: ubuntu-latest
+    runs-on: hackathon-large-runner-4-core
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
