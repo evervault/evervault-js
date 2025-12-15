@@ -28,6 +28,7 @@ jobs:
             ~/Library/Caches/CocoaPods
             ~/Library/Developer/Xcode/DerivedData
           key: pods-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('packages/react-native-v2/native-evervault.podspec') }}
+          restore-keys: pods
       - uses: pnpm/action-setup@v4
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
