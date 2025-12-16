@@ -59,9 +59,11 @@ jobs:
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v3   
       - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.9        
       - name: Prebuild Android
         run: pnpm examples:expo prebuild
       - name: Build Android
+        env:
+          SCCACHE_GHA_ENABLED: "true"
         working-directory: examples/expo/android
-        run: ./gradlew assembleRelease --parallel --no-daemon --build-cache
+        run: ./gradlew assembleRelease --parallel --build-cache
