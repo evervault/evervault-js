@@ -10,6 +10,7 @@ export type PinProps = PinOptions & {
 };
 
 export function Pin({
+  colorScheme,
   theme,
   autoFocus,
   mode,
@@ -23,13 +24,14 @@ export function Pin({
 
   const config = useMemo(
     () => ({
+      colorScheme,
       theme,
       length,
       autoFocus,
       mode,
       inputType,
     }),
-    [theme, length, autoFocus, mode, inputType]
+    [colorScheme, theme, length, autoFocus, mode, inputType]
   );
 
   const instance = useEvInstance({

@@ -22,6 +22,7 @@ const transaction = evervault.transactions.create({
 });
 
 const google = evervault.ui.googlePay(transaction, {
+  colorScheme: "dark",
   type: "short",
   locale: "en",
   size: { width: "100%", height: "40px" },

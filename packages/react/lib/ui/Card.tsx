@@ -7,6 +7,7 @@ import type {
   CardOptions,
   CardPayload,
   CardTranslations,
+  ColorScheme,
   FieldEvent,
   SwipedCard,
   ThemeDefinition,
@@ -20,6 +21,7 @@ export interface CardRef {
 
 export interface CardProps {
   autoFocus?: boolean;
+  colorScheme?: ColorScheme;
   theme?: ThemeDefinition;
   icons?: boolean | CardIcons;
   translations?: CardTranslations;
@@ -47,6 +49,7 @@ type CardInstance = ReturnType<EvervaultClient["ui"]["card"]>;
 
 export const Card = React.forwardRef<CardRef, CardProps>(function Card(
   {
+    colorScheme,
     theme,
     icons,
     fields,
@@ -89,6 +92,7 @@ export const Card = React.forwardRef<CardRef, CardProps>(function Card(
 
   const config = useMemo(
     () => ({
+      colorScheme,
       theme,
       icons,
       fields,
@@ -103,6 +107,7 @@ export const Card = React.forwardRef<CardRef, CardProps>(function Card(
       validation,
     }),
     [
+      colorScheme,
       theme,
       icons,
       translations,

@@ -5,6 +5,10 @@
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
+:root {
+  color-scheme: dark;
+}
+
 body {
   display: grid;
   min-height: 100vh;
@@ -15,7 +19,8 @@ body {
 .card {
   width: 400px;
   padding: 30px;
-  background: white;
+  background: black;
+  color: white;
   border-radius: 20px;
   box-shadow: 0 10px 60px rgb(0 0 0 / 0.05);
 }
@@ -30,7 +35,7 @@ body {
   max-width: 350px;
   line-height: 1.5;
   margin-bottom: 20px;
-  color: rgba(0, 0, 0, 0.6);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .button {
