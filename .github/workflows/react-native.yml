@@ -20,15 +20,6 @@ jobs:
           xcode-version: 16.4
       - name: Checkout Repo
         uses: actions/checkout@v4
-      # iOS Specific Caching
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ios/Pods
-            ~/Library/Caches/CocoaPods
-            ~/Library/Developer/Xcode/DerivedData
-          key: pods-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('packages/react-native-v2/native-evervault.podspec') }}
-          restore-keys: pods
       - uses: pnpm/action-setup@v4
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -36,7 +27,7 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "pnpm"
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline
       - name: Build dependencies
         run: pnpm build
       - name: Build iOS
@@ -54,7 +45,7 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "pnpm"
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline
       - name: Build dependencies
         run: pnpm build
       - name: Enable KVM
@@ -62,6 +53,13 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            android/.gradle
+          key: gradle-${{ hashFiles('android/**/*.gradle*', 'android/gradle.properties') }}
       - name: Build Android
         uses: reactivecircus/android-emulator-runner@v2
         with:
