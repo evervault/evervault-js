@@ -42,7 +42,7 @@ jobs:
 
   build_android:
     name: Build Android Examples
-    runs-on: ev-runner-xlarge
+    runs-on: ev-runner-x-large
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
