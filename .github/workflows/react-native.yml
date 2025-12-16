@@ -41,7 +41,7 @@ jobs:
 
   build_android:
     name: Build Android Examples
-    runs-on: ev-runner-x-large
+    runs-on: macos-15-xlarge
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
