@@ -58,8 +58,10 @@ jobs:
         run: pnpm build
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v3   
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.9
       - name: Prebuild Android
         run: pnpm examples:expo prebuild
       - name: Build Android
         working-directory: examples/expo/android
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease --parallel --no-daemon --build-cache
