@@ -34,7 +34,10 @@ jobs:
         run: pnpm examples:expo prebuild
       - name: Build iOS
         working-directory: examples/expo/ios
-        run: xcodebuild build -workspace "evervaultexpoexample.xcworkspace" -scheme "evervaultexpoexample" -configuration Release -sdk iphonesimulator
+        run: |
+          # Set pipefail so we capture errors correctly.
+          set -o pipefail
+          xcodebuild build -workspace "evervaultexpoexample.xcworkspace" -scheme "evervaultexpoexample" -configuration Release -sdk iphonesimulator | xcpretty
 
   build_android:
     name: Build Android Examples
