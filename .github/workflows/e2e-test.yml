@@ -54,7 +54,7 @@ jobs:
           - total-shards: 2
     timeout-minutes: 25
     runs-on: ubuntu-latest
-    image: mcr.microsoft.com/playwright:v1.49.1-noble
+    container: "mcr.microsoft.com/playwright:v1.49.1-noble"
     env:
       EV_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
       EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
