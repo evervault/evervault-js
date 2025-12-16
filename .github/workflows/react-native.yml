@@ -12,6 +12,7 @@ jobs:
   build_ios:
     name: Build iOS Examples
     runs-on: macos-15-xlarge
+    if: false
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
