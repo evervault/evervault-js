@@ -34,7 +34,7 @@ jobs:
         run: pnpm examples:expo prebuild
       - name: Build iOS
         working-directory: examples/expo/ios
-        run: xcodebuild build -scheme "evervaultexpoexample" -configuration Release -sdk iphonesimulator | xcpretty
+        run: xcodebuild build -workspace "evervaultexpoexample.xcworkspace" -scheme "evervaultexpoexample" -configuration Release -sdk iphonesimulator
 
   build_android:
     name: Build Android Examples
