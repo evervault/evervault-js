@@ -11,7 +11,7 @@ on:
 jobs:
   build_ios:
     name: Build iOS Examples
-    runs-on: macos-15-large
+    runs-on: macos-15-xlarge
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -55,20 +55,18 @@ jobs:
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Build dependencies
         run: pnpm build
-      # - name: Enable KVM
-      #   run: |
-      #     echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-      #     sudo udevadm control --reload-rules
-      #     sudo udevadm trigger --name-match=kvm
-      # - uses: actions/cache@v4
-      #   with:
-      #     path: |
-      #       ~/.gradle/caches
-      #       ~/.gradle/wrapper
-      #       android/.gradle
-      #     key: gradle-${{ hashFiles('android/**/*.gradle*', 'android/gradle.properties') }}
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@v3
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
       - name: Prebuild Android
         run: pnpm examples:expo prebuild
       - name: Build Android
-        working-directory: examples/expo/android
-        run: ./gradlew assembleRelease
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          disable-animations: true
+          script: cd examples/expo/android && ./gradlew assembleRelease
