@@ -18,6 +18,10 @@ on:
         description: "Whether to run code coverage checks or not"
         required: true
         type: boolean
+      update-screenshots:
+        description: "Whether to update screenshots or not"
+        required: false
+        type: boolean
 jobs:
   get-e2e-targets:
     name: "Build list of E2E test projects"
@@ -44,18 +48,20 @@ jobs:
           echo "e2e-test-projects=$E2E_TEST_PROJECTS" >> $GITHUB_OUTPUT
   # The e2e tests run for quite a long time. Until we can accurately select the appropriate tests to run, we're running them in parallel (2 jobs per project, each with 3-4 worker processes.)
   e2e-test:
-    name: "Run E2E Tests for ${{ matrix.project }} (Shard ${{ matrix.shard }}/${{ matrix.total-shards }})"
+    name: "Run E2E Tests for ${{ matrix.project }} (Shard ${{ matrix.shard }}/${{ matrix.total-shards }}) on ${{ matrix.os }}"
     needs: [get-e2e-targets]
     strategy:
       matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
         project: ${{ fromJson(needs.get-e2e-targets.outputs.e2e-test-projects) }}
         shard: [1, 2]
         include:
           - total-shards: 2
     timeout-minutes: 25
-    runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/playwright:v1.57.0-noble
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+      pull-requests: write
     env:
       EV_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
       EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
@@ -71,6 +77,9 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          ssh-key: "${{ secrets.COMMIT_KEY }}"
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
@@ -81,28 +90,24 @@ jobs:
           cache: "pnpm"
       - name: Install deps
         run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Install Playwright
+        run: pnpm playwright install --with-deps
       - name: Build ${{ matrix.project }}
         run: pnpm run -r --filter="${{ matrix.project }}..." --if-present build
       - name: E2E test
-        id: run-e2e-test
+        if: ${{ inputs.update-screenshots == false }}
         run: pnpm run --filter="${{ matrix.project }}" --if-present e2e:test --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
-      - name: Get path to package
-        if: ${{ failure() && steps.run-e2e-test.outcome == 'failure' }}
-        id: get-path-to-package
-        run: |-
-          PACKAGE_PATH=$(pnpm m ls --depth=1 --json | jq -r '.[] | select(.name == "${{ matrix.project }}") | .path')
-          echo "package-path=$PACKAGE_PATH" >> $GITHUB_OUTPUT
-      - name: Normalize package name
-        if: ${{ failure() && steps.run-e2e-test.outcome == 'failure' }}
-        id: normalize-package-name
-        run: |-
-          NORMALIZED_NAME=$(echo "${{ matrix.project }}" | sed -e 's/@//g' -e 's/[/]/-/g')
-          echo "normalized-name=$NORMALIZED_NAME" >> $GITHUB_OUTPUT
-      - name: Upload report on failure
-        if: ${{ failure() && steps.run-e2e-test.outcome == 'failure' }}
-        uses: actions/upload-artifact@v4
-        with:
-          path: |
-            ${{ steps.get-path-to-package.outputs.package-path }}/playwright-report
-            ${{ steps.get-path-to-package.outputs.package-path }}/test-results
-          name: ${{ steps.normalize-package-name.outputs.normalized-name }}-report-${{ matrix.shard }}
+      - name: Update Screenshots
+        if: ${{ inputs.update-screenshots == true }}
+        run: pnpm run --filter="${{ matrix.project }}" --if-present e2e:test --shard=${{ matrix.shard }}/${{ matrix.total-shards }} --update-screenshots
+      - name: Set up Git
+        if: ${{ inputs.update-screenshots == true }}
+        run: |
+          git config user.email "e2e-tests@evervault.com"
+          git config user.name "E2E Tests"
+      - name: Commit and Push changes
+        if: ${{ inputs.update-screenshots == true }}
+        run: |
+          git add -A
+          git commit -m "[Screenshots] ${{ matrix.project }} (Shard ${{ matrix.shard }}/${{ matrix.total-shards }})"
+          git push origin HEAD:${{ github.ref }} --no-verify

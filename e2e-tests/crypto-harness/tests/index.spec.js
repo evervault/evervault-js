@@ -98,7 +98,6 @@ test("Assert that both libraries produce equivalent ciphertexts for booleans", a
   const encryptionEncryptedValue = await page.evaluate(async (payload) => {
     return await window.encryption.encrypt(payload);
   }, plaintextValue);
-
   expect(encryptionEncryptedValue).toEqual(browserEncryptedValue);
 });
 
