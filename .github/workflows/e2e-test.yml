@@ -28,7 +28,7 @@ jobs:
       cache-key: ${{ steps.playwright-cache.outputs.cache-primary-key }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
@@ -70,7 +70,7 @@ jobs:
       e2e-test-projects: ${{ steps.e2e-targets.outputs.e2e-test-projects }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
@@ -111,7 +111,7 @@ jobs:
       VITE_TEST_COVERAGE: "${{ inputs.run-code-coverage-checks }}"
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
