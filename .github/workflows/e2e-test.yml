@@ -55,7 +55,7 @@ jobs:
     timeout-minutes: 25
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      image: mcr.microsoft.com/playwright:v1.57.0-noble
     env:
       EV_API_KEY: ${{ secrets.TESTS_DECRYPT_FN_KEY }}
       EV_APP_UUID: ${{ secrets.TESTS_APP_UUID }}
