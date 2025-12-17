@@ -62,12 +62,14 @@ export default defineConfig({
     {
       command: "pnpm --filter=@evervault/browser dev:preview --port 4007",
       url: "http://localhost:4007/evervault-browser.main.umd.cjs",
-      timeout: 20 * 1000,
+      timeout: 120 * 1000,
+      reuseExistingServer: !process.env.CI,
     },
     {
       command: "pnpm --filter=@evervault/browser-e2e-tests preview",
       url: "http://localhost:4006",
-      timeout: 20 * 1000,
+      timeout: 120 * 1000,
+      reuseExistingServer: !process.env.CI,
     },
   ],
 });

@@ -64,8 +64,9 @@ export default defineConfig({
     {
       command: "pnpm --filter=@evervault/inputs preview",
       url: "http://localhost:4173/v2/",
-      timeout: 10 * 1000,
+      timeout: 120 * 1000,
       stdout: "pipe",
+      reuseExistingServer: !process.env.CI,
     },
   ],
 });

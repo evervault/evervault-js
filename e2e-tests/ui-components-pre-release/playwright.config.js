@@ -27,7 +27,8 @@ export default defineConfig({
       command:
         "pnpm --filter @repo/ui-components-pre-release-tests dev --port 4000",
       url: "http://localhost:4000",
-      timeout: 20 * 3000,
+      timeout: 120 * 1000,
+      reuseExistingServer: !process.env.CI,
     },
   ],
 });

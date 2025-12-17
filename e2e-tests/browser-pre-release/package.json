@@ -3,7 +3,7 @@
   "name": "@repo/browser-pre-release-tests",
   "version": "1.0.0",
   "scripts": {
-    "dev": "vite --port 4000",
+    "dev": "vite --port 4010",
     "test-prerelease": "playwright test",
     "clean": "rm -rf node_modules dist"
   },
