@@ -62,7 +62,7 @@ jobs:
       - name: E2E test
         id: run-e2e-test
         run: |
-          PROJECTS=$(pnpm m ls --depth=1 --json | jq -cr '[.[] | select(.name|endswith("e2e-tests")) | .name]')
-          for project in $PROJECTS; do
+          E2E_TEST_PROJECTS=$(pnpm m ls --depth=1 --json | jq -cr '[.[] | select(.name|endswith("e2e-tests")) | .name]')
+          for project in $E2E_TEST_PROJECTS; do
             pnpm run --filter=$project --if-present e2e:test --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
           done
