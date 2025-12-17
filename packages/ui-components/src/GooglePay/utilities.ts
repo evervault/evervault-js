@@ -10,6 +10,7 @@ export function buildPaymentRequest(
   return {
     apiVersion: 2,
     apiVersionMinor: 0,
+    emailRequired: config.emailRequired ?? false,
     allowedPaymentMethods: [
       {
         type: "CARD",
