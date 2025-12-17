@@ -37,6 +37,7 @@ export default class GooglePay {
         height: getStringDimensionOrDefault(options.size?.height, "45px"),
       },
       allow: "payment *",
+      colorScheme: this.#options.colorScheme,
     });
 
     this.#frame.on("EV_FRAME_READY", () => {
@@ -88,6 +89,7 @@ export default class GooglePay {
         allowedAuthMethods: this.#options.allowedAuthMethods,
         allowedCardNetworks: this.#options.allowedCardNetworks,
         billingAddress: this.#options.billingAddress,
+        emailRequired: this.#options.emailRequired,
       },
     };
   }

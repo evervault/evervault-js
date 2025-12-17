@@ -3,6 +3,7 @@ import { EvervaultFrame } from "./evervaultFrame";
 import type Reveal from "./reveal";
 import type EvervaultClient from "../main";
 import type {
+  ColorScheme,
   EvervaultFrameHostMessages,
   RevealConsumerClientMessages,
   RevealFormat,
@@ -11,6 +12,7 @@ import type {
 } from "types";
 
 export interface RevealCopyButtonOptions {
+  colorScheme?: ColorScheme;
   theme?: ThemeDefinition;
   text?: string;
   icon?: string;
@@ -45,6 +47,7 @@ export default class RevealCopyButton {
 
     this.#frame = new EvervaultFrame(client, "RevealCopyButton", {
       allow: "clipboard-read; clipboard-write",
+      colorScheme: this.options.colorScheme,
     });
 
     this.#frame.on("EV_REVEAL_CONSUMER_READY", () => {

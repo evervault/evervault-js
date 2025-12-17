@@ -1,5 +1,12 @@
 import type { Styles } from "jss";
 
+type ColorSchemeValue = "light" | "dark";
+export type ColorScheme =
+  | "normal"
+  | ColorSchemeValue
+  | `only ${ColorSchemeValue}`
+  | "light dark";
+
 export interface TranslationsObject {
   [key: string]: string | TranslationsObject | undefined;
 }
@@ -95,6 +102,7 @@ export interface CardTranslations extends TranslationsObject {
 export type CardIcons = Record<CardBrandName | "default", string>;
 
 export interface CardOptions {
+  colorScheme?: ColorScheme;
   icons?: boolean | CardIcons;
   theme?: ThemeDefinition;
   autoFocus?: boolean;
@@ -122,6 +130,7 @@ export interface CardOptions {
 }
 
 export interface FormOptions {
+  colorScheme?: ColorScheme;
   theme?: ThemeDefinition;
   formUuid?: string;
   formSubmissionUrl?: string;
@@ -183,6 +192,7 @@ export interface CardFrameHostMessages extends EvervaultFrameHostMessages {
 }
 
 export interface PinOptions {
+  colorScheme?: ColorScheme;
   theme?: ThemeDefinition;
   length?: number;
   autoFocus?: boolean;
@@ -224,6 +234,7 @@ export interface FormFrameClientMessages extends EvervaultFrameClientMessages {
 }
 
 export interface ThreeDSecureOptions {
+  colorScheme?: ColorScheme;
   theme?: ThemeDefinition;
   size?: { width: string; height: string };
   failOnChallenge?: boolean | (() => boolean) | (() => Promise<boolean>);
@@ -375,6 +386,7 @@ export type EncryptedGooglePayData = (
   | EncryptedDPAN<"google">
   | EncryptedFPAN
 ) & {
+  email?: string | null;
   billingAddress?: google.payments.api.Address | null;
 };
 
@@ -392,12 +404,14 @@ export type GooglePayBillingAddressConfig =
     };
 
 export interface GooglePayOptions {
+  emailRequired?: boolean;
   process: (
     data: EncryptedGooglePayData,
     helpers: {
       fail: (error: GooglePayErrorMessage) => void;
     }
   ) => Promise<void>;
+  colorScheme?: ColorScheme;
   type?: GooglePayButtonType;
   color?: GooglePayButtonColor;
   locale?: GooglePayButtonLocale;
@@ -406,6 +420,7 @@ export interface GooglePayOptions {
   allowedAuthMethods?: google.payments.api.CardAuthMethod[];
   allowedCardNetworks?: google.payments.api.CardNetwork[];
   billingAddress?: GooglePayBillingAddressConfig;
+  theme?: ThemeDefinition;
 }
 
 export type ApplePayButtonType =

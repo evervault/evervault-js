@@ -2,10 +2,12 @@ import type Evervault from "@evervault/browser";
 import * as React from "react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { useRevealContext } from "./RevealContext";
+import { ColorScheme } from "@evervault/browser";
 
 interface RevealCopyButtonProps {
   path: string;
   onCopy?: () => void;
+  colorScheme?: ColorScheme;
 }
 
 type RevealInstance = ReturnType<Evervault["ui"]["reveal"]>;
