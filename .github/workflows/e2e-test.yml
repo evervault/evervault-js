@@ -60,4 +60,4 @@ jobs:
       - name: E2E test
         id: run-e2e-test
         run: |
-          pnpm run --filter="*e2e-tests" --filter="e2e-tests-*" --filter="*pre-release-tests" --if-present e2e:test --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          pnpm run --workspace-concurrency=1 --filter="*e2e-tests" --filter="e2e-tests-*" --filter="*pre-release-tests" --if-present e2e:test --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
