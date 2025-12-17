@@ -52,6 +52,9 @@
               echo "[INFO] Xcode SDK root: $SDKROOT"
               echo "[INFO] clang path: $(which clang)"
             fi
+
+            # Set the path to the local browsers for Playwright
+            export PLAYWRIGHT_BROWSERS_PATH=$(pwd)/browsers
           '';
           };
       });

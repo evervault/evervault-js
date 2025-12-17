@@ -60,139 +60,65 @@ test.beforeEach(async ({ page }) => {
 test("Assert that both libraries produce equivalent ciphertexts for strings", async ({
   page,
 }) => {
-  let result;
-  page.exposeFunction("setResult", (res) => {
-    result = res;
-  });
-
   const plaintextValue = "plaintext";
-  page.evaluate((payload) => {
-    window.evervault.encrypt(payload).then((res) => {
-      window.setResult(res);
-    });
+  const browserEncryptedValue = await page.evaluate(async (payload) => {
+    return await window.evervault.encrypt(payload);
   }, plaintextValue);
 
-  await expect.poll(() => result).not.toBe(undefined);
-
-  const browserEncryptedValue = result;
-  page.evaluate(() => {
-    window.setResult(undefined);
-  });
-  await expect.poll(() => result).toBe(undefined);
-
-  page.evaluate((payload) => {
-    window.encryption.encrypt(payload).then((res) => {
-      window.setResult(res);
-    });
+  const encryptionEncryptedValue = await page.evaluate(async (payload) => {
+    return await window.encryption.encrypt(payload);
   }, plaintextValue);
-  await expect.poll(() => result).not.toBe(undefined);
-  await expect.poll(() => result).toEqual(browserEncryptedValue);
+  
+  expect(encryptionEncryptedValue).toEqual(browserEncryptedValue);
 });
 
 test("Assert that both libraries produce equivalent ciphertexts for numbers", async ({
   page,
 }) => {
-  let result;
-  page.exposeFunction("setResult", (res) => {
-    result = res;
-  });
-
   const plaintextValue = 1234;
-  page.evaluate((payload) => {
-    window.evervault.encrypt(payload).then((res) => {
-      window.setResult(res);
-    });
+  const browserEncryptedValue = await page.evaluate(async (payload) => {
+    return await window.evervault.encrypt(payload);
   }, plaintextValue);
 
-  await expect.poll(() => result).not.toBe(undefined);
-
-  const browserEncryptedValue = result;
-  page.evaluate(() => {
-    window.setResult(undefined);
-  });
-  await expect.poll(() => result).toBe(undefined);
-
-  page.evaluate((payload) => {
-    window.encryption.encrypt(payload).then((res) => {
-      window.setResult(res);
-    });
+  const encryptionEncryptedValue = await page.evaluate(async (payload) => {
+    return await window.encryption.encrypt(payload);
   }, plaintextValue);
-  await expect.poll(() => result).not.toBe(undefined);
-  await expect.poll(() => result).toEqual(browserEncryptedValue);
+  
+  expect(encryptionEncryptedValue).toEqual(browserEncryptedValue);
 });
 
 test("Assert that both libraries produce equivalent ciphertexts for booleans", async ({
   page,
 }) => {
-  let result;
-  page.exposeFunction("setResult", (res) => {
-    result = res;
-  });
-
   const plaintextValue = true;
-  page.evaluate((payload) => {
-    window.evervault.encrypt(payload).then((res) => {
-      window.setResult(res);
-    });
+  const browserEncryptedValue = await page.evaluate(async (payload) => {
+    return await window.evervault.encrypt(payload);
   }, plaintextValue);
 
-  await expect.poll(() => result).not.toBe(undefined);
-
-  const browserEncryptedValue = result;
-  page.evaluate(() => {
-    window.setResult(undefined);
-  });
-  await expect.poll(() => result).toBe(undefined);
-
-  page.evaluate((payload) => {
-    window.encryption.encrypt(payload).then((res) => {
-      window.setResult(res);
-    });
+  const encryptionEncryptedValue = await page.evaluate(async (payload) => {
+    return await window.encryption.encrypt(payload);
   }, plaintextValue);
-  await expect.poll(() => result).not.toBe(undefined);
-  await expect.poll(() => result).toEqual(browserEncryptedValue);
+  
+  expect(encryptionEncryptedValue).toEqual(browserEncryptedValue);
 });
 
 test("Assert that both libraries correctly traverse objects, resulting in consistent ciphers", async ({
   page,
 }) => {
-  let result;
-  page.exposeFunction("setResult", (res) => {
-    result = res;
-  });
-
   const plaintextValue = {
     stringVal: "plaintext12345",
     numberVal: 9999,
     booleanVal: false,
   };
-  page.evaluate((payload) => {
-    window.evervault.encrypt(payload).then((res) => {
-      window.setResult(res);
-    });
+  const browserEncryptedValue = await page.evaluate(async (payload) => {
+    return await window.evervault.encrypt(payload);
   }, plaintextValue);
 
-  await expect.poll(() => result).not.toBe(undefined);
-
-  const browserEncryptedValue = result;
-  page.evaluate(() => {
-    window.setResult(undefined);
-  });
-  await expect.poll(() => result).toBe(undefined);
-
-  page.evaluate((payload) => {
-    window.encryption.encrypt(payload).then((res) => {
-      window.setResult(res);
-    });
+  const encryptionEncryptedValue = await page.evaluate(async (payload) => {
+    return await window.encryption.encrypt(payload);
   }, plaintextValue);
-  await expect.poll(() => result).not.toBe(undefined);
-  await expect
-    .poll(() => result.stringVal)
-    .toEqual(browserEncryptedValue.stringVal);
-  await expect
-    .poll(() => result.numberVal)
-    .toEqual(browserEncryptedValue.numberVal);
-  await expect
-    .poll(() => result.booleanVal)
-    .toEqual(browserEncryptedValue.booleanVal);
+  
+  expect(encryptionEncryptedValue.stringVal).toEqual(browserEncryptedValue.stringVal);
+  expect(encryptionEncryptedValue.numberVal).toEqual(browserEncryptedValue.numberVal);
+  expect(encryptionEncryptedValue.booleanVal).toEqual(browserEncryptedValue.booleanVal);
 });
