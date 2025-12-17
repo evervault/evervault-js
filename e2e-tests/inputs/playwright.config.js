@@ -66,7 +66,7 @@ export default defineConfig({
       url: "http://localhost:4173/v2/",
       timeout: 120 * 1000,
       stdout: "pipe",
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
     },
   ],
 });

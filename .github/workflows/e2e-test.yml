@@ -57,6 +57,8 @@ jobs:
           cache: "pnpm"
       - name: Install deps
         run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Build packages
+        run: pnpm run build
       - name: E2E test
         id: run-e2e-test
         run: |

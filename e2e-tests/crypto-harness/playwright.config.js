@@ -63,19 +63,19 @@ export default defineConfig({
       command: "pnpm --filter=@evervault/browser dev:preview --port 4008",
       url: "http://localhost:4008/evervault-browser.main.umd.cjs",
       timeout: 120 * 1000,
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
     },
     {
       command: "pnpm --filter=@repo/encryption dev:preview --port 4003",
       url: "http://localhost:4003/encryption.main.umd.cjs",
       timeout: 120 * 1000,
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
     },
     {
       command: "pnpm --filter=@repo/crypto-harness-e2e-tests preview",
       url: "http://localhost:4009",
       timeout: 120 * 1000,
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
     },
   ],
 });
