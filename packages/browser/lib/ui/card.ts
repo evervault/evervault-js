@@ -33,7 +33,9 @@ export default class Card {
 
   constructor(client: EvervaultClient, options?: CardOptions) {
     this.#options = options ?? {};
-    this.#frame = new EvervaultFrame(client, "Card");
+    this.#frame = new EvervaultFrame(client, "Card", {
+      colorScheme: this.#options.colorScheme,
+    });
 
     // update the values when the frame sends a change event and dispatch
     // a change event.
