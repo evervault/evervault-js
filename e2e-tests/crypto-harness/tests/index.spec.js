@@ -68,7 +68,7 @@ test("Assert that both libraries produce equivalent ciphertexts for strings", as
   const encryptionEncryptedValue = await page.evaluate(async (payload) => {
     return await window.encryption.encrypt(payload);
   }, plaintextValue);
-  
+
   expect(encryptionEncryptedValue).toEqual(browserEncryptedValue);
 });
 
@@ -83,7 +83,7 @@ test("Assert that both libraries produce equivalent ciphertexts for numbers", as
   const encryptionEncryptedValue = await page.evaluate(async (payload) => {
     return await window.encryption.encrypt(payload);
   }, plaintextValue);
-  
+
   expect(encryptionEncryptedValue).toEqual(browserEncryptedValue);
 });
 
@@ -98,7 +98,7 @@ test("Assert that both libraries produce equivalent ciphertexts for booleans", a
   const encryptionEncryptedValue = await page.evaluate(async (payload) => {
     return await window.encryption.encrypt(payload);
   }, plaintextValue);
-  
+
   expect(encryptionEncryptedValue).toEqual(browserEncryptedValue);
 });
 
@@ -117,8 +117,14 @@ test("Assert that both libraries correctly traverse objects, resulting in consis
   const encryptionEncryptedValue = await page.evaluate(async (payload) => {
     return await window.encryption.encrypt(payload);
   }, plaintextValue);
-  
-  expect(encryptionEncryptedValue.stringVal).toEqual(browserEncryptedValue.stringVal);
-  expect(encryptionEncryptedValue.numberVal).toEqual(browserEncryptedValue.numberVal);
-  expect(encryptionEncryptedValue.booleanVal).toEqual(browserEncryptedValue.booleanVal);
+
+  expect(encryptionEncryptedValue.stringVal).toEqual(
+    browserEncryptedValue.stringVal
+  );
+  expect(encryptionEncryptedValue.numberVal).toEqual(
+    browserEncryptedValue.numberVal
+  );
+  expect(encryptionEncryptedValue.booleanVal).toEqual(
+    browserEncryptedValue.booleanVal
+  );
 });
