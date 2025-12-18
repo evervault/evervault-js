@@ -98,7 +98,7 @@ jobs:
         run: pnpm run --filter="${{ matrix.project }}" --if-present e2e:test --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
       - name: Update Screenshots
         if: ${{ inputs.update-screenshots == true }}
-        run: pnpm run --filter="${{ matrix.project }}" --if-present e2e:test --shard=${{ matrix.shard }}/${{ matrix.total-shards }} --update-screenshots
+        run: pnpm run --filter="${{ matrix.project }}" --if-present e2e:test --shard=${{ matrix.shard }}/${{ matrix.total-shards }} -- --update-screenshots
       - name: Set up Git
         if: ${{ inputs.update-screenshots == true }}
         run: |
