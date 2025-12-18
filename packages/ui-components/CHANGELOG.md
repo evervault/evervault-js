@@ -1,5 +1,23 @@
 # @evervault/ui-components
 
+## 1.38.0
+
+### Minor Changes
+
+- 75802c2: Add emailRequired option to GooglePay to allow collecting email addresses.
+- 57e945f: - Add colorScheme option for iframe-based UI components
+  - Add colorScheme prop to compatible React components
+
+### Patch Changes
+
+- Updated dependencies [c4a8713]
+- Updated dependencies [75802c2]
+- Updated dependencies [57e945f]
+  - @evervault/react@2.23.0
+  - types@0.22.0
+  - @evervault/card-validator@1.5.0
+  - shared@1.1.19
+
 ## 1.37.1
 
 ### Patch Changes

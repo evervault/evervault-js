@@ -1,5 +1,12 @@
 # @evervault/js
 
+## 2.9.0
+
+### Minor Changes
+
+- 57e945f: - Add colorScheme option for iframe-based UI components
+  - Add colorScheme prop to compatible React components
+
 ## 2.8.0
 
 ### Minor Changes
