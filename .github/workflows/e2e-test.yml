@@ -73,7 +73,6 @@ jobs:
       VITE_EVERVAULT_JS_URL: ${{ inputs.vite-evervault-js-url }}
       VITE_KEYS_URL: ${{ inputs.vite-keys-url }}
       VITE_TEST_COVERAGE: "${{ inputs.run-code-coverage-checks }}"
-      HOME: "/root"
     steps:
       - name: Check out code
         uses: actions/checkout@v4
