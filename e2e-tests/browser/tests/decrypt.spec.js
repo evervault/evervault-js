@@ -9,23 +9,14 @@ test("can decrypt with a client decrypt token", async ({ page }) => {
   const payload = "Dwight Schrute";
   const { token } = await createClientDecryptToken(payload);
 
-  let result;
-
-  page.exposeFunction("setResult", (res) => {
-    result = res;
-  });
-
-  page.evaluate(
-    ([token, payload]) => {
-      window.evervault.decrypt(token, payload).then((res) => {
-        window.setResult(res);
-      });
+  const result = await page.evaluate(
+    async ([token, payload]) => {
+      return await window.evervault.decrypt(token, payload);
     },
     [token, payload]
   );
 
-  await page.waitForTimeout(10000);
-  await expect.poll(() => result).toEqual(payload);
+  expect(result).toEqual(payload);
 });
 
 async function createClientDecryptToken(payload) {

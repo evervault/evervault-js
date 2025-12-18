@@ -53,20 +53,9 @@ test("can encrypt an array", async ({ page }) => {
 });
 
 async function encryptWithSDK(page, payload) {
-  let result;
-
-  page.exposeFunction("setResult", (res) => {
-    result = res;
-  });
-
-  page.evaluate((payload) => {
-    window.evervault.encrypt(payload).then((res) => {
-      window.setResult(res);
-    });
+  return await page.evaluate(async (payload) => {
+    return await window.evervault.encrypt(payload);
   }, payload);
-
-  await expect.poll(() => result).not.toBe(undefined);
-  return result;
 }
 
 const ENCRYPTED_STRING_REGEX =
