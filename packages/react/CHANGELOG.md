@@ -1,5 +1,13 @@
 # @evervault/react
 
+## 2.23.0
+
+### Minor Changes
+
+- c4a8713: @evervault/react will now load the Evervault SDK via requirejs when define.amd is present
+- 57e945f: - Add colorScheme option for iframe-based UI components
+  - Add colorScheme prop to compatible React components
+
 ## 2.22.0
 
 ### Minor Changes
