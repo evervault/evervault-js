@@ -1,5 +1,17 @@
 # google-pay
 
+## 0.3.0
+
+### Minor Changes
+
+- 57e945f: - Add colorScheme option for iframe-based UI components
+  - Add colorScheme prop to compatible React components
+
+### Patch Changes
+
+- Updated dependencies [57e945f]
+  - @evervault/js@2.9.0
+
 ## 0.2.2
 
 ### Patch Changes

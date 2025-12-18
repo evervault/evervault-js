@@ -1,5 +1,20 @@
 # @evervault/browser
 
+## 2.51.0
+
+### Minor Changes
+
+- 75802c2: Add emailRequired option to GooglePay to allow collecting email addresses.
+- 57e945f: - Add colorScheme option for iframe-based UI components
+  - Add colorScheme prop to compatible React components
+
+### Patch Changes
+
+- Updated dependencies [75802c2]
+- Updated dependencies [57e945f]
+  - types@0.22.0
+  - themes@0.1.22
+
 ## 2.50.1
 
 ### Patch Changes
