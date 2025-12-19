@@ -18,6 +18,10 @@ on:
         description: "Whether to run code coverage checks or not"
         required: true
         type: boolean
+      update-screenshots:
+        description: "Whether to update screenshots or not"
+        required: true
+        type: boolean
 jobs:
   get-e2e-targets:
     name: "Build list of E2E test projects"
