@@ -51,6 +51,7 @@ jobs:
     name: "Run E2E Tests for ${{ matrix.project }} (Shard ${{ matrix.shard }}/${{ matrix.total-shards }}) on ${{ matrix.os }}"
     needs: [get-e2e-targets]
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         project: ${{ fromJson(needs.get-e2e-targets.outputs.e2e-test-projects) }}
