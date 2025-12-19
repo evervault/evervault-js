@@ -48,7 +48,7 @@ jobs:
           echo "e2e-test-projects=$E2E_TEST_PROJECTS" >> $GITHUB_OUTPUT
   # The e2e tests run for quite a long time. Until we can accurately select the appropriate tests to run, we're running them in parallel (2 jobs per project, each with 3-4 worker processes.)
   e2e-test:
-    name: "Run E2E Tests for (Shard ${{ matrix.shard }}/${{ matrix.total-shards }})"
+    name: "Run E2E Tests for ${{ matrix.project }} (Shard ${{ matrix.shard }}/${{ matrix.total-shards }})"
     needs: [get-e2e-targets]
     strategy:
       fail-fast: false
@@ -101,26 +101,6 @@ jobs:
       - name: Update Screenshots
         if: ${{ inputs.update-screenshots == true }}
         run: pnpm run --filter="${{ matrix.project }}" --if-present e2e:test --shard=${{ matrix.shard }}/${{ matrix.total-shards }} -- --update-screenshots
-      - name: Get path to package
-        if: ${{ failure() && steps.run-e2e-test.outcome == 'failure' }} && ${{ inputs.update-screenshots == false }}
-        id: get-path-to-package
-        run: |-
-          PACKAGE_PATH=$(pnpm m ls --depth=1 --json | jq -r '.[] | select(.name == "${{ matrix.project }}") | .path')
-          echo "package-path=$PACKAGE_PATH" >> $GITHUB_OUTPUT
-      - name: Normalize package name
-        if: ${{ failure() && steps.run-e2e-test.outcome == 'failure' }} && ${{ inputs.update-screenshots == false }}
-        id: normalize-package-name
-        run: |-
-          NORMALIZED_NAME=$(echo "${{ matrix.project }}" | sed -e 's/@//g' -e 's/[/]/-/g')
-          echo "normalized-name=$NORMALIZED_NAME" >> $GITHUB_OUTPUT
-      - name: Upload report on failure
-        if: ${{ failure() && steps.run-e2e-test.outcome == 'failure' }} && ${{ inputs.update-screenshots == false }}
-        uses: actions/upload-artifact@v4
-        with:
-          path: |
-            ${{ steps.get-path-to-package.outputs.package-path }}/playwright-report
-            ${{ steps.get-path-to-package.outputs.package-path }}/test-results
-          name: ${{ steps.normalize-package-name.outputs.normalized-name }}-report-${{ matrix.shard }}
       - name: Set up Git
         if: ${{ inputs.update-screenshots == true }}
         run: |
