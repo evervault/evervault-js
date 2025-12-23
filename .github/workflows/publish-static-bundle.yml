@@ -79,7 +79,7 @@ jobs:
           script: |
             core.setFailed("Preview deployment has not been implemented for: ${{ inputs.package-name }}. Continuing would be undefined behaviour. Please implement a preview deployment for this package before proceeding.");
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ inputs.stage == 'production' &&  secrets.AWS_EV_JS_PRODUCTION_OIDC_ROLE_ARN || secrets.AWS_EV_JS_STAGING_OIDC_ROLE_ARN }}
           aws-region: "us-east-1"
@@ -195,7 +195,7 @@ jobs:
     name: "Deploy ${{ inputs.package-name }} to ${{ inputs.stage }}"
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ inputs.stage == 'production' &&  secrets.AWS_EV_JS_PRODUCTION_OIDC_ROLE_ARN || secrets.AWS_EV_JS_STAGING_OIDC_ROLE_ARN }}
           aws-region: "us-east-1"
