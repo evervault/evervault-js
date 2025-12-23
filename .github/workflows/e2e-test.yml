@@ -106,8 +106,8 @@ jobs:
         run: |
           pwd
           ls -lha .
-          git config user.email "e2e-tests@evervault.com"
-          git config user.name "E2E Tests"
+          git config --global user.email "e2e-tests@evervault.com"
+          git config --global user.name "E2E Tests"
       - name: Commit and Push changes
         if: ${{ inputs.update-screenshots == true }}
         run: |
