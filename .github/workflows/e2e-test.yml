@@ -104,6 +104,8 @@ jobs:
       - name: Set up Git
         if: ${{ inputs.update-screenshots == true }}
         run: |
+          pwd
+          ls -lha .
           git config user.email "e2e-tests@evervault.com"
           git config user.name "E2E Tests"
       - name: Commit and Push changes
