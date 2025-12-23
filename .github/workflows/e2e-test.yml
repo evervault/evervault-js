@@ -104,13 +104,12 @@ jobs:
       - name: Set up Git
         if: ${{ inputs.update-screenshots == true }}
         run: |
-          pwd
-          ls -lha .
           git config --global user.email "e2e-tests@evervault.com"
           git config --global user.name "E2E Tests"
       - name: Commit and Push changes
         if: ${{ inputs.update-screenshots == true }}
         run: |
+          git config --global --add safe.directory /__w/evervault-js/evervault-js
           git add -A
           git commit -m "[Screenshots] ${{ matrix.project }} (Shard ${{ matrix.shard }}/${{ matrix.total-shards }})"
           git push origin HEAD:${{ github.ref }} --no-verify
