@@ -1,8 +1,6 @@
 name: Update Screenshots
 on:
   workflow_dispatch:
-  # Only for testing.
-  push:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
   update-screenshots:
