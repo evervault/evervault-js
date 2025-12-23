@@ -111,5 +111,5 @@ jobs:
         run: |
           git config --global --add safe.directory /__w/evervault-js/evervault-js
           git add -A
-          git commit -m "[Screenshots] ${{ matrix.project }} (Shard ${{ matrix.shard }}/${{ matrix.total-shards }})"
+          git commit -m "[Screenshots] ${{ matrix.project }} (Shard ${{ matrix.shard }}/${{ matrix.total-shards }})" || true
           git push origin HEAD:${{ github.ref }} --no-verify
