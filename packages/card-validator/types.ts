@@ -35,7 +35,13 @@ export type CardExpiryValidationResult = {
   isValid: boolean;
 };
 
-export type CardCVCValidationResult = {
-  cvc: string | null;
-  isValid: boolean;
-};
+export type CardCVCValidationResult =
+  | {
+      cvc: string;
+      isValid: true;
+    }
+  | {
+      cvc: null;
+      isValid: false;
+      reason: "invalid_cvc" | "invalid_number" | "invalid_brand_cvc";
+    };
