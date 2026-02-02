@@ -105,8 +105,9 @@ export function Card({ config }: { config: CardConfig }) {
         if (!fields.includes("cvc")) return undefined;
 
         const cardValidation = validateNumber(values.number);
-        const cvcValidation = validateCVC(values.cvc, values.number);
+        if (!cardValidation.isValid) return undefined;
 
+        const cvcValidation = validateCVC(values.cvc, values.number);
         if (!cvcValidation.isValid) {
           return "invalid";
         }
