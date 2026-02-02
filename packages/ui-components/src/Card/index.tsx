@@ -109,10 +109,11 @@ export function Card({ config }: { config: CardConfig }) {
           return undefined;
 
         const cardValidation = validateNumber(values.number, { customBrands });
+        if (!cardValidation.isValid) return undefined;
+
         const cvcValidation = validateCVC(values.cvc, values.number, {
           customBrands,
         });
-
         if (!cvcValidation.isValid) {
           return "invalid";
         }
