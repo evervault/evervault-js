@@ -133,12 +133,13 @@ export function validateCVC(
     return {
       cvc: null,
       isValid: false,
+      reason: "invalid_cvc",
     };
   }
 
   if (!cardNumber) {
     return {
-      cvc: cvc,
+      cvc,
       isValid: true,
     };
   }
@@ -148,6 +149,7 @@ export function validateCVC(
     return {
       cvc: null,
       isValid: false,
+      reason: "invalid_number",
     };
   }
 
@@ -166,9 +168,17 @@ export function validateCVC(
       return brand.securityCodeValidationRules.lengths.includes(cvc.length);
     });
 
+  if (!isCVCValid) {
+    return {
+      cvc: null,
+      isValid: false,
+      reason: "invalid_brand_cvc",
+    };
+  }
+
   return {
-    cvc: isCVCValid ? cvc : null,
-    isValid: isCVCValid,
+    cvc,
+    isValid: true,
   };
 }
 
