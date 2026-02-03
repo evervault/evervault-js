@@ -150,6 +150,7 @@ jobs:
           setupGitUser: false
         env:
           HUSKY: 0
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Tags
         id: create-tags
         # Changesets deletes the changeset files on version PR, so if false then we need to tag and release the packages
