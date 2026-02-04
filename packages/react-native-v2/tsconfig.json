@@ -7,16 +7,10 @@
     "jsx": "react-jsx",
     "moduleResolution": "node",
     "rootDir": "src",
-    "types": ["vitest/globals"],
+    "types": ["vitest/globals", "node"],
     "declaration": false,
     "declarationMap": false
   },
   "include": ["src/**/*"],
-  "exclude": [
-    "build",
-    "node_modules",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "__mocks__"
-  ]
+  "exclude": ["build", "node_modules"]
 }

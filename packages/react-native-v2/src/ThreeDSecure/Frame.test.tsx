@@ -58,7 +58,7 @@ it("renders null if there is no session", () => {
 });
 
 it("renders a webview with the correct url", () => {
-  const { getByTestId } = render(
+  const { getByTestId, toJSON } = render(
     <EvervaultProvider teamId="team_123" appId="app_123">
       <ThreeDSecure
         state={{
@@ -76,6 +76,8 @@ it("renders a webview with the correct url", () => {
       </ThreeDSecure>
     </EvervaultProvider>
   );
+
+  console.log(toJSON());
 
   const webview = getByTestId("webview");
   expect(webview).toBeOnTheScreen();
