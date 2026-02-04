@@ -3,7 +3,8 @@
   "display": "Vite React",
   "_version": "2.0.0",
   "extends": "tsconfig/browser.json",
-  "exclude": ["dist"],
+  "exclude": ["dist", "node_modules"],
+  "include": ["lib", "global.d.ts", "vite-env.d.ts"],
   "compilerOptions": {
     "jsx": "react",
     "rootDir": "."
