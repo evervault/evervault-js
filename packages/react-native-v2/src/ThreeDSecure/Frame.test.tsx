@@ -77,8 +77,6 @@ it("renders a webview with the correct url", () => {
     </EvervaultProvider>
   );
 
-  console.log(toJSON());
-
   const webview = getByTestId("webview");
   expect(webview).toBeOnTheScreen();
   expect(webview).toHaveProp("source", {
