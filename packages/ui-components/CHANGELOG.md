@@ -1,5 +1,19 @@
 # @evervault/ui-components
 
+## 1.39.0
+
+### Minor Changes
+
+- 4835dc5: Move color-scheme checks to main bundle
+
+### Patch Changes
+
+- e9ad2b2: Bump qs
+- Updated dependencies [e9ad2b2]
+  - @evervault/card-validator@1.5.1
+  - @evervault/react@2.23.1
+  - shared@1.1.20
+
 ## 1.38.0
 
 ### Minor Changes

@@ -1,5 +1,13 @@
 # @evervault/inputs
 
+## 2.18.26
+
+### Patch Changes
+
+- e9ad2b2: Bump qs
+- Updated dependencies [e9ad2b2]
+  - @evervault/browser@2.51.1
+
 ## 2.18.25
 
 ### Patch Changes
