@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.23.1
+
+### Patch Changes
+
+- e9ad2b2: Bump qs
+
 ## 2.23.0
 
 ### Minor Changes
