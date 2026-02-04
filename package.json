@@ -43,6 +43,7 @@
   },
   "pnpm": {
     "overrides": {
+      "@isaacs/brace-expansion": ">=5.0.1",
       "braces": ">=3.0.3",
       "cross-spawn": ">=6.0.6",
       "date-and-time": "0.14.2",
