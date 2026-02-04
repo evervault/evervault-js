@@ -17,7 +17,7 @@
     "clean": "rm -rf node_modules dist"
   },
   "engines": {
-    "node": "^18"
+    "node": ">=20"
   },
   "license": "MIT",
   "devDependencies": {
