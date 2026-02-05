@@ -5,7 +5,8 @@ import { flowPlugin } from "@bunchtogether/vite-plugin-flow";
 
 export default defineConfig({
   plugins: [
-    reactNative(), // Transform react-native's Flow syntax before esbuild sees it (must run on node_modules)
+    reactNative(),
+    // Transform react-native's Flow syntax before esbuild sees it (must run on node_modules)
     flowPlugin({
       include: /node_modules[\\/]react-native[\\/].*\.js$/,
       exclude: undefined,
