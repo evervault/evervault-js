@@ -52,7 +52,7 @@ catalog:
   jss: ^10.10.0
   jss-preset-default: ^10.10.0
   msw: ^2.7.3
-  next: 14.2.32
+  next: 16.1.6
   nock: ^13.5.4
   node-fetch: ^3
   nodemon: ^3.1.4
