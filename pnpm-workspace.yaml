@@ -20,8 +20,8 @@ catalog:
   "@types/jsdom": ^21.1.6
   "@types/jsonpath": ^0.2.4
   "@types/node": ^22
-  "@types/react": ^18.2.37
-  "@types/react-dom": ^18.2.15
+  "@types/react": ^19.2.13
+  "@types/react-dom": ^19.2.3
   "@vitejs/plugin-react": ^4.3.4
   "@web-std/file": ^1.0.4
   asn1js: ^3.0.5
@@ -64,9 +64,9 @@ catalog:
   postcss-load-config: ^4.0.1
   postcss-preset-env: ^8.3.0
   prettier: ^2.8.8
-  react: ^18.2.0
-  react-dom: ^18.2.0
-  react-native: 0.79.6
+  react: ^19.2.4
+  react-dom: ^19.2.4
+  react-native: 0.80.3
   react-native-builder-bob: ^0.23.2
   react-native-gesture-handler: ~2.24.0
   react-native-mask-input: ^1.2.3
