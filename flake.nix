@@ -30,7 +30,7 @@
           # The Nix packages provided in the environment
           packages = with pkgs; [
             openjdk17
-            nodejs_18 # Match CI and avoid unsupported engine warnings
+            nodejs_24 # Match CI and avoid unsupported engine warnings
             corepack_22 # Required for pnpm
             cocoapods
           ];

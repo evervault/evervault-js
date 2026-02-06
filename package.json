@@ -55,9 +55,6 @@
       "@react-native-community/cli": "17.0.1",
       "glob@10": "10.5.0",
       "glob@11": "11.1.0"
-    },
-    "peerDependencyRules": {
-      "ignoreMissing": true
     }
   },
   "packageManager": "pnpm@10.26.1+sha512.664074abc367d2c9324fdc18037097ce0a8f126034160f709928e9e9f95d98714347044e5c3164d65bd5da6c59c6be362b107546292a8eecb7999196e5ce58fa"
