@@ -38,7 +38,7 @@ jobs:
         run: |
           # Set pipefail so we capture errors correctly.
           set -o pipefail
-          xcodebuild build -project "evervaultexpoexample.xcodeproj" -scheme "evervaultexpoexample" -configuration Release -sdk iphonesimulator | xcpretty
+          xcodebuild build -workspace "evervaultexpoexample.xcworkspace" -scheme "evervaultexpoexample" -configuration Release -sdk iphonesimulator | xcpretty
 
   build_android:
     name: Build Android Examples
