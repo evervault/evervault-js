@@ -31,7 +31,7 @@
     "prebuild": "pnpm codegen",
     "build": "rollup -c",
     "watch": "rollup -c --watch",
-    "codegen": "rimraf build android/app && react-native codegen",
+    "codegen": "rimraf build android/app && react-native codegen --source library",
     "test": "vitest run",
     "test:watch": "vitest --watch"
   },
