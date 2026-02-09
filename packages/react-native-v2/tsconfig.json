@@ -12,11 +12,5 @@
     "declarationMap": false
   },
   "include": ["src/**/*"],
-  "exclude": [
-    "build",
-    "node_modules",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "__mocks__"
-  ]
+  "exclude": ["build", "node_modules", "__mocks__"]
 }

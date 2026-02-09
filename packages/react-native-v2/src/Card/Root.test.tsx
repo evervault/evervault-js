@@ -23,9 +23,9 @@ function wrapper({ children }: PropsWithChildren) {
   );
 }
 
-it("fails if not wrapped in an EvervaultProvider", () => {
+it("fails if not wrapped in an EvervaultProvider", async () => {
   const onError = vi.fn();
-  render(
+  await render(
     <ErrorBoundary onError={onError}>
       <Card />
     </ErrorBoundary>
@@ -38,7 +38,7 @@ it("fails if not wrapped in an EvervaultProvider", () => {
 
 it("calls onChange when mounted", async () => {
   const onChange = vi.fn();
-  render(<Card onChange={onChange} />, { wrapper });
+  await render(<Card onChange={onChange} />, { wrapper });
 
   await waitFor(() => {
     expect(onChange).toHaveBeenCalledWith({
@@ -61,7 +61,7 @@ it("calls onChange when mounted", async () => {
 
 it("renders card components", async () => {
   const onChange = vi.fn();
-  const { getByTestId } = render(
+  const { getByTestId } = await render(
     <Card onChange={onChange}>
       <CardHolder testID="holder" />
     </Card>,
@@ -95,7 +95,7 @@ it("renders card components", async () => {
 
 it("calls onChange when the user types", async () => {
   const onChange = vi.fn();
-  const { getByTestId } = render(
+  const { getByTestId } = await render(
     <Card onChange={onChange}>
       <CardHolder testID="holder" />
       <CardNumber testID="number" />
@@ -139,7 +139,7 @@ it("calls onChange when the user types", async () => {
 it("resets all fields when reset is called", async () => {
   const ref = { current: null as any };
   const onChange = vi.fn();
-  const { getByTestId } = render(
+  const { getByTestId } = await render(
     <Card ref={ref} onChange={onChange}>
       <CardHolder testID="holder" />
     </Card>,
@@ -189,7 +189,7 @@ it("resets all fields when reset is called", async () => {
 
 it("adds Required error when input is blurred without a value", async () => {
   const onChange = vi.fn();
-  const { getByTestId } = render(
+  const { getByTestId } = await render(
     <Card onChange={onChange}>
       <CardNumber testID="number" />
     </Card>,
@@ -225,7 +225,7 @@ it("adds Required error when input is blurred without a value", async () => {
 
 it("adds Invalid error when input is blurred with an invalid value", async () => {
   const onChange = vi.fn();
-  const { getByTestId } = render(
+  const { getByTestId } = await render(
     <Card onChange={onChange}>
       <CardNumber testID="number" />
     </Card>,
@@ -261,7 +261,7 @@ it("adds Invalid error when input is blurred with an invalid value", async () =>
 
 it("adds 'Brand not accepted' error when brand is not accepted", async () => {
   const onChange = vi.fn();
-  const { getByTestId } = render(
+  const { getByTestId } = await render(
     <Card onChange={onChange} acceptedBrands={["american-express"]}>
       <CardNumber testID="number" />
     </Card>,

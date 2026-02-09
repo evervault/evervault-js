@@ -8,9 +8,9 @@ import { CHALLENGE_DOMAIN_3DS } from "./config";
 
 vi.mock("react-native-webview", () => ({ WebView }));
 
-it("throws an error if used outside of an EvervaultProvider", () => {
+it("throws an error if used outside of an EvervaultProvider", async () => {
   const onError = vi.fn();
-  render(
+  await render(
     <ErrorBoundary onError={onError}>
       <ThreeDSecureFrame />
     </ErrorBoundary>
@@ -21,9 +21,9 @@ it("throws an error if used outside of an EvervaultProvider", () => {
   );
 });
 
-it("throws an error if used outside of a ThreeDSecure component", () => {
+it("throws an error if used outside of a ThreeDSecure component", async () => {
   const onError = vi.fn();
-  render(
+  await render(
     <ErrorBoundary onError={onError}>
       <EvervaultProvider teamId="team_123" appId="app_123">
         <ThreeDSecureFrame />
@@ -38,8 +38,8 @@ it("throws an error if used outside of a ThreeDSecure component", () => {
   );
 });
 
-it("renders null if there is no session", () => {
-  const { queryByTestId } = render(
+it("renders null if there is no session", async () => {
+  const { queryByTestId } = await render(
     <EvervaultProvider teamId="team_123" appId="app_123">
       <ThreeDSecure
         state={{
@@ -57,8 +57,8 @@ it("renders null if there is no session", () => {
   expect(queryByTestId("webview")).toBeNull();
 });
 
-it("renders a webview with the correct url", () => {
-  const { getByTestId } = render(
+it("renders a webview with the correct url", async () => {
+  const { getByTestId } = await render(
     <EvervaultProvider teamId="team_123" appId="app_123">
       <ThreeDSecure
         state={{

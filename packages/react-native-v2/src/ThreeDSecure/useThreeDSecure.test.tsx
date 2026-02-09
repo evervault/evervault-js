@@ -22,8 +22,8 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-it("returns the correct state", () => {
-  const { result } = renderHook(() => useThreeDSecure(), {
+it("returns the correct state", async () => {
+  const { result } = await renderHook(() => useThreeDSecure(), {
     wrapper,
   });
 
@@ -36,7 +36,7 @@ it("returns the correct state", () => {
 });
 
 it("starts a session when action is required", async () => {
-  const { result } = renderHook(() => useThreeDSecure(), {
+  const { result } = await renderHook(() => useThreeDSecure(), {
     wrapper,
   });
 
@@ -55,7 +55,7 @@ it("starts a session when action is required", async () => {
 });
 
 it("fails the session when failOnChallenge is true and a challenge is required", async () => {
-  const { result } = renderHook(() => useThreeDSecure(), {
+  const { result } = await renderHook(() => useThreeDSecure(), {
     wrapper,
   });
 
@@ -78,7 +78,7 @@ it("fails the session when failOnChallenge is true and a challenge is required",
 });
 
 it("fails the session when failOnChallenge is a function that returns true and a challenge is required", async () => {
-  const { result } = renderHook(() => useThreeDSecure(), {
+  const { result } = await renderHook(() => useThreeDSecure(), {
     wrapper,
   });
 
@@ -101,7 +101,7 @@ it("fails the session when failOnChallenge is a function that returns true and a
 });
 
 it("fails the session when failOnChallenge resolves true at hook level and a challenge is required", async () => {
-  const { result } = renderHook(
+  const { result } = await renderHook(
     () =>
       useThreeDSecure({
         failOnChallenge: () => Promise.resolve(true),
@@ -128,7 +128,7 @@ it("fails the session when failOnChallenge resolves true at hook level and a cha
 });
 
 it("fails the session when onRequestChallenge is called and defaultPrevented is true", async () => {
-  const { result } = renderHook(() => useThreeDSecure(), {
+  const { result } = await renderHook(() => useThreeDSecure(), {
     wrapper,
   });
 
@@ -161,7 +161,7 @@ it("fails the session when onRequestChallenge is called and defaultPrevented is 
 });
 
 it("calls the success callback when the session is successful", async () => {
-  const { result } = renderHook(() => useThreeDSecure(), {
+  const { result } = await renderHook(() => useThreeDSecure(), {
     wrapper,
   });
 
@@ -175,7 +175,7 @@ it("calls the success callback when the session is successful", async () => {
 });
 
 it("calls the failure callback when the session fails on start", async () => {
-  const { result } = renderHook(() => useThreeDSecure(), {
+  const { result } = await renderHook(() => useThreeDSecure(), {
     wrapper,
   });
 
@@ -189,7 +189,7 @@ it("calls the failure callback when the session fails on start", async () => {
 });
 
 it("calls the error callback when the fetch fails on start", async () => {
-  const { result } = renderHook(() => useThreeDSecure(), {
+  const { result } = await renderHook(() => useThreeDSecure(), {
     wrapper,
   });
 
@@ -201,7 +201,7 @@ it("calls the error callback when the fetch fails on start", async () => {
 });
 
 it("silently fails if the session is not found", async () => {
-  const { result } = renderHook(() => useThreeDSecure(), {
+  const { result } = await renderHook(() => useThreeDSecure(), {
     wrapper,
   });
 
@@ -215,7 +215,7 @@ it("silently fails if the session is not found", async () => {
 });
 
 it("cancels the session when the user cancels", async () => {
-  const { result } = renderHook(() => useThreeDSecure(), {
+  const { result } = await renderHook(() => useThreeDSecure(), {
     wrapper,
   });
 

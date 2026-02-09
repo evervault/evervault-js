@@ -84,7 +84,7 @@ describe("EvervaultInput", () => {
   }
 
   it("should render", async () => {
-    render(<EvervaultInput testID="phone" name="phone" />, {
+    await render(<EvervaultInput testID="phone" name="phone" />, {
       wrapper: Form,
     });
 
@@ -96,7 +96,7 @@ describe("EvervaultInput", () => {
   });
 
   it("uses the mask if provided", async () => {
-    render(
+    await render(
       <EvervaultInput
         testID="phone"
         name="phone"
@@ -120,7 +120,7 @@ describe("EvervaultInput", () => {
   });
 
   it("dirties the field when the user types", async () => {
-    render(<EvervaultInput testID="phone" name="phone" />, {
+    await render(<EvervaultInput testID="phone" name="phone" />, {
       wrapper: Form,
     });
 
@@ -135,7 +135,7 @@ describe("EvervaultInput", () => {
   });
 
   it("dirties and validates the field when the user types if touched", async () => {
-    render(<EvervaultInput testID="phone" name="phone" />, {
+    await render(<EvervaultInput testID="phone" name="phone" />, {
       wrapper: Form,
     });
 
@@ -159,7 +159,7 @@ describe("EvervaultInput", () => {
   });
 
   it("dirties, touches, and validates the field when blurred", async () => {
-    render(<EvervaultInput testID="phone" name="phone" />, {
+    await render(<EvervaultInput testID="phone" name="phone" />, {
       wrapper: Form,
     });
 
@@ -174,7 +174,7 @@ describe("EvervaultInput", () => {
   });
 
   it("only validates the field when blurred if validationMode=onBlur", async () => {
-    render(
+    await render(
       <EvervaultInputContext.Provider value={{ validationMode: "onBlur" }}>
         <EvervaultInput testID="phone" name="phone" />
       </EvervaultInputContext.Provider>,
@@ -206,7 +206,7 @@ describe("EvervaultInput", () => {
   });
 
   it("only validates the field after first touch if validationMode=onTouched", async () => {
-    render(
+    await render(
       <EvervaultInputContext.Provider value={{ validationMode: "onTouched" }}>
         <EvervaultInput testID="phone" name="phone" />
       </EvervaultInputContext.Provider>,
@@ -242,7 +242,7 @@ describe("EvervaultInput", () => {
   });
 
   it("only validates the field when changed if validationMode=onChange and the field is touched", async () => {
-    render(
+    await render(
       <EvervaultInputContext.Provider value={{ validationMode: "onChange" }}>
         <EvervaultInput testID="phone" name="phone" />
       </EvervaultInputContext.Provider>,
@@ -279,7 +279,7 @@ describe("EvervaultInput", () => {
   });
 
   it("only validates the field when changed if validationMode=onChange and the field has errors", async () => {
-    render(
+    await render(
       <EvervaultInputContext.Provider value={{ validationMode: "onChange" }}>
         <EvervaultInput testID="phone" name="phone" />
       </EvervaultInputContext.Provider>,
@@ -316,7 +316,7 @@ describe("EvervaultInput", () => {
   });
 
   it("validates on blur, touch, and change if validationMode=all", async () => {
-    render(
+    await render(
       <EvervaultInputContext.Provider value={{ validationMode: "all" }}>
         <EvervaultInput testID="phone" name="phone" />
       </EvervaultInputContext.Provider>,
@@ -355,7 +355,7 @@ describe("EvervaultInput", () => {
 
   it("should obfuscate the value when obfuscateValue=true", async () => {
     const phoneMask = mask("[(999) 999]-9999");
-    const { rerender } = render(
+    const { rerender } = await render(
       <EvervaultInput testID="phone" mask={phoneMask} name="phone" />,
       {
         wrapper: Form,
@@ -368,7 +368,7 @@ describe("EvervaultInput", () => {
     await user.type(input, "1234567890");
     expect(input).toHaveProp("value", "(123) 456-7890");
 
-    rerender(
+    await rerender(
       <EvervaultInput
         testID="phone"
         mask={phoneMask}
@@ -380,7 +380,7 @@ describe("EvervaultInput", () => {
     await user.type(input, "1234567890");
     expect(input).toHaveProp("value", "(•••) •••-7890");
 
-    rerender(
+    await rerender(
       <EvervaultInput
         testID="phone"
         mask={phoneMask}
@@ -392,7 +392,7 @@ describe("EvervaultInput", () => {
     await user.type(input, "1234567890");
     expect(input).toHaveProp("value", "(###) ###-7890");
 
-    rerender(
+    await rerender(
       <EvervaultInput
         testID="phone"
         mask={phoneMask}
@@ -405,7 +405,7 @@ describe("EvervaultInput", () => {
     expect(input).toHaveProp("value", "(🤔🤔🤔) 🤔🤔🤔-7890");
 
     const unobfuscatedMask = mask("(999) 999-9999");
-    rerender(
+    await rerender(
       <EvervaultInput
         testID="phone"
         mask={unobfuscatedMask}

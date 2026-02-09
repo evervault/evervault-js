@@ -4,26 +4,26 @@ import { EvervaultProvider } from "./EvervaultProvider";
 import { PropsWithChildren } from "react";
 import { ErrorBoundary } from "./utils";
 
-it("throws an error if used outside of EvervaultProvider", () => {
+it("throws an error if used outside of EvervaultProvider", async () => {
   const onError = vi.fn();
   const wrapper = ({ children }: PropsWithChildren) => (
     <ErrorBoundary onError={onError}>{children}</ErrorBoundary>
   );
 
-  renderHook(() => useEvervault(), { wrapper });
+  await renderHook(() => useEvervault(), { wrapper });
   expect(onError).toHaveBeenCalledWith(
     new Error("`useEvervault` must be used within an `EvervaultProvider`.")
   );
 });
 
-it("returns the config when used within EvervaultProvider", () => {
+it("returns the config when used within EvervaultProvider", async () => {
   const wrapper = ({ children }: PropsWithChildren) => (
     <EvervaultProvider teamId="team_123" appId="app_123">
       {children}
     </EvervaultProvider>
   );
 
-  const { result } = renderHook(() => useEvervault(), { wrapper });
+  const { result } = await renderHook(() => useEvervault(), { wrapper });
 
   expect(result.current.appId).toBe("app_123");
   expect(result.current.teamId).toBe("team_123");
