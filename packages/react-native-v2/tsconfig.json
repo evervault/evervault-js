@@ -11,6 +11,6 @@
     "declaration": false,
     "declarationMap": false
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "setup.test.ts"],
   "exclude": ["build", "node_modules", "__mocks__"]
 }

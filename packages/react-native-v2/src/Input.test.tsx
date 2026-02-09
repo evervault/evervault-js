@@ -5,7 +5,7 @@ import {
   userEvent,
 } from "@testing-library/react-native";
 import { EvervaultInput, EvervaultInputContext, mask } from "./Input";
-import { FieldErrors, FormProvider, Resolver, useForm } from "react-hook-form";
+import { FormProvider, Resolver, useForm } from "react-hook-form";
 import { PropsWithChildren } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
