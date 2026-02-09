@@ -1,5 +1,12 @@
 # example-react
 
+## 0.0.28
+
+### Patch Changes
+
+- Updated dependencies [e9ad2b2]
+  - @evervault/react@2.23.1
+
 ## 0.0.27
 
 ### Patch Changes
