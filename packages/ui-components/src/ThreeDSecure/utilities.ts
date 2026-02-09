@@ -69,7 +69,7 @@ interface UseSessionReturn {
 }
 
 export function useSession(
-  container: RefObject<HTMLDivElement>,
+  container: RefObject<HTMLDivElement | null>,
   id: string
 ): UseSessionReturn {
   const initialized = useRef(false);

@@ -34,7 +34,7 @@
     "@babel/core": "catalog:",
     "@types/react": "catalog:",
     "rimraf": "^6.0.1",
-    "typescript": "^5.8.3"
+    "typescript": "catalog:"
   },
   "private": true
 }

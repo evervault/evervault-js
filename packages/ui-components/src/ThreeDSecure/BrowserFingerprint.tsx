@@ -15,7 +15,7 @@ export function BrowserFingerprint({
   onComplete,
   onTimeout,
 }: BrowserFingerprintProps) {
-  const frame = useRef<HTMLIFrameElement>();
+  const frame = useRef<HTMLIFrameElement>(null);
   const frameRef = useCallback(
     (node: HTMLIFrameElement) => {
       if (!frame.current) {

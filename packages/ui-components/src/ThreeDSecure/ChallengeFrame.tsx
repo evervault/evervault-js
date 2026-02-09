@@ -12,7 +12,7 @@ export interface ChallengeFrameProps {
 }
 
 export function ChallengeFrame({ nextAction, onLoad }: ChallengeFrameProps) {
-  const frame = useRef<HTMLIFrameElement>();
+  const frame = useRef<HTMLIFrameElement>(null);
   const frameRef = useCallback(
     (node: HTMLIFrameElement) => {
       if (!frame.current) {
