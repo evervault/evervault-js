@@ -232,7 +232,10 @@ type NormalizedRecurringInterval = "minute" | "hour" | "day" | "month" | "year";
 function normalizeRecurringInterval(
   unit?: RecurringPaymentIntervalUnit,
   count?: number
-): { recurringPaymentIntervalUnit?: NormalizedRecurringInterval; recurringPaymentIntervalCount?: number } {
+): {
+  recurringPaymentIntervalUnit?: NormalizedRecurringInterval;
+  recurringPaymentIntervalCount?: number;
+} {
   if (!unit) return {};
 
   if (unit === "week") {
@@ -300,7 +303,7 @@ function buildRecurringSession(
                 tx.regularBilling.recurringPaymentIntervalUnit,
                 tx.regularBilling.recurringPaymentIntervalCount
               ),
-              },
+            },
             trialBilling: tx.trialBilling
               ? {
                   label: tx.trialBilling.label,
