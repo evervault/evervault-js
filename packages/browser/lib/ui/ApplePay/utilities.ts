@@ -16,6 +16,7 @@ import {
   PaymentMethodUpdate,
 } from "./types";
 import ApplePayButton from ".";
+import { RecurringPaymentIntervalUnit } from "types/uiComponents";
 
 type BuildSessionOptions = {
   transaction: TransactionDetailsWithDomain;
@@ -225,6 +226,28 @@ function buildPaymentSession(
   return request;
 }
 
+// same as RecurringPaymentIntervalUnit but without "week"
+type NormalizedRecurringInterval = "minute" | "hour" | "day" | "month" | "year";
+
+function normalizeRecurringInterval(
+  unit?: RecurringPaymentIntervalUnit,
+  count?: number
+): { recurringPaymentIntervalUnit?: NormalizedRecurringInterval; recurringPaymentIntervalCount?: number } {
+  if (!unit) return {};
+
+  if (unit === "week") {
+    return {
+      recurringPaymentIntervalUnit: "day",
+      recurringPaymentIntervalCount: (count ?? 1) * 7,
+    };
+  }
+
+  return {
+    recurringPaymentIntervalUnit: unit,
+    ...(count != null && { recurringPaymentIntervalCount: count }),
+  };
+}
+
 function buildRecurringSession(
   merchant: MerchantDetail,
   config: BuildSessionOptions,
@@ -273,7 +296,11 @@ function buildRecurringSession(
               paymentTiming: "recurring",
               recurringPaymentStartDate:
                 tx.regularBilling.recurringPaymentStartDate,
-            },
+              ...normalizeRecurringInterval(
+                tx.regularBilling.recurringPaymentIntervalUnit,
+                tx.regularBilling.recurringPaymentIntervalCount
+              ),
+              },
             trialBilling: tx.trialBilling
               ? {
                   label: tx.trialBilling.label,
