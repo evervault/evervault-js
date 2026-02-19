@@ -81,14 +81,49 @@ async function createThreeDSSession(payload) {
     },
     payment: {
       type: "one-off",
-      amount: 1000,
+      amount: 0,
       currency: "eur",
+    },
+    challenge: {
+      preference: "challenge-mandated"
     },
     acquirer: {
       bin: "444444",
       merchantIdentifier: "837223891854392",
       country: "ie",
     },
+    customer: {
+      name: "Test Customer",
+      email: "customer@gmail.com",
+      phone: [
+        {
+          type: "work",
+          countryCode: "44",
+          number: "123456789",
+        },
+      ],
+      shipping: {
+        address: {
+          line1: "123 Fake Street",
+          line2: "Apt 1",
+          city: "Dublin",
+          postalCode: "90210",
+          country: "us",
+          state: "CA",
+        },
+      },
+      billing: {
+        address: {
+          line1: "123 Fake Street",
+          line2: "Apt 1",
+          city: "Los Angeles",
+          postalCode: "90210",
+          country: "us",
+          state: "CA",
+        },
+        taxIdentifier: "123456",
+      }
+    }
   });
 }
 

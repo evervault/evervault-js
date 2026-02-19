@@ -562,6 +562,14 @@ export interface PaymentTransactionDetails extends BaseTransactionDetails {
   type: "payment";
 }
 
+export type RecurringPaymentIntervalUnit =
+  | "minute"
+  | "hour"
+  | "day"
+  | "week"
+  | "month"
+  | "year";
+
 export interface RecurringTransactionDetails extends BaseTransactionDetails {
   type: "recurring";
   managementURL: string;
@@ -569,6 +577,8 @@ export interface RecurringTransactionDetails extends BaseTransactionDetails {
   description: string;
   regularBilling: TransactionLineItem & {
     recurringPaymentStartDate: Date;
+    recurringPaymentIntervalUnit?: RecurringPaymentIntervalUnit;
+    recurringPaymentIntervalCount?: number;
   };
   trialBilling?: TransactionLineItem & {
     trialPaymentStartDate: Date;
