@@ -88,8 +88,8 @@ async function createThreeDSSession(payload) {
       preference: "challenge-mandated"
     },
     acquirer: {
-      bin: "491059",
-      merchantIdentifier: "208202002886",
+      bin: "444444",
+      merchantIdentifier: "837223891854392",
       country: "ie",
     },
     customer: {
