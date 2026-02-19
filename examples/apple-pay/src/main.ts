@@ -1,4 +1,4 @@
-import { loadEvervault } from "@evervault/js";
+import { loadEvervault } from "../../../packages/js/src/index";
 import "./style.css";
 
 const evervault = await loadEvervault(
@@ -14,10 +14,26 @@ const evervault = await loadEvervault(
 );
 
 const transaction = evervault.transactions.create({
-  amount: 100,
+  type: "recurring",
+  amount: 0,
   currency: "USD",
   country: "US",
   merchantId: import.meta.env.VITE_MERCHANT_ID,
+  description: "Recurring payment test — every 2 weeks at $0.00",
+  billingAgreement: "You will be charged $0.00 every 2 weeks.",
+  managementURL: "https://example.com/manage",
+  regularBilling: {
+    label: "Recurring Test",
+    amount: 0.0,
+    recurringPaymentStartDate: new Date(new Date().setDate(new Date().getDate() + 7)),
+    recurringPaymentIntervalUnit: "week",
+    recurringPaymentIntervalCount: 2,
+  },
+  trialBilling: {
+    label: "Trial Period",
+    amount: 0,
+    trialPaymentStartDate: new Date(new Date().setDate(new Date().getDate() + 7)),
+  },
 });
 
 const apple = evervault.ui.applePayButton(transaction, {
