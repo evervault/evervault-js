@@ -119,5 +119,5 @@ and for the Expo example
 | ------------------- | -------------------------------------- | -------------------------------------- |
 | browser             | js.evervault.com/v2/index.js           | js.evervault.io/v2/index.js            |
 | inputs (deprecated) | inputs.evervault.com/index.html        | inputs.evervault.io/index.html         |
-| ui-components       | ui-components.evervault.com/index.html | ui-components.evervault.com/index.html |
+| ui-components       | ui-components.evervault.com/index.html | ui-components.evervault.io/index.html |
 | 3ds                 | 3ds.evervault.com/index.html           | 3ds.evervault.io/index.html            |
