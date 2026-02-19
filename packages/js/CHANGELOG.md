@@ -1,5 +1,11 @@
 # @evervault/js
 
+## 2.9.1
+
+### Patch Changes
+
+- e9ad2b2: Bump qs
+
 ## 2.9.0
 
 ### Minor Changes
