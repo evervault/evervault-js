@@ -87,4 +87,4 @@ catalog:
   vite-plugin-dts: ^4.5.4
   vite-plugin-istanbul: ^7.2.1
   vitest: ^4.0.18
-  wait-on: ^8.0.1
+  wait-on: ^9.0.4
