@@ -423,7 +423,7 @@ importers:
     devDependencies:
       '@vitejs/plugin-basic-ssl':
         specifier: ^2.1.4
-        version: 2.1.4(vite@5.4.11(@types/node@22.10.7)(lightningcss@1.27.0)(terser@5.39.0))
+        version: 2.1.4(vite@7.3.1(@types/node@24.10.10)(lightningcss@1.27.0)(terser@5.39.0))
       typescript:
         specifier: 'catalog:'
         version: 5.5.4
@@ -13959,9 +13959,9 @@ snapshots:
       '@urql/core': 5.1.0(graphql@16.12.0)
       wonka: 6.3.4
 
-  '@vitejs/plugin-basic-ssl@2.1.4(vite@5.4.11(@types/node@22.10.7)(lightningcss@1.27.0)(terser@5.39.0))':
+  '@vitejs/plugin-basic-ssl@2.1.4(vite@7.3.1(@types/node@24.10.10)(lightningcss@1.27.0)(terser@5.39.0))':
     dependencies:
-      vite: 5.4.11(@types/node@22.10.7)(lightningcss@1.27.0)(terser@5.39.0)
+      vite: 7.3.1(@types/node@24.10.10)(lightningcss@1.27.0)(terser@5.39.0)
 
   '@vitejs/plugin-react@4.7.0(vite@7.3.1(@types/node@24.10.10)(lightningcss@1.27.0)(terser@5.39.0))':
     dependencies:
@@ -16314,7 +16314,7 @@ snapshots:
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.4
-      debug: 4.4.1
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
     optional: true
@@ -16329,7 +16329,7 @@ snapshots:
   https-proxy-agent@7.0.6:
     dependencies:
       agent-base: 7.1.4
-      debug: 4.4.1
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
     optional: true
