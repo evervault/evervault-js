@@ -1,5 +1,12 @@
 # shared
 
+## 1.1.20
+
+### Patch Changes
+
+- Updated dependencies [e9ad2b2]
+  - @evervault/card-validator@1.5.1
+
 ## 1.1.19
 
 ### Patch Changes

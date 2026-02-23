@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.51.1
+
+### Patch Changes
+
+- e9ad2b2: Bump qs
+
 ## 2.51.0
 
 ### Minor Changes
