@@ -1,6 +1,6 @@
 {
   "name": "@evervault/eql",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": false,
   "author": "Evervault (https://evervault.com)",
   "license": "MIT",
@@ -16,7 +16,7 @@
     "build": "pnpm run build:cjs && pnpm run build:esm",
     "clean": "rm -rf node_modules dist",
     "prepublish": "pnpm run build",
-    "test": "vitest"
+    "test": "vitest run"
   },
   "main": "dist/index.js",
   "module": "dist/index.mjs",

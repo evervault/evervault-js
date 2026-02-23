@@ -1,9 +1,9 @@
 {
   "private": false,
   "name": "@evervault/browser",
-  "version": "2.51.0",
+  "version": "2.51.1",
   "engines": {
-    "node": "~18"
+    "node": "~24"
   },
   "repository": {
     "type": "git",
