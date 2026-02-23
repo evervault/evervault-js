@@ -113,11 +113,11 @@ and for the Expo example
 * `pnpm examples:expo android` rebuilds the Android bundle
 * `pnpm examples:expo dev` starts up the Metro server
 
-## Environments
+## URLs
 
-| Package             | Production                             | Staging                                |
-| ------------------- | -------------------------------------- | -------------------------------------- |
-| browser             | js.evervault.com/v2/index.js           | js.evervault.io/v2/index.js            |
-| inputs (deprecated) | inputs.evervault.com/index.html        | inputs.evervault.io/index.html         |
-| ui-components       | ui-components.evervault.com/index.html | ui-components.evervault.com/index.html |
-| 3ds                 | 3ds.evervault.com/index.html           | 3ds.evervault.io/index.html            |
+| Package             | URL                                    |
+| ------------------- | -------------------------------------- |
+| browser             | js.evervault.com/v2/index.js           |
+| inputs (deprecated) | inputs.evervault.com/index.html        |
+| ui-components       | ui-components.evervault.com/index.html |
+| 3ds                 | 3ds.evervault.com/index.html           |
