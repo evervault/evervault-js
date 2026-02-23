@@ -421,6 +421,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/js
     devDependencies:
+      '@vitejs/plugin-basic-ssl':
+        specifier: ^2.1.4
+        version: 2.1.4(vite@7.3.1(@types/node@24.10.10)(lightningcss@1.27.0)(terser@5.39.0))
       typescript:
         specifier: 'catalog:'
         version: 5.5.4
@@ -4306,6 +4309,12 @@ packages:
     resolution: {integrity: sha512-FLt+d81gP4oiHah4hWFDApimc+/xABWMU1AMYsZ1PVB0L0YPtrMCjbOp9WMM7hBzy4gbTDrG24sio0dCfSh/HQ==}
     peerDependencies:
       '@urql/core': ^5.0.0
+
+  '@vitejs/plugin-basic-ssl@2.1.4':
+    resolution: {integrity: sha512-HXciTXN/sDBYWgeAD4V4s0DN0g72x5mlxQhHxtYu3Tt8BLa6MzcJZUyDVFCdtjNs3bfENVHVzOsmooTVuNgAAw==}
+    engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
+    peerDependencies:
+      vite: ^6.0.0 || ^7.0.0
 
   '@vitejs/plugin-react@4.7.0':
     resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
@@ -13950,6 +13959,10 @@ snapshots:
       '@urql/core': 5.1.0(graphql@16.12.0)
       wonka: 6.3.4
 
+  '@vitejs/plugin-basic-ssl@2.1.4(vite@7.3.1(@types/node@24.10.10)(lightningcss@1.27.0)(terser@5.39.0))':
+    dependencies:
+      vite: 7.3.1(@types/node@24.10.10)(lightningcss@1.27.0)(terser@5.39.0)
+
   '@vitejs/plugin-react@4.7.0(vite@7.3.1(@types/node@24.10.10)(lightningcss@1.27.0)(terser@5.39.0))':
     dependencies:
       '@babel/core': 7.29.0
@@ -16301,7 +16314,7 @@ snapshots:
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.4
-      debug: 4.4.1
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
     optional: true
@@ -16316,7 +16329,7 @@ snapshots:
   https-proxy-agent@7.0.6:
     dependencies:
       agent-base: 7.1.4
-      debug: 4.4.1
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
     optional: true
