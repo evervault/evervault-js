@@ -11,7 +11,7 @@
       },
       "original": {
         "type": "tarball",
-        "url": "https://flakehub.com/f/NixOS/nixpkgs/%2A"
+        "url": "https://flakehub.com/f/NixOS/nixpkgs/0"
       }
     },
     "root": {

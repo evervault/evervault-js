@@ -4,7 +4,7 @@
   # Flake inputs
   inputs = {
     # Latest stable Nixpkgs
-    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/*";
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0";
   };
 
   # Flake outputs
