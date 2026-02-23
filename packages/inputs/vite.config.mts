@@ -17,7 +17,7 @@ export default defineConfig({
     {
       enforce: "post",
       ...sri({ publicPath: "/v2/", algorithms: ["sha512"] }),
-    },
+    } as never,
   ],
   base: "/v2/",
 });
