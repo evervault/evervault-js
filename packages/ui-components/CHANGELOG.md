@@ -1,5 +1,11 @@
 # @evervault/ui-components
 
+## 1.39.1
+
+### Patch Changes
+
+- e59ed25: Switch jsonpath to jsonpath-rfc9535 to patch vulnerability
+
 ## 1.39.0
 
 ### Minor Changes
