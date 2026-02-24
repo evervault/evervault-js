@@ -1,7 +1,7 @@
 {
   "name": "@evervault/react-native",
   "description": "Evervault SDK for React Native",
-  "version": "2.6.2",
+  "version": "2.6.3",
   "source": "./src/index.ts",
   "main": "./build/cjs/index.js",
   "module": "./build/esm/index.js",

@@ -1,5 +1,14 @@
 # evervault-expo-example
 
+## 1.0.12
+
+### Patch Changes
+
+- 4d6a862: - Update Next version for security fixes
+  - Update Expo sub-dependencies for security fixes
+- Updated dependencies [25b3d7b]
+  - @evervault/react-native@2.6.3
+
 ## 1.0.11
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # example-next-3ds
 
+## 0.1.21
+
+### Patch Changes
+
+- 4d6a862: - Update Next version for security fixes
+  - Update Expo sub-dependencies for security fixes
+  - @evervault/react@2.23.1
+
 ## 0.1.20
 
 ### Patch Changes

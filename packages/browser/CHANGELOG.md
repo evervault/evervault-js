@@ -1,5 +1,15 @@
 # @evervault/browser
 
+## 2.52.0
+
+### Minor Changes
+
+- cb24d28: Support setting recurring payment interval unit and count for Apple Pay
+
+### Patch Changes
+
+- 25b3d7b: Add Node 24 compatibility
+
 ## 2.51.1
 
 ### Patch Changes
