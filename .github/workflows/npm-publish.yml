@@ -46,7 +46,7 @@ jobs:
           fetch-depth: 2
 
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v7
         with:
           name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: ${{ inputs.repo_path }}
