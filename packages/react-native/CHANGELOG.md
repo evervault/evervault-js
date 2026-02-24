@@ -1,5 +1,11 @@
 # @evervault/evervault-react-native
 
+## 1.4.3
+
+### Patch Changes
+
+- 25b3d7b: Add Node 24 compatibility
+
 ## 1.4.2
 
 ### Patch Changes

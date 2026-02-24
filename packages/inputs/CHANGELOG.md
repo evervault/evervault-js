@@ -1,5 +1,15 @@
 # @evervault/inputs
 
+## 2.18.27
+
+### Patch Changes
+
+- dab2576: Update Vite and dependencies to v7
+- 25b3d7b: Add Node 24 compatibility
+- Updated dependencies [cb24d28]
+- Updated dependencies [25b3d7b]
+  - @evervault/browser@2.52.0
+
 ## 2.18.26
 
 ### Patch Changes

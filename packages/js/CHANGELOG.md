@@ -1,5 +1,11 @@
 # @evervault/js
 
+## 2.10.0
+
+### Minor Changes
+
+- cb24d28: Support setting recurring payment interval unit and count for Apple Pay
+
 ## 2.9.1
 
 ### Patch Changes
