@@ -1,7 +1,7 @@
 {
   "name": "@evervault/ui-components",
   "private": false,
-  "version": "1.39.0",
+  "version": "1.39.1",
   "type": "module",
   "scripts": {
     "build": "vite build",
@@ -20,7 +20,7 @@
     "@types/applepayjs": "catalog:",
     "@types/googlepay": "catalog:",
     "imask": "catalog:",
-    "jsonpath": "catalog:",
+    "jsonpath-rfc9535": "catalog:",
     "jss": "catalog:",
     "jss-preset-default": "catalog:",
     "react": "catalog:",
@@ -30,7 +30,6 @@
   },
   "devDependencies": {
     "@types/jsdom": "catalog:",
-    "@types/jsonpath": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",

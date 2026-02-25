@@ -73,20 +73,20 @@ jobs:
     steps:
       # Sanity check that the preview deployment is for a package that we support. This is to prevent the workflow from running in an undefined state.
       - name: Assert that preview deployment is for a known package
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         if: ${{ inputs.package-name != '@evervault/ui-components' && inputs.package-name != '@evervault/browser' }}
         with:
           script: |
             core.setFailed("Preview deployment has not been implemented for: ${{ inputs.package-name }}. Continuing would be undefined behaviour. Please implement a preview deployment for this package before proceeding.");
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ inputs.stage == 'production' &&  secrets.AWS_EV_JS_PRODUCTION_OIDC_ROLE_ARN || secrets.AWS_EV_JS_STAGING_OIDC_ROLE_ARN }}
           aws-region: "us-east-1"
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v7
         with:
           name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: dist
@@ -115,7 +115,7 @@ jobs:
       # For Packages which have multiple paths that need to be invalidated, its easier to use the batch invalidation API than it is to programmatically pass the `--paths` flag to the CLI.
       # As a result, we split the list of paths on comma and create the expected payload (ref: https://docs.aws.amazon.com/cli/latest/reference/cloudfront/create-invalidation.html)
       - name: Prepare cloudfront payload
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         id: prepare-cloudfront-payload
         with:
           script: |
@@ -136,7 +136,7 @@ jobs:
           CF_DISTRO_SECRET_NAME: ${{ inputs.cloudfront-distribution-id }}
       - uses: pnpm/action-setup@v4
       - name: Setup Node.js environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
@@ -195,12 +195,12 @@ jobs:
     name: "Deploy ${{ inputs.package-name }} to ${{ inputs.stage }}"
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ inputs.stage == 'production' &&  secrets.AWS_EV_JS_PRODUCTION_OIDC_ROLE_ARN || secrets.AWS_EV_JS_STAGING_OIDC_ROLE_ARN }}
           aws-region: "us-east-1"
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v7
         with:
           name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: dist
@@ -227,7 +227,7 @@ jobs:
           S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
         run: aws s3 cp dist s3://${{ vars[env.S3_BUCKET_VAR] }}/ --recursive
       - name: Prepare cloudfront payload
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         id: prepare-cloudfront-payload
         with:
           script: |
@@ -255,7 +255,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
       - name: Get package name

@@ -30,12 +30,12 @@ jobs:
       e2e-test-projects: ${{ steps.e2e-targets.outputs.e2e-test-projects }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
       - name: Setup Node.js environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
@@ -78,7 +78,7 @@ jobs:
       HOME: "/root"
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ssh-key: "${{ secrets.COMMIT_KEY }}"
           fetch-depth: 0
@@ -86,7 +86,7 @@ jobs:
         with:
           run_install: false
       - name: Setup Node.js environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
