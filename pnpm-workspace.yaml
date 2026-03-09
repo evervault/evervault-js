@@ -61,7 +61,7 @@ catalog:
   pod-install: ^0.1.0
   postcss: ^8.4.47
   postcss-load-config: ^4.0.1
-  postcss-preset-env: ^8.3.0
+  postcss-preset-env: ^11.2.0
   prettier: ^2.8.8
   react: ^18.2.0
   react-dom: ^18.2.0
