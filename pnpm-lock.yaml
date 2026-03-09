@@ -67,8 +67,8 @@ catalogs:
       specifier: ^3.0.5
       version: 3.0.6
     card-validator:
-      specifier: ^8.1.1
-      version: 8.1.1
+      specifier: ^10.0.4
+      version: 10.0.4
     concurrently:
       specifier: ^8.2.2
       version: 8.2.2
@@ -847,7 +847,7 @@ importers:
         version: link:../browser
       card-validator:
         specifier: 'catalog:'
-        version: 8.1.1
+        version: 10.0.4
       credit-card-type:
         specifier: 'catalog:'
         version: 9.1.0
@@ -5107,8 +5107,8 @@ packages:
   caniuse-lite@1.0.30001695:
     resolution: {integrity: sha512-vHyLade6wTgI2u1ec3WQBxv+2BrTERV28UXQu9LO6lZ9pYeMk34vjXFLOxo1A4UBA8XTL4njRQZdno/yYaSmWw==}
 
-  card-validator@8.1.1:
-    resolution: {integrity: sha512-cN4FsKwoTfTFnqPwVc7TQLSsH/QMDB3n/gWm0XelcApz4sKipnOQ6k33sa3bWsNnnIpgs7eXOF+mUV2UQAX2Sw==}
+  card-validator@10.0.4:
+    resolution: {integrity: sha512-1Q/tDCSvM5iL3psPo6j8KF/VoI63WA7Y4Zthy1E7l/H4Iul2e2X+1S0vp33n3OMRjLgGU2+gLaK2NsGtwArJkQ==}
 
   chai@6.2.2:
     resolution: {integrity: sha512-NUPRluOfOiTKBKvWPtSD4PhFvWCqOi0BGStNWs57X9js7XGTprSmFoz5F0tWhR4WPjNeR9jXqdC7/UpSJTnlRg==}
@@ -5360,6 +5360,9 @@ packages:
 
   create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
+
+  credit-card-type@10.1.2:
+    resolution: {integrity: sha512-fP9vlyeYSHfKbIdE6IOR63YivTXMy0ZqyEkBhHxuAbvpltepe+zJmQ34A2Va7zJ8J7ZaB5IMAdD+1YJOmsajJA==}
 
   credit-card-type@9.1.0:
     resolution: {integrity: sha512-CpNFuLxiPFxuZqhSKml3M+t0K/484pMAnfYWH14JoD7OZMnmC0Lmo+P7JX9SobqFpRoo7ifA18kOHdxJywYPEA==}
@@ -6311,12 +6314,12 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   globals@11.12.0:
     resolution: {integrity: sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==}
@@ -9070,7 +9073,7 @@ packages:
   tar@6.2.1:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
-    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   temp-dir@2.0.0:
     resolution: {integrity: sha512-aoBAniQmmwtcKp/7BzsH8Cxzv8OL736p7v1ihGb5e9DJ9kTwGWHrQrVB5+lfVDzfGrdRzXch+ig7LHaY1JTOrg==}
@@ -14979,9 +14982,9 @@ snapshots:
 
   caniuse-lite@1.0.30001695: {}
 
-  card-validator@8.1.1:
+  card-validator@10.0.4:
     dependencies:
-      credit-card-type: 9.1.0
+      credit-card-type: 10.1.2
 
   chai@6.2.2: {}
 
@@ -15259,6 +15262,8 @@ snapshots:
   crc-32@1.2.2: {}
 
   create-require@1.1.1: {}
+
+  credit-card-type@10.1.2: {}
 
   credit-card-type@9.1.0: {}
 
