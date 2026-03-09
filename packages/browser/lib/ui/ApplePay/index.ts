@@ -247,13 +247,11 @@ export default class ApplePayButton {
 
     if (
       typeof ApplePaySession === "undefined" ||
-      // @ts-expect-error applePayCapabilities is added by the dynamically loaded SDK, not the bundled Safari types
       typeof ApplePaySession.applePayCapabilities !== "function"
     ) {
       return "unsupported";
     }
 
-    // @ts-expect-error The Apple Pay types are for the bundled version of ApplePaySession in safari, not the version the script loads which adds this method
     const capabilities = await ApplePaySession.applePayCapabilities(
       `merchant.com.evervault.${this.transaction.details.merchantId}`
     );
