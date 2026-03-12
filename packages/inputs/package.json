@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@evervault/inputs",
-  "version": "2.18.24",
+  "version": "2.18.27",
   "description": "Repo for the backend for Evervault Inputs",
   "types": "./src/types.d.ts",
   "scripts": {
@@ -17,8 +17,7 @@
     "clean": "rm -rf node_modules dist"
   },
   "engines": {
-    "node": "^18",
-    "pnpm": "~9"
+    "node": "^24"
   },
   "license": "MIT",
   "devDependencies": {

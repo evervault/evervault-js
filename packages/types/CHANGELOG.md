@@ -1,5 +1,13 @@
 # types
 
+## 0.22.0
+
+### Minor Changes
+
+- 75802c2: Add emailRequired option to GooglePay to allow collecting email addresses.
+- 57e945f: - Add colorScheme option for iframe-based UI components
+  - Add colorScheme prop to compatible React components
+
 ## 0.21.0
 
 ### Minor Changes

@@ -1,7 +1,7 @@
 {
   "name": "example-apple-pay",
   "private": true,
-  "version": "0.0.11",
+  "version": "0.0.14",
   "type": "module",
   "scripts": {
     "dev": "vite --port 4000",
@@ -11,6 +11,7 @@
     "@evervault/js": "workspace:*"
   },
   "devDependencies": {
+    "@vitejs/plugin-basic-ssl": "^2.1.4",
     "typescript": "catalog:",
     "vite": "catalog:"
   }

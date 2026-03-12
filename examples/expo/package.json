@@ -1,10 +1,11 @@
 {
   "name": "evervault-expo-example",
   "main": "index.ts",
-  "version": "1.0.10",
+  "version": "1.0.12",
   "scripts": {
     "expo": "expo",
     "dev": "expo start --localhost",
+    "prebuild": "tsc --noEmit && expo prebuild",
     "android": "rimraf android && expo run:android --no-bundler",
     "android:release": "rimraf android && expo run:android --no-bundler --variant release",
     "android:release:proguard": "PROGUARD_ENABLED=true pnpm android:release",

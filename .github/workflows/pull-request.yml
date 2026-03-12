@@ -5,6 +5,7 @@ on:
     branches:
       - "master"
       - "main"
+  merge_group:
 jobs:
   lint-and-test:
     uses: ./.github/workflows/lint.yml
@@ -20,4 +21,5 @@ jobs:
       vite-keys-url: "https://keys.evervault.com"
       vite-api-url: "https://api.evervault.com"
       run-code-coverage-checks: false
+      update-screenshots: false
     secrets: inherit

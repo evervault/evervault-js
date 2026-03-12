@@ -73,7 +73,7 @@ test.describe("card component", () => {
     await frame.getByLabel("Number").fill(testCard.number);
     await frame.getByLabel("Number").blur();
     await expect(frame.getByText("Your card number is invalid")).toBeVisible();
-    await expect.poll(async () => values.errors.number).toEqual("invalid");
+    await expect.poll(async () => values.errors?.number).toEqual("invalid");
     await expect.poll(async () => values.isValid).toBeFalsy();
     await expect(
       frame.getByText("Your expiration date is invalid")
@@ -104,7 +104,7 @@ test.describe("card component", () => {
       frame.getByText("This card brand is not supported")
     ).toBeVisible();
     await expect
-      .poll(async () => values.errors.number)
+      .poll(async () => values.errors?.number)
       .toEqual("unsupportedBrand");
     await expect.poll(async () => values.isValid).toBeFalsy();
     await expect(
@@ -155,7 +155,7 @@ test.describe("card component", () => {
     await expect(
       frame.getByText("Your expiration date is invalid")
     ).toBeVisible();
-    await expect.poll(async () => values.errors.expiry).toEqual("invalid");
+    await expect.poll(async () => values.errors?.expiry).toEqual("invalid");
     await expect.poll(async () => values.isValid).toBeFalsy();
   });
 
@@ -177,7 +177,7 @@ test.describe("card component", () => {
     await frame.getByLabel("CVC").fill(testCard.cvc);
     await frame.getByLabel("CVC").blur();
     await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
-    await expect.poll(async () => values.errors.cvc).toEqual("invalid");
+    await expect.poll(async () => values.errors?.cvc).toEqual("invalid");
     await expect.poll(async () => values.isValid).toBeFalsy();
   });
 
@@ -607,8 +607,8 @@ test.describe("card component", () => {
       frame.getByText("Your expiration date is invalid")
     ).toBeVisible();
 
-    await expect.poll(async () => values.errors.number).toBe("invalid");
-    await expect.poll(async () => values.errors.expiry).toBe("invalid");
+    await expect.poll(async () => values.errors?.number).toBe("invalid");
+    await expect.poll(async () => values.errors?.expiry).toBe("invalid");
   });
 
   test("fires a validate event when validation is manually triggered", async ({

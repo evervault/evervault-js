@@ -89,6 +89,7 @@ export default class GooglePay {
         allowedAuthMethods: this.#options.allowedAuthMethods,
         allowedCardNetworks: this.#options.allowedCardNetworks,
         billingAddress: this.#options.billingAddress,
+        emailRequired: this.#options.emailRequired,
       },
     };
   }

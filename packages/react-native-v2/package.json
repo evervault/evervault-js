@@ -1,7 +1,7 @@
 {
   "name": "@evervault/react-native",
   "description": "Evervault SDK for React Native",
-  "version": "2.6.1",
+  "version": "2.6.3",
   "source": "./src/index.ts",
   "main": "./build/cjs/index.js",
   "module": "./build/esm/index.js",
@@ -52,7 +52,7 @@
     "react-native-webview": "catalog:",
     "react-test-renderer": "18.2.0",
     "rimraf": "^6.0.1",
-    "rollup": "^4.34.9",
+    "rollup": "^4.59.0",
     "tsconfig": "workspace:*",
     "vitest": "catalog:",
     "vitest-react-native": "^0.1.5"

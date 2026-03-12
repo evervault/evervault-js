@@ -24,7 +24,7 @@ test.describe("threeDSecure component", () => {
     const frame = page.frameLocator("iframe[data-evervault]");
     const acsFrame = frame.frameLocator("iframe[name='challengeFrame']");
     const code = acsFrame.locator("input");
-    code.pressSequentially("111111");
+    await code.pressSequentially("111111");
     await expect.poll(async () => called).toBeTruthy();
   });
 
@@ -64,7 +64,7 @@ test.describe("threeDSecure component", () => {
     const frame = page.frameLocator("iframe[data-evervault]");
     const acsFrame = frame.frameLocator("iframe[name='challengeFrame']");
     const code = acsFrame.locator("input");
-    code.pressSequentially("222222");
+    await code.pressSequentially("222222");
     await expect.poll(async () => called).toBeTruthy();
   });
 
@@ -190,7 +190,7 @@ test.describe("threeDSecure component", () => {
     const frame = page.frameLocator("iframe[data-evervault]");
     const acsFrame = frame.frameLocator("iframe[name='challengeFrame']");
     const code = acsFrame.locator("input");
-    code.pressSequentially("111111");
+    await code.pressSequentially("111111");
     await expect.poll(async () => success, { timeout: 7500 }).toBeTruthy();
   });
 });

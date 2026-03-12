@@ -1,5 +1,19 @@
 # @evervault/evervault-react-native
 
+## 1.4.3
+
+### Patch Changes
+
+- 25b3d7b: Add Node 24 compatibility
+
+## 1.4.2
+
+### Patch Changes
+
+- e9ad2b2: Bump qs
+- Updated dependencies [e9ad2b2]
+  - @evervault/card-validator@1.5.1
+
 ## 1.4.1
 
 ### Patch Changes

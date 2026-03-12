@@ -21,6 +21,7 @@ jobs:
       vite-keys-url: "https://keys.evervault.com"
       vite-api-url: "https://api.evervault.com"
       run-code-coverage-checks: false
+      update-screenshots: false
     secrets: inherit
   get-all-publishable-packages:
     runs-on: ubuntu-latest
@@ -28,10 +29,10 @@ jobs:
       publishable-packages: ${{ steps.get-publishable-packages.outputs.publishable-packages }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
       - name: Setup Node.js environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
@@ -124,7 +125,7 @@ jobs:
       number-of-tags-to-publish: ${{ steps.create-tags.outputs.number-of-tags }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ssh-key: "${{ secrets.COMMIT_KEY }}"
       - name: Set up Git
@@ -135,7 +136,7 @@ jobs:
         run: git fetch --tags origin
       - uses: pnpm/action-setup@v4
       - name: Setup Node.js environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
@@ -149,7 +150,7 @@ jobs:
           setupGitUser: false
         env:
           HUSKY: 0
-          GITHUB_TOKEN: ${{ secrets.SDK_PUBLISH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Tags
         id: create-tags
         # Changesets deletes the changeset files on version PR, so if false then we need to tag and release the packages

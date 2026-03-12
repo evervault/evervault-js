@@ -1,5 +1,24 @@
 # @evervault/js
 
+## 2.10.0
+
+### Minor Changes
+
+- cb24d28: Support setting recurring payment interval unit and count for Apple Pay
+
+## 2.9.1
+
+### Patch Changes
+
+- e9ad2b2: Bump qs
+
+## 2.9.0
+
+### Minor Changes
+
+- 57e945f: - Add colorScheme option for iframe-based UI components
+  - Add colorScheme prop to compatible React components
+
 ## 2.8.0
 
 ### Minor Changes

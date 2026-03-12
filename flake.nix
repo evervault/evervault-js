@@ -30,7 +30,7 @@
           # The Nix packages provided in the environment
           packages = with pkgs; [
             openjdk17
-            nodejs_18 # Match CI and avoid unsupported engine warnings
+            nodejs_24 # Match CI and avoid unsupported engine warnings
             corepack_22 # Required for pnpm
             cocoapods
           ];
@@ -52,6 +52,9 @@
               echo "[INFO] Xcode SDK root: $SDKROOT"
               echo "[INFO] clang path: $(which clang)"
             fi
+
+            # Set the path to the local browsers for Playwright
+            export PLAYWRIGHT_BROWSERS_PATH=$(pwd)/browsers
           '';
           };
       });

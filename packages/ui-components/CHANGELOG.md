@@ -1,5 +1,43 @@
 # @evervault/ui-components
 
+## 1.39.1
+
+### Patch Changes
+
+- e59ed25: Switch jsonpath to jsonpath-rfc9535 to patch vulnerability
+
+## 1.39.0
+
+### Minor Changes
+
+- 4835dc5: Move color-scheme checks to main bundle
+
+### Patch Changes
+
+- e9ad2b2: Bump qs
+- Updated dependencies [e9ad2b2]
+  - @evervault/card-validator@1.5.1
+  - @evervault/react@2.23.1
+  - shared@1.1.20
+
+## 1.38.0
+
+### Minor Changes
+
+- 75802c2: Add emailRequired option to GooglePay to allow collecting email addresses.
+- 57e945f: - Add colorScheme option for iframe-based UI components
+  - Add colorScheme prop to compatible React components
+
+### Patch Changes
+
+- Updated dependencies [c4a8713]
+- Updated dependencies [75802c2]
+- Updated dependencies [57e945f]
+  - @evervault/react@2.23.0
+  - types@0.22.0
+  - @evervault/card-validator@1.5.0
+  - shared@1.1.19
+
 ## 1.37.1
 
 ### Patch Changes

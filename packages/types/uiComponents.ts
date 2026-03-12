@@ -386,6 +386,7 @@ export type EncryptedGooglePayData = (
   | EncryptedDPAN<"google">
   | EncryptedFPAN
 ) & {
+  email?: string | null;
   billingAddress?: google.payments.api.Address | null;
 };
 
@@ -403,6 +404,7 @@ export type GooglePayBillingAddressConfig =
     };
 
 export interface GooglePayOptions {
+  emailRequired?: boolean;
   process: (
     data: EncryptedGooglePayData,
     helpers: {
@@ -560,6 +562,14 @@ export interface PaymentTransactionDetails extends BaseTransactionDetails {
   type: "payment";
 }
 
+export type RecurringPaymentIntervalUnit =
+  | "minute"
+  | "hour"
+  | "day"
+  | "week"
+  | "month"
+  | "year";
+
 export interface RecurringTransactionDetails extends BaseTransactionDetails {
   type: "recurring";
   managementURL: string;
@@ -567,6 +577,8 @@ export interface RecurringTransactionDetails extends BaseTransactionDetails {
   description: string;
   regularBilling: TransactionLineItem & {
     recurringPaymentStartDate: Date;
+    recurringPaymentIntervalUnit?: RecurringPaymentIntervalUnit;
+    recurringPaymentIntervalCount?: number;
   };
   trialBilling?: TransactionLineItem & {
     trialPaymentStartDate: Date;

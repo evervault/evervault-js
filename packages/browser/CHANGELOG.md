@@ -1,5 +1,36 @@
 # @evervault/browser
 
+## 2.52.0
+
+### Minor Changes
+
+- cb24d28: Support setting recurring payment interval unit and count for Apple Pay
+
+### Patch Changes
+
+- 25b3d7b: Add Node 24 compatibility
+
+## 2.51.1
+
+### Patch Changes
+
+- e9ad2b2: Bump qs
+
+## 2.51.0
+
+### Minor Changes
+
+- 75802c2: Add emailRequired option to GooglePay to allow collecting email addresses.
+- 57e945f: - Add colorScheme option for iframe-based UI components
+  - Add colorScheme prop to compatible React components
+
+### Patch Changes
+
+- Updated dependencies [75802c2]
+- Updated dependencies [57e945f]
+  - types@0.22.0
+  - themes@0.1.22
+
 ## 2.50.1
 
 ### Patch Changes

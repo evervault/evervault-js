@@ -56,6 +56,10 @@ export function GooglePay({ config }: GooglePayProps) {
               config.transaction.merchantId
             );
 
+            if (data.email) {
+              payload.email = data.email;
+            }
+
             const paymentMethodData = data.paymentMethodData;
             payload.card.displayName = paymentMethodData?.description;
 

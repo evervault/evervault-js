@@ -1,5 +1,26 @@
 # @evervault/inputs-e2e-tests
 
+## 1.0.25
+
+### Patch Changes
+
+- Updated dependencies [dab2576]
+- Updated dependencies [25b3d7b]
+  - @evervault/inputs@2.18.27
+
+## 1.0.24
+
+### Patch Changes
+
+- Updated dependencies [e9ad2b2]
+  - @evervault/inputs@2.18.26
+
+## 1.0.23
+
+### Patch Changes
+
+- @evervault/inputs@2.18.25
+
 ## 1.0.22
 
 ### Patch Changes

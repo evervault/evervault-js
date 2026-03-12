@@ -1,9 +1,9 @@
-import jsonpath from "jsonpath";
+import { JsonValue, query } from "jsonpath-rfc9535";
 
 const ALLOWED_TYPES = ["string", "number", "boolean"];
 
 export function resolveJSONPath(json: JSON, path: string): string {
-  const matches = jsonpath.query(json, path);
+  const matches = query(json as unknown as JsonValue, path);
   if (matches.length === 0) {
     throw new Error(`No matches found for path ${path}`);
   }

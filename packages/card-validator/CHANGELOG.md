@@ -1,5 +1,11 @@
 # @evervault/card-validator
 
+## 1.5.1
+
+### Patch Changes
+
+- e9ad2b2: Bump qs
+
 ## 1.5.0
 
 ### Minor Changes
