@@ -245,6 +245,13 @@ export default class ApplePayButton {
     if (typeof window.PaymentRequest === "undefined") return "unsupported";
     await this.#waitForScript();
 
+    if (
+      typeof ApplePaySession === "undefined" ||
+      typeof ApplePaySession.applePayCapabilities !== "function"
+    ) {
+      return "unsupported";
+    }
+
     const capabilities = await ApplePaySession.applePayCapabilities(
       `merchant.com.evervault.${this.transaction.details.merchantId}`
     );
