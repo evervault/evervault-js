@@ -1,5 +1,15 @@
 # @evervault/browser
 
+## 2.53.0
+
+### Minor Changes
+
+- d5bb2c5: Add a `ready` event to the Apple Pay button that fires after the button has been mounted to the DOM.
+
+### Patch Changes
+
+- dfac390: Fix Apple Pay availability check crashing in browsers where `ApplePaySession.applePayCapabilities` is undefined (e.g. Facebook in-app browser). The `availability()` method now returns `"unsupported"` instead of throwing a runtime error.
+
 ## 2.52.0
 
 ### Minor Changes
