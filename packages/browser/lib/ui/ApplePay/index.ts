@@ -59,6 +59,7 @@ export type ApplePayButtonOptions = {
 };
 
 interface ApplePayEvents {
+  ready: () => void;
   success: () => void;
   error: (message?: string) => void;
   cancel: () => void;
@@ -326,6 +327,7 @@ export default class ApplePayButton {
     });
 
     element.appendChild(this.#button);
+    this.#events.dispatch("ready");
   }
 
   unmount() {

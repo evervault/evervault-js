@@ -57,6 +57,10 @@ if (availability === "available") {
   apple.on("cancel", () => {
     console.log("Apple Pay cancelled");
   });
+  
+  apple.on("ready", () => {
+    console.log("Apple Pay button is ready!");
+  });
 
   apple.mount("#apple-pay");
 } else if (availability === "unavailable") {
