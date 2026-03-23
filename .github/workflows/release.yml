@@ -76,7 +76,7 @@ jobs:
       package-name: '@evervault/ui-components'
       stage: "production"
       preview-environment: 'ui-components-production'
-      live-environment: 'ui-components-production'
+      live-environment: 'ui-components-production-deploy'
       run-preflight-checks: true
       perform-gated-preview-deployment: true
       s3-bucket-var-name: 'UI_COMPONENTS_S3_BUCKET'
