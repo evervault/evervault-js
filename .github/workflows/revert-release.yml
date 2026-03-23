@@ -31,7 +31,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
       - name: Install dependencies
         run: pnpm install
       - name: Build release-gate-tests
