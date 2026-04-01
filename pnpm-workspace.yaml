@@ -87,3 +87,7 @@ catalog:
   vite-plugin-istanbul: ^7.2.1
   vitest: ^4.0.18
   wait-on: ^9.0.4
+settings:
+  minimumReleaseAge: 10080
+  blockExoticSubdeps: true
+  trustPolicy: no-downgrade
