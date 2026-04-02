@@ -42,7 +42,7 @@ catalog:
   expo-splash-screen: ~0.29.22
   expo-status-bar: ~1.12.1
   express: ^4
-  globals: ^15.10.0
+  globals: ^17.4.0
   husky: ^9.1.1
   imask: ^7.6.1
   jest: ^28.1.1
