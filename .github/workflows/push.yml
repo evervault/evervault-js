@@ -30,7 +30,7 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
       - name: Setup Node.js environment
         uses: actions/setup-node@v6
         with:
@@ -134,7 +134,7 @@ jobs:
           git config user.name "Evervault Bot"
       - name: Get tags
         run: git fetch --tags origin
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
       - name: Setup Node.js environment
         uses: actions/setup-node@v6
         with:
