@@ -14,10 +14,8 @@ import { getMerchant } from "../utilities/useMerchant";
 import { getAppSDKConfig } from "../utilities/getAppSDKConfig";
 import { apiConfig } from "../utilities/config";
 
-type GooglePayCardFundingSource = "CREDIT" | "DEBIT" | "PREPAID" | "UNKNOWN";
-
 const FUNDING_SOURCE_MAP: Partial<
-  Record<GooglePayCardFundingSource, PaymentMethodType>
+  Record<google.payments.api.CardFundingSource, PaymentMethodType>
 > = {
   CREDIT: "credit",
   DEBIT: "debit",
@@ -77,11 +75,7 @@ export function GooglePay({ config }: GooglePayProps) {
             const paymentMethodData = data.paymentMethodData;
             payload.card.displayName = paymentMethodData?.description;
 
-            const paymentMethodInfo = paymentMethodData?.info as
-              | (google.payments.api.CardInfo & {
-                  cardFundingSource?: GooglePayCardFundingSource;
-                })
-              | undefined;
+            const paymentMethodInfo = paymentMethodData?.info;
 
             const fundingSource = paymentMethodInfo?.cardFundingSource;
             const paymentMethodType = fundingSource
