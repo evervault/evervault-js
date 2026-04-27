@@ -4,11 +4,25 @@ import { buildPaymentRequest, exchangePaymentData } from "./utilities";
 import { setSize } from "../utilities/resize";
 import { GooglePayConfig } from "./types";
 import { useMessaging } from "../utilities/useMessaging";
-import { GooglePayClientMessages, GooglePayHostMessages } from "types";
+import {
+  GooglePayClientMessages,
+  GooglePayHostMessages,
+  PaymentMethodType,
+} from "types";
 import { useSearchParams } from "../utilities/useSearchParams";
 import { getMerchant } from "../utilities/useMerchant";
 import { getAppSDKConfig } from "../utilities/getAppSDKConfig";
 import { apiConfig } from "../utilities/config";
+
+type GooglePayCardFundingSource = "CREDIT" | "DEBIT" | "PREPAID" | "UNKNOWN";
+
+const FUNDING_SOURCE_MAP: Partial<
+  Record<GooglePayCardFundingSource, PaymentMethodType>
+> = {
+  CREDIT: "credit",
+  DEBIT: "debit",
+  PREPAID: "prepaid",
+};
 
 interface GooglePayProps {
   config: GooglePayConfig;
@@ -63,7 +77,19 @@ export function GooglePay({ config }: GooglePayProps) {
             const paymentMethodData = data.paymentMethodData;
             payload.card.displayName = paymentMethodData?.description;
 
-            const paymentMethodInfo = paymentMethodData?.info;
+            const paymentMethodInfo = paymentMethodData?.info as
+              | (google.payments.api.CardInfo & {
+                  cardFundingSource?: GooglePayCardFundingSource;
+                })
+              | undefined;
+
+            const fundingSource = paymentMethodInfo?.cardFundingSource;
+            const paymentMethodType = fundingSource
+              ? FUNDING_SOURCE_MAP[fundingSource]
+              : undefined;
+            if (paymentMethodType) {
+              payload.card.paymentMethodType = paymentMethodType;
+            }
 
             const billingAddress = paymentMethodInfo?.billingAddress || null;
             if (billingAddress) {

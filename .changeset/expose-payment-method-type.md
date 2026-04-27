@@ -4,4 +4,4 @@
 "@evervault/react": minor
 ---
 
-Expose `card.paymentMethodType` on the Apple Pay payload, sourced from `ApplePayPaymentMethod.type`. The value is one of `"credit"`, `"debit"`, `"prepaid"`, or `"store"` and reflects the funding type of the card the user selected in their wallet. This is useful for distinguishing the selected funding type more reliably than BIN-derived fields, which can return `credit` for cards that support both credit and debit. The field is also typed on the Google Pay payload for forward-compatibility; populating it for Google Pay requires a change to the credentials exchange endpoint and is tracked separately.
+Expose `card.paymentMethodType` on the Apple Pay and Google Pay payloads. The value is one of `"credit"`, `"debit"`, `"prepaid"`, or `"store"` and reflects the funding type of the card the user selected in their wallet. For Apple Pay it is sourced from `ApplePayPaymentMethod.type`; for Google Pay from `CardInfo.cardFundingSource`. This helps distinguish the selected funding type more reliably than BIN-derived fields, which can return `credit` for dual-network cards even when the user selected their debit card.
