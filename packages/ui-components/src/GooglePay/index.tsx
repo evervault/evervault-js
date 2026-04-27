@@ -20,7 +20,6 @@ const FUNDING_SOURCE_MAP: Partial<
   CREDIT: "credit",
   DEBIT: "debit",
   PREPAID: "prepaid",
-  UNKNOWN: "unknown",
 };
 
 interface GooglePayProps {
@@ -78,10 +77,9 @@ export function GooglePay({ config }: GooglePayProps) {
 
             const paymentMethodInfo = paymentMethodData?.info;
 
-            const paymentMethodType =
-              FUNDING_SOURCE_MAP[
-                paymentMethodInfo?.cardFundingSource ?? "UNKNOWN"
-              ];
+            const paymentMethodType = paymentMethodInfo?.cardFundingSource
+              ? FUNDING_SOURCE_MAP[paymentMethodInfo.cardFundingSource]
+              : undefined;
             if (paymentMethodType) {
               payload.card.paymentMethodType = paymentMethodType;
             }

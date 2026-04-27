@@ -354,12 +354,7 @@ interface PaymentToken<P> {
   };
 }
 
-export type PaymentMethodType =
-  | "credit"
-  | "debit"
-  | "prepaid"
-  | "store"
-  | "unknown";
+export type PaymentMethodType = "credit" | "debit" | "prepaid" | "store";
 
 export interface EncryptedDPAN<P> {
   token: PaymentToken<P>;
