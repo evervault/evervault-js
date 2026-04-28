@@ -59,12 +59,12 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
-          registry-url: "https://registry.npmjs.org"
       - name: PNPM install
         run: pnpm install --frozen-lockfile
 
+      # https://github.com/actions/setup-node/issues/1440#issuecomment-3571890875
       - name: Publish to npm
-        run: pnpm --filter ${{ inputs.package }} publish --access public --no-git-checks
+        run: NODE_AUTH_TOKEN="" pnpm --filter ${{ inputs.package }} publish --access public --no-git-checks
         env:
           NPM_CONFIG_PROVENANCE: true
   create_release:
