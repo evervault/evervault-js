@@ -59,6 +59,7 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
+          registry-url: 'https://registry.npmjs.org'
       - name: PNPM install
         run: pnpm install --frozen-lockfile
 
