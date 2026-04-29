@@ -14,31 +14,31 @@ const testCases: TestCase[] = [
     scope: "Invalid card number",
     cardNumber: "123",
     cvc: "123",
-    expectedResult: { cvc: null, isValid: false },
+    expectedResult: { cvc: null, isValid: false, reason: "invalid_number" },
   },
   {
     scope: "Non digit CVC",
     cardNumber: "4242424242424242",
     cvc: "abc",
-    expectedResult: { cvc: null, isValid: false },
+    expectedResult: { cvc: null, isValid: false, reason: "invalid_cvc" },
   },
   {
     scope: "CVC with spaces",
     cardNumber: "4242424242424242",
     cvc: "123  ",
-    expectedResult: { cvc: null, isValid: false },
+    expectedResult: { cvc: null, isValid: false, reason: "invalid_cvc" },
   },
   {
     scope: "CVC with wrong length mastercard",
     cardNumber: "5555555555554444",
     cvc: "1234",
-    expectedResult: { cvc: null, isValid: false },
+    expectedResult: { cvc: null, isValid: false, reason: "invalid_brand_cvc" },
   },
   {
     scope: "CVC with wrong length amex",
     cardNumber: "378282246310005",
     cvc: "12",
-    expectedResult: { cvc: null, isValid: false },
+    expectedResult: { cvc: null, isValid: false, reason: "invalid_cvc" },
   },
   {
     scope: "Valid CVC Mastercard",
@@ -86,13 +86,13 @@ const testCases: TestCase[] = [
     scope: "2 digit CVC",
     cardNumber: "",
     cvc: "12",
-    expectedResult: { cvc: null, isValid: false },
+    expectedResult: { cvc: null, isValid: false, reason: "invalid_cvc" },
   },
   {
     scope: "5 digit CVC",
     cardNumber: "",
     cvc: "12345",
-    expectedResult: { cvc: null, isValid: false },
+    expectedResult: { cvc: null, isValid: false, reason: "invalid_cvc" },
   },
 ];
 
