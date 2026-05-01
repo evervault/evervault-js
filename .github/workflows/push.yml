@@ -171,6 +171,9 @@ jobs:
     strategy:
       matrix:
         tag: ${{ fromJson(needs.create-tags.outputs.tags-to-publish) }}
+    permissions:
+      id-token: write
+      contents: read
     with:
       release-tag: ${{ matrix.tag }}
     secrets: inherit
