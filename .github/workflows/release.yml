@@ -19,7 +19,7 @@ jobs:
     outputs:
       package-name: ${{ steps.get-package-name.outputs.result }}
     steps:
-      - uses: actions/github-script@v8
+      - uses: actions/github-script@v9
         id: get-package-name
         env:
           RELEASE_TAG: ${{ inputs.release-tag }}
