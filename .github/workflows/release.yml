@@ -109,9 +109,6 @@ jobs:
   publish-react:
     if: startsWith(inputs.release-tag, '@evervault/react') && !contains(inputs.release-tag, '@evervault/react-native')
     needs: build
-    permissions:
-      id-token: write
-      contents: read
     uses: ./.github/workflows/npm-publish.yml
     with:
       package: "@evervault/react"
@@ -122,9 +119,6 @@ jobs:
   publish-card-validator:
     if: startsWith(inputs.release-tag, '@evervault/card-validator')
     needs: build
-    permissions:
-      id-token: write
-      contents: read
     uses: ./.github/workflows/npm-publish.yml
     with:
       package: "@evervault/card-validator"
@@ -135,9 +129,6 @@ jobs:
   publish-react-native-v2:
     if: startsWith(inputs.release-tag, '@evervault/react-native')
     needs: build
-    permissions:
-      id-token: write
-      contents: read
     uses: ./.github/workflows/npm-publish.yml
     with:
       package: "@evervault/react-native"
@@ -148,9 +139,6 @@ jobs:
   publish-react-native-v1:
     if: startsWith(inputs.release-tag, '@evervault/evervault-react-native')
     needs: build
-    permissions:
-      id-token: write
-      contents: read
     uses: ./.github/workflows/npm-publish.yml
     with:
       package: "@evervault/evervault-react-native"
@@ -161,9 +149,6 @@ jobs:
   publish-eql:
     if: startsWith(inputs.release-tag, '@evervault/eql')
     needs: build
-    permissions:
-      id-token: write
-      contents: read
     uses: ./.github/workflows/npm-publish.yml
     with:
       package: "@evervault/eql"
@@ -174,9 +159,6 @@ jobs:
   publish-js:
     if: startsWith(inputs.release-tag, '@evervault/js')
     needs: build
-    permissions:
-      id-token: write
-      contents: read
     uses: ./.github/workflows/npm-publish.yml
     with:
       package: "@evervault/js"
