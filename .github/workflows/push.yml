@@ -173,7 +173,7 @@ jobs:
         tag: ${{ fromJson(needs.create-tags.outputs.tags-to-publish) }}
     permissions:
       id-token: write
-      contents: read
+      contents: write
     with:
       release-tag: ${{ matrix.tag }}
     secrets: inherit
