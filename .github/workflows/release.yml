@@ -8,6 +8,11 @@ on:
         description: "The tag name of the release"
         required: true
         type: string
+
+permissions:
+  id-token: write
+  contents: write
+
 jobs:
   get-package-name-from-tag:
     runs-on: ubuntu-latest
