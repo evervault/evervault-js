@@ -57,10 +57,18 @@ if (availability === "available") {
   apple.on("cancel", () => {
     console.log("Apple Pay cancelled");
   });
+  
+  apple.on("ready", () => {
+    console.log("Apple Pay button is ready!");
+  });
 
   apple.mount("#apple-pay");
-} else {
+} else if (availability === "unavailable") {
   const container = document.getElementById("apple-pay");
   container!.innerHTML = "Apple Pay is not available on this device";
   console.log("Apple Pay is not available");
+} else {
+  const container = document.getElementById("apple-pay");
+  container!.style.display = "none";
+  console.log("Apple Pay is not supported in this browser");
 }

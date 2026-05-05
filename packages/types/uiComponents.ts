@@ -354,12 +354,15 @@ interface PaymentToken<P> {
   };
 }
 
+export type PaymentMethodType = "credit" | "debit" | "prepaid" | "store";
+
 export interface EncryptedDPAN<P> {
   token: PaymentToken<P>;
   card: {
     brand: string;
     lastFour?: string;
     displayName?: string;
+    paymentMethodType?: PaymentMethodType;
   };
   cryptogram: string;
   eci: string;
@@ -373,6 +376,7 @@ export interface EncryptedFPAN {
     number: string;
     lastFour?: string;
     displayName?: string;
+    paymentMethodType?: PaymentMethodType;
     expiry: {
       month: string;
       year: string;
