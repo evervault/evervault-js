@@ -1,5 +1,21 @@
 # @evervault/browser
 
+## 2.54.0
+
+### Minor Changes
+
+- 417b58c: Expose `card.paymentMethodType` on the Apple Pay and Google Pay payloads. The value is one of `"credit"`, `"debit"`, `"prepaid"`, or `"store"` and reflects the funding type of the card the user selected in their wallet. For Apple Pay it is sourced from `ApplePayPaymentMethod.type`; for Google Pay from `CardInfo.cardFundingSource`. This helps distinguish the selected funding type more reliably than BIN-derived fields, which can return `credit` for dual-network cards even when the user selected their debit card.
+
+## 2.53.0
+
+### Minor Changes
+
+- d5bb2c5: Add a `ready` event to the Apple Pay button that fires after the button has been mounted to the DOM.
+
+### Patch Changes
+
+- dfac390: Fix Apple Pay availability check crashing in browsers where `ApplePaySession.applePayCapabilities` is undefined (e.g. Facebook in-app browser). The `availability()` method now returns `"unsupported"` instead of throwing a runtime error.
+
 ## 2.52.0
 
 ### Minor Changes

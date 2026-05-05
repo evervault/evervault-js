@@ -4,11 +4,23 @@ import { buildPaymentRequest, exchangePaymentData } from "./utilities";
 import { setSize } from "../utilities/resize";
 import { GooglePayConfig } from "./types";
 import { useMessaging } from "../utilities/useMessaging";
-import { GooglePayClientMessages, GooglePayHostMessages } from "types";
+import {
+  GooglePayClientMessages,
+  GooglePayHostMessages,
+  PaymentMethodType,
+} from "types";
 import { useSearchParams } from "../utilities/useSearchParams";
 import { getMerchant } from "../utilities/useMerchant";
 import { getAppSDKConfig } from "../utilities/getAppSDKConfig";
 import { apiConfig } from "../utilities/config";
+
+const FUNDING_SOURCE_MAP: Partial<
+  Record<google.payments.api.CardFundingSource, PaymentMethodType>
+> = {
+  CREDIT: "credit",
+  DEBIT: "debit",
+  PREPAID: "prepaid",
+};
 
 interface GooglePayProps {
   config: GooglePayConfig;
@@ -65,12 +77,19 @@ export function GooglePay({ config }: GooglePayProps) {
 
             const paymentMethodInfo = paymentMethodData?.info;
 
+            const paymentMethodType = paymentMethodInfo?.cardFundingSource
+              ? FUNDING_SOURCE_MAP[paymentMethodInfo.cardFundingSource]
+              : undefined;
+            if (paymentMethodType) {
+              payload.card.paymentMethodType = paymentMethodType;
+            }
+
             const billingAddress = paymentMethodInfo?.billingAddress || null;
             if (billingAddress) {
               payload.billingAddress = billingAddress;
             }
 
-            const cardDetails = data.paymentMethodData.info?.cardDetails;
+            const cardDetails = paymentMethodInfo?.cardDetails;
             if (cardDetails) {
               const fourDigitRegex = /(\d{4})$/;
               const lastFour = cardDetails.match(fourDigitRegex);

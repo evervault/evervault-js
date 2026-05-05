@@ -4,7 +4,7 @@ packages:
   - examples/*
   - e2e-tests/**
 catalog:
-  "@actions/core": ^1.11.1
+  "@actions/core": ^3.0.0
   "@actions/github": ^6.0.0
   "@aws-sdk/client-s3": ^3.996.0
   "@babel/core": ^7.20.0
@@ -14,8 +14,8 @@ catalog:
   "@peculiar/webcrypto": ^1.5.0
   "@playwright/test": ^1.56.1
   "@swc/core": ^1.4.11
-  "@types/applepayjs": ^14.0.8
-  "@types/googlepay": ^0.7.6
+  "@types/applepayjs": ^14.0.9
+  "@types/googlepay": ^0.7.10
   "@types/jest": ^28.1.2
   "@types/jsdom": ^21.1.6
   "@types/node": ^24
@@ -61,7 +61,7 @@ catalog:
   pod-install: ^0.1.0
   postcss: ^8.4.47
   postcss-load-config: ^4.0.1
-  postcss-preset-env: ^8.3.0
+  postcss-preset-env: ^11.2.0
   prettier: ^2.8.8
   react: ^18.2.0
   react-dom: ^18.2.0
@@ -87,3 +87,7 @@ catalog:
   vite-plugin-istanbul: ^7.2.1
   vitest: ^4.0.18
   wait-on: ^9.0.4
+settings:
+  minimumReleaseAge: 10080
+  blockExoticSubdeps: true
+  trustPolicy: no-downgrade

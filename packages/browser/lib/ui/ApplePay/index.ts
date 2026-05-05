@@ -59,6 +59,7 @@ export type ApplePayButtonOptions = {
 };
 
 interface ApplePayEvents {
+  ready: () => void;
   success: () => void;
   error: (message?: string) => void;
   cancel: () => void;
@@ -141,6 +142,7 @@ export default class ApplePayButton {
 
     const paymentMethodDisplayName =
       response.details?.token?.paymentMethod?.displayName;
+    const paymentMethodType = response.details?.token?.paymentMethod?.type;
 
     const [encrypted, encryptedError] = await tryCatch(
       this.#exchangeApplePaymentData(response)
@@ -160,6 +162,9 @@ export default class ApplePayButton {
     }
 
     encrypted.card.displayName = paymentMethodDisplayName;
+    if (paymentMethodType) {
+      encrypted.card.paymentMethodType = paymentMethodType;
+    }
     if (paymentMethodDisplayName) {
       const fourDigitRegex = /(\d{4})$/;
       const lastFour = paymentMethodDisplayName.match(fourDigitRegex);
@@ -245,7 +250,13 @@ export default class ApplePayButton {
     if (typeof window.PaymentRequest === "undefined") return "unsupported";
     await this.#waitForScript();
 
-    // @ts-expect-error The Apple Pay types are for the bundled version of ApplePaySession in safari, not the version the script loads which adds this method
+    if (
+      typeof ApplePaySession === "undefined" ||
+      typeof ApplePaySession.applePayCapabilities !== "function"
+    ) {
+      return "unsupported";
+    }
+
     const capabilities = await ApplePaySession.applePayCapabilities(
       `merchant.com.evervault.${this.transaction.details.merchantId}`
     );
@@ -320,6 +331,7 @@ export default class ApplePayButton {
     });
 
     element.appendChild(this.#button);
+    this.#events.dispatch("ready");
   }
 
   unmount() {
