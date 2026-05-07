@@ -59,7 +59,7 @@ catalog:
   pino: ^9
   pino-http: ^10
   pod-install: ^0.1.0
-  postcss: ^8.4.47
+  postcss: ^8.5.8
   postcss-load-config: ^4.0.1
   postcss-preset-env: ^11.2.0
   prettier: ^2.8.8
