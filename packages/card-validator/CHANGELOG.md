@@ -1,5 +1,11 @@
 # @evervault/card-validator
 
+## 1.6.0
+
+### Minor Changes
+
+- 703d92d: Expand BIN Range for Maestro card validator
+
 ## 1.5.1
 
 ### Patch Changes
