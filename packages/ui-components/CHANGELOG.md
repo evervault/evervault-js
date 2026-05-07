@@ -1,5 +1,13 @@
 # @evervault/ui-components
 
+## 1.39.3
+
+### Patch Changes
+
+- Updated dependencies [703d92d]
+  - @evervault/card-validator@1.6.0
+  - shared@1.1.21
+
 ## 1.39.2
 
 ### Patch Changes
