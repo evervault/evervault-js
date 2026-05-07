@@ -1,5 +1,5 @@
 ---
-"@evervault/card-validator": patch
+"@evervault/card-validator": minor
 ---
 
 Expand BIN Range for Maestro card validator
