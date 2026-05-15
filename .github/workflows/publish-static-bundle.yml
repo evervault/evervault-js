@@ -134,7 +134,7 @@ jobs:
           aws cloudfront create-invalidation --distribution-id ${{ secrets[env.CF_DISTRO_SECRET_NAME] }} --invalidation-batch file://invalidation.json
         env:
           CF_DISTRO_SECRET_NAME: ${{ inputs.cloudfront-distribution-id }}
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
       - name: Setup Node.js environment
         uses: actions/setup-node@v6
         with:
