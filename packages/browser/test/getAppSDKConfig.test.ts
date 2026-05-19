@@ -1,13 +1,6 @@
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
-import {
-  describe,
-  assert,
-  it,
-  beforeAll,
-  afterAll,
-  afterEach,
-} from "vitest";
+import { describe, assert, it, beforeAll, afterAll, afterEach } from "vitest";
 import { getAppSDKConfig } from "shared/getAppSDKConfig";
 import { setupCrypto } from "./setup";
 
