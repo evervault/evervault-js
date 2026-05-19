@@ -249,22 +249,22 @@ catalogs:
 
 overrides:
   '@isaacs/brace-expansion': '>=5.0.1'
-  '@babel/plugin-transform-modules-systemjs': '>=7.29.4 <8.0.0'
+  '@babel/plugin-transform-modules-systemjs@>=7.12.0 <=7.29.3': 7.29.4
   '@xmldom/xmldom@>=0.8.0 <0.8.13': 0.8.13
   ajv@>=7.0.0 <8.18.0: '>=8.18.0 <9.0.0'
-  axios: '>=1.15.2 <2.0.0'
+  axios@>=1.0.0 <1.15.2: '>=1.15.2 <2.0.0'
   brace-expansion@>=4.0.0 <4.0.4: '>=4.0.4 <5.0.0'
-  braces: '>=3.0.3'
-  cross-spawn: '>=6.0.6'
+  braces@>=3.0.0 <3.0.3: '>=3.0.3'
+  cross-spawn@>=6.0.0 <6.0.6: '>=6.0.6'
   date-and-time: 0.14.2
-  fast-xml-parser: '>=5.7.0 <6.0.0'
-  follow-redirects: '>=1.16.0 <2.0.0'
-  lodash: '>=4.18.0 <5.0.0'
+  fast-xml-parser@>=4.3.6 <5.7.0: '>=5.7.0 <6.0.0'
+  follow-redirects@<1.16.0: '>=1.16.0 <2.0.0'
+  lodash@>=4.0.0 <4.18.0: '>=4.18.0 <5.0.0'
   picomatch@>=4.0.0 <4.0.4: '>=4.0.4 <5.0.0'
-  qs: '>=6.14.1'
-  semver: '>=7.5.2'
-  undici: '>=6.24.0 <8.0.0'
-  ws: '>=6.2.3'
+  qs@>=6.0.0 <6.14.1: '>=6.14.1'
+  semver@>=7.0.0 <7.5.2: '>=7.5.2'
+  undici@>=6.0.0 <6.24.0: '>=6.24.0 <8.0.0'
+  ws@>=6.0.0 <6.2.3: '>=6.2.3'
   yaml@>=2.0.0 <2.8.3: '>=2.8.3 <3.0.0'
   path-to-regexp@<0.1.12: '>=0.1.12'
   '@react-native-community/cli': 17.0.1
@@ -3043,6 +3043,10 @@ packages:
     resolution: {integrity: sha512-ReZxZ8pdnoI3tP/dNnJdnmAk7uLT4FjsKDGW7YeDdvdOMz2XCQSmSCM9IWlrXuWtMF9zeSB6WJtEhCQ41gQOfw==}
     hasBin: true
 
+  '@fastify/busboy@2.1.1':
+    resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
+    engines: {node: '>=14'}
+
   '@hapi/address@5.1.1':
     resolution: {integrity: sha512-A+po2d/dVoY7cYajycYI43ZbYMXukuopIsqCjh5QzsBCipDtdofHntljDlpccMjIfTy6UOkg+5KPriwYch2bXA==}
     engines: {node: '>=14.0.0'}
@@ -4981,6 +4985,9 @@ packages:
   astral-regex@1.0.0:
     resolution: {integrity: sha512-+Ryf6g3BKoRc7jfp7ad8tM4TtMiaWvbF/1/sQcZPkkS7ag3D5nMBCe2UfOTONtAkaG0tO0ij3C5Lwmf1EiyjHg==}
     engines: {node: '>=4'}
+
+  async-limiter@1.0.1:
+    resolution: {integrity: sha512-csOlWGAcRFJaI6m+F2WKdnMKr4HhdhFVBk0H/QbJFMCr+uO2kwohwXQPxw/9OCxp05r5ghVBFSyioixx3gfkNQ==}
 
   asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
@@ -8854,8 +8861,26 @@ packages:
     resolution: {integrity: sha512-th5B4L2U+eGLq1TVh7zNRGBapioSORUeymIydxgFpwww9d2qyKvtuPU2jJuHvYAwwqi2Y596QBL3eEqcPEYL8Q==}
     engines: {node: '>=10'}
 
+  semver@5.7.2:
+    resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
+    hasBin: true
+
+  semver@6.3.1:
+    resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
+    hasBin: true
+
+  semver@7.5.4:
+    resolution: {integrity: sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   semver@7.6.3:
     resolution: {integrity: sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==}
+    engines: {node: '>=10'}
+    hasBin: true
+
+  semver@7.8.0:
+    resolution: {integrity: sha512-AcM7dV/5ul4EekoQ29Agm5vri8JNqRyj39o0qpX6vDF2GZrtutZl5RwgD1XnZjiTAfncsJhMI48QQH3sN87YNA==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -9504,6 +9529,10 @@ packages:
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
+  undici@5.29.0:
+    resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
+    engines: {node: '>=14.0'}
+
   undici@7.25.0:
     resolution: {integrity: sha512-xXnp4kTyor2Zq+J1FfPI6Eq3ew5h6Vl0F/8d9XU5zZQf1tX9s2Su1/3PiMmUANFULpmksxkClamIZcaUqryHsQ==}
     engines: {node: '>=20.18.1'}
@@ -9874,6 +9903,29 @@ packages:
     resolution: {integrity: sha512-7KxauUdBmSdWnmpaGFg+ppNjKF8uNLry8LyzjauQDOVONfFLNKrKvQOxZ/VuTIcS/gge/YNahf5RIIQWTSarlg==}
     engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
 
+  ws@6.2.3:
+    resolution: {integrity: sha512-jmTjYU0j60B+vHey6TfR3Z7RD61z/hmxBS3VMSGIrroOWXQEneK1zNuotOUrGyBHQj0yrpsLHPWtigEFd13ndA==}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: ^5.0.2
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
+  ws@7.5.10:
+    resolution: {integrity: sha512-+dbF1tHwZpXcbOJdVOkzLDxZP1ailvSxM6ZweXTegylPny803bFhA+vqBYw4s31NSAk4S2Qz+AKXK9a4wkdjcQ==}
+    engines: {node: '>=8.3.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: ^5.0.2
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
   ws@8.18.3:
     resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
     engines: {node: '>=10.0.0'}
@@ -10017,7 +10069,7 @@ snapshots:
   '@actions/http-client@2.2.3':
     dependencies:
       tunnel: 0.0.6
-      undici: 7.25.0
+      undici: 5.29.0
 
   '@actions/http-client@4.0.0':
     dependencies:
@@ -10548,7 +10600,7 @@ snapshots:
       debug: 4.4.3
       gensync: 1.0.0-beta.2
       json5: 2.2.3
-      semver: 7.6.3
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
 
@@ -10570,7 +10622,7 @@ snapshots:
       '@babel/helper-validator-option': 7.27.1
       browserslist: 4.24.4
       lru-cache: 5.1.1
-      semver: 7.6.3
+      semver: 6.3.1
 
   '@babel/helper-create-class-features-plugin@7.25.9(@babel/core@7.29.0)':
     dependencies:
@@ -10581,7 +10633,7 @@ snapshots:
       '@babel/helper-replace-supers': 7.26.5(@babel/core@7.29.0)
       '@babel/helper-skip-transparent-expression-wrappers': 7.25.9
       '@babel/traverse': 7.29.0
-      semver: 7.6.3
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
 
@@ -10590,7 +10642,7 @@ snapshots:
       '@babel/core': 7.29.0
       '@babel/helper-annotate-as-pure': 7.25.9
       regexpu-core: 6.2.0
-      semver: 7.6.3
+      semver: 6.3.1
 
   '@babel/helper-define-polyfill-provider@0.6.3(@babel/core@7.29.0)':
     dependencies:
@@ -11192,7 +11244,7 @@ snapshots:
       babel-plugin-polyfill-corejs2: 0.4.12(@babel/core@7.29.0)
       babel-plugin-polyfill-corejs3: 0.10.6(@babel/core@7.29.0)
       babel-plugin-polyfill-regenerator: 0.6.3(@babel/core@7.29.0)
-      semver: 7.6.3
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
 
@@ -11329,7 +11381,7 @@ snapshots:
       babel-plugin-polyfill-corejs3: 0.10.6(@babel/core@7.29.0)
       babel-plugin-polyfill-regenerator: 0.6.3(@babel/core@7.29.0)
       core-js-compat: 3.40.0
-      semver: 7.6.3
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
 
@@ -12469,6 +12521,8 @@ snapshots:
       find-up: 5.0.0
       js-yaml: 4.1.0
 
+  '@fastify/busboy@2.1.1': {}
+
   '@hapi/address@5.1.1':
     dependencies:
       '@hapi/hoek': 11.0.7
@@ -13059,7 +13113,7 @@ snapshots:
       lodash: 4.18.1
       minimatch: 10.2.2
       resolve: 1.22.10
-      semver: 7.6.3
+      semver: 7.5.4
       source-map: 0.6.1
       typescript: 5.8.2
     transitivePeerDependencies:
@@ -13372,7 +13426,7 @@ snapshots:
       open: 6.4.0
       pretty-format: 26.6.2
       serve-static: 1.16.2
-      ws: 8.18.3
+      ws: 6.2.3
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -13624,7 +13678,7 @@ snapshots:
       open: 7.4.2
       selfsigned: 2.4.1
       serve-static: 1.16.2
-      ws: 8.18.3
+      ws: 6.2.3
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -13918,7 +13972,7 @@ snapshots:
       import-lazy: 4.0.0
       jju: 1.4.0
       resolve: 1.22.10
-      semver: 7.6.3
+      semver: 7.5.4
     optionalDependencies:
       '@types/node': 24.10.10
 
@@ -14580,7 +14634,7 @@ snapshots:
       '@typescript-eslint/visitor-keys': 8.56.0
       debug: 4.4.3
       minimatch: 9.0.6
-      semver: 7.6.3
+      semver: 7.8.0
       tinyglobby: 0.2.15
       ts-api-utils: 2.4.0(typescript@5.5.4)
       typescript: 5.5.4
@@ -14942,6 +14996,8 @@ snapshots:
 
   astral-regex@1.0.0: {}
 
+  async-limiter@1.0.1: {}
+
   asynckit@0.4.0: {}
 
   at-least-node@1.0.0: {}
@@ -15030,7 +15086,7 @@ snapshots:
       '@babel/compat-data': 7.29.0
       '@babel/core': 7.29.0
       '@babel/helper-define-polyfill-provider': 0.6.3(@babel/core@7.29.0)
-      semver: 7.6.3
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
 
@@ -16109,7 +16165,7 @@ snapshots:
       object.values: 1.2.0
       prop-types: 15.8.1
       resolve: 2.0.0-next.5
-      semver: 7.6.3
+      semver: 6.3.1
       string.prototype.matchall: 4.0.11
       string.prototype.repeat: 1.0.0
 
@@ -17284,7 +17340,7 @@ snapshots:
       '@babel/parser': 7.29.0
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
-      semver: 7.6.3
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
 
@@ -18135,7 +18191,7 @@ snapshots:
   make-dir@2.1.0:
     dependencies:
       pify: 4.0.1
-      semver: 7.6.3
+      semver: 5.7.2
 
   make-dir@4.0.0:
     dependencies:
@@ -18361,7 +18417,7 @@ snapshots:
       serialize-error: 2.1.0
       source-map: 0.5.7
       throat: 5.0.0
-      ws: 8.18.3
+      ws: 7.5.10
       yargs: 17.7.2
     transitivePeerDependencies:
       - bufferutil
@@ -19328,7 +19384,7 @@ snapshots:
   react-devtools-core@5.3.2:
     dependencies:
       shell-quote: 1.8.1
-      ws: 8.18.3
+      ws: 7.5.10
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -19515,7 +19571,7 @@ snapshots:
       semver: 7.6.3
       stacktrace-parser: 0.1.10
       whatwg-fetch: 3.6.20
-      ws: 8.18.3
+      ws: 6.2.3
       yargs: 17.7.2
     optionalDependencies:
       '@types/react': 18.3.18
@@ -19567,7 +19623,7 @@ snapshots:
       semver: 7.6.3
       stacktrace-parser: 0.1.10
       whatwg-fetch: 3.6.20
-      ws: 8.18.3
+      ws: 6.2.3
       yargs: 17.7.2
     optionalDependencies:
       '@types/react': 18.3.18
@@ -19619,7 +19675,7 @@ snapshots:
       semver: 7.6.3
       stacktrace-parser: 0.1.10
       whatwg-fetch: 3.6.20
-      ws: 8.18.3
+      ws: 6.2.3
       yargs: 17.7.2
     optionalDependencies:
       '@types/react': 18.3.18
@@ -19950,7 +20006,17 @@ snapshots:
       '@types/node-forge': 1.3.11
       node-forge: 1.3.3
 
+  semver@5.7.2: {}
+
+  semver@6.3.1: {}
+
+  semver@7.5.4:
+    dependencies:
+      lru-cache: 6.0.0
+
   semver@7.6.3: {}
+
+  semver@7.8.0: {}
 
   send@0.19.0:
     dependencies:
@@ -20029,7 +20095,7 @@ snapshots:
     dependencies:
       '@img/colour': 1.0.0
       detect-libc: 2.1.2
-      semver: 7.6.3
+      semver: 7.8.0
     optionalDependencies:
       '@img/sharp-darwin-arm64': 0.34.5
       '@img/sharp-darwin-x64': 0.34.5
@@ -20670,6 +20736,10 @@ snapshots:
 
   undici-types@7.16.0: {}
 
+  undici@5.29.0:
+    dependencies:
+      '@fastify/busboy': 2.1.1
+
   undici@7.25.0: {}
 
   unicode-canonical-property-names-ecmascript@2.0.0: {}
@@ -21094,6 +21164,12 @@ snapshots:
     dependencies:
       imurmurhash: 0.1.4
       signal-exit: 3.0.7
+
+  ws@6.2.3:
+    dependencies:
+      async-limiter: 1.0.1
+
+  ws@7.5.10: {}
 
   ws@8.18.3: {}
 
