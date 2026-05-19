@@ -248,25 +248,25 @@ catalogs:
       version: 9.0.4
 
 overrides:
-  '@isaacs/brace-expansion': '>=5.0.1'
+  '@isaacs/brace-expansion': ^5.0.1
   '@babel/plugin-transform-modules-systemjs@>=7.12.0 <=7.29.3': 7.29.4
   '@xmldom/xmldom@>=0.8.0 <0.8.13': 0.8.13
-  ajv@>=7.0.0 <8.18.0: '>=8.18.0 <9.0.0'
-  axios@>=1.0.0 <1.15.2: '>=1.15.2 <2.0.0'
-  brace-expansion@>=4.0.0 <4.0.4: '>=4.0.4 <5.0.0'
-  braces@>=3.0.0 <3.0.3: '>=3.0.3'
-  cross-spawn@>=6.0.0 <6.0.6: '>=6.0.6'
+  ajv@>=7.0.0 <8.18.0: ^8.18.0
+  axios@>=1.0.0 <1.15.2: ^1.15.2
+  brace-expansion@>=4.0.0 <4.0.4: ^4.0.4
+  braces@>=3.0.0 <3.0.3: ^3.0.3
+  cross-spawn@>=6.0.0 <6.0.6: ^6.0.6
   date-and-time: 0.14.2
-  fast-xml-parser@>=4.3.6 <5.7.0: '>=5.7.0 <6.0.0'
-  follow-redirects@<1.16.0: '>=1.16.0 <2.0.0'
-  lodash@>=4.0.0 <4.18.0: '>=4.18.0 <5.0.0'
-  picomatch@>=4.0.0 <4.0.4: '>=4.0.4 <5.0.0'
-  qs@>=6.0.0 <6.14.1: '>=6.14.1'
-  semver@>=7.0.0 <7.5.2: '>=7.5.2'
-  undici@>=6.0.0 <6.24.0: '>=6.24.0 <8.0.0'
-  ws@>=6.0.0 <6.2.3: '>=6.2.3'
-  yaml@>=2.0.0 <2.8.3: '>=2.8.3 <3.0.0'
-  path-to-regexp@<0.1.12: '>=0.1.12'
+  fast-xml-parser@>=4.3.6 <5.7.0: ^5.7.0
+  follow-redirects@<1.16.0: ^1.16.0
+  lodash@>=4.0.0 <4.18.0: ^4.18.0
+  picomatch@>=4.0.0 <4.0.4: ^4.0.4
+  qs@>=6.0.0 <6.14.1: ^6.14.1
+  semver@>=7.0.0 <7.5.2: ^7.5.2
+  undici@>=6.0.0 <6.24.0: ^6.24.0
+  ws@>=6.0.0 <6.2.3: ^6.2.3
+  yaml@>=2.0.0 <2.8.3: ^2.8.3
+  path-to-regexp@<0.1.12: ^0.1.12
   '@react-native-community/cli': 17.0.1
   glob@10: 10.5.0
   glob@11: 11.1.0
@@ -4835,7 +4835,7 @@ packages:
   ajv-draft-04@1.0.0:
     resolution: {integrity: sha512-mv00Te6nmYbRp5DCwclxtt7yV/joXJPGS7nM+97GdxvuttCOfgI3K4U25zboyeX0O+myI8ERluxQe5wljMmVIw==}
     peerDependencies:
-      ajv: '>=8.18.0 <9.0.0'
+      ajv: ^8.18.0
     peerDependenciesMeta:
       ajv:
         optional: true
@@ -4843,7 +4843,7 @@ packages:
   ajv-formats@3.0.1:
     resolution: {integrity: sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==}
     peerDependencies:
-      ajv: '>=8.18.0 <9.0.0'
+      ajv: ^8.18.0
     peerDependenciesMeta:
       ajv:
         optional: true
@@ -5517,6 +5517,10 @@ packages:
 
   cross-fetch@3.2.0:
     resolution: {integrity: sha512-Q+xVJLoGOeIMXZmbUK4HYk+69cQH6LudR0Vu/pRm2YlU/hDV9CiS0gKUMaWY5f2NeUH9C1nV3bsTlCo0FsTV1Q==}
+
+  cross-spawn@6.0.6:
+    resolution: {integrity: sha512-VqCUuhcd1iB+dsv8gxPttb5iZh/D0iubSP21g36KXdEuf6I5JiioesUVjpCdHV9MZRUfVFlvwtIUyPfxo5trtw==}
+    engines: {node: '>=4.8'}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -6238,7 +6242,7 @@ packages:
     resolution: {integrity: sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
-      picomatch: '>=4.0.4 <5.0.0'
+      picomatch: ^4.0.4
     peerDependenciesMeta:
       picomatch:
         optional: true
@@ -7798,6 +7802,9 @@ packages:
       sass:
         optional: true
 
+  nice-try@1.0.5:
+    resolution: {integrity: sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==}
+
   nocache@3.0.4:
     resolution: {integrity: sha512-WDD0bdg9mbq6F4mRxEYcPWwfA1vxd0mrvKOyxI7Xj/atfRHVeutzuWByG//jfm4uPzp0y4Kj051EORCBSQMycw==}
     engines: {node: '>=12.0.0'}
@@ -8094,6 +8101,9 @@ packages:
     resolution: {integrity: sha512-ypGJsmGtdXUOeM5u93TyeIEfEhM6s+ljAhrk5vAvSx8uyY/02OvrZnA0YNGUrPXfpJMgI1ODd3nwz8Npx4O4cg==}
     engines: {node: 20 || >=22}
 
+  path-to-regexp@0.1.13:
+    resolution: {integrity: sha512-A/AGNMFN3c8bOlvV9RreMdrv7jsmF9XIfDeCd87+I8RNg6s78BhJxMu69NEMHBSJFxKidViTEdruRwEk/WIKqA==}
+
   path-to-regexp@6.3.0:
     resolution: {integrity: sha512-Yhpw4T9C6hPpgPeA28us07OJeqZ5EzQTkbfwuhsUg0c237RomFoETJgmp2sa3F/41gfLE6G5cqcYwznmeEeOlQ==}
 
@@ -8303,7 +8313,7 @@ packages:
       jiti: '>=1.21.0'
       postcss: '>=8.0.9'
       tsx: ^4.8.1
-      yaml: '>=2.8.3 <3.0.0'
+      yaml: ^2.8.3
     peerDependenciesMeta:
       jiti:
         optional: true
@@ -8925,9 +8935,17 @@ packages:
     resolution: {integrity: sha512-Ou9I5Ft9WNcCbXrU9cMgPBcCK8LiwLqcbywW3t4oDV37n1pzpuNLsYiAV8eODnjbtQlSDwZ2cUEeQz4E54Hltg==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
 
+  shebang-command@1.2.0:
+    resolution: {integrity: sha512-EV3L1+UQWGor21OmnvojK36mhg+TyIKDh3iFBKBohr5xeXIhNBcx8oWdgkTEEQ+BEFFYdLRuqMfd5L84N1V5Vg==}
+    engines: {node: '>=0.10.0'}
+
   shebang-command@2.0.0:
     resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}
     engines: {node: '>=8'}
+
+  shebang-regex@1.0.0:
+    resolution: {integrity: sha512-wpoSFAxys6b2a2wHZ1XpDSgD7N9iVjg29Ph9uV/uaP9Ex/KXlkTZTeddxDPSYQpgvzKLGJke2UU0AzoGCjNIvQ==}
+    engines: {node: '>=0.10.0'}
 
   shebang-regex@3.0.0:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
@@ -9533,9 +9551,9 @@ packages:
     resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
     engines: {node: '>=14.0'}
 
-  undici@7.25.0:
-    resolution: {integrity: sha512-xXnp4kTyor2Zq+J1FfPI6Eq3ew5h6Vl0F/8d9XU5zZQf1tX9s2Su1/3PiMmUANFULpmksxkClamIZcaUqryHsQ==}
-    engines: {node: '>=20.18.1'}
+  undici@6.25.0:
+    resolution: {integrity: sha512-ZgpWDC5gmNiuY9CnLVXEH8rl50xhRCuLNA97fAUnKi8RRuV4E6KG31pDTsLVUKnohJE0I3XDrTeEydAXRw47xg==}
+    engines: {node: '>=18.17'}
 
   unicode-canonical-property-names-ecmascript@2.0.0:
     resolution: {integrity: sha512-yY5PpDlfVIU5+y/BSCxAJRBIS1Zc2dDG3Ujq+sR0U+JjUevW2JhocOF+soROYDSaAezOzOKuyyixhD6mBknSmQ==}
@@ -9686,7 +9704,7 @@ packages:
       sugarss: ^5.0.0
       terser: ^5.16.0
       tsx: ^4.8.1
-      yaml: '>=2.8.3 <3.0.0'
+      yaml: ^2.8.3
     peerDependenciesMeta:
       '@types/node':
         optional: true
@@ -9867,6 +9885,10 @@ packages:
   which-typed-array@1.1.15:
     resolution: {integrity: sha512-oV0jmFtUky6CXfkqehVvBP/LSWJ2sy4vWMioiENyJLePrBO/yKyV9OyJySfAKosh+RYkIl5zJCNZ8/4JncrpdA==}
     engines: {node: '>= 0.4'}
+
+  which@1.3.1:
+    resolution: {integrity: sha512-HxJdYWq1MTIQbJ3nw0cqssHoTNU267KlrDuGZ1WYlxDStUtKUhOaJmh112/TZmHxxUfuJqPXSOm7tDyas0OSIQ==}
+    hasBin: true
 
   which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
@@ -10074,7 +10096,7 @@ snapshots:
   '@actions/http-client@4.0.0':
     dependencies:
       tunnel: 0.0.6
-      undici: 7.25.0
+      undici: 6.25.0
 
   '@actions/io@3.0.2': {}
 
@@ -12299,7 +12321,7 @@ snapshots:
       temp-dir: 2.0.0
       tempy: 0.7.1
       terminal-link: 2.1.1
-      undici: 7.25.0
+      undici: 6.25.0
       unique-string: 2.0.0
       wrap-ansi: 7.0.0
       ws: 8.18.3
@@ -15636,6 +15658,14 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
+  cross-spawn@6.0.6:
+    dependencies:
+      nice-try: 1.0.5
+      path-key: 2.0.1
+      semver: 5.7.2
+      shebang-command: 1.2.0
+      which: 1.3.1
+
   cross-spawn@7.0.6:
     dependencies:
       path-key: 3.1.1
@@ -16258,7 +16288,7 @@ snapshots:
 
   execa@1.0.0:
     dependencies:
-      cross-spawn: 7.0.6
+      cross-spawn: 6.0.6
       get-stream: 4.1.0
       is-stream: 1.1.0
       npm-run-path: 2.0.2
@@ -16547,7 +16577,7 @@ snapshots:
       methods: 1.1.2
       on-finished: 2.4.1
       parseurl: 1.3.3
-      path-to-regexp: 6.3.0
+      path-to-regexp: 0.1.13
       proxy-addr: 2.0.7
       qs: 6.14.1
       range-parser: 1.2.1
@@ -18616,6 +18646,8 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
 
+  nice-try@1.0.5: {}
+
   nocache@3.0.4: {}
 
   nock@13.5.4:
@@ -18905,6 +18937,8 @@ snapshots:
     dependencies:
       lru-cache: 11.0.2
       minipass: 7.1.2
+
+  path-to-regexp@0.1.13: {}
 
   path-to-regexp@6.3.0: {}
 
@@ -20123,9 +20157,15 @@ snapshots:
       '@img/sharp-win32-x64': 0.34.5
     optional: true
 
+  shebang-command@1.2.0:
+    dependencies:
+      shebang-regex: 1.0.0
+
   shebang-command@2.0.0:
     dependencies:
       shebang-regex: 3.0.0
+
+  shebang-regex@1.0.0: {}
 
   shebang-regex@3.0.0: {}
 
@@ -20740,7 +20780,7 @@ snapshots:
     dependencies:
       '@fastify/busboy': 2.1.1
 
-  undici@7.25.0: {}
+  undici@6.25.0: {}
 
   unicode-canonical-property-names-ecmascript@2.0.0: {}
 
@@ -21122,6 +21162,10 @@ snapshots:
       for-each: 0.3.3
       gopd: 1.2.0
       has-tostringtag: 1.0.2
+
+  which@1.3.1:
+    dependencies:
+      isexe: 2.0.0
 
   which@2.0.2:
     dependencies:
