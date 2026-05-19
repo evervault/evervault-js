@@ -1,4 +1,5 @@
 import {
+  AppSDKConfig,
   DisbursementTransactionDetails,
   MerchantDetail,
   PaymentTransactionDetails,
@@ -52,6 +53,14 @@ export async function buildSession(
   const merchant = await getMerchant(applePay, tx.merchantId);
   if (!merchant) {
     throw new Error("Merchant not found");
+  }
+
+  const appConfig = await getAppSDKConfig(
+    applePay.client.config.appId,
+    applePay.client.config.http.apiUrl
+  );
+  if (appConfig.is_sandbox) {
+    merchant.name = `${merchant.name} (Card is not charged)`;
   }
 
   let baseRequest: ApplePayPaymentRequest;
@@ -509,6 +518,30 @@ async function getMerchant(
   }
 
   return response.json();
+}
+
+async function getAppSDKConfig(
+  app: string,
+  apiUrl: string
+): Promise<AppSDKConfig> {
+  try {
+    const response = await fetch(`${apiUrl}/frontend/sdk/config`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Evervault-App-Id": app,
+      },
+    });
+
+    if (response.ok) {
+      return response.json() as Promise<AppSDKConfig>;
+    }
+
+    console.error(`Failed to fetch app SDK config details for ${app}`);
+  } catch (error) {
+    console.error(`Failed to fetch app SDK config details for ${app}`, error);
+  }
+  return { is_sandbox: false };
 }
 
 export function resolveUnit(input: string | number) {
