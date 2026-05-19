@@ -724,6 +724,9 @@ importers:
       events:
         specifier: 'catalog:'
         version: 3.3.0
+      shared:
+        specifier: workspace:*
+        version: link:../shared
       themes:
         specifier: workspace:*
         version: link:../themes

@@ -1,5 +1,5 @@
+import { getAppSDKConfig } from "shared";
 import {
-  AppSDKConfig,
   DisbursementTransactionDetails,
   MerchantDetail,
   PaymentTransactionDetails,
@@ -518,30 +518,6 @@ async function getMerchant(
   }
 
   return response.json();
-}
-
-async function getAppSDKConfig(
-  app: string,
-  apiUrl: string
-): Promise<AppSDKConfig> {
-  try {
-    const response = await fetch(`${apiUrl}/frontend/sdk/config`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Evervault-App-Id": app,
-      },
-    });
-
-    if (response.ok) {
-      return response.json() as Promise<AppSDKConfig>;
-    }
-
-    console.error(`Failed to fetch app SDK config details for ${app}`);
-  } catch (error) {
-    console.error(`Failed to fetch app SDK config details for ${app}`, error);
-  }
-  return { is_sandbox: false };
 }
 
 export function resolveUnit(input: string | number) {
