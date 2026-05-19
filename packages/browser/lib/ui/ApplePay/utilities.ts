@@ -1,4 +1,4 @@
-import { getAppSDKConfig } from "shared";
+import { getAppSDKConfig } from "shared/getAppSDKConfig";
 import {
   DisbursementTransactionDetails,
   MerchantDetail,
