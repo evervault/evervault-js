@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.55.0
+
+### Minor Changes
+
+- 77f2288: Append "(Card is not charged)" to the merchant name in the Apple Pay sheet when the app is sandbox-flagged.
+
 ## 2.54.0
 
 ### Minor Changes
