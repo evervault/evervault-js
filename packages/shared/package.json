@@ -3,6 +3,10 @@
   "private": true,
   "version": "1.1.21",
   "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./getAppSDKConfig": "./src/getAppSDKConfig.ts"
+  },
   "dependencies": {
     "types": "workspace:*",
     "@evervault/card-validator": "workspace:*"
