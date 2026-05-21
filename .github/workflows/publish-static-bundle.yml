@@ -66,6 +66,8 @@ jobs:
   # This is to ensure that the preview deployment is working as expected before we promote to production.
   deploy-preview:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-noble
     environment: ${{ inputs.preview-environment }}
     if: ${{ inputs.perform-gated-preview-deployment }}
     name: "[PREVIEW] Deploy ${{ inputs.package-name }} to ${{ inputs.stage }}"
@@ -142,8 +144,6 @@ jobs:
           cache: "pnpm"
       - name: Install deps
         run: pnpm install --frozen-lockfile
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
       - name: Run browser preflight checks
         if: ${{ inputs.run-preflight-checks && inputs.package-name == '@evervault/browser' }}
         id: browser-preflight
