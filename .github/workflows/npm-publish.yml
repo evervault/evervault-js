@@ -52,7 +52,7 @@ jobs:
           name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: ${{ inputs.repo_path }}
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v6
