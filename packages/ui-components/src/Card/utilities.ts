@@ -115,9 +115,11 @@ export function isAcceptedBrand(
   if (!acceptedBrands) return true;
   const { brand, localBrands } = cardNumberValidationResult;
 
-  const isBrandAccepted = brand !== null && acceptedBrands.includes(brand);
+  // TODO: Remove `as string[]` cast once @evervault/ui-components is updated
+  const isBrandAccepted =
+    brand !== null && (acceptedBrands as string[]).includes(brand);
   const isLocalBrandAccepted = localBrands.some((localBrand) =>
-    acceptedBrands.includes(localBrand)
+    (acceptedBrands as string[]).includes(localBrand)
   );
 
   return isBrandAccepted || isLocalBrandAccepted;
