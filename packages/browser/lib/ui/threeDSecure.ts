@@ -27,6 +27,7 @@ export default class ThreeDSecure {
   >;
 
   #events = new EventManager<ThreeDSecureEvents>();
+  #handled = false;
 
   constructor(
     client: EvervaultClient,
@@ -92,6 +93,8 @@ export default class ThreeDSecure {
     cres?: string | null,
     abortedOnChallenge: boolean = false
   ) {
+    if (this.#handled) return;
+    this.#handled = true;
     await this.#updateOutcome(outcome, cres, abortedOnChallenge);
     this.#events.dispatch(outcome === "success" ? "success" : "failure");
     this.unmount();
