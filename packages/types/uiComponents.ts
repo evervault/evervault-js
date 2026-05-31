@@ -101,6 +101,32 @@ export interface CardTranslations extends TranslationsObject {
 
 export type CardIcons = Record<CardBrandName | "default", string>;
 
+export interface BrandOptions {
+  numberValidationRules: {
+    luhnCheck?: boolean;
+    ranges: Array<number | [number, number]>;
+    lengths: number[];
+  };
+  securityCodeValidationRules: {
+    lengths: number[];
+  };
+  iconSrc?: string;
+}
+
+export interface CustomBrand {
+  name: string;
+  isLocal: true;
+  numberValidationRules: {
+    luhnCheck: boolean;
+    ranges: Array<number | [number, number]>;
+    lengths: number[];
+  };
+  securityCodeValidationRules: {
+    lengths: number[];
+  };
+  iconSrc?: string;
+}
+
 export interface CardOptions {
   colorScheme?: ColorScheme;
   icons?: boolean | CardIcons;
@@ -109,6 +135,7 @@ export interface CardOptions {
   hiddenFields?: ("number" | "expiry" | "cvc")[]; // deprecated
   fields?: CardField[];
   acceptedBrands?: CardBrandName[];
+  customBrands?: CustomBrand[];
   translations?: Partial<CardTranslations>;
   autoProgress?: boolean;
   redactCVC?: boolean;

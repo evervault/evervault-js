@@ -1,4 +1,5 @@
 import type {
+  CustomBrand,
   ThemeObject,
   CardField,
   CardTranslations,
@@ -13,6 +14,7 @@ export interface CardConfig {
   hiddenFields?: ("number" | "expiry" | "cvc")[];
   fields?: CardField[];
   acceptedBrands?: CardBrandName[];
+  customBrands?: CustomBrand[];
   translations?: Partial<CardTranslations>;
   autoProgress?: boolean;
   redactCVC?: boolean;
