@@ -10,12 +10,14 @@ import { ICONS } from "./icons";
 import { MagStripeData } from "./useCardReader";
 import type { CardForm } from "./types";
 import type {
+  CustomBrand,
   CardBrandName,
   CardField,
   CardIcons,
   CardPayload,
   SwipedCard,
 } from "types";
+import { CARD_BRAND_NAMES } from "types";
 
 export async function changePayload(
   ev: PromisifiedEvervaultClient,
@@ -24,6 +26,7 @@ export async function changePayload(
   opts?: {
     allow3DigitAmexCVC?: boolean;
     cvcOptional?: boolean;
+    customBrands?: CustomBrand[];
   }
 ): Promise<CardPayload> {
   const { name, number, expiry, cvc } = form.values;
@@ -33,7 +36,7 @@ export async function changePayload(
     bin,
     lastFour,
     isValid: isValidCardNumber,
-  } = validateNumber(number);
+  } = validateNumber(number, { customBrands: opts?.customBrands });
 
   return {
     card: {
@@ -44,7 +47,9 @@ export async function changePayload(
       lastFour,
       number: isValidCardNumber ? await encryptedNumber(ev, number) : null,
       expiry: formatExpiry(expiry),
-      cvc: await encryptedCVC(ev, cvc, number),
+      cvc: await encryptedCVC(ev, cvc, number, {
+        customBrands: opts?.customBrands,
+      }),
     },
     isValid: form.isValid,
     isComplete: isComplete(form, fields, opts),
@@ -58,6 +63,7 @@ function isComplete(
   opts?: {
     allow3DigitAmexCVC?: boolean;
     cvcOptional?: boolean;
+    customBrands?: CustomBrand[];
   }
 ) {
   if (fields.includes("name")) {
@@ -65,7 +71,9 @@ function isComplete(
   }
 
   if (fields.includes("number")) {
-    const cardValidation = validateNumber(form.values.number);
+    const cardValidation = validateNumber(form.values.number, {
+      customBrands: opts?.customBrands,
+    });
     if (!cardValidation.isValid) return false;
   }
 
@@ -78,8 +86,12 @@ function isComplete(
     fields.includes("cvc") &&
     !(opts?.cvcOptional && form.values.cvc.length === 0)
   ) {
-    const cardValidation = validateNumber(form.values.number);
-    const cvcValidation = validateCVC(form.values.cvc, form.values.number);
+    const cardValidation = validateNumber(form.values.number, {
+      customBrands: opts?.customBrands,
+    });
+    const cvcValidation = validateCVC(form.values.cvc, form.values.number, {
+      customBrands: opts?.customBrands,
+    });
     if (!cvcValidation.isValid) return false;
 
     const allow3DigitAmex = opts?.allow3DigitAmexCVC ?? true;
@@ -113,19 +125,31 @@ export async function swipePayload(
   };
 }
 
-export function isAcceptedBrand(
-  acceptedBrands: CardBrandName[] | undefined,
-  cardNumberValidationResult: CardNumberValidationResult
-): boolean {
-  if (!acceptedBrands) return true;
-  const { brand, localBrands } = cardNumberValidationResult;
+export function isDefaultCardBrand(brand: string): brand is CardBrandName {
+  return (CARD_BRAND_NAMES as string[]).includes(brand);
+}
 
-  // TODO: Remove `as string[]` cast once @evervault/ui-components is updated
-  const isBrandAccepted =
-    brand !== null && (acceptedBrands as string[]).includes(brand);
-  const isLocalBrandAccepted = localBrands.some((localBrand) =>
-    (acceptedBrands as string[]).includes(localBrand)
-  );
+export function isBrandSupported(
+  cardNumberValidationResult: CardNumberValidationResult,
+  opts?: {
+    acceptedBrands?: CardBrandName[];
+    customBrands?: CustomBrand[];
+  }
+): boolean {
+  const { acceptedBrands, customBrands } = opts ?? {};
+  if (!acceptedBrands) return true;
+
+  const { brand, localBrands } = cardNumberValidationResult;
+  const customBrandNames = customBrands?.map((b) => b.name) ?? [];
+
+  const isBrandAccepted = brand !== null && acceptedBrands.includes(brand);
+
+  const isLocalBrandAccepted = localBrands.some((localBrand) => {
+    if (isDefaultCardBrand(localBrand)) {
+      return acceptedBrands.includes(localBrand);
+    }
+    return customBrandNames.includes(localBrand);
+  });
 
   return isBrandAccepted || isLocalBrandAccepted;
 }
@@ -146,9 +170,12 @@ async function encryptedNumber(ev: PromisifiedEvervaultClient, number: string) {
 async function encryptedCVC(
   ev: PromisifiedEvervaultClient,
   cvc: string,
-  cardNumber: string
+  cardNumber: string,
+  opts?: {
+    customBrands?: CustomBrand[];
+  }
 ) {
-  const { isValid } = validateCVC(cvc, cardNumber);
+  const { isValid } = validateCVC(cvc, cardNumber, opts);
 
   if (!isValid) return null;
   return ev.encrypt(cvc);

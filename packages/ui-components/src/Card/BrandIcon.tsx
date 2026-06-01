@@ -1,19 +1,27 @@
 import { validateNumber } from "@evervault/card-validator";
-import { CardIcons } from "types";
+import { CustomBrand, CardIcons } from "types";
+import { isDefaultCardBrand } from "./utilities";
 
 export function BrandIcon({
   number,
   icons,
+  customBrands,
 }: {
   number: string;
   icons: CardIcons;
+  customBrands?: CustomBrand[];
 }) {
-  const { brand, localBrands } = validateNumber(number);
-  // TODO: Remove ` as Record<string, string>` cast once @evervault/ui-components is updated
-  let icon = (icons as Record<string, string>)[
-    brand ?? localBrands?.[0] ?? "default"
-  ];
-  icon = icon || icons.default;
+  const { brand, localBrands } = validateNumber(number, { customBrands });
+  const localBrand = localBrands[0];
+  const customBrand = customBrands?.find((b) => b.name === localBrand);
+  const brandName = brand ?? localBrand ?? "default";
+
+  let icon = customBrand?.iconSrc;
+  if (!icon && isDefaultCardBrand(brandName)) {
+    icon = icons[brandName];
+  }
+
+  icon = icon ?? icons.default;
 
   return (
     <img

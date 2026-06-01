@@ -51,6 +51,24 @@ export type CardBrandName =
   | "uatp"
   | "rupay";
 
+export const CARD_BRAND_NAMES: CardBrandName[] = [
+  "american-express",
+  "visa",
+  "mastercard",
+  "discover",
+  "jcb",
+  "diners-club",
+  "unionpay",
+  "maestro",
+  "mir",
+  "elo",
+  "hipercard",
+  "hiper",
+  "szep",
+  "uatp",
+  "rupay",
+];
+
 export interface CardExpiry {
   month: string | null;
   year: string | null;
