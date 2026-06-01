@@ -95,7 +95,12 @@ export default class ThreeDSecure {
   ) {
     if (this.#handled) return;
     this.#handled = true;
-    await this.#updateOutcome(outcome, cres, abortedOnChallenge);
+    try {
+      await this.#updateOutcome(outcome, cres, abortedOnChallenge);
+    } catch {
+      this.#handled = false;
+      return;
+    }
     this.#events.dispatch(outcome === "success" ? "success" : "failure");
     this.unmount();
   }
