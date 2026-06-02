@@ -1,6 +1,5 @@
 import { validateNumber } from "@evervault/card-validator";
 import { CustomBrand, CardIcons } from "types";
-import { isDefaultCardBrand } from "./utilities";
 
 export function BrandIcon({
   number,
@@ -12,16 +11,15 @@ export function BrandIcon({
   customBrands?: CustomBrand[];
 }) {
   const { brand, localBrands } = validateNumber(number, { customBrands });
-  const localBrand = localBrands[0];
-  const customBrand = customBrands?.find((b) => b.name === localBrand);
-  const brandName = brand ?? localBrand ?? "default";
-
-  let icon = customBrand?.iconSrc;
-  if (!icon && isDefaultCardBrand(brandName)) {
-    icon = icons[brandName];
-  }
-
-  icon = icon ?? icons.default;
+  const customIcons = Object.fromEntries(
+    customBrands?.map((b) => [b.name, b.iconSrc]) ?? []
+  );
+  const allIcons: Record<string, string | undefined> = {
+    ...icons,
+    ...customIcons,
+  };
+  // local or custom brand > global brand > default icon
+  const icon = allIcons[localBrands[0] ?? brand ?? "default"] ?? icons.default;
 
   return (
     <img

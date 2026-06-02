@@ -125,7 +125,7 @@ export async function swipePayload(
   };
 }
 
-export function isDefaultCardBrand(brand: string): brand is CardBrandName {
+function isDefaultCardBrand(brand: string): brand is CardBrandName {
   return (CARD_BRAND_NAMES as string[]).includes(brand);
 }
 
