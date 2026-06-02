@@ -972,6 +972,7 @@ test.describe("card component", () => {
     await frame.getByLabel("CVC").blur();
     await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
     await expect.poll(async () => values.errors?.cvc).toEqual("invalid");
+    await expect.poll(async () => values.isValid).toBeFalsy();
     await expect.poll(async () => values.isComplete).toBeFalsy();
   });
 
@@ -1023,6 +1024,7 @@ test.describe("card component", () => {
     await frame.getByLabel("Expiration").fill(getFutureExpiration());
     await frame.getByLabel("CVC").focus();
     await frame.getByLabel("CVC").blur();
+    await expect.poll(async () => values.isValid).toBeFalsy();
     await expect.poll(async () => values.isComplete).toBeFalsy();
     await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
   });
