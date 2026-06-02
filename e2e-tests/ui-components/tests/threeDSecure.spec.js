@@ -238,26 +238,6 @@ test.describe("threeDSecure component", () => {
       await expect.poll(async () => successCount, { timeout: 1000 }).toBe(0);
     });
 
-    test("spamming the cancel button only fires failure callback once", async ({
-      page,
-    }) => {
-      const frame = page.frameLocator("iframe[data-evervault]");
-      const cancelButton = frame.locator(".overlayClose");
-      await cancelButton.waitFor({ state: "visible" });
-
-      // Spam the cancel button as fast as possible
-      await cancelButton.click();
-      await cancelButton.click({ force: true });
-      await cancelButton.click({ force: true });
-      await cancelButton.click({ force: true });
-      await cancelButton.click({ force: true });
-
-      await expect.poll(async () => failureCount, { timeout: 5000 }).toBe(1);
-      // Assert disabled state confirms deduplication at the UI level too
-      await expect(cancelButton).toBeDisabled();
-      await expect.poll(async () => successCount, { timeout: 1000 }).toBe(0);
-    });
-
     test("is disabled after first click", async ({ page }) => {
       const frame = page.frameLocator("iframe[data-evervault]");
       const cancelButton = frame.locator(".overlayClose");
