@@ -103,7 +103,8 @@ export function Card({ config }: { config: CardConfig }) {
       },
       cvc: (values) => {
         if (!fields.includes("cvc")) return undefined;
-        if (config.validation?.cvc?.optional && values.cvc.length === 0) return undefined;
+        if (config.validation?.cvc?.optional && values.cvc.length === 0)
+          return undefined;
 
         const cardValidation = validateNumber(values.number);
         const cvcValidation = validateCVC(values.cvc, values.number);
@@ -177,7 +178,15 @@ export function Card({ config }: { config: CardConfig }) {
           })();
         });
       }),
-    [ev, on, send, form, fields, config.allow3DigitAmexCVC, config.validation?.cvc?.optional]
+    [
+      ev,
+      on,
+      send,
+      form,
+      fields,
+      config.allow3DigitAmexCVC,
+      config.validation?.cvc?.optional,
+    ]
   );
 
   useEffect(

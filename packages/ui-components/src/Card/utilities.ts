@@ -74,7 +74,10 @@ function isComplete(
     if (!expiryValidation.isValid) return false;
   }
 
-  if (fields.includes("cvc") && !(opts?.cvcOptional && form.values.cvc.length === 0)) {
+  if (
+    fields.includes("cvc") &&
+    !(opts?.cvcOptional && form.values.cvc.length === 0)
+  ) {
     const cardValidation = validateNumber(form.values.number);
     const cvcValidation = validateCVC(form.values.cvc, form.values.number);
     if (!cvcValidation.isValid) return false;
