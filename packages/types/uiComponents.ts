@@ -126,6 +126,9 @@ export interface CardOptions {
     name?: {
       regex?: RegExp;
     };
+    cvc?: {
+      optional?: boolean;
+    };
   };
 }
 

@@ -23,6 +23,7 @@ export async function changePayload(
   fields: CardField[],
   opts?: {
     allow3DigitAmexCVC?: boolean;
+    cvcOptional?: boolean;
   }
 ): Promise<CardPayload> {
   const { name, number, expiry, cvc } = form.values;
@@ -56,6 +57,7 @@ function isComplete(
   fields: CardField[],
   opts?: {
     allow3DigitAmexCVC?: boolean;
+    cvcOptional?: boolean;
   }
 ) {
   if (fields.includes("name")) {
@@ -72,7 +74,10 @@ function isComplete(
     if (!expiryValidation.isValid) return false;
   }
 
-  if (fields.includes("cvc")) {
+  if (
+    fields.includes("cvc") &&
+    !(opts?.cvcOptional && form.values.cvc.length === 0)
+  ) {
     const cardValidation = validateNumber(form.values.number);
     const cvcValidation = validateCVC(form.values.cvc, form.values.number);
     if (!cvcValidation.isValid) return false;
