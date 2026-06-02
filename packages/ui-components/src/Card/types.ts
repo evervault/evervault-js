@@ -30,6 +30,9 @@ export interface CardConfig {
     name?: {
       regex?: RegExp;
     };
+    cvc?: {
+      optional?: boolean;
+    };
   };
 }
 
