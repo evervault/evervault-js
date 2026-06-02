@@ -1,5 +1,17 @@
 # @evervault/browser
 
+## 2.55.1
+
+### Patch Changes
+
+- c9459f0: - idempotency guard to prevent `handleOutcome` firing multiple times
+  - removing the message listener before processing, to prevent duplicate events
+  - disabling the cancel button after first click to prevent duplicate cancellation calls
+- Updated dependencies [c37865d]
+  - types@0.23.0
+  - shared@1.1.22
+  - themes@0.1.23
+
 ## 2.55.0
 
 ### Minor Changes
