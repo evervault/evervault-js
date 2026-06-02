@@ -922,6 +922,111 @@ test.describe("card component", () => {
     await expect.poll(async () => values.isValid).toBeTruthy();
   });
 
+  test("optional CVC: form is valid and complete with empty CVC", async ({
+    page,
+  }) => {
+    let values = {};
+
+    await page.exposeFunction("handleChange", (newValues) => {
+      values = newValues;
+    });
+
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card({
+        validation: { cvc: { optional: true } },
+      });
+      card.on("change", window.handleChange);
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill("4242424242424242");
+    await frame.getByLabel("Expiration").fill(getFutureExpiration());
+    await frame.getByLabel("CVC").focus();
+    await frame.getByLabel("CVC").blur();
+    await expect.poll(async () => values.isValid).toBeTruthy();
+    await expect.poll(async () => values.isComplete).toBeTruthy();
+    await expect.poll(async () => values.errors).toBeNull();
+    await expect(frame.getByText("Your CVC is invalid")).not.toBeVisible();
+  });
+
+  test("optional CVC: partial CVC still shows an error", async ({ page }) => {
+    let values = {};
+
+    await page.exposeFunction("handleChange", (newValues) => {
+      values = newValues;
+    });
+
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card({
+        validation: { cvc: { optional: true } },
+      });
+      card.on("change", window.handleChange);
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill("4242424242424242");
+    await frame.getByLabel("Expiration").fill(getFutureExpiration());
+    await frame.getByLabel("CVC").fill("12");
+    await frame.getByLabel("CVC").blur();
+    await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
+    await expect.poll(async () => values.errors?.cvc).toEqual("invalid");
+    await expect.poll(async () => values.isComplete).toBeFalsy();
+  });
+
+  test("optional CVC: valid CVC is accepted and encrypted", async ({
+    page,
+  }) => {
+    let values = {};
+
+    await page.exposeFunction("handleChange", (newValues) => {
+      values = newValues;
+    });
+
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card({
+        validation: { cvc: { optional: true } },
+      });
+      card.on("change", window.handleChange);
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill("4242424242424242");
+    await frame.getByLabel("Expiration").fill(getFutureExpiration());
+    await frame.getByLabel("CVC").fill("123");
+    await frame.getByLabel("CVC").blur();
+    await expect.poll(async () => values.isValid).toBeTruthy();
+    await expect.poll(async () => values.isComplete).toBeTruthy();
+    await expect.poll(async () => values.card?.cvc).toBeEncrypted();
+    await expect(frame.getByText("Your CVC is invalid")).not.toBeVisible();
+  });
+
+  test("optional CVC: CVC is mandatory when optional is not set", async ({
+    page,
+  }) => {
+    let values = {};
+
+    await page.exposeFunction("handleChange", (newValues) => {
+      values = newValues;
+    });
+
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card();
+      card.on("change", window.handleChange);
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill("4242424242424242");
+    await frame.getByLabel("Expiration").fill(getFutureExpiration());
+    await frame.getByLabel("CVC").focus();
+    await frame.getByLabel("CVC").blur();
+    await expect.poll(async () => values.isComplete).toBeFalsy();
+    await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
+  });
+
   test("Can add custom validation for the name field", async ({ page }) => {
     await page.evaluate(() => {
       const card = window.evervault.ui.card({
