@@ -945,6 +945,9 @@ importers:
       react-dom:
         specifier: 'catalog:'
         version: 18.2.0(react@18.2.0)
+      shared:
+        specifier: workspace:*
+        version: link:../shared
       themes:
         specifier: workspace:*
         version: link:../themes
