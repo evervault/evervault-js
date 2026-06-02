@@ -23,6 +23,14 @@ type BrandDefinition<
 export type DefaultBrand = BrandDefinition<CardBrandName>;
 export type CustomBrand = BrandDefinition<string, true>;
 
+/** @deprecated Use {@link DefaultBrand} instead */
+export type CardBrand = DefaultBrand;
+
+/** @deprecated No longer used internally */
+export type CardValidationOptions = {
+  acceptedBrands?: CardBrandName[];
+};
+
 export type CardNumberValidationOptions = {
   customBrands?: CustomBrand[];
 };
