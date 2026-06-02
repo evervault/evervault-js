@@ -193,6 +193,88 @@ test.describe("threeDSecure component", () => {
     await code.pressSequentially("111111");
     await expect.poll(async () => success, { timeout: 7500 }).toBeTruthy();
   });
+
+  test.describe("cancel button", () => {
+    // 4242... triggers a challenge flow (requires code entry)
+    const CHALLENGE_CARD = "4242424242424242";
+
+    let failureCount;
+    let successCount;
+
+    test.beforeEach(async ({ page }) => {
+      failureCount = 0;
+      successCount = 0;
+
+      await page.exposeFunction("handleFailure", () => {
+        failureCount++;
+      });
+      await page.exposeFunction("handleSuccess", () => {
+        successCount++;
+      });
+
+      const session = await createThreeDSSession(CHALLENGE_CARD);
+      await page.evaluate((sessionId) => {
+        const comp = window.evervault.ui.threeDSecure(sessionId);
+        comp.on("failure", window.handleFailure);
+        comp.on("success", window.handleSuccess);
+        comp.mount();
+      }, session.id);
+
+      // Wait for challenge frame to be ready before each test
+      const frame = page.frameLocator("iframe[data-evervault]");
+      const acsFrame = frame.frameLocator("iframe[name='challengeFrame']");
+      await acsFrame.locator("input").waitFor({ state: "visible" });
+    });
+
+    test("fires failure callback exactly once when clicked once", async ({
+      page,
+    }) => {
+      const frame = page.frameLocator("iframe[data-evervault]");
+      const cancelButton = frame.locator(".overlayClose");
+      await cancelButton.waitFor({ state: "visible" });
+      await cancelButton.click();
+
+      await expect.poll(async () => failureCount).toBe(1);
+      await expect.poll(async () => successCount, { timeout: 1000 }).toBe(0);
+    });
+
+    test("is disabled after first click", async ({ page }) => {
+      const frame = page.frameLocator("iframe[data-evervault]");
+      const cancelButton = frame.locator(".overlayClose");
+      await cancelButton.waitFor({ state: "visible" });
+
+      await expect(cancelButton).toBeEnabled();
+      await cancelButton.click();
+      await expect(cancelButton).toBeDisabled();
+    });
+
+    test("fires failure and not success when cancelled mid-challenge", async ({
+      page,
+    }) => {
+      const frame = page.frameLocator("iframe[data-evervault]");
+      const cancelButton = frame.locator(".overlayClose");
+      await cancelButton.click();
+
+      await expect.poll(async () => failureCount).toBe(1);
+      await expect.poll(async () => successCount, { timeout: 1000 }).toBe(0);
+    });
+
+    test("fires failure only once when cancelled after partial code entry", async ({
+      page,
+    }) => {
+      const frame = page.frameLocator("iframe[data-evervault]");
+      const acsFrame = frame.frameLocator("iframe[name='challengeFrame']");
+
+      // Start typing the success code but cancel before it completes
+      await acsFrame.locator("input").pressSequentially("111");
+
+      const cancelButton = frame.locator(".overlayClose");
+      await cancelButton.click();
+
+      await expect.poll(async () => failureCount, { timeout: 5000 }).toBe(1);
+      await expect.poll(async () => successCount, { timeout: 1000 }).toBe(0);
+    });
+  });
 });
 
 async function createThreeDSSession(number) {
