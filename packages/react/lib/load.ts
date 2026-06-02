@@ -1,5 +1,7 @@
 import EvervaultClient, {
   CustomConfig as BrowserConfig,
+  BrandOptions,
+  CustomBrand,
 } from "@evervault/browser";
 import React, { useMemo } from "react";
 import { useId } from "react";
@@ -13,6 +15,24 @@ export class PromisifiedEvervaultClient extends Promise<EvervaultClient> {
   public async decrypt(token: string, data: unknown) {
     const ev = await this;
     return ev.decrypt(token, data);
+  }
+
+  get brands() {
+    return {
+      create: (name: string, options: BrandOptions): CustomBrand => ({
+        name,
+        isLocal: true,
+        numberValidationRules: {
+          luhnCheck: options.numberValidationRules.luhnCheck ?? true,
+          ranges: options.numberValidationRules.ranges,
+          lengths: options.numberValidationRules.lengths,
+        },
+        securityCodeValidationRules: {
+          lengths: options.securityCodeValidationRules.lengths,
+        },
+        iconSrc: options.iconSrc,
+      }),
+    };
   }
 }
 
