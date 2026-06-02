@@ -1,5 +1,22 @@
 # @evervault/ui-components
 
+## 1.40.0
+
+### Minor Changes
+
+- c37865d: feat: allow optional cvc
+
+### Patch Changes
+
+- c9459f0: - idempotency guard to prevent `handleOutcome` firing multiple times
+  - removing the message listener before processing, to prevent duplicate events
+  - disabling the cancel button after first click to prevent duplicate cancellation calls
+- Updated dependencies [c37865d]
+  - types@0.23.0
+  - @evervault/card-validator@1.6.0
+  - @evervault/react@2.24.0
+  - shared@1.1.22
+
 ## 1.39.3
 
 ### Patch Changes
