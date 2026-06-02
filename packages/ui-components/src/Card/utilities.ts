@@ -3,6 +3,7 @@ import {
   validateExpiry,
   validateCVC,
   CardNumberValidationResult,
+  CardNumberValidationOptions,
 } from "@evervault/card-validator";
 import { PromisifiedEvervaultClient } from "@evervault/react";
 import { UseFormReturn } from "shared";
@@ -171,9 +172,7 @@ async function encryptedCVC(
   ev: PromisifiedEvervaultClient,
   cvc: string,
   cardNumber: string,
-  opts?: {
-    customBrands?: CustomBrand[];
-  }
+  opts?: CardNumberValidationOptions
 ) {
   const { isValid } = validateCVC(cvc, cardNumber, opts);
 
