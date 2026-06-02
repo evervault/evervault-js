@@ -199,6 +199,75 @@ describe("ThreeDSecure#handleOutcome idempotency", () => {
     expect(unmountSpy).toHaveBeenCalledTimes(1);
   });
 
+  it("ignores a success event after a cancel has already been processed", async () => {
+    const patchRequests: RecordedPatch[] = [];
+    server.use(patchHandler(patchRequests));
+
+    const failureHandler = vi.fn();
+    const successHandler = vi.fn();
+    const { tds } = createThreeDSecure();
+    tds.on("failure", failureHandler);
+    tds.on("success", successHandler);
+
+    lastFrame.trigger("EV_CANCEL");
+    await vi.waitFor(() => expect(patchRequests).toHaveLength(1));
+
+    lastFrame.trigger("EV_SUCCESS", null);
+
+    expect(patchRequests).toHaveLength(1);
+    expect(patchRequests[0]).toEqual({
+      body: { outcome: "cancelled", cres: null },
+      appId,
+    });
+    expect(failureHandler).toHaveBeenCalledTimes(1);
+    expect(successHandler).not.toHaveBeenCalled();
+  });
+
+  it("ignores a cancel event after a success has already been processed", async () => {
+    const patchRequests: RecordedPatch[] = [];
+    server.use(patchHandler(patchRequests));
+
+    const failureHandler = vi.fn();
+    const successHandler = vi.fn();
+    const { tds } = createThreeDSecure();
+    tds.on("failure", failureHandler);
+    tds.on("success", successHandler);
+
+    lastFrame.trigger("EV_SUCCESS", null);
+    await vi.waitFor(() => expect(patchRequests).toHaveLength(1));
+
+    lastFrame.trigger("EV_CANCEL");
+
+    expect(patchRequests).toHaveLength(1);
+    expect(patchRequests[0]).toEqual({
+      body: { outcome: "success", cres: null },
+      appId,
+    });
+    expect(successHandler).toHaveBeenCalledTimes(1);
+    expect(failureHandler).not.toHaveBeenCalled();
+  });
+
+  it("ignores a cancel event after a failure has already been processed", async () => {
+    const patchRequests: RecordedPatch[] = [];
+    server.use(patchHandler(patchRequests));
+
+    const failureHandler = vi.fn();
+    const { tds } = createThreeDSecure();
+    tds.on("failure", failureHandler);
+
+    lastFrame.trigger("EV_FAILURE", "cres_token");
+    await vi.waitFor(() => expect(patchRequests).toHaveLength(1));
+
+    lastFrame.trigger("EV_CANCEL");
+
+    expect(patchRequests).toHaveLength(1);
+    expect(patchRequests[0]).toEqual({
+      body: { outcome: "failure", cres: "cres_token" },
+      appId,
+    });
+    expect(failureHandler).toHaveBeenCalledTimes(1);
+  });
+
   it("resets the handled flag if fetch rejects (network error), allowing a retry", async () => {
     let callCount = 0;
     const originalFetch = globalThis.fetch;
