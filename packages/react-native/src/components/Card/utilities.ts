@@ -79,8 +79,9 @@ export function isAcceptedBrand(
   const { brand, localBrands } = cardNumberValidationResult;
 
   const isBrandAccepted = brand !== null && acceptedBrands.includes(brand);
+  // TODO: Remove `as string[]` cast once @evervault/react-native is updated
   const isLocalBrandAccepted = localBrands.some((localBrand) =>
-    acceptedBrands.includes(localBrand)
+    (acceptedBrands as string[]).includes(localBrand)
   );
 
   return isBrandAccepted || isLocalBrandAccepted;

@@ -3,9 +3,9 @@ import type {
   CardCVCValidationResult,
   CardExpiryValidationResult,
   CardNumberValidationResult,
+  CardNumberValidationOptions,
 } from "./types";
 import defaultBrands from "./brands";
-import { type CardBrandName } from "types";
 
 export * from "./types";
 
@@ -39,7 +39,25 @@ function getBin(cardNumber: string): string {
   }
 }
 
-export function validateNumber(cardNumber: string): CardNumberValidationResult {
+function matchesRangeOrPrefix(
+  cardNumber: string,
+  range: number | [number, number]
+): boolean {
+  if (Array.isArray(range)) {
+    if (range[0] && range[1]) {
+      return matchesRange(cardNumber, range[0], range[1]);
+    }
+  } else {
+    return matchesPrefix(cardNumber, range);
+  }
+
+  return false;
+}
+
+export function validateNumber(
+  cardNumber: string,
+  options?: CardNumberValidationOptions
+): CardNumberValidationResult {
   // Remove all spaces from the card number
   const sanitizedCardNumber = String(cardNumber).replace(/\s/g, "");
 
@@ -55,30 +73,30 @@ export function validateNumber(cardNumber: string): CardNumberValidationResult {
   }
 
   // Filter out brands where the card number does not match any of the ranges
-  const cardBrands = defaultBrands.filter((brand) => {
-    return brand.numberValidationRules.ranges.some((range) => {
-      if (Array.isArray(range)) {
-        if (range[0] && range[1]) {
-          return matchesRange(sanitizedCardNumber, range[0], range[1]);
-        }
-      } else {
-        return matchesPrefix(sanitizedCardNumber, range);
-      }
-
-      return false;
-    });
+  const defaultCardBrands = defaultBrands.filter((brand) => {
+    return brand.numberValidationRules.ranges.some((range) =>
+      matchesRangeOrPrefix(sanitizedCardNumber, range)
+    );
   });
 
-  const globalBrands = cardBrands.filter((brand) => !brand.isLocal);
-  const localBrands = cardBrands.filter((brand) => brand.isLocal);
+  const customBrands = (options?.customBrands ?? []).filter((brand) => {
+    return brand.numberValidationRules.ranges.some((range) =>
+      matchesRangeOrPrefix(sanitizedCardNumber, range)
+    );
+  });
+
+  const allCardBrands = [...defaultCardBrands, ...customBrands];
+
+  const globalBrands = defaultCardBrands.filter((brand) => !brand.isLocal);
+  const localBrands = allCardBrands.filter((brand) => brand.isLocal);
 
   // Check if the card number is valid based on:
   // 1. The card number belongs to at least one card brand range
   // 2. The length of the card number is supported, based on all supported card brands
   // 3. The Luhn check passes, based on all supported card brands
   const isValid =
-    cardBrands.length > 0 &&
-    cardBrands.every((creditCardBrand) => {
+    allCardBrands.length > 0 &&
+    allCardBrands.every((creditCardBrand) => {
       const { lengths, luhnCheck } = creditCardBrand.numberValidationRules;
 
       // Check if the length of the sanitized card number is supported
@@ -107,7 +125,8 @@ export function validateNumber(cardNumber: string): CardNumberValidationResult {
 
 export function validateCVC(
   cvc: string,
-  cardNumber?: string
+  cardNumber?: string,
+  options?: CardNumberValidationOptions
 ): CardCVCValidationResult {
   // Check if the CVC only contains numbers with 3 or 4 digits
   if (!/^\d{3,4}$/.test(cvc)) {
@@ -124,7 +143,7 @@ export function validateCVC(
     };
   }
 
-  const validatedCard = validateNumber(cardNumber);
+  const validatedCard = validateNumber(cardNumber, options);
   if (!validatedCard.isValid) {
     return {
       cvc: null,
@@ -132,7 +151,7 @@ export function validateCVC(
     };
   }
 
-  const brands: CardBrandName[] = [];
+  const brands: string[] = [];
   if (validatedCard.brand) {
     brands.push(validatedCard.brand);
   }
@@ -140,7 +159,8 @@ export function validateCVC(
     brands.push(...validatedCard.localBrands);
   }
 
-  const isCVCValid = defaultBrands
+  const allBrands = [...defaultBrands, ...(options?.customBrands ?? [])];
+  const isCVCValid = allBrands
     .filter((brand) => brands.includes(brand.name))
     .some((brand) => {
       return brand.securityCodeValidationRules.lengths.includes(cvc.length);

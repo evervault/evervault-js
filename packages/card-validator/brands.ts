@@ -1,4 +1,4 @@
-import { type CardBrand } from "./types";
+import { type DefaultBrand } from "./types";
 
 const brands = [
   {
@@ -256,6 +256,6 @@ const brands = [
       lengths: [3],
     },
   },
-] as CardBrand[];
+] as DefaultBrand[];
 
 export default brands;
