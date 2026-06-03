@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.25.0
+
+### Minor Changes
+
+- 52f1154: Adds `validation.cvc.optional` option to Card configuration
+
 ## 2.24.0
 
 ### Minor Changes
