@@ -1,5 +1,11 @@
 # @evervault/js
 
+## 2.12.0
+
+### Minor Changes
+
+- 52f1154: Adds `validation.cvc.optional` option to Card configuration
+
 ## 2.11.0
 
 ### Minor Changes
