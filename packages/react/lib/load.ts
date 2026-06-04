@@ -1,4 +1,5 @@
 import EvervaultClient, {
+  BrandOptions,
   CustomConfig as BrowserConfig,
 } from "@evervault/browser";
 import { createBrand } from "shared";
@@ -17,7 +18,10 @@ export class PromisifiedEvervaultClient extends Promise<EvervaultClient> {
   }
 
   get brands() {
-    return { create: createBrand };
+    return {
+      create: (name: string, options: BrandOptions) =>
+        createBrand(name, options),
+    };
   }
 }
 

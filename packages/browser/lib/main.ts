@@ -14,6 +14,7 @@ import {
 import type { InputSettings, RevealSettings } from "./types";
 import { Transaction } from "./resources/transaction";
 import {
+  BrandOptions,
   CreateTransactionDetails,
   DisbursementTransactionDetails,
   RecurringTransactionDetails,
@@ -332,6 +333,9 @@ export default class EvervaultClient {
   }
 
   get brands() {
-    return { create: createBrand };
+    return {
+      create: (name: string, options: BrandOptions) =>
+        createBrand(name, options),
+    };
   }
 }
