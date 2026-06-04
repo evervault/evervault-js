@@ -14,6 +14,8 @@ import {
 import type { InputSettings, RevealSettings } from "./types";
 import { Transaction } from "./resources/transaction";
 import {
+  BrandOptions,
+  CustomBrand,
   CreateTransactionDetails,
   DisbursementTransactionDetails,
   RecurringTransactionDetails,
@@ -327,6 +329,24 @@ export default class EvervaultClient {
           | RecurringTransactionDetails
           | DisbursementTransactionDetails
       ) => new Transaction(details),
+    };
+  }
+
+  get brands() {
+    return {
+      create: (name: string, options: BrandOptions): CustomBrand => ({
+        name,
+        isLocal: true,
+        numberValidationRules: {
+          luhnCheck: options.numberValidationRules.luhnCheck ?? true,
+          ranges: options.numberValidationRules.ranges,
+          lengths: options.numberValidationRules.lengths,
+        },
+        securityCodeValidationRules: {
+          lengths: options.securityCodeValidationRules.lengths,
+        },
+        iconSrc: options.iconSrc,
+      }),
     };
   }
 }
