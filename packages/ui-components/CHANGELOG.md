@@ -1,5 +1,19 @@
 # @evervault/ui-components
 
+## 1.41.0
+
+### Minor Changes
+
+- 974e08d: Pass customBrands from CardConfig into validateNumber and validateCVC. Custom brands participate in brand detection, BIN icon display, and are always accepted regardless of the acceptedBrands filter.
+
+### Patch Changes
+
+- Updated dependencies [33ba948]
+- Updated dependencies [8501902]
+  - @evervault/card-validator@1.7.0
+  - @evervault/react@2.26.0
+  - shared@1.1.23
+
 ## 1.40.1
 
 ### Patch Changes
