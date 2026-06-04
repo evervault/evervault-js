@@ -126,7 +126,7 @@ export interface BrandOptions {
     lengths: number[];
   };
   securityCodeValidationRules: {
-    lengths: number[];
+    lengths: (3 | 4)[];
   };
   iconSrc?: string;
 }
@@ -140,7 +140,7 @@ export interface CustomBrand {
     lengths: number[];
   };
   securityCodeValidationRules: {
-    lengths: number[];
+    lengths: (3 | 4)[];
   };
   iconSrc?: string;
 }

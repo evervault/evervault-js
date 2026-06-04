@@ -282,6 +282,7 @@ export function Card({ config }: { config: CardConfig }) {
             autoComplete={config.autoComplete?.number ?? true}
             autoProgress={config.autoProgress}
             form={form}
+            customBrands={customBrands}
             onFocus={handleFocus("number")}
             onKeyUp={handleKeyUp("number")}
             onKeyDown={handleKeyDown("number")}
@@ -343,6 +344,7 @@ export function Card({ config }: { config: CardConfig }) {
             onKeyDown={handleKeyDown("cvc")}
             autoComplete={config.autoComplete?.cvc ?? true}
             redact={config.redactCVC}
+            customBrands={customBrands}
             {...form.register("cvc", {
               onBlur: handleBlur("cvc"),
             })}

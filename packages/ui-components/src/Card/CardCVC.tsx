@@ -8,6 +8,7 @@ import {
   useRef,
 } from "react";
 import { useMask } from "../utilities/useMask";
+import type { CustomBrand } from "types";
 
 interface CVCProps {
   onChange: (v: string) => void;
@@ -22,6 +23,7 @@ interface CVCProps {
   cardNumber: string;
   autoComplete?: boolean;
   redact?: boolean;
+  customBrands?: CustomBrand[];
 }
 
 export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
@@ -39,6 +41,7 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
       onKeyUp,
       onKeyDown,
       redact,
+      customBrands,
     },
     forwardedRef
   ) => {
@@ -48,10 +51,23 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
 
     const mask = useMemo(() => {
       if (!cardNumber) return "0000";
-      const type = validateNumber(cardNumber).brand;
-      if (type === "american-express") return "0000";
+      const { brand, localBrands } = validateNumber(cardNumber, {
+        customBrands,
+      });
+      if (brand === "american-express") return "0000";
+
+      const matchedCustomBrand = customBrands?.find((b) =>
+        localBrands.includes(b.name)
+      );
+      if (matchedCustomBrand) {
+        const maxLength = Math.max(
+          ...matchedCustomBrand.securityCodeValidationRules.lengths
+        );
+        return "0".repeat(maxLength);
+      }
+
       return "000";
-    }, [cardNumber]);
+    }, [cardNumber, customBrands]);
 
     const { setValue } = useMask(innerRef, onChange, {
       mask,
