@@ -15,11 +15,11 @@ import type { InputSettings, RevealSettings } from "./types";
 import { Transaction } from "./resources/transaction";
 import {
   BrandOptions,
-  CustomBrand,
   CreateTransactionDetails,
   DisbursementTransactionDetails,
   RecurringTransactionDetails,
 } from "types";
+import { createBrand } from "shared/createBrand";
 
 export type * from "types";
 export type * from "./config";
@@ -334,19 +334,8 @@ export default class EvervaultClient {
 
   get brands() {
     return {
-      create: (name: string, options: BrandOptions): CustomBrand => ({
-        name,
-        isLocal: true,
-        numberValidationRules: {
-          luhnCheck: options.numberValidationRules.luhnCheck ?? true,
-          ranges: options.numberValidationRules.ranges,
-          lengths: options.numberValidationRules.lengths,
-        },
-        securityCodeValidationRules: {
-          lengths: options.securityCodeValidationRules.lengths,
-        },
-        iconSrc: options.iconSrc,
-      }),
+      create: (name: string, options: BrandOptions) =>
+        createBrand(name, options),
     };
   }
 }

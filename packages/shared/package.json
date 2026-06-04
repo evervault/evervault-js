@@ -5,7 +5,8 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./getAppSDKConfig": "./src/getAppSDKConfig.ts"
+    "./getAppSDKConfig": "./src/getAppSDKConfig.ts",
+    "./createBrand": "./src/createBrand.ts"
   },
   "dependencies": {
     "types": "workspace:*",
