@@ -1,5 +1,15 @@
 # @evervault/browser
 
+## 2.56.0
+
+### Minor Changes
+
+- 974e08d: Add custom brand support to the browser SDK. The `brands.create(name, options)` method lets you define custom card brands. Pass them via the new `customBrands` option on `CardOptions` and they will be forwarded to the card iframe for validation.
+
+### Patch Changes
+
+- shared@1.1.23
+
 ## 2.55.1
 
 ### Patch Changes

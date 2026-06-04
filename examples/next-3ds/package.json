@@ -1,6 +1,6 @@
 {
   "name": "example-next-3ds",
-  "version": "0.1.23",
+  "version": "0.1.24",
   "private": true,
   "scripts": {
     "dev": "next dev --port 4000",
