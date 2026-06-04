@@ -4,6 +4,7 @@ import { UseFormReturn } from "shared";
 import { useMask } from "../utilities/useMask";
 import { CardForm } from "./types";
 import type { CustomBrand } from "types";
+import { Masked } from "imask";
 
 interface CardNumberProps {
   disabled?: boolean;
@@ -28,7 +29,7 @@ interface CardMask {
   cardLength?: number;
 }
 
-function cardMaskFromLength(length: number): string {
+export function cardMaskFromLength(length: number): string {
   const parts = [];
   let remaining = length;
   while (remaining > 0) {
@@ -45,6 +46,32 @@ const BASE_MASKS: CardMask[] = [
 ];
 
 const BASE_LENGTHS = new Set(BASE_MASKS.map((m) => m.cardLength));
+
+export function getDynamicMask(
+  compiledMasks: CardMask[],
+  number: string,
+  opts?: { customBrands?: CustomBrand[] }
+): CardMask {
+  const { brand, localBrands } = validateNumber(number, {
+    customBrands: opts?.customBrands,
+  });
+
+  if (localBrands.length > 0 && opts?.customBrands) {
+    const matchedCustom = opts.customBrands.find((b) =>
+      localBrands.includes(b.name)
+    );
+    if (matchedCustom) {
+      const maxLength = Math.max(
+        ...matchedCustom.numberValidationRules.lengths
+      );
+      const customMask = compiledMasks.find((m) => m.cardLength === maxLength);
+      if (customMask) return customMask;
+    }
+  }
+
+  const brandMask = compiledMasks.find((m) => m.brand === brand);
+  return brandMask ?? compiledMasks[0];
+}
 
 export function CardNumber({
   autoFocus,
@@ -102,32 +129,13 @@ export function CardNumber({
   };
 
   const { setValue, mask } = useMask(ref, handleCardChange, {
-    mask: masks as CardMask[],
+    mask: masks,
     dispatch: (appended, dynamicMasked) => {
       const number = dynamicMasked.value + appended;
-      const { brand, localBrands } = validateNumber(number, { customBrands });
-
-      if (localBrands.length > 0 && customBrands) {
-        const matchedCustom = customBrands.find((b) =>
-          localBrands.includes(b.name)
-        );
-        if (matchedCustom) {
-          const maxLength = Math.max(
-            ...matchedCustom.numberValidationRules.lengths
-          );
-          const customMask = dynamicMasked.compiledMasks.find(
-            (m) => (m as CardMask).cardLength === maxLength
-          );
-          if (customMask) return customMask;
-        }
-      }
-
-      const brandMask = dynamicMasked.compiledMasks.find((m) => {
-        const maskBrand = (m as CardMask).brand;
-        return maskBrand === brand;
-      });
-
-      return brandMask ?? dynamicMasked.compiledMasks[0];
+      const compiledMasks = dynamicMasked.compiledMasks as CardMask[];
+      return getDynamicMask(compiledMasks, number, {
+        customBrands,
+      }) as Masked;
     },
   });
 

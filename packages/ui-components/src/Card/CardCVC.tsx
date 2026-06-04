@@ -10,6 +10,27 @@ import {
 import { useMask } from "../utilities/useMask";
 import type { CustomBrand } from "types";
 
+export function getCVCMask(
+  cardNumber: string,
+  customBrands?: CustomBrand[]
+): string {
+  if (!cardNumber) return "0000";
+  const { brand, localBrands } = validateNumber(cardNumber, { customBrands });
+  if (brand === "american-express") return "0000";
+
+  const matchedCustomBrand = customBrands?.find((b) =>
+    localBrands.includes(b.name)
+  );
+  if (matchedCustomBrand) {
+    const maxLength = Math.max(
+      ...matchedCustomBrand.securityCodeValidationRules.lengths
+    );
+    return "0".repeat(maxLength);
+  }
+
+  return "000";
+}
+
 interface CVCProps {
   onChange: (v: string) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
@@ -49,25 +70,10 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
 
     useImperativeHandle(forwardedRef, () => innerRef.current!);
 
-    const mask = useMemo(() => {
-      if (!cardNumber) return "0000";
-      const { brand, localBrands } = validateNumber(cardNumber, {
-        customBrands,
-      });
-      if (brand === "american-express") return "0000";
-
-      const matchedCustomBrand = customBrands?.find((b) =>
-        localBrands.includes(b.name)
-      );
-      if (matchedCustomBrand) {
-        const maxLength = Math.max(
-          ...matchedCustomBrand.securityCodeValidationRules.lengths
-        );
-        return "0".repeat(maxLength);
-      }
-
-      return "000";
-    }, [cardNumber, customBrands]);
+    const mask = useMemo(
+      () => getCVCMask(cardNumber, customBrands),
+      [cardNumber, customBrands]
+    );
 
     const { setValue } = useMask(innerRef, onChange, {
       mask,
