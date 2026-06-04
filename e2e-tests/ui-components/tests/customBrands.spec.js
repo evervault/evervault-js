@@ -152,6 +152,33 @@ test.describe("custom brands", () => {
     await expect.poll(async () => values.errors).toBeNull();
   });
 
+  test("custom brand iconSrc is shown when the card number matches", async ({
+    page,
+  }) => {
+    const ICON_SRC = "https://example.com/acme-icon.png";
+
+    await page.exposeFunction("handleChange", () => {});
+
+    await page.evaluate(
+      ({ customBrandOptions, iconSrc }) => {
+        const customBrand = window.evervault.brands.create("acme-card", {
+          ...customBrandOptions,
+          iconSrc,
+        });
+
+        const card = window.evervault.ui.card({ customBrands: [customBrand], icons: true });
+        card.on("change", window.handleChange);
+        card.mount("#form");
+      },
+      { customBrandOptions: CUSTOM_BRAND_OPTIONS, iconSrc: ICON_SRC }
+    );
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").fill(CUSTOM_BRAND_CARD.number);
+
+    await expect(frame.locator(`img[src="${ICON_SRC}"]`)).toBeVisible();
+  });
+
   test("CVC is truncated to the maximum allowed length for the custom brand", async ({
     page,
   }) => {
