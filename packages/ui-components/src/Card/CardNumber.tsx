@@ -1,8 +1,10 @@
 import { validateNumber } from "@evervault/card-validator";
-import { FocusEvent, useEffect, useRef } from "react";
+import { FocusEvent, useMemo, useEffect, useRef } from "react";
 import { UseFormReturn } from "shared";
 import { useMask } from "../utilities/useMask";
 import { CardForm } from "./types";
+import type { CustomBrand } from "types";
+import { Masked } from "imask";
 
 interface CardNumberProps {
   disabled?: boolean;
@@ -18,11 +20,57 @@ interface CardNumberProps {
   autoComplete?: boolean;
   autoProgress?: boolean;
   form: UseFormReturn<CardForm>;
+  customBrands?: CustomBrand[];
 }
 
 interface CardMask {
   mask: string;
   brand?: string;
+  cardLength?: number;
+}
+
+export function cardMaskFromLength(length: number): string {
+  const parts = [];
+  let remaining = length;
+  while (remaining > 0) {
+    parts.push("0".repeat(Math.min(4, remaining)));
+    remaining -= 4;
+  }
+  return parts.join(" ");
+}
+
+const BASE_MASKS: CardMask[] = [
+  { mask: "0000 0000 0000 0000", cardLength: 16 },
+  { mask: "0000 0000 0000 0000 000", brand: "unionpay", cardLength: 19 },
+  { mask: "0000 000000 00000", brand: "american-express", cardLength: 15 },
+];
+
+const BASE_LENGTHS = new Set(BASE_MASKS.map((m) => m.cardLength));
+
+export function getDynamicMask(
+  compiledMasks: CardMask[],
+  number: string,
+  opts?: { customBrands?: CustomBrand[] }
+): CardMask {
+  const { brand, localBrands } = validateNumber(number, {
+    customBrands: opts?.customBrands,
+  });
+
+  if (localBrands.length > 0 && opts?.customBrands) {
+    const matchedCustom = opts.customBrands.find((b) =>
+      localBrands.includes(b.name)
+    );
+    if (matchedCustom) {
+      const maxLength = Math.max(
+        ...matchedCustom.numberValidationRules.lengths
+      );
+      const customMask = compiledMasks.find((m) => m.cardLength === maxLength);
+      if (customMask) return customMask;
+    }
+  }
+
+  const brandMask = compiledMasks.find((m) => m.brand === brand);
+  return brandMask ?? compiledMasks[0];
 }
 
 export function CardNumber({
@@ -39,12 +87,38 @@ export function CardNumber({
   onFocus,
   onKeyUp,
   onKeyDown,
+  customBrands,
 }: CardNumberProps) {
   const ref = useRef<HTMLInputElement>(null);
 
+  const masks = useMemo<CardMask[]>(() => {
+    if (!customBrands?.length) return BASE_MASKS;
+    const extra: CardMask[] = [];
+    const seen = new Set(BASE_LENGTHS);
+    for (const brand of customBrands) {
+      const maxLength = Math.max(...brand.numberValidationRules.lengths);
+      if (!seen.has(maxLength)) {
+        seen.add(maxLength);
+        extra.push({
+          mask: cardMaskFromLength(maxLength),
+          cardLength: maxLength,
+        });
+      }
+    }
+    return [...BASE_MASKS, ...extra];
+  }, [customBrands]);
+
   const handleCardChange = (newValue: string) => {
-    const { brand } = validateNumber(newValue);
-    if (brand !== "american-express" && form.values.cvc.length === 4) {
+    const { brand, localBrands } = validateNumber(newValue, { customBrands });
+    const customBrandAllows4DigitCvc = customBrands?.some(
+      (b) =>
+        localBrands.includes(b.name) &&
+        b.securityCodeValidationRules.lengths.includes(4)
+    );
+    const allows4DigitCvc =
+      brand === "american-express" || customBrandAllows4DigitCvc;
+
+    if (!allows4DigitCvc && form.values.cvc.length > 3) {
       form.setValues((previous) => ({
         ...previous,
         cvc: previous.cvc.slice(0, 3),
@@ -55,29 +129,13 @@ export function CardNumber({
   };
 
   const { setValue, mask } = useMask(ref, handleCardChange, {
-    mask: [
-      {
-        mask: "0000 0000 0000 0000",
-      },
-      {
-        mask: "0000 0000 0000 0000 000",
-        brand: "unionpay",
-      },
-      {
-        mask: "0000 000000 00000",
-        brand: "american-express",
-      },
-    ] as CardMask[],
+    mask: masks,
     dispatch: (appended, dynamicMasked) => {
       const number = dynamicMasked.value + appended;
-      const { brand } = validateNumber(number);
-
-      const mask = dynamicMasked.compiledMasks.find((m) => {
-        const maskBrand = (m as CardMask).brand;
-        return maskBrand === brand;
-      });
-
-      return mask ?? dynamicMasked.compiledMasks[0];
+      const compiledMasks = dynamicMasked.compiledMasks as CardMask[];
+      return getDynamicMask(compiledMasks, number, {
+        customBrands,
+      }) as Masked;
     },
   });
 

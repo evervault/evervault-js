@@ -8,6 +8,7 @@ import type {
   CardPayload,
   CardTranslations,
   ColorScheme,
+  CustomBrand,
   FieldEvent,
   SwipedCard,
   ThemeDefinition,
@@ -43,6 +44,7 @@ export interface CardProps {
   redactCVC?: boolean;
   allow3DigitAmexCVC?: boolean;
   validation?: CardOptions["validation"];
+  customBrands?: CustomBrand[];
 }
 
 type CardInstance = ReturnType<EvervaultClient["ui"]["card"]>;
@@ -72,6 +74,7 @@ export const Card = React.forwardRef<CardRef, CardProps>(function Card(
     redactCVC,
     allow3DigitAmexCVC,
     validation,
+    customBrands,
   }: CardProps,
   forwardedRef
 ) {
@@ -105,6 +108,7 @@ export const Card = React.forwardRef<CardRef, CardProps>(function Card(
       redactCVC,
       allow3DigitAmexCVC,
       validation,
+      customBrands,
     }),
     [
       colorScheme,
@@ -120,6 +124,7 @@ export const Card = React.forwardRef<CardRef, CardProps>(function Card(
       redactCVC,
       allow3DigitAmexCVC,
       validation,
+      customBrands,
     ]
   );
 

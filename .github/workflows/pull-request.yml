@@ -1,6 +1,11 @@
 # Build and Test packages on pull requests
 name: Pull Request Workflow
 on:
+  # Also enable this for Version Packages PRs
+  # which are created by a bot, so do not inherit the pull_request trigger.
+  push:
+    branches:
+      - "changeset-release/master"
   pull_request:
     branches:
       - "master"

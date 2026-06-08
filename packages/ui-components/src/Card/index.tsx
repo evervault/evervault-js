@@ -20,7 +20,7 @@ import { useCardReader } from "./useCardReader";
 import {
   changePayload,
   collectIcons,
-  isAcceptedBrand,
+  isBrandSupported,
   swipePayload,
 } from "./utilities";
 import type { CardForm, CardConfig } from "./types";
@@ -40,7 +40,7 @@ export function Card({ config }: { config: CardConfig }) {
   const ev = useEvervault();
   const { t } = useTranslations(DEFAULT_TRANSLATIONS, config?.translations);
 
-  const { acceptedBrands } = config;
+  const { acceptedBrands, customBrands } = config;
 
   const fields = useMemo(() => {
     let result = config.fields ?? ["number", "expiry", "cvc"];
@@ -80,12 +80,14 @@ export function Card({ config }: { config: CardConfig }) {
       number: (values) => {
         if (!fields.includes("number")) return undefined;
 
-        const cardValidation = validateNumber(values.number);
+        const cardValidation = validateNumber(values.number, { customBrands });
         if (!cardValidation.isValid) {
           return "invalid";
         }
 
-        if (!isAcceptedBrand(acceptedBrands, cardValidation)) {
+        if (
+          !isBrandSupported(cardValidation, { acceptedBrands, customBrands })
+        ) {
           return "unsupportedBrand";
         }
 
@@ -103,9 +105,13 @@ export function Card({ config }: { config: CardConfig }) {
       },
       cvc: (values) => {
         if (!fields.includes("cvc")) return undefined;
+        if (config.validation?.cvc?.optional && values.cvc.length === 0)
+          return undefined;
 
-        const cardValidation = validateNumber(values.number);
-        const cvcValidation = validateCVC(values.cvc, values.number);
+        const cardValidation = validateNumber(values.number, { customBrands });
+        const cvcValidation = validateCVC(values.cvc, values.number, {
+          customBrands,
+        });
 
         if (!cvcValidation.isValid) {
           return "invalid";
@@ -125,6 +131,8 @@ export function Card({ config }: { config: CardConfig }) {
         if (!ev) return;
         const cardData = await changePayload(ev, formState, fields, {
           allow3DigitAmexCVC: config.allow3DigitAmexCVC,
+          cvcOptional: config.validation?.cvc?.optional,
+          customBrands,
         });
 
         if (cardData.isComplete) {
@@ -169,12 +177,23 @@ export function Card({ config }: { config: CardConfig }) {
           void (async () => {
             const data = await changePayload(ev, formState, fields, {
               allow3DigitAmexCVC: config.allow3DigitAmexCVC,
+              cvcOptional: config.validation?.cvc?.optional,
+              customBrands,
             });
             send("EV_VALIDATED", data);
           })();
         });
       }),
-    [ev, on, send, form, fields, config.allow3DigitAmexCVC]
+    [
+      ev,
+      on,
+      send,
+      form,
+      fields,
+      config.allow3DigitAmexCVC,
+      config.validation?.cvc?.optional,
+      customBrands,
+    ]
   );
 
   useEffect(
@@ -250,6 +269,7 @@ export function Card({ config }: { config: CardConfig }) {
             <BrandIcon
               icons={collectIcons(config.icons)}
               number={form.values.number}
+              customBrands={customBrands}
             />
           )}
 
@@ -262,6 +282,7 @@ export function Card({ config }: { config: CardConfig }) {
             autoComplete={config.autoComplete?.number ?? true}
             autoProgress={config.autoProgress}
             form={form}
+            customBrands={customBrands}
             onFocus={handleFocus("number")}
             onKeyUp={handleKeyUp("number")}
             onKeyDown={handleKeyDown("number")}
@@ -323,6 +344,7 @@ export function Card({ config }: { config: CardConfig }) {
             onKeyDown={handleKeyDown("cvc")}
             autoComplete={config.autoComplete?.cvc ?? true}
             redact={config.redactCVC}
+            customBrands={customBrands}
             {...form.register("cvc", {
               onBlur: handleBlur("cvc"),
             })}

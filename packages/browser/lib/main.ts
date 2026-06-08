@@ -14,10 +14,12 @@ import {
 import type { InputSettings, RevealSettings } from "./types";
 import { Transaction } from "./resources/transaction";
 import {
+  BrandOptions,
   CreateTransactionDetails,
   DisbursementTransactionDetails,
   RecurringTransactionDetails,
 } from "types";
+import { createBrand } from "shared/createBrand";
 
 export type * from "types";
 export type * from "./config";
@@ -327,6 +329,13 @@ export default class EvervaultClient {
           | RecurringTransactionDetails
           | DisbursementTransactionDetails
       ) => new Transaction(details),
+    };
+  }
+
+  get brands() {
+    return {
+      create: (name: string, options: BrandOptions) =>
+        createBrand(name, options),
     };
   }
 }

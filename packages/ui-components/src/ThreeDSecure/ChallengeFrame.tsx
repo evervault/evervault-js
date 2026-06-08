@@ -36,6 +36,7 @@ export function ChallengeFrame({ nextAction, onLoad }: ChallengeFrameProps) {
   useEffect(() => {
     function handleMessage(e: MessageEvent) {
       if (isTrampolineMessage(e)) {
+        window.removeEventListener("message", handleMessage);
         if (check3DSSuccess(e)) {
           send("EV_SUCCESS", cresForOutcome(e.data.cres));
         } else {

@@ -51,6 +51,24 @@ export type CardBrandName =
   | "uatp"
   | "rupay";
 
+export const CARD_BRAND_NAMES: CardBrandName[] = [
+  "american-express",
+  "visa",
+  "mastercard",
+  "discover",
+  "jcb",
+  "diners-club",
+  "unionpay",
+  "maestro",
+  "mir",
+  "elo",
+  "hipercard",
+  "hiper",
+  "szep",
+  "uatp",
+  "rupay",
+];
+
 export interface CardExpiry {
   month: string | null;
   year: string | null;
@@ -101,6 +119,32 @@ export interface CardTranslations extends TranslationsObject {
 
 export type CardIcons = Record<CardBrandName | "default", string>;
 
+export interface BrandOptions {
+  numberValidationRules: {
+    luhnCheck?: boolean;
+    ranges: Array<number | [number, number]>;
+    lengths: number[];
+  };
+  securityCodeValidationRules: {
+    lengths: (3 | 4)[];
+  };
+  iconSrc?: string;
+}
+
+export interface CustomBrand {
+  name: string;
+  isLocal: true;
+  numberValidationRules: {
+    luhnCheck: boolean;
+    ranges: Array<number | [number, number]>;
+    lengths: number[];
+  };
+  securityCodeValidationRules: {
+    lengths: (3 | 4)[];
+  };
+  iconSrc?: string;
+}
+
 export interface CardOptions {
   colorScheme?: ColorScheme;
   icons?: boolean | CardIcons;
@@ -109,6 +153,7 @@ export interface CardOptions {
   hiddenFields?: ("number" | "expiry" | "cvc")[]; // deprecated
   fields?: CardField[];
   acceptedBrands?: CardBrandName[];
+  customBrands?: CustomBrand[];
   translations?: Partial<CardTranslations>;
   autoProgress?: boolean;
   redactCVC?: boolean;
@@ -125,6 +170,9 @@ export interface CardOptions {
   validation?: {
     name?: {
       regex?: RegExp;
+    };
+    cvc?: {
+      optional?: boolean;
     };
   };
 }
