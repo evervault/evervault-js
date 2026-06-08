@@ -67,8 +67,8 @@ catalogs:
       specifier: ^3.0.5
       version: 3.0.7
     card-validator:
-      specifier: ^8.1.1
-      version: 8.1.1
+      specifier: ^10.0.4
+      version: 10.0.4
     concurrently:
       specifier: ^8.2.2
       version: 8.2.2
@@ -870,7 +870,7 @@ importers:
         version: link:../browser
       card-validator:
         specifier: 'catalog:'
-        version: 8.1.1
+        version: 10.0.4
       credit-card-type:
         specifier: 'catalog:'
         version: 9.1.0
@@ -5131,8 +5131,11 @@ packages:
   caniuse-lite@1.0.30001777:
     resolution: {integrity: sha512-tmN+fJxroPndC74efCdp12j+0rk0RHwV5Jwa1zWaFVyw2ZxAuPeG8ZgWC3Wz7uSjT3qMRQ5XHZ4COgQmsCMJAQ==}
 
-  card-validator@8.1.1:
-    resolution: {integrity: sha512-cN4FsKwoTfTFnqPwVc7TQLSsH/QMDB3n/gWm0XelcApz4sKipnOQ6k33sa3bWsNnnIpgs7eXOF+mUV2UQAX2Sw==}
+  caniuse-lite@1.0.30001791:
+    resolution: {integrity: sha512-yk0l/YSrOnFZk3UROpDLQD9+kC1l4meK/wed583AXrzoarMGJcbRi2Q4RaUYbKxYAsZ8sWmaSa/DsLmdBeI1vQ==}
+
+  card-validator@10.0.4:
+    resolution: {integrity: sha512-1Q/tDCSvM5iL3psPo6j8KF/VoI63WA7Y4Zthy1E7l/H4Iul2e2X+1S0vp33n3OMRjLgGU2+gLaK2NsGtwArJkQ==}
 
   chai@6.2.2:
     resolution: {integrity: sha512-NUPRluOfOiTKBKvWPtSD4PhFvWCqOi0BGStNWs57X9js7XGTprSmFoz5F0tWhR4WPjNeR9jXqdC7/UpSJTnlRg==}
@@ -5384,6 +5387,9 @@ packages:
 
   create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
+
+  credit-card-type@10.1.2:
+    resolution: {integrity: sha512-fP9vlyeYSHfKbIdE6IOR63YivTXMy0ZqyEkBhHxuAbvpltepe+zJmQ34A2Va7zJ8J7ZaB5IMAdD+1YJOmsajJA==}
 
   credit-card-type@9.1.0:
     resolution: {integrity: sha512-CpNFuLxiPFxuZqhSKml3M+t0K/484pMAnfYWH14JoD7OZMnmC0Lmo+P7JX9SobqFpRoo7ifA18kOHdxJywYPEA==}
@@ -9121,7 +9127,7 @@ packages:
   tar@6.2.1:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
-    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
 
   temp-dir@2.0.0:
     resolution: {integrity: sha512-aoBAniQmmwtcKp/7BzsH8Cxzv8OL736p7v1ihGb5e9DJ9kTwGWHrQrVB5+lfVDzfGrdRzXch+ig7LHaY1JTOrg==}
@@ -14775,7 +14781,7 @@ snapshots:
   autoprefixer@10.4.27(postcss@8.5.15):
     dependencies:
       browserslist: 4.28.1
-      caniuse-lite: 1.0.30001777
+      caniuse-lite: 1.0.30001791
       fraction.js: 5.3.4
       picocolors: 1.1.1
       postcss: 8.5.15
@@ -15016,7 +15022,7 @@ snapshots:
   browserslist@4.28.1:
     dependencies:
       baseline-browser-mapping: 2.10.0
-      caniuse-lite: 1.0.30001777
+      caniuse-lite: 1.0.30001791
       electron-to-chromium: 1.5.307
       node-releases: 2.0.36
       update-browserslist-db: 1.2.3(browserslist@4.28.1)
@@ -15108,9 +15114,11 @@ snapshots:
 
   caniuse-lite@1.0.30001777: {}
 
-  card-validator@8.1.1:
+  caniuse-lite@1.0.30001791: {}
+
+  card-validator@10.0.4:
     dependencies:
-      credit-card-type: 9.1.0
+      credit-card-type: 10.1.2
 
   chai@6.2.2: {}
 
@@ -15388,6 +15396,8 @@ snapshots:
   crc-32@1.2.2: {}
 
   create-require@1.1.1: {}
+
+  credit-card-type@10.1.2: {}
 
   credit-card-type@9.1.0: {}
 
