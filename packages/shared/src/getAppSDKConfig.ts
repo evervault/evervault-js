@@ -1,16 +1,17 @@
 import { AppSDKConfig } from "types";
 
-const API = import.meta.env.VITE_API_URL as string;
-
 export function getDefaultAppSDKConfig(): AppSDKConfig {
   return {
     is_sandbox: false,
   };
 }
 
-export async function getAppSDKConfig(app: string): Promise<AppSDKConfig> {
+export async function getAppSDKConfig(
+  app: string,
+  apiUrl: string
+): Promise<AppSDKConfig> {
   try {
-    const response = await fetch(`${API}/frontend/sdk/config`, {
+    const response = await fetch(`${apiUrl}/frontend/sdk/config`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -19,7 +20,7 @@ export async function getAppSDKConfig(app: string): Promise<AppSDKConfig> {
     });
 
     if (response.ok) {
-      return response.json() as Promise<AppSDKConfig>;
+      return (await response.json()) as AppSDKConfig;
     }
 
     console.error(`Failed to fetch app SDK config details for ${app}`);

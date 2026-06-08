@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 
 export function Overlay({
   enabled,
@@ -9,12 +9,23 @@ export function Overlay({
   children: ReactNode;
   onCancel: () => void;
 }) {
+  const [cancelling, setCancelling] = useState(false);
+
   if (!enabled) return children;
+
+  const handleCancel = () => {
+    setCancelling(true);
+    onCancel();
+  };
 
   return (
     <div ev-overlay="" className="overlay">
       <div className="overlayWindow">
-        <button className="overlayClose" onClick={onCancel}>
+        <button
+          className="overlayClose"
+          onClick={handleCancel}
+          disabled={cancelling}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"

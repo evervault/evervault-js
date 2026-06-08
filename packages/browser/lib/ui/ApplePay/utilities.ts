@@ -1,3 +1,4 @@
+import { getAppSDKConfig } from "shared/getAppSDKConfig";
 import {
   DisbursementTransactionDetails,
   MerchantDetail,
@@ -52,6 +53,14 @@ export async function buildSession(
   const merchant = await getMerchant(applePay, tx.merchantId);
   if (!merchant) {
     throw new Error("Merchant not found");
+  }
+
+  const appConfig = await getAppSDKConfig(
+    applePay.client.config.appId,
+    applePay.client.config.http.apiUrl
+  );
+  if (appConfig.is_sandbox) {
+    merchant.name = `${merchant.name} (Card is not charged)`;
   }
 
   let baseRequest: ApplePayPaymentRequest;

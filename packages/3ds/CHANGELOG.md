@@ -1,5 +1,11 @@
 # @evervault/3ds
 
+## 1.1.3
+
+### Patch Changes
+
+- 6b77e19: Move animation from parent spinner to SVG
+
 ## 1.1.2
 
 ### Patch Changes

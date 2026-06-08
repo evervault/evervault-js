@@ -11,7 +11,7 @@ import {
 } from "types";
 import { useSearchParams } from "../utilities/useSearchParams";
 import { getMerchant } from "../utilities/useMerchant";
-import { getAppSDKConfig } from "../utilities/getAppSDKConfig";
+import { getAppSDKConfig } from "shared";
 import { apiConfig } from "../utilities/config";
 
 const FUNDING_SOURCE_MAP: Partial<
@@ -51,7 +51,7 @@ export function GooglePay({ config }: GooglePayProps) {
     called.current = true;
 
     async function onLoad() {
-      const appConfig = await getAppSDKConfig(app);
+      const appConfig = await getAppSDKConfig(app, apiConfig.apiUrl);
       const paymentsClient = new google.payments.api.PaymentsClient({
         // Always use 'test' in staging, but use the resolved environment in production
         environment:
