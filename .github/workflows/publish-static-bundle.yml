@@ -73,7 +73,7 @@ jobs:
     steps:
       # Sanity check that the preview deployment is for a package that we support. This is to prevent the workflow from running in an undefined state.
       - name: Assert that preview deployment is for a known package
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         if: ${{ inputs.package-name != '@evervault/ui-components' && inputs.package-name != '@evervault/browser' }}
         with:
           script: |
@@ -115,7 +115,7 @@ jobs:
       # For Packages which have multiple paths that need to be invalidated, its easier to use the batch invalidation API than it is to programmatically pass the `--paths` flag to the CLI.
       # As a result, we split the list of paths on comma and create the expected payload (ref: https://docs.aws.amazon.com/cli/latest/reference/cloudfront/create-invalidation.html)
       - name: Prepare cloudfront payload
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         id: prepare-cloudfront-payload
         with:
           script: |
@@ -134,7 +134,24 @@ jobs:
           aws cloudfront create-invalidation --distribution-id ${{ secrets[env.CF_DISTRO_SECRET_NAME] }} --invalidation-batch file://invalidation.json
         env:
           CF_DISTRO_SECRET_NAME: ${{ inputs.cloudfront-distribution-id }}
-      - uses: pnpm/action-setup@v4
+
+  validate-preview-deployment:
+    needs: [get-artifact-name, deploy-preview]
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.preview-environment }}
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-noble
+    if: ${{ inputs.perform-gated-preview-deployment }}
+    name: "[PREVIEW] Validate ${{ inputs.package-name }} preview"
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.get-artifact-name.outputs.artifact-name }}
+          path: dist
+      - uses: pnpm/action-setup@v6
       - name: Setup Node.js environment
         uses: actions/setup-node@v6
         with:
@@ -142,8 +159,6 @@ jobs:
           cache: "pnpm"
       - name: Install deps
         run: pnpm install --frozen-lockfile
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
       - name: Run browser preflight checks
         if: ${{ inputs.run-preflight-checks && inputs.package-name == '@evervault/browser' }}
         id: browser-preflight
@@ -182,7 +197,7 @@ jobs:
   # The logic for this release process is largely consistent with the preview deployment above.
   deploy:
     runs-on: ubuntu-latest
-    needs: [get-artifact-name, deploy-preview]
+    needs: [get-artifact-name, validate-preview-deployment]
     # The live deployment should happen if:
     # - The current package supports preview deployments and the preview deployment was successful.
     # - The current package does not support preview deployments, in which case we should always deploy to live.
@@ -227,7 +242,7 @@ jobs:
           S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
         run: aws s3 cp dist s3://${{ vars[env.S3_BUCKET_VAR] }}/ --recursive
       - name: Prepare cloudfront payload
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         id: prepare-cloudfront-payload
         with:
           script: |
@@ -288,7 +303,7 @@ jobs:
             echo "$CHANGELOG_CONTENT"
             echo 'EOF'
           } >> $GITHUB_OUTPUT
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           body: ${{ steps.release-content.outputs.content }}
           tag_name: ${{ inputs.tag_name }}

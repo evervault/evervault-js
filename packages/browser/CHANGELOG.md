@@ -1,5 +1,33 @@
 # @evervault/browser
 
+## 2.56.0
+
+### Minor Changes
+
+- 974e08d: Add custom brand support to the browser SDK. The `brands.create(name, options)` method lets you define custom card brands. Pass them via the new `customBrands` option on `CardOptions` and they will be forwarded to the card iframe for validation.
+
+### Patch Changes
+
+- shared@1.1.23
+
+## 2.55.1
+
+### Patch Changes
+
+- c9459f0: - idempotency guard to prevent `handleOutcome` firing multiple times
+  - removing the message listener before processing, to prevent duplicate events
+  - disabling the cancel button after first click to prevent duplicate cancellation calls
+- Updated dependencies [c37865d]
+  - types@0.23.0
+  - shared@1.1.22
+  - themes@0.1.23
+
+## 2.55.0
+
+### Minor Changes
+
+- 77f2288: Append "(Card is not charged)" to the merchant name in the Apple Pay sheet when the app is sandbox-flagged.
+
 ## 2.54.0
 
 ### Minor Changes

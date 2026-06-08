@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@evervault/react",
-  "version": "2.24.0",
+  "version": "2.26.0",
   "description": "React package for the Evervault SDK",
   "license": "MIT",
   "type": "module",
@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@evervault/browser": "workspace:*",
+    "shared": "workspace:*",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",

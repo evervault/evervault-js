@@ -33,8 +33,9 @@ export function BrowserFingerprint({
 
     const handleMessage = (e: MessageEvent) => {
       if (isTrampolineMessage(e)) {
-        onComplete();
+        window.removeEventListener("message", handleMessage);
         if (timeout.current) clearTimeout(timeout.current);
+        onComplete();
       }
     };
 
