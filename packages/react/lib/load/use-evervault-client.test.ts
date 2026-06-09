@@ -11,13 +11,9 @@ import { vi } from "vitest";
 const evervaultClientMock = vi.hoisted(() =>
   vi.fn(
     class {
-      config: CustomConfig | undefined;
-      constructor(
-        public teamId: string,
-        public appId: string,
-        customConfig?: CustomConfig
-      ) {
-        this.config = customConfig;
+      config: (CustomConfig & { teamId: string; appId: string }) | undefined;
+      constructor(teamId: string, appId: string, customConfig?: CustomConfig) {
+        this.config = { ...customConfig, teamId, appId };
       }
     } as unknown as typeof EvervaultClient
   )
@@ -71,7 +67,7 @@ describe("useEvervaultClient", () => {
     expect(onLoadError).toHaveBeenCalledWith(error);
   });
 
-  it("should allow reloading the client", async () => {
+  it("should allow manually reloading the client", async () => {
     const error = new Error("Failed to load Evervault.js");
     injectScriptMock.mockReturnValueOnce(Promise.reject(error));
 
@@ -82,21 +78,47 @@ describe("useEvervaultClient", () => {
     await expect(result.current.client).rejects.toThrow(error);
     expect(onLoadError).toHaveBeenCalledWith(error);
 
-    act(() => {
-      result.current.reload();
-    });
+    act(() => result.current.reload());
     await expect(result.current.client).resolves.toBeInstanceOf(
       EvervaultClient
     );
   });
 
-  it("should auto-reload the client if the script URL changes", async () => {
+  it("should auto-reload the client if team ID changes", async () => {
+    const { result, rerender } = renderHook(
+      ({ teamId }: { teamId: string }) =>
+        useEvervaultClient({ teamId, appId: "app_123" }),
+      { initialProps: { teamId: "team_123" } }
+    );
+    const client = await result.current.client;
+    expect(client).toBeInstanceOf(EvervaultClient);
+    expect(client.config.teamId).toBe("team_123");
+
+    rerender({ teamId: "team_456" });
+    const newClient = await result.current.client;
+    expect(newClient.config.teamId).toBe("team_456");
+  });
+
+  it("should auto-reload the client if app ID changes", async () => {
+    const { result, rerender } = renderHook(
+      ({ appId }: { appId: string }) =>
+        useEvervaultClient({ teamId: "team_123", appId }),
+      { initialProps: { appId: "app_123" } }
+    );
+    const client = await result.current.client;
+    expect(client.config.appId).toBe("app_123");
+    rerender({ appId: "app_456" });
+    const newClient = await result.current.client;
+    expect(newClient.config.appId).toBe("app_456");
+  });
+
+  it("should auto-reload the client if the jsSdkUrl changes", async () => {
     const { result, rerender } = renderHook(
       ({ jsSdkUrl }: { jsSdkUrl?: string }) =>
         useEvervaultClient({
           teamId: "team_123",
           appId: "app_123",
-          customConfig: jsSdkUrl ? { jsSdkUrl } : undefined,
+          customConfig: { jsSdkUrl },
         }),
       { initialProps: {} }
     );

@@ -6,7 +6,7 @@ import { PromisifiedEvervaultClient } from "./client";
 import { injectScript } from "./inject-script";
 
 export interface CustomConfig extends BrowserConfig {
-  jsSdkUrl: string;
+  jsSdkUrl?: string;
 }
 
 export interface UseEvervaultClientOptions {
