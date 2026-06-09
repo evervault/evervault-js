@@ -33,7 +33,7 @@ type RequireFunction = (
   onError?: (err: unknown) => void
 ) => void;
 
-function injectScript(overrideUrl?: string) {
+export function injectScript(overrideUrl?: string) {
   return new Promise<typeof EvervaultClient>((resolve, reject) => {
     const url = overrideUrl && overrideUrl !== "" ? overrideUrl : EVERVAULT_URL;
 
@@ -110,7 +110,7 @@ interface LoadScriptOptions {
   onLoadError?: () => void;
 }
 
-function loadScript(
+export function loadScript(
   loadKey: string,
   options?: LoadScriptOptions
 ): EvervaultClientPromise {
@@ -128,6 +128,7 @@ function loadScript(
         return;
       }
 
+      console.log("injecting script");
       injectScript(options?.overrideUrl).then(resolve).catch(reject);
     });
   }
@@ -135,7 +136,7 @@ function loadScript(
   return evervaultPromiseMap[loadKey];
 }
 
-function loadEvervault(
+export function loadEvervault(
   loadKey: string,
   options?: LoadScriptOptions
 ): EvervaultClientPromise {

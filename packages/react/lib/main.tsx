@@ -32,7 +32,7 @@ export interface EvervaultProviderProps {
   /**
    * Callback function to be called when the Evervault script fails to load.
    */
-  onLoadError?: () => void;
+  onLoadError?: (error: unknown) => void;
 }
 
 export const EvervaultProvider = React.forwardRef<

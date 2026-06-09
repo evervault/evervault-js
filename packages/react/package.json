@@ -32,24 +32,30 @@
     "lint:fix": "eslint --fix .",
     "preinstall": "npx only-allow pnpm",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf node_modules dist"
+    "clean": "rm -rf node_modules dist",
+    "test": "vitest run",
+    "test:watch": "vitest --watch"
   },
   "peerDependencies": {
     "react": ">=18.0.0"
   },
   "devDependencies": {
     "@evervault/browser": "workspace:*",
-    "shared": "workspace:*",
+    "@testing-library/react": "^16.3.2",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "happy-dom": "^20.10.2",
+    "msw": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "shared": "workspace:*",
     "themes": "workspace:*",
     "tsconfig": "workspace:*",
     "types": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:"
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   }
 }
