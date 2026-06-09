@@ -13,6 +13,9 @@ export interface UseEvervaultClientOptions {
   teamId: string;
   appId: string;
   customConfig?: CustomConfig;
+  /**
+   * Callback function to be called when the Evervault script fails to load.
+   */
   onLoadError?: (error: unknown) => void;
 }
 
