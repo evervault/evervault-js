@@ -116,7 +116,9 @@ export function CardNumber({
         b.securityCodeValidationRules.lengths.includes(4)
     );
     const allows4DigitCvc =
-      brand === "american-express" || customBrandAllows4DigitCvc;
+      brand === "american-express" ||
+      brand === "discover" ||
+      customBrandAllows4DigitCvc;
 
     if (!allows4DigitCvc && form.values.cvc.length > 3) {
       form.setValues((previous) => ({
