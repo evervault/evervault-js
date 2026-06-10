@@ -7,7 +7,7 @@ import * as React from "react";
 import * as themes from "themes";
 import { EvervaultContext } from "./context";
 import { useEvervault } from "./useEvervault";
-import { CustomConfig, useEvervaultClient } from "./load";
+import { CustomConfig, useEvervaultClient } from "./load/use-evervault-client";
 
 export type * from "types";
 export { Reveal } from "./ui/Reveal";
@@ -15,9 +15,8 @@ export { Card, type CardRef } from "./ui/Card";
 export { Pin } from "./ui/Pin";
 export { ThreeDSecure } from "./ui/ThreeDSecure";
 export { useThreeDSecure } from "./ui/useThreeDSecure";
+export type { PromisifiedEvervaultClient } from "./load/client";
 export { useEvervault, themes };
-
-export type { PromisifiedEvervaultClient } from "./load";
 
 export interface EvervaultProvider {
   /** Attempts to reload the Evervault script. */
@@ -32,7 +31,7 @@ export interface EvervaultProviderProps {
   /**
    * Callback function to be called when the Evervault script fails to load.
    */
-  onLoadError?: () => void;
+  onLoadError?: (error: unknown) => void;
 }
 
 export const EvervaultProvider = React.forwardRef<
@@ -46,9 +45,7 @@ export const EvervaultProvider = React.forwardRef<
     onLoadError,
   });
 
-  React.useImperativeHandle(ref, () => ({
-    reload,
-  }));
+  React.useImperativeHandle(ref, () => ({ reload }), [reload]);
 
   return (
     <EvervaultContext.Provider {...props} value={client}>

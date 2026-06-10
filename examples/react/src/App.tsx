@@ -1,5 +1,5 @@
 import { Card, CardPayload, EvervaultProvider, themes } from "@evervault/react";
-import React from "react";
+import React, { useRef } from "react";
 
 const theme = themes.clean({
   styles: {
@@ -18,25 +18,28 @@ const customConfig = {
   },
 };
 
+// Uncomment to force script failure (onLoadError)
+// customConfig.jsSdkUrl = "https://failure.evervault.com/v2";
+
 function App() {
+  const ref = useRef<EvervaultProvider>(null);
+
   const handleChange = (payload: CardPayload) => {
     console.log(payload);
   };
 
-  const [retry, setRetry] = React.useState(0);
-
   return (
     <EvervaultProvider
-      key={retry}
+      ref={ref}
       teamId={import.meta.env.VITE_EV_TEAM_UUID}
       appId={import.meta.env.VITE_EV_APP_UUID}
       customConfig={customConfig}
-      onLoadError={() => {
-        console.error("Custom onLoadError");
+      onLoadError={(error) => {
+        console.error("Custom onLoadError", error);
       }}
     >
       <h1>Example React app</h1>
-      <button onClick={() => setRetry((prev) => prev + 1)}>Retry</button>
+      <button onClick={() => ref.current?.reload()}>Reload script</button>
       <Card icons onChange={handleChange} theme={theme} />
     </EvervaultProvider>
   );
