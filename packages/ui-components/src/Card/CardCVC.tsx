@@ -16,7 +16,7 @@ export function getCVCMask(
 ): string {
   if (!cardNumber) return "0000";
   const { brand, localBrands } = validateNumber(cardNumber, { customBrands });
-  if (brand === "american-express") return "0000";
+  if (brand === "american-express" || brand === "discover") return "0000";
 
   const matchedCustomBrand = customBrands?.find((b) =>
     localBrands.includes(b.name)

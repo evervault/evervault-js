@@ -58,7 +58,7 @@ const brands = [
       lengths: [16, 19],
     },
     securityCodeValidationRules: {
-      lengths: [3],
+      lengths: [3, 4],
     },
   },
   {
