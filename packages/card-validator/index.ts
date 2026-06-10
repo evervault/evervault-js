@@ -128,40 +128,35 @@ export function validateCVC(
   cardNumber?: string,
   options?: CardNumberValidationOptions
 ): CardCVCValidationResult {
+  const { brand, localBrands } = validateNumber(cardNumber ?? "", options);
+
   // Check if the CVC only contains numbers with 3 or 4 digits
   if (!/^\d{3,4}$/.test(cvc)) {
     return {
       cvc: null,
       isValid: false,
-      reason: "invalid_cvc",
     };
   }
 
-  if (!cardNumber) {
+  const brands: string[] = [];
+
+  if (brand) {
+    brands.push(brand);
+  }
+
+  if (localBrands) {
+    brands.push(...localBrands);
+  }
+
+  if (!brands.length) {
     return {
       cvc,
       isValid: true,
     };
   }
 
-  const validatedCard = validateNumber(cardNumber, options);
-  if (!validatedCard.isValid) {
-    return {
-      cvc: null,
-      isValid: false,
-      reason: "invalid_number",
-    };
-  }
-
-  const brands: string[] = [];
-  if (validatedCard.brand) {
-    brands.push(validatedCard.brand);
-  }
-  if (validatedCard.localBrands) {
-    brands.push(...validatedCard.localBrands);
-  }
-
   const allBrands = [...defaultBrands, ...(options?.customBrands ?? [])];
+
   const isCVCValid = allBrands
     .filter((brand) => brands.includes(brand.name))
     .some((brand) => {
@@ -172,7 +167,6 @@ export function validateCVC(
     return {
       cvc: null,
       isValid: false,
-      reason: "invalid_brand_cvc",
     };
   }
 

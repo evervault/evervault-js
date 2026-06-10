@@ -112,15 +112,8 @@ export function Card({ config }: { config: CardConfig }) {
         const cvcValidation = validateCVC(values.cvc, values.number, {
           customBrands,
         });
-        if (!cvcValidation.isValid) {
-          // Skip CVC validation if failed because of invalid card number
-          if (
-            cvcValidation.reason === "invalid_number" &&
-            !cardValidation.isValid
-          ) {
-            return undefined;
-          }
 
+        if (!cvcValidation.isValid) {
           return "invalid";
         }
 
