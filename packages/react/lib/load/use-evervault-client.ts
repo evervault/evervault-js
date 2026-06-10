@@ -1,9 +1,9 @@
-import EvervaultClient, {
-  CustomConfig as BrowserConfig,
-} from "@evervault/browser";
-import { useCallback, useId, useMemo, useRef, useState } from "react";
+import { CustomConfig as BrowserConfig } from "@evervault/browser";
+import { useCallback, useMemo, useState } from "react";
 import { PromisifiedEvervaultClient } from "./client";
 import { injectScript } from "./inject-script";
+
+const EVERVAULT_URL = "https://js.evervault.com/v2";
 
 export interface CustomConfig extends BrowserConfig {
   jsSdkUrl?: string;
@@ -33,30 +33,25 @@ export function useEvervaultClient({
   customConfig,
   onLoadError,
 }: UseEvervaultClientOptions): UseEvervaultClientResult {
-  const id = useId();
-  const [retryAttempt, setRetryAttempt] = useState(0);
-
-  const loadMapRef = useRef<Record<string, Promise<typeof EvervaultClient>>>(
-    {}
-  );
-
-  const loadKey = `${id}-${retryAttempt}-${customConfig?.jsSdkUrl}`;
-  const findOrInjectScript = useCallback(
-    (key: string, overrideUrl?: string) => {
-      if (key in loadMapRef.current) {
-        return loadMapRef.current[key];
-      }
-
-      const promise = injectScript(overrideUrl);
-      loadMapRef.current[key] = promise;
-      return promise;
-    },
-    []
-  );
+  const [reloadAttempt, setReloadAttempt] = useState(0);
+  const reload = useCallback(() => {
+    setReloadAttempt((prev) => prev + 1);
+  }, []);
 
   const client = useMemo<PromisifiedEvervaultClient>(() => {
     return new PromisifiedEvervaultClient((resolve, reject) => {
-      const promise = findOrInjectScript(loadKey, customConfig?.jsSdkUrl);
+      const baseUrl = customConfig?.jsSdkUrl || EVERVAULT_URL;
+      const search = new URLSearchParams();
+      if (reloadAttempt > 0) {
+        search.set("attempt", String(reloadAttempt + 1));
+      }
+
+      let url = baseUrl;
+      if (search.size > 0) {
+        url = `${baseUrl}?${search.toString()}`;
+      }
+
+      const promise = injectScript(url);
 
       promise
         .then((Evervault) => {
@@ -67,11 +62,7 @@ export function useEvervaultClient({
           reject(error);
         });
     });
-  }, [findOrInjectScript, loadKey, teamId, appId, customConfig, onLoadError]);
-
-  const reload = useCallback(() => {
-    setRetryAttempt((prev) => prev + 1);
-  }, []);
+  }, [reloadAttempt, teamId, appId, customConfig, onLoadError]);
 
   return useMemo(() => ({ client, reload }), [client, reload]);
 }

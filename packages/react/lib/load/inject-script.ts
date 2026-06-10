@@ -1,6 +1,5 @@
 import EvervaultClient from "@evervault/browser";
-
-const EVERVAULT_URL = "https://js.evervault.com/v2";
+import { loadScript } from "./load-script";
 
 type RequireFunction = (
   deps: string[],
@@ -8,7 +7,7 @@ type RequireFunction = (
   onError?: (err: unknown) => void
 ) => void;
 
-export function injectScript(overrideUrl?: string) {
+export function injectScript(url: string) {
   return new Promise<typeof EvervaultClient>((resolve, reject) => {
     if (typeof window === "undefined") {
       reject(new Error("Evervault.js not available"));
@@ -19,8 +18,6 @@ export function injectScript(overrideUrl?: string) {
       resolve(window.Evervault);
       return;
     }
-
-    const url = overrideUrl && overrideUrl !== "" ? overrideUrl : EVERVAULT_URL;
 
     const w = window as unknown as {
       define?:
@@ -59,30 +56,16 @@ export function injectScript(overrideUrl?: string) {
       }
     }
 
-    const script = document.createElement("script");
-
-    script.addEventListener("load", () => {
-      if (window.Evervault) {
-        resolve(window.Evervault);
-      } else {
-        reject(new Error("Evervault.js not available"));
-      }
-    });
-
-    script.addEventListener("error", () => {
-      reject(new Error("Failed to load Evervault.js"));
-    });
-
-    script.src = url;
-
-    const headOrBody = document.head || document.body;
-
-    if (!headOrBody) {
-      throw new Error(
-        "Expected document.body not to be null. Evervault.js requires a <body> element."
-      );
-    }
-
-    headOrBody.appendChild(script);
+    loadScript(url)
+      .then(() => {
+        if (window.Evervault) {
+          resolve(window.Evervault);
+        } else {
+          reject(new Error("Evervault.js not available"));
+        }
+      })
+      .catch((error) => {
+        reject(error ?? new Error("Failed to load Evervault.js"));
+      });
   });
 }

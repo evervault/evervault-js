@@ -45,9 +45,7 @@ export const EvervaultProvider = React.forwardRef<
     onLoadError,
   });
 
-  React.useImperativeHandle(ref, () => ({
-    reload,
-  }));
+  React.useImperativeHandle(ref, () => ({ reload }), [reload]);
 
   return (
     <EvervaultContext.Provider {...props} value={client}>

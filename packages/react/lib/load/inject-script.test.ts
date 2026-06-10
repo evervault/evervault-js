@@ -15,18 +15,12 @@ interface CustomWindow extends Window {
 function define() {}
 define.amd = true;
 
-function mockScript() {
+function mockScript(src = "https://js.evervault.com/v2") {
   const element = vi.mocked(document.createElement("script"));
   const listeners = {
     load: vi.fn(),
     error: vi.fn(),
   };
-
-  // const originalEvervault = window.Evervault;
-  // // Unset the window.Evervault property after the script loads
-  // element.addEventListener("load", () => {
-  //   window.Evervault = originalEvervault;
-  // });
 
   const addEventListenerSpy = vi
     .spyOn(element, "addEventListener")
@@ -41,9 +35,11 @@ function mockScript() {
     });
 
   function dispatchEvent(type: "load" | "error") {
-    const handler = listeners[type].mock.calls[0][0];
-    handler(new Event(type));
+    const handler = listeners[type].mock.calls.at(0)?.at(0);
+    handler?.(new Event(type));
   }
+
+  element.src = src;
 
   return { element, dispatchEvent, addEventListenerSpy };
 }
@@ -51,30 +47,22 @@ function mockScript() {
 afterEach(() => {
   vi.clearAllMocks();
   vi.resetAllMocks();
+
   window.Evervault = undefined;
   delete window.Evervault;
+
+  const elements = document.querySelectorAll(
+    "script[src^='https://js.evervault.com']"
+  );
+  elements.forEach((element) => {
+    element.remove();
+  });
 });
 
 describe("injectScript", () => {
   it("should inject the script", async () => {
     const script = mockScript();
-    const createElementSpy = vi
-      .spyOn(document, "createElement")
-      .mockReturnValue(script.element);
-
-    const promise = injectScript();
-    expect(createElementSpy).toHaveBeenCalledWith("script");
-    expect(script.element.parentElement).toBe(document.head);
-    expect(script.element.src).toBe("https://js.evervault.com/v2");
-    expect(script.addEventListenerSpy).toHaveBeenCalledWith(
-      "load",
-      expect.any(Function)
-    );
-    expect(script.addEventListenerSpy).toHaveBeenCalledWith(
-      "error",
-      expect.any(Function)
-    );
-
+    const promise = injectScript("https://js.evervault.com/v2");
     window.Evervault = EvervaultClient;
     script.dispatchEvent("load");
     await expect(promise).resolves.toBe(EvervaultClient);
@@ -87,7 +75,7 @@ describe("injectScript", () => {
       null as unknown as HTMLElement
     );
 
-    injectScript();
+    injectScript("https://js.evervault.com/v2");
     expect(script.element.parentElement).toBe(document.body);
   });
 
@@ -99,7 +87,7 @@ describe("injectScript", () => {
       null as unknown as HTMLElement
     );
 
-    const promise = injectScript();
+    const promise = injectScript("https://js.evervault.com/v2");
     await expect(promise).rejects.toThrow(
       "Expected document.body not to be null. Evervault.js requires a <body> element."
     );
@@ -109,7 +97,7 @@ describe("injectScript", () => {
     const script = mockScript();
     vi.spyOn(document, "createElement").mockReturnValue(script.element);
 
-    const promise = injectScript();
+    const promise = injectScript("https://js.evervault.com/v2");
     script.dispatchEvent("error");
     await expect(promise).rejects.toThrow("Failed to load Evervault.js");
   });
@@ -118,7 +106,7 @@ describe("injectScript", () => {
     const script = mockScript();
     vi.spyOn(document, "createElement").mockReturnValue(script.element);
 
-    const promise = injectScript();
+    const promise = injectScript("https://js.evervault.com/v2");
     window.Evervault = undefined;
     script.dispatchEvent("load");
     await expect(promise).rejects.toThrow("Evervault.js not available");
@@ -128,7 +116,7 @@ describe("injectScript", () => {
     const createElementSpy = vi.spyOn(document, "createElement");
 
     window.Evervault = EvervaultClient;
-    const promise = injectScript();
+    const promise = injectScript("https://js.evervault.com/v2");
     await expect(promise).resolves.toBe(EvervaultClient);
     expect(createElementSpy).not.toHaveBeenCalled();
   });
@@ -149,7 +137,7 @@ describe("injectScript", () => {
     });
 
     it("should inject the script via AMD", () => {
-      injectScript();
+      injectScript("https://js.evervault.com/v2");
       expect(w.require).toHaveBeenCalledWith(
         ["https://js.evervault.com/v2"],
         expect.any(Function),
@@ -158,7 +146,7 @@ describe("injectScript", () => {
     });
 
     it("should fail if AMD rejects the script", async () => {
-      const promise = injectScript();
+      const promise = injectScript("https://js.evervault.com/v2");
       expect(w.require).toHaveBeenCalledTimes(1);
 
       const reject = w.require?.mock.calls[0][2];
@@ -170,7 +158,7 @@ describe("injectScript", () => {
     });
 
     it("should fail if AMD does not export the Evervault client", async () => {
-      const promise = injectScript();
+      const promise = injectScript("https://js.evervault.com/v2");
       expect(w.require).toHaveBeenCalledTimes(1);
 
       const resolve = w.require?.mock.calls[0][1];
@@ -182,7 +170,7 @@ describe("injectScript", () => {
     });
 
     it("should succeed if the script loads client successfully", async () => {
-      const promise = injectScript();
+      const promise = injectScript("https://js.evervault.com/v2");
       expect(w.require).toHaveBeenCalledTimes(1);
 
       const client = {} as typeof EvervaultClient;
@@ -195,7 +183,7 @@ describe("injectScript", () => {
     it("should not inject the script manually if AMD is present", async () => {
       const createElement = vi.spyOn(document, "createElement");
 
-      const promise = injectScript();
+      const promise = injectScript("https://js.evervault.com/v2");
       expect(w.require).toHaveBeenCalledTimes(1);
       const client = {} as typeof EvervaultClient;
       const resolve = w.require?.mock.calls[0][1];
