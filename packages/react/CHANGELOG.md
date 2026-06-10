@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.27.0
+
+### Minor Changes
+
+- 2c54653: Rewrite SDK loading strategy for better loading and error handling
+
 ## 2.26.0
 
 ### Minor Changes

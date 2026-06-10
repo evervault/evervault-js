@@ -1,5 +1,13 @@
 # example-react
 
+## 0.0.32
+
+### Patch Changes
+
+- 2c54653: Rewrite SDK loading strategy for better loading and error handling
+- Updated dependencies [2c54653]
+  - @evervault/react@2.27.0
+
 ## 0.0.31
 
 ### Patch Changes
