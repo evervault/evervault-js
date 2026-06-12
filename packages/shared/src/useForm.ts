@@ -166,7 +166,12 @@ export function useForm<T extends object>({
       }
     ) => {
       const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        validateField(name);
+        const value = values[name];
+        if (typeof value === "string" && value.length === 0) {
+          setError(name, undefined);
+        } else {
+          validateField(name);
+        }
         events?.onBlur?.(e);
       };
 

@@ -285,6 +285,29 @@ test.describe("card component", () => {
     await expect(frame.getByText("Your card number is invalid")).toBeVisible();
   });
 
+  test("does not show errors when blurring empty fields", async ({ page }) => {
+    await page.evaluate(() => {
+      const card = window.evervault.ui.card();
+      card.mount("#form");
+    });
+
+    const frame = page.frameLocator("iframe[data-evervault]");
+    await frame.getByLabel("Number").focus();
+    await frame.getByLabel("Number").blur();
+    await frame.getByLabel("Expiration").focus();
+    await frame.getByLabel("Expiration").blur();
+    await frame.getByLabel("CVC").focus();
+    await frame.getByLabel("CVC").blur();
+
+    await expect(
+      frame.getByText("Your card number is invalid")
+    ).not.toBeVisible();
+    await expect(
+      frame.getByText("Your expiration date is invalid")
+    ).not.toBeVisible();
+    await expect(frame.getByText("Your CVC is invalid")).not.toBeVisible();
+  });
+
   test("Manual validation when 3 digit amex is diabled", async ({ page }) => {
     let values = {};
 
