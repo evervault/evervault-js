@@ -128,8 +128,6 @@ export function validateCVC(
   cardNumber?: string,
   options?: CardNumberValidationOptions
 ): CardCVCValidationResult {
-  const { brand, localBrands } = validateNumber(cardNumber ?? "", options);
-
   // Check if the CVC only contains numbers with 3 or 4 digits
   if (!/^\d{3,4}$/.test(cvc)) {
     return {
@@ -138,17 +136,19 @@ export function validateCVC(
     };
   }
 
-  const brands: string[] = [];
+  const { brand, localBrands } = validateNumber(cardNumber ?? "", options);
+
+  const brands = new Set<string>();
 
   if (brand) {
-    brands.push(brand);
+    brands.add(brand);
   }
 
   if (localBrands) {
-    brands.push(...localBrands);
+    for (const b of localBrands) brands.add(b);
   }
 
-  if (!brands.length) {
+  if (!brands.size) {
     return {
       cvc,
       isValid: true,
@@ -158,7 +158,7 @@ export function validateCVC(
   const allBrands = [...defaultBrands, ...(options?.customBrands ?? [])];
 
   const isCVCValid = allBrands
-    .filter((brand) => brands.includes(brand.name))
+    .filter((brand) => brands.has(brand.name))
     .some((brand) => {
       return brand.securityCodeValidationRules.lengths.includes(cvc.length);
     });

@@ -1,7 +1,6 @@
 ---
-"@evervault/card-validator": minor
+"@evervault/card-validator": patch
 "@evervault/ui-components": patch
 ---
 
-- Adds `reason` to CVC validation failures
-- Fixes bug where failed card validation forces a failed CVC validation
+- Fixes bug where failed card number validation forces a failed CVC validation
