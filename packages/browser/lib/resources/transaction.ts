@@ -4,6 +4,7 @@ import {
   DisbursementTransactionDetails,
   RecurringTransactionDetails,
 } from "types";
+import { resolveTopLevelDomain } from "../utils";
 
 export class Transaction {
   details: TransactionDetailsWithDomain;
@@ -17,7 +18,7 @@ export class Transaction {
     this.details = {
       ...details,
       type: details.type ?? "payment",
-      domain: window.location.origin.replace(/https?:\/\//, ""),
+      domain: resolveTopLevelDomain(),
     } as TransactionDetailsWithDomain;
   }
 }
