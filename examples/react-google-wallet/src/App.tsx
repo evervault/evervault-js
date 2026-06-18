@@ -5,13 +5,13 @@ import "./App.css";
 function getLineItems(): TransactionLineItem[] {
   return [
     {
-      label: "First Edition \"The Great Gatsby\" (1925)",
+      label: 'First Edition "The Great Gatsby" (1925)',
       amount: 245000,
     },
     {
-      label: "Signed \"One Hundred Years of Solitude\" (1967)",
+      label: 'Signed "One Hundred Years of Solitude" (1967)',
       amount: 185000,
-    }
+    },
   ];
 }
 
@@ -33,7 +33,7 @@ function App() {
       initialized.current = true;
       const evervault = await ev;
       if (!evervault) return;
-      
+
       const transaction = evervault.transactions.create({
         amount: 430000,
         currency: "USD",
@@ -88,7 +88,7 @@ function App() {
           amount: 4300,
           currency: "USD",
           country: "US",
-          merchantId: "merchant_e930d3f7bf37",
+          merchantId: "merchant_7c4f6011620e",
           requiredRecipientDetails: ["email", "phone", "name", "address"],
           type: "disbursement",
         });
@@ -117,7 +117,6 @@ function App() {
           },
         });
        */
-      
 
       const apple = evervault.ui.applePay(transaction, {
         type: "contribute",
@@ -128,7 +127,11 @@ function App() {
         allowedCardNetworks: ["visa", "masterCard"],
         requestShipping: true,
         onShippingAddressChange: async (newAddress) => {
-          if (!newAddress) return { amount: transaction.details.amount, lineItems: getLineItems() };
+          if (!newAddress)
+            return {
+              amount: transaction.details.amount,
+              lineItems: getLineItems(),
+            };
 
           const shipping = await calculateShipping(newAddress.region);
           const newAmount = transaction.details.amount + shipping;
@@ -271,4 +274,3 @@ function App() {
 }
 
 export default App;
-

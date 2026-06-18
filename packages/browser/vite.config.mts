@@ -34,10 +34,14 @@ if (generateCoverage) {
 
 export default defineConfig({
   server: {
+    host: true,
     port: 4002,
+    allowedHosts: [".lhr.life"],
   },
   preview: {
+    host: true,
     port: 4002,
+    allowedHosts: [".lhr.life"],
   },
   test: {
     environment: "jsdom",
