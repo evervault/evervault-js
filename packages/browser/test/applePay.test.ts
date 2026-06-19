@@ -204,8 +204,9 @@ describe("ApplePayButton.abort", () => {
   });
 
   it("dispatches cancel without calling show when aborted before the sheet opens", async () => {
-    let resolveBuildSession: (session: ReturnType<typeof createMockSession>) => void =
-      () => {};
+    let resolveBuildSession: (
+      session: ReturnType<typeof createMockSession>
+    ) => void = () => {};
     buildSessionMock.mockImplementation(
       () =>
         new Promise((resolve) => {

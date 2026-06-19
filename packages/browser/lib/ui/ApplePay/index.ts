@@ -261,7 +261,10 @@ export default class ApplePayButton {
       try {
         await this.#activeSession.abort();
       } catch (error) {
-        if (error instanceof DOMException && error.name === "InvalidStateError") {
+        if (
+          error instanceof DOMException &&
+          error.name === "InvalidStateError"
+        ) {
           return;
         }
         throw error;
