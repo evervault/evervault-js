@@ -115,6 +115,7 @@ export interface CardTranslations extends TranslationsObject {
   }>;
   expiry: CardFieldTranslations<{ invalid?: string }>;
   cvc: CardFieldTranslations<{ invalid?: string }>;
+  name?: CardFieldTranslations<{ invalid?: string; regex?: string }>;
 }
 
 export type CardIcons = Record<CardBrandName | "default", string>;
