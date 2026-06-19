@@ -72,6 +72,10 @@ export default class ApplePayButton {
   #options: ApplePayButtonOptions;
   #events = new EventManager<ApplePayEvents>();
   #scriptLoaded = false;
+  #activeSession: PaymentRequest | null = null;
+  #abortRequested = false;
+  #sessionInProgress = false;
+  #showStarted = false;
 
   constructor(
     client: EvervaultClient,
@@ -104,89 +108,114 @@ export default class ApplePayButton {
   }
 
   async #handleClick() {
-    if (this.#options.prepareTransaction) {
-      const { amount, lineItems } = await this.#options.prepareTransaction();
-      if (amount) {
-        this.transaction.details.amount = amount;
+    this.#abortRequested = false;
+    this.#sessionInProgress = true;
+
+    try {
+      if (this.#options.prepareTransaction) {
+        const { amount, lineItems } = await this.#options.prepareTransaction();
+        if (this.#abortRequested) {
+          this.#events.dispatch("cancel");
+          return;
+        }
+
+        if (amount) {
+          this.transaction.details.amount = amount;
+        }
+
+        if (lineItems) {
+          this.transaction.details.lineItems = lineItems;
+        }
       }
 
-      if (lineItems) {
-        this.transaction.details.lineItems = lineItems;
-      }
-    }
+      const session = await buildSession(this, {
+        transaction: this.transaction.details,
+        allowedCardNetworks: this.#options.allowedCardNetworks,
+        requestPayerDetails: this.#options.requestPayerDetails,
+        paymentOverrides: this.#options.paymentOverrides,
+        disbursementOverrides: this.#options.disbursementOverrides,
+        requestBillingAddress: this.#options.requestBillingAddress,
+        requestShipping: this.#options.requestShipping,
+        onPaymentMethodChange: this.#options.onPaymentMethodChange,
+        onShippingAddressChange: this.#options.onShippingAddressChange,
+        prepareTransaction: this.#options.prepareTransaction,
+      });
 
-    const session = await buildSession(this, {
-      transaction: this.transaction.details,
-      allowedCardNetworks: this.#options.allowedCardNetworks,
-      requestPayerDetails: this.#options.requestPayerDetails,
-      paymentOverrides: this.#options.paymentOverrides,
-      disbursementOverrides: this.#options.disbursementOverrides,
-      requestBillingAddress: this.#options.requestBillingAddress,
-      requestShipping: this.#options.requestShipping,
-      onPaymentMethodChange: this.#options.onPaymentMethodChange,
-      onShippingAddressChange: this.#options.onShippingAddressChange,
-      prepareTransaction: this.#options.prepareTransaction,
-    });
-
-    const [response, responseError] = await tryCatch(session.show());
-
-    if (responseError) {
-      if (responseError.name === "AbortError") {
+      if (this.#abortRequested) {
         this.#events.dispatch("cancel");
         return;
       }
 
-      this.#events.dispatch("error", responseError.message);
-      return;
-    }
+      this.#activeSession = session;
+      this.#showStarted = true;
 
-    const paymentMethodDisplayName =
-      response.details?.token?.paymentMethod?.displayName;
-    const paymentMethodType = response.details?.token?.paymentMethod?.type;
+      const [response, responseError] = await tryCatch(session.show());
 
-    const [encrypted, encryptedError] = await tryCatch(
-      this.#exchangeApplePaymentData(response)
-    );
+      this.#activeSession = null;
 
-    if (encryptedError) {
-      this.#events.dispatch("error", encryptedError.message);
-      return;
-    }
+      if (responseError) {
+        if (responseError.name === "AbortError") {
+          this.#events.dispatch("cancel");
+          return;
+        }
 
-    if (response.details.billingContact) {
-      encrypted.billingContact = response.details.billingContact;
-    }
-
-    if (response.details.shippingContact) {
-      encrypted.shippingContact = response.details.shippingContact;
-    }
-
-    encrypted.card.displayName = paymentMethodDisplayName;
-    if (paymentMethodType) {
-      encrypted.card.paymentMethodType = paymentMethodType;
-    }
-    if (paymentMethodDisplayName) {
-      const fourDigitRegex = /(\d{4})$/;
-      const lastFour = paymentMethodDisplayName.match(fourDigitRegex);
-      if (lastFour) {
-        encrypted.card.lastFour = lastFour[0];
+        this.#events.dispatch("error", responseError.message);
+        return;
       }
-    }
 
-    let failed = false;
+      const paymentMethodDisplayName =
+        response.details?.token?.paymentMethod?.displayName;
+      const paymentMethodType = response.details?.token?.paymentMethod?.type;
 
-    await this.#options.process(encrypted, {
-      fail: (error?: ApplePayErrorMessage) => {
-        this.#events.dispatch("error", error?.message);
-        failed = true;
-      },
-    });
+      const [encrypted, encryptedError] = await tryCatch(
+        this.#exchangeApplePaymentData(response)
+      );
 
-    if (failed) {
-      await response.complete("fail");
-    } else {
-      this.#events.dispatch("success");
-      response.complete("success");
+      if (encryptedError) {
+        this.#events.dispatch("error", encryptedError.message);
+        return;
+      }
+
+      if (response.details.billingContact) {
+        encrypted.billingContact = response.details.billingContact;
+      }
+
+      if (response.details.shippingContact) {
+        encrypted.shippingContact = response.details.shippingContact;
+      }
+
+      encrypted.card.displayName = paymentMethodDisplayName;
+      if (paymentMethodType) {
+        encrypted.card.paymentMethodType = paymentMethodType;
+      }
+      if (paymentMethodDisplayName) {
+        const fourDigitRegex = /(\d{4})$/;
+        const lastFour = paymentMethodDisplayName.match(fourDigitRegex);
+        if (lastFour) {
+          encrypted.card.lastFour = lastFour[0];
+        }
+      }
+
+      let failed = false;
+
+      await this.#options.process(encrypted, {
+        fail: (error?: ApplePayErrorMessage) => {
+          this.#events.dispatch("error", error?.message);
+          failed = true;
+        },
+      });
+
+      if (failed) {
+        await response.complete("fail");
+      } else {
+        this.#events.dispatch("success");
+        response.complete("success");
+      }
+    } finally {
+      this.#activeSession = null;
+      this.#sessionInProgress = false;
+      this.#abortRequested = false;
+      this.#showStarted = false;
     }
   }
 
@@ -216,6 +245,35 @@ export default class ApplePayButton {
     callback: ApplePayEvents[keyof ApplePayEvents]
   ) {
     return this.#events.on(event, callback);
+  }
+
+  /**
+   * Programmatically dismiss the Apple Pay sheet while a session is active.
+   * Maps to PaymentRequest.abort(). Fires the `cancel` event on success.
+   * No-op if no session is in progress or abort is not possible.
+   */
+  async abort(): Promise<void> {
+    if (!this.#sessionInProgress) {
+      return;
+    }
+
+    if (this.#activeSession) {
+      try {
+        await this.#activeSession.abort();
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "InvalidStateError") {
+          return;
+        }
+        throw error;
+      }
+      return;
+    }
+
+    if (this.#showStarted) {
+      return;
+    }
+
+    this.#abortRequested = true;
   }
 
   async #waitForScript() {
@@ -335,6 +393,8 @@ export default class ApplePayButton {
   }
 
   unmount() {
+    void this.abort();
+
     if (this.#button) {
       this.#button.remove();
     }
