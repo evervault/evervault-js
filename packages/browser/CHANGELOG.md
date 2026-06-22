@@ -1,11 +1,5 @@
 # @evervault/browser
 
-## 2.57.0
-
-### Minor Changes
-
-- Expose `applePay.abort()` to programmatically dismiss an active Apple Pay session. This maps to `PaymentRequest.abort()` and fires the `cancel` event when the sheet is closed.
-
 ## 2.56.0
 
 ### Minor Changes
