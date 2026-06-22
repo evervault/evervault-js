@@ -24,7 +24,7 @@ export interface CardProps {
   autoFocus?: boolean;
   colorScheme?: ColorScheme;
   theme?: ThemeDefinition;
-  icons?: boolean | CardIcons;
+  icons?: boolean | Partial<CardIcons>;
   translations?: CardTranslations;
   fields?: CardField[];
   onReady?: () => void;
