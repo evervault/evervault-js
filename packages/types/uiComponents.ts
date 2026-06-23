@@ -577,6 +577,7 @@ export interface ApplePayOptions {
   borderRadius?: number;
   size?: { width: WalletDimension; height: WalletDimension };
   allowedCardNetworks?: ApplePayCardNetwork[];
+  appleMerchantId?: string;
   paymentOverrides?: {
     paymentMethodData?: PaymentMethodData[];
     paymentDetails?: PaymentDetailsInit;

@@ -42,7 +42,15 @@ type BuildSessionOptions = {
     amount?: number;
     lineItems?: TransactionLineItem[];
   }>;
+  appleMerchantId?: string;
 };
+
+export function resolveMerchantIdentifier(
+  evervaultMerchantId: string,
+  appleMerchantId?: string
+): string {
+  return appleMerchantId ?? `merchant.com.evervault.${evervaultMerchantId}`;
+}
 
 export async function buildSession(
   applePay: ApplePayButton,
@@ -193,7 +201,10 @@ function buildPaymentSession(
       supportedMethods: "https://apple.com/apple-pay",
       data: {
         version: 3,
-        merchantIdentifier: `merchant.com.evervault.${config.transaction.merchantId}`,
+        merchantIdentifier: resolveMerchantIdentifier(
+          config.transaction.merchantId,
+          config.appleMerchantId
+        ),
         merchantCapabilities: ["supports3DS"],
         supportedNetworks: config.allowedCardNetworks?.map((network) =>
           network.toLowerCase()
@@ -280,7 +291,10 @@ function buildRecurringSession(
       supportedMethods: "https://apple.com/apple-pay",
       data: {
         version: 3,
-        merchantIdentifier: `merchant.com.evervault.${config.transaction.merchantId}`,
+        merchantIdentifier: resolveMerchantIdentifier(
+          config.transaction.merchantId,
+          config.appleMerchantId
+        ),
         merchantCapabilities: ["supports3DS"],
         supportedNetworks: config.allowedCardNetworks?.map((network) =>
           network.toLowerCase()
@@ -376,7 +390,10 @@ function buildDisbursementSession(
       supportedMethods: "https://apple.com/apple-pay",
       data: {
         version: 3,
-        merchantIdentifier: `merchant.com.evervault.${config.transaction.merchantId}`,
+        merchantIdentifier: resolveMerchantIdentifier(
+          config.transaction.merchantId,
+          config.appleMerchantId
+        ),
         merchantCapabilities,
         supportedNetworks: config.allowedCardNetworks,
         countryCode: tx.country,

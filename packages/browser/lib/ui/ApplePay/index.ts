@@ -6,7 +6,11 @@ import type {
   TransactionLineItem,
 } from "types";
 import { resolveSelector } from "../utils";
-import { buildSession, resolveUnit } from "./utilities";
+import {
+  buildSession,
+  resolveMerchantIdentifier,
+  resolveUnit,
+} from "./utilities";
 import EventManager from "../eventManager";
 import {
   ApplePayButtonLocale,
@@ -50,6 +54,7 @@ export type ApplePayButtonOptions = {
     amount?: number;
     lineItems?: TransactionLineItem[];
   }>;
+  appleMerchantId?: string;
   process: (
     data: EncryptedApplePayData,
     helpers: {
@@ -126,6 +131,7 @@ export default class ApplePayButton {
       onPaymentMethodChange: this.#options.onPaymentMethodChange,
       onShippingAddressChange: this.#options.onShippingAddressChange,
       prepareTransaction: this.#options.prepareTransaction,
+      appleMerchantId: this.#options.appleMerchantId,
     });
 
     const [response, responseError] = await tryCatch(session.show());
@@ -258,7 +264,10 @@ export default class ApplePayButton {
     }
 
     const capabilities = await ApplePaySession.applePayCapabilities(
-      `merchant.com.evervault.${this.transaction.details.merchantId}`
+      resolveMerchantIdentifier(
+        this.transaction.details.merchantId,
+        this.#options.appleMerchantId
+      )
     );
 
     if (capabilities.paymentCredentialStatus === "applePayUnsupported") {
