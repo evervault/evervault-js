@@ -4,12 +4,16 @@ import {
   describe,
   assert,
   it,
+  expect,
   beforeAll,
   afterAll,
   afterEach,
   beforeEach,
 } from "vitest";
-import { buildSession } from "../lib/ui/ApplePay/utilities";
+import {
+  buildSession,
+  mapTransactionPaymentDataType,
+} from "../lib/ui/ApplePay/utilities";
 import ApplePayButton from "../lib/ui/ApplePay";
 import { setupCrypto } from "./setup";
 
@@ -91,5 +95,19 @@ describe("buildSession sandbox label", () => {
     await buildSession(applePay, { transaction });
 
     assert(paymentRequestCalls[0].total?.label === merchantName);
+  });
+});
+
+describe("mapTransactionPaymentDataType", () => {
+  it("maps payment to oneOff", () => {
+    expect(mapTransactionPaymentDataType("payment")).toBe("oneOff");
+  });
+
+  it("maps recurring to recurring", () => {
+    expect(mapTransactionPaymentDataType("recurring")).toBe("recurring");
+  });
+
+  it("maps disbursement to disbursement", () => {
+    expect(mapTransactionPaymentDataType("disbursement")).toBe("disbursement");
   });
 });

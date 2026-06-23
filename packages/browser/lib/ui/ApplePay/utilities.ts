@@ -1,9 +1,11 @@
 import { getAppSDKConfig } from "shared/getAppSDKConfig";
 import {
+  ApplePayTransactionPaymentDataType,
   DisbursementTransactionDetails,
   MerchantDetail,
   PaymentTransactionDetails,
   RecurringTransactionDetails,
+  TransactionDetails,
   TransactionDetailsWithDomain,
   TransactionLineItem,
 } from "types";
@@ -43,6 +45,19 @@ type BuildSessionOptions = {
     lineItems?: TransactionLineItem[];
   }>;
 };
+
+export function mapTransactionPaymentDataType(
+  type: TransactionDetails["type"]
+): ApplePayTransactionPaymentDataType {
+  switch (type) {
+    case "payment":
+      return "oneOff";
+    case "recurring":
+      return "recurring";
+    case "disbursement":
+      return "disbursement";
+  }
+}
 
 export async function buildSession(
   applePay: ApplePayButton,

@@ -6,7 +6,11 @@ import type {
   TransactionLineItem,
 } from "types";
 import { resolveSelector } from "../utils";
-import { buildSession, resolveUnit } from "./utilities";
+import {
+  buildSession,
+  mapTransactionPaymentDataType,
+  resolveUnit,
+} from "./utilities";
 import EventManager from "../eventManager";
 import {
   ApplePayButtonLocale,
@@ -172,6 +176,10 @@ export default class ApplePayButton {
         encrypted.card.lastFour = lastFour[0];
       }
     }
+
+    encrypted.paymentDataType = mapTransactionPaymentDataType(
+      this.transaction.details.type
+    );
 
     let failed = false;
 
