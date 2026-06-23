@@ -1,5 +1,6 @@
 import { getAppSDKConfig } from "shared/getAppSDKConfig";
 import {
+  ApplePayMerchantCapability,
   DisbursementTransactionDetails,
   MerchantDetail,
   PaymentTransactionDetails,
@@ -43,6 +44,22 @@ type BuildSessionOptions = {
     lineItems?: TransactionLineItem[];
   }>;
 };
+
+export function resolveDisbursementMerchantCapabilities(
+  tx: DisbursementTransactionDetails
+): ApplePayMerchantCapability[] {
+  if (tx.merchantCapabilities?.length) {
+    return tx.merchantCapabilities;
+  }
+
+  const merchantCapabilities: ApplePayMerchantCapability[] = ["supports3DS"];
+
+  if (tx.instantTransfer) {
+    merchantCapabilities.push("supportsInstantFundsOut");
+  }
+
+  return merchantCapabilities;
+}
 
 export async function buildSession(
   applePay: ApplePayButton,
@@ -365,11 +382,7 @@ function buildDisbursementSession(
       },
     })) || [];
 
-  const merchantCapabilities = ["supports3DS"];
-
-  if (tx.instantTransfer) {
-    merchantCapabilities.push("supportsInstantFundsOut");
-  }
+  const merchantCapabilities = resolveDisbursementMerchantCapabilities(tx);
 
   const paymentMethodData = [
     {
