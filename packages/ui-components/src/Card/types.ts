@@ -8,7 +8,7 @@ import type {
 } from "types";
 
 export interface CardConfig {
-  icons?: boolean | CardIcons;
+  icons?: boolean | Partial<CardIcons>;
   theme?: ThemeObject;
   autoFocus?: boolean;
   hiddenFields?: ("number" | "expiry" | "cvc")[];

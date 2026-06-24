@@ -147,7 +147,7 @@ export interface CustomBrand {
 
 export interface CardOptions {
   colorScheme?: ColorScheme;
-  icons?: boolean | CardIcons;
+  icons?: boolean | Partial<CardIcons>;
   theme?: ThemeDefinition;
   autoFocus?: boolean;
   hiddenFields?: ("number" | "expiry" | "cvc")[]; // deprecated

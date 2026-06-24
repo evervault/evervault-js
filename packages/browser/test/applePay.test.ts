@@ -4,14 +4,21 @@ import {
   describe,
   assert,
   it,
+  expect,
+  vi,
   beforeAll,
   afterAll,
   afterEach,
   beforeEach,
 } from "vitest";
-import { buildSession } from "../lib/ui/ApplePay/utilities";
+import * as applePayUtilities from "../lib/ui/ApplePay/utilities";
 import ApplePayButton from "../lib/ui/ApplePay";
+import { Transaction } from "../lib/resources/transaction";
+import type EvervaultClient from "../lib/main";
 import { setupCrypto } from "./setup";
+
+const { buildSession } = applePayUtilities;
+const buildSessionMock = vi.fn();
 
 const apiUrl = "https://api.test.evervault.com";
 const app = "app_test123";
@@ -91,5 +98,166 @@ describe("buildSession sandbox label", () => {
     await buildSession(applePay, { transaction });
 
     assert(paymentRequestCalls[0].total?.label === merchantName);
+  });
+});
+
+function createMockClient(): EvervaultClient {
+  return {
+    config: {
+      appId: "app_test",
+      http: { apiUrl: "https://api.evervault.com" },
+    },
+  } as EvervaultClient;
+}
+
+function createTransaction() {
+  return new Transaction({
+    amount: 1000,
+    currency: "USD",
+    country: "US",
+    merchantId: "merchant_test",
+  });
+}
+
+function createMockSession() {
+  let showReject: (error: Error) => void = () => {};
+  const showPromise = new Promise<PaymentResponse>((_, reject) => {
+    showReject = reject;
+  });
+
+  return {
+    show: vi.fn(() => showPromise),
+    abort: vi.fn().mockResolvedValue(undefined),
+    rejectShow: (error: Error) => showReject(error),
+  };
+}
+
+async function clickApplePayButton(apple: ApplePayButton) {
+  const container = document.createElement("div");
+  document.body.appendChild(container);
+  await apple.mount(container);
+  const button = container.querySelector("apple-pay-button");
+  button?.dispatchEvent(new Event("click"));
+}
+
+describe("ApplePayButton.abort", () => {
+  beforeEach(() => {
+    buildSessionMock.mockReset();
+    vi.spyOn(applePayUtilities, "buildSession").mockImplementation(
+      buildSessionMock
+    );
+
+    vi.stubGlobal("PaymentRequest", class PaymentRequest {});
+
+    vi.stubGlobal("ApplePaySession", {
+      applePayCapabilities: vi.fn().mockResolvedValue({
+        paymentCredentialStatus: "paymentCredentialsAvailable",
+      }),
+    });
+
+    const script = document.createElement("script");
+    script.src =
+      "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
+    document.body.appendChild(script);
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("is a no-op when no session is in progress", async () => {
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    await expect(apple.abort()).resolves.toBeUndefined();
+  });
+
+  it("calls PaymentRequest.abort and dispatches cancel when the sheet is showing", async () => {
+    const session = createMockSession();
+    buildSessionMock.mockResolvedValue(session);
+
+    const cancel = vi.fn();
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+    apple.on("cancel", cancel);
+
+    await clickApplePayButton(apple);
+
+    await vi.waitFor(() => {
+      expect(session.show).toHaveBeenCalled();
+    });
+
+    const abortError = new DOMException("Aborted", "AbortError");
+    const abortPromise = apple.abort();
+
+    session.rejectShow(abortError);
+    await abortPromise;
+
+    expect(session.abort).toHaveBeenCalled();
+    await vi.waitFor(() => {
+      expect(cancel).toHaveBeenCalledOnce();
+    });
+  });
+
+  it("dispatches cancel without calling show when aborted before the sheet opens", async () => {
+    let resolveBuildSession: (
+      session: ReturnType<typeof createMockSession>
+    ) => void = () => {};
+    buildSessionMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveBuildSession = resolve;
+        })
+    );
+
+    const cancel = vi.fn();
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+      prepareTransaction: () =>
+        new Promise((resolve) => {
+          setTimeout(() => resolve({ amount: 2000 }), 50);
+        }),
+    });
+    apple.on("cancel", cancel);
+
+    await clickApplePayButton(apple);
+
+    await vi.waitFor(() => {
+      expect(buildSessionMock).toHaveBeenCalled();
+    });
+
+    const session = createMockSession();
+    const abortPromise = apple.abort();
+    resolveBuildSession(session);
+    await abortPromise;
+
+    await vi.waitFor(() => {
+      expect(cancel).toHaveBeenCalledOnce();
+    });
+    expect(session.show).not.toHaveBeenCalled();
+  });
+
+  it("swallows InvalidStateError from PaymentRequest.abort", async () => {
+    const session = createMockSession();
+    session.abort.mockRejectedValue(
+      new DOMException("Invalid state", "InvalidStateError")
+    );
+    buildSessionMock.mockResolvedValue(session);
+
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    await clickApplePayButton(apple);
+
+    await vi.waitFor(() => {
+      expect(session.show).toHaveBeenCalled();
+    });
+
+    await expect(apple.abort()).resolves.toBeUndefined();
   });
 });
