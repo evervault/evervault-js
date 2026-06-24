@@ -1,5 +1,17 @@
 # @evervault/browser
 
+## 2.57.0
+
+### Minor Changes
+
+- b454046: Expose `applePay.abort()` to programmatically dismiss an active Apple Pay session. This maps to `PaymentRequest.abort()` under the hood and fires the `cancel` event when the sheet is closed. Useful when a shipping address change requires a different currency and the merchant needs to close and reopen Apple Pay with updated transaction details.
+
+## 2.56.1
+
+### Patch Changes
+
+- 996c3f5: Resolve the Apple Pay merchant-validation domain from the top-level document origin (`window.location.ancestorOrigins`) instead of the current frame's origin. This fixes Apple Pay failing with "Payment Not Completed" when the component runs inside a cross-origin iframe (e.g. a PSP-hosted widget embedded in a merchant store), where the merchant session was previously issued for the iframe host rather than the top-level merchant origin. Falls back to the current frame's origin when not embedded.
+
 ## 2.56.0
 
 ### Minor Changes
