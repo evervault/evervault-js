@@ -17,7 +17,7 @@ import { Transaction } from "../lib/resources/transaction";
 import type EvervaultClient from "../lib/main";
 import { setupCrypto } from "./setup";
 
-const { buildSession, mapTransactionPaymentDataType } = applePayUtilities;
+const { buildSession, mapTransactionType } = applePayUtilities;
 const buildSessionMock = vi.fn();
 
 const apiUrl = "https://api.test.evervault.com";
@@ -101,17 +101,17 @@ describe("buildSession sandbox label", () => {
   });
 });
 
-describe("mapTransactionPaymentDataType", () => {
+describe("mapTransactionType", () => {
   it("maps payment to oneOff", () => {
-    expect(mapTransactionPaymentDataType("payment")).toBe("oneOff");
+    expect(mapTransactionType("payment")).toBe("oneOff");
   });
 
   it("maps recurring to recurring", () => {
-    expect(mapTransactionPaymentDataType("recurring")).toBe("recurring");
+    expect(mapTransactionType("recurring")).toBe("recurring");
   });
 
   it("maps disbursement to disbursement", () => {
-    expect(mapTransactionPaymentDataType("disbursement")).toBe("disbursement");
+    expect(mapTransactionType("disbursement")).toBe("disbursement");
   });
 });
 

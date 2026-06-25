@@ -8,7 +8,7 @@ import type {
 import { resolveSelector } from "../utils";
 import {
   buildSession,
-  mapTransactionPaymentDataType,
+  mapTransactionType,
   resolveUnit,
 } from "./utilities";
 import EventManager from "../eventManager";
@@ -188,7 +188,7 @@ export default class ApplePayButton {
         encrypted.shippingContact = response.details.shippingContact;
       }
 
-      encrypted.paymentDataType = mapTransactionPaymentDataType(
+      encrypted.transactionType = mapTransactionType(
         this.transaction.details.type
       );
 

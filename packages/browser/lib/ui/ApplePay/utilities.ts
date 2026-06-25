@@ -1,6 +1,6 @@
 import { getAppSDKConfig } from "shared/getAppSDKConfig";
 import {
-  ApplePayTransactionPaymentDataType,
+  ApplePayTransactionType,
   DisbursementTransactionDetails,
   MerchantDetail,
   PaymentTransactionDetails,
@@ -46,9 +46,9 @@ type BuildSessionOptions = {
   }>;
 };
 
-export function mapTransactionPaymentDataType(
+export function mapTransactionType(
   type: TransactionDetails["type"]
-): ApplePayTransactionPaymentDataType {
+): ApplePayTransactionType {
   switch (type) {
     case "payment":
       return "oneOff";
