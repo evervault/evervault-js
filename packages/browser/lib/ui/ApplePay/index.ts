@@ -6,7 +6,7 @@ import type {
   TransactionLineItem,
 } from "types";
 import { resolveSelector } from "../utils";
-import { buildSession, resolveUnit } from "./utilities";
+import { buildSession, mapTransactionType, resolveUnit } from "./utilities";
 import EventManager from "../eventManager";
 import {
   ApplePayButtonLocale,
@@ -183,6 +183,10 @@ export default class ApplePayButton {
       if (response.details.shippingContact) {
         encrypted.shippingContact = response.details.shippingContact;
       }
+
+      encrypted.transactionType = mapTransactionType(
+        this.transaction.details.type
+      );
 
       encrypted.card.displayName = paymentMethodDisplayName;
       if (paymentMethodType) {
