@@ -321,10 +321,7 @@ export interface ApplePayHostMessages extends EvervaultFrameHostMessages {
   EV_APPLE_PAY_SUCCESS: undefined;
 }
 
-export type ApplePayTransactionType =
-  | "oneOff"
-  | "recurring"
-  | "disbursement";
+export type ApplePayTransactionType = "oneOff" | "recurring" | "disbursement";
 
 export type EncryptedApplePayData = Omit<EncryptedDPAN<"apple">, "token"> & {
   networkToken: PaymentToken<"apple"> & { rawExpiry: string };

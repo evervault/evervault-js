@@ -6,11 +6,7 @@ import type {
   TransactionLineItem,
 } from "types";
 import { resolveSelector } from "../utils";
-import {
-  buildSession,
-  mapTransactionType,
-  resolveUnit,
-} from "./utilities";
+import { buildSession, mapTransactionType, resolveUnit } from "./utilities";
 import EventManager from "../eventManager";
 import {
   ApplePayButtonLocale,
