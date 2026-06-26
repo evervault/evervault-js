@@ -18,8 +18,11 @@ import { Transaction } from "../lib/resources/transaction";
 import type EvervaultClient from "../lib/main";
 import { setupCrypto } from "./setup";
 
-const { buildSession, mapTransactionType, resolveDisbursementMerchantCapabilities } =
-  applePayUtilities;
+const {
+  buildSession,
+  mapTransactionType,
+  resolveDisbursementMerchantCapabilities,
+} = applePayUtilities;
 const buildSessionMock = vi.fn();
 
 const apiUrl = "https://api.test.evervault.com";
