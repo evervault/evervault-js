@@ -1,5 +1,6 @@
 import { getAppSDKConfig } from "shared/getAppSDKConfig";
 import {
+  ApplePayMerchantCapability,
   ApplePayTransactionType,
   DisbursementTransactionDetails,
   MerchantDetail,
@@ -52,6 +53,22 @@ export function resolveMerchantIdentifier(
   appleMerchantId?: string
 ): string {
   return appleMerchantId ?? `merchant.com.evervault.${evervaultMerchantId}`;
+}
+
+export function resolveDisbursementMerchantCapabilities(
+  tx: DisbursementTransactionDetails
+): ApplePayMerchantCapability[] {
+  if (tx.merchantCapabilities?.length) {
+    return tx.merchantCapabilities;
+  }
+
+  const merchantCapabilities: ApplePayMerchantCapability[] = ["supports3DS"];
+
+  if (tx.instantTransfer) {
+    merchantCapabilities.push("supportsInstantFundsOut");
+  }
+
+  return merchantCapabilities;
 }
 
 export function mapTransactionType(
@@ -394,11 +411,7 @@ function buildDisbursementSession(
       },
     })) || [];
 
-  const merchantCapabilities = ["supports3DS"];
-
-  if (tx.instantTransfer) {
-    merchantCapabilities.push("supportsInstantFundsOut");
-  }
+  const merchantCapabilities = resolveDisbursementMerchantCapabilities(tx);
 
   const paymentMethodData = [
     {

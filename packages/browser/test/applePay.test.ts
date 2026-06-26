@@ -12,13 +12,18 @@ import {
   beforeEach,
 } from "vitest";
 import * as applePayUtilities from "../lib/ui/ApplePay/utilities";
+import type { ApplePayMerchantCapability } from "types";
 import ApplePayButton from "../lib/ui/ApplePay";
 import { Transaction } from "../lib/resources/transaction";
 import type EvervaultClient from "../lib/main";
 import { setupCrypto } from "./setup";
 
-const { buildSession, mapTransactionType, resolveMerchantIdentifier } =
-  applePayUtilities;
+const {
+  buildSession,
+  mapTransactionType,
+  resolveMerchantIdentifier,
+  resolveDisbursementMerchantCapabilities,
+} = applePayUtilities;
 const buildSessionMock = vi.fn();
 
 const apiUrl = "https://api.test.evervault.com";
@@ -27,11 +32,19 @@ const merchantId = "merchant_abc";
 const merchantName = "Acme Co";
 
 const paymentRequestCalls: PaymentDetailsInit[] = [];
-const paymentMethodDataCalls: Array<{ merchantIdentifier?: string }> = [];
+const paymentMethodDataCalls: Array<{
+  merchantIdentifier?: string;
+  merchantCapabilities?: string[];
+}> = [];
 
 class MockPaymentRequest {
   constructor(
-    methodData: Array<{ data?: { merchantIdentifier?: string } }>,
+    methodData: Array<{
+      data?: {
+        merchantIdentifier?: string;
+        merchantCapabilities?: string[];
+      };
+    }>,
     details: PaymentDetailsInit
   ) {
     paymentMethodDataCalls.push(methodData[0]?.data ?? {});
@@ -122,6 +135,41 @@ describe("resolveMerchantIdentifier", () => {
   });
 });
 
+describe("resolveDisbursementMerchantCapabilities", () => {
+  const baseDisbursement = {
+    type: "disbursement" as const,
+    amount: 1000,
+    currency: "USD",
+    country: "US",
+    merchantId,
+    domain: "shop.example.com",
+  };
+
+  it("uses explicit merchantCapabilities when provided", () => {
+    expect(
+      resolveDisbursementMerchantCapabilities({
+        ...baseDisbursement,
+        merchantCapabilities: ["supportsEMV", "supportsCredit"],
+      })
+    ).toEqual(["supportsEMV", "supportsCredit"]);
+  });
+
+  it("defaults to supports3DS when no override or instant transfer", () => {
+    expect(resolveDisbursementMerchantCapabilities(baseDisbursement)).toEqual([
+      "supports3DS",
+    ]);
+  });
+
+  it("adds supportsInstantFundsOut when instantTransfer is set", () => {
+    expect(
+      resolveDisbursementMerchantCapabilities({
+        ...baseDisbursement,
+        instantTransfer: { label: "Instant fee", amount: 50 },
+      })
+    ).toEqual(["supports3DS", "supportsInstantFundsOut"]);
+  });
+});
+
 describe("buildSession appleMerchantId", () => {
   beforeEach(() => {
     server.use(
@@ -149,6 +197,36 @@ describe("buildSession appleMerchantId", () => {
     assert(
       paymentMethodDataCalls[0].merchantIdentifier ===
         `merchant.com.evervault.${merchantId}`
+    );
+  });
+});
+
+describe("buildSession disbursement merchantCapabilities", () => {
+  const disbursementTransaction = {
+    type: "disbursement" as const,
+    amount: 1000,
+    currency: "USD",
+    country: "US",
+    merchantId,
+    domain: "shop.example.com",
+    merchantCapabilities: [
+      "supportsDebit",
+    ] satisfies ApplePayMerchantCapability[],
+  };
+
+  beforeEach(() => {
+    server.use(
+      http.get(`${apiUrl}/frontend/sdk/config`, () =>
+        HttpResponse.json({ is_sandbox: false }, { status: 200 })
+      )
+    );
+  });
+
+  it("passes explicit merchantCapabilities to the PaymentRequest", async () => {
+    await buildSession(applePay, { transaction: disbursementTransaction });
+
+    assert(
+      paymentMethodDataCalls[0].merchantCapabilities?.[0] === "supportsDebit"
     );
   });
 });
