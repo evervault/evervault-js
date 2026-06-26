@@ -52,24 +52,27 @@ jobs:
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Build E2E matrix
         id: e2e-targets
-        # Projects whose suites are short enough that the per-job setup
-        # overhead outweighs the parallelism win from sharding. These run as a
-        # single job with --shard=1/1 (a no-op in Playwright). Everything else
-        # is split into 2 shards.
+        # Per-project shard count. Projects with count=1 run as a single job
+        # with --shard=1/1 (a no-op in Playwright) — for suites where the
+        # per-job setup overhead outweighs the parallelism win. Projects not
+        # listed here use the default count.
         env:
-          UNSHARDED_PROJECTS: '["@evervault/browser-e2e-tests","@repo/crypto-harness-e2e-tests"]'
+          SHARD_COUNTS: |
+            {
+              "@evervault/browser-e2e-tests": 1,
+              "@repo/crypto-harness-e2e-tests": 1,
+              "@evervault/ui-components-e2e-tests": 4
+            }
+          DEFAULT_SHARDS: 2
         run: |-
           E2E_PROJECTS=$(pnpm m ls --depth=1 --json | jq -cr '[.[] | select(.name|endswith("e2e-tests")) | .name]')
           MATRIX=$(jq -cn \
             --argjson projects "$E2E_PROJECTS" \
-            --argjson unsharded "$UNSHARDED_PROJECTS" \
+            --argjson counts "$SHARD_COUNTS" \
+            --argjson default_shards "$DEFAULT_SHARDS" \
             '[$projects[] as $p |
-              if ($unsharded | index($p)) then
-                {project: $p, shard: 1, "total-shards": 1}
-              else
-                {project: $p, shard: 1, "total-shards": 2},
-                {project: $p, shard: 2, "total-shards": 2}
-              end
+              ($counts[$p] // $default_shards) as $n |
+              range(1; $n + 1) | {project: $p, shard: ., "total-shards": $n}
             ]')
           echo "e2e-test-matrix=$MATRIX" >> $GITHUB_OUTPUT
   build:
