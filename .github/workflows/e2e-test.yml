@@ -68,8 +68,8 @@ jobs:
           cache: "pnpm"
       - name: Install deps
         run: pnpm install --frozen-lockfile
-      - name: Build all workspace packages
-        run: pnpm run -r --if-present build
+      - name: Build E2E dependencies
+        run: pnpm run --filter="{./e2e-tests/*}..." --if-present build
       - name: Tar dist outputs
         run: |-
           find packages -type d -name dist -not -path "*/node_modules/*" -print0 \
