@@ -39,8 +39,17 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
+      - name: Cache node_modules
+        id: nm-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            **/node_modules
+          key: pnpm-nm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', '.npmrc', 'pnpm-workspace.yaml') }}
       - name: Install deps
-        run: pnpm install --frozen-lockfile
+        if: steps.nm-cache.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile --prefer-offline
       - name: Build E2E matrix
         id: e2e-targets
         # Projects whose suites are short enough that the per-job setup
@@ -83,8 +92,17 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
+      - name: Cache node_modules
+        id: nm-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            **/node_modules
+          key: pnpm-nm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', '.npmrc', 'pnpm-workspace.yaml') }}
       - name: Install deps
-        run: pnpm install --frozen-lockfile
+        if: steps.nm-cache.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile --prefer-offline
       - name: Build E2E dependencies
         run: pnpm run --filter="{./e2e-tests/*}..." --if-present build
       - name: Tar dist outputs
@@ -144,7 +162,16 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
+      - name: Cache node_modules
+        id: nm-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            **/node_modules
+          key: pnpm-nm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', '.npmrc', 'pnpm-workspace.yaml') }}
       - name: Install deps
+        if: steps.nm-cache.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Download dist artifact
         uses: actions/download-artifact@v7
