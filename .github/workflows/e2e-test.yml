@@ -60,8 +60,7 @@ jobs:
           SHARD_COUNTS: |
             {
               "@evervault/browser-e2e-tests": 1,
-              "@repo/crypto-harness-e2e-tests": 1,
-              "@evervault/ui-components-e2e-tests": 4
+              "@repo/crypto-harness-e2e-tests": 1
             }
           DEFAULT_SHARDS: 2
         run: |-
