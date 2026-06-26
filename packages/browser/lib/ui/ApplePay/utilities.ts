@@ -1,9 +1,11 @@
 import { getAppSDKConfig } from "shared/getAppSDKConfig";
 import {
+  ApplePayTransactionType,
   DisbursementTransactionDetails,
   MerchantDetail,
   PaymentTransactionDetails,
   RecurringTransactionDetails,
+  TransactionDetails,
   TransactionDetailsWithDomain,
   TransactionLineItem,
 } from "types";
@@ -50,6 +52,19 @@ export function resolveMerchantIdentifier(
   appleMerchantId?: string
 ): string {
   return appleMerchantId ?? `merchant.com.evervault.${evervaultMerchantId}`;
+}
+
+export function mapTransactionType(
+  type: TransactionDetails["type"]
+): ApplePayTransactionType {
+  switch (type) {
+    case "payment":
+      return "oneOff";
+    case "recurring":
+      return "recurring";
+    case "disbursement":
+      return "disbursement";
+  }
 }
 
 export async function buildSession(

@@ -180,7 +180,7 @@ async function encryptedCVC(
   return ev.encrypt(cvc);
 }
 
-export function collectIcons(icons: boolean | CardIcons) {
+export function collectIcons(icons: boolean | Partial<CardIcons>) {
   if (typeof icons === "boolean") return ICONS;
   return { ...ICONS, ...icons };
 }
