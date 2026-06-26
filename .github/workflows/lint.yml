@@ -14,6 +14,11 @@ on:
         description: "API endpoint"
         required: true
         type: string
+      base-ref:
+        description: "Git branch to diff against for incremental lint/test (e.g. 'master'). Leave empty to run on all packages."
+        required: false
+        type: string
+        default: ""
 jobs:
   lint:
     name: "Lint and Test"
@@ -32,6 +37,9 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v6
+        with:
+          # Needed so pnpm's [<since>] filter can resolve the base ref locally.
+          fetch-depth: 0
       - uses: pnpm/action-setup@v6
       - name: Setup Node.js environment
         uses: actions/setup-node@v6
@@ -40,13 +48,41 @@ jobs:
           cache: "pnpm"
       - name: Install deps
         run: pnpm install --frozen-lockfile
+      - name: Resolve pnpm filter
+        # When base-ref is provided, lint/test only the packages changed since
+        # that ref plus their dependents (so consumers of a changed package
+        # still get checked). Root-level changes (lockfile, .npmrc, workflow
+        # files, root package.json) force a full run since pnpm's [since]
+        # filter only tracks files inside workspace packages.
+        run: |-
+          BASE="${{ inputs.base-ref }}"
+          GLOBAL_RE='^(pnpm-lock\.yaml|package\.json|\.npmrc|pnpm-workspace\.yaml|\.github/)'
+          if [ -n "$BASE" ]; then
+            REF="origin/$BASE"
+            if ! git rev-parse --verify "$REF" >/dev/null 2>&1; then
+              REF="$BASE"
+            fi
+            if git diff --name-only "$REF"...HEAD | grep -qE "$GLOBAL_RE"; then
+              echo "Global config changed since $REF — running on all packages"
+              echo "PNPM_FILTER_LINT=--filter=@evervault/*" >> $GITHUB_ENV
+              echo "PNPM_FILTER_TEST=-r" >> $GITHUB_ENV
+            else
+              echo "Filtering to packages changed since $REF (and their dependents)"
+              echo "PNPM_FILTER_LINT=--filter=...[$REF]" >> $GITHUB_ENV
+              echo "PNPM_FILTER_TEST=--filter=...[$REF]" >> $GITHUB_ENV
+            fi
+          else
+            echo "No base-ref provided — running on all packages"
+            echo "PNPM_FILTER_LINT=--filter=@evervault/*" >> $GITHUB_ENV
+            echo "PNPM_FILTER_TEST=-r" >> $GITHUB_ENV
+          fi
       - name: Formats check
-        run: pnpm run -r --filter="@evervault/*" --if-present format:check
+        run: pnpm run "$PNPM_FILTER_LINT" --if-present format:check
       - name: Build
         run: pnpm run -r --if-present build
       - name: Typescript check
-        run: pnpm run -r --filter="@evervault/*" --if-present typecheck
+        run: pnpm run "$PNPM_FILTER_LINT" --if-present typecheck
       - name: eslint check
-        run: pnpm run -r --filter="@evervault/*" --if-present lint
+        run: pnpm run "$PNPM_FILTER_LINT" --if-present lint
       - name: Run unit tests
-        run: pnpm -r --if-present test
+        run: pnpm "$PNPM_FILTER_TEST" --if-present test

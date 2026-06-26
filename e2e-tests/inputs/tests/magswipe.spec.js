@@ -34,7 +34,7 @@ test.describe("evervault inputs", () => {
         );
       await page.getByLabel("Card number").press("Enter");
 
-      await page.waitForTimeout(500);
+      await expect.poll(() => data?.encryptedCard?.swipe).toBe(true);
 
       expect(calls).toBeGreaterThan(0);
       expect(data.encryptedCard.bin).toMatch("424242");
@@ -80,7 +80,7 @@ test.describe("evervault inputs", () => {
         .type(";4242424242424242=3001123456?");
       await page.getByLabel("Card number").press("Enter");
 
-      await page.waitForTimeout(500);
+      await expect.poll(() => data?.encryptedCard?.swipe).toBe(true);
 
       expect(calls).toBeGreaterThan(0);
 

@@ -5,9 +5,12 @@ on:
     paths:
       - "examples/expo/**"
       - "packages/react-native-v2/**"
-      - ".github/**"
+      - ".github/workflows/react-native.yml"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build_ios:
     name: Build iOS Examples
