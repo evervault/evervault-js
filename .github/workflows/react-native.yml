@@ -5,7 +5,7 @@ on:
     paths:
       - "examples/expo/**"
       - "packages/react-native-v2/**"
-      - ".github/**"
+      - ".github/workflows/react-native.yml"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
 jobs:
