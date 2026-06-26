@@ -21,6 +21,7 @@ import { setupCrypto } from "./setup";
 const {
   buildSession,
   mapTransactionType,
+  resolveMerchantIdentifier,
   resolveDisbursementMerchantCapabilities,
 } = applePayUtilities;
 const buildSessionMock = vi.fn();
@@ -32,12 +33,18 @@ const merchantName = "Acme Co";
 
 const paymentRequestCalls: PaymentDetailsInit[] = [];
 const paymentMethodDataCalls: Array<{
+  merchantIdentifier?: string;
   merchantCapabilities?: string[];
 }> = [];
 
 class MockPaymentRequest {
   constructor(
-    methodData: Array<{ data?: { merchantCapabilities?: string[] } }>,
+    methodData: Array<{
+      data?: {
+        merchantIdentifier?: string;
+        merchantCapabilities?: string[];
+      };
+    }>,
     details: PaymentDetailsInit
   ) {
     paymentMethodDataCalls.push(methodData[0]?.data ?? {});
@@ -114,6 +121,20 @@ describe("buildSession sandbox label", () => {
   });
 });
 
+describe("resolveMerchantIdentifier", () => {
+  it("returns the Evervault merchant identifier by default", () => {
+    expect(resolveMerchantIdentifier("merchant_abc")).toBe(
+      "merchant.com.evervault.merchant_abc"
+    );
+  });
+
+  it("returns a custom Apple merchant identifier when provided", () => {
+    expect(
+      resolveMerchantIdentifier("merchant_abc", "merchant.com.example.store")
+    ).toBe("merchant.com.example.store");
+  });
+});
+
 describe("resolveDisbursementMerchantCapabilities", () => {
   const baseDisbursement = {
     type: "disbursement" as const,
@@ -146,6 +167,37 @@ describe("resolveDisbursementMerchantCapabilities", () => {
         instantTransfer: { label: "Instant fee", amount: 50 },
       })
     ).toEqual(["supports3DS", "supportsInstantFundsOut"]);
+  });
+});
+
+describe("buildSession appleMerchantId", () => {
+  beforeEach(() => {
+    server.use(
+      http.get(`${apiUrl}/frontend/sdk/config`, () =>
+        HttpResponse.json({ is_sandbox: false }, { status: 200 })
+      )
+    );
+  });
+
+  it("uses a custom appleMerchantId in the PaymentRequest", async () => {
+    await buildSession(applePay, {
+      transaction,
+      appleMerchantId: "merchant.com.example.custom",
+    });
+
+    assert(
+      paymentMethodDataCalls[0].merchantIdentifier ===
+        "merchant.com.example.custom"
+    );
+  });
+
+  it("falls back to the Evervault merchant identifier when omitted", async () => {
+    await buildSession(applePay, { transaction });
+
+    assert(
+      paymentMethodDataCalls[0].merchantIdentifier ===
+        `merchant.com.evervault.${merchantId}`
+    );
   });
 });
 

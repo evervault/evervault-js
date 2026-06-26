@@ -122,10 +122,10 @@ export interface PaymentMethodUpdate {
   billingContact?: BillingContact;
 }
 
-export interface ApplePayPaymentRequest extends PaymentRequest {
-  onshippingaddresschange?: (event: PaymentRequestUpdateEvent) => void;
+export type ApplePayPaymentRequest = PaymentRequest & {
+  onshippingaddresschange?: ((event: PaymentRequestUpdateEvent) => void) | null;
   onmerchantvalidation?: (event: OnMerchantValidationEvent) => void;
-}
+};
 
 export interface ApplePayConfig {
   transaction: TransactionDetailsWithDomain;
