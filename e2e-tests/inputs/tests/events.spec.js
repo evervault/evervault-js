@@ -32,7 +32,7 @@ test.describe("evervault inputs", () => {
         .fill(CardLib.validExpirationData);
       await page.getByLabel("Security code").fill(CardLib.validSecurityCode);
 
-      await page.waitForTimeout(800);
+      await expect.poll(() => data?.isValid).toBe(true);
 
       expect(calls).toBeGreaterThan(0);
       expect(data.encryptedCard.number).toMatch(EV_STRING_REGEX);
@@ -73,7 +73,7 @@ test.describe("evervault inputs", () => {
         .fill(CardLib.validExpirationData);
       await page.getByLabel("Security code").fill(CardLib.validAmexCVV);
 
-      await page.waitForTimeout(800);
+      await expect.poll(() => data?.isValid).toBe(true);
 
       expect(calls).toBeGreaterThan(0);
       expect(data.encryptedCard.number).toMatch(EV_STRING_REGEX);

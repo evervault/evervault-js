@@ -727,8 +727,8 @@ test.describe("card component", () => {
       card.mount("#form");
     });
 
-    await page.waitForTimeout(2000);
     const frame = page.frameLocator("iframe[data-evervault]");
+    await expect(frame.getByLabel("Number")).toBeVisible();
     await frame.getByLabel("Number").fill("4242424242424242");
     await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
     await frame.getByLabel("Expiration").blur();
@@ -744,8 +744,8 @@ test.describe("card component", () => {
       card.mount("#form");
     });
 
-    await page.waitForTimeout(2000);
     const frame = page.frameLocator("iframe[data-evervault]");
+    await expect(frame.getByLabel("Number")).toBeVisible();
     await frame.getByLabel("Number").fill("4242424242424242");
     await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
     await frame.getByLabel("Expiration").blur();
@@ -761,8 +761,8 @@ test.describe("card component", () => {
       card.mount("#form");
     });
 
-    await page.waitForTimeout(2000);
     const frame = page.frameLocator("iframe[data-evervault]");
+    await expect(frame.getByLabel("Number")).toBeVisible();
     await frame.getByLabel("Number").fill("4242424242424242");
     await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
     await frame.getByLabel("Expiration").blur();
@@ -775,8 +775,8 @@ test.describe("card component", () => {
       card.mount("#form");
     }, inlineTheme);
 
-    await page.waitForTimeout(2000);
     const frame = page.frameLocator("iframe[data-evervault]");
+    await expect(frame.getByLabel("Number")).toBeVisible();
     await frame.getByLabel("Number").fill("4242424242424242");
     await frame.getByLabel("Expiration").fill("12"); // intentionally incomplete
     await frame.getByLabel("Expiration").blur();
