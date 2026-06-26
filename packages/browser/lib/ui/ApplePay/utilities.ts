@@ -1,10 +1,12 @@
 import { getAppSDKConfig } from "shared/getAppSDKConfig";
 import {
   ApplePayMerchantCapability,
+  ApplePayTransactionType,
   DisbursementTransactionDetails,
   MerchantDetail,
   PaymentTransactionDetails,
   RecurringTransactionDetails,
+  TransactionDetails,
   TransactionDetailsWithDomain,
   TransactionLineItem,
 } from "types";
@@ -59,6 +61,19 @@ export function resolveDisbursementMerchantCapabilities(
   }
 
   return merchantCapabilities;
+}
+
+export function mapTransactionType(
+  type: TransactionDetails["type"]
+): ApplePayTransactionType {
+  switch (type) {
+    case "payment":
+      return "oneOff";
+    case "recurring":
+      return "recurring";
+    case "disbursement":
+      return "disbursement";
+  }
 }
 
 export async function buildSession(
