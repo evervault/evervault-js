@@ -27,7 +27,7 @@ jobs:
     name: "Build list of E2E test projects"
     runs-on: ubuntu-latest
     outputs:
-      e2e-test-projects: ${{ steps.e2e-targets.outputs.e2e-test-projects }}
+      e2e-test-matrix: ${{ steps.e2e-targets.outputs.e2e-test-matrix }}
     steps:
       - name: Check out code
         uses: actions/checkout@v6
@@ -41,11 +41,28 @@ jobs:
           cache: "pnpm"
       - name: Install deps
         run: pnpm install --frozen-lockfile
-      - name: Create list of E2E test projects
+      - name: Build E2E matrix
         id: e2e-targets
+        # Projects whose suites are short enough that the per-job setup
+        # overhead outweighs the parallelism win from sharding. These run as a
+        # single job with --shard=1/1 (a no-op in Playwright). Everything else
+        # is split into 2 shards.
+        env:
+          UNSHARDED_PROJECTS: '["@evervault/browser-e2e-tests","@repo/crypto-harness-e2e-tests"]'
         run: |-
-          E2E_TEST_PROJECTS=$(pnpm m ls --depth=1 --json | jq -cr '[.[] | select(.name|endswith("e2e-tests")) | .name]')
-          echo "e2e-test-projects=$E2E_TEST_PROJECTS" >> $GITHUB_OUTPUT
+          E2E_PROJECTS=$(pnpm m ls --depth=1 --json | jq -cr '[.[] | select(.name|endswith("e2e-tests")) | .name]')
+          MATRIX=$(jq -cn \
+            --argjson projects "$E2E_PROJECTS" \
+            --argjson unsharded "$UNSHARDED_PROJECTS" \
+            '[$projects[] as $p |
+              if ($unsharded | index($p)) then
+                {project: $p, shard: 1, "total-shards": 1}
+              else
+                {project: $p, shard: 1, "total-shards": 2},
+                {project: $p, shard: 2, "total-shards": 2}
+              end
+            ]')
+          echo "e2e-test-matrix=$MATRIX" >> $GITHUB_OUTPUT
   build:
     name: "Build packages for E2E"
     runs-on: ubuntu-latest
@@ -81,22 +98,19 @@ jobs:
           path: dist-outputs.tar.gz
           retention-days: 1
           if-no-files-found: error
-  # The e2e tests run for quite a long time. We split each project into 2 shards
-  # across separate runners; each shard runs Playwright with workers: "100%" so
-  # on an 8-core ev-runner-large it uses ~8 worker processes per shard. The
-  # install + build is done once in the `build` job above and consumed here as
-  # an artifact, so the shards share a single setup pass instead of each
-  # rebuilding from scratch.
+  # Larger e2e suites (inputs, ui-components) are split into 2 shards across
+  # separate runners; each shard runs Playwright with workers: "100%" so on an
+  # 8-core ev-runner-large it uses ~8 worker processes per shard. Smaller
+  # suites (browser, crypto-harness) run as a single job — setup overhead
+  # would otherwise dominate. The install + build is done once in the `build`
+  # job above and consumed here as an artifact.
   e2e-test:
-    name: "Run E2E Tests for ${{ matrix.project }} (Shard ${{ matrix.shard }}/${{ matrix.total-shards }})"
+    name: "Run E2E Tests for ${{ matrix.project }} (${{ matrix.shard }}/${{ matrix.total-shards }})"
     needs: [get-e2e-targets, build]
     strategy:
       fail-fast: false
       matrix:
-        project: ${{ fromJson(needs.get-e2e-targets.outputs.e2e-test-projects) }}
-        shard: [1, 2]
-        include:
-          - total-shards: 2
+        include: ${{ fromJson(needs.get-e2e-targets.outputs.e2e-test-matrix) }}
     timeout-minutes: 25
     runs-on: ev-runner-large
     container:
