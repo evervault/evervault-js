@@ -1,5 +1,6 @@
 import { getAppSDKConfig } from "shared/getAppSDKConfig";
 import {
+  ApplePayMerchantCapability,
   ApplePayTransactionType,
   DisbursementTransactionDetails,
   MerchantDetail,
@@ -44,7 +45,31 @@ type BuildSessionOptions = {
     amount?: number;
     lineItems?: TransactionLineItem[];
   }>;
+  appleMerchantId?: string;
 };
+
+export function resolveMerchantIdentifier(
+  evervaultMerchantId: string,
+  appleMerchantId?: string
+): string {
+  return appleMerchantId ?? `merchant.com.evervault.${evervaultMerchantId}`;
+}
+
+export function resolveDisbursementMerchantCapabilities(
+  tx: DisbursementTransactionDetails
+): ApplePayMerchantCapability[] {
+  if (tx.merchantCapabilities?.length) {
+    return tx.merchantCapabilities;
+  }
+
+  const merchantCapabilities: ApplePayMerchantCapability[] = ["supports3DS"];
+
+  if (tx.instantTransfer) {
+    merchantCapabilities.push("supportsInstantFundsOut");
+  }
+
+  return merchantCapabilities;
+}
 
 export function mapTransactionType(
   type: TransactionDetails["type"]
@@ -208,7 +233,10 @@ function buildPaymentSession(
       supportedMethods: "https://apple.com/apple-pay",
       data: {
         version: 3,
-        merchantIdentifier: `merchant.com.evervault.${config.transaction.merchantId}`,
+        merchantIdentifier: resolveMerchantIdentifier(
+          config.transaction.merchantId,
+          config.appleMerchantId
+        ),
         merchantCapabilities: ["supports3DS"],
         supportedNetworks: config.allowedCardNetworks?.map((network) =>
           network.toLowerCase()
@@ -295,7 +323,10 @@ function buildRecurringSession(
       supportedMethods: "https://apple.com/apple-pay",
       data: {
         version: 3,
-        merchantIdentifier: `merchant.com.evervault.${config.transaction.merchantId}`,
+        merchantIdentifier: resolveMerchantIdentifier(
+          config.transaction.merchantId,
+          config.appleMerchantId
+        ),
         merchantCapabilities: ["supports3DS"],
         supportedNetworks: config.allowedCardNetworks?.map((network) =>
           network.toLowerCase()
@@ -380,18 +411,17 @@ function buildDisbursementSession(
       },
     })) || [];
 
-  const merchantCapabilities = ["supports3DS"];
-
-  if (tx.instantTransfer) {
-    merchantCapabilities.push("supportsInstantFundsOut");
-  }
+  const merchantCapabilities = resolveDisbursementMerchantCapabilities(tx);
 
   const paymentMethodData = [
     {
       supportedMethods: "https://apple.com/apple-pay",
       data: {
         version: 3,
-        merchantIdentifier: `merchant.com.evervault.${config.transaction.merchantId}`,
+        merchantIdentifier: resolveMerchantIdentifier(
+          config.transaction.merchantId,
+          config.appleMerchantId
+        ),
         merchantCapabilities,
         supportedNetworks: config.allowedCardNetworks,
         countryCode: tx.country,
