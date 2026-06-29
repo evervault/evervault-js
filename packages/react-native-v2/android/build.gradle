@@ -33,5 +33,5 @@ repositories {
 
 dependencies {
   implementation 'com.facebook.react:react-native'
-  implementation 'com.evervault.sdk:evervault-core:1.1'
+  implementation 'com.evervault.sdk:evervault-core:2.3.2'
 }
