@@ -580,6 +580,7 @@ export interface ApplePayOptions {
   borderRadius?: number;
   size?: { width: WalletDimension; height: WalletDimension };
   allowedCardNetworks?: ApplePayCardNetwork[];
+  appleMerchantId?: string;
   paymentOverrides?: {
     paymentMethodData?: PaymentMethodData[];
     paymentDetails?: PaymentDetailsInit;
@@ -642,10 +643,19 @@ export interface RecurringTransactionDetails extends BaseTransactionDetails {
 
 // Disbursement-specific fields
 export type RequiredRecipientDetail = "email" | "phone" | "name" | "address";
+
+export type ApplePayMerchantCapability =
+  | "supports3DS"
+  | "supportsEMV"
+  | "supportsCredit"
+  | "supportsDebit"
+  | "supportsInstantFundsOut";
+
 export interface DisbursementTransactionDetails extends BaseTransactionDetails {
   type: "disbursement";
   instantTransfer?: InstantTransferDetails;
   requiredRecipientDetails?: RequiredRecipientDetail[];
+  merchantCapabilities?: ApplePayMerchantCapability[];
 }
 
 export type TransactionDetails =
