@@ -1,8 +1,4 @@
-const buildProperties = {
-  android: {
-    minSdkVersion: 26,
-  },
-};
+const plugins = [];
 
 if (process.env.PROGUARD_ENABLED === "true") {
   const extraProguardRules = `
@@ -21,9 +17,16 @@ if (process.env.PROGUARD_ENABLED === "true") {
     -dontwarn org.slf4j.impl.StaticLoggerBinder
   `;
 
-  buildProperties.android.enableProguardInReleaseBuilds = true;
-  buildProperties.android.enableShrinkResourcesInReleaseBuilds = true;
-  buildProperties.android.extraProguardRules = extraProguardRules;
+  plugins.push([
+    "expo-build-properties",
+    {
+      android: {
+        enableProguardInReleaseBuilds: true,
+        enableShrinkResourcesInReleaseBuilds: true,
+        extraProguardRules,
+      },
+    },
+  ]);
 
   console.log("ProGuard enabled.");
 }
@@ -59,7 +62,7 @@ module.exports = {
           backgroundColor: "#ffffff",
         },
       ],
-      ["expo-build-properties", buildProperties],
+      ...plugins,
     ],
   },
 };
