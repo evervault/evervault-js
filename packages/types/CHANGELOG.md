@@ -1,5 +1,11 @@
 # types
 
+## 0.23.1
+
+### Patch Changes
+
+- 0d548ae: Enable partial `cardIcons` overrides. `icons` now accepts `Partial<CardIcons>` so callers can override individual card icons without supplying all of them.
+
 ## 0.23.0
 
 ### Minor Changes
