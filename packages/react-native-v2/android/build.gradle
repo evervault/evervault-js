@@ -8,7 +8,9 @@ buildscript {
   }
   dependencies {
     classpath("com.android.tools.build:gradle:7.3.1")
-    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.22")
+    // evervault-core is compiled with Kotlin 2.2.21; the compiler must be >= that to read its metadata.
+    def kotlinVersion = safeExtGet('kotlinVersion', '2.1.20')
+    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
   }
 }
 
@@ -27,11 +29,12 @@ android {
 }
 
 repositories {
+  mavenLocal()
   mavenCentral()
   google()
 }
 
 dependencies {
   implementation 'com.facebook.react:react-native'
-  implementation 'com.evervault.sdk:evervault-core:2.4.0'
+  implementation 'com.evervault.sdk:evervault-core:2.4.0-local'
 }
