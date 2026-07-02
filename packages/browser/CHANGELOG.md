@@ -1,5 +1,20 @@
 # @evervault/browser
 
+## 2.58.0
+
+### Minor Changes
+
+- 7c48c0b: Add optional `appleMerchantId` to the Apple Pay web SDK. Defaults to `merchant.com.evervault.{merchantId}` for compatibility with Evervault domain verification.
+- c29dcc8: Add optional `merchantCapabilities` on Apple Pay disbursement transactions so merchants can select capabilities per call, matching iOS disbursement configuration.
+- 0f302ca: Add `transactionType` to the Apple Pay web `process()` payload (`oneOff`, `recurring`, or `disbursement`) based on the transaction category. `paymentDataType` continues to reflect the Apple token format returned by the credentials API (e.g. `3DSecure`).
+
+### Patch Changes
+
+- Updated dependencies [0d548ae]
+  - types@0.23.1
+  - shared@1.1.24
+  - themes@0.1.24
+
 ## 2.57.0
 
 ### Minor Changes
