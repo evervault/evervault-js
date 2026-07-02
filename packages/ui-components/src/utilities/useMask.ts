@@ -4,15 +4,15 @@ import { isChromeiOS } from "./userAgent";
 
 interface UseMaskReturn {
   setValue: (newValue: string) => void;
-  mask: React.MutableRefObject<ReturnType<typeof IMask> | undefined>;
+  mask: React.RefObject<ReturnType<typeof IMask> | null>;
 }
 
 export function useMask(
-  ref: RefObject<HTMLInputElement>,
+  ref: RefObject<HTMLInputElement | null>,
   onAccept: (value: string) => void,
   config: FactoryOpts
 ): UseMaskReturn {
-  const mask = useRef<ReturnType<typeof IMask>>();
+  const mask = useRef<ReturnType<typeof IMask>>(null);
 
   useEffect(() => {
     if (!ref.current) return undefined;
