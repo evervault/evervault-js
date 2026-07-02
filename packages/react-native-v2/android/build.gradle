@@ -36,5 +36,6 @@ repositories {
 
 dependencies {
   implementation 'com.facebook.react:react-native'
+  // TODO: change to 2.5.0
   implementation 'com.evervault.sdk:evervault-core:2.4.0-local'
 }
