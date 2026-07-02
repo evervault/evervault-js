@@ -1,3 +1,4 @@
+import { assertType } from "vitest";
 import { NativeEvervault } from "./__mocks__/NativeEvervault";
 import { sdk } from "./sdk";
 

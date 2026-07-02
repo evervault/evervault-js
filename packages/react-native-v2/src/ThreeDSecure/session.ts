@@ -9,7 +9,7 @@ import { EV_API_DOMAIN } from "./config";
 import { ThreeDSecureEvent } from "./event";
 
 export function stopPolling(
-  intervalRef: React.MutableRefObject<NodeJS.Timeout | null>,
+  intervalRef: React.RefObject<number | null>,
   setIsVisible: (show: boolean) => void
 ) {
   setIsVisible(false);
@@ -23,7 +23,7 @@ export function stopPolling(
 export async function startSession(
   session: ThreeDSecureSession,
   options: ThreeDSecureOptions | undefined,
-  intervalRef: React.MutableRefObject<NodeJS.Timeout | null>,
+  intervalRef: React.RefObject<number | null>,
   setIsVisible: (show: boolean) => void
 ) {
   try {
@@ -76,7 +76,7 @@ export async function startSession(
 export function pollSession(
   session: ThreeDSecureSession,
   options: ThreeDSecureOptions | undefined,
-  intervalRef: React.MutableRefObject<NodeJS.Timeout | null>,
+  intervalRef: React.RefObject<number | null>,
   setIsVisible: (show: boolean) => void,
   interval = 3000
 ) {
