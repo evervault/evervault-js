@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.27.1
+
+### Patch Changes
+
+- 0d548ae: Enable partial `cardIcons` overrides. `icons` now accepts `Partial<CardIcons>` so callers can override individual card icons without supplying all of them.
+
 ## 2.27.0
 
 ### Minor Changes

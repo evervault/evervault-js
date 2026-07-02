@@ -1,5 +1,12 @@
 # @evervault/ui-components-e2e-tests
 
+## 1.2.25
+
+### Patch Changes
+
+- Updated dependencies [0d548ae]
+  - @evervault/ui-components@1.41.2
+
 ## 1.2.24
 
 ### Patch Changes

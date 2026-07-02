@@ -1,5 +1,16 @@
 # @evervault/ui-components
 
+## 1.41.2
+
+### Patch Changes
+
+- 0d548ae: Enable partial `cardIcons` overrides. `icons` now accepts `Partial<CardIcons>` so callers can override individual card icons without supplying all of them.
+- Updated dependencies [0d548ae]
+  - @evervault/react@2.27.1
+  - types@0.23.1
+  - @evervault/card-validator@1.7.0
+  - shared@1.1.24
+
 ## 1.41.1
 
 ### Patch Changes
