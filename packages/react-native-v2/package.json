@@ -61,8 +61,7 @@
     "rimraf": "^6.0.1",
     "rollup": "^4.59.0",
     "tsconfig": "workspace:*",
-    "vitest": "catalog:",
-    "vitest-react-native": "^0.1.5"
+    "vitest": "catalog:"
   },
   "codegenConfig": {
     "name": "NativeEvervaultSpec",
