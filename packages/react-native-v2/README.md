@@ -27,6 +27,8 @@ yarn add @evervault/react-native
 pnpm add @evervault/react-native
 ```
 
+> Our React Native SDK is compatible with React 19, React Native 0.79+, and Expo 53+.
+
 ## Usage
 
 Once installed, initialize the React Native SDK with your Team and App ID found in the [Evervault Dashboard](https://app.evervault.com/).
