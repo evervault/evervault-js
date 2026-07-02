@@ -1,19 +1,7 @@
-const os = require("os");
-
 const buildProperties = {
   android: {},
   ios: {},
 };
-
-if (process.env.LOCAL_ANDROID_SDK === "true") {
-  // Point at the local Maven repo so Expo picks up evervault-core
-  // built & published via `./gradlew :evervault-core:publishToMavenLocal`.
-  buildProperties.android.extraMavenRepos = [
-    `file://${os.homedir()}/.m2/repository`,
-  ];
-
-  console.log("Using local Android SDK.");
-}
 
 if (process.env.PROGUARD_ENABLED === "true") {
   const extraProguardRules = `
