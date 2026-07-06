@@ -1,5 +1,3 @@
-import Evervault
-
 @objc(NativeEvervault)
 class NativeEvervault: NSObject {
     var instances: [String: Evervault] = [:]
