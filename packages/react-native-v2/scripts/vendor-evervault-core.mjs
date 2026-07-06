@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 // Vendors EvervaultCore's source directly into ios/vendor so native-evervault.podspec
 // can compile it as plain source files. This avoids `SPM.dependency`, which causes
 // duplicate-symbol linker errors under expo-modules-core's SPM integration
@@ -21,17 +22,18 @@ const VENDORED_DEPENDENCIES = [
     repo: "evervault/evervault-ios",
     tag: "2.1.0",
     sourcePath: "Sources/EvervaultCore",
-    dest: "ios/vendor/EvervaultCore",
+    destPath: "EvervaultCore",
   },
 ];
 
-function vendor({ repo, tag, sourcePath, dest }) {
+function vendor({ repo, tag, sourcePath, destPath: dest }) {
   const name = repo.split("/").pop();
-  const destPath = join(packageRoot, dest);
+  const destPath = join(packageRoot, "ios/vendor", dest);
   const workDir = mkdtempSync(join(tmpdir(), `${name}-`));
   const tarballPath = join(workDir, `${name}.tar.gz`);
 
   try {
+    // Download & extract the tarball
     execFileSync("curl", [
       "-sL",
       `https://github.com/${repo}/archive/refs/tags/${tag}.tar.gz`,
@@ -40,12 +42,14 @@ function vendor({ repo, tag, sourcePath, dest }) {
     ]);
     execFileSync("tar", ["-xzf", tarballPath, "-C", workDir]);
 
+    // Move the source files to the destination path
     rmSync(destPath, { recursive: true, force: true });
     mkdirSync(dirname(destPath), { recursive: true });
     renameSync(join(workDir, `${name}-${tag}`, sourcePath), destPath);
 
-    console.log(`Vendored ${repo}@${tag}:${sourcePath} -> ${dest}`);
+    console.log(`Vendored ${repo}@${tag}:${sourcePath} -> ${destPath}`);
   } finally {
+    // Clean up the working directory
     rmSync(workDir, { recursive: true, force: true });
   }
 }
