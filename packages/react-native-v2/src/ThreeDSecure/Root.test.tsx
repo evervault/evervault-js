@@ -3,6 +3,7 @@ import { EvervaultProvider } from "../EvervaultProvider";
 import { render, screen } from "@testing-library/react-native";
 import { ThreeDSecure } from "./Root";
 import { Text } from "react-native";
+import { vi } from "vitest";
 
 function wrapper({ children }: PropsWithChildren) {
   return (
@@ -12,8 +13,8 @@ function wrapper({ children }: PropsWithChildren) {
   );
 }
 
-it("renders null when the session is null", () => {
-  render(
+it("renders null when the session is null", async () => {
+  await render(
     <ThreeDSecure
       state={{
         session: null,
@@ -30,8 +31,8 @@ it("renders null when the session is null", () => {
   expect(screen.queryByTestId("child")).toBeNull();
 });
 
-it("renders null when the session is not visible", () => {
-  render(
+it("renders null when the session is not visible", async () => {
+  await render(
     <ThreeDSecure
       state={{
         session: { sessionId: "session_123", cancel: vi.fn(), get: vi.fn() },
@@ -48,8 +49,8 @@ it("renders null when the session is not visible", () => {
   expect(screen.queryByTestId("child")).toBeNull();
 });
 
-it("renders the children when the session defined and visible", () => {
-  render(
+it("renders the children when the session defined and visible", async () => {
+  await render(
     <ThreeDSecure
       state={{
         session: { sessionId: "session_123", cancel: vi.fn(), get: vi.fn() },

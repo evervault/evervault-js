@@ -13,7 +13,7 @@ function wrapper({ children }: PropsWithChildren) {
 }
 
 it("uses 3 digits for mask by default", async () => {
-  const { getByTestId } = render(
+  const { getByTestId } = await render(
     <Card>
       <CardCvc testID="cvc" />
     </Card>,
@@ -27,7 +27,7 @@ it("uses 3 digits for mask by default", async () => {
 });
 
 it("uses 4 digits for mask for american express", async () => {
-  const { getByTestId } = render(
+  const { getByTestId } = await render(
     <Card defaultValues={{ number: "378282246310005" }}>
       <CardCvc testID="cvc" />
     </Card>,

@@ -36,7 +36,7 @@ export function useForm<T extends object>({
 }: UseFormOptions<T>): UseFormReturn<T> {
   const validators = useRef(validate);
   const triggerChange = useRef(false);
-  const validationCallback = useRef<ValidationCallback<T>>();
+  const validationCallback = useRef<ValidationCallback<T>>(null);
   const [values, setValues] = useState<T>(initialValues);
   const [errors, setErrors] = useState<UseFormReturn<T>["errors"]>(
     {} as UseFormReturn<T>["errors"]
@@ -114,7 +114,7 @@ export function useForm<T extends object>({
 
   const validateForm = useCallback(
     (cb?: ValidationCallback<T>) => {
-      validationCallback.current = cb;
+      validationCallback.current = cb ?? null;
 
       const nextErrors = Object.keys(values).reduce((acc, key) => {
         const validator = validators.current?.[key as keyof T];
@@ -204,7 +204,7 @@ export function useForm<T extends object>({
 
     if (validationCallback.current) {
       validationCallback.current(form);
-      validationCallback.current = undefined;
+      validationCallback.current = null;
     }
   }, [form, onChange]);
 

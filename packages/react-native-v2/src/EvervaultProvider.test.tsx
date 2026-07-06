@@ -3,8 +3,9 @@ import { EvervaultProvider } from "./EvervaultProvider";
 import { renderHook } from "@testing-library/react-native";
 import { EvervaultContext } from "./context";
 import { sdk } from "./sdk";
+import { vi } from "vitest";
 
-it("renders context", () => {
+it("renders context", async () => {
   const wrapper = ({ children }: PropsWithChildren) => (
     <EvervaultProvider teamId="team_123" appId="app_123">
       {children}
@@ -12,7 +13,7 @@ it("renders context", () => {
   );
 
   const initSpy = vi.spyOn(sdk, "initialize");
-  const { result } = renderHook(() => useContext(EvervaultContext), {
+  const { result } = await renderHook(() => useContext(EvervaultContext), {
     wrapper,
   });
 
