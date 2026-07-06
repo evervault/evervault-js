@@ -15,28 +15,22 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import packageJson from "../package.json" with { type: "json" };
+
 const packageRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
-const VENDORED_DEPENDENCIES = [
-  {
-    repo: "evervault/evervault-ios",
-    tag: "2.1.0",
-    sourcePath: "Sources/EvervaultCore",
-    destPath: "EvervaultCore",
-  },
-];
+function vendor({ name, repo, version, sourcePath }) {
+  const destPath = join(packageRoot, "ios/vendor", name);
 
-function vendor({ repo, tag, sourcePath, destPath: dest }) {
-  const name = repo.split("/").pop();
-  const destPath = join(packageRoot, "ios/vendor", dest);
-  const workDir = mkdtempSync(join(tmpdir(), `${name}-`));
-  const tarballPath = join(workDir, `${name}.tar.gz`);
-
+  const repoName = repo.split("/").pop();
+  const workDir = mkdtempSync(join(tmpdir(), `${repoName}-`));
+  const tarballPath = join(workDir, `${repoName}.tar.gz`);
+  
   try {
     // Download & extract the tarball
     execFileSync("curl", [
       "-sL",
-      `https://github.com/${repo}/archive/refs/tags/${tag}.tar.gz`,
+      `https://github.com/${repo}/archive/refs/tags/${version}.tar.gz`,
       "-o",
       tarballPath,
     ]);
@@ -45,15 +39,17 @@ function vendor({ repo, tag, sourcePath, destPath: dest }) {
     // Move the source files to the destination path
     rmSync(destPath, { recursive: true, force: true });
     mkdirSync(dirname(destPath), { recursive: true });
-    renameSync(join(workDir, `${name}-${tag}`, sourcePath), destPath);
+    console.log(join(workDir, `${repoName}-${version}`, sourcePath))
+    renameSync(join(workDir, `${repoName}-${version}`, sourcePath), destPath);
 
-    console.log(`Vendored ${repo}@${tag}:${sourcePath} -> ${destPath}`);
+    console.log(`Vendored ${repo}@${version}:${sourcePath} -> ${name}`);
   } finally {
     // Clean up the working directory
     rmSync(workDir, { recursive: true, force: true });
   }
 }
 
-for (const dependency of VENDORED_DEPENDENCIES) {
+const vendoredDependencies = packageJson.ios?.spmDependencies ?? [];
+for (const dependency of vendoredDependencies) {
   vendor(dependency);
 }
