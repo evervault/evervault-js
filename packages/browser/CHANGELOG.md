@@ -1,5 +1,12 @@
 # @evervault/browser
 
+## 2.58.1
+
+### Patch Changes
+
+- Updated dependencies [8ea1295]
+  - shared@1.1.25
+
 ## 2.58.0
 
 ### Minor Changes
