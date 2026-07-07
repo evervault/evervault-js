@@ -18,6 +18,7 @@ import { fileURLToPath } from "node:url";
 import packageJson from "../package.json" with { type: "json" };
 
 const packageRoot = dirname(dirname(fileURLToPath(import.meta.url)));
+const vendorPath = join(packageRoot, "ios/vendor");
 
 function getSwiftPackage(id) {
   const resolvedStr = readFileSync(join(packageRoot, "Package.resolved"), "utf8");
@@ -52,9 +53,8 @@ function vendor({ id, url, version, paths }) {
     // Move the source files to the destination path
     for (const sourcePath of paths) {
       const name = sourcePath.split("/").pop();
-      const destPath = join(packageRoot, "ios/vendor", name);
+      const destPath = join(vendorPath, name);
 
-      rmSync(destPath, { recursive: true, force: true });
       mkdirSync(dirname(destPath), { recursive: true });
       renameSync(join(workDir, `${id}-${version}`, sourcePath), destPath);
 
@@ -66,21 +66,29 @@ function vendor({ id, url, version, paths }) {
   }
 }
 
-const vendoredPackages = packageJson.swiftDependencies ?? {};
+function main() {
+  // Remove all vendored packages
+  rmSync(vendorPath, { recursive: true, force: true });
 
-for (const [id, paths] of Object.entries(vendoredPackages)) {
-  const swiftPackage = getSwiftPackage(id);
+  // Vendor each Swift package
+  const vendoredPackages = packageJson.swiftDependencies ?? {};
+  for (const [id, paths] of Object.entries(vendoredPackages)) {
+    const swiftPackage = getSwiftPackage(id);
 
-  if (!swiftPackage) {
-    console.error(`🚨 Could not find ${id} in Package.resolved`);
-    console.error(`You need to add the dependency to the Package.swift file,\nthen run \`swift build\` to re-generate the Package.resolved file.`);
-    continue;
+
+    if (!swiftPackage) {
+      console.error(`🚨 Could not find ${id} in Package.resolved`);
+      console.error(`You need to add the dependency to the Package.swift file,\nthen run \`swift build\` to re-generate the Package.resolved file.`);
+      continue;
+    }
+
+    vendor({
+      id,
+      url: swiftPackage.url,
+      version: swiftPackage.version,
+      paths,
+    });
   }
-
-  vendor({
-    id,
-    url: swiftPackage.url,
-    version: swiftPackage.version,
-    paths,
-  });
 }
+
+main();
