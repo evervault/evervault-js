@@ -331,7 +331,10 @@ export interface ApplePayCardEnrichment {
   issuer?: string;
 }
 
-export type EncryptedApplePayData = Omit<EncryptedDPAN<"apple">, "token" | "card"> & {
+export type EncryptedApplePayData = Omit<
+  EncryptedDPAN<"apple">,
+  "token" | "card"
+> & {
   networkToken: PaymentToken<"apple"> & { rawExpiry: string };
   card: EncryptedDPAN<"apple">["card"] & ApplePayCardEnrichment;
   billingContact?: {
