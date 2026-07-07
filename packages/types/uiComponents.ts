@@ -323,11 +323,22 @@ export interface ApplePayHostMessages extends EvervaultFrameHostMessages {
 
 export type ApplePayTransactionType = "oneOff" | "recurring" | "disbursement";
 
-export type EncryptedApplePayData = Omit<EncryptedDPAN<"apple">, "token"> & {
+export interface ApplePayCardEnrichment {
+  funding?: string;
+  segment?: string;
+  country?: string;
+  currency?: string;
+  issuer?: string;
+}
+
+export type EncryptedApplePayData = Omit<EncryptedDPAN<"apple">, "token" | "card"> & {
   networkToken: PaymentToken<"apple"> & { rawExpiry: string };
+  card: EncryptedDPAN<"apple">["card"] & ApplePayCardEnrichment;
   billingContact?: {
     givenName?: string;
     familyName?: string;
+    phoneticGivenName?: string;
+    phoneticFamilyName?: string;
     emailAddress?: string;
     phoneNumber?: string;
     address?: unknown;
@@ -338,6 +349,8 @@ export type EncryptedApplePayData = Omit<EncryptedDPAN<"apple">, "token"> & {
   shippingContact?: {
     givenName?: string;
     familyName?: string;
+    phoneticGivenName?: string;
+    phoneticFamilyName?: string;
     emailAddress?: string;
     phoneNumber?: string;
   };
