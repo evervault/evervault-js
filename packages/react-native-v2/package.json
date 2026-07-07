@@ -28,10 +28,12 @@
     "access": "public"
   },
   "scripts": {
-    "prebuild": "pnpm codegen",
+    "prebuild": "pnpm vendor:ios && pnpm codegen",
     "build": "rollup -c",
     "watch": "rollup -c --watch",
     "codegen": "rimraf build android/app && react-native codegen --source library",
+    "vendor:ios": "node scripts/vendor-spm-dependencies.mjs",
+    "prepack": "pnpm vendor:ios",
     "test": "vitest run",
     "test:watch": "vitest --watch"
   },
@@ -45,6 +47,14 @@
     "expo": {
       "optional": true
     }
+  },
+  "dependencies": {
+    "@evervault/card-validator": "workspace:*",
+    "@hookform/resolvers": "^4.1.3",
+    "react-hook-form": "^7.54.2",
+    "react-native-mask-input": "^1.2.3",
+    "test-renderer": "^1.2.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@react-native-community/cli": "^20.1.3",
@@ -63,6 +73,11 @@
     "tsconfig": "workspace:*",
     "vitest": "catalog:"
   },
+  "swiftDependencies": {
+    "evervault-ios": [
+      "Sources/EvervaultCore"
+    ]
+  },
   "codegenConfig": {
     "name": "NativeEvervaultSpec",
     "type": "modules",
@@ -70,13 +85,5 @@
     "android": {
       "javaPackageName": "com.nativeevervault"
     }
-  },
-  "dependencies": {
-    "@evervault/card-validator": "workspace:*",
-    "@hookform/resolvers": "^4.1.3",
-    "react-hook-form": "^7.54.2",
-    "react-native-mask-input": "^1.2.3",
-    "test-renderer": "^1.2.0",
-    "zod": "^3.24.2"
   }
 }
