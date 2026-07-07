@@ -12,7 +12,7 @@ export function useMask(
   onAccept: (value: string) => void,
   config: FactoryOpts
 ): UseMaskReturn {
-  const mask = useRef<ReturnType<typeof IMask>>(null);
+  const mask = useRef<ReturnType<typeof IMask> | null>(null);
 
   useEffect(() => {
     if (!ref.current) return undefined;

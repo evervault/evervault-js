@@ -36,7 +36,7 @@ export function useForm<T extends object>({
 }: UseFormOptions<T>): UseFormReturn<T> {
   const validators = useRef(validate);
   const triggerChange = useRef(false);
-  const validationCallback = useRef<ValidationCallback<T>>(null);
+  const validationCallback = useRef<ValidationCallback<T> | null>(null);
   const [values, setValues] = useState<T>(initialValues);
   const [errors, setErrors] = useState<UseFormReturn<T>["errors"]>(
     {} as UseFormReturn<T>["errors"]
