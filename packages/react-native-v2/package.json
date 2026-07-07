@@ -73,14 +73,9 @@
     "tsconfig": "workspace:*",
     "vitest": "catalog:"
   },
-  "ios": {
-    "spmDependencies": [
-      {
-        "name": "EvervaultCore",
-        "repo": "evervault/evervault-ios",
-        "version": "2.1.0",
-        "sourcePath": "Sources/EvervaultCore"
-      }
+  "swiftDependencies": {
+    "evervault-ios": [
+      "Sources/EvervaultCore"
     ]
   },
   "codegenConfig": {
