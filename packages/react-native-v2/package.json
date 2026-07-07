@@ -28,11 +28,11 @@
     "access": "public"
   },
   "scripts": {
-    "prebuild": "pnpm codegen && pnpm vendor:ios",
+    "prebuild": "pnpm vendor:ios && pnpm codegen",
     "build": "rollup -c",
     "watch": "rollup -c --watch",
     "codegen": "rimraf build android/app && react-native codegen --source library",
-    "vendor:ios": "node scripts/vendor-evervault-core.mjs",
+    "vendor:ios": "node scripts/vendor-spm-dependencies.mjs",
     "prepack": "pnpm vendor:ios",
     "test": "vitest run",
     "test:watch": "vitest --watch"
