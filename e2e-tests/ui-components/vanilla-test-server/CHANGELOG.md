@@ -1,5 +1,12 @@
 # e2e-tests-ui-components-vanilla-server
 
+## 0.0.65
+
+### Patch Changes
+
+- Updated dependencies [a10d69c]
+  - @evervault/browser@2.59.0
+
 ## 0.0.64
 
 ### Patch Changes
