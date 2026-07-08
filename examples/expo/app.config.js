@@ -1,4 +1,19 @@
-const plugins = [];
+const os = require("os");
+
+const buildProperties = {
+  android: {},
+  ios: {},
+};
+
+if (process.env.LOCAL_ANDROID_SDK === "true") {
+  // Point at the local Maven repo so Expo picks up evervault-core
+  // built & published via `./gradlew :evervault-core:publishToMavenLocal`.
+  buildProperties.android.extraMavenRepos = [
+    `file://${os.homedir()}/.m2/repository`,
+  ];
+
+  console.log("Using local Android SDK.");
+}
 
 if (process.env.PROGUARD_ENABLED === "true") {
   const extraProguardRules = `
@@ -17,16 +32,9 @@ if (process.env.PROGUARD_ENABLED === "true") {
     -dontwarn org.slf4j.impl.StaticLoggerBinder
   `;
 
-  plugins.push([
-    "expo-build-properties",
-    {
-      android: {
-        enableProguardInReleaseBuilds: true,
-        enableShrinkResourcesInReleaseBuilds: true,
-        extraProguardRules,
-      },
-    },
-  ]);
+  buildProperties.android.enableProguardInReleaseBuilds = true;
+  buildProperties.android.enableShrinkResourcesInReleaseBuilds = true;
+  buildProperties.android.extraProguardRules = extraProguardRules;
 
   console.log("ProGuard enabled.");
 }
@@ -62,7 +70,7 @@ module.exports = {
           backgroundColor: "#ffffff",
         },
       ],
-      ...plugins,
+      ["expo-build-properties", buildProperties],
     ],
   },
 };

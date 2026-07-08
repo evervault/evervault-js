@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import { encryptedValue } from "../__mocks__/NativeEvervault";
 import { EncryptFn } from "../context";
 import {

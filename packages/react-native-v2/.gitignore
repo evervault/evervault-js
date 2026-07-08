@@ -1,0 +1,8 @@
+# Swift build artifacts
+.build/
+
+# Vendored Swift dependencies
+ios/vendor/
+
+# pnpm pack artifacts
+*.tgz

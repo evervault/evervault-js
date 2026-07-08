@@ -58,7 +58,7 @@ export interface ThreeDSecureSessionResponse {
 export interface ThreeDSecureSessionsParams {
   appId: string;
   options?: ThreeDSecureOptions;
-  intervalRef: React.MutableRefObject<NodeJS.Timeout | null>;
+  intervalRef: React.RefObject<number | null>;
   sessionId: string;
   setIsVisible: (show: boolean) => void;
 }

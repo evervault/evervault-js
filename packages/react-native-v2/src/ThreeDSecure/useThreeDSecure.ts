@@ -16,7 +16,7 @@ export function useThreeDSecure(
   options?: UseThreeDSecureOptions
 ): ThreeDSecureState {
   const { appId } = useEvervault();
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<number | null>(null);
   const [session, setSession] = useState<ThreeDSecureSession | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 

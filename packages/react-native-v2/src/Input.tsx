@@ -38,7 +38,7 @@ export type EvervaultInput = Pick<
 
 function useForwardedInputRef(
   ref: ForwardedRef<EvervaultInput>
-): RefObject<TextInput> {
+): RefObject<TextInput | null> {
   const inputRef = useRef<TextInput>(null);
 
   useImperativeHandle<EvervaultInput, EvervaultInput>(

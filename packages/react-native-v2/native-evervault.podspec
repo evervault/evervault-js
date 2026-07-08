@@ -16,5 +16,4 @@ Pod::Spec.new do |s|
   s.source_files    = "ios/**/*.{h,m,mm,swift}"
 
   install_modules_dependencies(s)
-  s.dependency "Evervault", '~> 0.3.2'
 end

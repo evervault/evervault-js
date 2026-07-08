@@ -13,7 +13,7 @@ function wrapper({ children }: PropsWithChildren) {
 }
 
 it("uses 16 digits for mask by default", async () => {
-  const { rerender, getByTestId } = render(
+  const { rerender, getByTestId } = await render(
     <Card>
       <CardNumber testID="number" />
     </Card>,
@@ -25,7 +25,7 @@ it("uses 16 digits for mask by default", async () => {
   await user.type(number, "4242424242424242");
   expect(number).toHaveProp("value", "4242 4242 4242 4242");
 
-  rerender(
+  await rerender(
     <Card>
       <CardNumber testID="number" obfuscateValue />
     </Card>
@@ -34,7 +34,7 @@ it("uses 16 digits for mask by default", async () => {
 });
 
 it("uses 19 digits for mask for unionpay", async () => {
-  const { rerender, getByTestId } = render(
+  const { rerender, getByTestId } = await render(
     <Card>
       <CardNumber testID="number" />
     </Card>,
@@ -46,7 +46,7 @@ it("uses 19 digits for mask for unionpay", async () => {
   await user.type(number, "6205500000000000004");
   expect(number).toHaveProp("value", "6205 5000 0000 0000 004");
 
-  rerender(
+  await rerender(
     <Card>
       <CardNumber testID="number" obfuscateValue />
     </Card>
@@ -55,7 +55,7 @@ it("uses 19 digits for mask for unionpay", async () => {
 });
 
 it("uses 15 digits for mask for american express", async () => {
-  const { rerender, getByTestId } = render(
+  const { rerender, getByTestId } = await render(
     <Card>
       <CardNumber testID="number" />
     </Card>,
@@ -67,7 +67,7 @@ it("uses 15 digits for mask for american express", async () => {
   await user.type(number, "371449635398431");
   expect(number).toHaveProp("value", "3714 496353 98431");
 
-  rerender(
+  await rerender(
     <Card>
       <CardNumber testID="number" obfuscateValue />
     </Card>

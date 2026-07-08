@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "evervault-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/evervault/evervault-ios",
+      "state" : {
+        "revision" : "181c4fddaa901b7706a0c1631196250b6ff84ef2",
+        "version" : "2.1.0"
+      }
+    },
+    {
+      "identity" : "evervault-pay",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/evervault/evervault-pay.git",
+      "state" : {
+        "revision" : "b09112c023cb7880b34c9d7a857e7a9a99f3ffa6",
+        "version" : "0.0.24"
+      }
+    }
+  ],
+  "version" : 2
+}

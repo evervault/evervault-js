@@ -14,6 +14,7 @@ import { CardNumber } from "./Number";
 import { CardExpiry } from "./Expiry";
 import { CardCvc } from "./Cvc";
 import { encryptedValue } from "../__mocks__/NativeEvervault";
+import { vi } from "vitest";
 
 function wrapper({ children }: PropsWithChildren) {
   return (
@@ -23,9 +24,9 @@ function wrapper({ children }: PropsWithChildren) {
   );
 }
 
-it("fails if not wrapped in an EvervaultProvider", () => {
+it("fails if not wrapped in an EvervaultProvider", async () => {
   const onError = vi.fn();
-  render(
+  await render(
     <ErrorBoundary onError={onError}>
       <Card />
     </ErrorBoundary>
@@ -38,7 +39,7 @@ it("fails if not wrapped in an EvervaultProvider", () => {
 
 it("calls onChange when mounted", async () => {
   const onChange = vi.fn();
-  render(<Card onChange={onChange} />, { wrapper });
+  await render(<Card onChange={onChange} />, { wrapper });
 
   await waitFor(() => {
     expect(onChange).toHaveBeenCalledWith({
@@ -61,7 +62,7 @@ it("calls onChange when mounted", async () => {
 
 it("renders card components", async () => {
   const onChange = vi.fn();
-  const { getByTestId } = render(
+  const { getByTestId } = await render(
     <Card onChange={onChange}>
       <CardHolder testID="holder" />
     </Card>,
@@ -95,7 +96,7 @@ it("renders card components", async () => {
 
 it("calls onChange when the user types", async () => {
   const onChange = vi.fn();
-  const { getByTestId } = render(
+  const { getByTestId } = await render(
     <Card onChange={onChange}>
       <CardHolder testID="holder" />
       <CardNumber testID="number" />
@@ -139,7 +140,7 @@ it("calls onChange when the user types", async () => {
 it("resets all fields when reset is called", async () => {
   const ref = { current: null as any };
   const onChange = vi.fn();
-  const { getByTestId } = render(
+  const { getByTestId } = await render(
     <Card ref={ref} onChange={onChange}>
       <CardHolder testID="holder" />
     </Card>,
@@ -189,7 +190,7 @@ it("resets all fields when reset is called", async () => {
 
 it("adds Required error when input is blurred without a value", async () => {
   const onChange = vi.fn();
-  const { getByTestId } = render(
+  const { getByTestId } = await render(
     <Card onChange={onChange}>
       <CardNumber testID="number" />
     </Card>,
@@ -200,7 +201,7 @@ it("adds Required error when input is blurred without a value", async () => {
 
   const user = userEvent.setup();
   await user.type(number, "");
-  fireEvent(number, "blur");
+  await fireEvent(number, "blur");
 
   await waitFor(() => {
     expect(onChange).toHaveBeenLastCalledWith({
@@ -225,7 +226,7 @@ it("adds Required error when input is blurred without a value", async () => {
 
 it("adds Invalid error when input is blurred with an invalid value", async () => {
   const onChange = vi.fn();
-  const { getByTestId } = render(
+  const { getByTestId } = await render(
     <Card onChange={onChange}>
       <CardNumber testID="number" />
     </Card>,
@@ -236,7 +237,7 @@ it("adds Invalid error when input is blurred with an invalid value", async () =>
 
   const user = userEvent.setup();
   await user.type(number, "4242");
-  fireEvent(number, "blur");
+  await fireEvent(number, "blur");
 
   await waitFor(() => {
     expect(onChange).toHaveBeenLastCalledWith({
@@ -261,7 +262,7 @@ it("adds Invalid error when input is blurred with an invalid value", async () =>
 
 it("adds 'Brand not accepted' error when brand is not accepted", async () => {
   const onChange = vi.fn();
-  const { getByTestId } = render(
+  const { getByTestId } = await render(
     <Card onChange={onChange} acceptedBrands={["american-express"]}>
       <CardNumber testID="number" />
     </Card>,
@@ -272,7 +273,7 @@ it("adds 'Brand not accepted' error when brand is not accepted", async () => {
 
   const user = userEvent.setup();
   await user.type(number, "4242");
-  fireEvent(number, "blur");
+  await fireEvent(number, "blur");
 
   await waitFor(() => {
     expect(onChange).toHaveBeenLastCalledWith({
@@ -295,7 +296,7 @@ it("adds 'Brand not accepted' error when brand is not accepted", async () => {
   });
 
   await user.type(number, "4242 4242 4242");
-  fireEvent(number, "blur");
+  await fireEvent(number, "blur");
 
   await waitFor(() => {
     expect(onChange).toHaveBeenLastCalledWith({
@@ -319,7 +320,7 @@ it("adds 'Brand not accepted' error when brand is not accepted", async () => {
 
   await user.clear(number);
   await user.type(number, "3782 822463 10005");
-  fireEvent(number, "blur");
+  await fireEvent(number, "blur");
 
   await waitFor(() => {
     expect(onChange).toHaveBeenLastCalledWith({

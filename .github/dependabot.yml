@@ -8,3 +8,11 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "swift"
+    directory: "packages/react-native-v2"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gradle"
+    directory: "packages/react-native-v2/android"
+    schedule:
+      interval: "weekly"
