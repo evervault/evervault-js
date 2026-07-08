@@ -7,14 +7,15 @@ dotenv.config({ path: "../../.env" });
 
 const plugins = [
   dts({
-    rollupTypes: true,
-    bundledPackages: [
-      "types",
-      "themes",
-      "jss",
-      "csstype",
-      "@evervault/browser",
-    ],
+    bundleTypes: {
+      bundledPackages: [
+        "types",
+        "themes",
+        "jss",
+        "csstype",
+        "@evervault/browser",
+      ],
+    },
   }),
 ];
 
