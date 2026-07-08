@@ -65,7 +65,7 @@ catalog:
   postcss-preset-env: ^11.2.0
   prettier: ^2.8.8
   react: 19.2.7
-  react-dom: 19.0.0
+  react-dom: 19.2.7
   react-native: 0.79.6
   react-native-builder-bob: ^0.23.2
   react-native-gesture-handler: ~2.24.0
