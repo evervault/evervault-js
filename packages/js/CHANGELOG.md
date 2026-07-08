@@ -1,5 +1,11 @@
 # @evervault/js
 
+## 2.16.0
+
+### Minor Changes
+
+- a10d69c: Surface Apple Pay card enrichment (`funding`, `segment`, `country`, `currency`, `issuer`) and phonetic name fields (`phoneticGivenName`, `phoneticFamilyName`) on `billingContact`/`shippingContact` in the `process()` payload. These fields were already sent by the backend and browser but were not previously exposed on the `EncryptedApplePayData` type.
+
 ## 2.15.0
 
 ### Minor Changes
