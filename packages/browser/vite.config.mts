@@ -8,7 +8,7 @@ dotenv.config({ path: "../../.env" });
 
 const plugins = [
   dts({
-    rollupTypes: true,
+    bundleTypes: true,
   }),
 ];
 
