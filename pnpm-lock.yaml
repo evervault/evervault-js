@@ -121,8 +121,8 @@ catalogs:
       specifier: ^4
       version: 4.21.0
     globals:
-      specifier: ^17.4.0
-      version: 17.4.0
+      specifier: ^17.7.0
+      version: 17.7.0
     husky:
       specifier: ^9.1.1
       version: 9.1.7
@@ -863,7 +863,7 @@ importers:
         version: 5.2.0(eslint@9.12.0)
       globals:
         specifier: 'catalog:'
-        version: 17.4.0
+        version: 17.7.0
       typescript:
         specifier: 'catalog:'
         version: 5.6.3
@@ -6379,8 +6379,8 @@ packages:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
     engines: {node: '>=18'}
 
-  globals@17.4.0:
-    resolution: {integrity: sha512-hjrNztw/VajQwOLsMNT1cbJiH2muO3OROCHnbehc8eY5JyD2gqz4AcMHPqgaOR59DjgUjYAYLeH699g/eWi2jw==}
+  globals@17.7.0:
+    resolution: {integrity: sha512-Czmyns5dUsq4seFBR/Kdydhmo8y9kC79hiSkPn0YcGtNnYWnrgt0vjrSjx9tspoDGWm2CMarffRuLjM4xUz8xg==}
     engines: {node: '>=18'}
 
   globalthis@1.0.3:
@@ -17071,7 +17071,7 @@ snapshots:
 
   globals@14.0.0: {}
 
-  globals@17.4.0: {}
+  globals@17.7.0: {}
 
   globalthis@1.0.3:
     dependencies:
