@@ -87,7 +87,7 @@ catalog:
   vite: ^8.1.4
   vite-plugin-dts: ^5.0.2
   vite-plugin-istanbul: ^7.2.1
-  vitest: ^4.1.0
+  vitest: ^4.1.10
   wait-on: ^9.0.4
 settings:
   minimumReleaseAge: 10080
