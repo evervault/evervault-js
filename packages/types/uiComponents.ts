@@ -348,6 +348,7 @@ export type EncryptedApplePayData = Omit<
   };
   paymentDataType: string;
   transactionType: ApplePayTransactionType;
+  transactionId: string;
   deviceManufacturerIdentifier: string;
   shippingContact?: {
     givenName?: string;
