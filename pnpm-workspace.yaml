@@ -42,7 +42,7 @@ catalog:
   expo-dev-client: ~5.2.4
   expo-splash-screen: ~0.30.10
   expo-status-bar: ~55.0.4
-  express: ^4
+  express: ^5
   globals: ^17.7.0
   husky: ^9.1.1
   imask: ^7.6.1
