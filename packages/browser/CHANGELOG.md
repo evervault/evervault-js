@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.60.0
+
+### Minor Changes
+
+- 23160bb: Surface Apple Pay's `transactionId` (from the PKPaymentToken header) on the `EncryptedApplePayData` type returned to the `process()` callback. The backend already returns this field; it was not previously exposed on the type.
+
 ## 2.59.0
 
 ### Minor Changes
