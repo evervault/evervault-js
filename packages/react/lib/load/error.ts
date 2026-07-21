@@ -5,7 +5,6 @@ export type ScriptLoadErrorCode =
   | "amd_module_error"
   | "script_error"
   | "timed_out"
-  | "failed"
   | "evervault_not_available";
 
 export class ScriptLoadError extends Error {
