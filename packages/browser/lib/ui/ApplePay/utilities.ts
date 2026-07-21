@@ -18,6 +18,7 @@ import {
   ApplePayPaymentRequest,
   ShippingAddress,
   PaymentMethodUpdate,
+  CouponCodeUpdate,
 } from "./types";
 import ApplePayButton from ".";
 import { RecurringPaymentIntervalUnit } from "types/uiComponents";
@@ -41,12 +42,37 @@ type BuildSessionOptions = {
   onShippingAddressChange?: (
     newAddress: ShippingAddress
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
+  supportsCouponCode?: boolean;
+  couponCode?: string;
+  onCouponCodeChange?: (
+    couponCode: string
+  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   prepareTransaction?: () => Promise<{
     amount?: number;
     lineItems?: TransactionLineItem[];
   }>;
   appleMerchantId?: string;
 };
+
+function isCouponCodeUpdate(
+  details: unknown
+): details is CouponCodeUpdate {
+  return (
+    typeof details === "object" &&
+    details !== null &&
+    "couponCode" in details &&
+    typeof (details as CouponCodeUpdate).couponCode === "string"
+  );
+}
+
+function applyCouponFields(
+  data: Record<string, unknown>,
+  config: BuildSessionOptions
+) {
+  if (!config.supportsCouponCode) return;
+  data.supportsCouponCode = true;
+  data.couponCode = config.couponCode ?? "";
+}
 
 export function resolveMerchantIdentifier(
   evervaultMerchantId: string,
@@ -121,36 +147,54 @@ export async function buildSession(
     event.complete(merchantSessionPromise.sessionData);
   };
 
-  // Apple pay requires subscribing to onshippingaddresschange and calling updateWith
-  // in order to receive shipping data.
+  // Apple Pay requires calling updateWith on every shippingaddresschange.
+  // Coupon updates may also arrive here (methodDetails.couponCode) without a
+  // shipping address — never return early without updateWith.
   baseRequest.onshippingaddresschange = (event: PaymentRequestUpdateEvent) => {
     const target = event.target as unknown as {
       shippingAddress?: ShippingAddress;
     };
-    if (!target.shippingAddress) {
+    const methodDetails = (
+      event as PaymentRequestUpdateEvent & { methodDetails?: unknown }
+    ).methodDetails;
+
+    if (isCouponCodeUpdate(methodDetails) && config.onCouponCodeChange) {
+      event.updateWith(
+        updateCouponCode(methodDetails.couponCode, config, tx, merchant)
+      );
       return;
     }
 
-    if (config.onShippingAddressChange) {
-      const updates = updatePaymentRequest(
-        target.shippingAddress,
+    if (target.shippingAddress && config.onShippingAddressChange) {
+      // Do not await this promise — PaymentRequest expects updateWith(promise).
+      event.updateWith(
+        updatePaymentRequest(target.shippingAddress, config, tx, merchant)
+      );
+      return;
+    }
+
+    event.updateWith({});
+  };
+
+  // Apple Pay widens PaymentRequest event types beyond the DOM lib.
+  // @ts-expect-error - Apple Pay overrides PaymentRequest properties
+  baseRequest.onpaymentmethodchange = (event: PaymentMethodChangeEvent) => {
+    const methodDetails = event.methodDetails;
+
+    // ApplePayCouponCodeDetails arrives on paymentmethodchange in some Safari versions.
+    if (isCouponCodeUpdate(methodDetails) && config.onCouponCodeChange) {
+      return event.updateWith(
+        updateCouponCode(methodDetails.couponCode, config, tx, merchant)
+      );
+    }
+
+    if (config.onPaymentMethodChange) {
+      const updates = updatePaymentMethod(
+        methodDetails as PaymentMethodUpdate,
         config,
         tx,
         merchant
-      ); // Do not await this promise
-      event.updateWith(updates);
-    } else {
-      const update: PaymentDetailsUpdate = {};
-      event.updateWith(update);
-    }
-  };
-
-  // @ts-expect-error - Apple Pay overrides PaymentRequest properties
-  baseRequest.onpaymentmethodchange = (event: PaymentMethodChangeEvent) => {
-    const target = event.methodDetails as PaymentMethodUpdate;
-
-    if (config.onPaymentMethodChange) {
-      const updates = updatePaymentMethod(target, config, tx, merchant);
+      );
       return event.updateWith(updates);
     }
 
@@ -214,6 +258,16 @@ async function updatePaymentMethod(
   return createPaymentUpdate(updatedTransactionConfig, tx, merchant);
 }
 
+async function updateCouponCode(
+  couponCode: string,
+  config: BuildSessionOptions,
+  tx: TransactionDetailsWithDomain,
+  merchant: MerchantDetail
+): Promise<PaymentDetailsUpdate> {
+  const updatedTransactionConfig = await config.onCouponCodeChange!(couponCode);
+  return createPaymentUpdate(updatedTransactionConfig, tx, merchant);
+}
+
 function buildPaymentSession(
   merchant: MerchantDetail,
   config: BuildSessionOptions,
@@ -228,21 +282,24 @@ function buildPaymentSession(
       },
     })) || [];
 
+  const methodData = {
+    version: 3,
+    merchantIdentifier: resolveMerchantIdentifier(
+      config.transaction.merchantId,
+      config.appleMerchantId
+    ),
+    merchantCapabilities: ["supports3DS"],
+    supportedNetworks: config.allowedCardNetworks?.map((network) =>
+      network.toLowerCase()
+    ) || ["visa", "masterCard", "amex", "discover"],
+    countryCode: tx.country,
+  };
+  applyCouponFields(methodData, config);
+
   const paymentMethodData: PaymentMethodData[] = [
     {
       supportedMethods: "https://apple.com/apple-pay",
-      data: {
-        version: 3,
-        merchantIdentifier: resolveMerchantIdentifier(
-          config.transaction.merchantId,
-          config.appleMerchantId
-        ),
-        merchantCapabilities: ["supports3DS"],
-        supportedNetworks: config.allowedCardNetworks?.map((network) =>
-          network.toLowerCase()
-        ) || ["visa", "masterCard", "amex", "discover"],
-        countryCode: tx.country,
-      },
+      data: methodData,
     },
   ];
 
@@ -318,21 +375,24 @@ function buildRecurringSession(
       },
     })) || [];
 
+  const methodData = {
+    version: 3,
+    merchantIdentifier: resolveMerchantIdentifier(
+      config.transaction.merchantId,
+      config.appleMerchantId
+    ),
+    merchantCapabilities: ["supports3DS"],
+    supportedNetworks: config.allowedCardNetworks?.map((network) =>
+      network.toLowerCase()
+    ) || ["visa", "masterCard", "amex", "discover"],
+    countryCode: tx.country,
+  };
+  applyCouponFields(methodData, config);
+
   const paymentMethodData: PaymentMethodData[] = [
     {
       supportedMethods: "https://apple.com/apple-pay",
-      data: {
-        version: 3,
-        merchantIdentifier: resolveMerchantIdentifier(
-          config.transaction.merchantId,
-          config.appleMerchantId
-        ),
-        merchantCapabilities: ["supports3DS"],
-        supportedNetworks: config.allowedCardNetworks?.map((network) =>
-          network.toLowerCase()
-        ) || ["visa", "masterCard", "amex", "discover"],
-        countryCode: tx.country,
-      },
+      data: methodData,
     },
   ];
 

@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="applepayjs" />
 
 interface ImportMetaEnv {
   readonly VITE_EV_TEAM_UUID: string;

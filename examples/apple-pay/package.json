@@ -8,6 +8,7 @@
     "clean": "rm -rf node_modules dist"
   },
   "dependencies": {
+    "@evervault/browser": "workspace:*",
     "@evervault/js": "workspace:*"
   },
   "devDependencies": {

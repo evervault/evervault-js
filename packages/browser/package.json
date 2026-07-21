@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "@peculiar/webcrypto": "catalog:",
+    "@types/applepayjs": "catalog:",
     "@web-std/file": "catalog:",
     "concurrently": "catalog:",
     "crc-32": "catalog:",

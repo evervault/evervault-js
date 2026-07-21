@@ -3,12 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Apple Pay — coupon test</title>
   </head>
 
   <body>
     <div class="card">
-      <h1 class="title">Complete Payment</h1>
+      <h1 class="title">Coupon test</h1>
+      <p class="subtext">
+        Open in <strong>Safari</strong> with a card in Wallet. Tap Apple Pay,
+        enter coupon code <strong>SAVE20</strong> in the sheet, and confirm the
+        total drops from $10.00 to $8.00.
+      </p>
       <div id="apple-pay"></div>
+      <p class="subtext" id="coupon-status" style="margin-top: 16px; margin-bottom: 0">
+        Loading…
+      </p>
     </div>
 
     <script type="module" src="./src/main.ts"></script>

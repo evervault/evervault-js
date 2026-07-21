@@ -122,6 +122,11 @@ export interface PaymentMethodUpdate {
   billingContact?: BillingContact;
 }
 
+/** Apple Pay PaymentRequest bridge: ApplePayCouponCodeDetails on change events. */
+export interface CouponCodeUpdate {
+  couponCode: string;
+}
+
 export type ApplePayPaymentRequest = PaymentRequest & {
   onshippingaddresschange?: ((event: PaymentRequestUpdateEvent) => void) | null;
   onmerchantvalidation?: (event: OnMerchantValidationEvent) => void;
