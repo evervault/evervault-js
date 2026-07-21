@@ -2,9 +2,10 @@
  * @vitest-environment happy-dom
  */
 
-import { Mock, vi } from "vitest";
+import { Mock, vi, afterEach, describe, it, expect, beforeEach } from "vitest";
 import { injectScript } from "./inject-script";
 import EvervaultClient from "@evervault/browser";
+import { ScriptLoadError } from "./error";
 
 interface CustomWindow extends Window {
   require?: Mock;
@@ -99,7 +100,12 @@ describe("injectScript", () => {
 
     const promise = injectScript("https://js.evervault.com/v2");
     script.dispatchEvent("error");
-    await expect(promise).rejects.toThrow("Failed to load Evervault.js");
+    await expect(promise).rejects.toThrow(
+      new ScriptLoadError(
+        "script_error",
+        "Failed to load Evervault.js. See the cause for more details."
+      )
+    );
   });
 
   it("should fail if script loads but does not expose the Evervault client on window", async () => {
@@ -109,7 +115,12 @@ describe("injectScript", () => {
     const promise = injectScript("https://js.evervault.com/v2");
     window.Evervault = undefined;
     script.dispatchEvent("load");
-    await expect(promise).rejects.toThrow("Evervault.js not available");
+    await expect(promise).rejects.toThrow(
+      new ScriptLoadError(
+        "evervault_not_available",
+        "Evervault.js script did not load Evervault client."
+      )
+    );
   });
 
   it("should return the cached client if it is already loaded", async () => {
@@ -119,6 +130,32 @@ describe("injectScript", () => {
     const promise = injectScript("https://js.evervault.com/v2");
     await expect(promise).resolves.toBe(EvervaultClient);
     expect(createElementSpy).not.toHaveBeenCalled();
+  });
+
+  it("should resolve the promise if the script loads before the timeout is reached", async () => {
+    const script = mockScript();
+
+    const promise = injectScript("https://js.evervault.com/v2", {
+      timeout: 100,
+    });
+    window.Evervault = EvervaultClient;
+    script.dispatchEvent("load");
+    await expect(promise).resolves.toBe(EvervaultClient);
+  });
+
+  it("should reject the promise if the script load times out", async () => {
+    const script = mockScript();
+    vi.spyOn(document, "createElement").mockReturnValue(script.element);
+
+    const promise = injectScript("https://js.evervault.com/v2", {
+      timeout: 100,
+    });
+    await expect(promise).rejects.toThrow(
+      new ScriptLoadError(
+        "timed_out",
+        "Failed to load Evervault.js after 100ms."
+      )
+    );
   });
 
   describe("AMD support", () => {
@@ -149,11 +186,18 @@ describe("injectScript", () => {
       const promise = injectScript("https://js.evervault.com/v2");
       expect(w.require).toHaveBeenCalledTimes(1);
 
+      const error = new Error("AMD error");
       const reject = w.require?.mock.calls[0][2];
-      reject?.();
+      reject?.(error);
 
       await expect(promise).rejects.toThrow(
-        "Failed to load Evervault.js via AMD"
+        new ScriptLoadError(
+          "amd_module_error",
+          "Failed to load Evervault.js via AMD require. See the cause for more details.",
+          {
+            cause: error,
+          }
+        )
       );
     });
 
@@ -165,7 +209,10 @@ describe("injectScript", () => {
       resolve?.(undefined);
 
       await expect(promise).rejects.toThrow(
-        "Evervault.js AMD module did not export Evervault client"
+        new ScriptLoadError(
+          "amd_module_not_exported",
+          "Evervault.js AMD module did not export Evervault client."
+        )
       );
     });
 

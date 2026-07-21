@@ -14,9 +14,14 @@ export interface UseEvervaultClientOptions {
   appId: string;
   customConfig?: CustomConfig;
   /**
-   * Callback function to be called when the Evervault script fails to load.
+   * Callback function to be called when the Evervault.js script fails to load.
    */
   onLoadError?: (error: unknown) => void;
+  /**
+   * The timeout in milliseconds to wait for the Evervault script to load.
+   * @default 15000
+   */
+  timeout?: number;
 }
 
 export interface UseEvervaultClientResult {
@@ -32,6 +37,7 @@ export function useEvervaultClient({
   appId,
   customConfig,
   onLoadError,
+  timeout = 15000,
 }: UseEvervaultClientOptions): UseEvervaultClientResult {
   const [reloadAttempt, setReloadAttempt] = useState(0);
   const reload = useCallback(() => {
@@ -39,30 +45,21 @@ export function useEvervaultClient({
   }, []);
 
   const client = useMemo<PromisifiedEvervaultClient>(() => {
-    return new PromisifiedEvervaultClient((resolve, reject) => {
-      const baseUrl = customConfig?.jsSdkUrl || EVERVAULT_URL;
-      const search = new URLSearchParams();
-      if (reloadAttempt > 0) {
-        search.set("attempt", String(reloadAttempt + 1));
+    return new PromisifiedEvervaultClient(async (resolve, reject) => {
+      try {
+        const url = new URL(customConfig?.jsSdkUrl || EVERVAULT_URL);
+        if (reloadAttempt > 0) {
+          url.searchParams.set("attempt", String(reloadAttempt + 1));
+        }
+        const Evervault = await injectScript(url.toString(), { timeout });
+        const client = await Evervault.init(teamId, appId, customConfig);
+        resolve(client);
+      } catch (error) {
+        onLoadError?.(error);
+        reject(error);
       }
-
-      let url = baseUrl;
-      if (search.size > 0) {
-        url = `${baseUrl}?${search.toString()}`;
-      }
-
-      const promise = injectScript(url);
-
-      promise
-        .then((Evervault) => {
-          resolve(new Evervault(teamId, appId, customConfig));
-        })
-        .catch((error) => {
-          onLoadError?.(error);
-          reject(error);
-        });
     });
-  }, [reloadAttempt, teamId, appId, customConfig, onLoadError]);
+  }, [reloadAttempt, teamId, appId, customConfig, onLoadError, timeout]);
 
   return useMemo(() => ({ client, reload }), [client, reload]);
 }

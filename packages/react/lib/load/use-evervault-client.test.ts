@@ -6,7 +6,8 @@ import EvervaultClient from "@evervault/browser";
 import { PromisifiedEvervaultClient } from "./client";
 import { useEvervaultClient, type CustomConfig } from "./use-evervault-client";
 import { act, renderHook } from "@testing-library/react";
-import { vi } from "vitest";
+import { vi, expect, afterEach, describe, it } from "vitest";
+import { ScriptLoadError } from "./error";
 
 const evervaultClientMock = vi.hoisted(() =>
   vi.fn(
@@ -14,6 +15,13 @@ const evervaultClientMock = vi.hoisted(() =>
       config: (CustomConfig & { teamId: string; appId: string }) | undefined;
       constructor(teamId: string, appId: string, customConfig?: CustomConfig) {
         this.config = { ...customConfig, teamId, appId };
+      }
+      static async init(
+        teamId: string,
+        appId: string,
+        customConfig?: CustomConfig
+      ) {
+        return new this(teamId, appId, customConfig);
       }
     } as unknown as typeof EvervaultClient
   )
@@ -57,7 +65,7 @@ describe("useEvervaultClient", () => {
   });
 
   it("should call onLoadError if the script fails to load", async () => {
-    const error = new Error("Failed to load Evervault.js");
+    const error = new ScriptLoadError("evervault_not_available", "");
     injectScriptMock.mockReturnValue(Promise.reject(error));
     const onLoadError = vi.fn();
     const { result } = renderHook(() =>
@@ -67,8 +75,24 @@ describe("useEvervaultClient", () => {
     expect(onLoadError).toHaveBeenCalledWith(error);
   });
 
+  it("should call onLoadError if the script fails to load after timeout", async () => {
+    const error = new ScriptLoadError("timed_out", "");
+    injectScriptMock.mockReturnValueOnce(Promise.reject(error));
+    const onLoadError = vi.fn();
+    const { result } = renderHook(() =>
+      useEvervaultClient({
+        teamId: "team_123",
+        appId: "app_123",
+        onLoadError,
+        timeout: 100,
+      })
+    );
+    await expect(result.current.client).rejects.toThrow(error);
+    expect(onLoadError).toHaveBeenCalledWith(error);
+  });
+
   it("should allow manually reloading the client", async () => {
-    const error = new Error("Failed to load Evervault.js");
+    const error = new ScriptLoadError("evervault_not_available", "");
     injectScriptMock.mockReturnValueOnce(Promise.reject(error));
 
     const onLoadError = vi.fn();
