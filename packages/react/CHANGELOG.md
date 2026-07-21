@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.28.0
+
+### Minor Changes
+
+- ee0d7fc: Added more script load handling tools (ScriptLoadError, loadTimeout)
+
 ## 2.27.1
 
 ### Patch Changes
