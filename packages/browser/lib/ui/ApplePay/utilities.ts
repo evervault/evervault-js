@@ -45,9 +45,7 @@ type BuildSessionOptions = {
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   supportsCouponCode?: boolean;
   couponCode?: string;
-  onCouponCodeChange?: (
-    couponCode: string
-  ) => Promise<CouponCodeChangeResult>;
+  onCouponCodeChange?: (couponCode: string) => Promise<CouponCodeChangeResult>;
   prepareTransaction?: () => Promise<{
     amount?: number;
     lineItems?: TransactionLineItem[];
@@ -296,11 +294,7 @@ async function updateCouponCode(
     // Payment Request bridge: ApplePayError via paymentMethodErrors
     // (see Apple Pay Merchant Integration Guide / WebKit PaymentDetailsUpdate).
     update.paymentMethodErrors = [
-      new ApplePayError(
-        result.error.code,
-        undefined,
-        result.error.message
-      ),
+      new ApplePayError(result.error.code, undefined, result.error.message),
     ];
   }
 

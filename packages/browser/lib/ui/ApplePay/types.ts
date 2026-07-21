@@ -1,7 +1,4 @@
-import {
-  TransactionDetailsWithDomain,
-  TransactionLineItem,
-} from "types";
+import { TransactionDetailsWithDomain, TransactionLineItem } from "types";
 
 export type ApplePayButtonType =
   | "add-money"

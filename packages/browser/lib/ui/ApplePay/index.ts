@@ -65,9 +65,7 @@ export type ApplePayButtonOptions = {
    * Return updated totals, and optionally `error` to show an invalid/expired
    * coupon message in the native Apple Pay UI.
    */
-  onCouponCodeChange?: (
-    couponCode: string
-  ) => Promise<CouponCodeChangeResult>;
+  onCouponCodeChange?: (couponCode: string) => Promise<CouponCodeChangeResult>;
   prepareTransaction?: () => Promise<{
     amount?: number;
     lineItems?: TransactionLineItem[];
