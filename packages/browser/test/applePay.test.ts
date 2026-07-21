@@ -77,12 +77,41 @@ const transaction = {
   domain: "shop.example.com",
 };
 
+const recurringTransaction = {
+  type: "recurring" as const,
+  amount: 1000,
+  currency: "USD",
+  country: "US",
+  merchantId,
+  domain: "shop.example.com",
+  managementURL: "https://shop.example.com/manage",
+  billingAgreement: "Billed monthly",
+  description: "Monthly plan",
+  regularBilling: {
+    label: "Monthly",
+    amount: 1000,
+    recurringPaymentStartDate: new Date("2026-01-01"),
+    recurringPaymentIntervalUnit: "month" as const,
+    recurringPaymentIntervalCount: 1,
+  },
+};
+
 const server = setupServer();
 
 beforeAll(() => {
   setupCrypto();
   (globalThis as unknown as { PaymentRequest: unknown }).PaymentRequest =
     MockPaymentRequest;
+  (globalThis as unknown as { ApplePayError: unknown }).ApplePayError = class {
+    code: string;
+    contactField?: string;
+    message: string;
+    constructor(code: string, contactField?: string, message = "") {
+      this.code = code;
+      this.contactField = contactField;
+      this.message = message;
+    }
+  };
   server.listen();
 });
 
@@ -345,6 +374,76 @@ describe("buildSession coupon codes", () => {
     expect(onCouponCodeChange).toHaveBeenCalledWith("SAVE10");
     const update = await updateWith.mock.calls[0][0];
     expect(update.total?.amount.value).toBe("9.00");
+  });
+
+  it("passes coupon fields on recurring PaymentRequest data", async () => {
+    await buildSession(applePay, {
+      transaction: recurringTransaction,
+      supportsCouponCode: true,
+      couponCode: "SAVE20",
+    });
+
+    expect(paymentMethodDataCalls[0].supportsCouponCode).toBe(true);
+    expect(paymentMethodDataCalls[0].couponCode).toBe("SAVE20");
+  });
+
+  it("calls onCouponCodeChange for recurring and surfaces sheet errors", async () => {
+    const onCouponCodeChange = vi.fn().mockResolvedValue({
+      amount: 1000,
+      error: {
+        code: "couponCodeInvalid",
+        message: "Unknown coupon",
+      },
+    });
+
+    await buildSession(applePay, {
+      transaction: recurringTransaction,
+      supportsCouponCode: true,
+      onCouponCodeChange,
+    });
+
+    const session = paymentRequestInstances[0];
+    const updateWith = vi.fn();
+    session.onpaymentmethodchange?.({
+      methodDetails: { couponCode: "BAD" },
+      updateWith,
+    } as unknown as PaymentMethodChangeEvent);
+
+    expect(onCouponCodeChange).toHaveBeenCalledWith("BAD");
+    const update = await updateWith.mock.calls[0][0];
+    expect(update.total?.amount.value).toBe("10.00");
+    expect(update.paymentMethodErrors).toHaveLength(1);
+    expect(update.paymentMethodErrors[0].code).toBe("couponCodeInvalid");
+    expect(update.paymentMethodErrors[0].message).toBe("Unknown coupon");
+  });
+
+  it("surfaces paymentMethodErrors when onCouponCodeChange returns error", async () => {
+    const onCouponCodeChange = vi.fn().mockResolvedValue({
+      amount: 1000,
+      error: {
+        code: "couponCodeExpired",
+        message: "Coupon expired",
+      },
+    });
+
+    await buildSession(applePay, {
+      transaction,
+      supportsCouponCode: true,
+      onCouponCodeChange,
+    });
+
+    const session = paymentRequestInstances[0];
+    const updateWith = vi.fn();
+    session.onshippingaddresschange?.({
+      target: {},
+      methodDetails: { couponCode: "OLD" },
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent);
+
+    const update = await updateWith.mock.calls[0][0];
+    expect(update.paymentMethodErrors).toHaveLength(1);
+    expect(update.paymentMethodErrors[0].code).toBe("couponCodeExpired");
+    expect(update.paymentMethodErrors[0].message).toBe("Coupon expired");
   });
 
   it("still calls updateWith when shippingaddresschange has no address", async () => {

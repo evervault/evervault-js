@@ -18,6 +18,7 @@ import {
   ApplePayButtonStyle,
   ApplePayButtonType,
   ApplePayCardNetwork,
+  CouponCodeChangeResult,
   PaymentMethodUpdate,
   ShippingAddress,
 } from "./types";
@@ -59,9 +60,14 @@ export type ApplePayButtonOptions = {
   supportsCouponCode?: boolean;
   /** Initial coupon code shown in the sheet when supportsCouponCode is true. */
   couponCode?: string;
+  /**
+   * Called when the customer changes the coupon on the sheet.
+   * Return updated totals, and optionally `error` to show an invalid/expired
+   * coupon message in the native Apple Pay UI.
+   */
   onCouponCodeChange?: (
     couponCode: string
-  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
+  ) => Promise<CouponCodeChangeResult>;
   prepareTransaction?: () => Promise<{
     amount?: number;
     lineItems?: TransactionLineItem[];

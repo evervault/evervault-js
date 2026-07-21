@@ -23,9 +23,20 @@ function totalsForCoupon(code: string) {
     };
   }
 
+  if (normalized === "") {
+    return {
+      amount: BASE_AMOUNT,
+      lineItems: [{ label: "Test item", amount: BASE_AMOUNT }],
+    };
+  }
+
   return {
     amount: BASE_AMOUNT,
     lineItems: [{ label: "Test item", amount: BASE_AMOUNT }],
+    error: {
+      code: "couponCodeInvalid" as const,
+      message: `Unknown code. Try ${COUPON_SAVE20}.`,
+    },
   };
 }
 
@@ -68,16 +79,16 @@ async function main() {
     couponCode: "",
     onCouponCodeChange: async (code) => {
       const update = totalsForCoupon(code);
-      if (code.trim().toUpperCase() === COUPON_SAVE20) {
+      if (update.error) {
+        setStatus(
+          `Invalid "${code}" — sheet should show: ${update.error.message}`
+        );
+      } else if (code.trim().toUpperCase() === COUPON_SAVE20) {
         setStatus(
           `Applied ${COUPON_SAVE20} → $${(update.amount / 100).toFixed(2)}`
         );
-      } else if (code.trim() === "") {
-        setStatus("Coupon cleared → $10.00");
       } else {
-        setStatus(
-          `Unknown code "${code}" → $10.00 (try ${COUPON_SAVE20})`
-        );
+        setStatus("Coupon cleared → $10.00");
       }
       return update;
     },
