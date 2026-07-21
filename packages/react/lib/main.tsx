@@ -37,7 +37,7 @@ export interface EvervaultProviderProps {
    * The timeout in milliseconds to wait for the Evervault script to load.
    * @default 15000
    */
-  timeout?: number;
+  loadTimeout?: number;
 }
 
 export const EvervaultProvider = React.forwardRef<
@@ -45,7 +45,15 @@ export const EvervaultProvider = React.forwardRef<
   EvervaultProviderProps
 >(
   (
-    { teamId, appId, customConfig, children, onLoadError, timeout, ...props },
+    {
+      teamId,
+      appId,
+      customConfig,
+      children,
+      onLoadError,
+      loadTimeout,
+      ...props
+    },
     ref
   ) => {
     const { client, reload } = useEvervaultClient({
@@ -53,7 +61,7 @@ export const EvervaultProvider = React.forwardRef<
       appId,
       customConfig,
       onLoadError,
-      timeout,
+      timeout: loadTimeout,
     });
 
     React.useImperativeHandle(ref, () => ({ reload }), [reload]);
