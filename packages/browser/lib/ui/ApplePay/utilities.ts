@@ -54,9 +54,7 @@ type BuildSessionOptions = {
   appleMerchantId?: string;
 };
 
-function isCouponCodeUpdate(
-  details: unknown
-): details is CouponCodeUpdate {
+function isCouponCodeUpdate(details: unknown): details is CouponCodeUpdate {
   return (
     typeof details === "object" &&
     details !== null &&

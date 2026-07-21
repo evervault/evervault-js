@@ -41,9 +41,8 @@ const paymentMethodDataCalls: Array<{
 const paymentRequestInstances: MockPaymentRequest[] = [];
 
 class MockPaymentRequest {
-  onshippingaddresschange:
-    | ((event: PaymentRequestUpdateEvent) => void)
-    | null = null;
+  onshippingaddresschange: ((event: PaymentRequestUpdateEvent) => void) | null =
+    null;
   onpaymentmethodchange: ((event: PaymentMethodChangeEvent) => void) | null =
     null;
   onmerchantvalidation: ((event: unknown) => void) | null = null;
