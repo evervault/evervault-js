@@ -2,8 +2,9 @@
  * @vitest-environment happy-dom
  */
 
-import { vi } from "vitest";
+import { vi, afterEach, describe, it, expect } from "vitest";
 import { loadScript } from "./load-script";
+import { ScriptLoadError } from "./error";
 
 function mockScript(src: string) {
   const element = vi.mocked(document.createElement("script"));
@@ -61,11 +62,27 @@ describe("loadScript", () => {
     expect(script.element.src).toBe("https://js.evervault.com/v2");
     expect(script.addEventListenerSpy).toHaveBeenCalledWith(
       "load",
-      expect.any(Function)
+      expect.any(Function),
+      expect.objectContaining({ once: true })
     );
     expect(script.addEventListenerSpy).toHaveBeenCalledWith(
       "error",
-      expect.any(Function)
+      expect.any(Function),
+      expect.objectContaining({ once: true })
+    );
+  });
+
+  it("should fail if the script load fails", async () => {
+    const script = mockScript("https://js.evervault.com/v2");
+    vi.spyOn(document, "createElement").mockReturnValue(script.element);
+
+    const promise = loadScript("https://js.evervault.com/v2");
+    script.dispatchEvent("error");
+    await expect(promise).rejects.toThrow(
+      new ScriptLoadError(
+        "script_error",
+        "Failed to load Evervault.js. See the cause for more details."
+      )
     );
   });
 
@@ -124,5 +141,46 @@ describe("loadScript", () => {
       `script[src="https://js.evervault.com/v2"]`
     );
     expect(elements).toHaveLength(1);
+  });
+
+  it("should succeed if the script loads before the timeout", async () => {
+    const script = mockScript("https://js.evervault.com/v2");
+    vi.spyOn(document, "createElement").mockReturnValue(script.element);
+
+    const promise = loadScript("https://js.evervault.com/v2", { timeout: 100 });
+    script.dispatchEvent("load");
+    await expect(promise).resolves.toBeUndefined();
+    expect(script.element.parentElement).toBe(document.head);
+    expect(script.element.src).toBe("https://js.evervault.com/v2");
+  });
+
+  it("should fail if the script load times out", async () => {
+    const script = mockScript("https://js.evervault.com/v2");
+    vi.spyOn(document, "createElement").mockReturnValue(script.element);
+
+    const promise = loadScript("https://js.evervault.com/v2", { timeout: 100 });
+    await expect(promise).rejects.toThrow(
+      new ScriptLoadError(
+        "timed_out",
+        "Failed to load Evervault.js after 100ms."
+      )
+    );
+  });
+
+  it("should fail if document.head and document.body are not found", async () => {
+    vi.spyOn(document, "head", "get").mockReturnValue(
+      undefined as unknown as HTMLHeadElement
+    );
+    vi.spyOn(document, "body", "get").mockReturnValue(
+      undefined as unknown as HTMLElement
+    );
+
+    const promise = loadScript("https://js.evervault.com/v2");
+    await expect(promise).rejects.toThrow(
+      new ScriptLoadError(
+        "head_or_body_not_found",
+        "Expected document.body not to be null. Evervault.js requires a <body> element."
+      )
+    );
   });
 });

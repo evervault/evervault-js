@@ -16,6 +16,11 @@ export { Pin } from "./ui/Pin";
 export { ThreeDSecure } from "./ui/ThreeDSecure";
 export { useThreeDSecure } from "./ui/useThreeDSecure";
 export type { PromisifiedEvervaultClient } from "./load/client";
+export {
+  isScriptLoadError,
+  ScriptLoadError,
+  type ScriptLoadErrorCode,
+} from "./load/error";
 export { useEvervault, themes };
 
 export interface EvervaultProvider {
@@ -32,27 +37,46 @@ export interface EvervaultProviderProps {
    * Callback function to be called when the Evervault script fails to load.
    */
   onLoadError?: (error: unknown) => void;
+  /**
+   * The timeout in milliseconds to wait for the Evervault script to load.
+   * @default 15000
+   */
+  loadTimeout?: number;
 }
 
 export const EvervaultProvider = React.forwardRef<
   EvervaultProvider,
   EvervaultProviderProps
->(({ teamId, appId, customConfig, children, onLoadError, ...props }, ref) => {
-  const { client, reload } = useEvervaultClient({
-    teamId,
-    appId,
-    customConfig,
-    onLoadError,
-  });
+>(
+  (
+    {
+      teamId,
+      appId,
+      customConfig,
+      children,
+      onLoadError,
+      loadTimeout,
+      ...props
+    },
+    ref
+  ) => {
+    const { client, reload } = useEvervaultClient({
+      teamId,
+      appId,
+      customConfig,
+      onLoadError,
+      timeout: loadTimeout,
+    });
 
-  React.useImperativeHandle(ref, () => ({ reload }), [reload]);
+    React.useImperativeHandle(ref, () => ({ reload }), [reload]);
 
-  return (
-    <EvervaultContext.Provider {...props} value={client}>
-      {children}
-    </EvervaultContext.Provider>
-  );
-});
+    return (
+      <EvervaultContext.Provider {...props} value={client}>
+        {children}
+      </EvervaultContext.Provider>
+    );
+  }
+);
 
 export interface EvervaultInputProps {
   onChange?: (cardData: unknown) => void;
