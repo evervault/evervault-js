@@ -16,7 +16,11 @@ export { Pin } from "./ui/Pin";
 export { ThreeDSecure } from "./ui/ThreeDSecure";
 export { useThreeDSecure } from "./ui/useThreeDSecure";
 export type { PromisifiedEvervaultClient } from "./load/client";
-export { isScriptLoadError, ScriptLoadError } from "./load/error";
+export {
+  isScriptLoadError,
+  ScriptLoadError,
+  type ScriptLoadErrorCode,
+} from "./load/error";
 export { useEvervault, themes };
 
 export interface EvervaultProvider {
