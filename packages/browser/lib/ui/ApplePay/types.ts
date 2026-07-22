@@ -1,4 +1,4 @@
-import { TransactionDetailsWithDomain } from "types";
+import { TransactionDetailsWithDomain, TransactionLineItem } from "types";
 
 export type ApplePayButtonType =
   | "add-money"
@@ -121,6 +121,29 @@ export interface PaymentMethodUpdate {
   type?: string;
   billingContact?: BillingContact;
 }
+
+/** Apple Pay PaymentRequest bridge: ApplePayCouponCodeDetails on change events. */
+export interface CouponCodeUpdate {
+  couponCode: string;
+}
+
+/** Maps to ApplePayErrorCode values for coupon validation on the sheet. */
+export type ApplePayCouponCodeErrorCode =
+  | "couponCodeInvalid"
+  | "couponCodeExpired";
+
+export type CouponCodeChangeResult = {
+  amount: number;
+  lineItems?: TransactionLineItem[];
+  /**
+   * When set, surfaced to the Apple Pay sheet via PaymentDetailsUpdate.paymentMethodErrors
+   * (ApplePayError with couponCodeInvalid / couponCodeExpired).
+   */
+  error?: {
+    code: ApplePayCouponCodeErrorCode;
+    message: string;
+  };
+};
 
 export type ApplePayPaymentRequest = PaymentRequest & {
   onshippingaddresschange?: ((event: PaymentRequestUpdateEvent) => void) | null;

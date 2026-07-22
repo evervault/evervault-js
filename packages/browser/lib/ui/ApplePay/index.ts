@@ -18,6 +18,7 @@ import {
   ApplePayButtonStyle,
   ApplePayButtonType,
   ApplePayCardNetwork,
+  CouponCodeChangeResult,
   PaymentMethodUpdate,
   ShippingAddress,
 } from "./types";
@@ -51,6 +52,20 @@ export type ApplePayButtonOptions = {
   onShippingAddressChange?: (
     newAddress: ShippingAddress
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
+  /**
+   * Show the coupon field on the Apple Pay sheet and receive updates when the
+   * customer changes the code. Maps to ApplePayRequest.supportsCouponCode /
+   * couponCode on the PaymentRequest bridge.
+   */
+  supportsCouponCode?: boolean;
+  /** Initial coupon code shown in the sheet when supportsCouponCode is true. */
+  couponCode?: string;
+  /**
+   * Called when the customer changes the coupon on the sheet.
+   * Return updated totals, and optionally `error` to show an invalid/expired
+   * coupon message in the native Apple Pay UI.
+   */
+  onCouponCodeChange?: (couponCode: string) => Promise<CouponCodeChangeResult>;
   prepareTransaction?: () => Promise<{
     amount?: number;
     lineItems?: TransactionLineItem[];
@@ -144,6 +159,9 @@ export default class ApplePayButton {
         requestShipping: this.#options.requestShipping,
         onPaymentMethodChange: this.#options.onPaymentMethodChange,
         onShippingAddressChange: this.#options.onShippingAddressChange,
+        supportsCouponCode: this.#options.supportsCouponCode,
+        couponCode: this.#options.couponCode,
+        onCouponCodeChange: this.#options.onCouponCodeChange,
         prepareTransaction: this.#options.prepareTransaction,
         appleMerchantId: this.#options.appleMerchantId,
       });
