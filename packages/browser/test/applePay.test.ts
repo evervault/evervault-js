@@ -96,6 +96,15 @@ const recurringTransaction = {
   },
 };
 
+const disbursementTransaction = {
+  type: "disbursement" as const,
+  amount: 1000,
+  currency: "USD",
+  country: "US",
+  merchantId,
+  domain: "shop.example.com",
+};
+
 const server = setupServer();
 
 beforeAll(() => {
@@ -374,6 +383,7 @@ describe("buildSession coupon codes", () => {
     expect(onCouponCodeChange).toHaveBeenCalledWith("SAVE10");
     const update = await updateWith.mock.calls[0][0];
     expect(update.total?.amount.value).toBe("9.00");
+    expect(update.displayItems).toEqual([]);
   });
 
   it("does not route coupon updates to onPaymentMethodChange when onCouponCodeChange is missing", async () => {
@@ -426,6 +436,17 @@ describe("buildSession coupon codes", () => {
 
     expect(paymentMethodDataCalls[0].supportsCouponCode).toBe(true);
     expect(paymentMethodDataCalls[0].couponCode).toBe("SAVE20");
+  });
+
+  it("omits coupon fields for disbursement sessions", async () => {
+    await buildSession(applePay, {
+      transaction: disbursementTransaction,
+      supportsCouponCode: true,
+      couponCode: "SAVE20",
+    });
+
+    expect(paymentMethodDataCalls[0].supportsCouponCode).toBeUndefined();
+    expect(paymentMethodDataCalls[0].couponCode).toBeUndefined();
   });
 
   it("calls onCouponCodeChange for recurring and surfaces sheet errors", async () => {

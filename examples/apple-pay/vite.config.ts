@@ -11,8 +11,10 @@ export default defineConfig({
     strictPort: true,
   },
   resolve: {
-    // Use local browser source so coupon changes apply without depending on
-    // VITE_EVERVAULT_JS_URL / preview port 4002 (often stolen by stale vite processes).
+    // Dev-only module resolution: use local browser source so coupon changes
+    // apply without depending on VITE_EVERVAULT_JS_URL / preview port 4002
+    // (often stolen by stale vite processes). Does not change server port,
+    // TLS, or domain association — tunneling is unaffected.
     alias: {
       "@evervault/browser": resolve(
         __dirname,
