@@ -181,10 +181,15 @@ export async function buildSession(
       event as PaymentRequestUpdateEvent & { methodDetails?: unknown }
     ).methodDetails;
 
-    if (isCouponCodeUpdate(methodDetails) && config.onCouponCodeChange) {
-      event.updateWith(
-        updateCouponCode(methodDetails.couponCode, config, tx, merchant)
-      );
+    // Coupon updates must not fall through to shipping/payment handlers.
+    if (isCouponCodeUpdate(methodDetails)) {
+      if (config.onCouponCodeChange) {
+        event.updateWith(
+          updateCouponCode(methodDetails.couponCode, config, tx, merchant)
+        );
+        return;
+      }
+      event.updateWith({});
       return;
     }
 
@@ -205,10 +210,14 @@ export async function buildSession(
     const methodDetails = event.methodDetails;
 
     // ApplePayCouponCodeDetails arrives on paymentmethodchange in some Safari versions.
-    if (isCouponCodeUpdate(methodDetails) && config.onCouponCodeChange) {
-      return event.updateWith(
-        updateCouponCode(methodDetails.couponCode, config, tx, merchant)
-      );
+    // Short-circuit so coupon-shaped events never reach onPaymentMethodChange.
+    if (isCouponCodeUpdate(methodDetails)) {
+      if (config.onCouponCodeChange) {
+        return event.updateWith(
+          updateCouponCode(methodDetails.couponCode, config, tx, merchant)
+        );
+      }
+      return event.updateWith({});
     }
 
     if (config.onPaymentMethodChange) {

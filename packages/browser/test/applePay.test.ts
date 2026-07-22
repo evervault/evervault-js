@@ -376,6 +376,47 @@ describe("buildSession coupon codes", () => {
     expect(update.total?.amount.value).toBe("9.00");
   });
 
+  it("does not route coupon updates to onPaymentMethodChange when onCouponCodeChange is missing", async () => {
+    const onPaymentMethodChange = vi.fn().mockResolvedValue({ amount: 1000 });
+
+    await buildSession(applePay, {
+      transaction,
+      supportsCouponCode: true,
+      onPaymentMethodChange,
+    });
+
+    const session = paymentRequestInstances[0];
+    const updateWith = vi.fn();
+    session.onpaymentmethodchange?.({
+      methodDetails: { couponCode: "SAVE20" },
+      updateWith,
+    } as unknown as PaymentMethodChangeEvent);
+
+    expect(onPaymentMethodChange).not.toHaveBeenCalled();
+    expect(updateWith).toHaveBeenCalledWith({});
+  });
+
+  it("does not treat coupon updates as shipping changes when onCouponCodeChange is missing", async () => {
+    const onShippingAddressChange = vi.fn().mockResolvedValue({ amount: 1000 });
+
+    await buildSession(applePay, {
+      transaction,
+      supportsCouponCode: true,
+      onShippingAddressChange,
+    });
+
+    const session = paymentRequestInstances[0];
+    const updateWith = vi.fn();
+    session.onshippingaddresschange?.({
+      target: { shippingAddress: { country: "US" } },
+      methodDetails: { couponCode: "SAVE20" },
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent);
+
+    expect(onShippingAddressChange).not.toHaveBeenCalled();
+    expect(updateWith).toHaveBeenCalledWith({});
+  });
+
   it("passes coupon fields on recurring PaymentRequest data", async () => {
     await buildSession(applePay, {
       transaction: recurringTransaction,
