@@ -37,6 +37,8 @@ const paymentMethodDataCalls: Array<{
   merchantCapabilities?: string[];
   supportsCouponCode?: boolean;
   couponCode?: string;
+  billingContact?: unknown;
+  shippingContact?: unknown;
 }> = [];
 const paymentRequestInstances: MockPaymentRequest[] = [];
 
@@ -54,6 +56,8 @@ class MockPaymentRequest {
         merchantCapabilities?: string[];
         supportsCouponCode?: boolean;
         couponCode?: string;
+        billingContact?: unknown;
+        shippingContact?: unknown;
       };
     }>,
     details: PaymentDetailsInit
@@ -519,6 +523,71 @@ describe("buildSession coupon codes", () => {
     } as unknown as PaymentRequestUpdateEvent);
 
     expect(updateWith).toHaveBeenCalledWith({});
+  });
+});
+
+describe("buildSession contact prefill", () => {
+  beforeEach(() => {
+    server.use(
+      http.get(`${apiUrl}/frontend/sdk/config`, () =>
+        HttpResponse.json({ is_sandbox: false }, { status: 200 })
+      )
+    );
+  });
+
+  it("omits contact fields when billingContact and shippingContact are not set", async () => {
+    await buildSession(applePay, { transaction });
+
+    expect(paymentMethodDataCalls[0].billingContact).toBeUndefined();
+    expect(paymentMethodDataCalls[0].shippingContact).toBeUndefined();
+  });
+
+  it("passes billingContact and shippingContact on the PaymentRequest data", async () => {
+    const billingContact = {
+      givenName: "John",
+      familyName: "Appleseed",
+      addressLines: ["1 Infinite Loop"],
+      locality: "Cupertino",
+      administrativeArea: "CA",
+      postalCode: "95014",
+      countryCode: "US",
+    };
+    const shippingContact = {
+      givenName: "John",
+      familyName: "Appleseed",
+      emailAddress: "john@example.com",
+      phoneNumber: "+14085551234",
+      addressLines: ["1 Infinite Loop"],
+      locality: "Cupertino",
+      administrativeArea: "CA",
+      postalCode: "95014",
+      countryCode: "US",
+    };
+
+    await buildSession(applePay, {
+      transaction,
+      billingContact,
+      shippingContact,
+    });
+
+    expect(paymentMethodDataCalls[0].billingContact).toEqual(billingContact);
+    expect(paymentMethodDataCalls[0].shippingContact).toEqual(shippingContact);
+  });
+
+  it("passes contact fields on recurring PaymentRequest data", async () => {
+    const billingContact = {
+      givenName: "Jane",
+      familyName: "Doe",
+      countryCode: "US",
+    };
+
+    await buildSession(applePay, {
+      transaction: recurringTransaction,
+      billingContact,
+    });
+
+    expect(paymentMethodDataCalls[0].billingContact).toEqual(billingContact);
+    expect(paymentMethodDataCalls[0].shippingContact).toBeUndefined();
   });
 });
 

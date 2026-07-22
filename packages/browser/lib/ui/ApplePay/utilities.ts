@@ -17,6 +17,7 @@ import {
   ApplePayCardNetwork,
   ApplePayPaymentRequest,
   ShippingAddress,
+  PaymentContact,
   PaymentMethodUpdate,
   CouponCodeUpdate,
   CouponCodeChangeResult,
@@ -46,6 +47,8 @@ type BuildSessionOptions = {
   supportsCouponCode?: boolean;
   couponCode?: string;
   onCouponCodeChange?: (couponCode: string) => Promise<CouponCodeChangeResult>;
+  billingContact?: PaymentContact;
+  shippingContact?: PaymentContact;
   prepareTransaction?: () => Promise<{
     amount?: number;
     lineItems?: TransactionLineItem[];
@@ -71,6 +74,18 @@ function applyCouponFields(
   data.couponCode = config.couponCode ?? "";
 }
 
+function applyContactFields(
+  data: Record<string, unknown>,
+  config: BuildSessionOptions
+) {
+  if (config.billingContact) {
+    data.billingContact = config.billingContact;
+  }
+  if (config.shippingContact) {
+    data.shippingContact = config.shippingContact;
+  }
+}
+
 function buildApplePayMethodData(
   config: BuildSessionOptions,
   countryCode: string
@@ -88,6 +103,7 @@ function buildApplePayMethodData(
     countryCode,
   };
   applyCouponFields(data, config);
+  applyContactFields(data, config);
 
   return [
     {
@@ -477,19 +493,22 @@ function buildDisbursementSession(
 
   const merchantCapabilities = resolveDisbursementMerchantCapabilities(tx);
 
+  const disbursementMethodData: Record<string, unknown> = {
+    version: 3,
+    merchantIdentifier: resolveMerchantIdentifier(
+      config.transaction.merchantId,
+      config.appleMerchantId
+    ),
+    merchantCapabilities,
+    supportedNetworks: config.allowedCardNetworks,
+    countryCode: tx.country,
+  };
+  applyContactFields(disbursementMethodData, config);
+
   const paymentMethodData = [
     {
       supportedMethods: "https://apple.com/apple-pay",
-      data: {
-        version: 3,
-        merchantIdentifier: resolveMerchantIdentifier(
-          config.transaction.merchantId,
-          config.appleMerchantId
-        ),
-        merchantCapabilities,
-        supportedNetworks: config.allowedCardNetworks,
-        countryCode: tx.country,
-      },
+      data: disbursementMethodData,
     },
   ];
 
