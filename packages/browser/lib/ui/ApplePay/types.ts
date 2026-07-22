@@ -124,6 +124,7 @@ export interface PaymentContact {
   countryCode?: string;
 }
 
+/** Alias kept for PaymentMethodUpdate.billingContact consumers. */
 export type BillingContact = PaymentContact;
 
 export interface PaymentMethodUpdate {

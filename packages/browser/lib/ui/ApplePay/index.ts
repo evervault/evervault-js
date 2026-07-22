@@ -69,12 +69,14 @@ export type ApplePayButtonOptions = {
   onCouponCodeChange?: (couponCode: string) => Promise<CouponCodeChangeResult>;
   /**
    * Prefill billing contact on the Apple Pay sheet (ApplePayRequest.billingContact).
-   * When supplying a postal address, also set `requestBillingAddress: true`.
+   * Apple requires `requestBillingAddress: true` when the contact includes a postal
+   * address; this SDK does not enforce that pairing.
    */
   billingContact?: PaymentContact;
   /**
    * Prefill shipping contact on the Apple Pay sheet (ApplePayRequest.shippingContact).
-   * When supplying a postal address, also set `requestShipping: true`.
+   * Apple requires `requestShipping: true` when the contact includes a postal
+   * address; this SDK does not enforce that pairing.
    */
   shippingContact?: PaymentContact;
   prepareTransaction?: () => Promise<{
