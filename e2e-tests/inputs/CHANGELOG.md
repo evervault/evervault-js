@@ -1,5 +1,11 @@
 # @evervault/inputs-e2e-tests
 
+## 1.0.37
+
+### Patch Changes
+
+- @evervault/inputs@2.18.39
+
 ## 1.0.36
 
 ### Patch Changes

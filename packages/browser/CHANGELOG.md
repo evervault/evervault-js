@@ -1,5 +1,16 @@
 # @evervault/browser
 
+## 2.61.0
+
+### Minor Changes
+
+- bfa92c3: Add optional Apple Pay `billingContact` / `shippingContact` prefill on the web SDK. Merchants can pass known buyer contacts via `ApplePayButtonOptions`; they are set on the Apple Pay PaymentRequest method data so the sheet shows them as defaults.
+- 4f0f832: Add Apple Pay coupon code support on the web SDK (`supportsCouponCode`, `couponCode`, `onCouponCodeChange`). Merchants can update totals when the customer changes a coupon on the sheet, and optionally return `error` (`couponCodeInvalid` / `couponCodeExpired`) to surface validation feedback in the native Apple Pay UI.
+
+### Patch Changes
+
+- d39019b: Fix a crash in Apple Pay's `onshippingaddresschange` handler when `event.target` is `null`. This could happen during the desktop-Chrome + phone-QR "remote continuity" handoff, throwing `Cannot read properties of null (reading 'shippingAddress')` and leaving the sheet stuck on "Processing" until it timed out.
+
 ## 2.60.0
 
 ### Minor Changes
