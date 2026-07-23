@@ -71,7 +71,7 @@ async function createThreeDSSession(payload) {
     card: {
       number: payload.number,
       expiry: payload.expiry,
-      cvv: payload.cvv,
+      cvv: payload.cvc,
     },
     merchant: {
       name: "Test Merchant",
