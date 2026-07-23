@@ -65,6 +65,11 @@ async function handleSubmit() {
     console.log("Failure");
   });
 
+  // The 'error' event is emitted if the 3DS component fails to load
+  tds.on("error", (error) => {
+    console.error("Failed to load 3D Secure component", error);
+  });
+
   // Mount the 3DS UI Component to begin the 3DS process
   // Calling mount without providing a target will render the 3DS flow inside
   // of a modal window on top of the page.

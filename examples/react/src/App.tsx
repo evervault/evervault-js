@@ -1,4 +1,10 @@
-import { Card, CardPayload, EvervaultProvider, themes } from "@evervault/react";
+import {
+  Card,
+  CardPayload,
+  EvervaultProvider,
+  isScriptLoadError,
+  themes,
+} from "@evervault/react";
 import React, { useRef } from "react";
 
 const theme = themes.clean({
@@ -34,8 +40,13 @@ function App() {
       teamId={import.meta.env.VITE_EV_TEAM_UUID}
       appId={import.meta.env.VITE_EV_APP_UUID}
       customConfig={customConfig}
+      loadTimeout={20000}
       onLoadError={(error) => {
-        console.error("Custom onLoadError", error);
+        if (isScriptLoadError(error)) {
+          console.error(`Failed to load Evervault script: ${error.code}`);
+        } else {
+          console.error("Custom onLoadError", error);
+        }
       }}
     >
       <h1>Example React app</h1>

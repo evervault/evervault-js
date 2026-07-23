@@ -1,5 +1,5 @@
 import { CustomConfig as BrowserConfig } from "@evervault/browser";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { PromisifiedEvervaultClient } from "./client";
 import { injectScript } from "./inject-script";
 
@@ -44,8 +44,26 @@ export function useEvervaultClient({
     setReloadAttempt((prev) => prev + 1);
   }, []);
 
+  // Read via ref so an inline onLoadError (new identity every render) doesn't
+  // count as a deps change below and bust the cache.
+  const onLoadErrorRef = useRef(onLoadError);
+  onLoadErrorRef.current = onLoadError;
+
+  // Cache by deps identity so a repeat invocation reuses
+  // the client instead of constructing a second one.
+  const cacheRef = useRef<{
+    deps: unknown[];
+    client: PromisifiedEvervaultClient;
+  } | null>(null);
+
   const client = useMemo<PromisifiedEvervaultClient>(() => {
-    return new PromisifiedEvervaultClient(async (resolve, reject) => {
+    const deps = [reloadAttempt, teamId, appId, customConfig, timeout];
+    const cached = cacheRef.current;
+    if (cached && depsEqual(cached.deps, deps)) {
+      return cached.client;
+    }
+
+    const created = new PromisifiedEvervaultClient(async (resolve, reject) => {
       try {
         const url = new URL(customConfig?.jsSdkUrl || EVERVAULT_URL);
         if (reloadAttempt > 0) {
@@ -55,11 +73,18 @@ export function useEvervaultClient({
         const client = await Evervault.init(teamId, appId, customConfig);
         resolve(client);
       } catch (error) {
-        onLoadError?.(error);
+        onLoadErrorRef.current?.(error);
         reject(error);
       }
     });
-  }, [reloadAttempt, teamId, appId, customConfig, onLoadError, timeout]);
+
+    cacheRef.current = { deps, client: created };
+    return created;
+  }, [reloadAttempt, teamId, appId, customConfig, timeout]);
 
   return useMemo(() => ({ client, reload }), [client, reload]);
+}
+
+function depsEqual(a: unknown[], b: unknown[]): boolean {
+  return a.length === b.length && a.every((value, i) => Object.is(value, b[i]));
 }
