@@ -49,7 +49,7 @@ export function useEvervaultClient({
   const onLoadErrorRef = useRef(onLoadError);
   onLoadErrorRef.current = onLoadError;
 
-  // Cache by deps identity so a repeat invocation reuses 
+  // Cache by deps identity so a repeat invocation reuses
   // the client instead of constructing a second one.
   const cacheRef = useRef<{
     deps: unknown[];
