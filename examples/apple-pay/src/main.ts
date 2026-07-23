@@ -4,10 +4,35 @@ import "./style.css";
 const BASE_AMOUNT = 1000; // $10.00 in cents
 const COUPON_SAVE20 = "SAVE20";
 
+/** Distinct prefill so you can tell it apart from a Wallet default address. */
+const PREFILL_BILLING = {
+  givenName: "Evervault",
+  familyName: "Billing",
+  addressLines: ["1 Prefill Billing St"],
+  locality: "Cupertino",
+  administrativeArea: "CA",
+  postalCode: "95014",
+  countryCode: "US",
+  country: "United States",
+};
+
+const PREFILL_SHIPPING = {
+  givenName: "Evervault",
+  familyName: "Shipping",
+  emailAddress: "shipping-prefill@example.com",
+  phoneNumber: "+14085550100",
+  addressLines: ["2 Prefill Shipping Ave"],
+  locality: "Cupertino",
+  administrativeArea: "CA",
+  postalCode: "95014",
+  countryCode: "US",
+  country: "United States",
+};
+
 function setStatus(message: string) {
-  const el = document.getElementById("coupon-status");
+  const el = document.getElementById("status");
   if (el) el.textContent = message;
-  console.log("[apple-pay coupon]", message);
+  console.log("[apple-pay]", message);
 }
 
 function totalsForCoupon(code: string) {
@@ -69,12 +94,17 @@ async function main() {
     currency: "USD",
     country: "US",
     merchantId,
-    priceLabel: "Coupon test",
+    priceLabel: "Apple Pay test",
     lineItems: [{ label: "Test item", amount: BASE_AMOUNT }],
   });
 
   const apple = evervault.ui.applePayButton(transaction, {
     size: { width: "100%", height: "40px" },
+    requestBillingAddress: true,
+    requestShipping: true,
+    requestPayerDetails: ["name", "email", "phone"],
+    billingContact: PREFILL_BILLING,
+    shippingContact: PREFILL_SHIPPING,
     supportsCouponCode: true,
     couponCode: "",
     onCouponCodeChange: async (code) => {
@@ -94,7 +124,11 @@ async function main() {
     },
     process: async (data) => {
       console.log("PROCESS", data);
-      setStatus("Payment authorized (see console for payload)");
+      console.log("billingContact", data.billingContact);
+      console.log("shippingContact", data.shippingContact);
+      setStatus(
+        "Payment authorized — check console for billingContact / shippingContact"
+      );
     },
   });
 
@@ -121,7 +155,7 @@ async function main() {
     apple.on("ready", () => {
       console.log("Apple Pay button is ready!");
       setStatus(
-        `Ready — tap Apple Pay, then enter ${COUPON_SAVE20} in the sheet`
+        "Ready — check Prefill billing/shipping on the sheet; try coupon SAVE20"
       );
     });
 

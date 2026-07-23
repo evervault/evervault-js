@@ -19,6 +19,7 @@ import {
   ApplePayButtonType,
   ApplePayCardNetwork,
   CouponCodeChangeResult,
+  PaymentContact,
   PaymentMethodUpdate,
   ShippingAddress,
 } from "./types";
@@ -66,6 +67,24 @@ export type ApplePayButtonOptions = {
    * coupon message in the native Apple Pay UI.
    */
   onCouponCodeChange?: (couponCode: string) => Promise<CouponCodeChangeResult>;
+  /**
+   * Prefill billing contact on the Apple Pay sheet (ApplePayRequest.billingContact).
+   * Requires `requestBillingAddress: true` for the postal address to actually show.
+   *
+   * Payment and recurring transactions only. Apple Pay disbursements use a
+   * separate recipient-contact model (`requiredRecipientDetails` on the
+   * transaction) — this field has no effect on disbursement-type transactions.
+   */
+  billingContact?: PaymentContact;
+  /**
+   * Prefill shipping contact on the Apple Pay sheet (ApplePayRequest.shippingContact).
+   * Requires `requestShipping: true` for the postal address to actually show.
+   *
+   * Payment and recurring transactions only. Apple Pay disbursements use a
+   * separate recipient-contact model (`requiredRecipientDetails` on the
+   * transaction) — this field has no effect on disbursement-type transactions.
+   */
+  shippingContact?: PaymentContact;
   prepareTransaction?: () => Promise<{
     amount?: number;
     lineItems?: TransactionLineItem[];
@@ -162,6 +181,8 @@ export default class ApplePayButton {
         supportsCouponCode: this.#options.supportsCouponCode,
         couponCode: this.#options.couponCode,
         onCouponCodeChange: this.#options.onCouponCodeChange,
+        billingContact: this.#options.billingContact,
+        shippingContact: this.#options.shippingContact,
         prepareTransaction: this.#options.prepareTransaction,
         appleMerchantId: this.#options.appleMerchantId,
       });

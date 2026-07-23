@@ -3,19 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Apple Pay — coupon test</title>
+    <title>Apple Pay — coupon + contact prefill</title>
   </head>
 
   <body>
     <div class="card">
-      <h1 class="title">Coupon test</h1>
+      <h1 class="title">Apple Pay test</h1>
       <p class="subtext">
-        Open in <strong>Safari</strong> with a card in Wallet. Tap Apple Pay,
-        enter coupon code <strong>SAVE20</strong> in the sheet, and confirm the
-        total drops from $10.00 to $8.00.
+        Open in <strong>Safari</strong> with a card in Wallet. Tap Apple Pay and
+        confirm:
       </p>
+      <ul class="subtext" style="margin-top: 0; padding-left: 1.25rem">
+        <li>
+          <strong>Contact prefill</strong> — billing
+          <em>Evervault Billing / 1 Prefill Billing St</em>, shipping
+          <em>Evervault Shipping / 2 Prefill Shipping Ave</em> (+ email/phone)
+        </li>
+        <li>
+          <strong>Coupon</strong> — enter <strong>SAVE20</strong>; total drops
+          $10.00 → $8.00
+        </li>
+      </ul>
       <div id="apple-pay"></div>
-      <p class="subtext" id="coupon-status" style="margin-top: 16px; margin-bottom: 0">
+      <p class="subtext" id="status" style="margin-top: 16px; margin-bottom: 0">
         Loading…
       </p>
     </div>

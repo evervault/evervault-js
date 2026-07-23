@@ -102,20 +102,30 @@ export interface ShippingAddress {
   sortingCode: string;
 }
 
-export interface BillingContact {
+/**
+ * Maps to ApplePayPaymentContact. Used to prefill billingContact /
+ * shippingContact on the Apple Pay request, and for billingContact on
+ * payment method change updates.
+ */
+export interface PaymentContact {
+  phoneNumber?: string;
+  emailAddress?: string;
+  givenName?: string;
+  familyName?: string;
+  phoneticGivenName?: string;
+  phoneticFamilyName?: string;
   addressLines?: string[];
+  subLocality?: string;
+  locality?: string;
+  postalCode?: string;
+  subAdministrativeArea?: string;
   administrativeArea?: string;
   country?: string;
   countryCode?: string;
-  familyName?: string;
-  givenName?: string;
-  locality?: string;
-  phoneticFamilyName?: string;
-  phoneticGivenName?: string;
-  postalCode?: string;
-  subAdministrativeArea?: string;
-  subLocality?: string;
 }
+
+/** Alias kept for PaymentMethodUpdate.billingContact consumers. */
+export type BillingContact = PaymentContact;
 
 export interface PaymentMethodUpdate {
   type?: string;
