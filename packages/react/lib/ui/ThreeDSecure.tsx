@@ -1,5 +1,7 @@
 import * as React from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { ColorScheme, ComponentError, ThemeDefinition } from "types";
+import type EvervaultClient from "@evervault/browser";
 import { useEvInstance } from "../useEvInstance";
 
 export interface ThreeDSecureProps {
@@ -25,9 +27,9 @@ export function ThreeDSecure({
   onFailure,
   failOnChallenge,
 }: ThreeDSecureProps) {
-  const ref = React.useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
-  const config = React.useMemo(
+  const config = useMemo(
     () => ({
       colorScheme,
       theme,
@@ -37,35 +39,45 @@ export function ThreeDSecure({
     [colorScheme, theme, size, failOnChallenge]
   );
 
-  const instance = useEvInstance({
-    onMount(evervault) {
+  const onMount = useCallback(
+    (evervault: EvervaultClient) => {
       if (!ref.current) return;
       const inst = evervault.ui.threeDSecure(session, config);
       inst.mount(ref.current);
       return inst;
     },
-    onUpdate(instance) {
+    [session, config]
+  );
+
+  const onUpdate = useCallback(
+    (instance: NonNullable<ReturnType<typeof onMount>>) => {
       instance.update(config);
     },
+    [config]
+  );
+
+  const instance = useEvInstance({
+    onMount,
+    onUpdate,
     onMountError: onError,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!instance || !onReady) return undefined;
     return instance?.on("ready", onReady);
   }, [instance, onReady]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!instance || !onSuccess) return undefined;
     return instance?.on("success", onSuccess);
   }, [instance, onSuccess]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!instance || !onFailure) return undefined;
     return instance?.on("failure", onFailure);
   }, [instance, onFailure]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!instance || !onError) return undefined;
     return instance?.on("error", onError);
   }, [instance, onError]);
