@@ -106,6 +106,16 @@ export function mask(format: string): MaskArray {
   return maskArray;
 }
 
+function getMaskLength(mask: Mask | undefined, value?: string) {
+  if (!mask) {
+    return undefined;
+  } else if (typeof mask === "function") {
+    return mask(value).length;
+  } else {
+    return mask.length;
+  }
+}
+
 export interface EvervaultInputProps<Values extends Record<string, unknown>>
   extends BaseEvervaultInputProps {
   name: keyof Values;
@@ -158,6 +168,7 @@ export const EvervaultInput = forwardRef<
         props.onBlur?.(evt);
       }}
       mask={mask}
+      maxLength={getMaskLength(mask, field.value)}
       maskAutoComplete={!!mask}
       obfuscationCharacter={obfuscationCharacter}
       showObfuscatedValue={!!obfuscateValue}
