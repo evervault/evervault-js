@@ -190,9 +190,12 @@ export async function buildSession(
   // Coupon updates may also arrive here (methodDetails.couponCode) without a
   // shipping address — never return early without updateWith.
   baseRequest.onshippingaddresschange = (event: PaymentRequestUpdateEvent) => {
+    // event.target can be null here — e.g. Apple's apple-pay-sdk.js polyfill
+    // invokes this with a null target during the desktop-Chrome + phone-QR
+    // remote-continuity handoff.
     const target = event.target as unknown as {
       shippingAddress?: ShippingAddress;
-    };
+    } | null;
     const methodDetails = (
       event as PaymentRequestUpdateEvent & { methodDetails?: unknown }
     ).methodDetails;
@@ -209,7 +212,7 @@ export async function buildSession(
       return;
     }
 
-    if (target.shippingAddress && config.onShippingAddressChange) {
+    if (target?.shippingAddress && config.onShippingAddressChange) {
       // Do not await this promise — PaymentRequest expects updateWith(promise).
       event.updateWith(
         updatePaymentRequest(target.shippingAddress, config, tx, merchant)
