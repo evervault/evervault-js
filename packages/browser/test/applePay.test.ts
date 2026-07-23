@@ -590,36 +590,23 @@ describe("buildSession contact prefill", () => {
     expect(paymentMethodDataCalls[0].shippingContact).toBeUndefined();
   });
 
-  it("passes contact fields on disbursement PaymentRequest data", async () => {
-    const billingContact = {
-      givenName: "John",
-      familyName: "Appleseed",
-      addressLines: ["1 Infinite Loop"],
-      locality: "Cupertino",
-      administrativeArea: "CA",
-      postalCode: "95014",
-      countryCode: "US",
-    };
-    const shippingContact = {
-      givenName: "John",
-      familyName: "Appleseed",
-      emailAddress: "john@example.com",
-      phoneNumber: "+14085551234",
-      addressLines: ["1 Infinite Loop"],
-      locality: "Cupertino",
-      administrativeArea: "CA",
-      postalCode: "95014",
-      countryCode: "US",
-    };
-
+  it("does not apply contact fields on disbursement PaymentRequest data", async () => {
     await buildSession(applePay, {
       transaction: disbursementTransaction,
-      billingContact,
-      shippingContact,
+      billingContact: {
+        givenName: "John",
+        familyName: "Appleseed",
+        countryCode: "US",
+      },
+      shippingContact: {
+        givenName: "John",
+        familyName: "Appleseed",
+        emailAddress: "john@example.com",
+      },
     });
 
-    expect(paymentMethodDataCalls[0].billingContact).toEqual(billingContact);
-    expect(paymentMethodDataCalls[0].shippingContact).toEqual(shippingContact);
+    expect(paymentMethodDataCalls[0].billingContact).toBeUndefined();
+    expect(paymentMethodDataCalls[0].shippingContact).toBeUndefined();
   });
 });
 

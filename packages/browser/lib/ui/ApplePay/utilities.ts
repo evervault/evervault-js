@@ -493,22 +493,21 @@ function buildDisbursementSession(
 
   const merchantCapabilities = resolveDisbursementMerchantCapabilities(tx);
 
-  const disbursementMethodData: Record<string, unknown> = {
-    version: 3,
-    merchantIdentifier: resolveMerchantIdentifier(
-      config.transaction.merchantId,
-      config.appleMerchantId
-    ),
-    merchantCapabilities,
-    supportedNetworks: config.allowedCardNetworks,
-    countryCode: tx.country,
-  };
-  applyContactFields(disbursementMethodData, config);
-
+  // Disbursements collect recipient info via disbursementRequest.requiredRecipientContactFields
+  // — billingContact/shippingContact are not used on this path.
   const paymentMethodData = [
     {
       supportedMethods: "https://apple.com/apple-pay",
-      data: disbursementMethodData,
+      data: {
+        version: 3,
+        merchantIdentifier: resolveMerchantIdentifier(
+          config.transaction.merchantId,
+          config.appleMerchantId
+        ),
+        merchantCapabilities,
+        supportedNetworks: config.allowedCardNetworks,
+        countryCode: tx.country,
+      },
     },
   ];
 

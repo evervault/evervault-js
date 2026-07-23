@@ -94,7 +94,7 @@ async function main() {
     currency: "USD",
     country: "US",
     merchantId,
-    priceLabel: "Contact prefill test",
+    priceLabel: "Apple Pay test",
     lineItems: [{ label: "Test item", amount: BASE_AMOUNT }],
   });
 
@@ -155,7 +155,7 @@ async function main() {
     apple.on("ready", () => {
       console.log("Apple Pay button is ready!");
       setStatus(
-        "Ready — tap Apple Pay and check billing/shipping show the Prefill addresses"
+        "Ready — check Prefill billing/shipping on the sheet; try coupon SAVE20"
       );
     });
 
