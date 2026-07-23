@@ -176,6 +176,72 @@ describe("buildSession sandbox label", () => {
   });
 });
 
+describe("buildSession onshippingaddresschange", () => {
+  beforeEach(() => {
+    server.use(
+      http.get(`${apiUrl}/frontend/sdk/config`, () =>
+        HttpResponse.json({ is_sandbox: false }, { status: 200 })
+      )
+    );
+  });
+
+  const shippingAddress = {
+    addressLine: ["1 Main St"],
+    city: "Dublin",
+    country: "Ireland",
+    dependentLocality: "",
+    organization: "",
+    phone: "",
+    postalCode: "D01",
+    recipient: "Jane Doe",
+    region: "Leinster",
+    sortingCode: "",
+  };
+
+  it("does not throw and still calls updateWith when event.target is null", async () => {
+    // Repro for a customer-reported crash on desktop Chrome + phone-QR Apple
+    // Pay handoff: apple-pay-sdk.js's polyfill invokes onshippingaddresschange
+    // with event.target === null in that remote-continuity flow, which threw
+    // "Cannot read properties of null (reading 'shippingAddress')" and left
+    // the sheet stuck on "Processing" since updateWith was never called.
+    const onShippingAddressChange = vi.fn().mockResolvedValue({ amount: 500 });
+    const request = await buildSession(applePay, {
+      transaction,
+      requestShipping: true,
+      onShippingAddressChange,
+    });
+
+    const updateWith = vi.fn();
+    const event = {
+      target: null,
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent;
+
+    expect(() => request.onshippingaddresschange?.(event)).not.toThrow();
+    expect(updateWith).toHaveBeenCalled();
+  });
+
+  it("calls onShippingAddressChange and updateWith when a shipping address is present", async () => {
+    const onShippingAddressChange = vi.fn().mockResolvedValue({ amount: 500 });
+    const request = await buildSession(applePay, {
+      transaction,
+      requestShipping: true,
+      onShippingAddressChange,
+    });
+
+    const updateWith = vi.fn();
+    const event = {
+      target: { shippingAddress },
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent;
+
+    request.onshippingaddresschange?.(event);
+
+    expect(onShippingAddressChange).toHaveBeenCalledWith(shippingAddress);
+    expect(updateWith).toHaveBeenCalled();
+  });
+});
+
 describe("resolveMerchantIdentifier", () => {
   it("returns the Evervault merchant identifier by default", () => {
     expect(resolveMerchantIdentifier("merchant_abc")).toBe(
