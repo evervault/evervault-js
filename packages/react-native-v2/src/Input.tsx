@@ -10,11 +10,10 @@ import {
   useImperativeHandle,
   useMemo,
   useRef,
-  useState,
 } from "react";
 import { TextInput, TextInputProps } from "react-native";
 import { mergeRefs } from "./utils";
-import { Controller, useController, useFormContext } from "react-hook-form";
+import { useController, useFormContext } from "react-hook-form";
 import MaskInput, { Mask, MaskArray } from "react-native-mask-input";
 
 export interface EvervaultInputContextValue {
