@@ -2,7 +2,7 @@
 
 import { Card, CardPayload, useThreeDSecure } from "@evervault/react";
 import { useState } from "react";
-import { completePayment, createThreeDSSession } from "./actons.server";
+import { completePayment, createThreeDSSession } from "./actions.server";
 import css from "./styles.module.css";
 import { theme } from "./theme";
 
