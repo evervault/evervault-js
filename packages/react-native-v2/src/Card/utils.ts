@@ -9,9 +9,40 @@ import { type CardFormValues } from "./schema";
 import { DeepPartial, UseFormReturn } from "react-hook-form";
 import { type Encrypted, sdk } from "../sdk";
 
+function didFieldChange(
+  field: "number" | "cvc",
+  a: DeepPartial<Record<"number" | "cvc", string>>,
+  b: DeepPartial<Record<"number" | "cvc", string>>
+) {
+  if (field in a && field in b) {
+    // If field in both, check if the values are different
+    return a[field] !== b[field];
+  } else if (field in a || field in b) {
+    // If field exists in one but not the other, it has changed
+    return true;
+  } else {
+    // Otherwise, the field has not changed
+    return false;
+  }
+}
+
+export function getChangedFields(
+  a: DeepPartial<Record<"number" | "cvc", string>>,
+  b: DeepPartial<Record<"number" | "cvc", string>>
+) {
+  const fields = new Set<"number" | "cvc">();
+  if (didFieldChange("number", a, b)) {
+    fields.add("number");
+  }
+  if (didFieldChange("cvc", a, b)) {
+    fields.add("cvc");
+  }
+  return fields;
+}
+
 export interface FormatPayloadContext {
   form: UseFormReturn<CardFormValues>;
-  encrypt<T>(data: T): Promise<Encrypted<T>>;
+  encrypt(field: "number" | "cvc", data: string): Promise<string | null>;
 }
 
 export async function formatPayload(
@@ -64,8 +95,8 @@ export async function formatPayload(
       bin,
       lastFour,
       expiry: formatExpiry(values.expiry ?? ""),
-      number: isNumberValid ? await context.encrypt(number) : null,
-      cvc: isCvcValid ? await context.encrypt(cvc ?? "") : null,
+      number: isNumberValid ? await context.encrypt("number", number) : null,
+      cvc: isCvcValid ? await context.encrypt("cvc", cvc ?? "") : null,
     },
     isComplete,
     isValid: isValid && isComplete,

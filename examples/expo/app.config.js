@@ -60,6 +60,9 @@ module.exports = {
       },
       package: "com.evervault.expoexample",
     },
+    experiments: {
+      reactCanary: true,
+    },
     plugins: [
       [
         "expo-splash-screen",

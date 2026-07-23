@@ -12,9 +12,9 @@ import { DeepPartial, FormProvider, useForm } from "react-hook-form";
 import { CardFormValues, getCardFormSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEvervault } from "../useEvervault";
-import { formatPayload } from "./utils";
+import { formatPayload, getChangedFields } from "./utils";
 import { EvervaultInputContext, EvervaultInputContextValue } from "../Input";
-import { EvervaultContextValue } from "../context";
+import { Encrypted } from "../sdk";
 
 const DEFAULT_ACCEPTED_BRANDS: CardBrandName[] = [];
 
@@ -100,6 +100,10 @@ export const Card = forwardRef<Card, CardProps>(function Card(
   useEffect(() => {
     if (!onChange) return;
 
+    let previous:
+      | { payload: CardPayload; values: DeepPartial<CardFormValues> }
+      | undefined;
+
     let abortController: AbortController | undefined;
     function handleChange(values: DeepPartial<CardFormValues>) {
       if (abortController) {
@@ -111,10 +115,21 @@ export const Card = forwardRef<Card, CardProps>(function Card(
 
       requestAnimationFrame(async () => {
         try {
+          const changedFields = getChangedFields(
+            values,
+            previous?.values ?? {}
+          );
           const payload = await formatPayload(values, {
-            encrypt: evervault.encrypt,
             form: methods,
+            async encrypt(field, data) {
+              if (previous?.payload && !changedFields.has(field)) {
+                return previous.payload.card[field];
+              } else {
+                return await evervault.encrypt(data);
+              }
+            },
           });
+          previous = { payload, values };
           if (signal.aborted) return;
           onChangeRef.current?.(payload);
         } catch (error) {
