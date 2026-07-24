@@ -136,39 +136,43 @@ export function validateCVC(
     };
   }
 
-  if (!cardNumber) {
+  const { brand, localBrands } = validateNumber(cardNumber ?? "", options);
+
+  const brands = new Set<string>();
+
+  if (brand) {
+    brands.add(brand);
+  }
+
+  if (localBrands) {
+    for (const b of localBrands) brands.add(b);
+  }
+
+  if (!brands.size) {
     return {
-      cvc: cvc,
+      cvc,
       isValid: true,
     };
   }
 
-  const validatedCard = validateNumber(cardNumber, options);
-  if (!validatedCard.isValid) {
+  const allBrands = [...defaultBrands, ...(options?.customBrands ?? [])];
+
+  const isCVCValid = allBrands
+    .filter((brand) => brands.has(brand.name))
+    .some((brand) => {
+      return brand.securityCodeValidationRules.lengths.includes(cvc.length);
+    });
+
+  if (!isCVCValid) {
     return {
       cvc: null,
       isValid: false,
     };
   }
 
-  const brands: string[] = [];
-  if (validatedCard.brand) {
-    brands.push(validatedCard.brand);
-  }
-  if (validatedCard.localBrands) {
-    brands.push(...validatedCard.localBrands);
-  }
-
-  const allBrands = [...defaultBrands, ...(options?.customBrands ?? [])];
-  const isCVCValid = allBrands
-    .filter((brand) => brands.includes(brand.name))
-    .some((brand) => {
-      return brand.securityCodeValidationRules.lengths.includes(cvc.length);
-    });
-
   return {
-    cvc: isCVCValid ? cvc : null,
-    isValid: isCVCValid,
+    cvc,
+    isValid: true,
   };
 }
 
