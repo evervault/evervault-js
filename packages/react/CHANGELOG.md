@@ -6,6 +6,10 @@
 
 - ee0d7fc: Added more script load handling tools (ScriptLoadError, loadTimeout)
 
+### Patch Changes
+
+- a7ddfa7: Fix duplicate 3DS iframe posts and Evervault client memoization
+
 ## 2.27.1
 
 ### Patch Changes
