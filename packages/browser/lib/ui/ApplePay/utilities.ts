@@ -25,6 +25,14 @@ import {
 import ApplePayButton from ".";
 import { RecurringPaymentIntervalUnit } from "types/uiComponents";
 
+/**
+ * Probe ceiling for `ApplePaySession.supportsVersion()`.
+ *
+ * Keep in sync with the major version of `@types/applepayjs` — a unit test fails
+ * if that package moves ahead of this constant.
+ */
+export const APPLE_PAY_MAX_VERSION = 14;
+
 type BuildSessionOptions = {
   transaction: TransactionDetailsWithDomain;
   allowedCardNetworks?: ApplePayCardNetwork[];
@@ -49,6 +57,8 @@ type BuildSessionOptions = {
   onCouponCodeChange?: (couponCode: string) => Promise<CouponCodeChangeResult>;
   billingContact?: PaymentContact;
   shippingContact?: PaymentContact;
+  applicationData?: string;
+  supportedCountries?: string[];
   prepareTransaction?: () => Promise<{
     amount?: number;
     lineItems?: TransactionLineItem[];
@@ -86,12 +96,62 @@ function applyContactFields(
   }
 }
 
+function applyRequestPassthroughFields(
+  data: Record<string, unknown>,
+  config: BuildSessionOptions
+) {
+  if (config.applicationData !== undefined) {
+    data.applicationData = config.applicationData;
+  }
+  if (config.supportedCountries !== undefined) {
+    data.supportedCountries = config.supportedCountries;
+  }
+}
+
+function mapLineItemsToDisplayItems(
+  lineItems: TransactionLineItem[] | undefined,
+  currency: string
+): PaymentItem[] {
+  return (lineItems ?? []).map((item) => ({
+    label: item.label,
+    amount: {
+      value: (item.amount / 100).toFixed(2).toString(),
+      currency,
+    },
+    ...(item.type === "pending" ? { pending: true } : {}),
+  }));
+}
+
+/**
+ * Pick the highest Apple Pay JS API version supported by the current browser,
+ * probing from `maxVersion` downward. Falls back to 3 when ApplePaySession is
+ * unavailable (e.g. unit tests / non-Safari), matching the previous hardcoded default.
+ */
+export function resolveApplePayVersion(
+  maxVersion = APPLE_PAY_MAX_VERSION
+): number {
+  if (
+    typeof ApplePaySession === "undefined" ||
+    typeof ApplePaySession.supportsVersion !== "function"
+  ) {
+    return 3;
+  }
+
+  for (let version = maxVersion; version >= 1; version--) {
+    if (ApplePaySession.supportsVersion(version)) {
+      return version;
+    }
+  }
+
+  return 3;
+}
+
 function buildApplePayMethodData(
   config: BuildSessionOptions,
   countryCode: string
 ): PaymentMethodData[] {
   const data: Record<string, unknown> = {
-    version: 3,
+    version: resolveApplePayVersion(),
     merchantIdentifier: resolveMerchantIdentifier(
       config.transaction.merchantId,
       config.appleMerchantId
@@ -104,6 +164,7 @@ function buildApplePayMethodData(
   };
   applyCouponFields(data, config);
   applyContactFields(data, config);
+  applyRequestPassthroughFields(data, config);
 
   return [
     {
@@ -263,14 +324,9 @@ async function createPaymentUpdate(
   tx: TransactionDetailsWithDomain,
   merchant: MerchantDetail
 ): Promise<PaymentDetailsUpdate> {
-  const displayItems = (updatedTransactionConfig.lineItems ?? []).map(
-    (item) => ({
-      label: item.label,
-      amount: {
-        value: (item.amount / 100).toFixed(2).toString(),
-        currency: tx.currency,
-      },
-    })
+  const displayItems = mapLineItemsToDisplayItems(
+    updatedTransactionConfig.lineItems,
+    tx.currency
   );
   const total = {
     label: tx.priceLabel ?? merchant.name,
@@ -334,14 +390,7 @@ function buildPaymentSession(
   config: BuildSessionOptions,
   tx: PaymentTransactionDetails
 ) {
-  const lineItems =
-    tx.lineItems?.map((item) => ({
-      label: item.label,
-      amount: {
-        value: (item.amount / 100).toFixed(2).toString(),
-        currency: tx.currency,
-      },
-    })) || [];
+  const lineItems = mapLineItemsToDisplayItems(tx.lineItems, tx.currency);
 
   const paymentMethodData = buildApplePayMethodData(config, tx.country);
 
@@ -408,14 +457,7 @@ function buildRecurringSession(
   tx: RecurringTransactionDetails
 ) {
   console.log("Building recurring session");
-  const lineItems =
-    tx.lineItems?.map((item) => ({
-      label: item.label,
-      amount: {
-        value: (item.amount / 100).toFixed(2).toString(),
-        currency: tx.currency,
-      },
-    })) || [];
+  const lineItems = mapLineItemsToDisplayItems(tx.lineItems, tx.currency);
 
   const paymentMethodData = buildApplePayMethodData(config, tx.country);
 
@@ -492,25 +534,29 @@ function buildDisbursementSession(
         value: (item.amount / 100).toFixed(2).toString(),
         currency: tx.currency,
       },
+      ...(item.type ? { type: item.type } : {}),
     })) || [];
 
   const merchantCapabilities = resolveDisbursementMerchantCapabilities(tx);
 
   // Disbursements collect recipient info via disbursementRequest.requiredRecipientContactFields
   // — billingContact/shippingContact are not used on this path.
+  const disbursementMethodData: Record<string, unknown> = {
+    version: resolveApplePayVersion(),
+    merchantIdentifier: resolveMerchantIdentifier(
+      config.transaction.merchantId,
+      config.appleMerchantId
+    ),
+    merchantCapabilities,
+    supportedNetworks: config.allowedCardNetworks,
+    countryCode: tx.country,
+  };
+  applyRequestPassthroughFields(disbursementMethodData, config);
+
   const paymentMethodData = [
     {
       supportedMethods: "https://apple.com/apple-pay",
-      data: {
-        version: 3,
-        merchantIdentifier: resolveMerchantIdentifier(
-          config.transaction.merchantId,
-          config.appleMerchantId
-        ),
-        merchantCapabilities,
-        supportedNetworks: config.allowedCardNetworks,
-        countryCode: tx.country,
-      },
+      data: disbursementMethodData,
     },
   ];
 

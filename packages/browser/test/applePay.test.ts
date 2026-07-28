@@ -19,10 +19,12 @@ import type EvervaultClient from "../lib/main";
 import { setupCrypto } from "./setup";
 
 const {
+  APPLE_PAY_MAX_VERSION,
   buildSession,
   mapTransactionType,
   resolveMerchantIdentifier,
   resolveDisbursementMerchantCapabilities,
+  resolveApplePayVersion,
 } = applePayUtilities;
 const buildSessionMock = vi.fn();
 
@@ -39,6 +41,9 @@ const paymentMethodDataCalls: Array<{
   couponCode?: string;
   billingContact?: unknown;
   shippingContact?: unknown;
+  applicationData?: string;
+  supportedCountries?: string[];
+  version?: number;
 }> = [];
 const paymentRequestInstances: MockPaymentRequest[] = [];
 
@@ -58,6 +63,9 @@ class MockPaymentRequest {
         couponCode?: string;
         billingContact?: unknown;
         shippingContact?: unknown;
+        applicationData?: string;
+        supportedCountries?: string[];
+        version?: number;
       };
     }>,
     details: PaymentDetailsInit
@@ -673,6 +681,170 @@ describe("buildSession contact prefill", () => {
 
     expect(paymentMethodDataCalls[0].billingContact).toBeUndefined();
     expect(paymentMethodDataCalls[0].shippingContact).toBeUndefined();
+  });
+});
+
+describe("buildSession request-config passthrough", () => {
+  beforeEach(() => {
+    server.use(
+      http.get(`${apiUrl}/frontend/sdk/config`, () =>
+        HttpResponse.json({ is_sandbox: false }, { status: 200 })
+      )
+    );
+  });
+
+  it("omits applicationData and supportedCountries when not set", async () => {
+    await buildSession(applePay, { transaction });
+
+    expect(paymentMethodDataCalls[0].applicationData).toBeUndefined();
+    expect(paymentMethodDataCalls[0].supportedCountries).toBeUndefined();
+  });
+
+  it("passes applicationData and supportedCountries on the PaymentRequest data", async () => {
+    await buildSession(applePay, {
+      transaction,
+      applicationData: "b3BhcXVl",
+      supportedCountries: ["US", "CA"],
+    });
+
+    expect(paymentMethodDataCalls[0].applicationData).toBe("b3BhcXVl");
+    expect(paymentMethodDataCalls[0].supportedCountries).toEqual(["US", "CA"]);
+  });
+
+  it("passes request-config fields on recurring and disbursement sessions", async () => {
+    await buildSession(applePay, {
+      transaction: recurringTransaction,
+      applicationData: "cmVjdXJyaW5n",
+      supportedCountries: ["GB"],
+    });
+
+    expect(paymentMethodDataCalls[0].applicationData).toBe("cmVjdXJyaW5n");
+    expect(paymentMethodDataCalls[0].supportedCountries).toEqual(["GB"]);
+
+    paymentMethodDataCalls.length = 0;
+
+    await buildSession(applePay, {
+      transaction: disbursementTransaction,
+      applicationData: "ZGlzYnVyc2VtZW50",
+      supportedCountries: ["IE"],
+    });
+
+    expect(paymentMethodDataCalls[0].applicationData).toBe("ZGlzYnVyc2VtZW50");
+    expect(paymentMethodDataCalls[0].supportedCountries).toEqual(["IE"]);
+  });
+
+  it("marks pending line items on displayItems", async () => {
+    await buildSession(applePay, {
+      transaction: {
+        ...transaction,
+        lineItems: [
+          { label: "Item", amount: 1000 },
+          { label: "Estimated tax", amount: 80, type: "pending" },
+        ],
+      },
+    });
+
+    expect(paymentRequestCalls[0].displayItems).toEqual([
+      {
+        label: "Item",
+        amount: { value: "10.00", currency: "USD" },
+      },
+      {
+        label: "Estimated tax",
+        amount: { value: "0.80", currency: "USD" },
+        pending: true,
+      },
+    ]);
+  });
+
+  it("preserves pending line items on payment method updates", async () => {
+    const onPaymentMethodChange = vi.fn().mockResolvedValue({
+      amount: 1080,
+      lineItems: [
+        { label: "Item", amount: 1000 },
+        { label: "Estimated tax", amount: 80, type: "pending" },
+      ],
+    });
+
+    await buildSession(applePay, {
+      transaction,
+      onPaymentMethodChange,
+    });
+
+    const session = paymentRequestInstances[0];
+    const updateWith = vi.fn();
+    session.onpaymentmethodchange?.({
+      methodDetails: { type: "credit" },
+      updateWith,
+    } as unknown as PaymentMethodChangeEvent);
+
+    const update = await updateWith.mock.calls[0][0];
+    expect(update.displayItems).toEqual([
+      {
+        label: "Item",
+        amount: { value: "10.00", currency: "USD" },
+      },
+      {
+        label: "Estimated tax",
+        amount: { value: "0.80", currency: "USD" },
+        pending: true,
+      },
+    ]);
+  });
+
+  it("defaults Apple Pay version to 3 when ApplePaySession is unavailable", async () => {
+    await buildSession(applePay, { transaction });
+    expect(paymentMethodDataCalls[0].version).toBe(3);
+  });
+});
+
+describe("resolveApplePayVersion", () => {
+  const originalApplePaySession = (
+    globalThis as unknown as { ApplePaySession?: unknown }
+  ).ApplePaySession;
+
+  afterEach(() => {
+    if (originalApplePaySession === undefined) {
+      delete (globalThis as unknown as { ApplePaySession?: unknown })
+        .ApplePaySession;
+    } else {
+      (globalThis as unknown as { ApplePaySession: unknown }).ApplePaySession =
+        originalApplePaySession;
+    }
+  });
+
+  it("stays ahead of the installed @types/applepayjs major version", async () => {
+    const { createRequire } = await import("node:module");
+    const require = createRequire(import.meta.url);
+    const { version } = require("@types/applepayjs/package.json") as {
+      version: string;
+    };
+    const typesMajor = Number(version.split(".")[0]);
+
+    expect(APPLE_PAY_MAX_VERSION).toBeGreaterThanOrEqual(typesMajor);
+  });
+
+  it("returns the highest supported version up to the max", () => {
+    (globalThis as unknown as { ApplePaySession: unknown }).ApplePaySession = {
+      supportsVersion: (version: number) => version <= 12,
+    };
+
+    expect(resolveApplePayVersion(14)).toBe(12);
+  });
+
+  it("falls back to 3 when no version is supported", () => {
+    (globalThis as unknown as { ApplePaySession: unknown }).ApplePaySession = {
+      supportsVersion: () => false,
+    };
+
+    expect(resolveApplePayVersion(14)).toBe(3);
+  });
+
+  it("falls back to 3 when ApplePaySession is missing", () => {
+    delete (globalThis as unknown as { ApplePaySession?: unknown })
+      .ApplePaySession;
+
+    expect(resolveApplePayVersion()).toBe(3);
   });
 });
 

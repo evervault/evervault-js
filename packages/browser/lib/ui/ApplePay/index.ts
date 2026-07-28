@@ -85,6 +85,16 @@ export type ApplePayButtonOptions = {
    * transaction) — this field has no effect on disbursement-type transactions.
    */
   shippingContact?: PaymentContact;
+  /**
+   * Opaque merchant data included on the Apple Pay request
+   * (ApplePayRequest.applicationData). Must be a Base64-encoded string.
+   */
+  applicationData?: string;
+  /**
+   * Restrict payments to cards issued in these ISO 3166 country codes
+   * (ApplePayRequest.supportedCountries).
+   */
+  supportedCountries?: string[];
   prepareTransaction?: () => Promise<{
     amount?: number;
     lineItems?: TransactionLineItem[];
@@ -183,6 +193,8 @@ export default class ApplePayButton {
         onCouponCodeChange: this.#options.onCouponCodeChange,
         billingContact: this.#options.billingContact,
         shippingContact: this.#options.shippingContact,
+        applicationData: this.#options.applicationData,
+        supportedCountries: this.#options.supportedCountries,
         prepareTransaction: this.#options.prepareTransaction,
         appleMerchantId: this.#options.appleMerchantId,
       });
