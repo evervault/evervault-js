@@ -456,7 +456,6 @@ function buildRecurringSession(
   config: BuildSessionOptions,
   tx: RecurringTransactionDetails
 ) {
-  console.log("Building recurring session");
   const lineItems = mapLineItemsToDisplayItems(tx.lineItems, tx.currency);
 
   const paymentMethodData = buildApplePayMethodData(config, tx.country);

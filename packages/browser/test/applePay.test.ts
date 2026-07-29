@@ -757,6 +757,39 @@ describe("buildSession request-config passthrough", () => {
     ]);
   });
 
+  it("passes pending line item type through additionalLineItems on disbursement sessions", async () => {
+    await buildSession(applePay, {
+      transaction: {
+        ...disbursementTransaction,
+        lineItems: [
+          { label: "Item", amount: 1000 },
+          { label: "Estimated tax", amount: 80, type: "pending" },
+        ],
+      },
+    });
+
+    const modifierData = (
+      paymentRequestCalls[0].modifiers?.[0] as unknown as {
+        data: { additionalLineItems: Array<Record<string, unknown>> };
+      }
+    ).data;
+
+    expect(modifierData.additionalLineItems).toEqual([
+      { label: "Total Amount", amount: 1000 },
+      { label: "Item", amount: { value: "10.00", currency: "USD" } },
+      {
+        label: "Estimated tax",
+        amount: { value: "0.80", currency: "USD" },
+        type: "pending",
+      },
+      {
+        label: "Apple Pay Demo",
+        amount: 1000,
+        disbursementLineItemType: "disbursement",
+      },
+    ]);
+  });
+
   it("preserves pending line items on payment method updates", async () => {
     const onPaymentMethodChange = vi.fn().mockResolvedValue({
       amount: 1080,
@@ -795,6 +828,33 @@ describe("buildSession request-config passthrough", () => {
   it("defaults Apple Pay version to 3 when ApplePaySession is unavailable", async () => {
     await buildSession(applePay, { transaction });
     expect(paymentMethodDataCalls[0].version).toBe(3);
+  });
+
+  it("propagates a resolved non-default version to payment and disbursement method data", async () => {
+    const originalApplePaySession = (
+      globalThis as unknown as { ApplePaySession?: unknown }
+    ).ApplePaySession;
+    (globalThis as unknown as { ApplePaySession: unknown }).ApplePaySession = {
+      supportsVersion: (version: number) => version <= 9,
+    };
+
+    try {
+      await buildSession(applePay, { transaction });
+      expect(paymentMethodDataCalls[0].version).toBe(9);
+
+      paymentMethodDataCalls.length = 0;
+
+      await buildSession(applePay, { transaction: disbursementTransaction });
+      expect(paymentMethodDataCalls[0].version).toBe(9);
+    } finally {
+      if (originalApplePaySession === undefined) {
+        delete (globalThis as unknown as { ApplePaySession?: unknown })
+          .ApplePaySession;
+      } else {
+        (globalThis as unknown as { ApplePaySession: unknown }).ApplePaySession =
+          originalApplePaySession;
+      }
+    }
   });
 });
 
@@ -845,6 +905,12 @@ describe("resolveApplePayVersion", () => {
       .ApplePaySession;
 
     expect(resolveApplePayVersion()).toBe(3);
+  });
+
+  it("falls back to 3 when supportsVersion is not a function", () => {
+    (globalThis as unknown as { ApplePaySession: unknown }).ApplePaySession = {};
+
+    expect(resolveApplePayVersion(14)).toBe(3);
   });
 });
 
