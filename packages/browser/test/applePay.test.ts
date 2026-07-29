@@ -851,8 +851,9 @@ describe("buildSession request-config passthrough", () => {
         delete (globalThis as unknown as { ApplePaySession?: unknown })
           .ApplePaySession;
       } else {
-        (globalThis as unknown as { ApplePaySession: unknown }).ApplePaySession =
-          originalApplePaySession;
+        (
+          globalThis as unknown as { ApplePaySession: unknown }
+        ).ApplePaySession = originalApplePaySession;
       }
     }
   });
@@ -908,7 +909,8 @@ describe("resolveApplePayVersion", () => {
   });
 
   it("falls back to 3 when supportsVersion is not a function", () => {
-    (globalThis as unknown as { ApplePaySession: unknown }).ApplePaySession = {};
+    (globalThis as unknown as { ApplePaySession: unknown }).ApplePaySession =
+      {};
 
     expect(resolveApplePayVersion(14)).toBe(3);
   });
