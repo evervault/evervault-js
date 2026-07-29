@@ -610,9 +610,17 @@ export interface ApplePayOptions {
 
 export type WalletDimension = string | number;
 
+export type TransactionLineItemType = "final" | "pending";
+
 export interface TransactionLineItem {
   amount: number;
   label: string;
+  /**
+   * Whether the line item amount is final or still pending (e.g. tax/shipping).
+   * Maps to Apple Pay `ApplePayLineItem.type` / Payment Request `PaymentItem.pending`.
+   * Defaults to `"final"` when omitted.
+   */
+  type?: TransactionLineItemType;
 }
 
 export interface InstantTransferDetails {
