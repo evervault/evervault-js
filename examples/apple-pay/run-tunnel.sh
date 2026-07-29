@@ -10,6 +10,10 @@
 
 set -euo pipefail
 
+APP_PORT=4000
+UI_COMPONENTS_PORT=4001
+BROWSER_BUNDLE_PORT=4002
+
 # --- Preflight checks ---
 
 if ! command -v ngrok >/dev/null 2>&1; then
@@ -32,4 +36,22 @@ if pgrep -f "ngrok start" >/dev/null 2>&1; then
 fi
 
 echo "Preflight checks passed."
+
+# --- Free ports ---
+
+free_port() {
+  local port="$1"
+  local pids
+  pids=$(lsof -ti "tcp:$port" 2>/dev/null || true)
+  if [[ -n "$pids" ]]; then
+    echo "Port $port already in use by PID(s) $pids — killing stale process(es)."
+    kill $pids 2>/dev/null || true
+    sleep 1
+  fi
+}
+
+echo "Freeing ports if stale processes are squatting on them..."
+free_port "$APP_PORT"
+free_port "$UI_COMPONENTS_PORT"
+free_port "$BROWSER_BUNDLE_PORT"
 
