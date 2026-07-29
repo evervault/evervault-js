@@ -733,6 +733,15 @@ describe("buildSession request-config passthrough", () => {
     expect(paymentMethodDataCalls[0].supportedCountries).toEqual(["IE"]);
   });
 
+  it("rejects applicationData that is not Base64-encoded", async () => {
+    await expect(
+      buildSession(applePay, {
+        transaction,
+        applicationData: "not base64!!!",
+      })
+    ).rejects.toThrow("applicationData must be a Base64-encoded string");
+  });
+
   it("marks pending line items on displayItems", async () => {
     await buildSession(applePay, {
       transaction: {

@@ -96,11 +96,24 @@ function applyContactFields(
   }
 }
 
+function assertBase64ApplicationData(applicationData: string) {
+  if (typeof applicationData !== "string") {
+    throw new Error("applicationData must be a Base64-encoded string");
+  }
+
+  try {
+    atob(applicationData);
+  } catch {
+    throw new Error("applicationData must be a Base64-encoded string");
+  }
+}
+
 function applyRequestPassthroughFields(
   data: Record<string, unknown>,
   config: BuildSessionOptions
 ) {
   if (config.applicationData !== undefined) {
+    assertBase64ApplicationData(config.applicationData);
     data.applicationData = config.applicationData;
   }
   if (config.supportedCountries !== undefined) {
