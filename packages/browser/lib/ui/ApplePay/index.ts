@@ -18,6 +18,8 @@ import {
   ApplePayButtonStyle,
   ApplePayButtonType,
   ApplePayCardNetwork,
+  ApplePayShippingMethod,
+  ApplePayShippingType,
   CouponCodeChangeResult,
   PaymentContact,
   PaymentMethodUpdate,
@@ -52,6 +54,29 @@ export type ApplePayButtonOptions = {
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   onShippingAddressChange?: (
     newAddress: ShippingAddress
+  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
+  /**
+   * Shipping type label on the Apple Pay sheet (shipping / delivery / pickup).
+   * Payment (one-off) transactions only — rejected for recurring and disbursement.
+   */
+  shippingType?: ApplePayShippingType;
+  /**
+   * Shipping methods shown as selectable options on the Apple Pay sheet.
+   * Requires `requestShipping: true` (auto-enabled when methods are provided).
+   * Payment (one-off) transactions only — rejected for recurring and disbursement.
+   *
+   * When the customer selects a method, totals are recomputed. Provide
+   * `onShippingMethodSelected` to control the amount/line items yourself;
+   * otherwise the SDK adjusts the total by the selected method's amount.
+   */
+  shippingMethods?: ApplePayShippingMethod[];
+  /**
+   * Called when the customer selects a shipping method on the sheet.
+   * Return updated totals. Maps to PaymentRequest `shippingoptionchange`.
+   * Requires `shippingMethods` (and shipping to be requested).
+   */
+  onShippingMethodSelected?: (
+    shippingMethod: ApplePayShippingMethod
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   /**
    * Show the coupon field on the Apple Pay sheet and receive updates when the
@@ -186,8 +211,11 @@ export default class ApplePayButton {
         disbursementOverrides: this.#options.disbursementOverrides,
         requestBillingAddress: this.#options.requestBillingAddress,
         requestShipping: this.#options.requestShipping,
+        shippingType: this.#options.shippingType,
+        shippingMethods: this.#options.shippingMethods,
         onPaymentMethodChange: this.#options.onPaymentMethodChange,
         onShippingAddressChange: this.#options.onShippingAddressChange,
+        onShippingMethodSelected: this.#options.onShippingMethodSelected,
         supportsCouponCode: this.#options.supportsCouponCode,
         couponCode: this.#options.couponCode,
         onCouponCodeChange: this.#options.onCouponCodeChange,
@@ -240,6 +268,28 @@ export default class ApplePayButton {
 
       if (response.details.shippingContact) {
         encrypted.shippingContact = response.details.shippingContact;
+      }
+
+      const shippingOptionId = (
+        response as PaymentResponse & { shippingOption?: string | null }
+      ).shippingOption;
+
+      if (shippingOptionId) {
+        const selectedMethod = this.#options.shippingMethods?.find(
+          (method) => method.id === shippingOptionId
+        );
+        encrypted.shippingMethod = selectedMethod
+          ? {
+              id: selectedMethod.id,
+              label: selectedMethod.label,
+              amount: selectedMethod.amount,
+              detail: selectedMethod.detail,
+            }
+          : {
+              id: shippingOptionId,
+              label: shippingOptionId,
+              amount: 0,
+            };
       }
 
       encrypted.transactionType = mapTransactionType(

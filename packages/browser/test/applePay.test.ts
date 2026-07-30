@@ -17,6 +17,7 @@ import ApplePayButton from "../lib/ui/ApplePay";
 import { Transaction } from "../lib/resources/transaction";
 import type EvervaultClient from "../lib/main";
 import { setupCrypto } from "./setup";
+import type { ApplePayPaymentDetailsInit } from "../lib/ui/ApplePay/types";
 
 const {
   APPLE_PAY_MAX_VERSION,
@@ -33,7 +34,7 @@ const app = "app_test123";
 const merchantId = "merchant_abc";
 const merchantName = "Acme Co";
 
-const paymentRequestCalls: PaymentDetailsInit[] = [];
+const paymentRequestCalls: ApplePayPaymentDetailsInit[] = [];
 const paymentMethodDataCalls: Array<{
   merchantIdentifier?: string;
   merchantCapabilities?: string[];
@@ -45,14 +46,21 @@ const paymentMethodDataCalls: Array<{
   supportedCountries?: string[];
   version?: number;
 }> = [];
+const paymentOptionsCalls: Array<{
+  requestShipping?: boolean;
+  shippingType?: string;
+}> = [];
 const paymentRequestInstances: MockPaymentRequest[] = [];
 
 class MockPaymentRequest {
   onshippingaddresschange: ((event: PaymentRequestUpdateEvent) => void) | null =
     null;
+  onshippingoptionchange: ((event: PaymentRequestUpdateEvent) => void) | null =
+    null;
   onpaymentmethodchange: ((event: PaymentMethodChangeEvent) => void) | null =
     null;
   onmerchantvalidation: ((event: unknown) => void) | null = null;
+  shippingOption: string | null = null;
 
   constructor(
     methodData: Array<{
@@ -68,10 +76,15 @@ class MockPaymentRequest {
         version?: number;
       };
     }>,
-    details: PaymentDetailsInit
+    details: ApplePayPaymentDetailsInit,
+    options?: {
+      requestShipping?: boolean;
+      shippingType?: string;
+    }
   ) {
     paymentMethodDataCalls.push(methodData[0]?.data ?? {});
     paymentRequestCalls.push(details);
+    paymentOptionsCalls.push(options ?? {});
     paymentRequestInstances.push(this);
   }
 }
@@ -139,6 +152,7 @@ beforeAll(() => {
 beforeEach(() => {
   paymentRequestCalls.length = 0;
   paymentMethodDataCalls.length = 0;
+  paymentOptionsCalls.length = 0;
   paymentRequestInstances.length = 0;
   server.use(
     http.get(`${apiUrl}/frontend/merchants/${merchantId}`, () =>
@@ -681,6 +695,203 @@ describe("buildSession contact prefill", () => {
 
     expect(paymentMethodDataCalls[0].billingContact).toBeUndefined();
     expect(paymentMethodDataCalls[0].shippingContact).toBeUndefined();
+  });
+});
+
+describe("buildSession shipping methods", () => {
+  const shippingMethods = [
+    {
+      id: "standard",
+      label: "Standard Shipping",
+      amount: 299,
+      detail: "3-5 business days",
+      selected: true,
+    },
+    {
+      id: "express",
+      label: "Express Shipping",
+      amount: 999,
+      detail: "1-2 business days",
+    },
+  ];
+
+  beforeEach(() => {
+    server.use(
+      http.get(`${apiUrl}/frontend/sdk/config`, () =>
+        HttpResponse.json({ is_sandbox: false }, { status: 200 })
+      )
+    );
+  });
+
+  it("maps shippingType and shippingMethods onto the PaymentRequest", async () => {
+    await buildSession(applePay, {
+      transaction: {
+        ...transaction,
+        amount: 3799,
+        lineItems: [
+          { label: "Mens Shirt", amount: 3000 },
+          { label: "Socks", amount: 500 },
+          { label: "Standard Shipping", amount: 299 },
+        ],
+      },
+      shippingType: "delivery",
+      shippingMethods,
+    });
+
+    expect(paymentOptionsCalls[0].requestShipping).toBe(true);
+    expect(paymentOptionsCalls[0].shippingType).toBe("delivery");
+    expect(paymentRequestCalls[0].shippingOptions).toEqual([
+      {
+        id: "standard",
+        label: "Standard Shipping",
+        amount: { currency: "USD", value: "2.99" },
+        selected: true,
+        detail: "3-5 business days",
+      },
+      {
+        id: "express",
+        label: "Express Shipping",
+        amount: { currency: "USD", value: "9.99" },
+        selected: false,
+        detail: "1-2 business days",
+      },
+    ]);
+  });
+
+  it("maps storePickup shippingType to Payment Request pickup", async () => {
+    await buildSession(applePay, {
+      transaction,
+      shippingType: "storePickup",
+      shippingMethods: [
+        { id: "pickup", label: "Store Pickup", amount: 0, selected: true },
+      ],
+    });
+
+    expect(paymentOptionsCalls[0].shippingType).toBe("pickup");
+  });
+
+  it("rejects shipping methods on recurring transactions", async () => {
+    await expect(
+      buildSession(applePay, {
+        transaction: recurringTransaction,
+        shippingMethods,
+      })
+    ).rejects.toThrow(
+      "Apple Pay shipping methods are only supported for one-off payment transactions"
+    );
+  });
+
+  it("rejects shipping methods on disbursement transactions", async () => {
+    await expect(
+      buildSession(applePay, {
+        transaction: disbursementTransaction,
+        shippingMethods,
+      })
+    ).rejects.toThrow(
+      "Apple Pay shipping methods are only supported for one-off payment transactions"
+    );
+  });
+
+  it("internally recomputes totals on shippingoptionchange when no merchant callback is set", async () => {
+    const request = await buildSession(applePay, {
+      transaction: {
+        ...transaction,
+        amount: 3799,
+        lineItems: [
+          { label: "Mens Shirt", amount: 3000 },
+          { label: "Socks", amount: 500 },
+          { label: "Standard Shipping", amount: 299 },
+        ],
+      },
+      shippingMethods,
+    });
+
+    const session = paymentRequestInstances[0];
+    session.shippingOption = "express";
+    const updateWith = vi.fn();
+    request.onshippingoptionchange?.({
+      target: session,
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent);
+
+    expect(updateWith).toHaveBeenCalledTimes(1);
+    const update = await updateWith.mock.calls[0][0];
+    expect(update.total?.amount.value).toBe("44.99");
+    expect(update.displayItems).toEqual([
+      {
+        label: "Mens Shirt",
+        amount: { value: "30.00", currency: "USD" },
+      },
+      {
+        label: "Socks",
+        amount: { value: "5.00", currency: "USD" },
+      },
+      {
+        label: "Express Shipping",
+        amount: { value: "9.99", currency: "USD" },
+      },
+    ]);
+    expect(
+      update.shippingOptions?.find((o: { id: string }) => o.id === "express")
+        ?.selected
+    ).toBe(true);
+    expect(
+      update.shippingOptions?.find((o: { id: string }) => o.id === "standard")
+        ?.selected
+    ).toBe(false);
+  });
+
+  it("calls onShippingMethodSelected and updateWith on shippingoptionchange", async () => {
+    const onShippingMethodSelected = vi.fn().mockResolvedValue({
+      amount: 4499,
+      lineItems: [
+        { label: "Mens Shirt", amount: 3000 },
+        { label: "Socks", amount: 500 },
+        { label: "Express Shipping", amount: 999 },
+      ],
+    });
+
+    const request = await buildSession(applePay, {
+      transaction: {
+        ...transaction,
+        amount: 3799,
+      },
+      shippingMethods,
+      onShippingMethodSelected,
+    });
+
+    const session = paymentRequestInstances[0];
+    session.shippingOption = "express";
+    const updateWith = vi.fn();
+    request.onshippingoptionchange?.({
+      target: session,
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent);
+
+    expect(onShippingMethodSelected).toHaveBeenCalledWith(shippingMethods[1]);
+    const update = await updateWith.mock.calls[0][0];
+    expect(update.total?.amount.value).toBe("44.99");
+    expect(update.shippingOptions).toHaveLength(2);
+  });
+
+  it("still calls updateWith when shippingoptionchange has a null target", async () => {
+    const request = await buildSession(applePay, {
+      transaction: { ...transaction, amount: 3799 },
+      shippingMethods,
+    });
+
+    const updateWith = vi.fn();
+    expect(() =>
+      request.onshippingoptionchange?.({
+        target: null,
+        updateWith,
+      } as unknown as PaymentRequestUpdateEvent)
+    ).not.toThrow();
+    expect(updateWith).toHaveBeenCalled();
+
+    const update = await updateWith.mock.calls[0][0];
+    // Falls back to the initially selected (or first) method.
+    expect(update.total?.amount.value).toBe("37.99");
   });
 });
 

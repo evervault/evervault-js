@@ -16,6 +16,11 @@ import {
   ValidateMerchantResponse,
   ApplePayCardNetwork,
   ApplePayPaymentRequest,
+  ApplePayShippingMethod,
+  ApplePayShippingType,
+  ApplePayPaymentDetailsInit,
+  ApplePayPaymentDetailsUpdate,
+  PaymentShippingOption,
   ShippingAddress,
   PaymentContact,
   PaymentMethodUpdate,
@@ -39,9 +44,11 @@ type BuildSessionOptions = {
   requestPayerDetails?: ("name" | "email" | "phone" | "postalAddress")[];
   requestBillingAddress?: boolean;
   requestShipping?: boolean;
+  shippingType?: ApplePayShippingType;
+  shippingMethods?: ApplePayShippingMethod[];
   paymentOverrides?: {
     paymentMethodData?: PaymentMethodData[];
-    paymentDetails?: PaymentDetailsInit;
+    paymentDetails?: ApplePayPaymentDetailsInit;
   };
   disbursementOverrides?: {
     disbursementDetails?: PaymentDetailsInit;
@@ -51,6 +58,9 @@ type BuildSessionOptions = {
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   onShippingAddressChange?: (
     newAddress: ShippingAddress
+  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
+  onShippingMethodSelected?: (
+    shippingMethod: ApplePayShippingMethod
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   supportsCouponCode?: boolean;
   couponCode?: string;
@@ -94,6 +104,121 @@ function applyContactFields(
   if (config.shippingContact) {
     data.shippingContact = config.shippingContact;
   }
+}
+
+/**
+ * Shipping methods are only supported on one-off payment transactions.
+ * Recurring and disbursement reject them (CARD-875 AC).
+ */
+function assertShippingMethodsAllowed(
+  tx: TransactionDetailsWithDomain,
+  config: BuildSessionOptions
+) {
+  if (!config.shippingMethods?.length) return;
+
+  if (tx.type !== "payment") {
+    throw new Error(
+      "Apple Pay shipping methods are only supported for one-off payment transactions"
+    );
+  }
+}
+
+function mapPaymentRequestShippingType(
+  shippingType?: ApplePayShippingType
+): "shipping" | "delivery" | "pickup" {
+  if (shippingType === "delivery") return "delivery";
+  if (shippingType === "storePickup" || shippingType === "servicePickup") {
+    return "pickup";
+  }
+  return "shipping";
+}
+
+function mapShippingMethodsToPaymentOptions(
+  methods: ApplePayShippingMethod[],
+  currency: string
+): PaymentShippingOption[] {
+  const hasExplicitSelection = methods.some((method) => method.selected);
+  return methods.map((method, index) => {
+    const option: PaymentShippingOption = {
+      id: method.id,
+      label: method.label,
+      amount: {
+        currency,
+        value: (method.amount / 100).toFixed(2),
+      },
+      selected: hasExplicitSelection ? Boolean(method.selected) : index === 0,
+    };
+    if (method.detail != null) {
+      option.detail = method.detail;
+    }
+    return option;
+  });
+}
+
+function resolveSelectedShippingMethod(
+  shippingOptionId: string | null | undefined,
+  methods: ApplePayShippingMethod[]
+): ApplePayShippingMethod | undefined {
+  if (!methods.length) return undefined;
+  if (shippingOptionId) {
+    return methods.find((method) => method.id === shippingOptionId);
+  }
+  return methods.find((method) => method.selected) ?? methods[0];
+}
+
+/**
+ * Goods total excluding the initially selected shipping method amount.
+ * When a method is marked selected (or the first is defaulted), the transaction
+ * amount is treated as already including that method's cost — matching the iOS
+ * summary-items pattern.
+ */
+function resolveGoodsAmount(
+  tx: TransactionDetailsWithDomain,
+  methods: ApplePayShippingMethod[]
+): number {
+  if (!methods.length) return tx.amount;
+  const initial = methods.find((method) => method.selected) ?? methods[0];
+  return tx.amount - initial.amount;
+}
+
+function withUpdatedShippingSelection(
+  methods: ApplePayShippingMethod[],
+  selectedId: string,
+  currency: string
+): PaymentShippingOption[] {
+  return mapShippingMethodsToPaymentOptions(
+    methods.map((method) => ({
+      ...method,
+      selected: method.id === selectedId,
+    })),
+    currency
+  );
+}
+
+function buildInternalShippingMethodUpdate(
+  selected: ApplePayShippingMethod,
+  config: BuildSessionOptions,
+  tx: TransactionDetailsWithDomain
+): { amount: number; lineItems?: TransactionLineItem[] } {
+  const methods = config.shippingMethods ?? [];
+  const goodsAmount = resolveGoodsAmount(tx, methods);
+  const amount = goodsAmount + selected.amount;
+
+  const methodLabels = new Set(methods.map((method) => method.label));
+  const baseLineItems = (tx.lineItems ?? []).filter(
+    (item) => !methodLabels.has(item.label)
+  );
+
+  return {
+    amount,
+    lineItems: [
+      ...baseLineItems,
+      {
+        label: selected.label,
+        amount: selected.amount,
+      },
+    ],
+  };
 }
 
 function assertBase64ApplicationData(applicationData: string) {
@@ -228,6 +353,7 @@ export async function buildSession(
   config: BuildSessionOptions
 ) {
   const { transaction: tx } = config;
+  assertShippingMethodsAllowed(tx, config);
 
   const merchant = await getMerchant(applePay, tx.merchantId);
   if (!merchant) {
@@ -297,6 +423,17 @@ export async function buildSession(
     event.updateWith({});
   };
 
+  // Apple Pay requires updateWith on every shippingoptionchange or the
+  // selection silently no-ops. Prefer the merchant callback when provided;
+  // otherwise recompute totals from the selected method amount.
+  baseRequest.onshippingoptionchange = (event: PaymentRequestUpdateEvent) => {
+    const target = event.target as ApplePayPaymentRequest | null;
+    const selectedId =
+      target?.shippingOption ?? baseRequest.shippingOption ?? null;
+
+    event.updateWith(updateShippingMethod(selectedId, config, tx, merchant));
+  };
+
   // Apple Pay widens PaymentRequest event types beyond the DOM lib.
   // @ts-expect-error - Apple Pay overrides PaymentRequest properties
   baseRequest.onpaymentmethodchange = (event: PaymentMethodChangeEvent) => {
@@ -335,8 +472,9 @@ async function createPaymentUpdate(
     lineItems?: TransactionLineItem[];
   },
   tx: TransactionDetailsWithDomain,
-  merchant: MerchantDetail
-): Promise<PaymentDetailsUpdate> {
+  merchant: MerchantDetail,
+  shippingOptions?: PaymentShippingOption[]
+): Promise<ApplePayPaymentDetailsUpdate> {
   const displayItems = mapLineItemsToDisplayItems(
     updatedTransactionConfig.lineItems,
     tx.currency
@@ -351,6 +489,7 @@ async function createPaymentUpdate(
   return {
     displayItems,
     total,
+    ...(shippingOptions ? { shippingOptions } : {}),
   };
 }
 
@@ -359,11 +498,19 @@ async function updatePaymentRequest(
   config: BuildSessionOptions,
   tx: TransactionDetailsWithDomain,
   merchant: MerchantDetail
-): Promise<PaymentDetailsUpdate> {
+): Promise<ApplePayPaymentDetailsUpdate> {
   const updatedTransactionConfig = await config.onShippingAddressChange!(
     newAddress
   );
-  return createPaymentUpdate(updatedTransactionConfig, tx, merchant);
+  const shippingOptions = config.shippingMethods?.length
+    ? mapShippingMethodsToPaymentOptions(config.shippingMethods, tx.currency)
+    : undefined;
+  return createPaymentUpdate(
+    updatedTransactionConfig,
+    tx,
+    merchant,
+    shippingOptions
+  );
 }
 
 async function updatePaymentMethod(
@@ -371,11 +518,50 @@ async function updatePaymentMethod(
   config: BuildSessionOptions,
   tx: TransactionDetailsWithDomain,
   merchant: MerchantDetail
-): Promise<PaymentDetailsUpdate> {
+): Promise<ApplePayPaymentDetailsUpdate> {
   const updatedTransactionConfig = await config.onPaymentMethodChange!(
     newMethod
   );
   return createPaymentUpdate(updatedTransactionConfig, tx, merchant);
+}
+
+async function updateShippingMethod(
+  shippingOptionId: string | null,
+  config: BuildSessionOptions,
+  tx: TransactionDetailsWithDomain,
+  merchant: MerchantDetail
+): Promise<ApplePayPaymentDetailsUpdate> {
+  const methods = config.shippingMethods ?? [];
+  const selected = resolveSelectedShippingMethod(shippingOptionId, methods);
+
+  if (!selected) {
+    return {};
+  }
+
+  const shippingOptions = withUpdatedShippingSelection(
+    methods,
+    selected.id,
+    tx.currency
+  );
+
+  if (config.onShippingMethodSelected) {
+    const updatedTransactionConfig = await config.onShippingMethodSelected(
+      selected
+    );
+    return createPaymentUpdate(
+      updatedTransactionConfig,
+      tx,
+      merchant,
+      shippingOptions
+    );
+  }
+
+  return createPaymentUpdate(
+    buildInternalShippingMethodUpdate(selected, config, tx),
+    tx,
+    merchant,
+    shippingOptions
+  );
 }
 
 async function updateCouponCode(
@@ -383,7 +569,7 @@ async function updateCouponCode(
   config: BuildSessionOptions,
   tx: TransactionDetailsWithDomain,
   merchant: MerchantDetail
-): Promise<PaymentDetailsUpdate> {
+): Promise<ApplePayPaymentDetailsUpdate> {
   const result = await config.onCouponCodeChange!(couponCode);
   const update = await createPaymentUpdate(result, tx, merchant);
 
@@ -406,13 +592,19 @@ function buildPaymentSession(
   const lineItems = mapLineItemsToDisplayItems(tx.lineItems, tx.currency);
 
   const paymentMethodData = buildApplePayMethodData(config, tx.country);
+  const shippingOptions = config.shippingMethods?.length
+    ? mapShippingMethodsToPaymentOptions(config.shippingMethods, tx.currency)
+    : undefined;
+  const requestShipping =
+    config.requestShipping || Boolean(config.shippingMethods?.length);
 
-  const paymentDetails: PaymentDetailsInit = {
+  const paymentDetails: ApplePayPaymentDetailsInit = {
     total: {
       label: tx.priceLabel ?? merchant.name,
       amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
     },
     displayItems: lineItems,
+    ...(shippingOptions ? { shippingOptions } : {}),
   };
 
   const paymentOptions = {
@@ -422,8 +614,8 @@ function buildPaymentSession(
     requestPayerPhone: config.requestPayerDetails?.includes("phone") ?? false,
     requestPostalAddress:
       config.requestPayerDetails?.includes("postalAddress") ?? false,
-    requestShipping: config.requestShipping ?? false,
-    shippingType: "shipping",
+    requestShipping,
+    shippingType: mapPaymentRequestShippingType(config.shippingType),
     onShippingAddressChange: config.onShippingAddressChange,
   };
 
