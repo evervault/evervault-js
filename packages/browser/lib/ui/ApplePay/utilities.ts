@@ -137,7 +137,19 @@ function mapShippingMethodsToPaymentOptions(
   methods: ApplePayShippingMethod[],
   currency: string
 ): PaymentShippingOption[] {
-  const hasExplicitSelection = methods.some((method) => method.selected);
+  const selectedIndexes = methods
+    .map((method, index) => (method.selected ? index : -1))
+    .filter((index) => index >= 0);
+
+  if (selectedIndexes.length > 1) {
+    console.warn(
+      "[Evervault Apple Pay] Multiple shippingMethods have selected: true; " +
+        "only the first will be treated as selected."
+    );
+  }
+
+  const selectedIndex = selectedIndexes[0] ?? 0;
+
   return methods.map((method, index) => {
     const option: PaymentShippingOption = {
       id: method.id,
@@ -146,7 +158,7 @@ function mapShippingMethodsToPaymentOptions(
         currency,
         value: (method.amount / 100).toFixed(2),
       },
-      selected: hasExplicitSelection ? Boolean(method.selected) : index === 0,
+      selected: index === selectedIndex,
     };
     if (method.detail != null) {
       option.detail = method.detail;
@@ -195,6 +207,21 @@ function withUpdatedShippingSelection(
   );
 }
 
+function resolveShippingOptionsForUpdate(
+  config: BuildSessionOptions,
+  currency: string,
+  selectedId: string | null | undefined
+): PaymentShippingOption[] | undefined {
+  const methods = config.shippingMethods;
+  if (!methods?.length) return undefined;
+
+  const selected = resolveSelectedShippingMethod(selectedId, methods);
+  if (!selected) {
+    return mapShippingMethodsToPaymentOptions(methods, currency);
+  }
+  return withUpdatedShippingSelection(methods, selected.id, currency);
+}
+
 function buildInternalShippingMethodUpdate(
   selected: ApplePayShippingMethod,
   config: BuildSessionOptions,
@@ -205,9 +232,25 @@ function buildInternalShippingMethodUpdate(
   const amount = goodsAmount + selected.amount;
 
   const methodLabels = new Set(methods.map((method) => method.label));
-  const baseLineItems = (tx.lineItems ?? []).filter(
+  const originalLineItems = tx.lineItems ?? [];
+  const baseLineItems = originalLineItems.filter(
     (item) => !methodLabels.has(item.label)
   );
+  const removedCount = originalLineItems.length - baseLineItems.length;
+
+  // Internal recompute keys shipping line items by label. A mismatch leaves a
+  // stale shipping row on the sheet while the total uses method.amount.
+  if (originalLineItems.length > 0 && removedCount !== 1) {
+    const expectedLabel =
+      methods.find((method) => method.selected)?.label ?? methods[0]?.label;
+    console.warn(
+      "[Evervault Apple Pay] Internal shipping total recompute expected to " +
+        `replace exactly one line item matching a shippingMethods[].label, but removed ${removedCount}. ` +
+        `Ensure an initial line item uses the same label as the selected shipping method` +
+        (expectedLabel ? ` (e.g. "${expectedLabel}")` : "") +
+        ". Prefer onShippingMethodSelected to control line items explicitly."
+    );
+  }
 
   return {
     amount,
@@ -377,6 +420,13 @@ export async function buildSession(
     baseRequest = buildDisbursementSession(merchant, config, tx);
   }
 
+  // Persist the live selection across address/coupon updates. Rebuilding
+  // shippingOptions from the original config.selected flags would otherwise
+  // reset the sheet to the initially selected method.
+  let activeShippingOptionId: string | null =
+    resolveSelectedShippingMethod(null, config.shippingMethods ?? [])?.id ??
+    null;
+
   baseRequest.onmerchantvalidation = async (event) => {
     const merchantSessionPromise = await validateMerchant(
       applePay,
@@ -395,6 +445,7 @@ export async function buildSession(
     // remote-continuity handoff.
     const target = event.target as unknown as {
       shippingAddress?: ShippingAddress;
+      shippingOption?: string | null;
     } | null;
     const methodDetails = (
       event as PaymentRequestUpdateEvent & { methodDetails?: unknown }
@@ -404,7 +455,13 @@ export async function buildSession(
     if (isCouponCodeUpdate(methodDetails)) {
       if (config.onCouponCodeChange) {
         event.updateWith(
-          updateCouponCode(methodDetails.couponCode, config, tx, merchant)
+          updateCouponCode(
+            methodDetails.couponCode,
+            config,
+            tx,
+            merchant,
+            activeShippingOptionId
+          )
         );
         return;
       }
@@ -413,9 +470,19 @@ export async function buildSession(
     }
 
     if (target?.shippingAddress && config.onShippingAddressChange) {
+      const selectedId =
+        target.shippingOption ??
+        baseRequest.shippingOption ??
+        activeShippingOptionId;
       // Do not await this promise — PaymentRequest expects updateWith(promise).
       event.updateWith(
-        updatePaymentRequest(target.shippingAddress, config, tx, merchant)
+        updatePaymentRequest(
+          target.shippingAddress,
+          config,
+          tx,
+          merchant,
+          selectedId
+        )
       );
       return;
     }
@@ -429,7 +496,13 @@ export async function buildSession(
   baseRequest.onshippingoptionchange = (event: PaymentRequestUpdateEvent) => {
     const target = event.target as ApplePayPaymentRequest | null;
     const selectedId =
-      target?.shippingOption ?? baseRequest.shippingOption ?? null;
+      target?.shippingOption ??
+      baseRequest.shippingOption ??
+      activeShippingOptionId;
+
+    if (selectedId) {
+      activeShippingOptionId = selectedId;
+    }
 
     event.updateWith(updateShippingMethod(selectedId, config, tx, merchant));
   };
@@ -444,7 +517,13 @@ export async function buildSession(
     if (isCouponCodeUpdate(methodDetails)) {
       if (config.onCouponCodeChange) {
         return event.updateWith(
-          updateCouponCode(methodDetails.couponCode, config, tx, merchant)
+          updateCouponCode(
+            methodDetails.couponCode,
+            config,
+            tx,
+            merchant,
+            activeShippingOptionId
+          )
         );
       }
       return event.updateWith({});
@@ -497,14 +576,17 @@ async function updatePaymentRequest(
   newAddress: ShippingAddress,
   config: BuildSessionOptions,
   tx: TransactionDetailsWithDomain,
-  merchant: MerchantDetail
+  merchant: MerchantDetail,
+  selectedShippingOptionId?: string | null
 ): Promise<ApplePayPaymentDetailsUpdate> {
   const updatedTransactionConfig = await config.onShippingAddressChange!(
     newAddress
   );
-  const shippingOptions = config.shippingMethods?.length
-    ? mapShippingMethodsToPaymentOptions(config.shippingMethods, tx.currency)
-    : undefined;
+  const shippingOptions = resolveShippingOptionsForUpdate(
+    config,
+    tx.currency,
+    selectedShippingOptionId
+  );
   return createPaymentUpdate(
     updatedTransactionConfig,
     tx,
@@ -568,10 +650,21 @@ async function updateCouponCode(
   couponCode: string,
   config: BuildSessionOptions,
   tx: TransactionDetailsWithDomain,
-  merchant: MerchantDetail
+  merchant: MerchantDetail,
+  selectedShippingOptionId?: string | null
 ): Promise<ApplePayPaymentDetailsUpdate> {
   const result = await config.onCouponCodeChange!(couponCode);
-  const update = await createPaymentUpdate(result, tx, merchant);
+  const shippingOptions = resolveShippingOptionsForUpdate(
+    config,
+    tx.currency,
+    selectedShippingOptionId
+  );
+  const update = await createPaymentUpdate(
+    result,
+    tx,
+    merchant,
+    shippingOptions
+  );
 
   if (result.error) {
     // Payment Request bridge: ApplePayError via paymentMethodErrors

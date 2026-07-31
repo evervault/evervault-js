@@ -278,18 +278,25 @@ export default class ApplePayButton {
         const selectedMethod = this.#options.shippingMethods?.find(
           (method) => method.id === shippingOptionId
         );
-        encrypted.shippingMethod = selectedMethod
-          ? {
-              id: selectedMethod.id,
-              label: selectedMethod.label,
-              amount: selectedMethod.amount,
-              detail: selectedMethod.detail,
-            }
-          : {
-              id: shippingOptionId,
-              label: shippingOptionId,
-              amount: 0,
-            };
+        if (selectedMethod) {
+          encrypted.shippingMethod = {
+            id: selectedMethod.id,
+            label: selectedMethod.label,
+            amount: selectedMethod.amount,
+            detail: selectedMethod.detail,
+          };
+        } else {
+          console.warn(
+            `[Evervault Apple Pay] PaymentResponse.shippingOption "${shippingOptionId}" ` +
+              "did not match any configured shippingMethods. " +
+              "Returning a placeholder shippingMethod with amount 0."
+          );
+          encrypted.shippingMethod = {
+            id: shippingOptionId,
+            label: shippingOptionId,
+            amount: 0,
+          };
+        }
       }
 
       encrypted.transactionType = mapTransactionType(

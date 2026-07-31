@@ -893,6 +893,181 @@ describe("buildSession shipping methods", () => {
     // Falls back to the initially selected (or first) method.
     expect(update.total?.amount.value).toBe("37.99");
   });
+
+  it("preserves the selected shipping method after a later shipping address change", async () => {
+    const onShippingAddressChange = vi.fn().mockResolvedValue({
+      amount: 4499,
+      lineItems: [
+        { label: "Mens Shirt", amount: 3000 },
+        { label: "Socks", amount: 500 },
+        { label: "Express Shipping", amount: 999 },
+      ],
+    });
+
+    const request = await buildSession(applePay, {
+      transaction: {
+        ...transaction,
+        amount: 3799,
+        lineItems: [
+          { label: "Mens Shirt", amount: 3000 },
+          { label: "Socks", amount: 500 },
+          { label: "Standard Shipping", amount: 299 },
+        ],
+      },
+      shippingMethods,
+      onShippingAddressChange,
+    });
+
+    const session = paymentRequestInstances[0];
+    session.shippingOption = "express";
+    request.onshippingoptionchange?.({
+      target: session,
+      updateWith: vi.fn(),
+    } as unknown as PaymentRequestUpdateEvent);
+
+    const updateWith = vi.fn();
+    request.onshippingaddresschange?.({
+      // No shippingOption on the address-change target — selection must come
+      // from the live session / persisted activeShippingOptionId.
+      target: {
+        shippingAddress: {
+          addressLine: ["1 Main St"],
+          city: "Dublin",
+          country: "IE",
+          dependentLocality: "",
+          organization: "",
+          phone: "",
+          postalCode: "D01",
+          recipient: "Jane",
+          region: "",
+          sortingCode: "",
+        },
+      },
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent);
+
+    const update = await updateWith.mock.calls[0][0];
+    expect(onShippingAddressChange).toHaveBeenCalled();
+    expect(
+      update.shippingOptions?.find((o: { id: string }) => o.id === "express")
+        ?.selected
+    ).toBe(true);
+    expect(
+      update.shippingOptions?.find((o: { id: string }) => o.id === "standard")
+        ?.selected
+    ).toBe(false);
+  });
+
+  it("preserves the selected shipping method across coupon updates", async () => {
+    const onCouponCodeChange = vi.fn().mockResolvedValue({
+      amount: 3799,
+      lineItems: [
+        { label: "Mens Shirt", amount: 3000 },
+        { label: "Socks", amount: 500 },
+        { label: "Coupon", amount: -700 },
+        { label: "Express Shipping", amount: 999 },
+      ],
+    });
+
+    const request = await buildSession(applePay, {
+      transaction: {
+        ...transaction,
+        amount: 3799,
+      },
+      shippingMethods,
+      supportsCouponCode: true,
+      onCouponCodeChange,
+    });
+
+    const session = paymentRequestInstances[0];
+    session.shippingOption = "express";
+    request.onshippingoptionchange?.({
+      target: session,
+      updateWith: vi.fn(),
+    } as unknown as PaymentRequestUpdateEvent);
+
+    const updateWith = vi.fn();
+    request.onshippingaddresschange?.({
+      target: {},
+      methodDetails: { couponCode: "SAVE20" },
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent);
+
+    const update = await updateWith.mock.calls[0][0];
+    expect(onCouponCodeChange).toHaveBeenCalledWith("SAVE20");
+    expect(update.shippingOptions).toHaveLength(2);
+    expect(
+      update.shippingOptions?.find((o: { id: string }) => o.id === "express")
+        ?.selected
+    ).toBe(true);
+  });
+
+  it("warns when internal recompute cannot match a shipping line item by label", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const request = await buildSession(applePay, {
+      transaction: {
+        ...transaction,
+        amount: 3799,
+        lineItems: [
+          { label: "Mens Shirt", amount: 3000 },
+          { label: "Socks", amount: 500 },
+          // Label does not match shippingMethods[].label ("Standard Shipping")
+          { label: "Shipping", amount: 299 },
+        ],
+      },
+      shippingMethods,
+    });
+
+    const session = paymentRequestInstances[0];
+    session.shippingOption = "express";
+    const updateWith = vi.fn();
+    request.onshippingoptionchange?.({
+      target: session,
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent);
+
+    await updateWith.mock.calls[0][0];
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "expected to replace exactly one line item matching a shippingMethods[].label"
+      )
+    );
+
+    warn.mockRestore();
+  });
+
+  it("warns and keeps only the first selected shipping method when multiple are marked selected", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    await buildSession(applePay, {
+      transaction,
+      shippingMethods: [
+        {
+          id: "standard",
+          label: "Standard Shipping",
+          amount: 299,
+          selected: true,
+        },
+        {
+          id: "express",
+          label: "Express Shipping",
+          amount: 999,
+          selected: true,
+        },
+      ],
+    });
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("Multiple shippingMethods have selected: true")
+    );
+    expect(paymentRequestCalls[0].shippingOptions).toEqual([
+      expect.objectContaining({ id: "standard", selected: true }),
+      expect.objectContaining({ id: "express", selected: false }),
+    ]);
+
+    warn.mockRestore();
+  });
 });
 
 describe("buildSession request-config passthrough", () => {
