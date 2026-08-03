@@ -4,7 +4,6 @@
 
 ### Patch Changes
 
-- a7ddfa7: Fix duplicate 3DS iframe posts and Evervault client memoization
 - Updated dependencies [ee0d7fc]
   - @evervault/react@2.28.0
 
