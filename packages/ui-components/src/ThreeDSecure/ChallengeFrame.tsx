@@ -12,12 +12,17 @@ export interface ChallengeFrameProps {
 }
 
 export function ChallengeFrame({ nextAction, onLoad }: ChallengeFrameProps) {
-  const postedCreq = useRef<string | null>(null);
+  const postedAction = useRef<ChallengeNextAction | null>(null);
   const frameRef = useCallback(
     (node: HTMLIFrameElement) => {
       if (!node) return;
-      if (postedCreq.current === nextAction.creq) return;
-      postedCreq.current = nextAction.creq;
+      if (
+        postedAction.current?.creq === nextAction.creq &&
+        postedAction.current?.url === nextAction.url
+      ) {
+        return;
+      }
+      postedAction.current = nextAction;
       postRedirectFrame(node, nextAction.url, { creq: nextAction.creq });
     },
     [nextAction.creq, nextAction.url]

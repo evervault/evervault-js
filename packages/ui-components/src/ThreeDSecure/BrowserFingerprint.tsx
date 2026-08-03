@@ -15,12 +15,17 @@ export function BrowserFingerprint({
   onComplete,
   onTimeout,
 }: BrowserFingerprintProps) {
-  const postedData = useRef<string | null>(null);
+  const postedAction = useRef<BrowserFingerprintNextAction | null>(null);
   const frameRef = useCallback(
     (node: HTMLIFrameElement) => {
       if (!node) return;
-      if (postedData.current === action.data) return;
-      postedData.current = action.data;
+      if (
+        postedAction.current?.data === action.data &&
+        postedAction.current?.url === action.url
+      ) {
+        return;
+      }
+      postedAction.current = action;
       postRedirectFrame(node, action.url, { threeDSMethodData: action.data });
     },
     [action.data, action.url]
