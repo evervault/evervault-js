@@ -22,17 +22,25 @@ type ThreeDSecureInstance = ReturnType<Evervault["ui"]["threeDSecure"]>;
 export function useThreeDSecure(opts?: UseThreeDSecureOptions) {
   const ev = useEvervault();
   const instance = useRef<ThreeDSecureInstance | null>(null);
+  const lock = useRef(false);
 
   const start = useCallback(
     (session: string, callbacks?: UseThreeDSecureCallbacks) => {
-      if (instance.current) {
-        instance.current.unmount();
-        instance.current = null;
+      if (instance.current || lock.current) {
+        console.warn("Evervault frame already mounted");
+        return;
       }
+
+      lock.current = true;
 
       async function init() {
         const evervault = await ev;
-        if (!evervault) return;
+
+        if (!evervault) {
+          lock.current = false;
+          return;
+        }
+
         try {
           instance.current = evervault.ui.threeDSecure(session, opts);
 
@@ -41,20 +49,33 @@ export function useThreeDSecure(opts?: UseThreeDSecureOptions) {
           }
 
           if (callbacks?.onSuccess) {
-            instance.current.on("success", callbacks.onSuccess);
+            instance.current.on("success", () => {
+              lock.current = false;
+              instance.current = null;
+              callbacks.onSuccess?.();
+            });
           }
 
           if (callbacks?.onFailure) {
-            instance.current.on("failure", callbacks.onFailure);
+            instance.current.on("failure", () => {
+              lock.current = false;
+              instance.current = null;
+              callbacks.onFailure?.();
+            });
           }
 
           if (callbacks?.onError) {
-            instance.current.on("error", callbacks.onError);
+            instance.current.on("error", (error) => {
+              lock.current = false;
+              instance.current = null;
+              callbacks.onError?.(error);
+            });
           }
 
           instance.current.mount();
         } catch (error) {
           instance.current = null;
+          lock.current = false;
           if (callbacks?.onError) {
             callbacks.onError(error as ComponentError);
           }
@@ -70,8 +91,9 @@ export function useThreeDSecure(opts?: UseThreeDSecureOptions) {
     return () => {
       if (instance.current) {
         instance.current.unmount();
-        instance.current = null;
       }
+      instance.current = null;
+      lock.current = false;
     };
   }, []);
 
