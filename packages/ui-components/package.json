@@ -30,6 +30,7 @@
     "types": "workspace:*"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.2",
     "@types/jsdom": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

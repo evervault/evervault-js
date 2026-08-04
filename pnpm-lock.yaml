@@ -1197,6 +1197,9 @@ importers:
         specifier: workspace:*
         version: link:../types
     devDependencies:
+      '@testing-library/react':
+        specifier: ^16.3.2
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.0.6(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@types/jsdom':
         specifier: 'catalog:'
         version: 21.1.6
@@ -12716,7 +12719,7 @@ snapshots:
   '@expo/cli@0.24.24(graphql@16.14.2)':
     dependencies:
       '@0no-co/graphql.web': 1.0.13(graphql@16.14.2)
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.29.7
       '@expo/code-signing-certificates': 0.0.6
       '@expo/config': 11.0.13
       '@expo/config-plugins': 10.1.2
@@ -13555,14 +13558,14 @@ snapshots:
 
   '@manypkg/find-root@1.1.0':
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.29.7
       '@types/node': 12.20.55
       find-up: 4.1.0
       fs-extra: 8.1.0
 
   '@manypkg/get-packages@1.1.3':
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.29.7
       '@changesets/types': 4.1.0
       '@manypkg/find-root': 1.1.0
       fs-extra: 8.1.0
@@ -14818,7 +14821,7 @@ snapshots:
 
   '@testing-library/react@16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.0.6(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.29.7
       '@testing-library/dom': 10.4.1
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
@@ -16051,7 +16054,7 @@ snapshots:
 
   css-vendor@2.0.8:
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.29.7
       is-in-browser: 1.1.3
 
   css-what@6.1.0: {}
@@ -16110,7 +16113,7 @@ snapshots:
 
   date-fns@2.30.0:
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.29.7
 
   dayjs@1.11.21: {}
 
@@ -18595,7 +18598,7 @@ snapshots:
 
   metro-runtime@0.82.5:
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.29.7
       flow-enums-runtime: 0.0.6
 
   metro-source-map@0.82.5:
@@ -20176,7 +20179,7 @@ snapshots:
 
   regenerator-transform@0.15.2:
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.29.7
 
   regexp.prototype.flags@1.5.2:
     dependencies:
