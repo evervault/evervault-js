@@ -1,5 +1,6 @@
 import Evervault from "@evervault/browser";
 import "./style.css";
+import "./perf-rum";
 
 const BASE_AMOUNT = 1000; // $10.00 in cents
 const COUPON_SAVE20 = "SAVE20";

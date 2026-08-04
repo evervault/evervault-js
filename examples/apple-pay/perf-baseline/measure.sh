@@ -3,11 +3,12 @@
 # Not part of the shipped SDK — local dev tooling only, safe to delete anytime.
 #
 # Delegates all tunnel/dev-server setup to ../run-tunnel.sh (see
-# examples/apple-pay/README.md for one-time ngrok setup and troubleshooting)
-# — this script only adds an interactive round-by-round latency capture loop
-# on top: for each manual Apple Pay attempt, paste the performance.measure()
-# entries copied from devtools and it appends timestamped rows to
-# results.csv.
+# examples/apple-pay/README.md for one-time ngrok setup and troubleshooting).
+# The example's own window.__evervault_rum__ hook (src/perf-rum.ts) posts
+# each ev:apple-pay:* measurement straight to a dev-server endpoint
+# (vite.config.ts) that appends to results.csv — no devtools copy/paste
+# needed. Just open the app and do as many Apple Pay attempts as you want
+# (each page load/reload is a new session), then Ctrl+C here when done.
 #
 # Usage:
 #   ./measure.sh
@@ -23,16 +24,20 @@ RESULTS_CSV="$SCRIPT_DIR/results.csv"
 TUNNEL_LOG="$(mktemp)"
 
 TUNNEL_PID=""
+TAIL_PID=""
 
 cleanup() {
+  if [[ -n "$TAIL_PID" ]] && kill -0 "$TAIL_PID" 2>/dev/null; then
+    kill "$TAIL_PID" 2>/dev/null || true
+  fi
   rm -f "$TUNNEL_LOG"
   if [[ -n "$TUNNEL_PID" ]] && kill -0 "$TUNNEL_PID" 2>/dev/null; then
     echo
     echo "Stopping run-tunnel.sh..."
     # SIGINT (not TERM/KILL) so run-tunnel.sh's own `trap 'exit 130' INT` runs
-    # its normal EXIT-trap teardown (ngrok, dev server, port) exactly as if the
-    # user had pressed Ctrl+C on it directly — measure.sh must not duplicate
-    # that teardown logic itself.
+    # its normal EXIT-trap teardown (ngrok, dev server, port) exactly as if
+    # the user had pressed Ctrl+C on it directly — measure.sh must not
+    # duplicate that teardown logic itself.
     kill -INT "$TUNNEL_PID" 2>/dev/null || true
     wait "$TUNNEL_PID" 2>/dev/null || true
   fi
@@ -66,7 +71,7 @@ APP_URL=$(grep -m1 "^Tunnel ready: " "$TUNNEL_LOG" | sed 's/^Tunnel ready: //')
 MERCHANT_HOST=$(grep -A1 "^Register this domain" "$TUNNEL_LOG" | tail -1 | sed 's/^ *//')
 
 if [[ ! -f "$RESULTS_CSV" ]]; then
-  echo "timestamp,browser,round,measure,duration_ms" >"$RESULTS_CSV"
+  echo "timestamp,browser,session,measure,duration_ms" >"$RESULTS_CSV"
 fi
 
 echo
@@ -75,41 +80,16 @@ echo " App:              $APP_URL"
 [[ -n "$MERCHANT_HOST" ]] && echo " Merchant domain:   $MERCHANT_HOST"
 echo "=========================================================="
 echo
-echo "For each measurement round:"
-echo "  1. Open $APP_URL in Safari, or in desktop Chrome for the phone-QR"
-echo "     remote-continuity flow."
-echo "  2. Do the flow you want to measure (page load mounts the button;"
-echo "     tap through the sheet with a Wallet card — or scan the QR code on"
-echo "     your phone — for the other spans)."
-echo "  3. In devtools console, run:"
+echo "Open $APP_URL in Safari, or in desktop Chrome for the phone-QR"
+echo "remote-continuity flow. Do as many Apple Pay attempts as you want —"
+echo "each page load/reload starts a new session, and every ev:apple-pay:*"
+echo "measurement is recorded automatically. No devtools copy/paste needed."
 echo
-cat <<'JS'
-     copy(performance.getEntriesByType("measure")
-       .filter(m => m.name.startsWith("ev:apple-pay:"))
-       .map(m => `${m.name},${m.duration.toFixed(1)}`)
-       .join("\n"))
-JS
-echo
-echo "     This copies CSV rows straight to your clipboard."
-echo
-echo "Paste the copied rows below (one per line), then an empty line to save"
-echo "that round. Type 'q' at the browser prompt to quit and tear down."
+echo "Recorded rows print below as they land in $RESULTS_CSV."
+echo "Ctrl+C when you're done."
 echo
 
-round=1
-while true; do
-  read -rp "[round $round] browser (safari/chrome, or q to quit): " browser
-  [[ "$browser" == "q" ]] && break
+tail -n 0 -f "$RESULTS_CSV" &
+TAIL_PID=$!
 
-  echo "Paste rows (measure,duration_ms), empty line to finish:"
-  while IFS= read -r line; do
-    [[ -z "$line" ]] && break
-    ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    echo "$ts,$browser,$round,$line" >>"$RESULTS_CSV"
-  done
-
-  round=$((round + 1))
-done
-
-echo
-echo "Saved results to $RESULTS_CSV"
+wait "$TUNNEL_PID"

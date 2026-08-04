@@ -92,12 +92,15 @@ VERBOSE=1 pnpm dev:tunnel
 
 ## Capturing latency measurements
 
-`perf-baseline/measure.sh` wraps `run-tunnel.sh` with an interactive
-round-by-round loop for collecting `ev:apple-pay:*` render-latency
-measurements (tap-to-sheet, authorize-to-done, mount) across repeated manual
-runs — including the desktop-Chrome + phone-QR remote-continuity flow, which
-doesn't need a local Wallet card. Results are appended to
-`perf-baseline/results.csv` (gitignored, local-only):
+`perf-baseline/measure.sh` wraps `run-tunnel.sh` to collect `ev:apple-pay:*`
+render-latency measurements (tap-to-sheet, authorize-to-done, mount) —
+including the desktop-Chrome + phone-QR remote-continuity flow, which
+doesn't need a local Wallet card. The example's `window.__evervault_rum__`
+hook (`src/perf-rum.ts`) posts each measurement straight to a small dev-server
+endpoint (`vite.config.ts`), which appends it to `perf-baseline/results.csv`
+(gitignored, local-only) — no devtools-console copy/paste required. Just open
+the printed URL and do as many Apple Pay attempts as you want; each page
+load/reload starts a new session:
 
 ```bash
 pnpm perf:baseline
