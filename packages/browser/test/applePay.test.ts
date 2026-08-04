@@ -1361,6 +1361,68 @@ async function clickApplePayButton(apple: ApplePayButton) {
   button?.dispatchEvent(new Event("click"));
 }
 
+describe("ApplePayButton script loading", () => {
+  beforeEach(() => {
+    vi.stubGlobal("PaymentRequest", class PaymentRequest {});
+    vi.stubGlobal("ApplePaySession", {
+      applePayCapabilities: vi.fn().mockResolvedValue({
+        paymentCredentialStatus: "paymentCredentialsAvailable",
+      }),
+    });
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("resolves availability() as soon as the SDK script's onload fires, without polling", async () => {
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    const script = document.querySelector<HTMLScriptElement>(
+      'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
+    );
+    expect(script).not.toBeNull();
+
+    let resolved = false;
+    const availabilityPromise = apple.availability().then((result) => {
+      resolved = true;
+      return result;
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(resolved).toBe(false);
+
+    script!.dispatchEvent(new Event("load"));
+
+    await expect(availabilityPromise).resolves.toBe("available");
+    expect(resolved).toBe(true);
+  });
+
+  it("rejects with a timeout error if the SDK script never loads", async () => {
+    vi.useFakeTimers();
+    try {
+      const apple = new ApplePayButton(
+        createMockClient(),
+        createTransaction(),
+        { process: vi.fn() }
+      );
+
+      const assertion = expect(apple.availability()).rejects.toThrow(
+        "Apple Pay SDK script load timeout"
+      );
+
+      await vi.advanceTimersByTimeAsync(10000);
+      await assertion;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
 describe("ApplePayButton.abort", () => {
   beforeEach(() => {
     buildSessionMock.mockReset();
