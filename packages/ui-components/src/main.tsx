@@ -30,7 +30,7 @@ if (import.meta.env.VITE_TEST_COVERAGE === "true") {
 
   // Listen for requests for coverage metrics
   window.addEventListener("message", (event) => {
-    if (event.data.type === "GET_COVERAGE_REPORT") {
+    if (event.data?.type === "GET_COVERAGE_REPORT") {
       window.parent.postMessage(
         {
           type: "COVERAGE_REPORT",
