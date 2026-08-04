@@ -90,6 +90,21 @@ NGROK_DOMAIN=abc123xyz.ngrok-free.dev pnpm dev:tunnel
 VERBOSE=1 pnpm dev:tunnel
 ```
 
+## Capturing latency measurements
+
+`perf-baseline/measure.sh` wraps `run-tunnel.sh` with an interactive
+round-by-round loop for collecting `ev:apple-pay:*` render-latency
+measurements (tap-to-sheet, authorize-to-done, mount) across repeated manual
+runs — including the desktop-Chrome + phone-QR remote-continuity flow, which
+doesn't need a local Wallet card. Results are appended to
+`perf-baseline/results.csv` (gitignored, local-only):
+
+```bash
+pnpm perf:baseline
+# or, from the repo root:
+pnpm examples:apple-pay:perf-baseline
+```
+
 ## Tearing down
 
 Ctrl+C the running script. It kills every process it started and frees port
