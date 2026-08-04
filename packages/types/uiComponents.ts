@@ -358,6 +358,16 @@ export type EncryptedApplePayData = Omit<
     emailAddress?: string;
     phoneNumber?: string;
   };
+  /**
+   * The shipping method the customer selected on the Apple Pay sheet.
+   * Present when `shippingMethods` were configured on the web Apple Pay button.
+   */
+  shippingMethod?: {
+    id: string;
+    label: string;
+    amount: number;
+    detail?: string;
+  };
 };
 
 export interface ApplePayClientMessages extends EvervaultFrameClientMessages {
