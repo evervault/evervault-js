@@ -804,7 +804,7 @@ function buildRecurringSession(
     requestPayerEmail: config.requestPayerDetails?.includes("email") ?? false,
     requestPayerPhone: config.requestPayerDetails?.includes("phone") ?? false,
     requestShipping: config.requestShipping ?? false,
-    shippingType: "shipping",
+    shippingType: mapPaymentRequestShippingType(config.shippingType),
   };
 
   const paymentOverrides = config.paymentOverrides || {};

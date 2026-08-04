@@ -792,6 +792,17 @@ describe("buildSession shipping methods", () => {
     );
   });
 
+  it("passes shippingType through on recurring when only requestShipping is set", async () => {
+    await buildSession(applePay, {
+      transaction: recurringTransaction,
+      requestShipping: true,
+      shippingType: "delivery",
+    });
+
+    expect(paymentOptionsCalls[0].requestShipping).toBe(true);
+    expect(paymentOptionsCalls[0].shippingType).toBe("delivery");
+  });
+
   it("internally recomputes totals on shippingoptionchange when no merchant callback is set", async () => {
     const request = await buildSession(applePay, {
       transaction: {
@@ -1315,7 +1326,7 @@ function createMockClient(): EvervaultClient {
   return {
     config: {
       appId: "app_test",
-      http: { apiUrl: "https://api.evervault.com" },
+      http: { apiUrl },
     },
   } as EvervaultClient;
 }
@@ -1469,5 +1480,120 @@ describe("ApplePayButton.abort", () => {
     });
 
     await expect(apple.abort()).resolves.toBeUndefined();
+  });
+});
+
+describe("ApplePayButton shipping method on process()", () => {
+  function createResolvedSession(shippingOption?: string | null) {
+    return {
+      show: vi.fn().mockResolvedValue({
+        details: {
+          token: {
+            paymentData: {},
+            paymentMethod: { displayName: "Visa 1234", type: "credit" },
+          },
+        },
+        shippingOption,
+        complete: vi.fn().mockResolvedValue(undefined),
+      }),
+      abort: vi.fn(),
+    };
+  }
+
+  beforeEach(() => {
+    buildSessionMock.mockReset();
+    vi.spyOn(applePayUtilities, "buildSession").mockImplementation(
+      buildSessionMock
+    );
+
+    vi.stubGlobal("PaymentRequest", class PaymentRequest {});
+
+    vi.stubGlobal("ApplePaySession", {
+      applePayCapabilities: vi.fn().mockResolvedValue({
+        paymentCredentialStatus: "paymentCredentialsAvailable",
+      }),
+    });
+
+    const script = document.createElement("script");
+    script.src =
+      "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
+    document.body.appendChild(script);
+
+    server.use(
+      http.post(`${apiUrl}/frontend/apple-pay/credentials`, () =>
+        HttpResponse.json({ card: {} })
+      )
+    );
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("attaches the matching shippingMethod to the process() payload", async () => {
+    buildSessionMock.mockResolvedValue(createResolvedSession("express"));
+    const process = vi.fn().mockResolvedValue(undefined);
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process,
+      shippingMethods: [
+        { id: "standard", label: "Standard Shipping", amount: 299 },
+        {
+          id: "express",
+          label: "Express Shipping",
+          amount: 999,
+          detail: "1-2 days",
+        },
+      ],
+    });
+
+    await clickApplePayButton(apple);
+    await vi.waitFor(() => expect(process).toHaveBeenCalled());
+
+    expect(process.mock.calls[0][0].shippingMethod).toEqual({
+      id: "express",
+      label: "Express Shipping",
+      amount: 999,
+      detail: "1-2 days",
+    });
+  });
+
+  it("falls back to a placeholder and warns when shippingOption matches nothing", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    buildSessionMock.mockResolvedValue(createResolvedSession("unknown-id"));
+    const process = vi.fn().mockResolvedValue(undefined);
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process,
+      shippingMethods: [
+        { id: "standard", label: "Standard Shipping", amount: 299 },
+      ],
+    });
+
+    await clickApplePayButton(apple);
+    await vi.waitFor(() => expect(process).toHaveBeenCalled());
+
+    expect(process.mock.calls[0][0].shippingMethod).toEqual({
+      id: "unknown-id",
+      label: "unknown-id",
+      amount: 0,
+    });
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("did not match any configured shippingMethods")
+    );
+    warn.mockRestore();
+  });
+
+  it("omits shippingMethod entirely when no shippingOption is returned", async () => {
+    buildSessionMock.mockResolvedValue(createResolvedSession(undefined));
+    const process = vi.fn().mockResolvedValue(undefined);
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process,
+    });
+
+    await clickApplePayButton(apple);
+    await vi.waitFor(() => expect(process).toHaveBeenCalled());
+
+    expect(process.mock.calls[0][0].shippingMethod).toBeUndefined();
   });
 });
