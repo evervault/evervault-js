@@ -1,5 +1,16 @@
 # @evervault/browser
 
+## 2.62.0
+
+### Minor Changes
+
+- 36a3869: Add Apple Pay request-config passthrough for `applicationData`, `supportedCountries`, pending `lineItems[].type`, and `supportsVersion` gating.
+- cc146de: Add Apple Pay shipping methods and shipping type on the web SDK (`shippingMethods`, `shippingType`, `onShippingMethodSelected`). Merchants can offer selectable shipping options on one-off payment sheets; selecting a method recomputes totals (via the merchant callback or an internal amount adjustment) and the chosen method is returned on the `process()` payload as `shippingMethod`.
+
+### Patch Changes
+
+- a8657b5: Guard `postMessage`/`BroadcastChannel` message listeners in `EvervaultFrame`, `useMessaging`, and `useBroadcastChannel` against events with `null`/`undefined` `data`, preventing a crash when any other script on the page (browser extension, ad/analytics snippet, etc.) posts a message to the window.
+
 ## 2.61.0
 
 ### Minor Changes
