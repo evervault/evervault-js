@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
+import "./perf-rum";
 
 // Set the color scheme based on the query parameter
 const search = new URLSearchParams(window.location.search);

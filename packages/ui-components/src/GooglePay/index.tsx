@@ -11,7 +11,7 @@ import {
 } from "types";
 import { useSearchParams } from "../utilities/useSearchParams";
 import { getMerchant } from "../utilities/useMerchant";
-import { getAppSDKConfig } from "shared";
+import { getAppSDKConfig, markStart, markEndAndReport } from "shared";
 import { apiConfig } from "../utilities/config";
 
 const FUNDING_SOURCE_MAP: Partial<
@@ -50,8 +50,12 @@ export function GooglePay({ config }: GooglePayProps) {
     if (called.current) return;
     called.current = true;
 
+    markStart("ev:google-pay:mount");
+
     async function onLoad() {
+      markStart("ev:google-pay:get-app-sdk-config");
       const appConfig = await getAppSDKConfig(app, apiConfig.apiUrl);
+      markEndAndReport("ev:google-pay:get-app-sdk-config");
       const paymentsClient = new google.payments.api.PaymentsClient({
         // Always use 'test' in staging, but use the resolved environment in production
         environment:
@@ -62,6 +66,14 @@ export function GooglePay({ config }: GooglePayProps) {
             : "PRODUCTION",
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
+            // Mirrors ev:apple-pay:authorize-to-done: this callback fires the
+            // moment the user authorizes in the Google Pay sheet (the
+            // equivalent of session.show() resolving for Apple Pay), and
+            // resolving it is what tells Google the result — so start/end
+            // here brackets the same "authorized -> done" work (exchange +
+            // host-page round trip), not the sheet's own on-screen time.
+            markStart("ev:google-pay:authorize-to-done");
+
             const payload = await exchangePaymentData(
               app,
               data,
@@ -108,6 +120,7 @@ export function GooglePay({ config }: GooglePayProps) {
             return new Promise((resolve) => {
               on("EV_GOOGLE_PAY_AUTH_COMPLETE", () => {
                 send("EV_GOOGLE_PAY_SUCCESS");
+                markEndAndReport("ev:google-pay:authorize-to-done");
                 resolve({ transactionState: "SUCCESS" });
               });
 
@@ -117,6 +130,7 @@ export function GooglePay({ config }: GooglePayProps) {
                   intent: error.intent || "PAYMENT_AUTHORIZATION",
                   message: error.message,
                 };
+                markEndAndReport("ev:google-pay:authorize-to-done");
                 resolve({
                   transactionState: "ERROR",
                   error: googleError,
@@ -130,7 +144,9 @@ export function GooglePay({ config }: GooglePayProps) {
       });
 
       try {
+        markStart("ev:google-pay:get-merchant");
         const merchant = await getMerchant(app, config.transaction.merchantId);
+        markEndAndReport("ev:google-pay:get-merchant");
         if (!merchant) {
           throw new Error("Merchant not found");
         }
@@ -144,6 +160,48 @@ export function GooglePay({ config }: GooglePayProps) {
           buttonRadius: config.borderRadius || 4,
           buttonSizeMode: "fill",
           onClick: async () => {
+            // Mirrors ev:apple-pay:tap-to-sheet — measuring click -> sheet has
+            // content, not just click -> sheet requested. Google renders its
+            // sheet in a payframe iframe
+            // (https://pay.google.com/gp/p/ui/payframe) it injects into this
+            // document. That frame is a different origin, so we can't see
+            // what's rendered inside it, but we can watch for it being added
+            // and listen for its own load event — the closest signal
+            // available to us for "sheet has content" (confirmed via manual
+            // testing: this is a real injected iframe, not a native
+            // browser-chrome sheet we'd have no DOM visibility into at all).
+            markStart("ev:google-pay:tap-to-sheet");
+
+            let tapToSheetSettled = false;
+            const endTapToSheet = () => {
+              if (tapToSheetSettled) return;
+              tapToSheetSettled = true;
+              markEndAndReport("ev:google-pay:tap-to-sheet");
+            };
+
+            const frameObserver = new MutationObserver((mutations) => {
+              for (const mutation of mutations) {
+                for (const node of mutation.addedNodes) {
+                  if (
+                    node instanceof HTMLIFrameElement &&
+                    node.src.startsWith(
+                      "https://pay.google.com/gp/p/ui/payframe"
+                    )
+                  ) {
+                    node.addEventListener("load", endTapToSheet, {
+                      once: true,
+                    });
+                    frameObserver.disconnect();
+                    return;
+                  }
+                }
+              }
+            });
+            frameObserver.observe(document.body, {
+              childList: true,
+              subtree: true,
+            });
+
             try {
               await paymentsClient.loadPaymentData(paymentRequest);
             } catch (err) {
@@ -153,12 +211,20 @@ export function GooglePay({ config }: GooglePayProps) {
                 const errorMsg = `Something went wrong, please try again: ${err}`;
                 send("EV_GOOGLE_PAY_ERROR", errorMsg);
               }
+            } finally {
+              // Fallback: if the payframe never appeared (e.g. Google
+              // rejected before rendering anything) or the flow settled
+              // before its load event fired, still close out the mark
+              // rather than leaving a dangling start with no end.
+              frameObserver.disconnect();
+              endTapToSheet();
             }
           },
         });
 
         if (container.current) {
           container.current.appendChild(btn);
+          markEndAndReport("ev:google-pay:mount");
 
           setSize({
             width: container.current.offsetWidth,
