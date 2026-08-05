@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 4000",
+    "perf:baseline": "./perf-baseline/measure.sh",
     "clean": "rm -rf node_modules dist"
   },
   "dependencies": {

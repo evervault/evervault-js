@@ -32,6 +32,7 @@ select({
     [
       "--",
       "pnpm",
+      "--parallel",
       "--filter",
       "@evervault/ui-components",
       "--filter",

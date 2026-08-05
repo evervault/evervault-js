@@ -1,0 +1,9 @@
+timestamp,browser,session,measure,duration_ms
+"2026-08-05T14:12:22.938Z","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Claude/1.22209.3 Chrome/148.0.7778.271 Electron/42.5.1 Safari/537.36","8c2cbe80-2b1e-495e-84b3-6fbb87182ba4","ev:google-pay:mount",194.3
+"2026-08-05T14:12:54.054Z","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36","0c0fb0ab-2d5f-4055-950a-059ca422a3c5","ev:google-pay:mount",116.9
+"2026-08-05T14:12:55.277Z","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36","0c0fb0ab-2d5f-4055-950a-059ca422a3c5","ev:google-pay:tap-to-sheet",0.0
+"2026-08-05T14:13:00.386Z","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36","0c0fb0ab-2d5f-4055-950a-059ca422a3c5","ev:google-pay:authorize-to-done",2054.4
+"2026-08-05T14:13:02.640Z","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36","0c0fb0ab-2d5f-4055-950a-059ca422a3c5","ev:google-pay:tap-to-sheet",0.0
+"2026-08-05T14:13:07.487Z","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36","0c0fb0ab-2d5f-4055-950a-059ca422a3c5","ev:google-pay:tap-to-sheet",0.1
+"2026-08-05T14:13:13.457Z","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36","1dcb064c-2ffb-4b3d-aa61-aa7fd4693a7e","ev:google-pay:mount",98.5
+"2026-08-05T14:13:16.044Z","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36","eea414d5-ee7a-4aa4-8392-f42328ac1147","ev:google-pay:mount",64.5

@@ -64,6 +64,14 @@ export function GooglePay({ config }: GooglePayProps) {
             : "PRODUCTION",
         paymentDataCallbacks: {
           onPaymentAuthorized: async (data) => {
+            // Mirrors ev:apple-pay:authorize-to-done: this callback fires the
+            // moment the user authorizes in the Google Pay sheet (the
+            // equivalent of session.show() resolving for Apple Pay), and
+            // resolving it is what tells Google the result — so start/end
+            // here brackets the same "authorized -> done" work (exchange +
+            // host-page round trip), not the sheet's own on-screen time.
+            markStart("ev:google-pay:authorize-to-done");
+
             const payload = await exchangePaymentData(
               app,
               data,
@@ -110,6 +118,7 @@ export function GooglePay({ config }: GooglePayProps) {
             return new Promise((resolve) => {
               on("EV_GOOGLE_PAY_AUTH_COMPLETE", () => {
                 send("EV_GOOGLE_PAY_SUCCESS");
+                markEndAndReport("ev:google-pay:authorize-to-done");
                 resolve({ transactionState: "SUCCESS" });
               });
 
@@ -119,6 +128,7 @@ export function GooglePay({ config }: GooglePayProps) {
                   intent: error.intent || "PAYMENT_AUTHORIZATION",
                   message: error.message,
                 };
+                markEndAndReport("ev:google-pay:authorize-to-done");
                 resolve({
                   transactionState: "ERROR",
                   error: googleError,
@@ -146,6 +156,12 @@ export function GooglePay({ config }: GooglePayProps) {
           buttonRadius: config.borderRadius || 4,
           buttonSizeMode: "fill",
           onClick: async () => {
+            // Mirrors ev:apple-pay:tap-to-sheet. Unlike Apple Pay, there's no
+            // async setup between click and requesting the sheet (paymentRequest
+            // is already built above) — expect this to read near-zero. Kept for
+            // parity/consistency rather than because setup cost is expected here.
+            markStart("ev:google-pay:tap-to-sheet");
+            markEndAndReport("ev:google-pay:tap-to-sheet");
             try {
               await paymentsClient.loadPaymentData(paymentRequest);
             } catch (err) {
