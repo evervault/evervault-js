@@ -75,10 +75,7 @@ function perfTrackEndpoint(): Plugin | null {
             res.statusCode = 204;
             res.end();
           } catch (error) {
-            console.error(
-              "[perf-track] failed to record measurement",
-              error
-            );
+            console.error("[perf-track] failed to record measurement", error);
             res.statusCode = 400;
             res.end();
           }
