@@ -53,7 +53,9 @@ export function GooglePay({ config }: GooglePayProps) {
     markStart("ev:google-pay:mount");
 
     async function onLoad() {
+      markStart("ev:google-pay:get-app-sdk-config");
       const appConfig = await getAppSDKConfig(app, apiConfig.apiUrl);
+      markEndAndReport("ev:google-pay:get-app-sdk-config");
       const paymentsClient = new google.payments.api.PaymentsClient({
         // Always use 'test' in staging, but use the resolved environment in production
         environment:
@@ -142,7 +144,9 @@ export function GooglePay({ config }: GooglePayProps) {
       });
 
       try {
+        markStart("ev:google-pay:get-merchant");
         const merchant = await getMerchant(app, config.transaction.merchantId);
+        markEndAndReport("ev:google-pay:get-merchant");
         if (!merchant) {
           throw new Error("Merchant not found");
         }
@@ -156,12 +160,48 @@ export function GooglePay({ config }: GooglePayProps) {
           buttonRadius: config.borderRadius || 4,
           buttonSizeMode: "fill",
           onClick: async () => {
-            // Mirrors ev:apple-pay:tap-to-sheet. Unlike Apple Pay, there's no
-            // async setup between click and requesting the sheet (paymentRequest
-            // is already built above) — expect this to read near-zero. Kept for
-            // parity/consistency rather than because setup cost is expected here.
+            // Mirrors ev:apple-pay:tap-to-sheet — measuring click -> sheet has
+            // content, not just click -> sheet requested. Google renders its
+            // sheet in a payframe iframe
+            // (https://pay.google.com/gp/p/ui/payframe) it injects into this
+            // document. That frame is a different origin, so we can't see
+            // what's rendered inside it, but we can watch for it being added
+            // and listen for its own load event — the closest signal
+            // available to us for "sheet has content" (confirmed via manual
+            // testing: this is a real injected iframe, not a native
+            // browser-chrome sheet we'd have no DOM visibility into at all).
             markStart("ev:google-pay:tap-to-sheet");
-            markEndAndReport("ev:google-pay:tap-to-sheet");
+
+            let tapToSheetSettled = false;
+            const endTapToSheet = () => {
+              if (tapToSheetSettled) return;
+              tapToSheetSettled = true;
+              markEndAndReport("ev:google-pay:tap-to-sheet");
+            };
+
+            const frameObserver = new MutationObserver((mutations) => {
+              for (const mutation of mutations) {
+                for (const node of mutation.addedNodes) {
+                  if (
+                    node instanceof HTMLIFrameElement &&
+                    node.src.startsWith(
+                      "https://pay.google.com/gp/p/ui/payframe"
+                    )
+                  ) {
+                    node.addEventListener("load", endTapToSheet, {
+                      once: true,
+                    });
+                    frameObserver.disconnect();
+                    return;
+                  }
+                }
+              }
+            });
+            frameObserver.observe(document.body, {
+              childList: true,
+              subtree: true,
+            });
+
             try {
               await paymentsClient.loadPaymentData(paymentRequest);
             } catch (err) {
@@ -171,6 +211,13 @@ export function GooglePay({ config }: GooglePayProps) {
                 const errorMsg = `Something went wrong, please try again: ${err}`;
                 send("EV_GOOGLE_PAY_ERROR", errorMsg);
               }
+            } finally {
+              // Fallback: if the payframe never appeared (e.g. Google
+              // rejected before rendering anything) or the flow settled
+              // before its load event fired, still close out the mark
+              // rather than leaving a dangling start with no end.
+              frameObserver.disconnect();
+              endTapToSheet();
             }
           },
         });
