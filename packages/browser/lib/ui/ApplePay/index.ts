@@ -25,7 +25,7 @@ import {
 } from "./types";
 import { tryCatch } from "../../utilities";
 import { Transaction } from "../../resources/transaction";
-import { markStart, markEndAndReport } from "shared";
+import { markStart, markEndAndReport } from "shared/perf";
 
 const APPLE_PAY_SCRIPT_URL =
   "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
