@@ -147,6 +147,8 @@ export default class ApplePayButton {
   #options: ApplePayButtonOptions;
   #events = new EventManager<ApplePayEvents>();
   #scriptLoaded = false;
+  #scriptLoadPromise: Promise<void>;
+  #resolveScriptLoad!: () => void;
   #activeSession: PaymentRequest | null = null;
   #abortRequested = false;
   #sessionInProgress = false;
@@ -160,6 +162,9 @@ export default class ApplePayButton {
     this.client = client;
     this.#options = options;
     this.transaction = transaction;
+    this.#scriptLoadPromise = new Promise((resolve) => {
+      this.#resolveScriptLoad = resolve;
+    });
     this.#injectScript();
   }
 
@@ -168,6 +173,7 @@ export default class ApplePayButton {
     const existing = document.querySelector(selector);
     if (existing) {
       this.#scriptLoaded = true;
+      this.#resolveScriptLoad();
       return;
     }
 
@@ -177,6 +183,7 @@ export default class ApplePayButton {
     script.crossOrigin = "anonymous";
     script.onload = () => {
       this.#scriptLoaded = true;
+      this.#resolveScriptLoad();
     };
 
     document.body.appendChild(script);
@@ -402,20 +409,18 @@ export default class ApplePayButton {
     if (this.#scriptLoaded) return;
     const TIMEOUT = 10000;
 
-    return new Promise((resolve, reject) => {
-      const start = Date.now();
-      const interval = setInterval(() => {
-        if (this.#scriptLoaded) {
-          clearInterval(interval);
-          resolve(true);
-        }
-
-        if (Date.now() - start > TIMEOUT) {
-          clearInterval(interval);
-          reject(new Error("Apple Pay SDK script load timeout"));
-        }
-      }, 100);
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const timeout = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => {
+        reject(new Error("Apple Pay SDK script load timeout"));
+      }, TIMEOUT);
     });
+
+    try {
+      await Promise.race([this.#scriptLoadPromise, timeout]);
+    } finally {
+      clearTimeout(timeoutId!);
+    }
   }
 
   /**
