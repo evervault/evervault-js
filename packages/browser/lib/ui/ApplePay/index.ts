@@ -436,13 +436,11 @@ export default class ApplePayButton {
    */
   async availability(): Promise<"available" | "unavailable" | "unsupported"> {
     if (!this.#availabilityPromise) {
-      this.#availabilityPromise = this.#computeAvailability().catch(
-        (error) => {
-          // Don't cache a failed probe — allow a later call to retry.
-          this.#availabilityPromise = null;
-          throw error;
-        }
-      );
+      this.#availabilityPromise = this.#computeAvailability().catch((error) => {
+        // Don't cache a failed probe — allow a later call to retry.
+        this.#availabilityPromise = null;
+        throw error;
+      });
     }
 
     return this.#availabilityPromise;
