@@ -198,6 +198,42 @@ describe("buildSession sandbox label", () => {
   });
 });
 
+describe("buildSession GET concurrency", () => {
+  it("issues the merchant and sdk-config requests concurrently, not sequentially", async () => {
+    let resolveMerchant: () => void = () => {};
+    const merchantGate = new Promise<void>((resolve) => {
+      resolveMerchant = resolve;
+    });
+    let sdkConfigRequested = false;
+
+    server.use(
+      http.get(`${apiUrl}/frontend/merchants/${merchantId}`, async () => {
+        await merchantGate;
+        return HttpResponse.json(
+          { id: merchantId, name: merchantName },
+          { status: 200 }
+        );
+      }),
+      http.get(`${apiUrl}/frontend/sdk/config`, () => {
+        sdkConfigRequested = true;
+        return HttpResponse.json({ is_sandbox: false }, { status: 200 });
+      })
+    );
+
+    const buildSessionPromise = buildSession(applePay, { transaction });
+
+    // If the two GETs were sequential, sdk-config would never be requested
+    // while the merchant request is still gated open — this only resolves
+    // if both requests are in flight concurrently.
+    await vi.waitFor(() => {
+      expect(sdkConfigRequested).toBe(true);
+    });
+
+    resolveMerchant();
+    await buildSessionPromise;
+  });
+});
+
 describe("buildSession onshippingaddresschange", () => {
   beforeEach(() => {
     server.use(

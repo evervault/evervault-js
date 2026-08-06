@@ -398,15 +398,18 @@ export async function buildSession(
   const { transaction: tx } = config;
   assertShippingMethodsAllowed(tx, config);
 
-  const merchant = await getMerchant(applePay, tx.merchantId);
+  const [merchant, appConfig] = await Promise.all([
+    getMerchant(applePay, tx.merchantId),
+    getAppSDKConfig(
+      applePay.client.config.appId,
+      applePay.client.config.http.apiUrl
+    ),
+  ]);
+
   if (!merchant) {
     throw new Error("Merchant not found");
   }
 
-  const appConfig = await getAppSDKConfig(
-    applePay.client.config.appId,
-    applePay.client.config.http.apiUrl
-  );
   if (appConfig.is_sandbox) {
     merchant.name = `${merchant.name} (Card is not charged)`;
   }

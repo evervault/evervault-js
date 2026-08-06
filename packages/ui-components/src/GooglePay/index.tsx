@@ -51,7 +51,10 @@ export function GooglePay({ config }: GooglePayProps) {
     called.current = true;
 
     async function onLoad() {
-      const appConfig = await getAppSDKConfig(app, apiConfig.apiUrl);
+      const appConfigPromise = getAppSDKConfig(app, apiConfig.apiUrl);
+      const merchantPromise = getMerchant(app, config.transaction.merchantId);
+
+      const appConfig = await appConfigPromise;
       const paymentsClient = new google.payments.api.PaymentsClient({
         // Always use 'test' in staging, but use the resolved environment in production
         environment:
@@ -130,7 +133,7 @@ export function GooglePay({ config }: GooglePayProps) {
       });
 
       try {
-        const merchant = await getMerchant(app, config.transaction.merchantId);
+        const merchant = await merchantPromise;
         if (!merchant) {
           throw new Error("Merchant not found");
         }
