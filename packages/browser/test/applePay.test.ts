@@ -1695,3 +1695,110 @@ describe("ApplePayButton shipping method on process()", () => {
     expect(process.mock.calls[0][0].shippingMethod).toBeUndefined();
   });
 });
+
+describe("ApplePayButton.availability", () => {
+  function stubApplePaySession(
+    capabilities:
+      | { paymentCredentialStatus: string }
+      | (() => Promise<{ paymentCredentialStatus: string }>)
+  ) {
+    vi.stubGlobal("ApplePaySession", {
+      applePayCapabilities:
+        typeof capabilities === "function"
+          ? vi.fn(capabilities)
+          : vi.fn().mockResolvedValue(capabilities),
+    });
+  }
+
+  beforeEach(() => {
+    vi.stubGlobal("PaymentRequest", class PaymentRequest {});
+    stubApplePaySession({
+      paymentCredentialStatus: "paymentCredentialsAvailable",
+    });
+
+    const script = document.createElement("script");
+    script.src =
+      "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
+    document.body.appendChild(script);
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("only calls applePayCapabilities once across repeated availability() calls", async () => {
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    const first = await apple.availability();
+    const second = await apple.availability();
+
+    expect(first).toBe("available");
+    expect(second).toBe("available");
+    expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
+  });
+
+  it("only calls applePayCapabilities once when availability() is followed by mount()", async () => {
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    await apple.availability();
+
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    await apple.mount(container);
+
+    expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
+  });
+
+  it("dedupes concurrent availability() calls into a single in-flight probe", async () => {
+    let resolveCapabilities: (value: {
+      paymentCredentialStatus: string;
+    }) => void = () => {};
+    stubApplePaySession(
+      () =>
+        new Promise((resolve) => {
+          resolveCapabilities = resolve;
+        })
+    );
+
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+    const firstCall = apple.availability();
+    const secondCall = apple.availability();
+    await vi.waitFor(() => {
+      expect(ApplePaySession.applePayCapabilities).toHaveBeenCalled();
+    });
+
+    resolveCapabilities({
+      paymentCredentialStatus: "paymentCredentialsAvailable",
+    });
+
+    await expect(firstCall).resolves.toBe("available");
+    await expect(secondCall).resolves.toBe("available");
+    expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
+  });
+
+  it("does not cache a failed probe, allowing a later call to retry", async () => {
+    stubApplePaySession(() => Promise.reject(new Error("native probe failed")));
+
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    await expect(apple.availability()).rejects.toThrow("native probe failed");
+    expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
+
+    stubApplePaySession({
+      paymentCredentialStatus: "paymentCredentialsAvailable",
+    });
+
+    await expect(apple.availability()).resolves.toBe("available");
+    expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
+  });
+});

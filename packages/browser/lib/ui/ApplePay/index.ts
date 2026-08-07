@@ -153,6 +153,9 @@ export default class ApplePayButton {
   #abortRequested = false;
   #sessionInProgress = false;
   #showStarted = false;
+  #availabilityPromise: Promise<
+    "available" | "unavailable" | "unsupported"
+  > | null = null;
 
   constructor(
     client: EvervaultClient,
@@ -432,6 +435,20 @@ export default class ApplePayButton {
    * - "unsupported": Apple Pay is not supported on this device or browser.
    */
   async availability(): Promise<"available" | "unavailable" | "unsupported"> {
+    if (!this.#availabilityPromise) {
+      this.#availabilityPromise = this.#computeAvailability().catch((error) => {
+        // Don't cache a failed probe — allow a later call to retry.
+        this.#availabilityPromise = null;
+        throw error;
+      });
+    }
+
+    return this.#availabilityPromise;
+  }
+
+  async #computeAvailability(): Promise<
+    "available" | "unavailable" | "unsupported"
+  > {
     if (typeof window.PaymentRequest === "undefined") return "unsupported";
     await this.#waitForScript();
 
