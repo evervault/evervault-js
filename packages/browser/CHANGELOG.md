@@ -1,5 +1,13 @@
 # @evervault/browser
 
+## 2.62.1
+
+### Patch Changes
+
+- a76ac2b: Replace the 100ms `setInterval` poll in `ApplePayButton`'s script-load wait with the SDK script's own `onload` event, removing up to ~100ms of artificial latency from `availability()`/`mount()`.
+- e689131: Dedupe the redundant native `ApplePaySession.applePayCapabilities()` call in `ApplePayButton`. `availability()` now memoizes its in-flight/resolved result on the instance, so calling `.availability()` before `.mount()` (the common integration pattern for driving "checking availability" UI) no longer triggers the expensive native capability probe twice per render.
+- f0c20d9: Parallelize the independent `getMerchant`/`getAppSDKConfig` requests in ApplePay's `buildSession` and GooglePay's SDK-load handler (`Promise.all`/concurrent kickoff instead of sequential awaits), removing one round-trip of latency from the critical path.
+
 ## 2.62.0
 
 ### Minor Changes
