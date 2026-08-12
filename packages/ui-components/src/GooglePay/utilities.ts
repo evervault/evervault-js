@@ -1,3 +1,4 @@
+import { formatTransactionAmount } from "shared/currency";
 import { EncryptedGooglePayData, MerchantDetail } from "types";
 import { GooglePayConfig } from "./types";
 import { apiConfig } from "../utilities/config";
@@ -52,13 +53,13 @@ export function buildPaymentRequest(
     transactionInfo: {
       totalPriceStatus: "FINAL",
       totalPriceLabel: tx.priceLabel ?? `Pay ${merchant.name}`,
-      totalPrice: (tx.amount / 100).toFixed(2).toString(),
+      totalPrice: formatTransactionAmount(tx.amount, tx.currency),
       currencyCode: tx.currency,
       countryCode: tx.country,
       displayItems: tx.lineItems?.map((item) => ({
         label: item.label,
         type: "LINE_ITEM",
-        price: (item.amount / 100).toFixed(2).toString(),
+        price: formatTransactionAmount(item.amount, tx.currency),
       })),
     },
     callbackIntents: ["PAYMENT_AUTHORIZATION"],
