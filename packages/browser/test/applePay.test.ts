@@ -1175,6 +1175,34 @@ describe("buildSession request-config passthrough", () => {
     ).rejects.toThrow("applicationData must be a Base64-encoded string");
   });
 
+  it.each([
+    { currency: "USD", amount: 1000, expected: "10.00" },
+    { currency: "JPY", amount: 1000, expected: "1000" },
+    { currency: "KWD", amount: 1000, expected: "1.000" },
+    { currency: "XYZ", amount: 1000, expected: "10.00" },
+  ])(
+    "converts $currency amounts using the currency's exponent",
+    async ({ currency, amount, expected }) => {
+      await buildSession(applePay, {
+        transaction: {
+          ...transaction,
+          currency,
+          amount,
+          lineItems: [{ label: "Item", amount }],
+        },
+      });
+
+      expect(paymentRequestCalls[0].total.amount).toEqual({
+        value: expected,
+        currency,
+      });
+      expect(paymentRequestCalls[0].displayItems?.[0].amount).toEqual({
+        value: expected,
+        currency,
+      });
+    }
+  );
+
   it("marks pending line items on displayItems", async () => {
     await buildSession(applePay, {
       transaction: {

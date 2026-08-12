@@ -1,4 +1,5 @@
 import { getAppSDKConfig } from "shared/getAppSDKConfig";
+import { formatTransactionAmount } from "shared/currency";
 import {
   ApplePayMerchantCapability,
   ApplePayTransactionType,
@@ -156,7 +157,7 @@ function mapShippingMethodsToPaymentOptions(
       label: method.label,
       amount: {
         currency,
-        value: (method.amount / 100).toFixed(2),
+        value: formatTransactionAmount(method.amount, currency),
       },
       selected: index === selectedIndex,
     };
@@ -296,7 +297,7 @@ function mapLineItemsToDisplayItems(
   return (lineItems ?? []).map((item) => ({
     label: item.label,
     amount: {
-      value: (item.amount / 100).toFixed(2).toString(),
+      value: formatTransactionAmount(item.amount, currency),
       currency,
     },
     ...(item.type === "pending" ? { pending: true } : {}),
@@ -565,7 +566,10 @@ async function createPaymentUpdate(
     label: tx.priceLabel ?? merchant.name,
     amount: {
       currency: tx.currency,
-      value: (updatedTransactionConfig.amount / 100).toFixed(2),
+      value: formatTransactionAmount(
+        updatedTransactionConfig.amount,
+        tx.currency
+      ),
     },
   };
   return {
@@ -697,7 +701,10 @@ function buildPaymentSession(
   const paymentDetails: ApplePayPaymentDetailsInit = {
     total: {
       label: tx.priceLabel ?? merchant.name,
-      amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
+      amount: {
+        currency: tx.currency,
+        value: formatTransactionAmount(tx.amount, tx.currency),
+      },
     },
     displayItems: lineItems,
     ...(shippingOptions ? { shippingOptions } : {}),
@@ -764,7 +771,10 @@ function buildRecurringSession(
   const paymentDetails: PaymentDetailsInit = {
     total: {
       label: tx.priceLabel ?? merchant.name,
-      amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
+      amount: {
+        currency: tx.currency,
+        value: formatTransactionAmount(tx.amount, tx.currency),
+      },
     },
     displayItems: lineItems,
     modifiers: [
@@ -831,7 +841,7 @@ function buildDisbursementSession(
     tx.lineItems?.map((item) => ({
       label: item.label,
       amount: {
-        value: (item.amount / 100).toFixed(2).toString(),
+        value: formatTransactionAmount(item.amount, tx.currency),
         currency: tx.currency,
       },
       ...(item.type ? { type: item.type } : {}),
