@@ -26,7 +26,7 @@ catalog:
   asn1js: ^3.0.5
   card-validator: ^10.0.4
   chai: ^4.4.1
-  concurrently: ^8.2.2
+  concurrently: ^10.0.4
   crc-32: ^1.2.2
   credit-card-type: ^9.1.0
   deepmerge: ^4.3.1
