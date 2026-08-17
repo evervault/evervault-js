@@ -33,7 +33,6 @@ describe("buildPaymentRequest", () => {
       { currency: "EUR", amount: 1999, expected: "19.99" },
       { currency: "JPY", amount: 1000, expected: "1000" },
       { currency: "KRW", amount: 5, expected: "5" },
-      { currency: "KWD", amount: 1000, expected: "1.000" },
       { currency: "USD", amount: 0, expected: "0.00" },
       { currency: "USD", amount: 5, expected: "0.05" },
     ];
@@ -57,4 +56,37 @@ describe("buildPaymentRequest", () => {
 
     expect(transactionInfo.totalPrice).toEqual("10.00");
   });
+
+  // Google Pay carries two fraction digits, so these currencies work down to
+  // hundredths of a major unit and no further.
+  it("carries a three-decimal currency to two fraction digits", () => {
+    const cases = [
+      { currency: "KWD", amount: 1000, expected: "1.00" },
+      { currency: "KWD", amount: 1250, expected: "1.25" },
+      { currency: "BHD", amount: 50, expected: "0.05" },
+      { currency: "OMR", amount: 12340, expected: "12.34" },
+      { currency: "TND", amount: 0, expected: "0.00" },
+    ];
+
+    for (const { currency, amount, expected } of cases) {
+      const { transactionInfo } = buildPaymentRequest(
+        buildConfig(currency, amount, amount),
+        merchant
+      );
+
+      expect(transactionInfo.totalPrice).toEqual(expected);
+      expect(transactionInfo.displayItems?.[0].price).toEqual(expected);
+    }
+  });
+
+  // A three-digit price builds fine, opens the sheet, then fails with
+  // OR_BIBED_06. Failing here instead keeps the shopper out of a broken sheet.
+  it.each(["KWD", "BHD", "OMR", "JOD", "TND"])(
+    "refuses an %s amount that needs the third fraction digit",
+    (currency) => {
+      expect(() =>
+        buildPaymentRequest(buildConfig(currency, 1005, 1005), merchant)
+      ).toThrow(/multiple of 10 minor units/);
+    }
+  );
 });
