@@ -2,6 +2,7 @@ import { getAppSDKConfig } from "shared/getAppSDKConfig";
 import {
   ApplePayMerchantCapability,
   ApplePayTransactionType,
+  DeferredTransactionDetails,
   DisbursementTransactionDetails,
   MerchantDetail,
   PaymentTransactionDetails,
@@ -119,6 +120,20 @@ function assertShippingMethodsAllowed(
   if (tx.type !== "payment") {
     throw new Error(
       "Apple Pay shipping methods are only supported for one-off payment transactions"
+    );
+  }
+}
+
+function assertDeferredRequiredFields(tx: DeferredTransactionDetails) {
+  if (!tx.managementURL) {
+    throw new Error("Apple Pay deferred transactions require a managementURL");
+  }
+  if (!tx.description) {
+    throw new Error("Apple Pay deferred transactions require a description");
+  }
+  if (!tx.deferredBilling) {
+    throw new Error(
+      "Apple Pay deferred transactions require a deferredBilling line item"
     );
   }
 }
@@ -388,6 +403,8 @@ export function mapTransactionType(
       return "recurring";
     case "disbursement":
       return "disbursement";
+    case "deferred":
+      return "deferred";
   }
 }
 
@@ -419,6 +436,8 @@ export async function buildSession(
     baseRequest = buildPaymentSession(merchant, config, tx);
   } else if (tx.type === "recurring") {
     baseRequest = buildRecurringSession(merchant, config, tx);
+  } else if (tx.type === "deferred") {
+    baseRequest = buildDeferredSession(merchant, config, tx);
   } else {
     baseRequest = buildDisbursementSession(merchant, config, tx);
   }
@@ -795,6 +814,66 @@ function buildRecurringSession(
               : undefined,
             billingAgreement: tx.billingAgreement,
             managementURL: tx.managementURL,
+          },
+        },
+      },
+    ],
+  };
+
+  const paymentOptions = {
+    requestPayerName: config.requestPayerDetails?.includes("name") ?? false,
+    requestBillingAddress: config.requestBillingAddress ?? false,
+    requestPayerEmail: config.requestPayerDetails?.includes("email") ?? false,
+    requestPayerPhone: config.requestPayerDetails?.includes("phone") ?? false,
+    requestShipping: config.requestShipping ?? false,
+    shippingType: mapPaymentRequestShippingType(config.shippingType),
+  };
+
+  const paymentOverrides = config.paymentOverrides || {};
+
+  const request = new PaymentRequest(
+    paymentOverrides.paymentMethodData || paymentMethodData,
+    paymentOverrides.paymentDetails || paymentDetails,
+    // @ts-expect-error - apple overrides the payment request
+    paymentOptions
+  );
+
+  return request;
+}
+
+function buildDeferredSession(
+  merchant: MerchantDetail,
+  config: BuildSessionOptions,
+  tx: DeferredTransactionDetails
+) {
+  assertDeferredRequiredFields(tx);
+
+  const lineItems = mapLineItemsToDisplayItems(tx.lineItems, tx.currency);
+
+  const paymentMethodData = buildApplePayMethodData(config, tx.country);
+
+  const paymentDetails: PaymentDetailsInit = {
+    total: {
+      label: tx.priceLabel ?? merchant.name,
+      amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
+    },
+    displayItems: lineItems,
+    modifiers: [
+      {
+        supportedMethods: "https://apple.com/apple-pay",
+        data: {
+          deferredPaymentRequest: {
+            paymentDescription: tx.description,
+            deferredBilling: {
+              label: tx.deferredBilling.label,
+              amount: (tx.deferredBilling.amount / 100).toFixed(2),
+              paymentTiming: "deferred",
+            },
+            billingAgreement: tx.billingAgreement,
+            managementURL: tx.managementURL,
+            freeCancellationDate: tx.freeCancellationDate,
+            freeCancellationDateTimeZone: tx.freeCancellationDateTimeZone,
+            tokenNotificationURL: tx.tokenNotificationURL,
           },
         },
       },
