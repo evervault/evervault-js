@@ -132,6 +132,25 @@ const disbursementTransaction = {
   domain: "shop.example.com",
 };
 
+const deferredTransaction = {
+  type: "deferred" as const,
+  amount: 1000,
+  currency: "USD",
+  country: "US",
+  merchantId,
+  domain: "shop.example.com",
+  managementURL: "https://shop.example.com/manage",
+  description: "Hotel deposit",
+  billingAgreement: "Charged on arrival",
+  deferredBilling: {
+    label: "Room deposit",
+    amount: 1000,
+  },
+  freeCancellationDate: new Date("2026-09-01T00:00:00Z"),
+  freeCancellationDateTimeZone: "America/New_York",
+  tokenNotificationURL: "https://shop.example.com/notify",
+};
+
 const server = setupServer();
 
 beforeAll(() => {
@@ -428,6 +447,10 @@ describe("mapTransactionType", () => {
   it("maps disbursement to disbursement", () => {
     expect(mapTransactionType("disbursement")).toBe("disbursement");
   });
+
+  it("maps deferred to deferred", () => {
+    expect(mapTransactionType("deferred")).toBe("deferred");
+  });
 });
 
 describe("buildSession coupon codes", () => {
@@ -564,6 +587,17 @@ describe("buildSession coupon codes", () => {
   it("passes coupon fields on recurring PaymentRequest data", async () => {
     await buildSession(applePay, {
       transaction: recurringTransaction,
+      supportsCouponCode: true,
+      couponCode: "SAVE20",
+    });
+
+    expect(paymentMethodDataCalls[0].supportsCouponCode).toBe(true);
+    expect(paymentMethodDataCalls[0].couponCode).toBe("SAVE20");
+  });
+
+  it("passes coupon fields on deferred PaymentRequest data", async () => {
+    await buildSession(applePay, {
+      transaction: deferredTransaction,
       supportsCouponCode: true,
       couponCode: "SAVE20",
     });
@@ -720,6 +754,22 @@ describe("buildSession contact prefill", () => {
     expect(paymentMethodDataCalls[0].shippingContact).toBeUndefined();
   });
 
+  it("passes contact fields on deferred PaymentRequest data", async () => {
+    const billingContact = {
+      givenName: "Jane",
+      familyName: "Doe",
+      countryCode: "US",
+    };
+
+    await buildSession(applePay, {
+      transaction: deferredTransaction,
+      billingContact,
+    });
+
+    expect(paymentMethodDataCalls[0].billingContact).toEqual(billingContact);
+    expect(paymentMethodDataCalls[0].shippingContact).toBeUndefined();
+  });
+
   it("does not apply contact fields on disbursement PaymentRequest data", async () => {
     await buildSession(applePay, {
       transaction: disbursementTransaction,
@@ -816,6 +866,17 @@ describe("buildSession shipping methods", () => {
     await expect(
       buildSession(applePay, {
         transaction: recurringTransaction,
+        shippingMethods,
+      })
+    ).rejects.toThrow(
+      "Apple Pay shipping methods are only supported for one-off payment transactions"
+    );
+  });
+
+  it("rejects shipping methods on deferred transactions", async () => {
+    await expect(
+      buildSession(applePay, {
+        transaction: deferredTransaction,
         shippingMethods,
       })
     ).rejects.toThrow(
@@ -1304,6 +1365,77 @@ describe("buildSession request-config passthrough", () => {
         ).ApplePaySession = originalApplePaySession;
       }
     }
+  });
+});
+
+describe("buildSession deferredPaymentRequest", () => {
+  beforeEach(() => {
+    server.use(
+      http.get(`${apiUrl}/frontend/sdk/config`, () =>
+        HttpResponse.json({ is_sandbox: false }, { status: 200 })
+      )
+    );
+  });
+
+  it("builds deferredPaymentRequest on the PaymentRequest modifiers", async () => {
+    await buildSession(applePay, { transaction: deferredTransaction });
+
+    const modifierData = (
+      paymentRequestCalls[0].modifiers?.[0] as unknown as {
+        data: { deferredPaymentRequest: Record<string, unknown> };
+      }
+    ).data;
+
+    expect(modifierData.deferredPaymentRequest).toEqual({
+      paymentDescription: "Hotel deposit",
+      deferredBilling: {
+        label: "Room deposit",
+        amount: "10.00",
+        paymentTiming: "deferred",
+      },
+      billingAgreement: "Charged on arrival",
+      managementURL: "https://shop.example.com/manage",
+      freeCancellationDate: new Date("2026-09-01T00:00:00Z"),
+      freeCancellationDateTimeZone: "America/New_York",
+      tokenNotificationURL: "https://shop.example.com/notify",
+    });
+  });
+
+  it("rejects deferred transactions missing managementURL", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { managementURL: _managementURL, ...rest } = deferredTransaction;
+
+    await expect(
+      buildSession(applePay, {
+        transaction: rest as unknown as typeof deferredTransaction,
+      })
+    ).rejects.toThrow(
+      "Apple Pay deferred transactions require a managementURL"
+    );
+  });
+
+  it("rejects deferred transactions missing description", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { description: _description, ...rest } = deferredTransaction;
+
+    await expect(
+      buildSession(applePay, {
+        transaction: rest as unknown as typeof deferredTransaction,
+      })
+    ).rejects.toThrow("Apple Pay deferred transactions require a description");
+  });
+
+  it("rejects deferred transactions missing deferredBilling", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { deferredBilling: _deferredBilling, ...rest } = deferredTransaction;
+
+    await expect(
+      buildSession(applePay, {
+        transaction: rest as unknown as typeof deferredTransaction,
+      })
+    ).rejects.toThrow(
+      "Apple Pay deferred transactions require a deferredBilling line item"
+    );
   });
 });
 
