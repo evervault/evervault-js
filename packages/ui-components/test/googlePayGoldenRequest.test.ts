@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { MerchantDetail } from "types";
 import { buildPaymentRequest } from "../src/GooglePay/utilities";
 import { GooglePayConfig } from "../src/GooglePay/types";
+import { apiConfig } from "../src/utilities/config";
 
 type GoldenRequest = {
   apiVersion: number;
@@ -45,6 +46,9 @@ function comparableRequest(config: GooglePayConfig): GoldenRequest {
   const request = buildPaymentRequest(config, merchant);
   const { merchantName } = request.merchantInfo;
 
+  // merchantId, merchantOrigin, and callbackIntents are required by the Google
+  // Pay web client. Android does not send equivalents, so they are outside the
+  // normalized cross-platform request contract tested by the shared fixtures.
   return {
     apiVersion: request.apiVersion,
     apiVersionMinor: request.apiVersionMinor,
@@ -94,7 +98,7 @@ describe("Google Pay golden requests", () => {
     ).toEqual(loadFixture("custom"));
   });
 
-  it("matches Android's disabled-billing-address request shape", () => {
+  it("matches the shared default fixture when billing is explicitly disabled", () => {
     expect(
       comparableRequest({
         transaction,
@@ -103,6 +107,24 @@ describe("Google Pay golden requests", () => {
         borderRadius: 12,
         billingAddress: false,
       })
-    ).toEqual(loadFixture("billing-disabled"));
+    ).toEqual(loadFixture("default"));
+  });
+
+  it("includes the required web-only request fields", () => {
+    const request = buildPaymentRequest(
+      {
+        transaction,
+        type: "buy",
+        color: "black",
+        borderRadius: 12,
+      },
+      merchant
+    );
+
+    expect(request.merchantInfo).toMatchObject({
+      merchantId: apiConfig.googlePayMerchantId,
+      merchantOrigin: transaction.domain,
+    });
+    expect(request.callbackIntents).toEqual(["PAYMENT_AUTHORIZATION"]);
   });
 });
