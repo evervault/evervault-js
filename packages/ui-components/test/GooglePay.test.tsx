@@ -22,9 +22,14 @@ vi.mock("../src/utilities/useSearchParams", () => ({
   useSearchParams: () => ({ app: "app_test123", id: "frame1" }),
 }));
 
+const createButtonMock = vi.fn();
+
 class MockPaymentsClient {
   isReadyToPay = vi.fn().mockResolvedValue({ result: true });
-  createButton = vi.fn().mockReturnValue(document.createElement("div"));
+  createButton = (...args: unknown[]) => {
+    createButtonMock(...args);
+    return document.createElement("div");
+  };
   loadPaymentData = vi.fn();
 }
 
@@ -39,7 +44,6 @@ const config: GooglePayConfig = {
   },
   type: "plain",
   color: "black",
-  borderRadius: 4,
 };
 
 function getInjectedScript() {
@@ -93,5 +97,43 @@ describe("GooglePay onLoad GET concurrency", () => {
         expect.any(String)
       );
     });
+  });
+});
+
+describe("GooglePay button radius", () => {
+  beforeEach(() => {
+    createButtonMock.mockReset();
+    getMerchantMock.mockReset();
+    getAppSDKConfigMock.mockReset();
+    getMerchantMock.mockResolvedValue({ id: "merchant_abc", name: "Acme Co" });
+    getAppSDKConfigMock.mockResolvedValue({ is_sandbox: false });
+    (globalThis as unknown as { google: unknown }).google = {
+      payments: { api: { PaymentsClient: MockPaymentsClient } },
+    };
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    delete (globalThis as { google?: unknown }).google;
+  });
+
+  async function renderAndGetRadius(borderRadius?: number) {
+    render(<GooglePay config={{ ...config, borderRadius }} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+    await waitFor(() => expect(createButtonMock).toHaveBeenCalled());
+    return (createButtonMock.mock.calls[0][0] as { buttonRadius: number })
+      .buttonRadius;
+  }
+
+  it("defaults to 12, matching the Android SDK", async () => {
+    expect(await renderAndGetRadius(undefined)).toBe(12);
+  });
+
+  it("uses the configured radius", async () => {
+    expect(await renderAndGetRadius(20)).toBe(20);
+  });
+
+  it("honours a radius of 0 rather than falling back to the default", async () => {
+    expect(await renderAndGetRadius(0)).toBe(0);
   });
 });

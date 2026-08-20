@@ -14,6 +14,10 @@ import { getMerchant } from "../utilities/useMerchant";
 import { getAppSDKConfig } from "shared";
 import { apiConfig } from "../utilities/config";
 
+// Google's own default when buttonRadius is unset. The Android SDK uses the same
+// value, so a merchant who sets nothing gets the same button on both platforms.
+const DEFAULT_BUTTON_RADIUS = 12;
+
 const FUNDING_SOURCE_MAP: Partial<
   Record<google.payments.api.CardFundingSource, PaymentMethodType>
 > = {
@@ -144,7 +148,7 @@ export function GooglePay({ config }: GooglePayProps) {
           buttonLocale: config.locale || "en",
           buttonType: config.type || "plain",
           buttonColor: config.color || "black",
-          buttonRadius: config.borderRadius || 4,
+          buttonRadius: config.borderRadius ?? DEFAULT_BUTTON_RADIUS,
           buttonSizeMode: "fill",
           onClick: async () => {
             try {
