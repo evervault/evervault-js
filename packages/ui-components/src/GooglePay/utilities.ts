@@ -1,6 +1,44 @@
+import { currencyExponent, formatMinorUnits } from "shared/currency";
 import { EncryptedGooglePayData, MerchantDetail } from "types";
 import { GooglePayConfig } from "./types";
 import { apiConfig } from "../utilities/config";
+
+// The docs specify totalPrice as 0 or exactly 2 fraction digits, but the client
+// enforces `-?[0-9]*(\.[0-9][0-9]?)?`, quoted from the DEVELOPER_ERROR that Play
+// Services returns for an over-precise displayItems price. One digit is fine;
+// three is not.
+//
+// The ceiling is enforced late. A three-digit price builds, opens the sheet, and
+// only then fails: OR_BIBED_06 on web ("This merchant is having trouble accepting
+// your payment right now"), statusCode 10 with an empty message on Android.
+// Verified on both clients across USD, KWD, BHD, OMR and TND.
+// https://developers.google.com/pay/api/web/reference/request-objects
+const MAX_FRACTION_DIGITS = 2;
+
+/**
+ * Format a minor-unit amount for Google Pay, which carries at most two fraction
+ * digits. A three-decimal currency (KWD, BHD, OMR, JOD, TND) is therefore
+ * limited to whole hundredths: 1.000 KWD is fine, 1.005 KWD is not and throws
+ * rather than being rounded to a different amount.
+ */
+function formatGooglePayAmount(amount: number, currency: string): string {
+  const exponent = currencyExponent(currency);
+  if (exponent <= MAX_FRACTION_DIGITS) {
+    return formatMinorUnits(amount, exponent);
+  }
+
+  const divisor = 10 ** (exponent - MAX_FRACTION_DIGITS);
+  const rounded = Math.round(amount);
+  if (rounded % divisor !== 0) {
+    throw new Error(
+      `Google Pay carries at most ${MAX_FRACTION_DIGITS} fraction digits, so ` +
+        `${currency} amounts must be a multiple of ${divisor} minor units. ` +
+        `${amount} is not.`
+    );
+  }
+
+  return formatMinorUnits(rounded / divisor, MAX_FRACTION_DIGITS);
+}
 
 export function buildPaymentRequest(
   config: GooglePayConfig,
@@ -52,13 +90,13 @@ export function buildPaymentRequest(
     transactionInfo: {
       totalPriceStatus: "FINAL",
       totalPriceLabel: tx.priceLabel ?? `Pay ${merchant.name}`,
-      totalPrice: (tx.amount / 100).toFixed(2).toString(),
+      totalPrice: formatGooglePayAmount(tx.amount, tx.currency),
       currencyCode: tx.currency,
       countryCode: tx.country,
       displayItems: tx.lineItems?.map((item) => ({
         label: item.label,
         type: "LINE_ITEM",
-        price: (item.amount / 100).toFixed(2).toString(),
+        price: formatGooglePayAmount(item.amount, tx.currency),
       })),
     },
     callbackIntents: ["PAYMENT_AUTHORIZATION"],
