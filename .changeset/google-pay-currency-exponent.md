@@ -1,5 +1,5 @@
 ---
-"@evervault/ui-components": minor
+"@evervault/ui-components": major
 ---
 
 Fix Google Pay amounts for currencies that do not have two minor units. Amounts

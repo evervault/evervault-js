@@ -48,6 +48,16 @@ describe("buildPaymentRequest", () => {
     }
   });
 
+  it("sends a formatted zero total without display items", () => {
+    const config = buildConfig("JPY", 0, 0);
+    config.transaction.lineItems = undefined;
+
+    const { transactionInfo } = buildPaymentRequest(config, merchant);
+
+    expect(transactionInfo.totalPrice).toEqual("0");
+    expect(transactionInfo.displayItems).toBeUndefined();
+  });
+
   it("falls back to two decimal places for an unknown currency", () => {
     const { transactionInfo } = buildPaymentRequest(
       buildConfig("XYZ", 1000, 1000),
