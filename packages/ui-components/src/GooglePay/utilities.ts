@@ -30,10 +30,14 @@ export function buildPaymentRequest(
               "VISA",
             ],
           billingAddressRequired: isBillingRequired(config),
-          billingAddressParameters: {
-            format: billingAddressFormat(config),
-            phoneNumberRequired: phoneNumberRequired(config),
-          },
+          ...(isBillingRequired(config)
+            ? {
+                billingAddressParameters: {
+                  format: billingAddressFormat(config),
+                  phoneNumberRequired: phoneNumberRequired(config),
+                },
+              }
+            : {}),
         },
         tokenizationSpecification: {
           type: "PAYMENT_GATEWAY",

@@ -15,11 +15,7 @@
           "MASTERCARD",
           "VISA"
         ],
-        "billingAddressRequired": false,
-        "billingAddressParameters": {
-          "format": "FULL",
-          "phoneNumberRequired": false
-        }
+        "billingAddressRequired": false
       },
       "tokenizationSpecification": {
         "type": "PAYMENT_GATEWAY",

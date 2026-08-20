@@ -94,7 +94,7 @@ describe("Google Pay golden requests", () => {
     ).toEqual(loadFixture("custom"));
   });
 
-  it("preserves web's disabled-billing-address request shape", () => {
+  it("matches Android's disabled-billing-address request shape", () => {
     expect(
       comparableRequest({
         transaction,
