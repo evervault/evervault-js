@@ -5,6 +5,7 @@ on:
     branches-ignore:
       - master
       - main
+      - main
 
 jobs:
   auto-format:

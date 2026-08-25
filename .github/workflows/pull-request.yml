@@ -10,6 +10,7 @@ on:
     branches:
       - "master"
       - "main"
+      - "main"
   merge_group:
 jobs:
   lint-and-test:
