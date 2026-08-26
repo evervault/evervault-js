@@ -65,6 +65,10 @@ function totalsForCoupon(code: string) {
   };
 }
 
+/** Toggle with ?type=deferred in the URL — defaults to a one-off payment. */
+const isDeferred = new URLSearchParams(window.location.search).get("type") ===
+  "deferred";
+
 async function main() {
   setStatus("Starting…");
 
@@ -88,15 +92,31 @@ async function main() {
     },
   });
 
-  const transaction = evervault.transactions.create({
-    type: "payment",
-    amount: BASE_AMOUNT,
-    currency: "USD",
-    country: "US",
-    merchantId,
-    priceLabel: "Apple Pay test",
-    lineItems: [{ label: "Test item", amount: BASE_AMOUNT }],
-  });
+  const transaction = isDeferred
+    ? evervault.transactions.create({
+        type: "deferred",
+        amount: BASE_AMOUNT,
+        currency: "USD",
+        country: "US",
+        merchantId,
+        priceLabel: "Apple Pay deferred test",
+        lineItems: [{ label: "Test item", amount: BASE_AMOUNT }],
+        managementURL: "https://example.com/manage",
+        description: "Hotel deposit — balance due on arrival",
+        billingAgreement: "Remaining balance charged at check-in.",
+        deferredBilling: { label: "Room deposit", amount: BASE_AMOUNT },
+        freeCancellationDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        freeCancellationDateTimeZone: "America/Los_Angeles",
+      })
+    : evervault.transactions.create({
+        type: "payment",
+        amount: BASE_AMOUNT,
+        currency: "USD",
+        country: "US",
+        merchantId,
+        priceLabel: "Apple Pay test",
+        lineItems: [{ label: "Test item", amount: BASE_AMOUNT }],
+      });
 
   const apple = evervault.ui.applePayButton(transaction, {
     size: { width: "100%", height: "40px" },
@@ -155,7 +175,9 @@ async function main() {
     apple.on("ready", () => {
       console.log("Apple Pay button is ready!");
       setStatus(
-        "Ready — check Prefill billing/shipping on the sheet; try coupon SAVE20"
+        isDeferred
+          ? "Ready (deferred) — sheet should show the deposit description/management URL; try coupon SAVE20"
+          : "Ready — check Prefill billing/shipping on the sheet; try coupon SAVE20"
       );
     });
 
