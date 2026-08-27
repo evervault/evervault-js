@@ -40,8 +40,8 @@ catalogs:
       specifier: ^14.0.9
       version: 14.0.9
     '@types/googlepay':
-      specifier: ^0.7.10
-      version: 0.7.10
+      specifier: ^0.7.12
+      version: 0.7.12
     '@types/jest':
       specifier: ^28.1.2
       version: 28.1.8
@@ -1146,7 +1146,7 @@ importers:
     dependencies:
       '@types/googlepay':
         specifier: 'catalog:'
-        version: 0.7.10
+        version: 0.7.12
       jss:
         specifier: 'catalog:'
         version: 10.10.0
@@ -1171,7 +1171,7 @@ importers:
         version: 14.0.9
       '@types/googlepay':
         specifier: 'catalog:'
-        version: 0.7.10
+        version: 0.7.12
       imask:
         specifier: 'catalog:'
         version: 7.6.1
@@ -4564,8 +4564,8 @@ packages:
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
 
-  '@types/googlepay@0.7.10':
-    resolution: {integrity: sha512-ByXjDfxEp87zsjw5cVsNKEeA+AIJYcWwJvRqPu85jO0Lp/FeG67csnf4mqbPaIxmdI6+Khp3v5I0yyjq9MrGhw==}
+  '@types/googlepay@0.7.12':
+    resolution: {integrity: sha512-fZ6NfTyw3qd7v8Rmp0DCpwwG3cT0Rm2pbUkVakl6KcYexreOuYL3vC/ECCn2slpRZcJ492LgMZ9/V2Dd3Io/hg==}
 
   '@types/graceful-fs@4.1.9':
     resolution: {integrity: sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==}
@@ -5973,6 +5973,7 @@ packages:
   eslint@9.12.0:
     resolution: {integrity: sha512-UVIOlTEWxwIopRL1wgSQYdnVDcEvs2wyaO6DGo5mXqe3r16IoCNWkR29iHhyaP4cICWjbgbmFUGAhh0GJRuGZw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -15154,7 +15155,7 @@ snapshots:
 
   '@types/estree@1.0.9': {}
 
-  '@types/googlepay@0.7.10': {}
+  '@types/googlepay@0.7.12': {}
 
   '@types/graceful-fs@4.1.9':
     dependencies:
