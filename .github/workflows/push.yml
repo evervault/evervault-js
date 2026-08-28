@@ -120,7 +120,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint-and-test,e2e-test,build]
     outputs:
-      has-changesets: ${{ steps.changesets.outputs.hasChangesets }}
+      has-changesets: ${{ steps.changesets.outputs.has-changesets }}
       tags-to-publish: ${{ steps.create-tags.outputs.tags-to-publish }}
       number-of-tags-to-publish: ${{ steps.create-tags.outputs.number-of-tags }}
     steps:
@@ -146,17 +146,18 @@ jobs:
         id: changesets
         uses: changesets/action@v2
         with:
-          version: pnpm run version
-          setupGitUser: false
+          version-script: pnpm run version
+          # v2 pushes via the GitHub API by default, which would bypass the
+          # COMMIT_KEY deploy key this job checks out with.
+          push-with-git-cli: true
         env:
           HUSKY: 0
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Tags
         id: create-tags
         # Changesets deletes the changeset files on version PR, so if false then we need to tag and release the packages
-        if: steps.changesets.outputs.hasChangesets == 'false'
+        if: steps.changesets.outputs.has-changesets == 'false'
         run: |-
-          pnpm changeset tag && git push origin --tags
+          pnpm changeset git-tag && git push origin --tags
           TAGS=$(git tag --points-at=HEAD | jq -scR 'split("\n") | map(select(length > 0))')
           NUMBER_OF_TAGS=$(echo "$TAGS" | jq 'length')
           echo "tags-to-publish=$TAGS" >> $GITHUB_OUTPUT
