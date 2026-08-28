@@ -1,0 +1,43 @@
+{
+  "apiVersion": 2,
+  "apiVersionMinor": 0,
+  "emailRequired": false,
+  "allowedPaymentMethods": [
+    {
+      "type": "CARD",
+      "parameters": {
+        "allowedAuthMethods": ["PAN_ONLY", "CRYPTOGRAM_3DS"],
+        "allowedCardNetworks": ["AMEX", "DISCOVER", "INTERAC", "JCB", "MASTERCARD", "VISA"],
+        "billingAddressRequired": true,
+        "billingAddressParameters": {
+          "format": "FULL",
+          "phoneNumberRequired": false
+        }
+      },
+      "tokenizationSpecification": {
+        "type": "PAYMENT_GATEWAY",
+        "parameters": {
+          "gateway": "evervault",
+          "gatewayMerchantId": "merchant_123"
+        }
+      }
+    }
+  ],
+  "merchantInfo": {
+    "merchantName": "Test Merchant"
+  },
+  "transactionInfo": {
+    "totalPriceStatus": "FINAL",
+    "totalPriceLabel": "Pay Test Merchant",
+    "totalPrice": "54.99",
+    "currencyCode": "EUR",
+    "countryCode": "IE",
+    "displayItems": [
+      {
+        "label": "Shell Jacket",
+        "type": "LINE_ITEM",
+        "price": "50.00"
+      }
+    ]
+  }
+}

@@ -1,14 +1,17 @@
 # @evervault/react
 
+## 2.28.1
+
+### Patch Changes
+
+- 01fcc7a: Fix duplicate 3DS iframe posts and Evervault client memoization
+- 9128fb6: Fixes an issue where it was possible to mount duplicate 3DS challenge iframes
+
 ## 2.28.0
 
 ### Minor Changes
 
 - ee0d7fc: Added more script load handling tools (ScriptLoadError, loadTimeout)
-
-### Patch Changes
-
-- a7ddfa7: Fix duplicate 3DS iframe posts and Evervault client memoization
 
 ## 2.27.1
 

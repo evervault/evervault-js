@@ -103,6 +103,51 @@ export interface ShippingAddress {
 }
 
 /**
+ * Shipping type shown on the Apple Pay sheet. Maps to PaymentOptions.shippingType
+ * (storePickup / servicePickup → "pickup" on the Payment Request bridge).
+ */
+export type ApplePayShippingType =
+  | "shipping"
+  | "delivery"
+  | "storePickup"
+  | "servicePickup";
+
+/**
+ * A shipping method the customer can pick on the Apple Pay sheet.
+ * Amounts use the same smallest-currency-unit convention as line items (e.g. cents).
+ * Maps to PaymentDetailsInit.shippingOptions / PaymentShippingOption.
+ */
+export interface ApplePayShippingMethod {
+  id: string;
+  label: string;
+  amount: number;
+  detail?: string;
+  selected?: boolean;
+}
+
+/** W3C PaymentShippingOption (+ optional Apple `detail`). */
+export interface PaymentShippingOption {
+  id: string;
+  label: string;
+  amount: {
+    currency: string;
+    value: string;
+  };
+  selected?: boolean;
+  detail?: string;
+}
+
+/** PaymentDetailsInit with shippingOptions (missing from some DOM lib versions). */
+export type ApplePayPaymentDetailsInit = PaymentDetailsInit & {
+  shippingOptions?: PaymentShippingOption[];
+};
+
+/** PaymentDetailsUpdate with shippingOptions. */
+export type ApplePayPaymentDetailsUpdate = PaymentDetailsUpdate & {
+  shippingOptions?: PaymentShippingOption[];
+};
+
+/**
  * Maps to ApplePayPaymentContact. Used to prefill billingContact /
  * shippingContact on the Apple Pay request, and for billingContact on
  * payment method change updates.
@@ -157,7 +202,9 @@ export type CouponCodeChangeResult = {
 
 export type ApplePayPaymentRequest = PaymentRequest & {
   onshippingaddresschange?: ((event: PaymentRequestUpdateEvent) => void) | null;
+  onshippingoptionchange?: ((event: PaymentRequestUpdateEvent) => void) | null;
   onmerchantvalidation?: (event: OnMerchantValidationEvent) => void;
+  shippingOption?: string | null;
 };
 
 export interface ApplePayConfig {

@@ -19,9 +19,8 @@ export function useBroadcastChannel<MessageMap>(name: string) {
       callback: (payload: MessageMap[T]) => void
     ) => {
       const handler = (event: MessageEvent<UIComponentMessageDetail>) => {
-        if (event.data.type === type) {
-          callback(event.data.payload as MessageMap[T]);
-        }
+        if (!event.data || event.data.type !== type) return;
+        callback(event.data.payload as MessageMap[T]);
       };
 
       channel.current.addEventListener("message", handler);

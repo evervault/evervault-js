@@ -17,6 +17,7 @@ import ApplePayButton from "../lib/ui/ApplePay";
 import { Transaction } from "../lib/resources/transaction";
 import type EvervaultClient from "../lib/main";
 import { setupCrypto } from "./setup";
+import type { ApplePayPaymentDetailsInit } from "../lib/ui/ApplePay/types";
 
 const {
   APPLE_PAY_MAX_VERSION,
@@ -33,7 +34,7 @@ const app = "app_test123";
 const merchantId = "merchant_abc";
 const merchantName = "Acme Co";
 
-const paymentRequestCalls: PaymentDetailsInit[] = [];
+const paymentRequestCalls: ApplePayPaymentDetailsInit[] = [];
 const paymentMethodDataCalls: Array<{
   merchantIdentifier?: string;
   merchantCapabilities?: string[];
@@ -45,14 +46,21 @@ const paymentMethodDataCalls: Array<{
   supportedCountries?: string[];
   version?: number;
 }> = [];
+const paymentOptionsCalls: Array<{
+  requestShipping?: boolean;
+  shippingType?: string;
+}> = [];
 const paymentRequestInstances: MockPaymentRequest[] = [];
 
 class MockPaymentRequest {
   onshippingaddresschange: ((event: PaymentRequestUpdateEvent) => void) | null =
     null;
+  onshippingoptionchange: ((event: PaymentRequestUpdateEvent) => void) | null =
+    null;
   onpaymentmethodchange: ((event: PaymentMethodChangeEvent) => void) | null =
     null;
   onmerchantvalidation: ((event: unknown) => void) | null = null;
+  shippingOption: string | null = null;
 
   constructor(
     methodData: Array<{
@@ -68,10 +76,15 @@ class MockPaymentRequest {
         version?: number;
       };
     }>,
-    details: PaymentDetailsInit
+    details: ApplePayPaymentDetailsInit,
+    options?: {
+      requestShipping?: boolean;
+      shippingType?: string;
+    }
   ) {
     paymentMethodDataCalls.push(methodData[0]?.data ?? {});
     paymentRequestCalls.push(details);
+    paymentOptionsCalls.push(options ?? {});
     paymentRequestInstances.push(this);
   }
 }
@@ -139,6 +152,7 @@ beforeAll(() => {
 beforeEach(() => {
   paymentRequestCalls.length = 0;
   paymentMethodDataCalls.length = 0;
+  paymentOptionsCalls.length = 0;
   paymentRequestInstances.length = 0;
   server.use(
     http.get(`${apiUrl}/frontend/merchants/${merchantId}`, () =>
@@ -181,6 +195,42 @@ describe("buildSession sandbox label", () => {
     await buildSession(applePay, { transaction });
 
     assert(paymentRequestCalls[0].total?.label === merchantName);
+  });
+});
+
+describe("buildSession GET concurrency", () => {
+  it("issues the merchant and sdk-config requests concurrently, not sequentially", async () => {
+    let resolveMerchant: () => void = () => {};
+    const merchantGate = new Promise<void>((resolve) => {
+      resolveMerchant = resolve;
+    });
+    let sdkConfigRequested = false;
+
+    server.use(
+      http.get(`${apiUrl}/frontend/merchants/${merchantId}`, async () => {
+        await merchantGate;
+        return HttpResponse.json(
+          { id: merchantId, name: merchantName },
+          { status: 200 }
+        );
+      }),
+      http.get(`${apiUrl}/frontend/sdk/config`, () => {
+        sdkConfigRequested = true;
+        return HttpResponse.json({ is_sandbox: false }, { status: 200 });
+      })
+    );
+
+    const buildSessionPromise = buildSession(applePay, { transaction });
+
+    // If the two GETs were sequential, sdk-config would never be requested
+    // while the merchant request is still gated open — this only resolves
+    // if both requests are in flight concurrently.
+    await vi.waitFor(() => {
+      expect(sdkConfigRequested).toBe(true);
+    });
+
+    resolveMerchant();
+    await buildSessionPromise;
   });
 });
 
@@ -684,6 +734,389 @@ describe("buildSession contact prefill", () => {
   });
 });
 
+describe("buildSession shipping methods", () => {
+  const shippingMethods = [
+    {
+      id: "standard",
+      label: "Standard Shipping",
+      amount: 299,
+      detail: "3-5 business days",
+      selected: true,
+    },
+    {
+      id: "express",
+      label: "Express Shipping",
+      amount: 999,
+      detail: "1-2 business days",
+    },
+  ];
+
+  beforeEach(() => {
+    server.use(
+      http.get(`${apiUrl}/frontend/sdk/config`, () =>
+        HttpResponse.json({ is_sandbox: false }, { status: 200 })
+      )
+    );
+  });
+
+  it("maps shippingType and shippingMethods onto the PaymentRequest", async () => {
+    await buildSession(applePay, {
+      transaction: {
+        ...transaction,
+        amount: 3799,
+        lineItems: [
+          { label: "Mens Shirt", amount: 3000 },
+          { label: "Socks", amount: 500 },
+          { label: "Standard Shipping", amount: 299 },
+        ],
+      },
+      shippingType: "delivery",
+      shippingMethods,
+    });
+
+    expect(paymentOptionsCalls[0].requestShipping).toBe(true);
+    expect(paymentOptionsCalls[0].shippingType).toBe("delivery");
+    expect(paymentRequestCalls[0].shippingOptions).toEqual([
+      {
+        id: "standard",
+        label: "Standard Shipping",
+        amount: { currency: "USD", value: "2.99" },
+        selected: true,
+        detail: "3-5 business days",
+      },
+      {
+        id: "express",
+        label: "Express Shipping",
+        amount: { currency: "USD", value: "9.99" },
+        selected: false,
+        detail: "1-2 business days",
+      },
+    ]);
+  });
+
+  it("maps storePickup shippingType to Payment Request pickup", async () => {
+    await buildSession(applePay, {
+      transaction,
+      shippingType: "storePickup",
+      shippingMethods: [
+        { id: "pickup", label: "Store Pickup", amount: 0, selected: true },
+      ],
+    });
+
+    expect(paymentOptionsCalls[0].shippingType).toBe("pickup");
+  });
+
+  it("rejects shipping methods on recurring transactions", async () => {
+    await expect(
+      buildSession(applePay, {
+        transaction: recurringTransaction,
+        shippingMethods,
+      })
+    ).rejects.toThrow(
+      "Apple Pay shipping methods are only supported for one-off payment transactions"
+    );
+  });
+
+  it("rejects shipping methods on disbursement transactions", async () => {
+    await expect(
+      buildSession(applePay, {
+        transaction: disbursementTransaction,
+        shippingMethods,
+      })
+    ).rejects.toThrow(
+      "Apple Pay shipping methods are only supported for one-off payment transactions"
+    );
+  });
+
+  it("passes shippingType through on recurring when only requestShipping is set", async () => {
+    await buildSession(applePay, {
+      transaction: recurringTransaction,
+      requestShipping: true,
+      shippingType: "delivery",
+    });
+
+    expect(paymentOptionsCalls[0].requestShipping).toBe(true);
+    expect(paymentOptionsCalls[0].shippingType).toBe("delivery");
+  });
+
+  it("internally recomputes totals on shippingoptionchange when no merchant callback is set", async () => {
+    const request = await buildSession(applePay, {
+      transaction: {
+        ...transaction,
+        amount: 3799,
+        lineItems: [
+          { label: "Mens Shirt", amount: 3000 },
+          { label: "Socks", amount: 500 },
+          { label: "Standard Shipping", amount: 299 },
+        ],
+      },
+      shippingMethods,
+    });
+
+    const session = paymentRequestInstances[0];
+    session.shippingOption = "express";
+    const updateWith = vi.fn();
+    request.onshippingoptionchange?.({
+      target: session,
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent);
+
+    expect(updateWith).toHaveBeenCalledTimes(1);
+    const update = await updateWith.mock.calls[0][0];
+    expect(update.total?.amount.value).toBe("44.99");
+    expect(update.displayItems).toEqual([
+      {
+        label: "Mens Shirt",
+        amount: { value: "30.00", currency: "USD" },
+      },
+      {
+        label: "Socks",
+        amount: { value: "5.00", currency: "USD" },
+      },
+      {
+        label: "Express Shipping",
+        amount: { value: "9.99", currency: "USD" },
+      },
+    ]);
+    expect(
+      update.shippingOptions?.find((o: { id: string }) => o.id === "express")
+        ?.selected
+    ).toBe(true);
+    expect(
+      update.shippingOptions?.find((o: { id: string }) => o.id === "standard")
+        ?.selected
+    ).toBe(false);
+  });
+
+  it("calls onShippingMethodSelected and updateWith on shippingoptionchange", async () => {
+    const onShippingMethodSelected = vi.fn().mockResolvedValue({
+      amount: 4499,
+      lineItems: [
+        { label: "Mens Shirt", amount: 3000 },
+        { label: "Socks", amount: 500 },
+        { label: "Express Shipping", amount: 999 },
+      ],
+    });
+
+    const request = await buildSession(applePay, {
+      transaction: {
+        ...transaction,
+        amount: 3799,
+      },
+      shippingMethods,
+      onShippingMethodSelected,
+    });
+
+    const session = paymentRequestInstances[0];
+    session.shippingOption = "express";
+    const updateWith = vi.fn();
+    request.onshippingoptionchange?.({
+      target: session,
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent);
+
+    expect(onShippingMethodSelected).toHaveBeenCalledWith(shippingMethods[1]);
+    const update = await updateWith.mock.calls[0][0];
+    expect(update.total?.amount.value).toBe("44.99");
+    expect(update.shippingOptions).toHaveLength(2);
+  });
+
+  it("still calls updateWith when shippingoptionchange has a null target", async () => {
+    const request = await buildSession(applePay, {
+      transaction: { ...transaction, amount: 3799 },
+      shippingMethods,
+    });
+
+    const updateWith = vi.fn();
+    expect(() =>
+      request.onshippingoptionchange?.({
+        target: null,
+        updateWith,
+      } as unknown as PaymentRequestUpdateEvent)
+    ).not.toThrow();
+    expect(updateWith).toHaveBeenCalled();
+
+    const update = await updateWith.mock.calls[0][0];
+    // Falls back to the initially selected (or first) method.
+    expect(update.total?.amount.value).toBe("37.99");
+  });
+
+  it("preserves the selected shipping method after a later shipping address change", async () => {
+    const onShippingAddressChange = vi.fn().mockResolvedValue({
+      amount: 4499,
+      lineItems: [
+        { label: "Mens Shirt", amount: 3000 },
+        { label: "Socks", amount: 500 },
+        { label: "Express Shipping", amount: 999 },
+      ],
+    });
+
+    const request = await buildSession(applePay, {
+      transaction: {
+        ...transaction,
+        amount: 3799,
+        lineItems: [
+          { label: "Mens Shirt", amount: 3000 },
+          { label: "Socks", amount: 500 },
+          { label: "Standard Shipping", amount: 299 },
+        ],
+      },
+      shippingMethods,
+      onShippingAddressChange,
+    });
+
+    const session = paymentRequestInstances[0];
+    session.shippingOption = "express";
+    request.onshippingoptionchange?.({
+      target: session,
+      updateWith: vi.fn(),
+    } as unknown as PaymentRequestUpdateEvent);
+
+    const updateWith = vi.fn();
+    request.onshippingaddresschange?.({
+      // No shippingOption on the address-change target — selection must come
+      // from the live session / persisted activeShippingOptionId.
+      target: {
+        shippingAddress: {
+          addressLine: ["1 Main St"],
+          city: "Dublin",
+          country: "IE",
+          dependentLocality: "",
+          organization: "",
+          phone: "",
+          postalCode: "D01",
+          recipient: "Jane",
+          region: "",
+          sortingCode: "",
+        },
+      },
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent);
+
+    const update = await updateWith.mock.calls[0][0];
+    expect(onShippingAddressChange).toHaveBeenCalled();
+    expect(
+      update.shippingOptions?.find((o: { id: string }) => o.id === "express")
+        ?.selected
+    ).toBe(true);
+    expect(
+      update.shippingOptions?.find((o: { id: string }) => o.id === "standard")
+        ?.selected
+    ).toBe(false);
+  });
+
+  it("preserves the selected shipping method across coupon updates", async () => {
+    const onCouponCodeChange = vi.fn().mockResolvedValue({
+      amount: 3799,
+      lineItems: [
+        { label: "Mens Shirt", amount: 3000 },
+        { label: "Socks", amount: 500 },
+        { label: "Coupon", amount: -700 },
+        { label: "Express Shipping", amount: 999 },
+      ],
+    });
+
+    const request = await buildSession(applePay, {
+      transaction: {
+        ...transaction,
+        amount: 3799,
+      },
+      shippingMethods,
+      supportsCouponCode: true,
+      onCouponCodeChange,
+    });
+
+    const session = paymentRequestInstances[0];
+    session.shippingOption = "express";
+    request.onshippingoptionchange?.({
+      target: session,
+      updateWith: vi.fn(),
+    } as unknown as PaymentRequestUpdateEvent);
+
+    const updateWith = vi.fn();
+    request.onshippingaddresschange?.({
+      target: {},
+      methodDetails: { couponCode: "SAVE20" },
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent);
+
+    const update = await updateWith.mock.calls[0][0];
+    expect(onCouponCodeChange).toHaveBeenCalledWith("SAVE20");
+    expect(update.shippingOptions).toHaveLength(2);
+    expect(
+      update.shippingOptions?.find((o: { id: string }) => o.id === "express")
+        ?.selected
+    ).toBe(true);
+  });
+
+  it("warns when internal recompute cannot match a shipping line item by label", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const request = await buildSession(applePay, {
+      transaction: {
+        ...transaction,
+        amount: 3799,
+        lineItems: [
+          { label: "Mens Shirt", amount: 3000 },
+          { label: "Socks", amount: 500 },
+          // Label does not match shippingMethods[].label ("Standard Shipping")
+          { label: "Shipping", amount: 299 },
+        ],
+      },
+      shippingMethods,
+    });
+
+    const session = paymentRequestInstances[0];
+    session.shippingOption = "express";
+    const updateWith = vi.fn();
+    request.onshippingoptionchange?.({
+      target: session,
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent);
+
+    await updateWith.mock.calls[0][0];
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "expected to replace exactly one line item matching a shippingMethods[].label"
+      )
+    );
+
+    warn.mockRestore();
+  });
+
+  it("warns and keeps only the first selected shipping method when multiple are marked selected", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    await buildSession(applePay, {
+      transaction,
+      shippingMethods: [
+        {
+          id: "standard",
+          label: "Standard Shipping",
+          amount: 299,
+          selected: true,
+        },
+        {
+          id: "express",
+          label: "Express Shipping",
+          amount: 999,
+          selected: true,
+        },
+      ],
+    });
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("Multiple shippingMethods have selected: true")
+    );
+    expect(paymentRequestCalls[0].shippingOptions).toEqual([
+      expect.objectContaining({ id: "standard", selected: true }),
+      expect.objectContaining({ id: "express", selected: false }),
+    ]);
+
+    warn.mockRestore();
+  });
+});
+
 describe("buildSession request-config passthrough", () => {
   beforeEach(() => {
     server.use(
@@ -929,7 +1362,7 @@ function createMockClient(): EvervaultClient {
   return {
     config: {
       appId: "app_test",
-      http: { apiUrl: "https://api.evervault.com" },
+      http: { apiUrl },
     },
   } as EvervaultClient;
 }
@@ -963,6 +1396,68 @@ async function clickApplePayButton(apple: ApplePayButton) {
   const button = container.querySelector("apple-pay-button");
   button?.dispatchEvent(new Event("click"));
 }
+
+describe("ApplePayButton script loading", () => {
+  beforeEach(() => {
+    vi.stubGlobal("PaymentRequest", class PaymentRequest {});
+    vi.stubGlobal("ApplePaySession", {
+      applePayCapabilities: vi.fn().mockResolvedValue({
+        paymentCredentialStatus: "paymentCredentialsAvailable",
+      }),
+    });
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("resolves availability() as soon as the SDK script's onload fires, without polling", async () => {
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    const script = document.querySelector<HTMLScriptElement>(
+      'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
+    );
+    expect(script).not.toBeNull();
+
+    let resolved = false;
+    const availabilityPromise = apple.availability().then((result) => {
+      resolved = true;
+      return result;
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(resolved).toBe(false);
+
+    script!.dispatchEvent(new Event("load"));
+
+    await expect(availabilityPromise).resolves.toBe("available");
+    expect(resolved).toBe(true);
+  });
+
+  it("rejects with a timeout error if the SDK script never loads", async () => {
+    vi.useFakeTimers();
+    try {
+      const apple = new ApplePayButton(
+        createMockClient(),
+        createTransaction(),
+        { process: vi.fn() }
+      );
+
+      const assertion = expect(apple.availability()).rejects.toThrow(
+        "Apple Pay SDK script load timeout"
+      );
+
+      await vi.advanceTimersByTimeAsync(10000);
+      await assertion;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
 
 describe("ApplePayButton.abort", () => {
   beforeEach(() => {
@@ -1083,5 +1578,227 @@ describe("ApplePayButton.abort", () => {
     });
 
     await expect(apple.abort()).resolves.toBeUndefined();
+  });
+});
+
+describe("ApplePayButton shipping method on process()", () => {
+  function createResolvedSession(shippingOption?: string | null) {
+    return {
+      show: vi.fn().mockResolvedValue({
+        details: {
+          token: {
+            paymentData: {},
+            paymentMethod: { displayName: "Visa 1234", type: "credit" },
+          },
+        },
+        shippingOption,
+        complete: vi.fn().mockResolvedValue(undefined),
+      }),
+      abort: vi.fn(),
+    };
+  }
+
+  beforeEach(() => {
+    buildSessionMock.mockReset();
+    vi.spyOn(applePayUtilities, "buildSession").mockImplementation(
+      buildSessionMock
+    );
+
+    vi.stubGlobal("PaymentRequest", class PaymentRequest {});
+
+    vi.stubGlobal("ApplePaySession", {
+      applePayCapabilities: vi.fn().mockResolvedValue({
+        paymentCredentialStatus: "paymentCredentialsAvailable",
+      }),
+    });
+
+    const script = document.createElement("script");
+    script.src =
+      "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
+    document.body.appendChild(script);
+
+    server.use(
+      http.post(`${apiUrl}/frontend/apple-pay/credentials`, () =>
+        HttpResponse.json({ card: {} })
+      )
+    );
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("attaches the matching shippingMethod to the process() payload", async () => {
+    buildSessionMock.mockResolvedValue(createResolvedSession("express"));
+    const process = vi.fn().mockResolvedValue(undefined);
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process,
+      shippingMethods: [
+        { id: "standard", label: "Standard Shipping", amount: 299 },
+        {
+          id: "express",
+          label: "Express Shipping",
+          amount: 999,
+          detail: "1-2 days",
+        },
+      ],
+    });
+
+    await clickApplePayButton(apple);
+    await vi.waitFor(() => expect(process).toHaveBeenCalled());
+
+    expect(process.mock.calls[0][0].shippingMethod).toEqual({
+      id: "express",
+      label: "Express Shipping",
+      amount: 999,
+      detail: "1-2 days",
+    });
+  });
+
+  it("falls back to a placeholder and warns when shippingOption matches nothing", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    buildSessionMock.mockResolvedValue(createResolvedSession("unknown-id"));
+    const process = vi.fn().mockResolvedValue(undefined);
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process,
+      shippingMethods: [
+        { id: "standard", label: "Standard Shipping", amount: 299 },
+      ],
+    });
+
+    await clickApplePayButton(apple);
+    await vi.waitFor(() => expect(process).toHaveBeenCalled());
+
+    expect(process.mock.calls[0][0].shippingMethod).toEqual({
+      id: "unknown-id",
+      label: "unknown-id",
+      amount: 0,
+    });
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("did not match any configured shippingMethods")
+    );
+    warn.mockRestore();
+  });
+
+  it("omits shippingMethod entirely when no shippingOption is returned", async () => {
+    buildSessionMock.mockResolvedValue(createResolvedSession(undefined));
+    const process = vi.fn().mockResolvedValue(undefined);
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process,
+    });
+
+    await clickApplePayButton(apple);
+    await vi.waitFor(() => expect(process).toHaveBeenCalled());
+
+    expect(process.mock.calls[0][0].shippingMethod).toBeUndefined();
+  });
+});
+
+describe("ApplePayButton.availability", () => {
+  function stubApplePaySession(
+    capabilities:
+      | { paymentCredentialStatus: string }
+      | (() => Promise<{ paymentCredentialStatus: string }>)
+  ) {
+    vi.stubGlobal("ApplePaySession", {
+      applePayCapabilities:
+        typeof capabilities === "function"
+          ? vi.fn(capabilities)
+          : vi.fn().mockResolvedValue(capabilities),
+    });
+  }
+
+  beforeEach(() => {
+    vi.stubGlobal("PaymentRequest", class PaymentRequest {});
+    stubApplePaySession({
+      paymentCredentialStatus: "paymentCredentialsAvailable",
+    });
+
+    const script = document.createElement("script");
+    script.src =
+      "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
+    document.body.appendChild(script);
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("only calls applePayCapabilities once across repeated availability() calls", async () => {
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    const first = await apple.availability();
+    const second = await apple.availability();
+
+    expect(first).toBe("available");
+    expect(second).toBe("available");
+    expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
+  });
+
+  it("only calls applePayCapabilities once when availability() is followed by mount()", async () => {
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    await apple.availability();
+
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    await apple.mount(container);
+
+    expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
+  });
+
+  it("dedupes concurrent availability() calls into a single in-flight probe", async () => {
+    let resolveCapabilities: (value: {
+      paymentCredentialStatus: string;
+    }) => void = () => {};
+    stubApplePaySession(
+      () =>
+        new Promise((resolve) => {
+          resolveCapabilities = resolve;
+        })
+    );
+
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+    const firstCall = apple.availability();
+    const secondCall = apple.availability();
+    await vi.waitFor(() => {
+      expect(ApplePaySession.applePayCapabilities).toHaveBeenCalled();
+    });
+
+    resolveCapabilities({
+      paymentCredentialStatus: "paymentCredentialsAvailable",
+    });
+
+    await expect(firstCall).resolves.toBe("available");
+    await expect(secondCall).resolves.toBe("available");
+    expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
+  });
+
+  it("does not cache a failed probe, allowing a later call to retry", async () => {
+    stubApplePaySession(() => Promise.reject(new Error("native probe failed")));
+
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    await expect(apple.availability()).rejects.toThrow("native probe failed");
+    expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
+
+    stubApplePaySession({
+      paymentCredentialStatus: "paymentCredentialsAvailable",
+    });
+
+    await expect(apple.availability()).resolves.toBe("available");
+    expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
   });
 });

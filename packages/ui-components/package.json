@@ -1,7 +1,7 @@
 {
   "name": "@evervault/ui-components",
   "private": false,
-  "version": "1.41.4",
+  "version": "1.41.6",
   "type": "module",
   "scripts": {
     "build": "vite build",
@@ -30,6 +30,7 @@
     "types": "workspace:*"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.2",
     "@types/jsdom": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

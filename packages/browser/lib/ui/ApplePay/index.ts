@@ -18,6 +18,8 @@ import {
   ApplePayButtonStyle,
   ApplePayButtonType,
   ApplePayCardNetwork,
+  ApplePayShippingMethod,
+  ApplePayShippingType,
   CouponCodeChangeResult,
   PaymentContact,
   PaymentMethodUpdate,
@@ -52,6 +54,29 @@ export type ApplePayButtonOptions = {
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   onShippingAddressChange?: (
     newAddress: ShippingAddress
+  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
+  /**
+   * Shipping type label on the Apple Pay sheet (shipping / delivery / pickup).
+   * Payment (one-off) transactions only — rejected for recurring and disbursement.
+   */
+  shippingType?: ApplePayShippingType;
+  /**
+   * Shipping methods shown as selectable options on the Apple Pay sheet.
+   * Requires `requestShipping: true` (auto-enabled when methods are provided).
+   * Payment (one-off) transactions only — rejected for recurring and disbursement.
+   *
+   * When the customer selects a method, totals are recomputed. Provide
+   * `onShippingMethodSelected` to control the amount/line items yourself;
+   * otherwise the SDK adjusts the total by the selected method's amount.
+   */
+  shippingMethods?: ApplePayShippingMethod[];
+  /**
+   * Called when the customer selects a shipping method on the sheet.
+   * Return updated totals. Maps to PaymentRequest `shippingoptionchange`.
+   * Requires `shippingMethods` (and shipping to be requested).
+   */
+  onShippingMethodSelected?: (
+    shippingMethod: ApplePayShippingMethod
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   /**
    * Show the coupon field on the Apple Pay sheet and receive updates when the
@@ -122,10 +147,15 @@ export default class ApplePayButton {
   #options: ApplePayButtonOptions;
   #events = new EventManager<ApplePayEvents>();
   #scriptLoaded = false;
+  #scriptLoadPromise: Promise<void>;
+  #resolveScriptLoad!: () => void;
   #activeSession: PaymentRequest | null = null;
   #abortRequested = false;
   #sessionInProgress = false;
   #showStarted = false;
+  #availabilityPromise: Promise<
+    "available" | "unavailable" | "unsupported"
+  > | null = null;
 
   constructor(
     client: EvervaultClient,
@@ -135,6 +165,9 @@ export default class ApplePayButton {
     this.client = client;
     this.#options = options;
     this.transaction = transaction;
+    this.#scriptLoadPromise = new Promise((resolve) => {
+      this.#resolveScriptLoad = resolve;
+    });
     this.#injectScript();
   }
 
@@ -143,6 +176,7 @@ export default class ApplePayButton {
     const existing = document.querySelector(selector);
     if (existing) {
       this.#scriptLoaded = true;
+      this.#resolveScriptLoad();
       return;
     }
 
@@ -152,6 +186,7 @@ export default class ApplePayButton {
     script.crossOrigin = "anonymous";
     script.onload = () => {
       this.#scriptLoaded = true;
+      this.#resolveScriptLoad();
     };
 
     document.body.appendChild(script);
@@ -186,8 +221,11 @@ export default class ApplePayButton {
         disbursementOverrides: this.#options.disbursementOverrides,
         requestBillingAddress: this.#options.requestBillingAddress,
         requestShipping: this.#options.requestShipping,
+        shippingType: this.#options.shippingType,
+        shippingMethods: this.#options.shippingMethods,
         onPaymentMethodChange: this.#options.onPaymentMethodChange,
         onShippingAddressChange: this.#options.onShippingAddressChange,
+        onShippingMethodSelected: this.#options.onShippingMethodSelected,
         supportsCouponCode: this.#options.supportsCouponCode,
         couponCode: this.#options.couponCode,
         onCouponCodeChange: this.#options.onCouponCodeChange,
@@ -240,6 +278,35 @@ export default class ApplePayButton {
 
       if (response.details.shippingContact) {
         encrypted.shippingContact = response.details.shippingContact;
+      }
+
+      const shippingOptionId = (
+        response as PaymentResponse & { shippingOption?: string | null }
+      ).shippingOption;
+
+      if (shippingOptionId) {
+        const selectedMethod = this.#options.shippingMethods?.find(
+          (method) => method.id === shippingOptionId
+        );
+        if (selectedMethod) {
+          encrypted.shippingMethod = {
+            id: selectedMethod.id,
+            label: selectedMethod.label,
+            amount: selectedMethod.amount,
+            detail: selectedMethod.detail,
+          };
+        } else {
+          console.warn(
+            `[Evervault Apple Pay] PaymentResponse.shippingOption "${shippingOptionId}" ` +
+              "did not match any configured shippingMethods. " +
+              "Returning a placeholder shippingMethod with amount 0."
+          );
+          encrypted.shippingMethod = {
+            id: shippingOptionId,
+            label: shippingOptionId,
+            amount: 0,
+          };
+        }
       }
 
       encrypted.transactionType = mapTransactionType(
@@ -345,20 +412,18 @@ export default class ApplePayButton {
     if (this.#scriptLoaded) return;
     const TIMEOUT = 10000;
 
-    return new Promise((resolve, reject) => {
-      const start = Date.now();
-      const interval = setInterval(() => {
-        if (this.#scriptLoaded) {
-          clearInterval(interval);
-          resolve(true);
-        }
-
-        if (Date.now() - start > TIMEOUT) {
-          clearInterval(interval);
-          reject(new Error("Apple Pay SDK script load timeout"));
-        }
-      }, 100);
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const timeout = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => {
+        reject(new Error("Apple Pay SDK script load timeout"));
+      }, TIMEOUT);
     });
+
+    try {
+      await Promise.race([this.#scriptLoadPromise, timeout]);
+    } finally {
+      clearTimeout(timeoutId!);
+    }
   }
 
   /**
@@ -370,6 +435,20 @@ export default class ApplePayButton {
    * - "unsupported": Apple Pay is not supported on this device or browser.
    */
   async availability(): Promise<"available" | "unavailable" | "unsupported"> {
+    if (!this.#availabilityPromise) {
+      this.#availabilityPromise = this.#computeAvailability().catch((error) => {
+        // Don't cache a failed probe — allow a later call to retry.
+        this.#availabilityPromise = null;
+        throw error;
+      });
+    }
+
+    return this.#availabilityPromise;
+  }
+
+  async #computeAvailability(): Promise<
+    "available" | "unavailable" | "unsupported"
+  > {
     if (typeof window.PaymentRequest === "undefined") return "unsupported";
     await this.#waitForScript();
 

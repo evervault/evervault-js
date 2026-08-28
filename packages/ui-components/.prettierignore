@@ -4,3 +4,6 @@ package.json
 tsconfig.json
 vite.config.mts.timestamp-*
 playwright-report
+
+# Shared with the Android SDK; keep the two copies byte-identical.
+test/fixtures/google-pay

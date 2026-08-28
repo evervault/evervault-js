@@ -18,9 +18,8 @@ export function useMessaging<
       callback: (payload: ReceivableMessages[T]) => void
     ) => {
       const handler = (event: MessageEvent<UIComponentMessageDetail>) => {
-        if (event.data.type === type) {
-          callback(event.data.payload as ReceivableMessages[T]);
-        }
+        if (!event.data || event.data.type !== type) return;
+        callback(event.data.payload as ReceivableMessages[T]);
       };
 
       window.addEventListener("message", handler);

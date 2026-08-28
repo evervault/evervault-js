@@ -26,7 +26,7 @@ catalog:
   asn1js: ^3.0.5
   card-validator: ^10.0.4
   chai: ^4.4.1
-  concurrently: ^8.2.2
+  concurrently: ^10.0.4
   crc-32: ^1.2.2
   credit-card-type: ^9.1.0
   deepmerge: ^4.3.1
@@ -52,7 +52,7 @@ catalog:
   jss: ^10.10.0
   jss-preset-default: ^10.10.0
   msw: ^2.15.0
-  next: ^16.2.10
+  next: ^16.2.11
   nock: ^13.5.4
   node-fetch: ^3
   nodemon: ^3.1.4
@@ -62,7 +62,7 @@ catalog:
   pod-install: ^0.1.0
   postcss: ^8.5.10
   postcss-load-config: ^4.0.1
-  postcss-preset-env: ^11.2.0
+  postcss-preset-env: ^11.3.2
   prettier: ^2.8.8
   react: 19.2.7
   react-dom: 19.2.7

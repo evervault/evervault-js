@@ -1,5 +1,24 @@
 # @evervault/browser
 
+## 2.62.1
+
+### Patch Changes
+
+- a76ac2b: Replace the 100ms `setInterval` poll in `ApplePayButton`'s script-load wait with the SDK script's own `onload` event, removing up to ~100ms of artificial latency from `availability()`/`mount()`.
+- e689131: Dedupe the redundant native `ApplePaySession.applePayCapabilities()` call in `ApplePayButton`. `availability()` now memoizes its in-flight/resolved result on the instance, so calling `.availability()` before `.mount()` (the common integration pattern for driving "checking availability" UI) no longer triggers the expensive native capability probe twice per render.
+- f0c20d9: Parallelize the independent `getMerchant`/`getAppSDKConfig` requests in ApplePay's `buildSession` and GooglePay's SDK-load handler (`Promise.all`/concurrent kickoff instead of sequential awaits), removing one round-trip of latency from the critical path.
+
+## 2.62.0
+
+### Minor Changes
+
+- 36a3869: Add Apple Pay request-config passthrough for `applicationData`, `supportedCountries`, pending `lineItems[].type`, and `supportsVersion` gating.
+- cc146de: Add Apple Pay shipping methods and shipping type on the web SDK (`shippingMethods`, `shippingType`, `onShippingMethodSelected`). Merchants can offer selectable shipping options on one-off payment sheets; selecting a method recomputes totals (via the merchant callback or an internal amount adjustment) and the chosen method is returned on the `process()` payload as `shippingMethod`.
+
+### Patch Changes
+
+- a8657b5: Guard `postMessage`/`BroadcastChannel` message listeners in `EvervaultFrame`, `useMessaging`, and `useBroadcastChannel` against events with `null`/`undefined` `data`, preventing a crash when any other script on the page (browser extension, ad/analytics snippet, etc.) posts a message to the window.
+
 ## 2.61.0
 
 ### Minor Changes

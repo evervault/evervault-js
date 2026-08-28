@@ -1,10 +1,27 @@
 # @evervault/ui-components
 
+## 1.41.6
+
+### Patch Changes
+
+- f0c20d9: Parallelize the independent `getMerchant`/`getAppSDKConfig` requests in ApplePay's `buildSession` and GooglePay's SDK-load handler (`Promise.all`/concurrent kickoff instead of sequential awaits), removing one round-trip of latency from the critical path.
+  - @evervault/react@2.28.1
+
+## 1.41.5
+
+### Patch Changes
+
+- a8657b5: Guard `postMessage`/`BroadcastChannel` message listeners in `EvervaultFrame`, `useMessaging`, and `useBroadcastChannel` against events with `null`/`undefined` `data`, preventing a crash when any other script on the page (browser extension, ad/analytics snippet, etc.) posts a message to the window.
+- 01fcc7a: Fix duplicate 3DS iframe posts and Evervault client memoization
+- 01fcc7a: Fix 3DS iframe post guards in BrowserFingerprint and ChallengeFrame to key on the full next action (data/creq and url) instead of a single field, so a retry with a new url posts again instead of being silently skipped.
+- Updated dependencies [01fcc7a]
+- Updated dependencies [9128fb6]
+  - @evervault/react@2.28.1
+
 ## 1.41.4
 
 ### Patch Changes
 
-- a7ddfa7: Fix duplicate 3DS iframe posts and Evervault client memoization
 - Updated dependencies [ee0d7fc]
   - @evervault/react@2.28.0
 
