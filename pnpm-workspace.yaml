@@ -5,7 +5,7 @@ packages:
   - e2e-tests/**
 catalog:
   "@actions/core": ^3.0.1
-  "@actions/github": ^6.0.0
+  "@actions/github": ^9.1.1
   "@aws-sdk/client-s3": ^3.996.0
   "@babel/core": ^7.29.6
   "@changesets/cli": ^3.0.1
