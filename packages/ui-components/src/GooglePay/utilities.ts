@@ -30,10 +30,17 @@ export function buildPaymentRequest(
               "VISA",
             ],
           billingAddressRequired: isBillingRequired(config),
-          billingAddressParameters: {
-            format: billingAddressFormat(config),
-            phoneNumberRequired: phoneNumberRequired(config),
-          },
+          // Google ignores these when billingAddressRequired is false. Omit
+          // them so the request says only what it means, and so it matches the
+          // Android SDK.
+          ...(isBillingRequired(config)
+            ? {
+                billingAddressParameters: {
+                  format: billingAddressFormat(config),
+                  phoneNumberRequired: phoneNumberRequired(config),
+                },
+              }
+            : {}),
         },
         tokenizationSpecification: {
           type: "PAYMENT_GATEWAY",

@@ -30,7 +30,7 @@ catalog:
   crc-32: ^1.2.2
   credit-card-type: ^9.1.0
   deepmerge: ^4.3.1
-  del-cli: ^5.0.0
+  del-cli: ^7.0.0
   dotenv: ^16.4.5
   dotenv-cli: ^7.4.1
   eslint: ^9.12.0
@@ -53,7 +53,7 @@ catalog:
   jss-preset-default: ^10.10.0
   msw: ^2.15.0
   next: ^16.2.11
-  nock: ^13.5.4
+  nock: ^14.0.17
   node-fetch: ^3
   nodemon: ^3.1.4
   peggy: ^4.0.2
