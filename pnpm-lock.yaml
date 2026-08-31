@@ -151,8 +151,8 @@ catalogs:
       specifier: ^16.2.11
       version: 16.3.0
     nock:
-      specifier: ^13.5.4
-      version: 13.5.4
+      specifier: ^14.0.17
+      version: 14.0.17
     node-fetch:
       specifier: ^3
       version: 3.3.2
@@ -337,7 +337,7 @@ importers:
         version: 22.1.0
       nock:
         specifier: 'catalog:'
-        version: 13.5.4
+        version: 14.0.17
       prettier:
         specifier: 'catalog:'
         version: 2.8.8
@@ -779,7 +779,7 @@ importers:
         version: 2.15.0(@types/node@26.1.1)(typescript@5.6.3)
       nock:
         specifier: 'catalog:'
-        version: 13.5.4
+        version: 14.0.17
       tsconfig:
         specifier: workspace:*
         version: link:../tsconfig
@@ -7734,9 +7734,9 @@ packages:
     resolution: {integrity: sha512-WDD0bdg9mbq6F4mRxEYcPWwfA1vxd0mrvKOyxI7Xj/atfRHVeutzuWByG//jfm4uPzp0y4Kj051EORCBSQMycw==}
     engines: {node: '>=12.0.0'}
 
-  nock@13.5.4:
-    resolution: {integrity: sha512-yAyTfdeNJGGBFxWdzSKCBYxs5FxLbCg5X5Q4ets974hcQzG1+qCxvIyOo4j2Ry6MUlhWVMX4OoYDefAIIwupjw==}
-    engines: {node: '>= 10.13'}
+  nock@14.0.17:
+    resolution: {integrity: sha512-EjRr1weMa4ALQX35AgZTEnP+weJJjlW1KGDiNM2IQC2069YDHas4f4B4UUYR+TTLyKWxJvOz2wObDKQs/LNreA==}
+    engines: {node: '>=18.20.0 <20 || >=20.12.1'}
 
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
@@ -19075,13 +19075,11 @@ snapshots:
 
   nocache@3.0.4: {}
 
-  nock@13.5.4:
+  nock@14.0.17:
     dependencies:
-      debug: 4.4.3
+      '@mswjs/interceptors': 0.41.9
       json-stringify-safe: 5.0.1
       propagate: 2.0.1
-    transitivePeerDependencies:
-      - supports-color
 
   node-domexception@1.0.0: {}
 
