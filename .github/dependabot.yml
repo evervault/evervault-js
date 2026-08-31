@@ -3,16 +3,16 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "swift"
     directory: "packages/react-native-v2"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "gradle"
     directory: "packages/react-native-v2/android"
     schedule:
-      interval: "weekly"
+      interval: "monthly"

@@ -30,7 +30,7 @@ catalog:
   crc-32: ^1.2.2
   credit-card-type: ^9.1.0
   deepmerge: ^4.3.1
-  del-cli: ^5.0.0
+  del-cli: ^7.0.0
   dotenv: ^16.4.5
   dotenv-cli: ^7.4.1
   eslint: ^9.12.0
