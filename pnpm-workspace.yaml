@@ -41,7 +41,7 @@ catalog:
   expo-build-properties: ~0.14.8
   expo-dev-client: ~5.2.4
   expo-splash-screen: ~0.30.10
-  expo-status-bar: ~55.0.4
+  expo-status-bar: ~57.0.1
   express: ^5
   globals: ^17.7.0
   husky: ^9.1.1
