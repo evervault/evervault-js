@@ -1,5 +1,11 @@
 # @evervault/react-native
 
+## 2.7.1
+
+### Patch Changes
+
+- e1ee603: Fix input flicker on masked Card inputs (Number, Expiry, Cvc)
+
 ## 2.7.0
 
 ### Minor Changes

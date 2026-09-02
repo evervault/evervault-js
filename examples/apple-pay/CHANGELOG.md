@@ -1,5 +1,13 @@
 # example-apple-pay
 
+## 0.0.25
+
+### Patch Changes
+
+- Updated dependencies [ddfa327]
+  - @evervault/browser@2.63.0
+  - @evervault/js@2.20.0
+
 ## 0.0.24
 
 ### Patch Changes

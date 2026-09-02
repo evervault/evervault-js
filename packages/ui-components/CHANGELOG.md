@@ -1,5 +1,16 @@
 # @evervault/ui-components
 
+## 1.42.0
+
+### Minor Changes
+
+- 92bd94b: Default the Google Pay button corner radius to 12 to match pay.js and the Android SDK, which previously rendered 4 on web and 100 on Android. The fallback now uses `??`, so `borderRadius: 0` gives square corners instead of being treated as unset.
+
+### Patch Changes
+
+- 92bd94b: Omit `billingAddressParameters` from the Google Pay request when `billingAddressRequired` is false. Google ignores the field in that case, so no merchant behaviour changes, and the request now matches what the Android SDK emits.
+- @evervault/react@2.28.1
+
 ## 1.41.6
 
 ### Patch Changes

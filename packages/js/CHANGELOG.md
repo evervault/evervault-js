@@ -1,5 +1,11 @@
 # @evervault/js
 
+## 2.20.0
+
+### Minor Changes
+
+- ddfa327: Add `payerName`, `payerEmail` and `payerPhone` to the Apple Pay `process()` payload when `requestPayerDetails` is set.
+
 ## 2.19.0
 
 ### Minor Changes
