@@ -1581,6 +1581,105 @@ describe("ApplePayButton.abort", () => {
   });
 });
 
+describe("ApplePayButton payer details on process()", () => {
+  const payerName = "John Appleseed";
+  const payerEmail = "john@example.com";
+  const payerPhone = "+14085551234";
+
+  function createResolvedSession(payer: {
+    payerName?: string | null;
+    payerEmail?: string | null;
+    payerPhone?: string | null;
+  }) {
+    return {
+      show: vi.fn().mockResolvedValue({
+        details: {
+          token: {
+            paymentData: {},
+            paymentMethod: { displayName: "Visa 1234", type: "credit" },
+          },
+        },
+        ...payer,
+        complete: vi.fn().mockResolvedValue(undefined),
+      }),
+      abort: vi.fn(),
+    };
+  }
+
+  beforeEach(() => {
+    buildSessionMock.mockReset();
+    vi.spyOn(applePayUtilities, "buildSession").mockImplementation(
+      buildSessionMock
+    );
+
+    vi.stubGlobal("PaymentRequest", class PaymentRequest {});
+
+    vi.stubGlobal("ApplePaySession", {
+      applePayCapabilities: vi.fn().mockResolvedValue({
+        paymentCredentialStatus: "paymentCredentialsAvailable",
+      }),
+    });
+
+    const script = document.createElement("script");
+    script.src =
+      "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
+    document.body.appendChild(script);
+
+    server.use(
+      http.post(`${apiUrl}/frontend/apple-pay/credentials`, () =>
+        HttpResponse.json({ card: {} })
+      )
+    );
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("forwards payerName, payerEmail and payerPhone to the process() payload", async () => {
+    buildSessionMock.mockResolvedValue(
+      createResolvedSession({ payerName, payerEmail, payerPhone })
+    );
+    const process = vi.fn().mockResolvedValue(undefined);
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process,
+      requestPayerDetails: ["name", "email", "phone"],
+    });
+
+    await clickApplePayButton(apple);
+    await vi.waitFor(() => expect(process).toHaveBeenCalled());
+
+    const payload = process.mock.calls[0][0];
+    expect(payload.payerName).toBe(payerName);
+    expect(payload.payerEmail).toBe(payerEmail);
+    expect(payload.payerPhone).toBe(payerPhone);
+  });
+
+  it("omits payer fields when Safari returns them as null", async () => {
+    buildSessionMock.mockResolvedValue(
+      createResolvedSession({
+        payerName: null,
+        payerEmail: null,
+        payerPhone: null,
+      })
+    );
+    const process = vi.fn().mockResolvedValue(undefined);
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process,
+    });
+
+    await clickApplePayButton(apple);
+    await vi.waitFor(() => expect(process).toHaveBeenCalled());
+
+    const payload = process.mock.calls[0][0];
+    expect(payload).not.toHaveProperty("payerName");
+    expect(payload).not.toHaveProperty("payerEmail");
+    expect(payload).not.toHaveProperty("payerPhone");
+  });
+});
+
 describe("ApplePayButton shipping method on process()", () => {
   function createResolvedSession(shippingOption?: string | null) {
     return {
