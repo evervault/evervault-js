@@ -280,10 +280,6 @@ export default class ApplePayButton {
         encrypted.shippingContact = response.details.shippingContact;
       }
 
-      // Safari fulfils requestPayerName/Email/Phone via the Apple Pay shipping
-      // contact and mirrors them onto the flat PaymentResponse payer fields.
-      // Forward those so callers using `requestPayerDetails` get the values
-      // under matching names, in addition to `shippingContact`.
       const { payerName, payerEmail, payerPhone } =
         response as PaymentResponse & {
           payerName?: string | null;

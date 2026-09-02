@@ -359,20 +359,11 @@ export type EncryptedApplePayData = Omit<
     phoneNumber?: string;
   };
   /**
-   * The payer's full name, present when `requestPayerDetails` includes
-   * `"name"`. Apple Pay collects this on the shipping contact, so the same
-   * value is also available as `shippingContact.givenName` / `familyName`.
+   * Set when `requestPayerDetails` is used. Apple Pay collects these on the
+   * shipping contact, so they also appear on `shippingContact`.
    */
   payerName?: string;
-  /**
-   * The payer's email address, present when `requestPayerDetails` includes
-   * `"email"`. Also available as `shippingContact.emailAddress`.
-   */
   payerEmail?: string;
-  /**
-   * The payer's phone number, present when `requestPayerDetails` includes
-   * `"phone"`. Also available as `shippingContact.phoneNumber`.
-   */
   payerPhone?: string;
   /**
    * The shipping method the customer selected on the Apple Pay sheet.
