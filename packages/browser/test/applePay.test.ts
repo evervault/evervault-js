@@ -1581,8 +1581,8 @@ describe("ApplePayButton.abort", () => {
   });
 });
 
-describe("ApplePayButton shipping method on process()", () => {
-  function createResolvedSession(shippingOption?: string | null) {
+describe("ApplePayButton process() payload", () => {
+  function createResolvedSession(response: Record<string, unknown> = {}) {
     return {
       show: vi.fn().mockResolvedValue({
         details: {
@@ -1591,7 +1591,7 @@ describe("ApplePayButton shipping method on process()", () => {
             paymentMethod: { displayName: "Visa 1234", type: "credit" },
           },
         },
-        shippingOption,
+        ...response,
         complete: vi.fn().mockResolvedValue(undefined),
       }),
       abort: vi.fn(),
@@ -1631,7 +1631,9 @@ describe("ApplePayButton shipping method on process()", () => {
   });
 
   it("attaches the matching shippingMethod to the process() payload", async () => {
-    buildSessionMock.mockResolvedValue(createResolvedSession("express"));
+    buildSessionMock.mockResolvedValue(
+      createResolvedSession({ shippingOption: "express" })
+    );
     const process = vi.fn().mockResolvedValue(undefined);
     const apple = new ApplePayButton(createMockClient(), createTransaction(), {
       process,
@@ -1659,7 +1661,9 @@ describe("ApplePayButton shipping method on process()", () => {
 
   it("falls back to a placeholder and warns when shippingOption matches nothing", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    buildSessionMock.mockResolvedValue(createResolvedSession("unknown-id"));
+    buildSessionMock.mockResolvedValue(
+      createResolvedSession({ shippingOption: "unknown-id" })
+    );
     const process = vi.fn().mockResolvedValue(undefined);
     const apple = new ApplePayButton(createMockClient(), createTransaction(), {
       process,
@@ -1683,7 +1687,7 @@ describe("ApplePayButton shipping method on process()", () => {
   });
 
   it("omits shippingMethod entirely when no shippingOption is returned", async () => {
-    buildSessionMock.mockResolvedValue(createResolvedSession(undefined));
+    buildSessionMock.mockResolvedValue(createResolvedSession());
     const process = vi.fn().mockResolvedValue(undefined);
     const apple = new ApplePayButton(createMockClient(), createTransaction(), {
       process,
@@ -1693,6 +1697,50 @@ describe("ApplePayButton shipping method on process()", () => {
     await vi.waitFor(() => expect(process).toHaveBeenCalled());
 
     expect(process.mock.calls[0][0].shippingMethod).toBeUndefined();
+  });
+
+  it("forwards payerName, payerEmail and payerPhone to the process() payload", async () => {
+    const payerName = "John Appleseed";
+    const payerEmail = "john@example.com";
+    const payerPhone = "+14085551234";
+    buildSessionMock.mockResolvedValue(
+      createResolvedSession({ payerName, payerEmail, payerPhone })
+    );
+    const process = vi.fn().mockResolvedValue(undefined);
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process,
+      requestPayerDetails: ["name", "email", "phone"],
+    });
+
+    await clickApplePayButton(apple);
+    await vi.waitFor(() => expect(process).toHaveBeenCalled());
+
+    const payload = process.mock.calls[0][0];
+    expect(payload.payerName).toBe(payerName);
+    expect(payload.payerEmail).toBe(payerEmail);
+    expect(payload.payerPhone).toBe(payerPhone);
+  });
+
+  it("omits payer fields when the response returns them as null", async () => {
+    buildSessionMock.mockResolvedValue(
+      createResolvedSession({
+        payerName: null,
+        payerEmail: null,
+        payerPhone: null,
+      })
+    );
+    const process = vi.fn().mockResolvedValue(undefined);
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process,
+    });
+
+    await clickApplePayButton(apple);
+    await vi.waitFor(() => expect(process).toHaveBeenCalled());
+
+    const payload = process.mock.calls[0][0];
+    expect(payload).not.toHaveProperty("payerName");
+    expect(payload).not.toHaveProperty("payerEmail");
+    expect(payload).not.toHaveProperty("payerPhone");
   });
 });
 

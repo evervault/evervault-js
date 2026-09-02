@@ -280,6 +280,25 @@ export default class ApplePayButton {
         encrypted.shippingContact = response.details.shippingContact;
       }
 
+      const { payerName, payerEmail, payerPhone } =
+        response as PaymentResponse & {
+          payerName?: string | null;
+          payerEmail?: string | null;
+          payerPhone?: string | null;
+        };
+
+      if (payerName) {
+        encrypted.payerName = payerName;
+      }
+
+      if (payerEmail) {
+        encrypted.payerEmail = payerEmail;
+      }
+
+      if (payerPhone) {
+        encrypted.payerPhone = payerPhone;
+      }
+
       const shippingOptionId = (
         response as PaymentResponse & { shippingOption?: string | null }
       ).shippingOption;
