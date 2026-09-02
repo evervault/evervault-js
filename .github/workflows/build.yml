@@ -68,7 +68,6 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           overwrite: false
-          # Long enough for a production release to wait for approval.
           retention-days: 30
           name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: ${{ steps.get-path-to-package.outputs.path-to-package }}/dist
@@ -77,7 +76,6 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           overwrite: false
-          # Long enough for a production release to wait for approval.
           retention-days: 30
           name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: ${{ steps.get-path-to-package.outputs.path-to-package }}

@@ -62,7 +62,6 @@ jobs:
     with:
       package-name: ${{ inputs.package-name }}
       environment: ${{ inputs.stage }}
-  # Production deploys wait for manual approval. Tell Slack so the run is not forgotten.
   notify-pending-approval:
     runs-on: ubuntu-latest
     if: ${{ inputs.stage == 'production' }}
