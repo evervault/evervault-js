@@ -1,4 +1,8 @@
-import { EncryptedGooglePayData, MerchantDetail, TransactionLineItem } from "types";
+import {
+  EncryptedGooglePayData,
+  MerchantDetail,
+  TransactionLineItem,
+} from "types";
 import { GooglePayConfig } from "./types";
 import { apiConfig } from "../utilities/config";
 
