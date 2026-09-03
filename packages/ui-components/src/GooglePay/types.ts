@@ -19,4 +19,10 @@ export interface GooglePayConfig {
   shippingAddress?: GooglePayShippingAddressConfig;
   shippingOptions?: GooglePayShippingOptionsConfig;
   emailRequired?: boolean;
+  checkoutOption?: google.payments.api.CheckoutOption;
+  transactionId?: string;
+  totalPriceStatus?: google.payments.api.TotalPriceStatus;
+  allowPrepaidCards?: boolean;
+  allowCreditCards?: boolean;
+  softwareInfo?: google.payments.api.SoftwareInfo;
 }
