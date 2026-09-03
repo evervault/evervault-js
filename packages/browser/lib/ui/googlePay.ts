@@ -159,6 +159,12 @@ export default class GooglePay {
         shippingAddress: this.#options.shippingAddress,
         shippingOptions: this.#options.shippingOptions,
         emailRequired: this.#options.emailRequired,
+        checkoutOption: this.#options.checkoutOption,
+        transactionId: this.#options.transactionId,
+        totalPriceStatus: this.#options.totalPriceStatus,
+        allowPrepaidCards: this.#options.allowPrepaidCards,
+        allowCreditCards: this.#options.allowCreditCards,
+        softwareInfo: this.#options.softwareInfo,
       },
     };
   }
