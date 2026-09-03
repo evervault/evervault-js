@@ -1,4 +1,8 @@
-import { EncryptedGooglePayData, MerchantDetail } from "types";
+import {
+  EncryptedGooglePayData,
+  MerchantDetail,
+  TransactionLineItem,
+} from "types";
 import { GooglePayConfig } from "./types";
 import { apiConfig } from "../utilities/config";
 
@@ -29,6 +33,8 @@ export function buildPaymentRequest(
               "MASTERCARD",
               "VISA",
             ],
+          allowPrepaidCards: config.allowPrepaidCards,
+          allowCreditCards: config.allowCreditCards,
           billingAddressRequired: isBillingRequired(config),
           // Google ignores these when billingAddressRequired is false. Omit
           // them so the request says only what it means, and so it matches the
@@ -55,21 +61,44 @@ export function buildPaymentRequest(
       merchantId: apiConfig.googlePayMerchantId,
       merchantName: merchant.name,
       merchantOrigin: tx.domain, // merchantOrigin is not present in the GooglePayConfig type but is noted as required by the GooglePay API
+      softwareInfo: config.softwareInfo,
     } as unknown as google.payments.api.MerchantInfo,
     transactionInfo: {
-      totalPriceStatus: "FINAL",
+      totalPriceStatus: config.totalPriceStatus ?? "FINAL",
       totalPriceLabel: tx.priceLabel ?? `Pay ${merchant.name}`,
       totalPrice: (tx.amount / 100).toFixed(2).toString(),
       currencyCode: tx.currency,
       countryCode: tx.country,
+      checkoutOption: config.checkoutOption,
+      transactionId: config.transactionId,
       displayItems: tx.lineItems?.map((item) => ({
         label: item.label,
-        type: "LINE_ITEM",
+        type: displayItemType(item.category),
         price: (item.amount / 100).toFixed(2).toString(),
       })),
     },
     callbackIntents: ["PAYMENT_AUTHORIZATION"],
   };
+}
+
+// Google's DisplayItemType is a category (LINE_ITEM/SUBTOTAL/TAX/...), distinct
+// from TransactionLineItem's own "final"/"pending" status field. Defaults to
+// LINE_ITEM to match today's behaviour when category is omitted.
+function displayItemType(
+  category: TransactionLineItem["category"]
+): google.payments.api.DisplayItemType {
+  switch (category) {
+    case "subtotal":
+      return "SUBTOTAL";
+    case "tax":
+      return "TAX";
+    case "discount":
+      return "DISCOUNT";
+    case "shipping_option":
+      return "SHIPPING_OPTION";
+    default:
+      return "LINE_ITEM";
+  }
 }
 
 const API = import.meta.env.VITE_API_URL as string;
