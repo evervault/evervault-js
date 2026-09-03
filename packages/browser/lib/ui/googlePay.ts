@@ -90,6 +90,12 @@ export default class GooglePay {
         allowedCardNetworks: this.#options.allowedCardNetworks,
         billingAddress: this.#options.billingAddress,
         emailRequired: this.#options.emailRequired,
+        checkoutOption: this.#options.checkoutOption,
+        transactionId: this.#options.transactionId,
+        totalPriceStatus: this.#options.totalPriceStatus,
+        allowPrepaidCards: this.#options.allowPrepaidCards,
+        allowCreditCards: this.#options.allowCreditCards,
+        softwareInfo: this.#options.softwareInfo,
       },
     };
   }
