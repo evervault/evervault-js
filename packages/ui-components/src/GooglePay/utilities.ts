@@ -88,6 +88,10 @@ function displayItemType(
       return "SUBTOTAL";
     case "tax":
       return "TAX";
+    case "discount":
+      return "DISCOUNT";
+    case "shipping_option":
+      return "SHIPPING_OPTION";
     default:
       return "LINE_ITEM";
   }

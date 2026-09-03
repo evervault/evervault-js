@@ -666,7 +666,7 @@ export interface TransactionLineItem {
    * Pay only, where it maps to `displayItems[].type`). Has no effect on Apple
    * Pay or disbursements. Defaults to `"line_item"` when omitted.
    */
-  category?: "line_item" | "subtotal" | "tax";
+  category?: "line_item" | "subtotal" | "tax" | "discount" | "shipping_option";
 }
 
 export interface InstantTransferDetails {
