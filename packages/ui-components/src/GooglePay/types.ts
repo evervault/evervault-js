@@ -15,4 +15,10 @@ export interface GooglePayConfig {
   allowedCardNetworks?: string[];
   billingAddress?: GooglePayBillingAddressConfig;
   emailRequired?: boolean;
+  checkoutOption?: google.payments.api.CheckoutOption;
+  transactionId?: string;
+  totalPriceStatus?: google.payments.api.TotalPriceStatus;
+  allowPrepaidCards?: boolean;
+  allowCreditCards?: boolean;
+  softwareInfo?: google.payments.api.SoftwareInfo;
 }
