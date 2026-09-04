@@ -68,6 +68,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           overwrite: false
+          retention-days: 30
           name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: ${{ steps.get-path-to-package.outputs.path-to-package }}/dist
       - name: Upload Build Artifacts
@@ -75,5 +76,6 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           overwrite: false
+          retention-days: 30
           name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: ${{ steps.get-path-to-package.outputs.path-to-package }}
