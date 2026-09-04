@@ -27,6 +27,7 @@ import {
 } from "./types";
 import { tryCatch } from "../../utilities";
 import { Transaction } from "../../resources/transaction";
+import { markStart, markEndAndReport } from "shared";
 
 const APPLE_PAY_SCRIPT_URL =
   "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
@@ -193,6 +194,7 @@ export default class ApplePayButton {
   }
 
   async #handleClick() {
+    markStart("ev:apple-pay:tap-to-sheet");
     this.#abortRequested = false;
     this.#sessionInProgress = true;
 
@@ -245,6 +247,10 @@ export default class ApplePayButton {
       this.#activeSession = session;
       this.#showStarted = true;
 
+      // session.show() both opens the native Apple Pay sheet and awaits the
+      // full user interaction, so this measures tap -> ready-to-show, not
+      // the native sheet's own paint time (not observable from the page).
+      markEndAndReport("ev:apple-pay:tap-to-sheet");
       const [response, responseError] = await tryCatch(session.show());
 
       this.#activeSession = null;
@@ -258,6 +264,8 @@ export default class ApplePayButton {
         this.#events.dispatch("error", responseError.message);
         return;
       }
+
+      markStart("ev:apple-pay:authorize-to-done");
 
       const paymentMethodDisplayName =
         response.details?.token?.paymentMethod?.displayName;
@@ -359,6 +367,8 @@ export default class ApplePayButton {
         this.#events.dispatch("success");
         response.complete("success");
       }
+
+      markEndAndReport("ev:apple-pay:authorize-to-done");
     } finally {
       this.#activeSession = null;
       this.#sessionInProgress = false;
@@ -499,6 +509,7 @@ export default class ApplePayButton {
   }
 
   async mount(selector: SelectorType) {
+    markStart("ev:apple-pay:mount");
     const availability = await this.availability();
 
     if (availability === "unsupported") {
@@ -555,6 +566,7 @@ export default class ApplePayButton {
     });
 
     element.appendChild(this.#button);
+    markEndAndReport("ev:apple-pay:mount");
     this.#events.dispatch("ready");
   }
 

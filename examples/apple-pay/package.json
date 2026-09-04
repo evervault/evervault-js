@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 4000",
+    "dev:tunnel": "./run-tunnel.sh",
+    "perf:baseline": "./perf-baseline/measure.sh",
     "clean": "rm -rf node_modules dist"
   },
   "dependencies": {

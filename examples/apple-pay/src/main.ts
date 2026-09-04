@@ -1,5 +1,6 @@
 import Evervault from "@evervault/browser";
 import "./style.css";
+import "./perf-rum";
 
 const BASE_AMOUNT = 1000; // $10.00 in cents
 const COUPON_SAVE20 = "SAVE20";
@@ -136,40 +137,48 @@ async function main() {
   const availability = await apple.availability();
   setStatus(`Availability: ${availability}`);
 
-  if (availability === "available") {
-    apple.on("error", (error) => {
-      console.log("Apple Pay error", error);
-      setStatus(`Error: ${error ?? "unknown"}`);
-    });
-
-    apple.on("success", () => {
-      console.log("Apple pay success!");
-      setStatus("Success");
-    });
-
-    apple.on("cancel", () => {
-      console.log("Apple Pay cancelled");
-      setStatus("Cancelled");
-    });
-
-    apple.on("ready", () => {
-      console.log("Apple Pay button is ready!");
-      setStatus(
-        "Ready — check Prefill billing/shipping on the sheet; try coupon SAVE20"
-      );
-    });
-
-    apple.mount("#apple-pay");
-  } else if (availability === "unavailable") {
-    const container = document.getElementById("apple-pay");
-    container!.innerHTML = "Apple Pay is not available on this device";
-    setStatus("Apple Pay unavailable (no Wallet credentials)");
-  } else {
+  if (availability === "unsupported") {
     const container = document.getElementById("apple-pay");
     container!.innerHTML =
       "Apple Pay is not supported here — open this page in Safari";
     setStatus("Apple Pay unsupported — use Safari with Wallet");
+    return;
   }
+
+  if (availability === "unavailable") {
+    setStatus(
+      "Apple Pay unavailable locally — mounting anyway (remote/QR continuity may still work)"
+    );
+  }
+
+  apple.on("error", (error) => {
+    console.log("Apple Pay error", error);
+    setStatus(`Error: ${error ?? "unknown"}`);
+  });
+
+  apple.on("success", () => {
+    console.log("Apple pay success!");
+    setStatus("Success");
+  });
+
+  apple.on("cancel", () => {
+    console.log("Apple Pay cancelled");
+    setStatus("Cancelled");
+  });
+
+  apple.on("ready", () => {
+    console.log("Apple Pay button is ready!");
+    setStatus(
+      "Ready — check Prefill billing/shipping on the sheet; try coupon SAVE20"
+    );
+  });
+
+  // mount() renders the button even when availability is "unavailable" — e.g.
+  // no local Wallet card — and only no-ops when Apple Pay is fully unsupported
+  // (non-Safari). Mounting unconditionally here is what lets the desktop-Chrome
+  // + phone-QR remote-continuity flow be attempted instead of being blocked
+  // before it ever gets a chance to show.
+  apple.mount("#apple-pay");
 }
 
 main().catch((error) => {
