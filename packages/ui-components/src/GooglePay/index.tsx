@@ -1,11 +1,17 @@
 import css from "./styles.module.css";
 import { CSSProperties, useLayoutEffect, useRef } from "react";
-import { buildPaymentRequest, exchangePaymentData } from "./utilities";
+import {
+  buildPaymentRequest,
+  buildTransactionInfo,
+  exchangePaymentData,
+  shippingOptionParameters,
+} from "./utilities";
 import { setSize } from "../utilities/resize";
 import { GooglePayConfig } from "./types";
 import { useMessaging } from "../utilities/useMessaging";
 import {
   GooglePayClientMessages,
+  GooglePayDataChangeResponse,
   GooglePayHostMessages,
   PaymentMethodType,
 } from "types";
@@ -34,6 +40,25 @@ function isPaymentError(
   err: unknown
 ): err is google.payments.api.PaymentsError {
   return Boolean((err as google.payments.api.PaymentsError).statusCode);
+}
+
+/**
+ * `CallbackTrigger` and `CallbackIntent` overlap but are not the same union, so
+ * an error raised from a data change has to name an intent Google accepts.
+ */
+function errorIntent(
+  data: google.payments.api.IntermediatePaymentData
+): google.payments.api.CallbackIntent {
+  return data.callbackTrigger === "SHIPPING_OPTION"
+    ? "SHIPPING_OPTION"
+    : "SHIPPING_ADDRESS";
+}
+
+let dataChangeSequence = 0;
+
+function nextDataChangeId(): string {
+  dataChangeSequence += 1;
+  return `gpay-data-change-${dataChangeSequence}`;
 }
 
 export function GooglePay({ config }: GooglePayProps) {
@@ -68,6 +93,62 @@ export function GooglePay({ config }: GooglePayProps) {
             ? "TEST"
             : "PRODUCTION",
         paymentDataCallbacks: {
+          // Google raises this while the sheet is open, and can raise it more
+          // than once per session, so each request is matched to its reply by
+          // id rather than by message type alone.
+          onPaymentDataChanged: async (data) => {
+            const id = nextDataChangeId();
+
+            const update = await new Promise<GooglePayDataChangeResponse>(
+              (resolve) => {
+                const off = on(
+                  "EV_GOOGLE_PAY_DATA_CHANGE_RESULT",
+                  (response) => {
+                    if (response.id !== id) return;
+                    off();
+                    resolve(response);
+                  }
+                );
+
+                send("EV_GOOGLE_PAY_DATA_CHANGE", {
+                  id,
+                  trigger: data.callbackTrigger,
+                  shippingAddress: data.shippingAddress ?? null,
+                  shippingOptionId: data.shippingOptionData?.id ?? null,
+                });
+              }
+            );
+
+            if (update.error) {
+              return {
+                error: {
+                  reason:
+                    update.error.reason || "SHIPPING_ADDRESS_UNSERVICEABLE",
+                  intent: update.error.intent || errorIntent(data),
+                  message: update.error.message,
+                },
+              };
+            }
+
+            const result: google.payments.api.PaymentDataRequestUpdate = {};
+
+            if (update.amount !== undefined || update.lineItems !== undefined) {
+              const merchant = await merchantPromise;
+              result.newTransactionInfo = buildTransactionInfo(
+                config,
+                merchant?.name ?? "",
+                { amount: update.amount, lineItems: update.lineItems }
+              );
+            }
+
+            if (update.shippingOptions) {
+              result.newShippingOptionParameters = shippingOptionParameters(
+                update.shippingOptions
+              );
+            }
+
+            return result;
+          },
           onPaymentAuthorized: async (data) => {
             const payload = await exchangePaymentData(
               app,
@@ -94,6 +175,14 @@ export function GooglePay({ config }: GooglePayProps) {
             const billingAddress = paymentMethodInfo?.billingAddress || null;
             if (billingAddress) {
               payload.billingAddress = billingAddress;
+            }
+
+            if (data.shippingAddress) {
+              payload.shippingAddress = data.shippingAddress;
+            }
+
+            if (data.shippingOptionData) {
+              payload.shippingOptionId = data.shippingOptionData.id;
             }
 
             const cardDetails = paymentMethodInfo?.cardDetails;
