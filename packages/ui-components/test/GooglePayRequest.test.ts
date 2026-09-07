@@ -42,17 +42,15 @@ describe("buildPaymentRequest shipping fields", () => {
   });
 
   it("passes address parameters through", () => {
-    expect(
-      build({
-        shippingAddress: {
-          allowedCountryCodes: ["US", "CA"],
-          phoneNumberRequired: true,
-        },
-      }).shippingAddressParameters
-    ).toEqual({
+    const shippingAddress = {
       allowedCountryCodes: ["US", "CA"],
       phoneNumberRequired: true,
-    });
+      format: "FULL-ISO3166" as const,
+    };
+
+    expect(build({ shippingAddress }).shippingAddressParameters).toEqual(
+      shippingAddress
+    );
   });
 
   it("makes options imply address collection", () => {

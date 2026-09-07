@@ -190,14 +190,7 @@ function isShippingRequired(config: GooglePayConfig): boolean {
 function shippingAddressParameters(
   config: GooglePayConfig
 ): google.payments.api.ShippingAddressParameters {
-  const shippingConfig = config.shippingAddress;
-  if (typeof shippingConfig !== "object" || shippingConfig === null) return {};
-  return {
-    ...(shippingConfig.allowedCountryCodes
-      ? { allowedCountryCodes: shippingConfig.allowedCountryCodes }
-      : {}),
-    ...(shippingConfig.phoneNumberRequired
-      ? { phoneNumberRequired: true }
-      : {}),
-  };
+  return typeof config.shippingAddress === "object"
+    ? config.shippingAddress
+    : {};
 }

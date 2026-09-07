@@ -497,11 +497,8 @@ export interface GooglePayErrorMessage {
   intent?: google.payments.api.CallbackIntent;
 }
 
-export interface GooglePayShippingAddressParameters {
-  /** ISO 3166-1 alpha-2 codes the buyer may ship to, e.g. `["US", "CA"]`. */
-  allowedCountryCodes?: string[];
-  phoneNumberRequired?: boolean;
-}
+export type GooglePayShippingAddressParameters =
+  google.payments.api.ShippingAddressParameters;
 
 export type GooglePayShippingAddressConfig =
   | boolean
