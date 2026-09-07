@@ -1850,3 +1850,93 @@ describe("ApplePayButton.availability", () => {
     expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
   });
 });
+
+describe("ApplePayButton multiple instances", () => {
+  const scriptSelector =
+    'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]';
+
+  function stubAvailableApplePaySession() {
+    vi.stubGlobal("ApplePaySession", {
+      applePayCapabilities: vi.fn().mockResolvedValue({
+        paymentCredentialStatus: "paymentCredentialsAvailable",
+      }),
+    });
+  }
+
+  beforeEach(() => {
+    vi.stubGlobal("PaymentRequest", class PaymentRequest {});
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("resolves availability() on a second instance sharing the first instance's script tag", async () => {
+    const first = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+    const second = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    const scripts =
+      document.querySelectorAll<HTMLScriptElement>(scriptSelector);
+    expect(scripts).toHaveLength(1);
+
+    const firstAvailability = first.availability();
+    const secondAvailability = second.availability();
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    stubAvailableApplePaySession();
+    scripts[0].dispatchEvent(new Event("load"));
+
+    await expect(firstAvailability).resolves.toBe("available");
+    await expect(secondAvailability).resolves.toBe("available");
+  });
+
+  it("does not cache an unsupported result, allowing a later call to re-probe", async () => {
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    document
+      .querySelector<HTMLScriptElement>(scriptSelector)!
+      .dispatchEvent(new Event("load"));
+
+    await expect(apple.availability()).resolves.toBe("unsupported");
+
+    stubAvailableApplePaySession();
+
+    await expect(apple.availability()).resolves.toBe("available");
+    expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
+  });
+
+  it("stops waiting on a pre-existing script tag that never signals load", async () => {
+    vi.useFakeTimers();
+    try {
+      const script = document.createElement("script");
+      script.src =
+        "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
+      document.body.appendChild(script);
+
+      const apple = new ApplePayButton(
+        createMockClient(),
+        createTransaction(),
+        {
+          process: vi.fn(),
+        }
+      );
+
+      const assertion = expect(apple.availability()).resolves.toBe(
+        "unsupported"
+      );
+      await vi.advanceTimersByTimeAsync(1000);
+      await assertion;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
