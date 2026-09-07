@@ -31,6 +31,67 @@ import { Transaction } from "../../resources/transaction";
 const APPLE_PAY_SCRIPT_URL =
   "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
 
+const SCRIPT_LOAD_TIMEOUT = 10000;
+
+let sdkLoadPromise: Promise<void> | null = null;
+
+function loadApplePaySDK(): Promise<void> {
+  if (sdkLoadPromise) return sdkLoadPromise;
+
+  sdkLoadPromise = new Promise<void>((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>(
+      `script[src="${APPLE_PAY_SCRIPT_URL}"]`
+    );
+
+    if (
+      existing &&
+      typeof ApplePaySession !== "undefined" &&
+      typeof ApplePaySession.applePayCapabilities === "function"
+    ) {
+      resolve();
+      return;
+    }
+
+    const script = existing ?? document.createElement("script");
+
+    const timeoutId = setTimeout(() => {
+      // A tag we did not inject may have finished loading before we listened,
+      // so its `load` never fires again — resolve and let the capability check
+      // decide, rather than failing a page that already has the SDK.
+      if (existing) {
+        resolve();
+        return;
+      }
+
+      sdkLoadPromise = null;
+      reject(new Error("Apple Pay SDK script load timeout"));
+    }, SCRIPT_LOAD_TIMEOUT);
+
+    script.addEventListener(
+      "load",
+      () => {
+        clearTimeout(timeoutId);
+        resolve();
+      },
+      { once: true }
+    );
+
+    if (!existing) {
+      script.src = APPLE_PAY_SCRIPT_URL;
+      script.async = true;
+      script.crossOrigin = "anonymous";
+      document.body.appendChild(script);
+    }
+  });
+
+  return sdkLoadPromise;
+}
+
+/** Test-only: drops the shared SDK load so each test case starts clean. */
+export function resetApplePaySDKLoader() {
+  sdkLoadPromise = null;
+}
+
 export type ApplePayButtonOptions = {
   type?: ApplePayButtonType;
   style?: ApplePayButtonStyle;
@@ -146,9 +207,6 @@ export default class ApplePayButton {
   #button: HTMLElement | null = null;
   #options: ApplePayButtonOptions;
   #events = new EventManager<ApplePayEvents>();
-  #scriptLoaded = false;
-  #scriptLoadPromise: Promise<void>;
-  #resolveScriptLoad!: () => void;
   #activeSession: PaymentRequest | null = null;
   #abortRequested = false;
   #sessionInProgress = false;
@@ -165,31 +223,8 @@ export default class ApplePayButton {
     this.client = client;
     this.#options = options;
     this.transaction = transaction;
-    this.#scriptLoadPromise = new Promise((resolve) => {
-      this.#resolveScriptLoad = resolve;
-    });
-    this.#injectScript();
-  }
-
-  #injectScript() {
-    const selector = `script[src="${APPLE_PAY_SCRIPT_URL}"]`;
-    const existing = document.querySelector(selector);
-    if (existing) {
-      this.#scriptLoaded = true;
-      this.#resolveScriptLoad();
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = APPLE_PAY_SCRIPT_URL;
-    script.async = true;
-    script.crossOrigin = "anonymous";
-    script.onload = () => {
-      this.#scriptLoaded = true;
-      this.#resolveScriptLoad();
-    };
-
-    document.body.appendChild(script);
+    // Start the shared load now; availability() awaits it and surfaces failures.
+    void loadApplePaySDK().catch(() => {});
   }
 
   async #handleClick() {
@@ -427,24 +462,6 @@ export default class ApplePayButton {
     this.#abortRequested = true;
   }
 
-  async #waitForScript() {
-    if (this.#scriptLoaded) return;
-    const TIMEOUT = 10000;
-
-    let timeoutId: ReturnType<typeof setTimeout>;
-    const timeout = new Promise<never>((_, reject) => {
-      timeoutId = setTimeout(() => {
-        reject(new Error("Apple Pay SDK script load timeout"));
-      }, TIMEOUT);
-    });
-
-    try {
-      await Promise.race([this.#scriptLoadPromise, timeout]);
-    } finally {
-      clearTimeout(timeoutId!);
-    }
-  }
-
   /**
    * Checks the availability of Apple Pay on the current device.
    *
@@ -455,11 +472,21 @@ export default class ApplePayButton {
    */
   async availability(): Promise<"available" | "unavailable" | "unsupported"> {
     if (!this.#availabilityPromise) {
-      this.#availabilityPromise = this.#computeAvailability().catch((error) => {
-        // Don't cache a failed probe — allow a later call to retry.
-        this.#availabilityPromise = null;
-        throw error;
-      });
+      this.#availabilityPromise = this.#computeAvailability()
+        .then((result) => {
+          // "unsupported" can just mean the SDK has not defined
+          // ApplePaySession yet — don't cache it, so a later call re-probes.
+          if (result === "unsupported") {
+            this.#availabilityPromise = null;
+          }
+
+          return result;
+        })
+        .catch((error) => {
+          // Don't cache a failed probe — allow a later call to retry.
+          this.#availabilityPromise = null;
+          throw error;
+        });
     }
 
     return this.#availabilityPromise;
@@ -469,7 +496,7 @@ export default class ApplePayButton {
     "available" | "unavailable" | "unsupported"
   > {
     if (typeof window.PaymentRequest === "undefined") return "unsupported";
-    await this.#waitForScript();
+    await loadApplePaySDK();
 
     if (
       typeof ApplePaySession === "undefined" ||
