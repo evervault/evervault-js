@@ -190,8 +190,11 @@ describe("GooglePay shipping data changes", () => {
    * Answers the frame's outgoing data-change message the way the host SDK
    * would, echoing back the id it was sent.
    */
-  function replyToDataChange(update: Record<string, unknown>) {
-    const postMessage = vi
+  function replyToDataChange(
+    update: Record<string, unknown> | Record<string, unknown>[]
+  ) {
+    const updates = Array.isArray(update) ? [...update] : [update];
+    return vi
       .spyOn(window.parent, "postMessage")
       .mockImplementation((message: unknown) => {
         const { type, payload } = message as {
@@ -203,12 +206,11 @@ describe("GooglePay shipping data changes", () => {
           new MessageEvent("message", {
             data: {
               type: "EV_GOOGLE_PAY_DATA_CHANGE_RESULT",
-              payload: { id: payload.id, ...update },
+              payload: { id: payload.id, ...(updates.shift() ?? {}) },
             },
           })
         );
       });
-    return postMessage;
   }
 
   it("sends the buyer's address to the host and applies the new total", async () => {
@@ -253,6 +255,33 @@ describe("GooglePay shipping data changes", () => {
     );
   });
 
+  it("preserves prior values across partial transaction updates", async () => {
+    await mountWithShipping();
+    replyToDataChange([
+      {
+        amount: 1500,
+        lineItems: [{ label: "Shipping", amount: 500 }],
+      },
+      { amount: 1800 },
+      { lineItems: [{ label: "Express", amount: 800 }] },
+    ]);
+    const change = () =>
+      callbacks.onPaymentDataChanged!({
+        callbackTrigger: "SHIPPING_OPTION",
+        shippingOptionData: { id: "express" },
+      } as google.payments.api.IntermediatePaymentData);
+
+    await change();
+    expect((await change()).newTransactionInfo).toMatchObject({
+      totalPrice: "18.00",
+      displayItems: [{ label: "Shipping", price: "5.00" }],
+    });
+    expect((await change()).newTransactionInfo).toMatchObject({
+      totalPrice: "18.00",
+      displayItems: [{ label: "Express", price: "8.00" }],
+    });
+  });
+
   it("returns no update when the merchant returns nothing", async () => {
     await mountWithShipping();
     replyToDataChange({});
@@ -265,7 +294,7 @@ describe("GooglePay shipping data changes", () => {
     expect(result).toEqual({});
   });
 
-  it("surfaces a merchant error as an inline sheet error", async () => {
+  it("surfaces an address error as an inline sheet error", async () => {
     await mountWithShipping();
     replyToDataChange({
       error: { message: "We do not ship there" },
@@ -280,6 +309,24 @@ describe("GooglePay shipping data changes", () => {
       reason: "SHIPPING_ADDRESS_UNSERVICEABLE",
       intent: "SHIPPING_ADDRESS",
       message: "We do not ship there",
+    });
+  });
+
+  it("uses a shipping-option error for an invalid option", async () => {
+    await mountWithShipping();
+    replyToDataChange({
+      error: { message: "That option is no longer available" },
+    });
+
+    const result = await callbacks.onPaymentDataChanged!({
+      callbackTrigger: "SHIPPING_OPTION",
+      shippingOptionData: { id: "express" },
+    } as google.payments.api.IntermediatePaymentData);
+
+    expect(result.error).toEqual({
+      reason: "SHIPPING_OPTION_INVALID",
+      intent: "SHIPPING_OPTION",
+      message: "That option is no longer available",
     });
   });
 

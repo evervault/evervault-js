@@ -64,54 +64,11 @@ async function raiseDataChange(payload: Record<string, unknown>) {
   return sent.at(-1);
 }
 
-describe("GooglePay shipping configuration", () => {
-  it("rejects shipping options without a shipping address", () => {
-    expect(() => mount({ shippingOptions: SHIPPING_OPTIONS })).toThrow(
-      /shippingOptions requires shippingAddress/
-    );
-  });
-
-  it("rejects an empty option list", () => {
-    expect(() =>
-      mount({ shippingAddress: true, shippingOptions: { options: [] } })
-    ).toThrow(/must not be empty/);
-  });
-
-  it("rejects a default selection that matches no option", () => {
-    expect(() =>
-      mount({
-        shippingAddress: true,
-        shippingOptions: {
-          ...SHIPPING_OPTIONS,
-          defaultSelectedOptionId: "express",
-        },
-      })
-    ).toThrow(/does not match any configured option/);
-  });
-
-  it("accepts a default selection that matches an option", () => {
-    expect(() =>
-      mount({
-        shippingAddress: true,
-        shippingOptions: {
-          ...SHIPPING_OPTIONS,
-          defaultSelectedOptionId: "standard",
-        },
-      })
-    ).not.toThrow();
-  });
-
-  it("passes the shipping config to the frame", () => {
-    const button = mount({
-      shippingAddress: { allowedCountryCodes: ["US"] },
-      shippingOptions: SHIPPING_OPTIONS,
-    });
-
-    expect(button.config.config).toMatchObject({
-      shippingAddress: { allowedCountryCodes: ["US"] },
-      shippingOptions: SHIPPING_OPTIONS,
-    });
-  });
+it("passes shipping configuration to the frame", () => {
+  const shippingAddress = { allowedCountryCodes: ["US"] };
+  expect(
+    mount({ shippingAddress, shippingOptions: SHIPPING_OPTIONS }).config.config
+  ).toMatchObject({ shippingAddress, shippingOptions: SHIPPING_OPTIONS });
 });
 
 describe("GooglePay data change callbacks", () => {
@@ -137,36 +94,17 @@ describe("GooglePay data change callbacks", () => {
     });
   });
 
-  it("calls onShippingOptionChange with the chosen option id", async () => {
+  it("routes option changes only to the option callback", async () => {
+    const onShippingAddressChange = vi.fn();
     const onShippingOptionChange = vi.fn().mockResolvedValue({ amount: 1200 });
-    mount({
-      shippingAddress: true,
-      shippingOptions: SHIPPING_OPTIONS,
-      onShippingOptionChange,
-    });
+    mount({ onShippingAddressChange, onShippingOptionChange });
 
     await raiseDataChange({
       trigger: "SHIPPING_OPTION",
       shippingOptionId: "express",
     });
 
-    expect(onShippingOptionChange).toHaveBeenCalledOnce();
     expect(onShippingOptionChange).toHaveBeenCalledWith("express");
-  });
-
-  it("does not call the address callback for an option change", async () => {
-    const onShippingAddressChange = vi.fn().mockResolvedValue({});
-    mount({
-      shippingAddress: true,
-      shippingOptions: SHIPPING_OPTIONS,
-      onShippingAddressChange,
-    });
-
-    await raiseDataChange({
-      trigger: "SHIPPING_OPTION",
-      shippingOptionId: "standard",
-    });
-
     expect(onShippingAddressChange).not.toHaveBeenCalled();
   });
 

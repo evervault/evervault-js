@@ -184,9 +184,7 @@ function phoneNumberRequired(config: GooglePayConfig): boolean {
 }
 
 function isShippingRequired(config: GooglePayConfig): boolean {
-  const shippingConfig = config.shippingAddress;
-  if (typeof shippingConfig === "boolean") return shippingConfig;
-  return !!shippingConfig;
+  return !!config.shippingAddress || !!config.shippingOptions;
 }
 
 function shippingAddressParameters(

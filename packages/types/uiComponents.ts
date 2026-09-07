@@ -581,8 +581,8 @@ export interface GooglePayOptions {
    */
   shippingAddress?: GooglePayShippingAddressConfig;
   /**
-   * Offer shipping options in the sheet. Requires `shippingAddress`, because
-   * Google only raises option callbacks once it has an address.
+   * Offer shipping options in the sheet. This also enables shipping-address
+   * collection when `shippingAddress` is omitted.
    */
   shippingOptions?: GooglePayShippingOptionsConfig;
   /**

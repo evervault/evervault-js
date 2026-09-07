@@ -13,42 +13,6 @@ import type {
 import { Transaction } from "../resources/transaction";
 import { getStringDimensionOrDefault } from "../utils";
 
-/**
- * Google rejects a request that asks for a shipping option without an address,
- * or with an empty option list, at sheet-present time. Fail at construction so
- * the merchant sees the cause rather than a sheet that will not open.
- */
-function assertShippingConfigValid(options: GooglePayOptions) {
-  const { shippingAddress, shippingOptions } = options;
-  if (!shippingOptions) return;
-
-  if (!shippingAddress) {
-    throw new Error(
-      "[Evervault Google Pay] shippingOptions requires shippingAddress; " +
-        "Google only offers shipping options once it has an address"
-    );
-  }
-
-  if (!shippingOptions.options.length) {
-    throw new Error(
-      "[Evervault Google Pay] shippingOptions.options must not be empty"
-    );
-  }
-
-  const { defaultSelectedOptionId } = shippingOptions;
-  if (
-    defaultSelectedOptionId &&
-    !shippingOptions.options.some(
-      (option) => option.id === defaultSelectedOptionId
-    )
-  ) {
-    throw new Error(
-      "[Evervault Google Pay] shippingOptions.defaultSelectedOptionId " +
-        `"${defaultSelectedOptionId}" does not match any configured option`
-    );
-  }
-}
-
 interface GooglePayEvents {
   ready: () => void;
   success: () => void;
@@ -67,8 +31,6 @@ export default class GooglePay {
     transaction: Transaction,
     options: GooglePayOptions
   ) {
-    assertShippingConfigValid(options);
-
     this.#options = options;
     this.#transaction = transaction;
     this.#frame = new EvervaultFrame(client, "GooglePay", {

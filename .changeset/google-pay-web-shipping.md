@@ -3,4 +3,4 @@
 "@evervault/js": minor
 ---
 
-Add Google Pay shipping address and shipping option collection on web. `shippingAddress` and `shippingOptions` configure the sheet, `onShippingAddressChange` and `onShippingOptionChange` update the total, line items and options while the sheet is open, and the buyer's choice is surfaced on the `process()` payload as `shippingAddress` and `shippingOptionId`.
+Add Google Pay shipping collection on web. `shippingAddress` configures address collection, while `shippingOptions` adds options and enables address collection automatically. Shipping callbacks can update the open sheet, and `process()` receives the buyer's shipping address and option ID.

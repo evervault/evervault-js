@@ -46,20 +46,18 @@ function isPaymentError(
  * `CallbackTrigger` and `CallbackIntent` overlap but are not the same union, so
  * an error raised from a data change has to name an intent Google accepts.
  */
-function errorIntent(
+function defaultShippingError(
   data: google.payments.api.IntermediatePaymentData
-): google.payments.api.CallbackIntent {
+): Pick<google.payments.api.PaymentDataError, "reason" | "intent"> {
   return data.callbackTrigger === "SHIPPING_OPTION"
-    ? "SHIPPING_OPTION"
-    : "SHIPPING_ADDRESS";
+    ? { reason: "SHIPPING_OPTION_INVALID", intent: "SHIPPING_OPTION" }
+    : {
+        reason: "SHIPPING_ADDRESS_UNSERVICEABLE",
+        intent: "SHIPPING_ADDRESS",
+      };
 }
 
 let dataChangeSequence = 0;
-
-function nextDataChangeId(): string {
-  dataChangeSequence += 1;
-  return `gpay-data-change-${dataChangeSequence}`;
-}
 
 export function GooglePay({ config }: GooglePayProps) {
   const { app } = useSearchParams();
@@ -84,6 +82,11 @@ export function GooglePay({ config }: GooglePayProps) {
       const merchantPromise = getMerchant(app, config.transaction.merchantId);
 
       const appConfig = await appConfigPromise;
+      // Each response patches the open sheet. Keep prior values when a later
+      // merchant response updates only the amount or only the line items.
+      let currentAmount = config.transaction.amount;
+      let currentLineItems = config.transaction.lineItems;
+
       const paymentsClient = new google.payments.api.PaymentsClient({
         // Always use 'test' in staging, but use the resolved environment in production
         environment:
@@ -97,7 +100,7 @@ export function GooglePay({ config }: GooglePayProps) {
           // than once per session, so each request is matched to its reply by
           // id rather than by message type alone.
           onPaymentDataChanged: async (data) => {
-            const id = nextDataChangeId();
+            const id = `gpay-data-change-${++dataChangeSequence}`;
 
             const update = await new Promise<GooglePayDataChangeResponse>(
               (resolve) => {
@@ -120,11 +123,11 @@ export function GooglePay({ config }: GooglePayProps) {
             );
 
             if (update.error) {
+              const defaultError = defaultShippingError(data);
               return {
                 error: {
-                  reason:
-                    update.error.reason || "SHIPPING_ADDRESS_UNSERVICEABLE",
-                  intent: update.error.intent || errorIntent(data),
+                  reason: update.error.reason ?? defaultError.reason,
+                  intent: update.error.intent ?? defaultError.intent,
                   message: update.error.message,
                 },
               };
@@ -133,11 +136,14 @@ export function GooglePay({ config }: GooglePayProps) {
             const result: google.payments.api.PaymentDataRequestUpdate = {};
 
             if (update.amount !== undefined || update.lineItems !== undefined) {
+              currentAmount = update.amount ?? currentAmount;
+              currentLineItems = update.lineItems ?? currentLineItems;
+
               const merchant = await merchantPromise;
               result.newTransactionInfo = buildTransactionInfo(
                 config,
                 merchant?.name ?? "",
-                { amount: update.amount, lineItems: update.lineItems }
+                { amount: currentAmount, lineItems: currentLineItems }
               );
             }
 
