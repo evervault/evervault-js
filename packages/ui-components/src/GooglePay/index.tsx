@@ -4,6 +4,7 @@ import {
   buildPaymentRequest,
   buildTransactionInfo,
   exchangePaymentData,
+  offerInfo,
   shippingOptionParameters,
 } from "./utilities";
 import { setSize } from "../utilities/resize";
@@ -49,9 +50,19 @@ function isPaymentError(
 function errorIntent(
   data: google.payments.api.IntermediatePaymentData
 ): google.payments.api.CallbackIntent {
-  return data.callbackTrigger === "SHIPPING_OPTION"
-    ? "SHIPPING_OPTION"
-    : "SHIPPING_ADDRESS";
+  if (data.callbackTrigger === "SHIPPING_OPTION") return "SHIPPING_OPTION";
+  if (data.callbackTrigger === "OFFER") return "OFFER";
+  return "SHIPPING_ADDRESS";
+}
+
+/** Google shows a reason it does not recognise for the trigger as a generic error. */
+function errorReason(
+  data: google.payments.api.IntermediatePaymentData
+): google.payments.api.ErrorReason {
+  if (data.callbackTrigger === "SHIPPING_OPTION")
+    return "SHIPPING_OPTION_INVALID";
+  if (data.callbackTrigger === "OFFER") return "OFFER_INVALID";
+  return "SHIPPING_ADDRESS_UNSERVICEABLE";
 }
 
 let dataChangeSequence = 0;
@@ -115,6 +126,7 @@ export function GooglePay({ config }: GooglePayProps) {
                   trigger: data.callbackTrigger,
                   shippingAddress: data.shippingAddress ?? null,
                   shippingOptionId: data.shippingOptionData?.id ?? null,
+                  redemptionCodes: data.offerData?.redemptionCodes ?? null,
                 });
               }
             );
@@ -122,8 +134,7 @@ export function GooglePay({ config }: GooglePayProps) {
             if (update.error) {
               return {
                 error: {
-                  reason:
-                    update.error.reason || "SHIPPING_ADDRESS_UNSERVICEABLE",
+                  reason: update.error.reason || errorReason(data),
                   intent: update.error.intent || errorIntent(data),
                   message: update.error.message,
                 },
@@ -145,6 +156,10 @@ export function GooglePay({ config }: GooglePayProps) {
               result.newShippingOptionParameters = shippingOptionParameters(
                 update.shippingOptions
               );
+            }
+
+            if (update.offers) {
+              result.newOfferInfo = offerInfo(update.offers);
             }
 
             return result;
@@ -183,6 +198,10 @@ export function GooglePay({ config }: GooglePayProps) {
 
             if (data.shippingOptionData) {
               payload.shippingOptionId = data.shippingOptionData.id;
+            }
+
+            if (data.offerData) {
+              payload.redemptionCodes = data.offerData.redemptionCodes;
             }
 
             const cardDetails = paymentMethodInfo?.cardDetails;

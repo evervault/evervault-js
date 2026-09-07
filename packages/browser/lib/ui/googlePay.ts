@@ -148,6 +148,10 @@ export default class GooglePay {
   #runDataChangeCallback(
     payload: GooglePayDataChangeRequest
   ): Promise<GooglePayDataChangeUpdate | void> | undefined {
+    if (payload.trigger === "OFFER") {
+      return this.#options.onOfferChange?.(payload.redemptionCodes ?? []);
+    }
+
     if (payload.trigger === "SHIPPING_OPTION") {
       if (!payload.shippingOptionId) return undefined;
       return this.#options.onShippingOptionChange?.(payload.shippingOptionId);
@@ -170,6 +174,7 @@ export default class GooglePay {
         billingAddress: this.#options.billingAddress,
         shippingAddress: this.#options.shippingAddress,
         shippingOptions: this.#options.shippingOptions,
+        offers: this.#options.offers,
         emailRequired: this.#options.emailRequired,
       },
     };

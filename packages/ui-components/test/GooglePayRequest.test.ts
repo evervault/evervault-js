@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildPaymentRequest,
   callbackIntents,
+  offerInfo,
   shippingOptionParameters,
 } from "../src/GooglePay/utilities";
 import type { GooglePayConfig } from "../src/GooglePay/types";
@@ -101,6 +102,35 @@ describe("buildPaymentRequest shipping fields", () => {
   });
 });
 
+const OFFERS = [
+  { redemptionCode: "SAVE10", description: "10% off your order" },
+];
+
+describe("buildPaymentRequest offers", () => {
+  it("omits offerInfo when no offers are configured", () => {
+    expect(build()).not.toHaveProperty("offerInfo");
+  });
+
+  it("omits offerInfo for an empty offer list", () => {
+    expect(build({ offers: [] })).not.toHaveProperty("offerInfo");
+  });
+
+  it("declares the configured offers", () => {
+    expect(build({ offers: OFFERS }).offerInfo).toEqual({ offers: OFFERS });
+  });
+
+  it("keeps only the fields Google accepts per offer", () => {
+    expect(
+      offerInfo([
+        {
+          redemptionCode: "SAVE10",
+          description: "10% off your order",
+        },
+      ]).offers[0]
+    ).toEqual({ redemptionCode: "SAVE10", description: "10% off your order" });
+  });
+});
+
 describe("callbackIntents", () => {
   it("asks only for authorization when shipping is not configured", () => {
     expect(callbackIntents(BASE_CONFIG)).toEqual(["PAYMENT_AUTHORIZATION"]);
@@ -109,6 +139,19 @@ describe("callbackIntents", () => {
   it("adds SHIPPING_ADDRESS when an address is collected", () => {
     expect(callbackIntents({ ...BASE_CONFIG, shippingAddress: true })).toEqual([
       "SHIPPING_ADDRESS",
+      "PAYMENT_AUTHORIZATION",
+    ]);
+  });
+
+  it("adds OFFER when offers are configured", () => {
+    expect(callbackIntents({ ...BASE_CONFIG, offers: OFFERS })).toEqual([
+      "OFFER",
+      "PAYMENT_AUTHORIZATION",
+    ]);
+  });
+
+  it("does not add OFFER for an empty offer list", () => {
+    expect(callbackIntents({ ...BASE_CONFIG, offers: [] })).toEqual([
       "PAYMENT_AUTHORIZATION",
     ]);
   });

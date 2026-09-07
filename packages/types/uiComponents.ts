@@ -489,12 +489,24 @@ export type EncryptedGooglePayData = (
    * when `shippingOptions` were configured on the Google Pay button.
    */
   shippingOptionId?: string | null;
+  /**
+   * Redemption codes of the offers the buyer applied in the sheet. Present only
+   * when `offers` were configured on the Google Pay button.
+   */
+  redemptionCodes?: string[] | null;
 };
 
 export interface GooglePayErrorMessage {
   message: string;
   reason?: google.payments.api.ErrorReason;
   intent?: google.payments.api.CallbackIntent;
+}
+
+export interface GooglePayOffer {
+  /** Identifies the offer when the buyer applies it. */
+  redemptionCode: string;
+  /** Shown to the buyer in the sheet. Google truncates past 60 characters. */
+  description: string;
 }
 
 export interface GooglePayShippingAddressParameters {
@@ -531,6 +543,8 @@ export interface GooglePayDataChangeUpdate {
   amount?: number;
   lineItems?: TransactionLineItem[];
   shippingOptions?: GooglePayShippingOptionsConfig;
+  /** Replaces the offers the sheet shows, e.g. to drop one that no longer applies. */
+  offers?: GooglePayOffer[];
   /** Rejects the buyer's selection and shows this error inside the sheet. */
   error?: GooglePayErrorMessage;
 }
@@ -545,6 +559,7 @@ export interface GooglePayDataChangeRequest {
   trigger: google.payments.api.CallbackTrigger;
   shippingAddress?: google.payments.api.IntermediateAddress | null;
   shippingOptionId?: string | null;
+  redemptionCodes?: string[] | null;
 }
 
 export interface GooglePayDataChangeResponse extends GooglePayDataChangeUpdate {
@@ -595,6 +610,18 @@ export interface GooglePayOptions {
   /** Called when the buyer picks a different shipping option. */
   onShippingOptionChange?: (
     optionId: string
+  ) => Promise<GooglePayDataChangeUpdate | void>;
+  /**
+   * Offers the buyer can apply in the sheet. Google renders a promotion entry
+   * once at least one offer is declared.
+   */
+  offers?: GooglePayOffer[];
+  /**
+   * Called when the buyer applies or removes an offer, with every redemption
+   * code currently applied. Return updated totals, line items or offers.
+   */
+  onOfferChange?: (
+    redemptionCodes: string[]
   ) => Promise<GooglePayDataChangeUpdate | void>;
   theme?: ThemeDefinition;
 }

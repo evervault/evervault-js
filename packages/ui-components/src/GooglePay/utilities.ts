@@ -1,5 +1,6 @@
 import {
   EncryptedGooglePayData,
+  GooglePayOffer,
   GooglePayShippingOptionsConfig,
   MerchantDetail,
   TransactionLineItem,
@@ -75,6 +76,7 @@ export function buildPaymentRequest(
           ),
         }
       : {}),
+    ...(config.offers?.length ? { offerInfo: offerInfo(config.offers) } : {}),
     transactionInfo: buildTransactionInfo(config, merchant.name),
     callbackIntents: callbackIntents(config),
   };
@@ -90,8 +92,20 @@ export function callbackIntents(
   const intents: google.payments.api.CallbackIntent[] = [];
   if (isShippingRequired(config)) intents.push("SHIPPING_ADDRESS");
   if (config.shippingOptions) intents.push("SHIPPING_OPTION");
+  if (config.offers?.length) intents.push("OFFER");
   intents.push("PAYMENT_AUTHORIZATION");
   return intents;
+}
+
+export function offerInfo(
+  offers: GooglePayOffer[]
+): google.payments.api.OfferInfo {
+  return {
+    offers: offers.map((offer) => ({
+      redemptionCode: offer.redemptionCode,
+      description: offer.description,
+    })),
+  };
 }
 
 export function buildTransactionInfo(

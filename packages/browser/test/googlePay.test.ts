@@ -41,6 +41,10 @@ const SHIPPING_OPTIONS = {
   options: [{ id: "standard", label: "Standard" }],
 };
 
+const OFFERS = [
+  { redemptionCode: "SAVE10", description: "10% off your order" },
+];
+
 const ADDRESS = {
   countryCode: "US",
   postalCode: "94043",
@@ -189,6 +193,57 @@ describe("GooglePay data change callbacks", () => {
 
     expect(onShippingAddressChange).not.toHaveBeenCalled();
     expect(reply?.payload).toEqual({ id: "gpay-data-change-1" });
+  });
+
+  it("calls onOfferChange with every applied redemption code", async () => {
+    const onOfferChange = vi.fn().mockResolvedValue({ amount: 900 });
+    mount({ offers: OFFERS, onOfferChange });
+
+    const reply = await raiseDataChange({
+      trigger: "OFFER",
+      redemptionCodes: ["SAVE10"],
+    });
+
+    expect(onOfferChange).toHaveBeenCalledOnce();
+    expect(onOfferChange).toHaveBeenCalledWith(["SAVE10"]);
+    expect(reply?.payload).toEqual({ id: "gpay-data-change-1", amount: 900 });
+  });
+
+  it("calls onOfferChange with an empty list when the buyer removes an offer", async () => {
+    const onOfferChange = vi.fn().mockResolvedValue({ amount: 1000 });
+    mount({ offers: OFFERS, onOfferChange });
+
+    await raiseDataChange({ trigger: "OFFER", redemptionCodes: [] });
+
+    expect(onOfferChange).toHaveBeenCalledWith([]);
+  });
+
+  it("does not call the shipping callbacks for an offer change", async () => {
+    const onShippingAddressChange = vi.fn().mockResolvedValue({});
+    mount({
+      offers: OFFERS,
+      shippingAddress: true,
+      onShippingAddressChange,
+      onOfferChange: vi.fn().mockResolvedValue({}),
+    });
+
+    await raiseDataChange({ trigger: "OFFER", redemptionCodes: ["SAVE10"] });
+
+    expect(onShippingAddressChange).not.toHaveBeenCalled();
+  });
+
+  it("returns new offers so the sheet can drop one that no longer applies", async () => {
+    mount({
+      offers: OFFERS,
+      onOfferChange: vi.fn().mockResolvedValue({ offers: [] }),
+    });
+
+    const reply = await raiseDataChange({
+      trigger: "OFFER",
+      redemptionCodes: ["SAVE10"],
+    });
+
+    expect(reply?.payload).toEqual({ id: "gpay-data-change-1", offers: [] });
   });
 
   it("turns a thrown callback into an inline sheet error", async () => {

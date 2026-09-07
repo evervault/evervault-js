@@ -332,6 +332,40 @@ describe("GooglePay shipping data changes", () => {
     );
   });
 
+  it("sends applied redemption codes and applies new offers", async () => {
+    await mountWithShipping();
+    replyToDataChange({
+      amount: 900,
+      offers: [{ redemptionCode: "SAVE20", description: "20% off" }],
+    });
+
+    const result = await callbacks.onPaymentDataChanged!({
+      callbackTrigger: "OFFER",
+      offerData: { redemptionCodes: ["SAVE10"] },
+    } as google.payments.api.IntermediatePaymentData);
+
+    expect(result.newOfferInfo).toEqual({
+      offers: [{ redemptionCode: "SAVE20", description: "20% off" }],
+    });
+    expect(result.newTransactionInfo?.totalPrice).toBe("9.00");
+  });
+
+  it("defaults an offer error to the reason and intent Google expects", async () => {
+    await mountWithShipping();
+    replyToDataChange({ error: { message: "That code has expired" } });
+
+    const result = await callbacks.onPaymentDataChanged!({
+      callbackTrigger: "OFFER",
+      offerData: { redemptionCodes: ["SAVE10"] },
+    } as google.payments.api.IntermediatePaymentData);
+
+    expect(result.error).toEqual({
+      reason: "OFFER_INVALID",
+      intent: "OFFER",
+      message: "That code has expired",
+    });
+  });
+
   it("ignores a reply meant for a different data change", async () => {
     await mountWithShipping();
     vi.spyOn(window.parent, "postMessage").mockImplementation(() => {
