@@ -13,7 +13,7 @@ import {
 } from "vitest";
 import * as applePayUtilities from "../lib/ui/ApplePay/utilities";
 import type { ApplePayMerchantCapability } from "types";
-import ApplePayButton from "../lib/ui/ApplePay";
+import ApplePayButton, { resetApplePaySDKLoader } from "../lib/ui/ApplePay";
 import { Transaction } from "../lib/resources/transaction";
 import type EvervaultClient from "../lib/main";
 import { setupCrypto } from "./setup";
@@ -150,6 +150,7 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
+  resetApplePaySDKLoader();
   paymentRequestCalls.length = 0;
   paymentMethodDataCalls.length = 0;
   paymentOptionsCalls.length = 0;
@@ -1456,6 +1457,62 @@ describe("ApplePayButton script loading", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("resolves availability() on a second instance once the shared script loads", async () => {
+    vi.stubGlobal("ApplePaySession", undefined);
+
+    const buttons = [
+      new ApplePayButton(createMockClient(), createTransaction(), {
+        process: vi.fn(),
+      }),
+      new ApplePayButton(createMockClient(), createTransaction(), {
+        process: vi.fn(),
+      }),
+    ];
+
+    let resolved = false;
+    const availabilityPromise = buttons[1].availability().then((result) => {
+      resolved = true;
+      return result;
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(resolved).toBe(false);
+
+    const script = document.querySelector<HTMLScriptElement>(
+      'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
+    );
+    expect(script).not.toBeNull();
+
+    vi.stubGlobal("ApplePaySession", {
+      applePayCapabilities: vi.fn().mockResolvedValue({
+        paymentCredentialStatus: "paymentCredentialsAvailable",
+      }),
+    });
+    script!.dispatchEvent(new Event("load"));
+
+    await expect(availabilityPromise).resolves.toBe("available");
+  });
+
+  it("injects a single SDK script tag for multiple instances", () => {
+    vi.stubGlobal("ApplePaySession", undefined);
+
+    const buttons = [
+      new ApplePayButton(createMockClient(), createTransaction(), {
+        process: vi.fn(),
+      }),
+      new ApplePayButton(createMockClient(), createTransaction(), {
+        process: vi.fn(),
+      }),
+    ];
+
+    expect(buttons).toHaveLength(2);
+    expect(
+      document.querySelectorAll(
+        'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
+      )
+    ).toHaveLength(1);
   });
 });
 
