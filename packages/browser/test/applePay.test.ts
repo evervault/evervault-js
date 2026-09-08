@@ -1506,9 +1506,8 @@ describe("ApplePayButton script loading", () => {
       process: vi.fn(),
     });
 
-    const firstScript = document.querySelector<HTMLScriptElement>(
-      applePaySDKSelector
-    );
+    const firstScript =
+      document.querySelector<HTMLScriptElement>(applePaySDKSelector);
     firstScript!.dispatchEvent(new Event("error"));
 
     await expect(first.availability()).rejects.toThrow(
@@ -1521,11 +1520,9 @@ describe("ApplePayButton script loading", () => {
         paymentCredentialStatus: "paymentCredentialsAvailable",
       }),
     });
-    const second = new ApplePayButton(
-      createMockClient(),
-      createTransaction(),
-      { process: vi.fn() }
-    );
+    const second = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
 
     await expect(second.availability()).resolves.toBe("available");
     dispatchApplePaySDKLoad();
