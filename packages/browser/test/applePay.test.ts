@@ -13,7 +13,7 @@ import {
 } from "vitest";
 import * as applePayUtilities from "../lib/ui/ApplePay/utilities";
 import type { ApplePayMerchantCapability } from "types";
-import ApplePayButton from "../lib/ui/ApplePay";
+import ApplePayButton, { resetApplePaySDKLoader } from "../lib/ui/ApplePay";
 import { Transaction } from "../lib/resources/transaction";
 import type EvervaultClient from "../lib/main";
 import { setupCrypto } from "./setup";
@@ -33,6 +33,8 @@ const apiUrl = "https://api.test.evervault.com";
 const app = "app_test123";
 const merchantId = "merchant_abc";
 const merchantName = "Acme Co";
+const applePaySDKSelector =
+  'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]';
 
 const paymentRequestCalls: ApplePayPaymentDetailsInit[] = [];
 const paymentMethodDataCalls: Array<{
@@ -150,6 +152,7 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
+  resetApplePaySDKLoader();
   paymentRequestCalls.length = 0;
   paymentMethodDataCalls.length = 0;
   paymentOptionsCalls.length = 0;
@@ -162,6 +165,9 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  document.querySelectorAll(applePaySDKSelector).forEach((script) => {
+    script.remove();
+  });
   server.resetHandlers();
 });
 
@@ -1389,9 +1395,16 @@ function createMockSession() {
   };
 }
 
+function dispatchApplePaySDKLoad() {
+  document
+    .querySelector<HTMLScriptElement>(applePaySDKSelector)
+    ?.dispatchEvent(new Event("load"));
+}
+
 async function clickApplePayButton(apple: ApplePayButton) {
   const container = document.createElement("div");
   document.body.appendChild(container);
+  dispatchApplePaySDKLoad();
   await apple.mount(container);
   const button = container.querySelector("apple-pay-button");
   button?.dispatchEvent(new Event("click"));
@@ -1413,32 +1426,127 @@ describe("ApplePayButton script loading", () => {
     vi.unstubAllGlobals();
   });
 
-  it("resolves availability() as soon as the SDK script's onload fires, without polling", async () => {
+  it("resolves availability() before the SDK loads when its capability API is ready", async () => {
     const apple = new ApplePayButton(createMockClient(), createTransaction(), {
       process: vi.fn(),
     });
 
-    const script = document.querySelector<HTMLScriptElement>(
-      'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
-    );
+    await expect(apple.availability()).resolves.toBe("available");
+    const script =
+      document.querySelector<HTMLScriptElement>(applePaySDKSelector);
     expect(script).not.toBeNull();
+    dispatchApplePaySDKLoad();
+  });
 
-    let resolved = false;
-    const availabilityPromise = apple.availability().then((result) => {
-      resolved = true;
-      return result;
+  it("waits for the SDK before mounting a button when its capability API is ready", async () => {
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const mountPromise = apple.mount(container);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(container.querySelector("apple-pay-button")).toBeNull();
+
+    dispatchApplePaySDKLoad();
+
+    await mountPromise;
+    expect(container.querySelector("apple-pay-button")).not.toBeNull();
+  });
+
+  it("mounts without waiting when a merchant-loaded SDK defined the button", async () => {
+    const script = document.createElement("script");
+    script.src =
+      "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
+    document.body.appendChild(script);
+    vi.stubGlobal("customElements", {
+      get: vi.fn().mockReturnValue(class ApplePayButtonElement {}),
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(resolved).toBe(false);
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+    const container = document.createElement("div");
+    document.body.appendChild(container);
 
-    script!.dispatchEvent(new Event("load"));
+    await apple.mount(container);
+    expect(container.querySelector("apple-pay-button")).not.toBeNull();
+  });
 
-    await expect(availabilityPromise).resolves.toBe("available");
-    expect(resolved).toBe(true);
+  it("rejects after an existing SDK script fails to load", async () => {
+    vi.stubGlobal("ApplePaySession", undefined);
+    vi.useFakeTimers();
+    try {
+      const script = document.createElement("script");
+      script.src =
+        "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
+      document.head.appendChild(script);
+      const apple = new ApplePayButton(
+        createMockClient(),
+        createTransaction(),
+        { process: vi.fn() }
+      );
+
+      const assertion = expect(apple.availability()).rejects.toThrow(
+        "Apple Pay SDK script load timeout"
+      );
+
+      await vi.advanceTimersByTimeAsync(10000);
+      await assertion;
+      expect(script.isConnected).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("removes a failed SDK script and allows a later retry", async () => {
+    vi.stubGlobal("ApplePaySession", undefined);
+    const first = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    const firstScript =
+      document.querySelector<HTMLScriptElement>(applePaySDKSelector);
+    firstScript!.dispatchEvent(new Event("error"));
+
+    await expect(first.availability()).rejects.toThrow(
+      "Apple Pay SDK script load failed"
+    );
+    expect(document.querySelector(applePaySDKSelector)).toBeNull();
+
+    vi.stubGlobal("ApplePaySession", {
+      applePayCapabilities: vi.fn().mockResolvedValue({
+        paymentCredentialStatus: "paymentCredentialsAvailable",
+      }),
+    });
+    const second = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    await expect(second.availability()).resolves.toBe("available");
+    dispatchApplePaySDKLoad();
+  });
+
+  it("loads the SDK when constructed before document.body exists", () => {
+    vi.stubGlobal("ApplePaySession", undefined);
+    const body = document.body;
+    body.remove();
+
+    try {
+      new ApplePayButton(createMockClient(), createTransaction(), {
+        process: vi.fn(),
+      });
+
+      expect(document.head.querySelector(applePaySDKSelector)).not.toBeNull();
+    } finally {
+      document.documentElement.appendChild(body);
+      dispatchApplePaySDKLoad();
+    }
   });
 
   it("rejects with a timeout error if the SDK script never loads", async () => {
+    vi.stubGlobal("ApplePaySession", undefined);
     vi.useFakeTimers();
     try {
       const apple = new ApplePayButton(
@@ -1456,6 +1564,61 @@ describe("ApplePayButton script loading", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("resolves availability() on a second instance once the shared script loads", async () => {
+    vi.stubGlobal("ApplePaySession", undefined);
+
+    const buttons = [
+      new ApplePayButton(createMockClient(), createTransaction(), {
+        process: vi.fn(),
+      }),
+      new ApplePayButton(createMockClient(), createTransaction(), {
+        process: vi.fn(),
+      }),
+    ];
+
+    let resolved = false;
+    const availabilityPromise = buttons[1].availability().then((result) => {
+      resolved = true;
+      return result;
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(resolved).toBe(false);
+
+    const script =
+      document.querySelector<HTMLScriptElement>(applePaySDKSelector);
+    expect(script).not.toBeNull();
+
+    vi.stubGlobal("ApplePaySession", {
+      applePayCapabilities: vi.fn().mockResolvedValue({
+        paymentCredentialStatus: "paymentCredentialsAvailable",
+      }),
+    });
+    dispatchApplePaySDKLoad();
+
+    await expect(availabilityPromise).resolves.toBe("available");
+  });
+
+  it("injects a single SDK script tag for multiple instances", () => {
+    vi.stubGlobal("ApplePaySession", undefined);
+
+    const buttons = [
+      new ApplePayButton(createMockClient(), createTransaction(), {
+        process: vi.fn(),
+      }),
+      new ApplePayButton(createMockClient(), createTransaction(), {
+        process: vi.fn(),
+      }),
+    ];
+
+    expect(buttons).toHaveLength(2);
+    expect(
+      document.querySelectorAll(
+        'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
+      )
+    ).toHaveLength(1);
   });
 });
 
@@ -1744,6 +1907,148 @@ describe("ApplePayButton process() payload", () => {
   });
 });
 
+describe("ApplePayButton credentials exchange", () => {
+  function createSessionWithResponse() {
+    const response = {
+      details: {
+        token: {
+          paymentData: {},
+          paymentMethod: { displayName: "Visa 1234", type: "credit" },
+        },
+      },
+      complete: vi.fn().mockResolvedValue(undefined),
+    };
+
+    return {
+      response,
+      session: { show: vi.fn().mockResolvedValue(response), abort: vi.fn() },
+    };
+  }
+
+  function mountButton() {
+    const { response, session } = createSessionWithResponse();
+    buildSessionMock.mockResolvedValue(session);
+
+    const error = vi.fn();
+    const process = vi.fn().mockResolvedValue(undefined);
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process,
+    });
+    apple.on("error", error);
+
+    return { apple, error, process, response };
+  }
+
+  beforeEach(() => {
+    buildSessionMock.mockReset();
+    vi.spyOn(applePayUtilities, "buildSession").mockImplementation(
+      buildSessionMock
+    );
+
+    vi.stubGlobal("PaymentRequest", class PaymentRequest {});
+
+    vi.stubGlobal("ApplePaySession", {
+      applePayCapabilities: vi.fn().mockResolvedValue({
+        paymentCredentialStatus: "paymentCredentialsAvailable",
+      }),
+    });
+
+    const script = document.createElement("script");
+    script.src =
+      "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
+    document.body.appendChild(script);
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("dispatches error and fails the sheet when the exchange returns a non-2xx", async () => {
+    server.use(
+      http.post(`${apiUrl}/frontend/apple-pay/credentials`, () =>
+        HttpResponse.json(
+          {
+            code: "internal-error",
+            title: "Internal Error",
+            detail: "Unable to decrypt the payment token",
+          },
+          { status: 500 }
+        )
+      )
+    );
+
+    const { apple, error, process, response } = mountButton();
+
+    await clickApplePayButton(apple);
+
+    await vi.waitFor(() => expect(error).toHaveBeenCalledOnce());
+    expect(error).toHaveBeenCalledWith(
+      "Apple Pay credentials exchange failed (500): Unable to decrypt the payment token"
+    );
+    expect(process).not.toHaveBeenCalled();
+    expect(response.complete).toHaveBeenCalledOnce();
+    expect(response.complete).toHaveBeenCalledWith("fail");
+  });
+
+  it("falls back to the status when the error body carries no detail", async () => {
+    server.use(
+      http.post(
+        `${apiUrl}/frontend/apple-pay/credentials`,
+        () => new HttpResponse(null, { status: 502 })
+      )
+    );
+
+    const { apple, error, process } = mountButton();
+
+    await clickApplePayButton(apple);
+
+    await vi.waitFor(() => expect(error).toHaveBeenCalledOnce());
+    expect(error).toHaveBeenCalledWith(
+      "Apple Pay credentials exchange failed (502)"
+    );
+    expect(process).not.toHaveBeenCalled();
+  });
+
+  it("dispatches error when a 200 response carries no card credentials", async () => {
+    server.use(
+      http.post(`${apiUrl}/frontend/apple-pay/credentials`, () =>
+        HttpResponse.json({})
+      )
+    );
+
+    const { apple, error, process, response } = mountButton();
+
+    await clickApplePayButton(apple);
+
+    await vi.waitFor(() => expect(error).toHaveBeenCalledOnce());
+    expect(error).toHaveBeenCalledWith(
+      "Apple Pay credentials exchange returned no card credentials"
+    );
+    expect(process).not.toHaveBeenCalled();
+    expect(response.complete).toHaveBeenCalledOnce();
+    expect(response.complete).toHaveBeenCalledWith("fail");
+  });
+
+  it("completes the sheet successfully when the exchange succeeds", async () => {
+    server.use(
+      http.post(`${apiUrl}/frontend/apple-pay/credentials`, () =>
+        HttpResponse.json({ card: {} })
+      )
+    );
+
+    const { apple, error, process, response } = mountButton();
+
+    await clickApplePayButton(apple);
+
+    await vi.waitFor(() => expect(process).toHaveBeenCalledOnce());
+    expect(error).not.toHaveBeenCalled();
+    expect(response.complete).toHaveBeenCalledOnce();
+    expect(response.complete).toHaveBeenCalledWith("success");
+  });
+});
+
 describe("ApplePayButton.availability", () => {
   function stubApplePaySession(
     capabilities:
@@ -1789,6 +2094,18 @@ describe("ApplePayButton.availability", () => {
     expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
   });
 
+  it("caches a genuine unsupported capability result", async () => {
+    stubApplePaySession({ paymentCredentialStatus: "applePayUnsupported" });
+
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    await expect(apple.availability()).resolves.toBe("unsupported");
+    await expect(apple.availability()).resolves.toBe("unsupported");
+    expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
+  });
+
   it("only calls applePayCapabilities once when availability() is followed by mount()", async () => {
     const apple = new ApplePayButton(createMockClient(), createTransaction(), {
       process: vi.fn(),
@@ -1798,6 +2115,7 @@ describe("ApplePayButton.availability", () => {
 
     const container = document.createElement("div");
     document.body.appendChild(container);
+    dispatchApplePaySDKLoad();
     await apple.mount(container);
 
     expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
