@@ -87,7 +87,7 @@ function loadApplePaySDK(): Promise<void> {
   return sdkLoadPromise;
 }
 
-/** Test-only: drops the shared SDK load so each test case starts clean. */
+/** Test-only: drops the shared SDK load so each test is isolated */
 export function resetApplePaySDKLoader() {
   sdkLoadPromise = null;
 }
