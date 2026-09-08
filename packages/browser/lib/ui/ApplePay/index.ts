@@ -52,7 +52,7 @@ function isApplePayButtonDefined() {
 function loadApplePaySDK(): Promise<void> {
   if (sdkLoadPromise) return sdkLoadPromise;
 
-  sdkLoadPromise = new Promise<void>((resolve, reject) => {
+  const loadPromise = new Promise<void>((resolve, reject) => {
     const existing = document.querySelector<HTMLScriptElement>(
       `script[src="${APPLE_PAY_SCRIPT_URL}"]`
     );
@@ -63,36 +63,46 @@ function loadApplePaySDK(): Promise<void> {
     }
 
     const script = existing ?? document.createElement("script");
-
+    const fail = (error: Error) => {
+      clearTimeout(timeoutId);
+      script.removeEventListener("load", onLoad);
+      script.removeEventListener("error", onError);
+      if (!existing) script.remove();
+      reject(error);
+    };
+    const onLoad = () => {
+      clearTimeout(timeoutId);
+      script.removeEventListener("error", onError);
+      resolve();
+    };
+    const onError = () => fail(new Error("Apple Pay SDK script load failed"));
     const timeoutId = setTimeout(() => {
-      // An existing script may have loaded before this listener was attached.
-      if (existing) {
+      if (isApplePayButtonDefined()) {
         resolve();
         return;
       }
 
-      sdkLoadPromise = null;
-      reject(new Error("Apple Pay SDK script load timeout"));
+      fail(new Error("Apple Pay SDK script load timeout"));
     }, SCRIPT_LOAD_TIMEOUT);
 
-    script.addEventListener(
-      "load",
-      () => {
-        clearTimeout(timeoutId);
-        resolve();
-      },
-      { once: true }
-    );
+    script.addEventListener("load", onLoad, { once: true });
+    script.addEventListener("error", onError, { once: true });
 
     if (!existing) {
       script.src = APPLE_PAY_SCRIPT_URL;
       script.async = true;
       script.crossOrigin = "anonymous";
-      document.body.appendChild(script);
+      document.head.appendChild(script);
     }
   });
 
-  return sdkLoadPromise;
+  const sharedPromise = loadPromise.catch((error) => {
+    if (sdkLoadPromise === sharedPromise) sdkLoadPromise = null;
+    throw error;
+  });
+  sdkLoadPromise = sharedPromise;
+
+  return sharedPromise;
 }
 
 /** Test-only: drops the shared SDK load so each test is isolated */

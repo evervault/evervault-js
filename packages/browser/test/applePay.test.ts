@@ -165,6 +165,9 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  document.querySelectorAll(applePaySDKSelector).forEach((script) => {
+    script.remove();
+  });
   server.resetHandlers();
 });
 
@@ -1469,6 +1472,80 @@ describe("ApplePayButton script loading", () => {
 
     await apple.mount(container);
     expect(container.querySelector("apple-pay-button")).not.toBeNull();
+  });
+
+  it("rejects after an existing SDK script fails to load", async () => {
+    vi.stubGlobal("ApplePaySession", undefined);
+    vi.useFakeTimers();
+    try {
+      const script = document.createElement("script");
+      script.src =
+        "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
+      document.head.appendChild(script);
+      const apple = new ApplePayButton(
+        createMockClient(),
+        createTransaction(),
+        { process: vi.fn() }
+      );
+
+      const assertion = expect(apple.availability()).rejects.toThrow(
+        "Apple Pay SDK script load timeout"
+      );
+
+      await vi.advanceTimersByTimeAsync(10000);
+      await assertion;
+      expect(script.isConnected).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("removes a failed SDK script and allows a later retry", async () => {
+    vi.stubGlobal("ApplePaySession", undefined);
+    const first = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    const firstScript = document.querySelector<HTMLScriptElement>(
+      applePaySDKSelector
+    );
+    firstScript!.dispatchEvent(new Event("error"));
+
+    await expect(first.availability()).rejects.toThrow(
+      "Apple Pay SDK script load failed"
+    );
+    expect(document.querySelector(applePaySDKSelector)).toBeNull();
+
+    vi.stubGlobal("ApplePaySession", {
+      applePayCapabilities: vi.fn().mockResolvedValue({
+        paymentCredentialStatus: "paymentCredentialsAvailable",
+      }),
+    });
+    const second = new ApplePayButton(
+      createMockClient(),
+      createTransaction(),
+      { process: vi.fn() }
+    );
+
+    await expect(second.availability()).resolves.toBe("available");
+    dispatchApplePaySDKLoad();
+  });
+
+  it("loads the SDK when constructed before document.body exists", () => {
+    vi.stubGlobal("ApplePaySession", undefined);
+    const body = document.body;
+    body.remove();
+
+    try {
+      new ApplePayButton(createMockClient(), createTransaction(), {
+        process: vi.fn(),
+      });
+
+      expect(document.head.querySelector(applePaySDKSelector)).not.toBeNull();
+    } finally {
+      document.documentElement.appendChild(body);
+      dispatchApplePaySDKLoad();
+    }
   });
 
   it("rejects with a timeout error if the SDK script never loads", async () => {
