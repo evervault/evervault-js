@@ -1744,6 +1744,148 @@ describe("ApplePayButton process() payload", () => {
   });
 });
 
+describe("ApplePayButton credentials exchange", () => {
+  function createSessionWithResponse() {
+    const response = {
+      details: {
+        token: {
+          paymentData: {},
+          paymentMethod: { displayName: "Visa 1234", type: "credit" },
+        },
+      },
+      complete: vi.fn().mockResolvedValue(undefined),
+    };
+
+    return {
+      response,
+      session: { show: vi.fn().mockResolvedValue(response), abort: vi.fn() },
+    };
+  }
+
+  function mountButton() {
+    const { response, session } = createSessionWithResponse();
+    buildSessionMock.mockResolvedValue(session);
+
+    const error = vi.fn();
+    const process = vi.fn().mockResolvedValue(undefined);
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process,
+    });
+    apple.on("error", error);
+
+    return { apple, error, process, response };
+  }
+
+  beforeEach(() => {
+    buildSessionMock.mockReset();
+    vi.spyOn(applePayUtilities, "buildSession").mockImplementation(
+      buildSessionMock
+    );
+
+    vi.stubGlobal("PaymentRequest", class PaymentRequest {});
+
+    vi.stubGlobal("ApplePaySession", {
+      applePayCapabilities: vi.fn().mockResolvedValue({
+        paymentCredentialStatus: "paymentCredentialsAvailable",
+      }),
+    });
+
+    const script = document.createElement("script");
+    script.src =
+      "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
+    document.body.appendChild(script);
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("dispatches error and fails the sheet when the exchange returns a non-2xx", async () => {
+    server.use(
+      http.post(`${apiUrl}/frontend/apple-pay/credentials`, () =>
+        HttpResponse.json(
+          {
+            code: "internal-error",
+            title: "Internal Error",
+            detail: "Unable to decrypt the payment token",
+          },
+          { status: 500 }
+        )
+      )
+    );
+
+    const { apple, error, process, response } = mountButton();
+
+    await clickApplePayButton(apple);
+
+    await vi.waitFor(() => expect(error).toHaveBeenCalledOnce());
+    expect(error).toHaveBeenCalledWith(
+      "Apple Pay credentials exchange failed (500): Unable to decrypt the payment token"
+    );
+    expect(process).not.toHaveBeenCalled();
+    expect(response.complete).toHaveBeenCalledOnce();
+    expect(response.complete).toHaveBeenCalledWith("fail");
+  });
+
+  it("falls back to the status when the error body carries no detail", async () => {
+    server.use(
+      http.post(
+        `${apiUrl}/frontend/apple-pay/credentials`,
+        () => new HttpResponse(null, { status: 502 })
+      )
+    );
+
+    const { apple, error, process } = mountButton();
+
+    await clickApplePayButton(apple);
+
+    await vi.waitFor(() => expect(error).toHaveBeenCalledOnce());
+    expect(error).toHaveBeenCalledWith(
+      "Apple Pay credentials exchange failed (502)"
+    );
+    expect(process).not.toHaveBeenCalled();
+  });
+
+  it("dispatches error when a 200 response carries no card credentials", async () => {
+    server.use(
+      http.post(`${apiUrl}/frontend/apple-pay/credentials`, () =>
+        HttpResponse.json({})
+      )
+    );
+
+    const { apple, error, process, response } = mountButton();
+
+    await clickApplePayButton(apple);
+
+    await vi.waitFor(() => expect(error).toHaveBeenCalledOnce());
+    expect(error).toHaveBeenCalledWith(
+      "Apple Pay credentials exchange returned no card credentials"
+    );
+    expect(process).not.toHaveBeenCalled();
+    expect(response.complete).toHaveBeenCalledOnce();
+    expect(response.complete).toHaveBeenCalledWith("fail");
+  });
+
+  it("completes the sheet successfully when the exchange succeeds", async () => {
+    server.use(
+      http.post(`${apiUrl}/frontend/apple-pay/credentials`, () =>
+        HttpResponse.json({ card: {} })
+      )
+    );
+
+    const { apple, error, process, response } = mountButton();
+
+    await clickApplePayButton(apple);
+
+    await vi.waitFor(() => expect(process).toHaveBeenCalledOnce());
+    expect(error).not.toHaveBeenCalled();
+    expect(response.complete).toHaveBeenCalledOnce();
+    expect(response.complete).toHaveBeenCalledWith("success");
+  });
+});
+
 describe("ApplePayButton.availability", () => {
   function stubApplePaySession(
     capabilities:

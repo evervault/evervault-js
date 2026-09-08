@@ -31,6 +31,17 @@ import { Transaction } from "../../resources/transaction";
 const APPLE_PAY_SCRIPT_URL =
   "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
 
+type ApiErrorBody = { detail?: string; title?: string };
+
+async function credentialsFailureMessage(res: Response): Promise<string> {
+  const [body] = await tryCatch<ApiErrorBody>(res.json());
+  const detail = body?.detail ?? body?.title;
+
+  return detail
+    ? `Apple Pay credentials exchange failed (${res.status}): ${detail}`
+    : `Apple Pay credentials exchange failed (${res.status})`;
+}
+
 export type ApplePayButtonOptions = {
   type?: ApplePayButtonType;
   style?: ApplePayButtonStyle;
@@ -269,6 +280,7 @@ export default class ApplePayButton {
 
       if (encryptedError) {
         this.#events.dispatch("error", encryptedError.message);
+        await response.complete("fail");
         return;
       }
 
@@ -385,7 +397,19 @@ export default class ApplePayButton {
       body: JSON.stringify(requestBody),
     });
 
-    return res.json();
+    if (!res.ok) {
+      throw new Error(await credentialsFailureMessage(res));
+    }
+
+    const [encrypted] = await tryCatch<EncryptedApplePayData>(res.json());
+
+    if (!encrypted?.card) {
+      throw new Error(
+        "Apple Pay credentials exchange returned no card credentials"
+      );
+    }
+
+    return encrypted;
   }
 
   on(
