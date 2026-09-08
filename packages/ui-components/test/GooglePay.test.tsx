@@ -139,6 +139,13 @@ describe("GooglePay shipping data changes", () => {
     administrativeArea: "CA",
     locality: "Mountain View",
   } as google.payments.api.IntermediateAddress;
+  const SHIPPING_OPTIONS = {
+    options: [
+      { id: "standard", label: "Standard", amount: 500 },
+      { id: "express", label: "Express", amount: 800 },
+    ],
+    defaultSelectedOptionId: "standard",
+  };
 
   beforeEach(() => {
     (globalThis as unknown as { google: unknown }).google = {
@@ -152,7 +159,7 @@ describe("GooglePay shipping data changes", () => {
         config={{
           ...config,
           shippingAddress: true,
-          shippingOptions: { options: [{ id: "standard", label: "Standard" }] },
+          shippingOptions: SHIPPING_OPTIONS,
         }}
       />
     );
@@ -209,6 +216,9 @@ describe("GooglePay shipping data changes", () => {
         payload: expect.objectContaining({
           trigger: "SHIPPING_ADDRESS",
           shippingAddress: ADDRESS,
+          selectedShippingOption: SHIPPING_OPTIONS.options[0],
+          amount: 1000,
+          shippingOptions: SHIPPING_OPTIONS,
         }),
       }),
       "*"
@@ -216,7 +226,7 @@ describe("GooglePay shipping data changes", () => {
     expect(result.newTransactionInfo?.totalPrice).toBe("15.00");
   });
 
-  it("reports the chosen option id when the buyer changes option", async () => {
+  it("reports the chosen option and current state when it changes", async () => {
     await mountWithShipping();
     const postMessage = replyToDataChange({ amount: 1200 });
 
@@ -229,7 +239,9 @@ describe("GooglePay shipping data changes", () => {
       expect.objectContaining({
         payload: expect.objectContaining({
           trigger: "SHIPPING_OPTION",
-          shippingOptionId: "express",
+          selectedShippingOption: SHIPPING_OPTIONS.options[1],
+          amount: 1000,
+          shippingOptions: SHIPPING_OPTIONS,
         }),
       }),
       "*"
@@ -238,7 +250,7 @@ describe("GooglePay shipping data changes", () => {
 
   it("preserves prior values across partial transaction updates", async () => {
     await mountWithShipping();
-    replyToDataChange([
+    const postMessage = replyToDataChange([
       {
         amount: 1500,
         lineItems: [{ label: "Shipping", amount: 500 }],
@@ -261,6 +273,15 @@ describe("GooglePay shipping data changes", () => {
       totalPrice: "18.00",
       displayItems: [{ label: "Express", price: "8.00" }],
     });
+    expect(postMessage).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        payload: expect.objectContaining({
+          amount: 1800,
+          lineItems: [{ label: "Shipping", amount: 500 }],
+        }),
+      }),
+      "*"
+    );
   });
 
   it("resets partial transaction state when the sheet reopens", async () => {
@@ -334,9 +355,9 @@ describe("GooglePay shipping data changes", () => {
     }
   );
 
-  it("replaces the sheet's options when the merchant returns new ones", async () => {
+  it("replaces the sheet's options and uses them in later context", async () => {
     await mountWithShipping();
-    replyToDataChange({
+    const postMessage = replyToDataChange({
       shippingOptions: { options: [{ id: "next-day", label: "Next day" }] },
     });
 
@@ -348,6 +369,22 @@ describe("GooglePay shipping data changes", () => {
     expect(result.newShippingOptionParameters).toEqual({
       shippingOptions: [{ id: "next-day", label: "Next day", description: "" }],
     });
+
+    await callbacks.onPaymentDataChanged!({
+      callbackTrigger: "SHIPPING_OPTION",
+      shippingOptionData: { id: "next-day" },
+    } as google.payments.api.IntermediatePaymentData);
+    expect(postMessage).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        payload: expect.objectContaining({
+          selectedShippingOption: { id: "next-day", label: "Next day" },
+          shippingOptions: {
+            options: [{ id: "next-day", label: "Next day" }],
+          },
+        }),
+      }),
+      "*"
+    );
   });
 
   it("surfaces the buyer's shipping choice on the authorized payload", async () => {
@@ -375,7 +412,7 @@ describe("GooglePay shipping data changes", () => {
           type: "EV_GOOGLE_PAY_AUTH",
           payload: expect.objectContaining({
             shippingAddress,
-            shippingOptionId: "standard",
+            shippingOption: SHIPPING_OPTIONS.options[0],
           }),
         }),
         "*"

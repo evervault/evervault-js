@@ -485,10 +485,10 @@ export type EncryptedGooglePayData = (
    */
   shippingAddress?: google.payments.api.Address | null;
   /**
-   * The id of the shipping option the buyer chose in the sheet. Present only
-   * when `shippingOptions` were configured on the Google Pay button.
+   * The shipping option the buyer chose in the sheet. Present only when
+   * `shippingOptions` were configured on the Google Pay button.
    */
-  shippingOptionId?: string | null;
+  shippingOption?: GooglePayShippingOption | null;
 };
 
 export interface GooglePayErrorMessage {
@@ -504,7 +504,13 @@ export type GooglePayShippingAddressConfig =
   | boolean
   | GooglePayShippingAddressParameters;
 
-export type GooglePayShippingOption = google.payments.api.SelectionOption;
+export type GooglePayShippingOption = google.payments.api.SelectionOption & {
+  /**
+   * Optional shipping cost in minor units. Google Pay does not display this
+   * field automatically. Include it in `label` when buyers must see the price.
+   */
+  amount?: number;
+};
 
 export interface GooglePayShippingOptionsConfig {
   options: GooglePayShippingOption[];
@@ -512,37 +518,49 @@ export interface GooglePayShippingOptionsConfig {
   defaultSelectedOptionId?: string;
 }
 
+/** The current shipping state when Google Pay asks for an update. */
+export interface GooglePayShippingContext {
+  trigger: google.payments.api.CallbackTrigger;
+  shippingAddress?: google.payments.api.IntermediateAddress | null;
+  selectedShippingOption?: GooglePayShippingOption | null;
+  /** The current total in the currency's minor units. */
+  amount: number;
+  lineItems?: TransactionLineItem[];
+  shippingOptions?: GooglePayShippingOptionsConfig;
+}
+
 /**
- * What a merchant returns from `onShippingAddressChange` /
- * `onShippingOptionChange` to update the open sheet. Every field is optional:
- * returning nothing leaves the sheet as it is.
- *
- * `amount` and `lineItems[].amount` are in the currency's minor units, the same
- * as `transaction.amount`.
+ * A successful patch for the open sheet. Omitted fields retain their current
+ * values. Amounts use the currency's minor units, like `transaction.amount`.
  */
-export interface GooglePayDataChangeUpdate {
+export interface GooglePayDataChangeSuccess {
   amount?: number;
   lineItems?: TransactionLineItem[];
   shippingOptions?: GooglePayShippingOptionsConfig;
-  /** Rejects the buyer's selection and shows this error inside the sheet. */
-  error?: GooglePayErrorMessage;
+  error?: never;
 }
 
-/**
- * A shipping selection the buyer made while the sheet is open. Carries an `id`
- * because, unlike authorization, the sheet can raise several of these in one
- * session and each needs to be matched to its own reply.
- */
-export interface GooglePayDataChangeRequest {
-  id: string;
-  trigger: google.payments.api.CallbackTrigger;
-  shippingAddress?: google.payments.api.IntermediateAddress | null;
-  shippingOptionId?: string | null;
+/** Rejects the buyer's current selection and shows an error in the sheet. */
+export interface GooglePayDataChangeFailure {
+  error: GooglePayErrorMessage;
+  amount?: never;
+  lineItems?: never;
+  shippingOptions?: never;
 }
 
-export interface GooglePayDataChangeResponse extends GooglePayDataChangeUpdate {
+export type GooglePayDataChangeUpdate =
+  | GooglePayDataChangeSuccess
+  | GooglePayDataChangeFailure;
+
+/** Internal message used to run a merchant callback outside the payment frame. */
+export interface GooglePayDataChangeRequest extends GooglePayShippingContext {
+  /** Correlates this request with its asynchronous response. */
   id: string;
 }
+
+export type GooglePayDataChangeResponse = GooglePayDataChangeUpdate & {
+  id: string;
+};
 
 export type GooglePayBillingAddressConfig =
   | boolean
@@ -580,15 +598,27 @@ export interface GooglePayOptions {
   shippingOptions?: GooglePayShippingOptionsConfig;
   /**
    * Called when the buyer picks or changes their shipping address, while the
-   * sheet is still open. Return updated totals, line items or options.
+   * sheet is still open. Return updated totals, line items or options. The
+   * callback has 10 seconds to complete.
    */
   onShippingAddressChange?: (
-    address: google.payments.api.IntermediateAddress
-  ) => Promise<GooglePayDataChangeUpdate | void>;
-  /** Called when the buyer picks a different shipping option. */
+    address: google.payments.api.IntermediateAddress,
+    context: GooglePayShippingContext
+  ) =>
+    | GooglePayDataChangeUpdate
+    | void
+    | Promise<GooglePayDataChangeUpdate | void>;
+  /**
+   * Called when the buyer picks a different shipping option. The callback has
+   * 10 seconds to complete.
+   */
   onShippingOptionChange?: (
-    optionId: string
-  ) => Promise<GooglePayDataChangeUpdate | void>;
+    option: GooglePayShippingOption,
+    context: GooglePayShippingContext
+  ) =>
+    | GooglePayDataChangeUpdate
+    | void
+    | Promise<GooglePayDataChangeUpdate | void>;
   theme?: ThemeDefinition;
 }
 

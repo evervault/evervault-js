@@ -38,7 +38,11 @@ const transaction = new Transaction({
 });
 
 const SHIPPING_OPTIONS = {
-  options: [{ id: "standard", label: "Standard" }],
+  options: [
+    { id: "standard", label: "Standard", amount: 500 },
+    { id: "express", label: "Express", amount: 800 },
+  ],
+  defaultSelectedOptionId: "standard",
 };
 
 const ADDRESS = {
@@ -59,6 +63,11 @@ function mount(options: Partial<GooglePayOptions> = {}) {
 async function raiseDataChange(payload: Record<string, unknown>) {
   await handlers.get("EV_GOOGLE_PAY_DATA_CHANGE")!({
     id: "gpay-data-change-1",
+    amount: 1000,
+    lineItems: undefined,
+    shippingOptions: SHIPPING_OPTIONS,
+    shippingAddress: null,
+    selectedShippingOption: SHIPPING_OPTIONS.options[0],
     ...payload,
   });
   return sent.at(-1);
@@ -71,10 +80,34 @@ it("passes shipping configuration to the frame", () => {
   ).toMatchObject({ shippingAddress, shippingOptions: SHIPPING_OPTIONS });
 });
 
-it("rejects an empty shipping option list", () => {
-  expect(() => mount({ shippingOptions: { options: [] } })).toThrow(
-    "Google Pay shippingOptions must contain at least one option"
-  );
+it.each([
+  [{ options: [] }, "must contain at least one option"],
+  [
+    { options: [{ id: "", label: "Standard" }] },
+    "option ids must not be empty",
+  ],
+  [
+    { options: [{ id: "standard", label: "" }] },
+    "option labels must not be empty",
+  ],
+  [
+    {
+      options: [
+        { id: "standard", label: "Standard" },
+        { id: "standard", label: "Standard again" },
+      ],
+    },
+    "option ids must be unique",
+  ],
+  [
+    {
+      options: [{ id: "standard", label: "Standard" }],
+      defaultSelectedOptionId: "express",
+    },
+    "defaultSelectedOptionId must match a shipping option id",
+  ],
+])("rejects invalid shipping options: %s", (shippingOptions, message) => {
+  expect(() => mount({ shippingOptions })).toThrow(message);
 });
 
 describe("GooglePay data change callbacks", () => {
@@ -83,8 +116,8 @@ describe("GooglePay data change callbacks", () => {
     sent.length = 0;
   });
 
-  it("calls onShippingAddressChange and preserves the request id", async () => {
-    const onShippingAddressChange = vi.fn().mockResolvedValue({
+  it("passes context to a synchronous address callback and preserves the request id", async () => {
+    const onShippingAddressChange = vi.fn().mockReturnValue({
       id: "merchant-supplied-id",
       amount: 1500,
     });
@@ -96,7 +129,16 @@ describe("GooglePay data change callbacks", () => {
     });
 
     expect(onShippingAddressChange).toHaveBeenCalledOnce();
-    expect(onShippingAddressChange).toHaveBeenCalledWith(ADDRESS);
+    expect(onShippingAddressChange).toHaveBeenCalledWith(
+      ADDRESS,
+      expect.objectContaining({
+        trigger: "SHIPPING_ADDRESS",
+        shippingAddress: ADDRESS,
+        selectedShippingOption: SHIPPING_OPTIONS.options[0],
+        amount: 1000,
+        shippingOptions: SHIPPING_OPTIONS,
+      })
+    );
     expect(reply).toEqual({
       type: "EV_GOOGLE_PAY_DATA_CHANGE_RESULT",
       payload: { id: "gpay-data-change-1", amount: 1500 },
@@ -110,10 +152,17 @@ describe("GooglePay data change callbacks", () => {
 
     await raiseDataChange({
       trigger: "SHIPPING_OPTION",
-      shippingOptionId: "express",
+      selectedShippingOption: SHIPPING_OPTIONS.options[1],
     });
 
-    expect(onShippingOptionChange).toHaveBeenCalledWith("express");
+    expect(onShippingOptionChange).toHaveBeenCalledWith(
+      SHIPPING_OPTIONS.options[1],
+      expect.objectContaining({
+        trigger: "SHIPPING_OPTION",
+        selectedShippingOption: SHIPPING_OPTIONS.options[1],
+        amount: 1000,
+      })
+    );
     expect(onShippingAddressChange).not.toHaveBeenCalled();
   });
 
@@ -136,6 +185,29 @@ describe("GooglePay data change callbacks", () => {
 
     expect(onShippingAddressChange).not.toHaveBeenCalled();
     expect(reply?.payload).toEqual({ id: "gpay-data-change-1" });
+  });
+
+  it("turns a callback timeout into an inline sheet error", async () => {
+    vi.useFakeTimers();
+    try {
+      mount({
+        shippingAddress: true,
+        onShippingAddressChange: vi.fn().mockReturnValue(new Promise(() => {})),
+      });
+
+      const replyPromise = raiseDataChange({
+        trigger: "SHIPPING_ADDRESS",
+        shippingAddress: ADDRESS,
+      });
+      await vi.advanceTimersByTimeAsync(10_000);
+
+      expect((await replyPromise)?.payload).toMatchObject({
+        id: "gpay-data-change-1",
+        error: { reason: "OTHER_ERROR" },
+      });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("turns a thrown callback into an inline sheet error", async () => {

@@ -59,6 +59,16 @@ function defaultShippingError(
 
 let dataChangeSequence = 0;
 
+function initialShippingOptionId(
+  shippingOptions: GooglePayConfig["shippingOptions"]
+): string | null {
+  return (
+    shippingOptions?.defaultSelectedOptionId ??
+    shippingOptions?.options[0]?.id ??
+    null
+  );
+}
+
 export function GooglePay({ config }: GooglePayProps) {
   const { app } = useSearchParams();
   const container = useRef<HTMLDivElement>(null);
@@ -86,6 +96,12 @@ export function GooglePay({ config }: GooglePayProps) {
       // merchant response updates only the amount or only the line items.
       let currentAmount = config.transaction.amount;
       let currentLineItems = config.transaction.lineItems;
+      let currentShippingOptions = config.shippingOptions;
+      let currentShippingAddress: google.payments.api.IntermediateAddress | null =
+        null;
+      let currentShippingOptionId = initialShippingOptionId(
+        config.shippingOptions
+      );
 
       const paymentsClient = new google.payments.api.PaymentsClient({
         // Always use 'test' in staging, but use the resolved environment in production
@@ -102,6 +118,18 @@ export function GooglePay({ config }: GooglePayProps) {
           onPaymentDataChanged: async (data) => {
             const id = `gpay-data-change-${++dataChangeSequence}`;
 
+            if (data.shippingAddress !== undefined) {
+              currentShippingAddress = data.shippingAddress;
+            }
+            if (data.shippingOptionData?.id) {
+              currentShippingOptionId = data.shippingOptionData.id;
+            }
+
+            const currentShippingOption =
+              currentShippingOptions?.options.find(
+                (option) => option.id === currentShippingOptionId
+              ) ?? null;
+
             const update = await new Promise<GooglePayDataChangeResponse>(
               (resolve) => {
                 const off = on(
@@ -116,8 +144,11 @@ export function GooglePay({ config }: GooglePayProps) {
                 send("EV_GOOGLE_PAY_DATA_CHANGE", {
                   id,
                   trigger: data.callbackTrigger,
-                  shippingAddress: data.shippingAddress ?? null,
-                  shippingOptionId: data.shippingOptionData?.id ?? null,
+                  shippingAddress: currentShippingAddress,
+                  selectedShippingOption: currentShippingOption,
+                  amount: currentAmount,
+                  lineItems: currentLineItems,
+                  shippingOptions: currentShippingOptions,
                 });
               }
             );
@@ -148,8 +179,12 @@ export function GooglePay({ config }: GooglePayProps) {
             }
 
             if (update.shippingOptions) {
+              currentShippingOptions = update.shippingOptions;
+              currentShippingOptionId = initialShippingOptionId(
+                currentShippingOptions
+              );
               result.newShippingOptionParameters = shippingOptionParameters(
-                update.shippingOptions
+                currentShippingOptions
               );
             }
 
@@ -188,7 +223,9 @@ export function GooglePay({ config }: GooglePayProps) {
             }
 
             if (data.shippingOptionData) {
-              payload.shippingOptionId = data.shippingOptionData.id;
+              payload.shippingOption = currentShippingOptions?.options.find(
+                (option) => option.id === data.shippingOptionData?.id
+              );
             }
 
             const cardDetails = paymentMethodInfo?.cardDetails;
@@ -248,6 +285,11 @@ export function GooglePay({ config }: GooglePayProps) {
           onClick: async () => {
             currentAmount = config.transaction.amount;
             currentLineItems = config.transaction.lineItems;
+            currentShippingOptions = config.shippingOptions;
+            currentShippingAddress = null;
+            currentShippingOptionId = initialShippingOptionId(
+              config.shippingOptions
+            );
 
             try {
               await paymentsClient.loadPaymentData(paymentRequest);

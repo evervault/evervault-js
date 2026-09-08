@@ -13,6 +13,8 @@ import type {
 import { Transaction } from "../resources/transaction";
 import { getStringDimensionOrDefault } from "../utils";
 
+const SHIPPING_CALLBACK_TIMEOUT_MS = 10_000;
+
 interface GooglePayEvents {
   ready: () => void;
   success: () => void;
@@ -95,7 +97,11 @@ export default class GooglePay {
    */
   async #handleDataChange(payload: GooglePayDataChangeRequest) {
     try {
-      const update = await this.#runDataChangeCallback(payload);
+      const callbackResult = this.#runDataChangeCallback(payload);
+      const update = await resolveWithin(
+        callbackResult,
+        SHIPPING_CALLBACK_TIMEOUT_MS
+      );
       validateShippingOptions(update?.shippingOptions);
       return { ...(update ?? {}), id: payload.id };
     } catch {
@@ -111,14 +117,32 @@ export default class GooglePay {
 
   #runDataChangeCallback(
     payload: GooglePayDataChangeRequest
-  ): Promise<GooglePayDataChangeUpdate | void> | undefined {
+  ):
+    | GooglePayDataChangeUpdate
+    | void
+    | Promise<GooglePayDataChangeUpdate | void> {
+    const context = {
+      trigger: payload.trigger,
+      shippingAddress: payload.shippingAddress,
+      selectedShippingOption: payload.selectedShippingOption,
+      amount: payload.amount,
+      lineItems: payload.lineItems,
+      shippingOptions: payload.shippingOptions,
+    };
+
     if (payload.trigger === "SHIPPING_OPTION") {
-      if (!payload.shippingOptionId) return undefined;
-      return this.#options.onShippingOptionChange?.(payload.shippingOptionId);
+      if (!payload.selectedShippingOption) return undefined;
+      return this.#options.onShippingOptionChange?.(
+        payload.selectedShippingOption,
+        context
+      );
     }
 
     if (!payload.shippingAddress) return undefined;
-    return this.#options.onShippingAddressChange?.(payload.shippingAddress);
+    return this.#options.onShippingAddressChange?.(
+      payload.shippingAddress,
+      context
+    );
   }
 
   get config() {
@@ -160,12 +184,55 @@ export default class GooglePay {
   }
 }
 
+async function resolveWithin<T>(
+  value: T | Promise<T>,
+  timeoutMs: number
+): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const expired = new Promise<never>((_, reject) => {
+    timeout = setTimeout(
+      () => reject(new Error("Google Pay shipping callback timed out")),
+      timeoutMs
+    );
+  });
+
+  try {
+    return await Promise.race([Promise.resolve(value), expired]);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 function validateShippingOptions(
   shippingOptions: GooglePayOptions["shippingOptions"]
 ) {
-  if (shippingOptions?.options.length === 0) {
+  if (!shippingOptions) return;
+  if (shippingOptions.options.length === 0) {
     throw new Error(
       "Google Pay shippingOptions must contain at least one option"
+    );
+  }
+
+  const ids = new Set<string>();
+  for (const option of shippingOptions.options) {
+    if (!option.id.trim()) {
+      throw new Error("Google Pay shipping option ids must not be empty");
+    }
+    if (!option.label.trim()) {
+      throw new Error("Google Pay shipping option labels must not be empty");
+    }
+    if (ids.has(option.id)) {
+      throw new Error("Google Pay shipping option ids must be unique");
+    }
+    ids.add(option.id);
+  }
+
+  if (
+    shippingOptions.defaultSelectedOptionId !== undefined &&
+    !ids.has(shippingOptions.defaultSelectedOptionId)
+  ) {
+    throw new Error(
+      "Google Pay defaultSelectedOptionId must match a shipping option id"
     );
   }
 }
