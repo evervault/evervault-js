@@ -1429,9 +1429,8 @@ describe("ApplePayButton script loading", () => {
     });
 
     await expect(apple.availability()).resolves.toBe("available");
-    const script = document.querySelector<HTMLScriptElement>(
-      applePaySDKSelector
-    );
+    const script =
+      document.querySelector<HTMLScriptElement>(applePaySDKSelector);
     expect(script).not.toBeNull();
     dispatchApplePaySDKLoad();
   });
@@ -1514,9 +1513,8 @@ describe("ApplePayButton script loading", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(resolved).toBe(false);
 
-    const script = document.querySelector<HTMLScriptElement>(
-      applePaySDKSelector
-    );
+    const script =
+      document.querySelector<HTMLScriptElement>(applePaySDKSelector);
     expect(script).not.toBeNull();
 
     vi.stubGlobal("ApplePaySession", {
