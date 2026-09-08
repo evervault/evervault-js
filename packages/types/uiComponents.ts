@@ -480,8 +480,8 @@ export type EncryptedGooglePayData = (
   email?: string | null;
   billingAddress?: google.payments.api.Address | null;
   /**
-   * The address the buyer chose in the sheet. Present only when
-   * `shippingAddress` was configured on the Google Pay button.
+   * The address the buyer chose in the sheet. Present when shipping-address
+   * collection was enabled directly or through `shippingOptions`.
    */
   shippingAddress?: google.payments.api.Address | null;
   /**
@@ -504,11 +504,7 @@ export type GooglePayShippingAddressConfig =
   | boolean
   | GooglePayShippingAddressParameters;
 
-export interface GooglePayShippingOption {
-  id: string;
-  label: string;
-  description?: string;
-}
+export type GooglePayShippingOption = google.payments.api.SelectionOption;
 
 export interface GooglePayShippingOptionsConfig {
   options: GooglePayShippingOption[];

@@ -246,6 +246,9 @@ export function GooglePay({ config }: GooglePayProps) {
           buttonRadius: config.borderRadius ?? DEFAULT_BUTTON_RADIUS,
           buttonSizeMode: "fill",
           onClick: async () => {
+            currentAmount = config.transaction.amount;
+            currentLineItems = config.transaction.lineItems;
+
             try {
               await paymentsClient.loadPaymentData(paymentRequest);
             } catch (err) {

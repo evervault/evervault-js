@@ -52,20 +52,25 @@ function getInjectedScript() {
   );
 }
 
+beforeEach(() => {
+  createButtonMock.mockReset();
+  getMerchantMock.mockReset();
+  getAppSDKConfigMock.mockReset();
+  getMerchantMock.mockResolvedValue({ id: "merchant_abc", name: "Acme Co" });
+  getAppSDKConfigMock.mockResolvedValue({ is_sandbox: false });
+  (globalThis as unknown as { google: unknown }).google = {
+    payments: { api: { PaymentsClient: MockPaymentsClient } },
+  };
+});
+
+afterEach(() => {
+  document.body.innerHTML = "";
+  delete (globalThis as { google?: unknown }).google;
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
+
 describe("GooglePay onLoad GET concurrency", () => {
-  beforeEach(() => {
-    getMerchantMock.mockReset();
-    getAppSDKConfigMock.mockReset();
-    (globalThis as unknown as { google: unknown }).google = {
-      payments: { api: { PaymentsClient: MockPaymentsClient } },
-    };
-  });
-
-  afterEach(() => {
-    document.body.innerHTML = "";
-    delete (globalThis as { google?: unknown }).google;
-  });
-
   it("issues getAppSDKConfig and getMerchant concurrently, not sequentially", async () => {
     let resolveAppConfig: (value: { is_sandbox: boolean }) => void = () => {};
     const appConfigGate = new Promise<{ is_sandbox: boolean }>((resolve) => {
@@ -101,22 +106,6 @@ describe("GooglePay onLoad GET concurrency", () => {
 });
 
 describe("GooglePay button radius", () => {
-  beforeEach(() => {
-    createButtonMock.mockReset();
-    getMerchantMock.mockReset();
-    getAppSDKConfigMock.mockReset();
-    getMerchantMock.mockResolvedValue({ id: "merchant_abc", name: "Acme Co" });
-    getAppSDKConfigMock.mockResolvedValue({ is_sandbox: false });
-    (globalThis as unknown as { google: unknown }).google = {
-      payments: { api: { PaymentsClient: MockPaymentsClient } },
-    };
-  });
-
-  afterEach(() => {
-    document.body.innerHTML = "";
-    delete (globalThis as { google?: unknown }).google;
-  });
-
   async function renderAndGetRadius(borderRadius?: number) {
     render(<GooglePay config={{ ...config, borderRadius }} />);
     getInjectedScript()!.dispatchEvent(new Event("load"));
@@ -125,16 +114,12 @@ describe("GooglePay button radius", () => {
       .buttonRadius;
   }
 
-  it("defaults to 12, matching the Android SDK", async () => {
-    expect(await renderAndGetRadius(undefined)).toBe(12);
-  });
-
-  it("uses the configured radius", async () => {
-    expect(await renderAndGetRadius(20)).toBe(20);
-  });
-
-  it("honours a radius of 0 rather than falling back to the default", async () => {
-    expect(await renderAndGetRadius(0)).toBe(0);
+  it.each([
+    [undefined, 12],
+    [20, 20],
+    [0, 0],
+  ])("maps a radius of %s to %s", async (configured, expected) => {
+    expect(await renderAndGetRadius(configured)).toBe(expected);
   });
 });
 
@@ -156,20 +141,9 @@ describe("GooglePay shipping data changes", () => {
   } as google.payments.api.IntermediateAddress;
 
   beforeEach(() => {
-    getMerchantMock.mockReset();
-    getAppSDKConfigMock.mockReset();
-    getMerchantMock.mockResolvedValue({ id: "merchant_abc", name: "Acme Co" });
-    getAppSDKConfigMock.mockResolvedValue({ is_sandbox: false });
     (globalThis as unknown as { google: unknown }).google = {
       payments: { api: { PaymentsClient: CapturingPaymentsClient } },
     };
-  });
-
-  afterEach(() => {
-    document.body.innerHTML = "";
-    delete (globalThis as { google?: unknown }).google;
-    vi.unstubAllGlobals();
-    vi.restoreAllMocks();
   });
 
   async function mountWithShipping() {
@@ -184,6 +158,13 @@ describe("GooglePay shipping data changes", () => {
     );
     getInjectedScript()!.dispatchEvent(new Event("load"));
     await waitFor(() => expect(callbacks.onPaymentDataChanged).toBeDefined());
+  }
+
+  async function openPaymentSheet() {
+    const options = createButtonMock.mock.calls.at(-1)?.[0] as {
+      onClick: () => Promise<void>;
+    };
+    await options.onClick();
   }
 
   /**
@@ -282,6 +263,31 @@ describe("GooglePay shipping data changes", () => {
     });
   });
 
+  it("resets partial transaction state when the sheet reopens", async () => {
+    await mountWithShipping();
+    replyToDataChange([
+      {
+        amount: 1500,
+        lineItems: [{ label: "Shipping", amount: 500 }],
+      },
+      { lineItems: [{ label: "Express", amount: 800 }] },
+    ]);
+    const change = () =>
+      callbacks.onPaymentDataChanged!({
+        callbackTrigger: "SHIPPING_OPTION",
+        shippingOptionData: { id: "express" },
+      } as google.payments.api.IntermediatePaymentData);
+
+    await openPaymentSheet();
+    await change();
+    await openPaymentSheet();
+
+    expect((await change()).newTransactionInfo).toMatchObject({
+      totalPrice: "10.00",
+      displayItems: [{ label: "Express", price: "8.00" }],
+    });
+  });
+
   it("returns no update when the merchant returns nothing", async () => {
     await mountWithShipping();
     replyToDataChange({});
@@ -294,41 +300,39 @@ describe("GooglePay shipping data changes", () => {
     expect(result).toEqual({});
   });
 
-  it("surfaces an address error as an inline sheet error", async () => {
-    await mountWithShipping();
-    replyToDataChange({
-      error: { message: "We do not ship there" },
-    });
-
-    const result = await callbacks.onPaymentDataChanged!({
-      callbackTrigger: "SHIPPING_ADDRESS",
-      shippingAddress: ADDRESS,
-    } as google.payments.api.IntermediatePaymentData);
-
-    expect(result.error).toEqual({
+  it.each([
+    {
+      data: { callbackTrigger: "SHIPPING_ADDRESS", shippingAddress: ADDRESS },
+      message: "We do not ship there",
       reason: "SHIPPING_ADDRESS_UNSERVICEABLE",
       intent: "SHIPPING_ADDRESS",
-      message: "We do not ship there",
-    });
-  });
-
-  it("uses a shipping-option error for an invalid option", async () => {
-    await mountWithShipping();
-    replyToDataChange({
-      error: { message: "That option is no longer available" },
-    });
-
-    const result = await callbacks.onPaymentDataChanged!({
-      callbackTrigger: "SHIPPING_OPTION",
-      shippingOptionData: { id: "express" },
-    } as google.payments.api.IntermediatePaymentData);
-
-    expect(result.error).toEqual({
+    },
+    {
+      data: {
+        callbackTrigger: "SHIPPING_OPTION",
+        shippingOptionData: { id: "express" },
+      },
+      message: "That option is no longer available",
       reason: "SHIPPING_OPTION_INVALID",
       intent: "SHIPPING_OPTION",
-      message: "That option is no longer available",
-    });
-  });
+    },
+  ] as const)(
+    "uses a $intent error for an invalid selection",
+    async (testCase) => {
+      await mountWithShipping();
+      replyToDataChange({ error: { message: testCase.message } });
+
+      const result = await callbacks.onPaymentDataChanged!(
+        testCase.data as google.payments.api.IntermediatePaymentData
+      );
+
+      expect(result.error).toEqual({
+        reason: testCase.reason,
+        intent: testCase.intent,
+        message: testCase.message,
+      });
+    }
+  );
 
   it("replaces the sheet's options when the merchant returns new ones", async () => {
     await mountWithShipping();

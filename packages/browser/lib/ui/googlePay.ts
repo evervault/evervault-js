@@ -31,6 +31,7 @@ export default class GooglePay {
     transaction: Transaction,
     options: GooglePayOptions
   ) {
+    validateShippingOptions(options.shippingOptions);
     this.#options = options;
     this.#transaction = transaction;
     this.#frame = new EvervaultFrame(client, "GooglePay", {
@@ -95,7 +96,8 @@ export default class GooglePay {
   async #handleDataChange(payload: GooglePayDataChangeRequest) {
     try {
       const update = await this.#runDataChangeCallback(payload);
-      return { id: payload.id, ...(update ?? {}) };
+      validateShippingOptions(update?.shippingOptions);
+      return { ...(update ?? {}), id: payload.id };
     } catch {
       return {
         id: payload.id,
@@ -155,5 +157,15 @@ export default class GooglePay {
 
   on<T extends keyof GooglePayEvents>(event: T, callback: GooglePayEvents[T]) {
     return this.#events.on(event, callback);
+  }
+}
+
+function validateShippingOptions(
+  shippingOptions: GooglePayOptions["shippingOptions"]
+) {
+  if (shippingOptions?.options.length === 0) {
+    throw new Error(
+      "Google Pay shippingOptions must contain at least one option"
+    );
   }
 }

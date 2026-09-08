@@ -71,14 +71,23 @@ it("passes shipping configuration to the frame", () => {
   ).toMatchObject({ shippingAddress, shippingOptions: SHIPPING_OPTIONS });
 });
 
+it("rejects an empty shipping option list", () => {
+  expect(() => mount({ shippingOptions: { options: [] } })).toThrow(
+    "Google Pay shippingOptions must contain at least one option"
+  );
+});
+
 describe("GooglePay data change callbacks", () => {
   beforeEach(() => {
     handlers.clear();
     sent.length = 0;
   });
 
-  it("calls onShippingAddressChange and returns its update", async () => {
-    const onShippingAddressChange = vi.fn().mockResolvedValue({ amount: 1500 });
+  it("calls onShippingAddressChange and preserves the request id", async () => {
+    const onShippingAddressChange = vi.fn().mockResolvedValue({
+      id: "merchant-supplied-id",
+      amount: 1500,
+    });
     mount({ shippingAddress: true, onShippingAddressChange });
 
     const reply = await raiseDataChange({
@@ -146,6 +155,25 @@ describe("GooglePay data change callbacks", () => {
         reason: "OTHER_ERROR",
         message: "Something went wrong, please try again",
       },
+    });
+  });
+
+  it("rejects an empty shipping option update", async () => {
+    mount({
+      shippingAddress: true,
+      onShippingAddressChange: vi.fn().mockResolvedValue({
+        shippingOptions: { options: [] },
+      }),
+    });
+
+    const reply = await raiseDataChange({
+      trigger: "SHIPPING_ADDRESS",
+      shippingAddress: ADDRESS,
+    });
+
+    expect(reply?.payload).toMatchObject({
+      id: "gpay-data-change-1",
+      error: { reason: "OTHER_ERROR" },
     });
   });
 
