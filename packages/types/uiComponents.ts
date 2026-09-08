@@ -307,12 +307,14 @@ export interface GooglePayClientMessages extends EvervaultFrameClientMessages {
   EV_GOOGLE_PAY_CANCELLED: undefined;
   EV_GOOGLE_PAY_ERROR: string;
   EV_GOOGLE_PAY_SUCCESS: undefined;
+  EV_GOOGLE_PAY_DATA_CHANGE: GooglePayDataChangeRequest;
 }
 
 export interface GooglePayHostMessages extends EvervaultFrameHostMessages {
   EV_GOOGLE_PAY_AUTH_COMPLETE: undefined;
   EV_GOOGLE_PAY_AUTH_ERROR: GooglePayErrorMessage;
   EV_GOOGLE_PAY_SUCCESS: undefined;
+  EV_GOOGLE_PAY_DATA_CHANGE_RESULT: GooglePayDataChangeResponse;
 }
 
 export interface ApplePayHostMessages extends EvervaultFrameHostMessages {
@@ -477,6 +479,16 @@ export type EncryptedGooglePayData = (
 ) & {
   email?: string | null;
   billingAddress?: google.payments.api.Address | null;
+  /**
+   * The address the buyer chose in the sheet. Present when shipping-address
+   * collection was enabled directly or through `shippingOptions`.
+   */
+  shippingAddress?: google.payments.api.Address | null;
+  /**
+   * The shipping option the buyer chose in the sheet. Present only when
+   * `shippingOptions` were configured on the Google Pay button.
+   */
+  shippingOption?: GooglePayShippingOption | null;
 };
 
 export interface GooglePayErrorMessage {
@@ -484,6 +496,71 @@ export interface GooglePayErrorMessage {
   reason?: google.payments.api.ErrorReason;
   intent?: google.payments.api.CallbackIntent;
 }
+
+export type GooglePayShippingAddressParameters =
+  google.payments.api.ShippingAddressParameters;
+
+export type GooglePayShippingAddressConfig =
+  | boolean
+  | GooglePayShippingAddressParameters;
+
+export type GooglePayShippingOption = google.payments.api.SelectionOption & {
+  /**
+   * Optional shipping cost in minor units. Google Pay does not display this
+   * field automatically. Include it in `label` when buyers must see the price.
+   */
+  amount?: number;
+};
+
+export interface GooglePayShippingOptionsConfig {
+  options: GooglePayShippingOption[];
+  /** Defaults to the first option when omitted, matching Google's own default. */
+  defaultSelectedOptionId?: string;
+}
+
+/** The current shipping state when Google Pay asks for an update. */
+export interface GooglePayShippingContext {
+  trigger: google.payments.api.CallbackTrigger;
+  shippingAddress?: google.payments.api.IntermediateAddress | null;
+  selectedShippingOption?: GooglePayShippingOption | null;
+  /** The current total in the currency's minor units. */
+  amount: number;
+  lineItems?: TransactionLineItem[];
+  shippingOptions?: GooglePayShippingOptionsConfig;
+}
+
+/**
+ * A successful patch for the open sheet. Omitted fields retain their current
+ * values. Amounts use the currency's minor units, like `transaction.amount`.
+ */
+export interface GooglePayDataChangeSuccess {
+  amount?: number;
+  lineItems?: TransactionLineItem[];
+  shippingOptions?: GooglePayShippingOptionsConfig;
+  error?: never;
+}
+
+/** Rejects the buyer's current selection and shows an error in the sheet. */
+export interface GooglePayDataChangeFailure {
+  error: GooglePayErrorMessage;
+  amount?: never;
+  lineItems?: never;
+  shippingOptions?: never;
+}
+
+export type GooglePayDataChangeUpdate =
+  | GooglePayDataChangeSuccess
+  | GooglePayDataChangeFailure;
+
+/** Internal message used to run a merchant callback outside the payment frame. */
+export interface GooglePayDataChangeRequest extends GooglePayShippingContext {
+  /** Correlates this request with its asynchronous response. */
+  id: string;
+}
+
+export type GooglePayDataChangeResponse = GooglePayDataChangeUpdate & {
+  id: string;
+};
 
 export type GooglePayBillingAddressConfig =
   | boolean
@@ -509,6 +586,39 @@ export interface GooglePayOptions {
   allowedAuthMethods?: google.payments.api.CardAuthMethod[];
   allowedCardNetworks?: google.payments.api.CardNetwork[];
   billingAddress?: GooglePayBillingAddressConfig;
+  /**
+   * Collect a shipping address in the sheet. Pass `true` for any supported
+   * country, or parameters to restrict countries / request a phone number.
+   */
+  shippingAddress?: GooglePayShippingAddressConfig;
+  /**
+   * Offer shipping options in the sheet. This also enables shipping-address
+   * collection when `shippingAddress` is omitted.
+   */
+  shippingOptions?: GooglePayShippingOptionsConfig;
+  /**
+   * Called when the buyer picks or changes their shipping address, while the
+   * sheet is still open. Return updated totals, line items or options. The
+   * callback has 10 seconds to complete.
+   */
+  onShippingAddressChange?: (
+    address: google.payments.api.IntermediateAddress,
+    context: GooglePayShippingContext
+  ) =>
+    | GooglePayDataChangeUpdate
+    | void
+    | Promise<GooglePayDataChangeUpdate | void>;
+  /**
+   * Called when the buyer picks a different shipping option. The callback has
+   * 10 seconds to complete.
+   */
+  onShippingOptionChange?: (
+    option: GooglePayShippingOption,
+    context: GooglePayShippingContext
+  ) =>
+    | GooglePayDataChangeUpdate
+    | void
+    | Promise<GooglePayDataChangeUpdate | void>;
   theme?: ThemeDefinition;
 }
 

@@ -1,4 +1,9 @@
-import { EncryptedGooglePayData, MerchantDetail } from "types";
+import {
+  EncryptedGooglePayData,
+  GooglePayShippingOptionsConfig,
+  MerchantDetail,
+  TransactionLineItem,
+} from "types";
 import { GooglePayConfig } from "./types";
 import { apiConfig } from "../utilities/config";
 
@@ -56,20 +61,79 @@ export function buildPaymentRequest(
       merchantName: merchant.name,
       merchantOrigin: tx.domain, // merchantOrigin is not present in the GooglePayConfig type but is noted as required by the GooglePay API
     } as unknown as google.payments.api.MerchantInfo,
-    transactionInfo: {
-      totalPriceStatus: "FINAL",
-      totalPriceLabel: tx.priceLabel ?? `Pay ${merchant.name}`,
-      totalPrice: (tx.amount / 100).toFixed(2).toString(),
-      currencyCode: tx.currency,
-      countryCode: tx.country,
-      displayItems: tx.lineItems?.map((item) => ({
-        label: item.label,
-        type: "LINE_ITEM",
-        price: (item.amount / 100).toFixed(2).toString(),
-      })),
-    },
-    callbackIntents: ["PAYMENT_AUTHORIZATION"],
+    ...(isShippingRequired(config)
+      ? {
+          shippingAddressRequired: true,
+          shippingAddressParameters: shippingAddressParameters(config),
+        }
+      : {}),
+    ...(config.shippingOptions
+      ? {
+          shippingOptionRequired: true,
+          shippingOptionParameters: shippingOptionParameters(
+            config.shippingOptions
+          ),
+        }
+      : {}),
+    transactionInfo: buildTransactionInfo(config, merchant.name),
+    callbackIntents: callbackIntents(config),
   };
+}
+
+/**
+ * Google raises shipping callbacks only for the intents the request declares,
+ * so the intent list has to follow the config rather than be hardcoded.
+ */
+export function callbackIntents(
+  config: GooglePayConfig
+): google.payments.api.CallbackIntent[] {
+  const intents: google.payments.api.CallbackIntent[] = [];
+  if (isShippingRequired(config)) intents.push("SHIPPING_ADDRESS");
+  if (config.shippingOptions) intents.push("SHIPPING_OPTION");
+  intents.push("PAYMENT_AUTHORIZATION");
+  return intents;
+}
+
+export function buildTransactionInfo(
+  config: GooglePayConfig,
+  merchantName: string,
+  overrides: { amount?: number; lineItems?: TransactionLineItem[] } = {}
+): google.payments.api.TransactionInfo {
+  const tx = config.transaction;
+  const amount = overrides.amount ?? tx.amount;
+  const lineItems = overrides.lineItems ?? tx.lineItems;
+
+  return {
+    totalPriceStatus: "FINAL",
+    totalPriceLabel: tx.priceLabel ?? `Pay ${merchantName}`,
+    totalPrice: formatAmount(amount),
+    currencyCode: tx.currency,
+    countryCode: tx.country,
+    displayItems: lineItems?.map((item) => ({
+      label: item.label,
+      type: "LINE_ITEM",
+      price: formatAmount(item.amount),
+    })),
+  };
+}
+
+export function shippingOptionParameters(
+  shippingOptions: GooglePayShippingOptionsConfig
+): google.payments.api.ShippingOptionParameters {
+  return {
+    shippingOptions: shippingOptions.options.map((option) => ({
+      id: option.id,
+      label: option.label,
+      description: option.description ?? "",
+    })),
+    ...(shippingOptions.defaultSelectedOptionId
+      ? { defaultSelectedOptionId: shippingOptions.defaultSelectedOptionId }
+      : {}),
+  };
+}
+
+function formatAmount(amount: number): string {
+  return (amount / 100).toFixed(2).toString();
 }
 
 const API = import.meta.env.VITE_API_URL as string;
@@ -117,4 +181,16 @@ function phoneNumberRequired(config: GooglePayConfig): boolean {
   const billingConfig = config.billingAddress;
   if (typeof billingConfig === "boolean") return false;
   return billingConfig?.phoneNumber || false;
+}
+
+function isShippingRequired(config: GooglePayConfig): boolean {
+  return !!config.shippingAddress || !!config.shippingOptions;
+}
+
+function shippingAddressParameters(
+  config: GooglePayConfig
+): google.payments.api.ShippingAddressParameters {
+  return typeof config.shippingAddress === "object"
+    ? config.shippingAddress
+    : {};
 }

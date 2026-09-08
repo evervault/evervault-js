@@ -1,11 +1,17 @@
 import css from "./styles.module.css";
 import { CSSProperties, useLayoutEffect, useRef } from "react";
-import { buildPaymentRequest, exchangePaymentData } from "./utilities";
+import {
+  buildPaymentRequest,
+  buildTransactionInfo,
+  exchangePaymentData,
+  shippingOptionParameters,
+} from "./utilities";
 import { setSize } from "../utilities/resize";
 import { GooglePayConfig } from "./types";
 import { useMessaging } from "../utilities/useMessaging";
 import {
   GooglePayClientMessages,
+  GooglePayDataChangeResponse,
   GooglePayHostMessages,
   PaymentMethodType,
 } from "types";
@@ -36,6 +42,33 @@ function isPaymentError(
   return Boolean((err as google.payments.api.PaymentsError).statusCode);
 }
 
+/**
+ * `CallbackTrigger` and `CallbackIntent` overlap but are not the same union, so
+ * an error raised from a data change has to name an intent Google accepts.
+ */
+function defaultShippingError(
+  data: google.payments.api.IntermediatePaymentData
+): Pick<google.payments.api.PaymentDataError, "reason" | "intent"> {
+  return data.callbackTrigger === "SHIPPING_OPTION"
+    ? { reason: "SHIPPING_OPTION_INVALID", intent: "SHIPPING_OPTION" }
+    : {
+        reason: "SHIPPING_ADDRESS_UNSERVICEABLE",
+        intent: "SHIPPING_ADDRESS",
+      };
+}
+
+let dataChangeSequence = 0;
+
+function initialShippingOptionId(
+  shippingOptions: GooglePayConfig["shippingOptions"]
+): string | null {
+  return (
+    shippingOptions?.defaultSelectedOptionId ??
+    shippingOptions?.options[0]?.id ??
+    null
+  );
+}
+
 export function GooglePay({ config }: GooglePayProps) {
   const { app } = useSearchParams();
   const container = useRef<HTMLDivElement>(null);
@@ -59,6 +92,17 @@ export function GooglePay({ config }: GooglePayProps) {
       const merchantPromise = getMerchant(app, config.transaction.merchantId);
 
       const appConfig = await appConfigPromise;
+      // Each response patches the open sheet. Keep prior values when a later
+      // merchant response updates only the amount or only the line items.
+      let currentAmount = config.transaction.amount;
+      let currentLineItems = config.transaction.lineItems;
+      let currentShippingOptions = config.shippingOptions;
+      let currentShippingAddress: google.payments.api.IntermediateAddress | null =
+        null;
+      let currentShippingOptionId = initialShippingOptionId(
+        config.shippingOptions
+      );
+
       const paymentsClient = new google.payments.api.PaymentsClient({
         // Always use 'test' in staging, but use the resolved environment in production
         environment:
@@ -68,6 +112,84 @@ export function GooglePay({ config }: GooglePayProps) {
             ? "TEST"
             : "PRODUCTION",
         paymentDataCallbacks: {
+          // Google raises this while the sheet is open, and can raise it more
+          // than once per session, so each request is matched to its reply by
+          // id rather than by message type alone.
+          onPaymentDataChanged: async (data) => {
+            const id = `gpay-data-change-${++dataChangeSequence}`;
+
+            if (data.shippingAddress !== undefined) {
+              currentShippingAddress = data.shippingAddress;
+            }
+            if (data.shippingOptionData?.id) {
+              currentShippingOptionId = data.shippingOptionData.id;
+            }
+
+            const currentShippingOption =
+              currentShippingOptions?.options.find(
+                (option) => option.id === currentShippingOptionId
+              ) ?? null;
+
+            const update = await new Promise<GooglePayDataChangeResponse>(
+              (resolve) => {
+                const off = on(
+                  "EV_GOOGLE_PAY_DATA_CHANGE_RESULT",
+                  (response) => {
+                    if (response.id !== id) return;
+                    off();
+                    resolve(response);
+                  }
+                );
+
+                send("EV_GOOGLE_PAY_DATA_CHANGE", {
+                  id,
+                  trigger: data.callbackTrigger,
+                  shippingAddress: currentShippingAddress,
+                  selectedShippingOption: currentShippingOption,
+                  amount: currentAmount,
+                  lineItems: currentLineItems,
+                  shippingOptions: currentShippingOptions,
+                });
+              }
+            );
+
+            if (update.error) {
+              const defaultError = defaultShippingError(data);
+              return {
+                error: {
+                  reason: update.error.reason ?? defaultError.reason,
+                  intent: update.error.intent ?? defaultError.intent,
+                  message: update.error.message,
+                },
+              };
+            }
+
+            const result: google.payments.api.PaymentDataRequestUpdate = {};
+
+            if (update.amount !== undefined || update.lineItems !== undefined) {
+              currentAmount = update.amount ?? currentAmount;
+              currentLineItems = update.lineItems ?? currentLineItems;
+
+              const merchant = await merchantPromise;
+              result.newTransactionInfo = buildTransactionInfo(
+                config,
+                merchant?.name ?? "",
+                { amount: currentAmount, lineItems: currentLineItems }
+              );
+            }
+
+            if (update.shippingOptions) {
+              currentShippingOptions = update.shippingOptions;
+              currentShippingOptionId = initialShippingOptionId(
+                currentShippingOptions
+              );
+              result.newShippingOptionParameters = shippingOptionParameters(
+                currentShippingOptions
+              );
+            }
+
+            return result;
+          },
           onPaymentAuthorized: async (data) => {
             const payload = await exchangePaymentData(
               app,
@@ -94,6 +216,16 @@ export function GooglePay({ config }: GooglePayProps) {
             const billingAddress = paymentMethodInfo?.billingAddress || null;
             if (billingAddress) {
               payload.billingAddress = billingAddress;
+            }
+
+            if (data.shippingAddress) {
+              payload.shippingAddress = data.shippingAddress;
+            }
+
+            if (data.shippingOptionData) {
+              payload.shippingOption = currentShippingOptions?.options.find(
+                (option) => option.id === data.shippingOptionData?.id
+              );
             }
 
             const cardDetails = paymentMethodInfo?.cardDetails;
@@ -151,6 +283,14 @@ export function GooglePay({ config }: GooglePayProps) {
           buttonRadius: config.borderRadius ?? DEFAULT_BUTTON_RADIUS,
           buttonSizeMode: "fill",
           onClick: async () => {
+            currentAmount = config.transaction.amount;
+            currentLineItems = config.transaction.lineItems;
+            currentShippingOptions = config.shippingOptions;
+            currentShippingAddress = null;
+            currentShippingOptionId = initialShippingOptionId(
+              config.shippingOptions
+            );
+
             try {
               await paymentsClient.loadPaymentData(paymentRequest);
             } catch (err) {
