@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.63.1
+
+### Patch Changes
+
+- fc87e61: Fix Apple Pay availability when multiple buttons are created before Apple's SDK loads. Also report failed Apple Pay credential exchanges through the `error` event and fail the payment sheet.
+
 ## 2.63.0
 
 ### Minor Changes
