@@ -33,6 +33,8 @@ const apiUrl = "https://api.test.evervault.com";
 const app = "app_test123";
 const merchantId = "merchant_abc";
 const merchantName = "Acme Co";
+const applePaySDKSelector =
+  'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]';
 
 const paymentRequestCalls: ApplePayPaymentDetailsInit[] = [];
 const paymentMethodDataCalls: Array<{
@@ -1390,14 +1392,16 @@ function createMockSession() {
   };
 }
 
+function dispatchApplePaySDKLoad() {
+  document
+    .querySelector<HTMLScriptElement>(applePaySDKSelector)
+    ?.dispatchEvent(new Event("load"));
+}
+
 async function clickApplePayButton(apple: ApplePayButton) {
   const container = document.createElement("div");
   document.body.appendChild(container);
-  document
-    .querySelector<HTMLScriptElement>(
-      'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
-    )
-    ?.dispatchEvent(new Event("load"));
+  dispatchApplePaySDKLoad();
   await apple.mount(container);
   const button = container.querySelector("apple-pay-button");
   button?.dispatchEvent(new Event("click"));
@@ -1426,10 +1430,10 @@ describe("ApplePayButton script loading", () => {
 
     await expect(apple.availability()).resolves.toBe("available");
     const script = document.querySelector<HTMLScriptElement>(
-      'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
+      applePaySDKSelector
     );
     expect(script).not.toBeNull();
-    script!.dispatchEvent(new Event("load"));
+    dispatchApplePaySDKLoad();
   });
 
   it("waits for the SDK before mounting a button when its capability API is ready", async () => {
@@ -1443,10 +1447,7 @@ describe("ApplePayButton script loading", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(container.querySelector("apple-pay-button")).toBeNull();
 
-    const script = document.querySelector<HTMLScriptElement>(
-      'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
-    );
-    script!.dispatchEvent(new Event("load"));
+    dispatchApplePaySDKLoad();
 
     await mountPromise;
     expect(container.querySelector("apple-pay-button")).not.toBeNull();
@@ -1514,7 +1515,7 @@ describe("ApplePayButton script loading", () => {
     expect(resolved).toBe(false);
 
     const script = document.querySelector<HTMLScriptElement>(
-      'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
+      applePaySDKSelector
     );
     expect(script).not.toBeNull();
 
@@ -1523,7 +1524,7 @@ describe("ApplePayButton script loading", () => {
         paymentCredentialStatus: "paymentCredentialsAvailable",
       }),
     });
-    script!.dispatchEvent(new Event("load"));
+    dispatchApplePaySDKLoad();
 
     await expect(availabilityPromise).resolves.toBe("available");
   });
@@ -2042,11 +2043,7 @@ describe("ApplePayButton.availability", () => {
 
     const container = document.createElement("div");
     document.body.appendChild(container);
-    document
-      .querySelector<HTMLScriptElement>(
-        'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
-      )
-      ?.dispatchEvent(new Event("load"));
+    dispatchApplePaySDKLoad();
     await apple.mount(container);
 
     expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();

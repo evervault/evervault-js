@@ -65,9 +65,7 @@ function loadApplePaySDK(): Promise<void> {
     const script = existing ?? document.createElement("script");
 
     const timeoutId = setTimeout(() => {
-      // A tag we did not inject may have finished loading before we listened,
-      // so its `load` never fires again — resolve and let the capability check
-      // decide, rather than failing a page that already has the SDK.
+      // An existing script may have loaded before this listener was attached.
       if (existing) {
         resolve();
         return;
@@ -244,7 +242,6 @@ export default class ApplePayButton {
     this.client = client;
     this.#options = options;
     this.transaction = transaction;
-    // Start the shared load now; availability() awaits it and surfaces failures.
     void loadApplePaySDK().catch(() => {});
   }
 
