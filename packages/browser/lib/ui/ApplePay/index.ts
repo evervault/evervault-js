@@ -35,6 +35,20 @@ const SCRIPT_LOAD_TIMEOUT = 10000;
 
 let sdkLoadPromise: Promise<void> | null = null;
 
+function isApplePaySDKReady() {
+  return (
+    typeof ApplePaySession !== "undefined" &&
+    typeof ApplePaySession.applePayCapabilities === "function"
+  );
+}
+
+function isApplePayButtonDefined() {
+  return (
+    typeof customElements !== "undefined" &&
+    customElements.get("apple-pay-button") !== undefined
+  );
+}
+
 function loadApplePaySDK(): Promise<void> {
   if (sdkLoadPromise) return sdkLoadPromise;
 
@@ -43,11 +57,7 @@ function loadApplePaySDK(): Promise<void> {
       `script[src="${APPLE_PAY_SCRIPT_URL}"]`
     );
 
-    if (
-      existing &&
-      typeof ApplePaySession !== "undefined" &&
-      typeof ApplePaySession.applePayCapabilities === "function"
-    ) {
+    if (existing && isApplePayButtonDefined()) {
       resolve();
       return;
     }
@@ -498,9 +508,9 @@ export default class ApplePayButton {
     if (!this.#availabilityPromise) {
       this.#availabilityPromise = this.#computeAvailability()
         .then((result) => {
-          // "unsupported" can just mean the SDK has not defined
-          // ApplePaySession yet — don't cache it, so a later call re-probes.
-          if (result === "unsupported") {
+          // The SDK may not have defined ApplePaySession yet. Do not cache
+          // this ambiguous result, so a later call can re-probe.
+          if (result === "unsupported" && !isApplePaySDKReady()) {
             this.#availabilityPromise = null;
           }
 
@@ -520,7 +530,7 @@ export default class ApplePayButton {
     "available" | "unavailable" | "unsupported"
   > {
     if (typeof window.PaymentRequest === "undefined") return "unsupported";
-    await loadApplePaySDK();
+    if (!isApplePaySDKReady()) await loadApplePaySDK();
 
     if (
       typeof ApplePaySession === "undefined" ||
@@ -560,6 +570,8 @@ export default class ApplePayButton {
     if (availability === "unavailable") {
       console.info("Apple Pay may be unavailable on this device.");
     }
+
+    await loadApplePaySDK();
 
     const element = resolveSelector(selector);
     this.#button = document.createElement("apple-pay-button");

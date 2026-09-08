@@ -1393,6 +1393,11 @@ function createMockSession() {
 async function clickApplePayButton(apple: ApplePayButton) {
   const container = document.createElement("div");
   document.body.appendChild(container);
+  document
+    .querySelector<HTMLScriptElement>(
+      'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
+    )
+    ?.dispatchEvent(new Event("load"));
   await apple.mount(container);
   const button = container.querySelector("apple-pay-button");
   button?.dispatchEvent(new Event("click"));
@@ -1414,32 +1419,60 @@ describe("ApplePayButton script loading", () => {
     vi.unstubAllGlobals();
   });
 
-  it("resolves availability() as soon as the SDK script's onload fires, without polling", async () => {
+  it("resolves availability() before the SDK loads when its capability API is ready", async () => {
     const apple = new ApplePayButton(createMockClient(), createTransaction(), {
       process: vi.fn(),
     });
 
+    await expect(apple.availability()).resolves.toBe("available");
     const script = document.querySelector<HTMLScriptElement>(
       'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
     );
     expect(script).not.toBeNull();
+    script!.dispatchEvent(new Event("load"));
+  });
 
-    let resolved = false;
-    const availabilityPromise = apple.availability().then((result) => {
-      resolved = true;
-      return result;
+  it("waits for the SDK before mounting a button when its capability API is ready", async () => {
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
     });
+    const container = document.createElement("div");
+    document.body.appendChild(container);
 
+    const mountPromise = apple.mount(container);
     await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(resolved).toBe(false);
+    expect(container.querySelector("apple-pay-button")).toBeNull();
 
+    const script = document.querySelector<HTMLScriptElement>(
+      'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
+    );
     script!.dispatchEvent(new Event("load"));
 
-    await expect(availabilityPromise).resolves.toBe("available");
-    expect(resolved).toBe(true);
+    await mountPromise;
+    expect(container.querySelector("apple-pay-button")).not.toBeNull();
+  });
+
+  it("mounts without waiting when a merchant-loaded SDK defined the button", async () => {
+    const script = document.createElement("script");
+    script.src =
+      "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
+    document.body.appendChild(script);
+    vi.stubGlobal("customElements", {
+      get: vi.fn().mockReturnValue(class ApplePayButtonElement {}),
+    });
+
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    await apple.mount(container);
+    expect(container.querySelector("apple-pay-button")).not.toBeNull();
   });
 
   it("rejects with a timeout error if the SDK script never loads", async () => {
+    vi.stubGlobal("ApplePaySession", undefined);
     vi.useFakeTimers();
     try {
       const apple = new ApplePayButton(
@@ -1988,6 +2021,18 @@ describe("ApplePayButton.availability", () => {
     expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
   });
 
+  it("caches a genuine unsupported capability result", async () => {
+    stubApplePaySession({ paymentCredentialStatus: "applePayUnsupported" });
+
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+
+    await expect(apple.availability()).resolves.toBe("unsupported");
+    await expect(apple.availability()).resolves.toBe("unsupported");
+    expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
+  });
+
   it("only calls applePayCapabilities once when availability() is followed by mount()", async () => {
     const apple = new ApplePayButton(createMockClient(), createTransaction(), {
       process: vi.fn(),
@@ -1997,6 +2042,11 @@ describe("ApplePayButton.availability", () => {
 
     const container = document.createElement("div");
     document.body.appendChild(container);
+    document
+      .querySelector<HTMLScriptElement>(
+        'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
+      )
+      ?.dispatchEvent(new Event("load"));
     await apple.mount(container);
 
     expect(ApplePaySession.applePayCapabilities).toHaveBeenCalledOnce();
