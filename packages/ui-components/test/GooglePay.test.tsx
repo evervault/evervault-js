@@ -41,6 +41,7 @@ let latestOnPaymentAuthorized:
       data: google.payments.api.PaymentData
     ) => Promise<google.payments.api.PaymentAuthorizationResult>)
   | undefined;
+const isReadyToPayMock = vi.fn().mockResolvedValue({ result: true });
 
 class MockPaymentsClient {
   constructor(clientConfig: {
@@ -53,7 +54,7 @@ class MockPaymentsClient {
     latestOnPaymentAuthorized =
       clientConfig.paymentDataCallbacks.onPaymentAuthorized;
   }
-  isReadyToPay = vi.fn().mockResolvedValue({ result: true });
+  isReadyToPay = isReadyToPayMock;
   createButton = (...args: unknown[]) => {
     createButtonMock(...args);
     return document.createElement("div");
@@ -575,5 +576,46 @@ describe("GooglePay assuranceDetails response surfacing", () => {
     const payload = await authorize(undefined);
 
     expect(payload).not.toHaveProperty("assuranceDetails");
+  });
+});
+
+describe("GooglePay isReadyToPay request", () => {
+  beforeEach(() => {
+    createButtonMock.mockReset();
+    getMerchantMock.mockReset();
+    getAppSDKConfigMock.mockReset();
+    isReadyToPayMock.mockClear();
+    getMerchantMock.mockResolvedValue({ id: "merchant_abc", name: "Acme Co" });
+    getAppSDKConfigMock.mockResolvedValue({ is_sandbox: false });
+    (globalThis as unknown as { google: unknown }).google = {
+      payments: { api: { PaymentsClient: MockPaymentsClient } },
+    };
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    delete (globalThis as { google?: unknown }).google;
+  });
+
+  async function renderAndGetIsReadyToPayRequest(
+    existingPaymentMethodRequired?: boolean
+  ) {
+    render(<GooglePay config={{ ...config, existingPaymentMethodRequired }} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+    await waitFor(() => expect(isReadyToPayMock).toHaveBeenCalled());
+    return isReadyToPayMock.mock
+      .calls[0][0] as google.payments.api.IsReadyToPayRequest;
+  }
+
+  it("omits existingPaymentMethodRequired by default", async () => {
+    const request = await renderAndGetIsReadyToPayRequest(undefined);
+
+    expect(request.existingPaymentMethodRequired).toBeUndefined();
+  });
+
+  it("passes existingPaymentMethodRequired through when configured", async () => {
+    const request = await renderAndGetIsReadyToPayRequest(true);
+
+    expect(request.existingPaymentMethodRequired).toBe(true);
   });
 });
