@@ -300,6 +300,10 @@ export function GooglePay({ config }: GooglePayProps) {
           return;
         }
 
+        if (config.prefetchPaymentData) {
+          paymentsClient.prefetchPaymentData(paymentRequest);
+        }
+
         const btn = paymentsClient.createButton({
           buttonLocale: config.locale || "en",
           buttonType: config.type || "plain",

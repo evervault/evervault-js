@@ -662,6 +662,12 @@ export interface GooglePayOptions {
    * @default false
    */
   existingPaymentMethodRequired?: boolean;
+  /**
+   * When true, asks Google Pay to prefetch payment data as soon as the
+   * button is ready, so the sheet opens faster when the user clicks it.
+   * Fire-and-forget; has no effect on `process()`'s result.
+   */
+  prefetchPaymentData?: boolean;
 }
 
 export type ApplePayButtonType =

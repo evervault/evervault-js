@@ -30,4 +30,5 @@ export interface GooglePayConfig {
   softwareInfo?: google.payments.api.SoftwareInfo;
   assuranceDetailsRequired?: boolean;
   existingPaymentMethodRequired?: boolean;
+  prefetchPaymentData?: boolean;
 }

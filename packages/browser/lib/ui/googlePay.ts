@@ -169,6 +169,7 @@ export default class GooglePay {
         assuranceDetailsRequired: this.#options.assuranceDetailsRequired,
         existingPaymentMethodRequired:
           this.#options.existingPaymentMethodRequired,
+        prefetchPaymentData: this.#options.prefetchPaymentData,
       },
     };
   }
