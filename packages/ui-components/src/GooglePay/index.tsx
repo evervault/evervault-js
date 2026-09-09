@@ -1,6 +1,7 @@
 import css from "./styles.module.css";
 import { CSSProperties, useLayoutEffect, useRef } from "react";
 import {
+  buildIsReadyToPayRequest,
   buildPaymentRequest,
   buildTransactionInfo,
   exchangePaymentData,
@@ -286,7 +287,7 @@ export function GooglePay({ config }: GooglePayProps) {
         }
 
         const paymentRequest = buildPaymentRequest(config, merchant);
-        await paymentsClient.isReadyToPay(paymentRequest);
+        await paymentsClient.isReadyToPay(buildIsReadyToPayRequest(config));
         const btn = paymentsClient.createButton({
           buttonLocale: config.locale || "en",
           buttonType: config.type || "plain",

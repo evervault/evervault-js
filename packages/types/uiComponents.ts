@@ -655,6 +655,13 @@ export interface GooglePayOptions {
    * checks and return the result as `assuranceDetails` on the payment method.
    */
   assuranceDetailsRequired?: boolean;
+  /**
+   * When true, requires the user to have an existing payment method
+   * associated with their Google account for the button to be shown as
+   * ready. Checked by `isReadyToPay`, not `loadPaymentData`.
+   * @default false
+   */
+  existingPaymentMethodRequired?: boolean;
 }
 
 export type ApplePayButtonType =
