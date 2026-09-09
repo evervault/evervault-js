@@ -291,9 +291,6 @@ export function GooglePay({ config }: GooglePayProps) {
           buildIsReadyToPayRequest(config)
         );
 
-        // `result` alone doesn't reflect existingPaymentMethodRequired - Google
-        // only ever populates `paymentMethodPresent` for that, so it has to be
-        // checked separately.
         const canPay =
           isReadyToPayResponse.result &&
           (!config.existingPaymentMethodRequired ||
