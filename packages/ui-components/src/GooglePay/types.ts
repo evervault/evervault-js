@@ -28,4 +28,5 @@ export interface GooglePayConfig {
   allowPrepaidCards?: boolean;
   allowCreditCards?: boolean;
   softwareInfo?: google.payments.api.SoftwareInfo;
+  assuranceDetailsRequired?: boolean;
 }

@@ -166,6 +166,7 @@ export default class GooglePay {
         allowPrepaidCards: this.#options.allowPrepaidCards,
         allowCreditCards: this.#options.allowCreditCards,
         softwareInfo: this.#options.softwareInfo,
+        assuranceDetailsRequired: this.#options.assuranceDetailsRequired,
       },
     };
   }

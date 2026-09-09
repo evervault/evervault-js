@@ -234,6 +234,11 @@ export function GooglePay({ config }: GooglePayProps) {
               );
             }
 
+            const assuranceDetails = paymentMethodInfo?.assuranceDetails;
+            if (assuranceDetails) {
+              payload.assuranceDetails = assuranceDetails;
+            }
+
             const cardDetails = paymentMethodInfo?.cardDetails;
             if (cardDetails) {
               const fourDigitRegex = /(\d{4})$/;
