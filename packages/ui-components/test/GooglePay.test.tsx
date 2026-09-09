@@ -26,8 +26,9 @@ const createButtonMock = vi.fn();
 const exchangePaymentDataMock = vi.fn();
 
 vi.mock("../src/GooglePay/utilities", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("../src/GooglePay/utilities")>();
+  const actual = await importOriginal<
+    typeof import("../src/GooglePay/utilities")
+  >();
   return {
     ...actual,
     exchangePaymentData: (...args: unknown[]) =>
