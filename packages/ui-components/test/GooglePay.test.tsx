@@ -619,3 +619,61 @@ describe("GooglePay isReadyToPay request", () => {
     expect(request.existingPaymentMethodRequired).toBe(true);
   });
 });
+
+describe("GooglePay button visibility from isReadyToPay response", () => {
+  beforeEach(() => {
+    createButtonMock.mockReset();
+    getMerchantMock.mockReset();
+    getAppSDKConfigMock.mockReset();
+    isReadyToPayMock.mockReset();
+    getMerchantMock.mockResolvedValue({ id: "merchant_abc", name: "Acme Co" });
+    getAppSDKConfigMock.mockResolvedValue({ is_sandbox: false });
+    (globalThis as unknown as { google: unknown }).google = {
+      payments: { api: { PaymentsClient: MockPaymentsClient } },
+    };
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    delete (globalThis as { google?: unknown }).google;
+  });
+
+  async function renderAndSettle(config: GooglePayConfig) {
+    render(<GooglePay config={config} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+    await waitFor(() => expect(isReadyToPayMock).toHaveBeenCalled());
+    // Give the button-creation branch a tick to run (or not run) after the
+    // isReadyToPay response resolves.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+
+  it("does not create the button when result is false", async () => {
+    isReadyToPayMock.mockResolvedValue({ result: false });
+
+    await renderAndSettle(config);
+
+    expect(createButtonMock).not.toHaveBeenCalled();
+  });
+
+  it("does not create the button when existingPaymentMethodRequired is set but paymentMethodPresent is false", async () => {
+    isReadyToPayMock.mockResolvedValue({
+      result: true,
+      paymentMethodPresent: false,
+    });
+
+    await renderAndSettle({ ...config, existingPaymentMethodRequired: true });
+
+    expect(createButtonMock).not.toHaveBeenCalled();
+  });
+
+  it("creates the button when existingPaymentMethodRequired is set and paymentMethodPresent is true", async () => {
+    isReadyToPayMock.mockResolvedValue({
+      result: true,
+      paymentMethodPresent: true,
+    });
+
+    await renderAndSettle({ ...config, existingPaymentMethodRequired: true });
+
+    expect(createButtonMock).toHaveBeenCalled();
+  });
+});

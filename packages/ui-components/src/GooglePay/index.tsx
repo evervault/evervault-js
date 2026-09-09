@@ -287,7 +287,22 @@ export function GooglePay({ config }: GooglePayProps) {
         }
 
         const paymentRequest = buildPaymentRequest(config, merchant);
-        await paymentsClient.isReadyToPay(buildIsReadyToPayRequest(config));
+        const isReadyToPayResponse = await paymentsClient.isReadyToPay(
+          buildIsReadyToPayRequest(config)
+        );
+
+        // `result` alone doesn't reflect existingPaymentMethodRequired - Google
+        // only ever populates `paymentMethodPresent` for that, so it has to be
+        // checked separately.
+        const canPay =
+          isReadyToPayResponse.result &&
+          (!config.existingPaymentMethodRequired ||
+            isReadyToPayResponse.paymentMethodPresent);
+
+        if (!canPay) {
+          return;
+        }
+
         const btn = paymentsClient.createButton({
           buttonLocale: config.locale || "en",
           buttonType: config.type || "plain",
