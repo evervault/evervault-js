@@ -10,6 +10,7 @@
         "allowedCardNetworks": ["INTERAC"],
         "allowPrepaidCards": false,
         "allowCreditCards": false,
+        "assuranceDetailsRequired": true,
         "billingAddressRequired": true,
         "billingAddressParameters": {
           "format": "MIN",

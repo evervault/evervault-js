@@ -23,8 +23,36 @@ vi.mock("../src/utilities/useSearchParams", () => ({
 }));
 
 const createButtonMock = vi.fn();
+const exchangePaymentDataMock = vi.fn();
+
+vi.mock("../src/GooglePay/utilities", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../src/GooglePay/utilities")
+  >();
+  return {
+    ...actual,
+    exchangePaymentData: (...args: unknown[]) =>
+      exchangePaymentDataMock(...args),
+  };
+});
+
+let latestOnPaymentAuthorized:
+  | ((
+      data: google.payments.api.PaymentData
+    ) => Promise<google.payments.api.PaymentAuthorizationResult>)
+  | undefined;
 
 class MockPaymentsClient {
+  constructor(clientConfig: {
+    paymentDataCallbacks: {
+      onPaymentAuthorized: (
+        data: google.payments.api.PaymentData
+      ) => Promise<google.payments.api.PaymentAuthorizationResult>;
+    };
+  }) {
+    latestOnPaymentAuthorized =
+      clientConfig.paymentDataCallbacks.onPaymentAuthorized;
+  }
   isReadyToPay = vi.fn().mockResolvedValue({ result: true });
   createButton = (...args: unknown[]) => {
     createButtonMock(...args);
@@ -56,8 +84,13 @@ beforeEach(() => {
   createButtonMock.mockReset();
   getMerchantMock.mockReset();
   getAppSDKConfigMock.mockReset();
+  exchangePaymentDataMock.mockReset();
   getMerchantMock.mockResolvedValue({ id: "merchant_abc", name: "Acme Co" });
   getAppSDKConfigMock.mockResolvedValue({ is_sandbox: false });
+  // Default response for tests that don't care about card details - mirrors
+  // the `{ card: {} }` body used before `exchangePaymentData` was mocked at
+  // the module level. Tests that do care set their own mockResolvedValue.
+  exchangePaymentDataMock.mockResolvedValue({ card: {} });
   (globalThis as unknown as { google: unknown }).google = {
     payments: { api: { PaymentsClient: MockPaymentsClient } },
   };
@@ -128,7 +161,7 @@ describe("GooglePay shipping data changes", () => {
 
   class CapturingPaymentsClient extends MockPaymentsClient {
     constructor(options: google.payments.api.PaymentOptions) {
-      super();
+      super(options as ConstructorParameters<typeof MockPaymentsClient>[0]);
       callbacks = options.paymentDataCallbacks ?? {};
     }
   }
@@ -462,5 +495,85 @@ describe("GooglePay shipping data changes", () => {
     ]);
 
     expect(settled).toBe("pending");
+  });
+});
+
+describe("GooglePay assuranceDetails response surfacing", () => {
+  beforeEach(() => {
+    createButtonMock.mockReset();
+    exchangePaymentDataMock.mockReset();
+    getMerchantMock.mockReset();
+    getAppSDKConfigMock.mockReset();
+    latestOnPaymentAuthorized = undefined;
+    getMerchantMock.mockResolvedValue({ id: "merchant_abc", name: "Acme Co" });
+    getAppSDKConfigMock.mockResolvedValue({ is_sandbox: false });
+    exchangePaymentDataMock.mockResolvedValue({
+      card: {
+        brand: "visa",
+        number: "ev:token",
+        expiry: { month: "12", year: "31" },
+      },
+    });
+    (globalThis as unknown as { google: unknown }).google = {
+      payments: { api: { PaymentsClient: MockPaymentsClient } },
+    };
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    delete (globalThis as { google?: unknown }).google;
+  });
+
+  async function authorize(info?: Record<string, unknown>) {
+    render(<GooglePay config={config} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+    await waitFor(() => expect(latestOnPaymentAuthorized).toBeDefined());
+
+    // Real useMessaging is in effect (not mocked - see the "shipping data
+    // changes" describe above for why), so `send` goes through the real
+    // `window.parent.postMessage` call, which we spy on here.
+    const postMessage = vi
+      .spyOn(window.parent, "postMessage")
+      .mockImplementation(() => {});
+
+    // Fire and forget - the callback's returned promise only resolves once
+    // EV_GOOGLE_PAY_AUTH_COMPLETE/ERROR comes back over `on`, which this
+    // test never sends. The `send("EV_GOOGLE_PAY_AUTH", payload)` call we
+    // care about happens synchronously before that, so we don't await it.
+    latestOnPaymentAuthorized!({
+      paymentMethodData: {
+        description: "Visa •••• 1234",
+        info,
+      },
+    } as google.payments.api.PaymentData);
+
+    await waitFor(() =>
+      expect(postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "EV_GOOGLE_PAY_AUTH" }),
+        "*"
+      )
+    );
+
+    const call = postMessage.mock.calls.find(
+      ([message]) => (message as { type: string }).type === "EV_GOOGLE_PAY_AUTH"
+    );
+    return (call![0] as { payload: Record<string, unknown> }).payload;
+  }
+
+  it("forwards assuranceDetails to the auth payload when Google Pay returns them", async () => {
+    const assuranceDetails = {
+      accountVerified: true,
+      cardHolderAuthenticated: true,
+    };
+
+    const payload = await authorize({ assuranceDetails });
+
+    expect(payload.assuranceDetails).toEqual(assuranceDetails);
+  });
+
+  it("omits assuranceDetails when Google Pay does not return them", async () => {
+    const payload = await authorize(undefined);
+
+    expect(payload).not.toHaveProperty("assuranceDetails");
   });
 });

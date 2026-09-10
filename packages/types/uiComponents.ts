@@ -489,6 +489,7 @@ export type EncryptedGooglePayData = (
    * `shippingOptions` were configured on the Google Pay button.
    */
   shippingOption?: GooglePayShippingOption | null;
+  assuranceDetails?: google.payments.api.AssuranceDetails | null;
 };
 
 export interface GooglePayErrorMessage {
@@ -649,6 +650,11 @@ export interface GooglePayOptions {
    * own metrics.
    */
   softwareInfo?: google.payments.api.SoftwareInfo;
+  /**
+   * When true, requests that Google Pay perform cardholder ID&V/possession
+   * checks and return the result as `assuranceDetails` on the payment method.
+   */
+  assuranceDetailsRequired?: boolean;
 }
 
 export type ApplePayButtonType =

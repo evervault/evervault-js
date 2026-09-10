@@ -36,6 +36,7 @@ export function buildPaymentRequest(
             ],
           allowPrepaidCards: config.allowPrepaidCards,
           allowCreditCards: config.allowCreditCards,
+          assuranceDetailsRequired: config.assuranceDetailsRequired,
           billingAddressRequired: isBillingRequired(config),
           // Google ignores these when billingAddressRequired is false. Omit
           // them so the request says only what it means, and so it matches the

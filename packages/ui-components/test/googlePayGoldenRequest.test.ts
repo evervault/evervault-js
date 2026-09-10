@@ -124,6 +124,7 @@ describe("Google Pay golden requests", () => {
         totalPriceStatus: "ESTIMATED",
         allowPrepaidCards: false,
         allowCreditCards: false,
+        assuranceDetailsRequired: true,
       })
     ).toEqual(loadFixture("custom"));
   });
