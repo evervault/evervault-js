@@ -42,6 +42,7 @@ let latestOnPaymentAuthorized:
     ) => Promise<google.payments.api.PaymentAuthorizationResult>)
   | undefined;
 const isReadyToPayMock = vi.fn().mockResolvedValue({ result: true });
+const prefetchPaymentDataMock = vi.fn();
 
 class MockPaymentsClient {
   constructor(clientConfig: {
@@ -60,6 +61,7 @@ class MockPaymentsClient {
     return document.createElement("div");
   };
   loadPaymentData = vi.fn();
+  prefetchPaymentData = prefetchPaymentDataMock;
 }
 
 const config: GooglePayConfig = {
@@ -675,5 +677,46 @@ describe("GooglePay button visibility from isReadyToPay response", () => {
     await renderAndSettle({ ...config, existingPaymentMethodRequired: true });
 
     expect(createButtonMock).toHaveBeenCalled();
+  });
+});
+
+describe("GooglePay prefetchPaymentData", () => {
+  beforeEach(() => {
+    createButtonMock.mockReset();
+    getMerchantMock.mockReset();
+    getAppSDKConfigMock.mockReset();
+    isReadyToPayMock.mockClear();
+    prefetchPaymentDataMock.mockReset();
+    getMerchantMock.mockResolvedValue({ id: "merchant_abc", name: "Acme Co" });
+    getAppSDKConfigMock.mockResolvedValue({ is_sandbox: false });
+    (globalThis as unknown as { google: unknown }).google = {
+      payments: { api: { PaymentsClient: MockPaymentsClient } },
+    };
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    delete (globalThis as { google?: unknown }).google;
+  });
+
+  it("does not prefetch by default", async () => {
+    render(<GooglePay config={config} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+
+    await waitFor(() => expect(createButtonMock).toHaveBeenCalled());
+
+    expect(prefetchPaymentDataMock).not.toHaveBeenCalled();
+  });
+
+  it("prefetches the built payment request when configured", async () => {
+    render(<GooglePay config={{ ...config, prefetchPaymentData: true }} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+
+    await waitFor(() => expect(prefetchPaymentDataMock).toHaveBeenCalled());
+
+    const request = prefetchPaymentDataMock.mock
+      .calls[0][0] as google.payments.api.PaymentDataRequest;
+    expect(request.apiVersion).toBe(2);
+    expect(request.allowedPaymentMethods[0].type).toBe("CARD");
   });
 });
