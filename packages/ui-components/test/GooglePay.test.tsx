@@ -472,6 +472,48 @@ describe("GooglePay shipping data changes", () => {
     );
   });
 
+  it("passes the backend's card enrichment fields through to the authorized payload untouched", async () => {
+    await mountWithShipping();
+    const postMessage = vi
+      .spyOn(window.parent, "postMessage")
+      .mockImplementation(() => {});
+    exchangePaymentDataMock.mockResolvedValue({
+      card: {
+        brand: "visa",
+        funding: "credit",
+        segment: "consumer",
+        country: "IE",
+        currency: "EUR",
+        issuer: "Some Bank",
+      },
+    });
+
+    void callbacks.onPaymentAuthorized!({
+      paymentMethodData: {
+        tokenizationData: { token: JSON.stringify({}) },
+      },
+    } as unknown as google.payments.api.PaymentData);
+
+    await waitFor(() =>
+      expect(postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "EV_GOOGLE_PAY_AUTH",
+          payload: expect.objectContaining({
+            card: expect.objectContaining({
+              brand: "visa",
+              funding: "credit",
+              segment: "consumer",
+              country: "IE",
+              currency: "EUR",
+              issuer: "Some Bank",
+            }),
+          }),
+        }),
+        "*"
+      )
+    );
+  });
+
   it("ignores a reply meant for a different data change", async () => {
     await mountWithShipping();
     vi.spyOn(window.parent, "postMessage").mockImplementation(() => {
