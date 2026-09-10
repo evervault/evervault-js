@@ -8,6 +8,8 @@
       "parameters": {
         "allowedAuthMethods": ["PAN_ONLY"],
         "allowedCardNetworks": ["INTERAC"],
+        "allowPrepaidCards": false,
+        "allowCreditCards": false,
         "billingAddressRequired": true,
         "billingAddressParameters": {
           "format": "MIN",
@@ -27,15 +29,17 @@
     "merchantName": "Test Merchant"
   },
   "transactionInfo": {
-    "totalPriceStatus": "FINAL",
+    "totalPriceStatus": "ESTIMATED",
     "totalPriceLabel": "Subscription",
     "totalPrice": "54.99",
     "currencyCode": "EUR",
     "countryCode": "IE",
+    "checkoutOption": "COMPLETE_IMMEDIATE_PURCHASE",
+    "transactionId": "txn_a1b2c3",
     "displayItems": [
       {
         "label": "Shell Jacket",
-        "type": "LINE_ITEM",
+        "type": "SUBTOTAL",
         "price": "50.00"
       }
     ]

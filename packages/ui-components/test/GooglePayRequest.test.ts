@@ -6,6 +6,11 @@ import {
 import type { GooglePayConfig } from "../src/GooglePay/types";
 import type { MerchantDetail } from "types";
 
+/**
+ * Unit tests for `buildPaymentRequest`/`callbackIntents` behaviour that isn't
+ * about matching a fixed request shape (that's `googlePayGoldenRequest.test.ts`).
+ */
+
 const MERCHANT = { id: "merchant_abc", name: "Acme Co" } as MerchantDetail;
 const BASE_CONFIG: GooglePayConfig = {
   transaction: {
@@ -79,5 +84,34 @@ describe("callbackIntents", () => {
     ],
   ] as const)("derives intents from %o", (config, expected) => {
     expect(callbackIntents({ ...BASE_CONFIG, ...config })).toEqual(expected);
+  });
+});
+
+describe("Google Pay display item category mapping", () => {
+  it("maps every line item category to the matching Google Pay display item type", () => {
+    const request = buildPaymentRequest(
+      {
+        ...BASE_CONFIG,
+        transaction: {
+          ...BASE_CONFIG.transaction,
+          lineItems: [
+            { label: "Shell Jacket", amount: 5000, category: "line_item" },
+            { label: "Subtotal", amount: 5000, category: "subtotal" },
+            { label: "VAT", amount: 499, category: "tax" },
+            { label: "Promo", amount: 100, category: "discount" },
+            { label: "Delivery", amount: 0, category: "shipping_option" },
+          ],
+        },
+      },
+      MERCHANT
+    );
+
+    expect(request.transactionInfo.displayItems).toEqual([
+      { label: "Shell Jacket", type: "LINE_ITEM", price: "50.00" },
+      { label: "Subtotal", type: "SUBTOTAL", price: "50.00" },
+      { label: "VAT", type: "TAX", price: "4.99" },
+      { label: "Promo", type: "DISCOUNT", price: "1.00" },
+      { label: "Delivery", type: "SHIPPING_OPTION", price: "0.00" },
+    ]);
   });
 });

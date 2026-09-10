@@ -34,6 +34,7 @@ export default class GooglePay {
     options: GooglePayOptions
   ) {
     validateShippingOptions(options.shippingOptions);
+    validateTotalPriceStatus(options.totalPriceStatus);
     this.#options = options;
     this.#transaction = transaction;
     this.#frame = new EvervaultFrame(client, "GooglePay", {
@@ -159,6 +160,12 @@ export default class GooglePay {
         shippingAddress: this.#options.shippingAddress,
         shippingOptions: this.#options.shippingOptions,
         emailRequired: this.#options.emailRequired,
+        checkoutOption: this.#options.checkoutOption,
+        transactionId: this.#options.transactionId,
+        totalPriceStatus: this.#options.totalPriceStatus,
+        allowPrepaidCards: this.#options.allowPrepaidCards,
+        allowCreditCards: this.#options.allowCreditCards,
+        softwareInfo: this.#options.softwareInfo,
       },
     };
   }
@@ -200,6 +207,21 @@ async function resolveWithin<T>(
     return await Promise.race([Promise.resolve(value), expired]);
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+/**
+ * Backstop for plain-JS callers that bypass the `GooglePayOptions` type.
+ * `"NOT_CURRENTLY_KNOWN"` isn't supported — same as Android and our current
+ * shipping implementation.
+ */
+function validateTotalPriceStatus(
+  totalPriceStatus: GooglePayOptions["totalPriceStatus"]
+) {
+  if ((totalPriceStatus as string) === "NOT_CURRENTLY_KNOWN") {
+    throw new Error(
+      "Google Pay totalPriceStatus 'NOT_CURRENTLY_KNOWN' is not supported. Use 'ESTIMATED' or 'FINAL' instead."
+    );
   }
 }
 

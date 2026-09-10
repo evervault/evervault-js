@@ -34,6 +34,8 @@ export function buildPaymentRequest(
               "MASTERCARD",
               "VISA",
             ],
+          allowPrepaidCards: config.allowPrepaidCards,
+          allowCreditCards: config.allowCreditCards,
           billingAddressRequired: isBillingRequired(config),
           // Google ignores these when billingAddressRequired is false. Omit
           // them so the request says only what it means, and so it matches the
@@ -60,6 +62,7 @@ export function buildPaymentRequest(
       merchantId: apiConfig.googlePayMerchantId,
       merchantName: merchant.name,
       merchantOrigin: tx.domain, // merchantOrigin is not present in the GooglePayConfig type but is noted as required by the GooglePay API
+      softwareInfo: config.softwareInfo,
     } as unknown as google.payments.api.MerchantInfo,
     ...(isShippingRequired(config)
       ? {
@@ -104,17 +107,39 @@ export function buildTransactionInfo(
   const lineItems = overrides.lineItems ?? tx.lineItems;
 
   return {
-    totalPriceStatus: "FINAL",
+    totalPriceStatus: config.totalPriceStatus ?? "FINAL",
     totalPriceLabel: tx.priceLabel ?? `Pay ${merchantName}`,
     totalPrice: formatAmount(amount),
     currencyCode: tx.currency,
     countryCode: tx.country,
+    checkoutOption: config.checkoutOption,
+    transactionId: config.transactionId,
     displayItems: lineItems?.map((item) => ({
       label: item.label,
-      type: "LINE_ITEM",
+      type: displayItemType(item.category),
       price: formatAmount(item.amount),
     })),
   };
+}
+
+// Google's DisplayItemType is a category (LINE_ITEM/SUBTOTAL/TAX/...), distinct
+// from TransactionLineItem's own "final"/"pending" status field. Defaults to
+// LINE_ITEM to match today's behaviour when category is omitted.
+function displayItemType(
+  category: TransactionLineItem["category"]
+): google.payments.api.DisplayItemType {
+  switch (category) {
+    case "subtotal":
+      return "SUBTOTAL";
+    case "tax":
+      return "TAX";
+    case "discount":
+      return "DISCOUNT";
+    case "shipping_option":
+      return "SHIPPING_OPTION";
+    default:
+      return "LINE_ITEM";
+  }
 }
 
 export function shippingOptionParameters(

@@ -108,15 +108,32 @@ describe("Google Pay golden requests", () => {
     expect(
       comparableRequest({
         ...baseConfig,
-        transaction: { ...transaction, priceLabel: "Subscription" },
+        transaction: {
+          ...transaction,
+          priceLabel: "Subscription",
+          lineItems: [
+            { label: "Shell Jacket", amount: 5000, category: "subtotal" },
+          ],
+        },
         emailRequired: true,
         allowedAuthMethods: ["PAN_ONLY"],
         allowedCardNetworks: ["INTERAC"],
         billingAddress: { format: "MIN", phoneNumber: true },
+        checkoutOption: "COMPLETE_IMMEDIATE_PURCHASE",
+        transactionId: "txn_a1b2c3",
+        totalPriceStatus: "ESTIMATED",
+        allowPrepaidCards: false,
+        allowCreditCards: false,
       })
     ).toEqual(loadFixture("custom"));
   });
+});
 
+describe("Google Pay fields with no Android equivalent", () => {
+  /**
+   * `merchantId`/`merchantOrigin`/`callbackIntents` are required by the Google
+   * Pay web client and have no Android concept at all.
+   */
   it("includes the web-only request fields", () => {
     const request = buildPaymentRequest(baseConfig, merchant);
 
@@ -125,5 +142,22 @@ describe("Google Pay golden requests", () => {
       merchantOrigin: transaction.domain,
     });
     expect(request.callbackIntents).toEqual(["PAYMENT_AUTHORIZATION"]);
+  });
+
+  /**
+   * `softwareInfo` is an optional that wasn't added to Android.
+   */
+  it("passes through softwareInfo", () => {
+    const request = buildPaymentRequest(
+      {
+        ...baseConfig,
+        softwareInfo: { id: "evervault-web", version: "1.0.0" },
+      },
+      merchant
+    );
+
+    expect(request.merchantInfo).toMatchObject({
+      softwareInfo: { id: "evervault-web", version: "1.0.0" },
+    });
   });
 });

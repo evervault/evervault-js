@@ -620,6 +620,35 @@ export interface GooglePayOptions {
     | void
     | Promise<GooglePayDataChangeUpdate | void>;
   theme?: ThemeDefinition;
+  /**
+   * Whether to show a 'Continue' or 'Pay Now' button on the Google Pay sheet.
+   * @default "DEFAULT"
+   */
+  checkoutOption?: google.payments.api.CheckoutOption;
+  /**
+   * A merchant-generated ID for this transaction, used for fraud correlation.
+   */
+  transactionId?: string;
+  /**
+   * Whether the total price is known and final, or still an estimate.
+   *
+   * `"NOT_CURRENTLY_KNOWN"` isn't supported — same as Android and our
+   * current shipping implementation.
+   * @default "FINAL"
+   */
+  totalPriceStatus?: Exclude<
+    google.payments.api.TotalPriceStatus,
+    "NOT_CURRENTLY_KNOWN"
+  >;
+  /** @default true */
+  allowPrepaidCards?: boolean;
+  /** @default true */
+  allowCreditCards?: boolean;
+  /**
+   * Identifies the software used to integrate with Google Pay, for Google's
+   * own metrics.
+   */
+  softwareInfo?: google.payments.api.SoftwareInfo;
 }
 
 export type ApplePayButtonType =
@@ -748,6 +777,12 @@ export interface TransactionLineItem {
    * Defaults to `"final"` when omitted.
    */
   type?: TransactionLineItemType;
+  /**
+   * The kind of line item, for platforms that distinguish it (currently Google
+   * Pay only, where it maps to `displayItems[].type`). Has no effect on Apple
+   * Pay or disbursements. Defaults to `"line_item"` when omitted.
+   */
+  category?: "line_item" | "subtotal" | "tax" | "discount" | "shipping_option";
 }
 
 export interface InstantTransferDetails {
