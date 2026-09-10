@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildIsReadyToPayRequest,
   buildPaymentRequest,
   callbackIntents,
 } from "../src/GooglePay/utilities";
@@ -7,8 +8,8 @@ import type { GooglePayConfig } from "../src/GooglePay/types";
 import type { MerchantDetail } from "types";
 
 /**
- * Unit tests for `buildPaymentRequest`/`callbackIntents` behaviour that isn't
- * about matching a fixed request shape (that's `googlePayGoldenRequest.test.ts`).
+ * Unit tests for `GooglePay/utilities` behaviour that isn't about matching a
+ * fixed request shape (that's `googlePayGoldenRequest.test.ts`).
  */
 
 const MERCHANT = { id: "merchant_abc", name: "Acme Co" } as MerchantDetail;
@@ -113,5 +114,39 @@ describe("Google Pay display item category mapping", () => {
       { label: "Promo", type: "DISCOUNT", price: "1.00" },
       { label: "Delivery", type: "SHIPPING_OPTION", price: "0.00" },
     ]);
+  });
+});
+
+describe("buildIsReadyToPayRequest", () => {
+  it("mirrors the payment request's apiVersion, apiVersionMinor and card parameters, without tokenization or transaction details", () => {
+    const paymentRequest = buildPaymentRequest(BASE_CONFIG, MERCHANT);
+    const isReadyToPayRequest = buildIsReadyToPayRequest(BASE_CONFIG);
+
+    expect(isReadyToPayRequest).toEqual({
+      apiVersion: paymentRequest.apiVersion,
+      apiVersionMinor: paymentRequest.apiVersionMinor,
+      allowedPaymentMethods: [
+        {
+          type: paymentRequest.allowedPaymentMethods[0].type,
+          parameters: paymentRequest.allowedPaymentMethods[0].parameters,
+        },
+      ],
+      existingPaymentMethodRequired: undefined,
+    });
+  });
+
+  it("does not require existingPaymentMethodRequired by default", () => {
+    const request = buildIsReadyToPayRequest(BASE_CONFIG);
+
+    expect(request.existingPaymentMethodRequired).toBeUndefined();
+  });
+
+  it("passes existingPaymentMethodRequired through when set", () => {
+    const request = buildIsReadyToPayRequest({
+      ...BASE_CONFIG,
+      existingPaymentMethodRequired: true,
+    });
+
+    expect(request.existingPaymentMethodRequired).toBe(true);
   });
 });
