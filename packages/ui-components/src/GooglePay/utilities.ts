@@ -183,7 +183,7 @@ function phoneNumberRequired(config: GooglePayConfig): boolean {
   return billingConfig?.phoneNumber || false;
 }
 
-function isShippingRequired(config: GooglePayConfig): boolean {
+export function isShippingRequired(config: GooglePayConfig): boolean {
   return !!config.shippingAddress || !!config.shippingOptions;
 }
 

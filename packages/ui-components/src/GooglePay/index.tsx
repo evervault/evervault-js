@@ -4,6 +4,7 @@ import {
   buildPaymentRequest,
   buildTransactionInfo,
   exchangePaymentData,
+  isShippingRequired,
   shippingOptionParameters,
 } from "./utilities";
 import { setSize } from "../utilities/resize";
@@ -103,6 +104,86 @@ export function GooglePay({ config }: GooglePayProps) {
         config.shippingOptions
       );
 
+      // Google raises this while the sheet is open, and can raise it more than
+      // once per session, so each request is matched to its reply by id rather
+      // than by message type alone. Google also requires this to be registered
+      // whenever the request declares a SHIPPING_ADDRESS/SHIPPING_OPTION
+      // callback intent (and rejects it being registered when it doesn't), so
+      // it's only added to paymentDataCallbacks below when shipping applies.
+      const handlePaymentDataChanged: google.payments.api.PaymentDataChangedHandler =
+        async (data) => {
+          const id = `gpay-data-change-${++dataChangeSequence}`;
+
+          if (data.shippingAddress !== undefined) {
+            currentShippingAddress = data.shippingAddress;
+          }
+          if (data.shippingOptionData?.id) {
+            currentShippingOptionId = data.shippingOptionData.id;
+          }
+
+          const currentShippingOption =
+            currentShippingOptions?.options.find(
+              (option) => option.id === currentShippingOptionId
+            ) ?? null;
+
+          const update = await new Promise<GooglePayDataChangeResponse>(
+            (resolve) => {
+              const off = on("EV_GOOGLE_PAY_DATA_CHANGE_RESULT", (response) => {
+                if (response.id !== id) return;
+                off();
+                resolve(response);
+              });
+
+              send("EV_GOOGLE_PAY_DATA_CHANGE", {
+                id,
+                trigger: data.callbackTrigger,
+                shippingAddress: currentShippingAddress,
+                selectedShippingOption: currentShippingOption,
+                amount: currentAmount,
+                lineItems: currentLineItems,
+                shippingOptions: currentShippingOptions,
+              });
+            }
+          );
+
+          if (update.error) {
+            const defaultError = defaultShippingError(data);
+            return {
+              error: {
+                reason: update.error.reason ?? defaultError.reason,
+                intent: update.error.intent ?? defaultError.intent,
+                message: update.error.message,
+              },
+            };
+          }
+
+          const result: google.payments.api.PaymentDataRequestUpdate = {};
+
+          if (update.amount !== undefined || update.lineItems !== undefined) {
+            currentAmount = update.amount ?? currentAmount;
+            currentLineItems = update.lineItems ?? currentLineItems;
+
+            const merchant = await merchantPromise;
+            result.newTransactionInfo = buildTransactionInfo(
+              config,
+              merchant?.name ?? "",
+              { amount: currentAmount, lineItems: currentLineItems }
+            );
+          }
+
+          if (update.shippingOptions) {
+            currentShippingOptions = update.shippingOptions;
+            currentShippingOptionId = initialShippingOptionId(
+              currentShippingOptions
+            );
+            result.newShippingOptionParameters = shippingOptionParameters(
+              currentShippingOptions
+            );
+          }
+
+          return result;
+        };
+
       const paymentsClient = new google.payments.api.PaymentsClient({
         // Always use 'test' in staging, but use the resolved environment in production
         environment:
@@ -112,84 +193,9 @@ export function GooglePay({ config }: GooglePayProps) {
             ? "TEST"
             : "PRODUCTION",
         paymentDataCallbacks: {
-          // Google raises this while the sheet is open, and can raise it more
-          // than once per session, so each request is matched to its reply by
-          // id rather than by message type alone.
-          onPaymentDataChanged: async (data) => {
-            const id = `gpay-data-change-${++dataChangeSequence}`;
-
-            if (data.shippingAddress !== undefined) {
-              currentShippingAddress = data.shippingAddress;
-            }
-            if (data.shippingOptionData?.id) {
-              currentShippingOptionId = data.shippingOptionData.id;
-            }
-
-            const currentShippingOption =
-              currentShippingOptions?.options.find(
-                (option) => option.id === currentShippingOptionId
-              ) ?? null;
-
-            const update = await new Promise<GooglePayDataChangeResponse>(
-              (resolve) => {
-                const off = on(
-                  "EV_GOOGLE_PAY_DATA_CHANGE_RESULT",
-                  (response) => {
-                    if (response.id !== id) return;
-                    off();
-                    resolve(response);
-                  }
-                );
-
-                send("EV_GOOGLE_PAY_DATA_CHANGE", {
-                  id,
-                  trigger: data.callbackTrigger,
-                  shippingAddress: currentShippingAddress,
-                  selectedShippingOption: currentShippingOption,
-                  amount: currentAmount,
-                  lineItems: currentLineItems,
-                  shippingOptions: currentShippingOptions,
-                });
-              }
-            );
-
-            if (update.error) {
-              const defaultError = defaultShippingError(data);
-              return {
-                error: {
-                  reason: update.error.reason ?? defaultError.reason,
-                  intent: update.error.intent ?? defaultError.intent,
-                  message: update.error.message,
-                },
-              };
-            }
-
-            const result: google.payments.api.PaymentDataRequestUpdate = {};
-
-            if (update.amount !== undefined || update.lineItems !== undefined) {
-              currentAmount = update.amount ?? currentAmount;
-              currentLineItems = update.lineItems ?? currentLineItems;
-
-              const merchant = await merchantPromise;
-              result.newTransactionInfo = buildTransactionInfo(
-                config,
-                merchant?.name ?? "",
-                { amount: currentAmount, lineItems: currentLineItems }
-              );
-            }
-
-            if (update.shippingOptions) {
-              currentShippingOptions = update.shippingOptions;
-              currentShippingOptionId = initialShippingOptionId(
-                currentShippingOptions
-              );
-              result.newShippingOptionParameters = shippingOptionParameters(
-                currentShippingOptions
-              );
-            }
-
-            return result;
-          },
+          ...(isShippingRequired(config)
+            ? { onPaymentDataChanged: handlePaymentDataChanged }
+            : {}),
           onPaymentAuthorized: async (data) => {
             const payload = await exchangePaymentData(
               app,
