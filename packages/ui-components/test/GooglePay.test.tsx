@@ -201,6 +201,22 @@ describe("GooglePay shipping data changes", () => {
       });
   }
 
+  it("registers onPaymentDataChanged when shipping is configured", async () => {
+    await mountWithShipping();
+
+    expect(callbacks.onPaymentDataChanged).toBeDefined();
+  });
+
+  it("does not register onPaymentDataChanged when shipping is not configured", async () => {
+    // Google rejects loadPaymentData with a DEVELOPER_ERROR if this callback is
+    // registered without a matching SHIPPING_ADDRESS/SHIPPING_OPTION callback intent.
+    render(<GooglePay config={config} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+    await waitFor(() => expect(createButtonMock).toHaveBeenCalled());
+
+    expect(callbacks.onPaymentDataChanged).toBeUndefined();
+  });
+
   it("sends the buyer's address to the host and applies the new total", async () => {
     await mountWithShipping();
     const postMessage = replyToDataChange({ amount: 1500 });
