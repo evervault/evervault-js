@@ -630,10 +630,16 @@ export interface GooglePayOptions {
    */
   transactionId?: string;
   /**
-   * Whether the total price is known and final, an estimate, or not yet known.
+   * Whether the total price is known and final, or still an estimate.
+   *
+   * `"NOT_CURRENTLY_KNOWN"` isn't supported — same as Android and our
+   * current shipping implementation.
    * @default "FINAL"
    */
-  totalPriceStatus?: google.payments.api.TotalPriceStatus;
+  totalPriceStatus?: Exclude<
+    google.payments.api.TotalPriceStatus,
+    "NOT_CURRENTLY_KNOWN"
+  >;
   /** @default true */
   allowPrepaidCards?: boolean;
   /** @default true */
