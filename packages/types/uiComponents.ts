@@ -473,9 +473,25 @@ export interface EncryptedFPAN {
   messageExpiration?: string;
 }
 
+export interface GooglePayCardEnrichment {
+  funding?: string;
+  segment?: string;
+  country?: string;
+  currency?: string;
+  issuer?: string;
+}
+
+export type EncryptedGooglePayDPAN = Omit<EncryptedDPAN<"google">, "card"> & {
+  card: EncryptedDPAN<"google">["card"] & GooglePayCardEnrichment;
+};
+
+export type EncryptedGooglePayFPAN = Omit<EncryptedFPAN, "card"> & {
+  card: EncryptedFPAN["card"] & GooglePayCardEnrichment;
+};
+
 export type EncryptedGooglePayData = (
-  | EncryptedDPAN<"google">
-  | EncryptedFPAN
+  | EncryptedGooglePayDPAN
+  | EncryptedGooglePayFPAN
 ) & {
   email?: string | null;
   billingAddress?: google.payments.api.Address | null;
