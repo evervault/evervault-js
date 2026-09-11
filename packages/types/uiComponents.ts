@@ -333,33 +333,36 @@ export interface ApplePayCardEnrichment {
   issuer?: string;
 }
 
+/** Shape of Apple Pay's native billing/shipping contact, as passed through unmodified. */
+export interface ApplePayContact {
+  givenName?: string;
+  familyName?: string;
+  phoneticGivenName?: string;
+  phoneticFamilyName?: string;
+  emailAddress?: string;
+  phoneNumber?: string;
+  addressLines?: string[];
+  subLocality?: string;
+  locality?: string;
+  postalCode?: string;
+  subAdministrativeArea?: string;
+  administrativeArea?: string;
+  country?: string;
+  countryCode?: string;
+}
+
 export type EncryptedApplePayData = Omit<
   EncryptedDPAN<"apple">,
   "token" | "card"
 > & {
   networkToken: PaymentToken<"apple"> & { rawExpiry: string };
   card: EncryptedDPAN<"apple">["card"] & ApplePayCardEnrichment;
-  billingContact?: {
-    givenName?: string;
-    familyName?: string;
-    phoneticGivenName?: string;
-    phoneticFamilyName?: string;
-    emailAddress?: string;
-    phoneNumber?: string;
-    address?: unknown;
-  };
+  billingContact?: ApplePayContact;
   paymentDataType: string;
   transactionType: ApplePayTransactionType;
   transactionId: string;
   deviceManufacturerIdentifier: string;
-  shippingContact?: {
-    givenName?: string;
-    familyName?: string;
-    phoneticGivenName?: string;
-    phoneticFamilyName?: string;
-    emailAddress?: string;
-    phoneNumber?: string;
-  };
+  shippingContact?: ApplePayContact;
   /**
    * Set when `requestPayerDetails` is used. Apple Pay collects these on the
    * shipping contact, so they also appear on `shippingContact`.
