@@ -223,24 +223,43 @@ jobs:
         if: ${{ inputs.package-name == '@evervault/browser' }}
         env:
           S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
+          TAG: ${{ inputs.tag_name }}
         run: |-
           cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
           aws s3 cp ./dist/ s3://${{ vars[env.S3_BUCKET_VAR] }}/v2/ --recursive
+          if [ -n "$TAG" ]; then
+            aws s3 cp ./dist/ "s3://${{ vars[env.S3_BUCKET_VAR] }}/v2@${TAG##*@}/" --recursive --cache-control "public, max-age=31536000, immutable"
+          fi
       - name: S3 Deploy @evervault/ui-components
         if: ${{ inputs.package-name == '@evervault/ui-components' }}
         env:
           S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
-        run: aws s3 cp ./dist/index.html s3://${{ vars[env.S3_BUCKET_VAR] }}/
+          TAG: ${{ inputs.tag_name }}
+        run: |-
+          aws s3 cp ./dist/index.html s3://${{ vars[env.S3_BUCKET_VAR] }}/
+          if [ -n "$TAG" ]; then
+            aws s3 cp ./dist/index.html "s3://${{ vars[env.S3_BUCKET_VAR] }}/@${TAG##*@}/index.html" --cache-control "public, max-age=31536000, immutable"
+          fi
       - name: S3 Deploy @evervault/inputs
         if: ${{ inputs.package-name == '@evervault/inputs' }}
         env:
           S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
-        run: aws s3 cp ./dist s3://${{ vars[env.S3_BUCKET_VAR] }}/v2/ --recursive
+          TAG: ${{ inputs.tag_name }}
+        run: |-
+          aws s3 cp ./dist s3://${{ vars[env.S3_BUCKET_VAR] }}/v2/ --recursive
+          if [ -n "$TAG" ]; then
+            aws s3 cp ./dist "s3://${{ vars[env.S3_BUCKET_VAR] }}/v2@${TAG##*@}/" --recursive --cache-control "public, max-age=31536000, immutable"
+          fi
       - name: S3 Deploy @evervault/3ds
         if: ${{ inputs.package-name == '@evervault/3ds' }}
         env:
           S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
-        run: aws s3 cp dist s3://${{ vars[env.S3_BUCKET_VAR] }}/ --recursive
+          TAG: ${{ inputs.tag_name }}
+        run: |-
+          aws s3 cp dist s3://${{ vars[env.S3_BUCKET_VAR] }}/ --recursive
+          if [ -n "$TAG" ]; then
+            aws s3 cp dist "s3://${{ vars[env.S3_BUCKET_VAR] }}/@${TAG##*@}/" --recursive --cache-control "public, max-age=31536000, immutable"
+          fi
       - name: Prepare cloudfront payload
         uses: actions/github-script@v9
         id: prepare-cloudfront-payload
