@@ -72,6 +72,8 @@ jobs:
       asset-subdomain: "js"
       s3-bucket-var-name: 'BROWSER_SDK_S3_BUCKET'
       cloudfront-distribution-id: 'BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID'
+      # Throwaway version to exercise the pinned upload path.
+      tag_name: '@evervault/browser@0.0.0-staging-${{ github.run_id }}-${{ github.run_attempt }}'
     secrets: inherit
   deploy-inputs:
     needs: [lint-and-test,e2e-test,build]
@@ -85,6 +87,8 @@ jobs:
       cloudfront-live-path-invalidation: "/index.html,/bundle.js,/v2/*"
       s3-bucket-var-name: 'INPUTS_S3_BUCKET'
       cloudfront-distribution-id: 'INPUTS_CLOUDFRONT_DISTRIBUTION_ID'
+      # Throwaway version to exercise the pinned upload path.
+      tag_name: '@evervault/inputs@0.0.0-staging-${{ github.run_id }}-${{ github.run_attempt }}'
     secrets: inherit
   deploy-ui-components:
     needs: [lint-and-test,e2e-test,build]
@@ -101,6 +105,8 @@ jobs:
       cloudfront-live-path-invalidation: "/index.html,/assets/*"
       asset-subdomain: "ui-components"
       cloudfront-distribution-id: 'UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID'
+      # Throwaway version to exercise the pinned upload path.
+      tag_name: '@evervault/ui-components@0.0.0-staging-${{ github.run_id }}-${{ github.run_attempt }}'
     secrets: inherit
   deploy-3ds:
     needs: [lint-and-test,e2e-test,build]
@@ -114,6 +120,8 @@ jobs:
       s3-bucket-var-name: 'TDS_AWS_S3_BUCKET'
       cloudfront-live-path-invalidation: "/index.html"
       cloudfront-distribution-id: 'TDS_AWS_CLOUDFRONT_DISTRIBUTION_ID'
+      # Throwaway version to exercise the pinned upload path.
+      tag_name: '@evervault/3ds@0.0.0-staging-${{ github.run_id }}-${{ github.run_attempt }}'
     secrets: inherit
   create-tags:
     name: Create Tags

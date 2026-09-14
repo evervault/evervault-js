@@ -18,6 +18,8 @@ if (process.env.VITE_TEST_COVERAGE === "true") {
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // Relative so one build works under both the live and pinned "@<version>" prefixes.
+  base: "./",
   server: {
     port: 4001,
   },

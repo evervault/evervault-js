@@ -208,6 +208,8 @@ jobs:
     if: ${{ always() && !failure() && !cancelled() }}
     environment: ${{ inputs.live-environment }}
     name: "Deploy ${{ inputs.package-name }} to ${{ inputs.stage }}"
+    env:
+      IMMUTABLE_CACHE_CONTROL: "public, max-age=31536000, immutable"
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -225,41 +227,68 @@ jobs:
           S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
           TAG: ${{ inputs.tag_name }}
         run: |-
+          BUCKET="${{ vars[env.S3_BUCKET_VAR] }}"
           cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
-          aws s3 cp ./dist/ s3://${{ vars[env.S3_BUCKET_VAR] }}/v2/ --recursive
+          # Pinned version goes first so a failure here leaves the live path untouched.
           if [ -n "$TAG" ]; then
-            aws s3 cp ./dist/ "s3://${{ vars[env.S3_BUCKET_VAR] }}/v2@${TAG##*@}/" --recursive --cache-control "public, max-age=31536000, immutable"
+            VERSION="${TAG##*@}"
+            if aws s3 ls "s3://$BUCKET/v2@$VERSION/" | grep -q .; then
+              echo "::error::v2@$VERSION has already been published. Pinned releases are immutable and must never be overwritten - cut a new patch version instead."
+              exit 1
+            fi
+            aws s3 cp ./dist/ "s3://$BUCKET/v2@$VERSION/" --recursive --cache-control "$IMMUTABLE_CACHE_CONTROL"
           fi
+          aws s3 cp ./dist/ "s3://$BUCKET/v2/" --recursive
       - name: S3 Deploy @evervault/ui-components
         if: ${{ inputs.package-name == '@evervault/ui-components' }}
         env:
           S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
           TAG: ${{ inputs.tag_name }}
         run: |-
-          aws s3 cp ./dist/index.html s3://${{ vars[env.S3_BUCKET_VAR] }}/
+          BUCKET="${{ vars[env.S3_BUCKET_VAR] }}"
           if [ -n "$TAG" ]; then
-            aws s3 cp ./dist/index.html "s3://${{ vars[env.S3_BUCKET_VAR] }}/@${TAG##*@}/index.html" --cache-control "public, max-age=31536000, immutable"
+            VERSION="${TAG##*@}"
+            if aws s3 ls "s3://$BUCKET/@$VERSION/" | grep -q .; then
+              echo "::error::@$VERSION has already been published. Pinned releases are immutable and must never be overwritten - cut a new patch version instead."
+              exit 1
+            fi
+            # index.html resolves its assets relatively, so they must sit alongside it.
+            aws s3 cp ./dist/index.html "s3://$BUCKET/@$VERSION/index.html" --cache-control "$IMMUTABLE_CACHE_CONTROL"
+            aws s3 cp ./dist/assets "s3://$BUCKET/@$VERSION/assets/" --recursive --cache-control "$IMMUTABLE_CACHE_CONTROL"
           fi
+          aws s3 cp ./dist/index.html "s3://$BUCKET/"
       - name: S3 Deploy @evervault/inputs
         if: ${{ inputs.package-name == '@evervault/inputs' }}
         env:
           S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
           TAG: ${{ inputs.tag_name }}
         run: |-
-          aws s3 cp ./dist s3://${{ vars[env.S3_BUCKET_VAR] }}/v2/ --recursive
+          BUCKET="${{ vars[env.S3_BUCKET_VAR] }}"
           if [ -n "$TAG" ]; then
-            aws s3 cp ./dist "s3://${{ vars[env.S3_BUCKET_VAR] }}/v2@${TAG##*@}/" --recursive --cache-control "public, max-age=31536000, immutable"
+            VERSION="${TAG##*@}"
+            if aws s3 ls "s3://$BUCKET/v2@$VERSION/" | grep -q .; then
+              echo "::error::v2@$VERSION has already been published. Pinned releases are immutable and must never be overwritten - cut a new patch version instead."
+              exit 1
+            fi
+            aws s3 cp ./dist "s3://$BUCKET/v2@$VERSION/" --recursive --cache-control "$IMMUTABLE_CACHE_CONTROL"
           fi
+          aws s3 cp ./dist "s3://$BUCKET/v2/" --recursive
       - name: S3 Deploy @evervault/3ds
         if: ${{ inputs.package-name == '@evervault/3ds' }}
         env:
           S3_BUCKET_VAR: ${{ inputs.s3-bucket-var-name }}
           TAG: ${{ inputs.tag_name }}
         run: |-
-          aws s3 cp dist s3://${{ vars[env.S3_BUCKET_VAR] }}/ --recursive
+          BUCKET="${{ vars[env.S3_BUCKET_VAR] }}"
           if [ -n "$TAG" ]; then
-            aws s3 cp dist "s3://${{ vars[env.S3_BUCKET_VAR] }}/@${TAG##*@}/" --recursive --cache-control "public, max-age=31536000, immutable"
+            VERSION="${TAG##*@}"
+            if aws s3 ls "s3://$BUCKET/@$VERSION/" | grep -q .; then
+              echo "::error::@$VERSION has already been published. Pinned releases are immutable and must never be overwritten - cut a new patch version instead."
+              exit 1
+            fi
+            aws s3 cp dist "s3://$BUCKET/@$VERSION/" --recursive --cache-control "$IMMUTABLE_CACHE_CONTROL"
           fi
+          aws s3 cp dist "s3://$BUCKET/" --recursive
       - name: Prepare cloudfront payload
         uses: actions/github-script@v9
         id: prepare-cloudfront-payload

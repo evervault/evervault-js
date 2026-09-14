@@ -16,8 +16,10 @@ export default defineConfig({
   plugins: [
     {
       enforce: "post",
-      ...sri({ publicPath: "/v2/", algorithms: ["sha512"] }),
+      // Must match `base`; sri strips this prefix to find each file in the bundle.
+      ...sri({ publicPath: "./", algorithms: ["sha512"] }),
     } as never,
   ],
-  base: "/v2/",
+  // Relative so one build works under both the live and pinned "@<version>" prefixes.
+  base: "./",
 });

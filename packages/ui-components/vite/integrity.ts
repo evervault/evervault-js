@@ -15,7 +15,7 @@ export function integrity() {
       function addIntegrityToNode(node: Element, src: string) {
         // only add integrity to local scripts
         if (src.startsWith("http")) return;
-        const cleaned = src.startsWith("/") ? src.slice(1) : src;
+        const cleaned = src.replace(/^\.?\//, "");
         const resource = ctx.bundle?.[cleaned] as { code?: string };
 
         if (!resource?.code) return;
