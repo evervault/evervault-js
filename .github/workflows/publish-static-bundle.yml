@@ -98,8 +98,7 @@ jobs:
       # ui-components expects its built resources to be uploaded to /assets. These assets are then referenced in the index.html.
       # To support the deployment preview, we upload the assets, but deploy the index.html to the preview path.
       #
-      # index.html resolves its assets relatively, so the preview needs its own copy under /preview/assets rather than
-      # sharing the live /assets directory. The live upload stays, because the live deploy only publishes index.html.
+      # index.html references its assets relatively, so the preview needs its own copy of them.
       - name: S3 Deploy UI-Components assets to preview
         if: ${{ inputs.package-name == '@evervault/ui-components' }}
         env:
@@ -226,6 +225,19 @@ jobs:
         with:
           name: ${{ needs.get-artifact-name.outputs.artifact-name }}
           path: dist
+      # list-objects-v2 exits non-zero only on a real error, so a failed check blocks the publish
+      # instead of reading as "not published yet".
+      - name: Define pinned release guard
+        run: |-
+          cat > "$RUNNER_TEMP/pinned.sh" <<'SH'
+          assert_unpublished() {
+            local found
+            found=$(aws s3api list-objects-v2 --bucket "$BUCKET" --prefix "$1/" --max-keys 1 --query 'Contents[0].Key' --output text) \
+              || { echo "::error::Could not check whether $1 is already published, so refusing to publish it."; exit 1; }
+            [ "$found" = "None" ] \
+              || { echo "::error::$1 has already been published. Pinned releases are immutable and must never be overwritten - cut a new patch version instead."; exit 1; }
+          }
+          SH
       - name: S3 Deploy @evervault/browser
         if: ${{ inputs.package-name == '@evervault/browser' }}
         env:
@@ -233,15 +245,13 @@ jobs:
           TAG: ${{ inputs.tag_name }}
         run: |-
           BUCKET="${{ vars[env.S3_BUCKET_VAR] }}"
+          . "$RUNNER_TEMP/pinned.sh"
           cp ./dist/evervault-browser.main.umd.cjs ./dist/index.js && cp ./dist/evervault-browser.main.js ./dist/index.es.js
           # Pinned version goes first so a failure here leaves the live path untouched.
           if [ -n "$TAG" ]; then
-            VERSION="${TAG##*@}"
-            if aws s3 ls "s3://$BUCKET/v2@$VERSION/" | grep -q .; then
-              echo "::error::v2@$VERSION has already been published. Pinned releases are immutable and must never be overwritten - cut a new patch version instead."
-              exit 1
-            fi
-            aws s3 cp ./dist/ "s3://$BUCKET/v2@$VERSION/" --recursive --cache-control "$IMMUTABLE_CACHE_CONTROL"
+            PINNED="v2@${TAG##*@}"
+            assert_unpublished "$PINNED"
+            aws s3 cp ./dist/ "s3://$BUCKET/$PINNED/" --recursive --cache-control "$IMMUTABLE_CACHE_CONTROL"
           fi
           aws s3 cp ./dist/ "s3://$BUCKET/v2/" --recursive
       - name: S3 Deploy @evervault/ui-components
@@ -251,15 +261,13 @@ jobs:
           TAG: ${{ inputs.tag_name }}
         run: |-
           BUCKET="${{ vars[env.S3_BUCKET_VAR] }}"
+          . "$RUNNER_TEMP/pinned.sh"
           if [ -n "$TAG" ]; then
-            VERSION="${TAG##*@}"
-            if aws s3 ls "s3://$BUCKET/@$VERSION/" | grep -q .; then
-              echo "::error::@$VERSION has already been published. Pinned releases are immutable and must never be overwritten - cut a new patch version instead."
-              exit 1
-            fi
-            # index.html resolves its assets relatively, so they must sit alongside it.
-            aws s3 cp ./dist/index.html "s3://$BUCKET/@$VERSION/index.html" --cache-control "$IMMUTABLE_CACHE_CONTROL"
-            aws s3 cp ./dist/assets "s3://$BUCKET/@$VERSION/assets/" --recursive --cache-control "$IMMUTABLE_CACHE_CONTROL"
+            PINNED="@${TAG##*@}"
+            assert_unpublished "$PINNED"
+            # Assets first: index.html references them relatively and must not be reachable before they exist.
+            aws s3 cp ./dist/assets "s3://$BUCKET/$PINNED/assets/" --recursive --cache-control "$IMMUTABLE_CACHE_CONTROL"
+            aws s3 cp ./dist/index.html "s3://$BUCKET/$PINNED/index.html" --cache-control "$IMMUTABLE_CACHE_CONTROL"
           fi
           aws s3 cp ./dist/index.html "s3://$BUCKET/"
       - name: S3 Deploy @evervault/inputs
@@ -269,13 +277,11 @@ jobs:
           TAG: ${{ inputs.tag_name }}
         run: |-
           BUCKET="${{ vars[env.S3_BUCKET_VAR] }}"
+          . "$RUNNER_TEMP/pinned.sh"
           if [ -n "$TAG" ]; then
-            VERSION="${TAG##*@}"
-            if aws s3 ls "s3://$BUCKET/v2@$VERSION/" | grep -q .; then
-              echo "::error::v2@$VERSION has already been published. Pinned releases are immutable and must never be overwritten - cut a new patch version instead."
-              exit 1
-            fi
-            aws s3 cp ./dist "s3://$BUCKET/v2@$VERSION/" --recursive --cache-control "$IMMUTABLE_CACHE_CONTROL"
+            PINNED="v2@${TAG##*@}"
+            assert_unpublished "$PINNED"
+            aws s3 cp ./dist "s3://$BUCKET/$PINNED/" --recursive --cache-control "$IMMUTABLE_CACHE_CONTROL"
           fi
           aws s3 cp ./dist "s3://$BUCKET/v2/" --recursive
       - name: S3 Deploy @evervault/3ds
@@ -285,13 +291,11 @@ jobs:
           TAG: ${{ inputs.tag_name }}
         run: |-
           BUCKET="${{ vars[env.S3_BUCKET_VAR] }}"
+          . "$RUNNER_TEMP/pinned.sh"
           if [ -n "$TAG" ]; then
-            VERSION="${TAG##*@}"
-            if aws s3 ls "s3://$BUCKET/@$VERSION/" | grep -q .; then
-              echo "::error::@$VERSION has already been published. Pinned releases are immutable and must never be overwritten - cut a new patch version instead."
-              exit 1
-            fi
-            aws s3 cp dist "s3://$BUCKET/@$VERSION/" --recursive --cache-control "$IMMUTABLE_CACHE_CONTROL"
+            PINNED="@${TAG##*@}"
+            assert_unpublished "$PINNED"
+            aws s3 cp dist "s3://$BUCKET/$PINNED/" --recursive --cache-control "$IMMUTABLE_CACHE_CONTROL"
           fi
           aws s3 cp dist "s3://$BUCKET/" --recursive
       - name: Prepare cloudfront payload
