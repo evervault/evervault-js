@@ -20,6 +20,6 @@ export default defineConfig({
       ...sri({ publicPath: "./", algorithms: ["sha512"] }),
     } as never,
   ],
-  // Relative so one build works under both the live and pinned "@<version>" prefixes.
+  // Relative so one build works under both the live and pinned version paths.
   base: "./",
 });
