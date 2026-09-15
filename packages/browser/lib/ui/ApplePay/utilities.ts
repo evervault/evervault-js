@@ -11,8 +11,6 @@ import {
   TransactionLineItem,
 } from "types";
 import {
-  DisbursementContactAddress,
-  DisbursementContactDetails,
   ValidateMerchantResponse,
   ApplePayCardNetwork,
   ApplePayPaymentRequest,
@@ -927,21 +925,6 @@ function buildDisbursementSession(
   );
 
   return request;
-}
-
-export function buildAddressObject(
-  billingContact: DisbursementContactDetails
-): DisbursementContactAddress {
-  return {
-    addressLines: billingContact.addressLines,
-    administrativeArea: billingContact.administrativeArea,
-    country: billingContact.country,
-    countryCode: billingContact.countryCode,
-    locality: billingContact.locality,
-    postalCode: billingContact.postalCode,
-    subAdministrativeArea: billingContact.subAdministrativeArea,
-    subLocality: billingContact.subLocality,
-  };
 }
 
 async function validateMerchant(
