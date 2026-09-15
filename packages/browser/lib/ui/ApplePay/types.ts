@@ -242,24 +242,6 @@ export interface ValidateMerchantResponse {
   };
 }
 
-export interface DisbursementContactDetails extends DisbursementContactAddress {
-  emailAddress?: string;
-  familyName?: string;
-  givenName?: string;
-  phoneNumber?: string;
-}
-
-export interface DisbursementContactAddress {
-  addressLines?: string[];
-  administrativeArea?: string;
-  country?: string;
-  countryCode?: string;
-  locality?: string;
-  postalCode?: string;
-  subAdministrativeArea?: string;
-  subLocality?: string;
-}
-
 export interface ApplePayToken {
   version: string;
   data: string;
