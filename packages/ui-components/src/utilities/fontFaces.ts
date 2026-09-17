@@ -16,7 +16,7 @@ const STYLE = /^(normal|italic|oblique)$/;
 const DISPLAY = /^(auto|block|swap|fallback|optional)$/;
 const CARD_FIELD_CHARACTERS = "0123456789";
 
-function optional(
+function matchOrNull(
   value: string | number | undefined,
   pattern: RegExp
 ): string | null {
@@ -72,13 +72,13 @@ export async function parseFontFace(
     src: `url("${face.src}") format("${format}")`,
   };
 
-  const weight = optional(face.fontWeight, WEIGHT);
+  const weight = matchOrNull(face.fontWeight, WEIGHT);
   if (weight) style.fontWeight = weight;
 
-  const fontStyle = optional(face.fontStyle, STYLE);
+  const fontStyle = matchOrNull(face.fontStyle, STYLE);
   if (fontStyle) style.fontStyle = fontStyle;
 
-  const display = optional(face.fontDisplay, DISPLAY);
+  const display = matchOrNull(face.fontDisplay, DISPLAY);
   if (display) style.fontDisplay = display;
 
   return style;
