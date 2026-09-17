@@ -11,7 +11,7 @@ jobs:
     uses: ./.github/workflows/lint.yml
     with:
       vite-evervault-js-url: "https://js.evervault.io/v2"
-      vite-keys-url: "https://api.evervault.io/teams"
+      vite-keys-url: "https://keys.evervault.io/"
       vite-api-url: "https://api.evervault.io"
     secrets: inherit
   e2e-test:
@@ -51,7 +51,7 @@ jobs:
         package-name: ${{ fromJson(needs.get-all-publishable-packages.outputs.publishable-packages) }}
     with:
       vite-evervault-js-url: "https://js.evervault.io/v2"
-      vite-keys-url: "https://api.evervault.io/teams"
+      vite-keys-url: "https://keys.evervault.io/"
       vite-api-url: "https://api.evervault.io"
       environment: "staging"
       package-name: ${{ matrix.package-name }}
