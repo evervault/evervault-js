@@ -24,7 +24,6 @@ export interface ThemeFontFace {
   fontWeight?: string | number;
   fontStyle?: string;
   fontDisplay?: string;
-  unicodeRange?: string;
 }
 
 export interface ThemeObject {

@@ -19,13 +19,11 @@ describe("parseFontFace", () => {
         fontWeight: 700,
         fontStyle: "italic",
         fontDisplay: "swap",
-        unicodeRange: "U+0000-00FF, U+0131",
       })
     ).toMatchObject({
       fontWeight: "700",
       fontStyle: "italic",
       fontDisplay: "swap",
-      unicodeRange: "U+0000-00FF, U+0131",
     });
   });
 

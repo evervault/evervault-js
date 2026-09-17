@@ -14,8 +14,6 @@ const FAMILY = /^[\w -]{1,64}$/;
 const WEIGHT = /^(normal|bold|[1-9]\d{0,2}( [1-9]\d{0,2})?)$/;
 const STYLE = /^(normal|italic|oblique)$/;
 const DISPLAY = /^(auto|block|swap|fallback|optional)$/;
-const UNICODE_RANGE =
-  /^u\+[0-9a-f?]{1,6}(-[0-9a-f]{1,6})?( *, *u\+[0-9a-f?]{1,6}(-[0-9a-f]{1,6})?)*$/i;
 
 function optional(
   value: string | number | undefined,
@@ -47,9 +45,6 @@ export function parseFontFace(face: ThemeFontFace): FontFaceStyle | null {
 
   const display = optional(face.fontDisplay, DISPLAY);
   if (display) style.fontDisplay = display;
-
-  const unicodeRange = optional(face.unicodeRange, UNICODE_RANGE);
-  if (unicodeRange) style.unicodeRange = unicodeRange;
 
   return style;
 }
