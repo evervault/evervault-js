@@ -60,7 +60,11 @@ export function parseFontFaces(faces: ThemeFontFace[]): FontFaceStyle[] {
 
     if (!parsed) {
       console.error(
-        `Invalid theme font face for "${face?.fontFamily ?? "unknown"}". Fonts must be base64 data URLs of type ${Object.keys(FORMATS).join(", ")}.`
+        `Invalid theme font face for "${
+          face?.fontFamily ?? "unknown"
+        }". Fonts must be base64 data URLs of type ${Object.keys(FORMATS).join(
+          ", "
+        )}.`
       );
       return acc;
     }
