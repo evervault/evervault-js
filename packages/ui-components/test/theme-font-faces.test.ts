@@ -105,6 +105,15 @@ describe("parseFontFace", () => {
     ).rejects.toThrow('no glyph for the digit "9"');
   });
 
+  it("rejects a truncated base64 payload", async () => {
+    await expect(
+      parseFontFace({
+        fontFamily: "Natural Sans",
+        src: "data:font/woff2;base64,AAAAA",
+      })
+    ).rejects.toThrow("src is not a valid base64 payload");
+  });
+
   it("rejects bytes that aren't a parseable font at all", async () => {
     await expect(
       parseFontFace({
@@ -132,6 +141,18 @@ describe("parseFontFaces", () => {
 
     expect(faces).toHaveLength(1);
     expect(console.error).toHaveBeenCalledOnce();
+  });
+
+  it("keeps other faces when one has a truncated base64 payload", async () => {
+    const faces = await parseFontFaces([
+      { fontFamily: "Natural Sans", src: "data:font/woff2;base64,AAAAA" },
+      { fontFamily: "Natural Sans", src: VALID_FONT },
+    ]);
+
+    expect(faces).toHaveLength(1);
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining("src is not a valid base64 payload")
+    );
   });
 
   it("logs and drops a font with spoofed digit glyphs", async () => {
