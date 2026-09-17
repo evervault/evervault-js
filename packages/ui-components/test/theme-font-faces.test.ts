@@ -83,7 +83,8 @@ describe("parseFontFace", () => {
   it("rejects font families that could break out of the rule", async () => {
     expect(
       await parseFontFace({
-        fontFamily: 'Natural"; } body { display: none } @font-face { font-family: "x',
+        fontFamily:
+          'Natural"; } body { display: none } @font-face { font-family: "x',
         src: VALID_FONT,
       })
     ).toBeNull();
