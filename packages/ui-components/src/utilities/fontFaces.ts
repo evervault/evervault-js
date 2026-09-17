@@ -26,46 +26,76 @@ function matchOrNull(
 }
 
 function decodeBase64(base64: string): Uint8Array {
-  return Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+  try {
+    return Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+  } catch {
+    throw new Error("src is not a valid base64 payload");
+  }
 }
 
-async function hasSafeDigitGlyphs(bytes: Uint8Array): Promise<boolean> {
+async function assertSafeDigitGlyphs(base64: string): Promise<void> {
   const { create: createFont } = await import("fontkit");
+
+  const bytes = decodeBase64(base64);
 
   let font;
   try {
     font = createFont(bytes as unknown as Buffer);
   } catch {
-    return false;
+    throw new Error("font could not be parsed");
   }
 
-  if (!("hasGlyphForCodePoint" in font)) return false;
+  if (!("hasGlyphForCodePoint" in font)) {
+    throw new Error("font collections are not supported");
+  }
 
-  const seenGlyphIds = new Set<number>();
+  const seenGlyphIds = new Map<number, string>();
 
   for (const character of CARD_FIELD_CHARACTERS) {
     const codePoint = character.codePointAt(0) as number;
-    if (!font.hasGlyphForCodePoint(codePoint)) return false;
+    if (!font.hasGlyphForCodePoint(codePoint)) {
+      throw new Error(`font has no glyph for the digit "${character}"`);
+    }
 
     const glyphId = font.glyphForCodePoint(codePoint).id;
-    if (glyphId === 0) return false;
-    if (seenGlyphIds.has(glyphId)) return false;
-    seenGlyphIds.add(glyphId);
-  }
+    if (glyphId === 0) {
+      throw new Error(
+        `the digit "${character}" maps to the missing-glyph placeholder`
+      );
+    }
 
-  return true;
+    const seen = seenGlyphIds.get(glyphId);
+    if (seen !== undefined) {
+      throw new Error(
+        `the digits "${seen}" and "${character}" are drawn by the same glyph`
+      );
+    }
+    seenGlyphIds.set(glyphId, character);
+  }
 }
 
 export async function parseFontFace(
   face: ThemeFontFace
-): Promise<FontFaceStyle | null> {
+): Promise<FontFaceStyle> {
   const src = SRC.exec(face.src);
-  if (!src) return null;
+  if (!src) throw new Error("src must be a base64 data URL");
 
   const format = FORMATS[src[1]];
-  if (!format) return null;
-  if (!FAMILY.test(face.fontFamily)) return null;
-  if (!(await hasSafeDigitGlyphs(decodeBase64(src[2])))) return null;
+  if (!format) {
+    throw new Error(
+      `src has an unsupported type "${src[1]}", expected ${Object.keys(
+        FORMATS
+      ).join(", ")}`
+    );
+  }
+
+  if (!FAMILY.test(face.fontFamily)) {
+    throw new Error(
+      "fontFamily must be 1-64 letters, digits, spaces, hyphens or underscores"
+    );
+  }
+
+  await assertSafeDigitGlyphs(src[2]);
 
   const style: FontFaceStyle = {
     fontFamily: face.fontFamily,
@@ -87,20 +117,26 @@ export async function parseFontFace(
 export async function parseFontFaces(
   faces: ThemeFontFace[]
 ): Promise<FontFaceStyle[]> {
-  const parsed = await Promise.all(faces.map((face) => parseFontFace(face)));
+  const results = await Promise.allSettled(
+    faces.map((face) => parseFontFace(face))
+  );
 
-  return parsed.reduce<FontFaceStyle[]>((acc, style, index) => {
-    if (!style) {
+  return results.reduce<FontFaceStyle[]>((acc, result, index) => {
+    if (result.status === "rejected") {
+      const reason =
+        result.reason instanceof Error
+          ? result.reason.message
+          : String(result.reason);
+
       console.error(
         `Invalid theme font face for "${
           faces[index]?.fontFamily ?? "unknown"
-        }". Fonts must be base64 data URLs of type ${Object.keys(FORMATS).join(
-          ", "
-        )}, and must have distinct, non-empty glyphs for digits 0-9.`
+        }": ${reason}`
       );
+
       return acc;
     }
 
-    return [...acc, style];
+    return [...acc, result.value];
   }, []);
 }

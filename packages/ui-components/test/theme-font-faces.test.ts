@@ -54,64 +54,64 @@ describe("parseFontFace", () => {
   });
 
   it("rejects remote sources", async () => {
-    expect(
-      await parseFontFace({
+    await expect(
+      parseFontFace({
         fontFamily: "Natural Sans",
         src: "https://www.natural.com/fonts/natural-sans.woff2",
       })
-    ).toBeNull();
+    ).rejects.toThrow("src must be a base64 data URL");
   });
 
   it("rejects non-font mime types", async () => {
-    expect(
-      await parseFontFace({
+    await expect(
+      parseFontFace({
         fontFamily: "Natural Sans",
         src: "data:text/html;base64,PHNjcmlwdD4=",
       })
-    ).toBeNull();
+    ).rejects.toThrow('src has an unsupported type "text/html"');
   });
 
   it("rejects payloads that could break out of the rule", async () => {
-    expect(
-      await parseFontFace({
+    await expect(
+      parseFontFace({
         fontFamily: "Natural Sans",
         src: 'data:font/woff2;base64,abc") format("woff2"); } body { display: none } @font-face { src: url("',
       })
-    ).toBeNull();
+    ).rejects.toThrow("src must be a base64 data URL");
   });
 
   it("rejects font families that could break out of the rule", async () => {
-    expect(
-      await parseFontFace({
+    await expect(
+      parseFontFace({
         fontFamily:
           'Natural"; } body { display: none } @font-face { font-family: "x',
         src: VALID_FONT,
       })
-    ).toBeNull();
+    ).rejects.toThrow("fontFamily must be 1-64 letters");
   });
 
   it("rejects a font that maps two digits to the same glyph", async () => {
-    expect(
-      await parseFontFace({ fontFamily: "Natural Sans", src: SPOOFED_FONT })
-    ).toBeNull();
+    await expect(
+      parseFontFace({ fontFamily: "Natural Sans", src: SPOOFED_FONT })
+    ).rejects.toThrow("are drawn by the same glyph");
   });
 
   it("rejects a font that's missing a digit glyph", async () => {
-    expect(
-      await parseFontFace({
+    await expect(
+      parseFontFace({
         fontFamily: "Natural Sans",
         src: MISSING_DIGIT_FONT,
       })
-    ).toBeNull();
+    ).rejects.toThrow('no glyph for the digit "9"');
   });
 
   it("rejects bytes that aren't a parseable font at all", async () => {
-    expect(
-      await parseFontFace({
+    await expect(
+      parseFontFace({
         fontFamily: "Natural Sans",
         src: "data:font/woff2;base64,d09GMgABAAAAAA==",
       })
-    ).toBeNull();
+    ).rejects.toThrow("font could not be parsed");
   });
 });
 
@@ -140,6 +140,8 @@ describe("parseFontFaces", () => {
     ]);
 
     expect(faces).toHaveLength(0);
-    expect(console.error).toHaveBeenCalledOnce();
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining("are drawn by the same glyph")
+    );
   });
 });
