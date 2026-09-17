@@ -14,22 +14,32 @@ export function useTheme() {
   useEffect(() => {
     if (!theme) return;
 
-    const fontFaces = parseFontFaces(theme.fontFaces ?? []);
+    let cancelled = false;
 
-    const opts = {
-      "@import": (theme.fonts ?? []).map((url) => `url(${url})`) as JssStyle[],
-      ...(fontFaces.length > 0 ? { "@font-face": fontFaces } : {}),
-      "@global": theme.styles,
+    parseFontFaces(theme.fontFaces ?? []).then((fontFaces) => {
+      if (cancelled) return;
+
+      const opts = {
+        "@import": (theme.fonts ?? []).map(
+          (url) => `url(${url})`
+        ) as JssStyle[],
+        ...(fontFaces.length > 0 ? { "@font-face": fontFaces } : {}),
+        "@global": theme.styles,
+      };
+
+      if (styles.current) {
+        styles.current.detach();
+      }
+
+      styles.current = jss.createStyleSheet(opts);
+      styles.current.attach();
+
+      resize();
+    });
+
+    return () => {
+      cancelled = true;
     };
-
-    if (styles.current) {
-      styles.current.detach();
-    }
-
-    styles.current = jss.createStyleSheet(opts);
-    styles.current.attach();
-
-    resize();
   }, [theme]);
 
   return setTheme;
