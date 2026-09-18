@@ -186,6 +186,39 @@ export interface CardOptions {
   };
 }
 
+// The `config` the card host sends in EV_INIT and EV_UPDATE, as the renderer
+// reads it. Every SDK version ever shipped loads today's renderer, so a key can
+// be widened here but never removed.
+export interface CardFrameConfig {
+  icons?: boolean | Partial<CardIcons>;
+  autoFocus?: boolean;
+  hiddenFields?: string; // deprecated, sent comma-joined
+  fields?: CardField[];
+  acceptedBrands?: CardBrandName[];
+  customBrands?: CustomBrand[];
+  translations?: Partial<CardTranslations>;
+  autoProgress?: boolean;
+  redactCVC?: boolean;
+  allow3DigitAmexCVC?: boolean;
+  defaultValues?: {
+    name?: string;
+  };
+  autoComplete?: {
+    name?: boolean;
+    number?: boolean;
+    expiry?: boolean;
+    cvc?: boolean;
+  };
+  validation?: {
+    name?: {
+      regex?: RegExp;
+    };
+    cvc?: {
+      optional?: boolean;
+    };
+  };
+}
+
 export interface FormOptions {
   colorScheme?: ColorScheme;
   theme?: ThemeDefinition;
