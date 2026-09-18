@@ -20,6 +20,7 @@ import {
   RecurringTransactionDetails,
 } from "types";
 import { createBrand } from "shared/createBrand";
+import { registerEvCard } from "./ui/elements/evCard";
 
 export type * from "types";
 export type * from "./config";
@@ -339,3 +340,5 @@ export default class EvervaultClient {
     };
   }
 }
+
+registerEvCard((teamId, appId) => new EvervaultClient(teamId, appId));

@@ -105,6 +105,34 @@ export interface CardPayload {
 
 export type CardField = "name" | "number" | "expiry" | "cvc";
 
+export type CardSpecNodeType =
+  | "row"
+  | "name"
+  | "number"
+  | "expiry"
+  | "expiryMonth"
+  | "expiryYear"
+  | "cvc"
+  | "field";
+
+export interface CardSpecNode {
+  type: CardSpecNodeType;
+  id: string;
+  props: Record<string, string>;
+  children?: CardSpecNode[];
+}
+
+export type CardSpecPatchOp =
+  | {
+      op: "insert";
+      parentId: string | null;
+      index: number;
+      node: CardSpecNode;
+    }
+  | { op: "remove"; id: string }
+  | { op: "update"; id: string; props: Record<string, string> }
+  | { op: "move"; id: string; parentId: string | null; index: number };
+
 export interface FieldEvent {
   field: CardField;
   data: CardPayload;
@@ -161,6 +189,40 @@ export interface CardOptions {
   autoFocus?: boolean;
   hiddenFields?: ("number" | "expiry" | "cvc")[]; // deprecated
   fields?: CardField[];
+  acceptedBrands?: CardBrandName[];
+  customBrands?: CustomBrand[];
+  translations?: Partial<CardTranslations>;
+  autoProgress?: boolean;
+  redactCVC?: boolean;
+  allow3DigitAmexCVC?: boolean;
+  defaultValues?: {
+    name?: string;
+  };
+  autoComplete?: {
+    name?: boolean;
+    number?: boolean;
+    expiry?: boolean;
+    cvc?: boolean;
+  };
+  validation?: {
+    name?: {
+      regex?: RegExp;
+    };
+    cvc?: {
+      optional?: boolean;
+    };
+  };
+}
+
+// The `config` the card host sends in EV_INIT and EV_UPDATE, as the renderer
+// reads it. Every SDK version ever shipped loads today's renderer, so a key can
+// be widened here but never removed.
+export interface CardFrameConfig {
+  icons?: boolean | Partial<CardIcons>;
+  autoFocus?: boolean;
+  hiddenFields?: string; // deprecated, sent comma-joined
+  // A field list from `ui.card()`, or the node tree a declared card renders.
+  fields?: CardField[] | CardSpecNode[];
   acceptedBrands?: CardBrandName[];
   customBrands?: CustomBrand[];
   translations?: Partial<CardTranslations>;
@@ -246,6 +308,7 @@ export interface CardFrameClientMessages extends EvervaultFrameClientMessages {
 export interface CardFrameHostMessages extends EvervaultFrameHostMessages {
   EV_VALIDATE: undefined;
   EV_UPDATE_NAME: string;
+  EV_SPEC_PATCH: { ops: CardSpecPatchOp[] };
 }
 
 export interface PinOptions {

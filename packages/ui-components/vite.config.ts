@@ -1,5 +1,6 @@
 import react from "@vitejs/plugin-react";
-import { defineConfig, UserConfig } from "vite";
+import type { UserConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import { integrity } from "./vite/integrity";
 import istanbul from "vite-plugin-istanbul";
 
@@ -22,4 +23,7 @@ export default defineConfig({
     port: 4001,
   },
   plugins,
+  test: {
+    setupFiles: ["./test/setup.ts"],
+  },
 });

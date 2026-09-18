@@ -1,107 +1,30 @@
-import EventManager from "./eventManager";
-import { EvervaultFrame } from "./evervaultFrame";
+import { CardFrame } from "./cardFrame";
+import type { CardEvents } from "./cardFrame";
 import type EvervaultClient from "../main";
 import type {
-  CardPayload,
   CardOptions,
-  SwipedCard,
-  CardFrameClientMessages,
-  CardFrameHostMessages,
+  CardFrameConfig,
   SelectorType,
-  FieldEvent,
+  ThemeDefinition,
 } from "types";
 
-interface CardEvents {
-  ready: () => void;
-  error: () => void;
-  change: (payload: CardPayload) => void;
-  complete: (payload: CardPayload) => void;
-  swipe: (payload: SwipedCard) => void;
-  validate: (payload: CardPayload) => void;
-  focus: (event: FieldEvent) => void;
-  blur: (event: FieldEvent) => void;
-  keydown: (event: FieldEvent) => void;
-  keyup: (event: FieldEvent) => void;
-}
-
+// The `ui.card()` front-end: translates `CardOptions` for the card frame.
 export default class Card {
-  values: CardPayload;
   #options: CardOptions;
-  #frame: EvervaultFrame<CardFrameClientMessages, CardFrameHostMessages>;
-
-  #events = new EventManager<CardEvents>();
+  #frame: CardFrame;
 
   constructor(client: EvervaultClient, options?: CardOptions) {
     this.#options = options ?? {};
-    this.#frame = new EvervaultFrame(client, "Card", {
+    this.#frame = new CardFrame(client, {
       colorScheme: this.#options.colorScheme,
     });
-
-    // update the values when the frame sends a change event and dispatch
-    // a change event.
-    this.#frame.on("EV_CHANGE", (payload) => {
-      this.values = payload;
-      this.#events.dispatch("change", payload);
-    });
-
-    this.#frame.on("EV_COMPLETE", (payload) => {
-      this.#events.dispatch("complete", payload);
-    });
-
-    this.#frame.on("EV_SWIPE", (payload) => {
-      this.#events.dispatch("swipe", payload);
-    });
-
-    this.#frame.on("EV_FRAME_READY", () => {
-      this.#events.dispatch("ready");
-    });
-
-    this.#frame.on("EV_FOCUS", (field) => {
-      this.#events.dispatch("focus", {
-        field,
-        data: this.values,
-      });
-    });
-
-    this.#frame.on("EV_BLUR", (field) => {
-      this.#events.dispatch("blur", {
-        field,
-        data: this.values,
-      });
-    });
-
-    this.#frame.on("EV_KEYDOWN", (field) => {
-      this.#events.dispatch("keydown", {
-        field,
-        data: this.values,
-      });
-    });
-
-    this.#frame.on("EV_KEYUP", (field) => {
-      this.#events.dispatch("keyup", {
-        field,
-        data: this.values,
-      });
-    });
-
-    this.values = {
-      card: {
-        name: null,
-        brand: null,
-        localBrands: [],
-        bin: null,
-        lastFour: null,
-        number: null,
-        expiry: { month: null, year: null },
-        cvc: null,
-      },
-      isValid: false,
-      isComplete: false,
-      errors: null,
-    };
   }
 
-  get config() {
+  get values() {
+    return this.#frame.values;
+  }
+
+  get config(): { theme?: ThemeDefinition; config: CardFrameConfig } {
     return {
       theme: this.#options.theme,
       config: {
@@ -123,13 +46,7 @@ export default class Card {
   }
 
   mount(selector: SelectorType) {
-    this.#frame.mount(selector, {
-      ...this.config,
-      onError: () => {
-        this.#events.dispatch("error");
-      },
-    });
-
+    this.#frame.mount(selector, this.config);
     return this;
   }
 
@@ -152,15 +69,11 @@ export default class Card {
   }
 
   on<T extends keyof CardEvents>(event: T, callback: CardEvents[T]) {
-    return this.#events.on(event, callback);
+    return this.#frame.on(event, callback);
   }
 
   validate() {
-    this.#frame.send("EV_VALIDATE");
-    this.#frame.once("EV_VALIDATED", (payload) => {
-      this.values = payload;
-      this.#events.dispatch("validate", payload);
-    });
+    this.#frame.validate();
     return this;
   }
 }
