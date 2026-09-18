@@ -1,5 +1,6 @@
 import { clean } from "themes";
 import { CardHost } from "../cardHost";
+import { serialise } from "./spec";
 import type EvervaultClient from "../../main";
 import type { CardSpecNode } from "types";
 
@@ -27,6 +28,13 @@ export class EvCard extends Base {
   #client?: EvervaultClient;
   #card?: CardHost;
   #container?: HTMLDivElement;
+  #spec: CardSpecNode[] = [];
+  #observer?: MutationObserver;
+  #pending = false;
+
+  get spec() {
+    return this.#spec;
+  }
 
   connectedCallback() {
     // A card that is already live is left alone. After a DOM move the client
@@ -51,6 +59,7 @@ export class EvCard extends Base {
     }
 
     this.#client = evervault;
+    this.#spec = this.#read();
 
     const card = new CardHost(evervault);
 
@@ -67,10 +76,42 @@ export class EvCard extends Base {
 
     card.mount(this.#mountPoint(), {
       theme: clean(),
-      config: { fields: DEFAULT_SPEC },
+      config: { fields: this.#spec },
     });
 
     this.#card = card;
+    this.#observe();
+  }
+
+  // Declaring nothing renders the default card; declaring anything replaces it.
+  #read() {
+    const declared = serialise(this);
+    return declared.length > 0 ? declared : DEFAULT_SPEC;
+  }
+
+  #observe() {
+    this.#observer = new MutationObserver(() => this.#queueSync());
+    this.#observer.observe(this, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+    });
+  }
+
+  // One read per tick, however many children a render inserts.
+  #queueSync() {
+    if (this.#pending) return;
+    this.#pending = true;
+
+    queueMicrotask(() => {
+      this.#pending = false;
+      this.#sync();
+    });
+  }
+
+  #sync() {
+    this.#spec = this.#read();
+    this.#card?.setSpec(this.#spec);
   }
 
   #declaredClient() {
@@ -97,9 +138,13 @@ export class EvCard extends Base {
   }
 
   disconnectedCallback() {
+    this.#observer?.disconnect();
+    this.#observer = undefined;
+    this.#pending = false;
     // Destroyed, not unmounted: an unmounted card keeps its window listeners.
     this.#card?.destroy();
     this.#card = undefined;
+    this.#spec = [];
   }
 }
 
