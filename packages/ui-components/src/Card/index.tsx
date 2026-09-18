@@ -76,6 +76,8 @@ export function Card({ config }: { config: CardConfig }) {
 
   // Everything past here reads the tree: the host's `fields` become one at the
   // boundary, whichever shape they arrived in.
+  const declaredTree = isSpec(config.fields);
+
   const seed = useMemo(
     () => (isSpec(config.fields) ? config.fields : legacyNodes(config)),
     [config]
@@ -553,6 +555,9 @@ export function Card({ config }: { config: CardConfig }) {
       ev-component="card"
       ev-valid={hasErrors ? "false" : "true"}
       ev-fields={fields}
+      // A field list says nothing about layout, so the card lays it out; a
+      // declared tree is laid out exactly as written.
+      ev-layout={declaredTree ? undefined : "auto"}
     >
       {nodes.map(renderNode)}
     </fieldset>

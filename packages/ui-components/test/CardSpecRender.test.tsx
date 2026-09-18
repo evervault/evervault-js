@@ -160,6 +160,24 @@ describe("Card spec rendering", () => {
     ).toBe("inline-start");
   });
 
+  it("lays out a card built from a field list itself", () => {
+    const { container } = card({ fields: ["number", "expiry", "cvc"] });
+
+    expect(container.querySelector("fieldset")?.getAttribute("ev-layout")).toBe(
+      "auto"
+    );
+  });
+
+  it("lays out a declared tree only as written", () => {
+    const { container } = card({
+      fields: [node("number", "a"), node("expiry", "b"), node("cvc", "c")],
+    });
+
+    expect(container.querySelector("fieldset")?.hasAttribute("ev-layout")).toBe(
+      false
+    );
+  });
+
   it("lists the rendered fields on the fieldset", () => {
     const { container } = card({
       fields: [row("r", [node("cvc", "a"), node("number", "b")])],
