@@ -18,10 +18,16 @@ export function integrity() {
       outDir = resolve(config.root, config.build.outDir);
     },
 
+    buildStart() {
+      chunks = [];
+    },
+
     generateBundle(_options: unknown, bundle: Rollup.OutputBundle) {
-      chunks = Object.values(bundle)
-        .filter((output) => output.type === "chunk")
-        .map((output) => output.fileName);
+      chunks.push(
+        ...Object.values(bundle)
+          .filter((output) => output.type === "chunk")
+          .map((output) => output.fileName)
+      );
     },
 
     closeBundle() {
