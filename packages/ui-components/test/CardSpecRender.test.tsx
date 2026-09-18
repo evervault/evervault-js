@@ -122,6 +122,44 @@ describe("Card spec rendering", () => {
     ).toEqual(["expiry", "cvc"]);
   });
 
+  it("renders the declared label, placeholder and tooltip", () => {
+    const { container } = card({
+      fields: [
+        node("number", "a", {
+          label: "Card number",
+          placeholder: "4242 4242 4242 4242",
+          tooltip: "The long number on the front",
+        }),
+      ],
+    });
+
+    expect(container.querySelector("label")?.textContent).toBe("Card number");
+    expect(
+      container.querySelector<HTMLInputElement>("#number")?.placeholder
+    ).toBe("4242 4242 4242 4242");
+    expect(container.querySelector("[ev-tooltip]")?.textContent).toBe(
+      "The long number on the front"
+    );
+  });
+
+  it("renders no tooltip when none is declared", () => {
+    const { container } = card({ fields: [node("number", "a")] });
+
+    expect(container.querySelector("[ev-tooltip]")).toBeNull();
+  });
+
+  it("renders the declared icon position on the number field", () => {
+    const { container } = card({
+      fields: [node("number", "a", { "icon-position": "inline-start" })],
+    });
+
+    expect(
+      container
+        .querySelector("[ev-name=number]")
+        ?.getAttribute("ev-icon-position")
+    ).toBe("inline-start");
+  });
+
   it("lists the rendered fields on the fieldset", () => {
     const { container } = card({
       fields: [row("r", [node("cvc", "a"), node("number", "b")])],
