@@ -18,8 +18,17 @@ export interface UIComponentMessageDetail {
   payload: unknown;
 }
 
+export interface ThemeFontFace {
+  fontFamily: string;
+  src: string;
+  fontWeight?: string | number;
+  fontStyle?: string;
+  fontDisplay?: string;
+}
+
 export interface ThemeObject {
   fonts?: string[];
+  fontFaces?: ThemeFontFace[];
   styles?: ThemeStyles;
 }
 

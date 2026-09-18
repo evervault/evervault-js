@@ -20,6 +20,7 @@
     "@evervault/react": "workspace:*",
     "@types/applepayjs": "catalog:",
     "@types/googlepay": "catalog:",
+    "fontkit": "^2.0.4",
     "imask": "catalog:",
     "jsonpath-rfc9535": "catalog:",
     "jss": "catalog:",
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.2",
+    "@types/fontkit": "^2.0.9",
     "@types/jsdom": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
