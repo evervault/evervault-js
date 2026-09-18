@@ -1,5 +1,6 @@
 import { clean } from "themes";
 import { CardFrame } from "../cardFrame";
+import { serialise } from "./spec";
 import type EvervaultClient from "../../main";
 import type { CardSpecNode } from "types";
 
@@ -21,6 +22,13 @@ export class EvCard extends HTMLElement {
   #client?: EvervaultClient;
   #card?: CardFrame;
   #container?: HTMLDivElement;
+  #spec: CardSpecNode[] = [];
+  #observer?: MutationObserver;
+  #pending = false;
+
+  get spec() {
+    return this.#spec;
+  }
 
   connectedCallback() {
     if (this.hasAttribute("team-id") && this.hasAttribute("app-id")) {
@@ -49,6 +57,7 @@ export class EvCard extends HTMLElement {
     }
 
     this.#client = evervault;
+    this.#spec = this.#read();
 
     const card = new CardFrame(evervault);
 
@@ -66,10 +75,42 @@ export class EvCard extends HTMLElement {
 
     card.mount(this.#mountPoint(), {
       theme: clean(),
-      config: { fields: DEFAULT_SPEC },
+      config: { fields: this.#spec },
     });
 
     this.#card = card;
+    this.#observe();
+  }
+
+  // Declaring nothing renders the default card; declaring anything replaces it.
+  #read() {
+    const declared = serialise(this);
+    return declared.length > 0 ? declared : DEFAULT_SPEC;
+  }
+
+  #observe() {
+    this.#observer = new MutationObserver(() => this.#queueSync());
+    this.#observer.observe(this, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+    });
+  }
+
+  // One read per tick, however many children a render inserts.
+  #queueSync() {
+    if (this.#pending) return;
+    this.#pending = true;
+
+    queueMicrotask(() => {
+      this.#pending = false;
+      this.#sync();
+    });
+  }
+
+  #sync() {
+    this.#spec = this.#read();
+    this.#card?.setSpec(this.#spec);
   }
 
   // The frame lives in a closed shadow root with no slot, so the declared
@@ -87,9 +128,13 @@ export class EvCard extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this.#observer?.disconnect();
+    this.#observer = undefined;
+    this.#pending = false;
     // Destroyed, not unmounted: an unmounted card keeps its window listeners.
     this.#card?.destroy();
     this.#card = undefined;
+    this.#spec = [];
   }
 }
 
