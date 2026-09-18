@@ -247,6 +247,33 @@ describe("<ev-card>", () => {
   });
 });
 
+describe("<ev-card> change event", () => {
+  it("dispatches a change event carrying the card payload", () => {
+    const element = append();
+    const listener = vi.fn();
+    element.addEventListener("change", listener);
+
+    element.mountCard(evervault());
+    frame().handlers.change({ isComplete: true });
+
+    expect(listener).toHaveBeenCalledOnce();
+    expect(listener.mock.calls[0][0].detail).toEqual({ isComplete: true });
+  });
+
+  it("bubbles the change event out of the element", () => {
+    const element = append();
+    const listener = vi.fn();
+    document.body.addEventListener("change", listener);
+
+    element.mountCard(evervault());
+    frame().handlers.change({ isComplete: false });
+
+    expect(listener).toHaveBeenCalledOnce();
+
+    document.body.removeEventListener("change", listener);
+  });
+});
+
 describe("ui.mount", () => {
   it("mounts every ev-card on the page with the client", () => {
     append();
