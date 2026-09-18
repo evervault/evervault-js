@@ -15,6 +15,7 @@ interface CardExpiryProps {
   readOnly?: boolean;
   autoComplete?: boolean;
   autoProgress?: boolean;
+  onComplete?: () => void;
 }
 
 const EXPIRY_BLOCKS = {
@@ -44,6 +45,7 @@ export function CardExpiry({
   readOnly,
   autoComplete,
   autoProgress,
+  onComplete,
   onFocus,
   onKeyUp,
   onKeyDown,
@@ -59,9 +61,9 @@ export function CardExpiry({
     const activeField = document.activeElement as HTMLElement;
     const isFocused = activeField === ref.current;
     if (autoProgress && isFocused && isComplete) {
-      document.getElementById("cvc")?.focus();
+      onComplete?.();
     }
-  }, [value, autoProgress, mask]);
+  }, [value, autoProgress, mask, onComplete]);
 
   useEffect(() => {
     setValue(value);

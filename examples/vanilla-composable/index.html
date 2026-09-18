@@ -3,11 +3,40 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="%VITE_EVERVAULT_JS_URL%"></script>
+    <script src="%VITE_EVERVAULT_JS_URL%" async onload="init()"></script>
+    <script>
+      function init() {
+        // The script is async, so onload can fire before <body> is parsed.
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", init, { once: true });
+          return;
+        }
+
+        const evervault = new Evervault(
+          "%VITE_EV_TEAM_UUID%",
+          "%VITE_EV_APP_UUID%"
+        );
+        evervault.ui.mount();
+
+        const card = document.querySelector("ev-card");
+
+        card.addEventListener("change", (event) => {
+          console.log("change", event.detail);
+        });
+
+        console.log("spec", card.spec);
+      }
+    </script>
   </head>
 
   <body>
     <h1>Collect Card Details</h1>
-    <ev-card team-id="team_b3d577c03286" app-id="app_5099949746d4"></ev-card>
+    <ev-card auto-progress>
+      <ev-card-number placeholder="Card number"></ev-card-number>
+      <ev-row>
+        <ev-card-expiry></ev-card-expiry>
+        <ev-card-cvc></ev-card-cvc>
+      </ev-row>
+    </ev-card>
   </body>
 </html>

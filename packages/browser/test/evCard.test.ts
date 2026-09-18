@@ -12,6 +12,7 @@ import type { CardSpecNode, SelectorType } from "types";
 
 const { frames, FakeCardFrame } = vi.hoisted(() => {
   class FakeCardFrame {
+    options: unknown;
     handlers: Record<string, (payload: unknown) => void> = {};
     mount = vi.fn<
       (selector: SelectorType, configuration: unknown) => FakeCardFrame
@@ -24,7 +25,8 @@ const { frames, FakeCardFrame } = vi.hoisted(() => {
       return () => {};
     });
 
-    constructor() {
+    constructor(...args: [unknown, unknown?]) {
+      this.options = args[1];
       frames.push(this);
     }
   }
@@ -36,7 +38,11 @@ const { frames, FakeCardFrame } = vi.hoisted(() => {
 
 vi.mock("../lib/ui/cardFrame", () => ({ CardFrame: FakeCardFrame }));
 
-vi.mock("themes", () => ({ clean: () => ({ styles: { theme: "clean" } }) }));
+vi.mock("themes", () => ({
+  clean: () => ({ styles: { theme: "clean" } }),
+  material: () => ({ styles: { theme: "material" } }),
+  minimal: () => ({ styles: { theme: "minimal" } }),
+}));
 
 vi.mock("../lib/ui/elements/spec", async (importOriginal) => {
   const actual = await importOriginal<
@@ -365,6 +371,142 @@ describe("<ev-card> declared children", () => {
     expect(serialise).not.toHaveBeenCalled();
     expect(frame().setSpec).not.toHaveBeenCalled();
     expect(element.spec).toEqual([]);
+  });
+});
+
+describe("<ev-card> attributes", () => {
+  it("mounts with auto-progress on when the attribute is declared", () => {
+    const element = append({ "auto-progress": "" });
+    element.mountCard(evervault());
+
+    expect(mountedWith().config?.autoProgress).toBe(true);
+  });
+
+  it("mounts with auto-progress off when the attribute denies it", () => {
+    const element = append({ "auto-progress": "false" });
+    element.mountCard(evervault());
+
+    expect(mountedWith().config?.autoProgress).toBe(false);
+  });
+
+  it("leaves auto-progress unset when the attribute is absent", () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    expect(mountedWith().config?.autoProgress).toBeUndefined();
+  });
+
+  it("pushes auto-progress to the card when the attribute changes", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.setAttribute("auto-progress", "");
+    await flush();
+
+    expect(frame().update).toHaveBeenCalledWith(
+      expect.objectContaining({ config: { autoProgress: true } })
+    );
+  });
+
+  it("takes auto-progress back when the attribute is removed", async () => {
+    const element = append({ "auto-progress": "" });
+    element.mountCard(evervault());
+
+    element.removeAttribute("auto-progress");
+    await flush();
+
+    expect(frame().update).toHaveBeenCalledWith(
+      expect.objectContaining({ config: { autoProgress: undefined } })
+    );
+  });
+
+  it("pushes no configuration when only a child changes", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.append(document.createElement("ev-card-cvc"));
+    await flush();
+
+    expect(frame().update).not.toHaveBeenCalled();
+  });
+
+  it("mounts with the theme named by the attribute", () => {
+    const element = append({ theme: "material" });
+    element.mountCard(evervault());
+
+    expect(mountedWith().theme).toEqual({ styles: { theme: "material" } });
+  });
+
+  it("falls back to the clean theme for a name it does not know", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const element = append({ theme: "brutalist" });
+    element.mountCard(evervault());
+
+    expect(mountedWith().theme).toEqual({ styles: { theme: "clean" } });
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('"brutalist"'));
+
+    warn.mockRestore();
+  });
+
+  it("pushes the new theme when the attribute changes", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.setAttribute("theme", "minimal");
+    await flush();
+
+    expect(frame().update).toHaveBeenCalledWith(
+      expect.objectContaining({ theme: { styles: { theme: "minimal" } } })
+    );
+  });
+
+  it("mounts with a theme set as a property", () => {
+    const theme = { styles: { theme: "mine" } };
+    const element = append({ theme: "material" });
+    element.theme = theme;
+    element.mountCard(evervault());
+
+    expect(mountedWith().theme).toBe(theme);
+    expect(element.theme).toBe(theme);
+  });
+
+  it("reads the attribute back through the property when none is set", () => {
+    const element = append({ theme: "material" });
+
+    expect(element.theme).toBe("material");
+  });
+
+  it("pushes a theme set as a property on a mounted card", () => {
+    const theme = { styles: { theme: "mine" } };
+    const element = append();
+    element.mountCard(evervault());
+
+    element.theme = theme;
+
+    expect(frame().update).toHaveBeenCalledWith({ theme });
+  });
+
+  it("takes a theme property set before the element upgraded", () => {
+    const theme = { styles: { theme: "mine" } };
+    const element = document.createElement(EV_CARD_TAG_NAME) as EvCard;
+    Object.defineProperty(element, "theme", {
+      value: theme,
+      writable: true,
+      configurable: true,
+    });
+
+    document.body.append(element);
+    element.mountCard(evervault());
+
+    expect(Object.prototype.hasOwnProperty.call(element, "theme")).toBe(false);
+    expect(mountedWith().theme).toBe(theme);
+  });
+
+  it("mounts the frame with the colour scheme from the attribute", () => {
+    const element = append({ "color-scheme": "dark" });
+    element.mountCard(evervault());
+
+    expect(frame().options).toEqual({ colorScheme: "dark" });
   });
 });
 
