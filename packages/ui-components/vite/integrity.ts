@@ -1,26 +1,39 @@
 import { createHash } from "crypto";
+import { readFileSync, writeFileSync } from "fs";
+import { resolve } from "path";
 import jsdom from "jsdom";
-import { IndexHtmlTransformContext } from "vite";
+import { ResolvedConfig } from "vite";
 
 // custom vite plugin to add integrity attribute to scripts and stylesheets
 export function integrity() {
+  let outDir = "dist";
+
   return {
     name: "vite-plugin-integrity",
     enforce: "post" as const,
     apply: "build" as const,
 
-    transformIndexHtml(html: string, ctx: IndexHtmlTransformContext) {
-      const parsed = new jsdom.JSDOM(html);
+    configResolved(config: ResolvedConfig) {
+      outDir = resolve(config.root, config.build.outDir);
+    },
+
+    closeBundle() {
+      const indexPath = resolve(outDir, "index.html");
+      const parsed = new jsdom.JSDOM(readFileSync(indexPath, "utf-8"));
 
       function addIntegrityToNode(node: Element, src: string) {
         // only add integrity to local scripts
         if (src.startsWith("http")) return;
         const cleaned = src.startsWith("/") ? src.slice(1) : src;
-        const resource = ctx.bundle?.[cleaned] as { code?: string };
 
-        if (!resource?.code) return;
-        const hash = generateIntegrity(resource.code);
-        node.setAttribute("integrity", hash);
+        let code;
+        try {
+          code = readFileSync(resolve(outDir, cleaned));
+        } catch {
+          return;
+        }
+
+        node.setAttribute("integrity", generateIntegrity(code));
       }
 
       const scripts = parsed.window.document.querySelectorAll("script");
@@ -37,12 +50,12 @@ export function integrity() {
         if (href) addIntegrityToNode(link, href);
       }
 
-      return parsed.serialize();
+      writeFileSync(indexPath, parsed.serialize());
     },
   };
 }
 
-function generateIntegrity(code: string) {
+function generateIntegrity(code: Buffer) {
   const hash = createHash("sha512");
   hash.update(code);
   return `sha512-${hash.digest("base64")}`;
