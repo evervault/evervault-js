@@ -122,6 +122,17 @@ export interface CardSpecNode {
   children?: CardSpecNode[];
 }
 
+export type CardSpecPatchOp =
+  | {
+      op: "insert";
+      parentId: string | null;
+      index: number;
+      node: CardSpecNode;
+    }
+  | { op: "remove"; id: string }
+  | { op: "update"; id: string; props: Record<string, string> }
+  | { op: "move"; id: string; parentId: string | null; index: number };
+
 export interface FieldEvent {
   field: CardField;
   data: CardPayload;
@@ -296,6 +307,7 @@ export interface CardFrameClientMessages extends EvervaultFrameClientMessages {
 export interface CardFrameHostMessages extends EvervaultFrameHostMessages {
   EV_VALIDATE: undefined;
   EV_UPDATE_NAME: string;
+  EV_SPEC_PATCH: { ops: CardSpecPatchOp[] };
 }
 
 export interface PinOptions {
