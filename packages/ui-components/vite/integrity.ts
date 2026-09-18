@@ -2,11 +2,12 @@ import { createHash } from "crypto";
 import { readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
 import jsdom from "jsdom";
-import { ResolvedConfig } from "vite";
+import { ResolvedConfig, Rollup } from "vite";
 
 // custom vite plugin to add integrity attribute to scripts and stylesheets
 export function integrity() {
   let outDir = "dist";
+  let chunks: string[] = [];
 
   return {
     name: "vite-plugin-integrity",
@@ -15,6 +16,12 @@ export function integrity() {
 
     configResolved(config: ResolvedConfig) {
       outDir = resolve(config.root, config.build.outDir);
+    },
+
+    generateBundle(_options: unknown, bundle: Rollup.OutputBundle) {
+      chunks = Object.values(bundle)
+        .filter((output) => output.type === "chunk")
+        .map((output) => output.fileName);
     },
 
     closeBundle() {
@@ -48,6 +55,30 @@ export function integrity() {
       for (const link of links) {
         const href = link.getAttribute("href");
         if (href) addIntegrityToNode(link, href);
+      }
+
+      const referenced = new Set(
+        [...scripts, ...links].map((node) =>
+          (node.getAttribute("src") ?? node.getAttribute("href"))?.replace(
+            /^\//,
+            ""
+          )
+        )
+      );
+
+      const dynamic: Record<string, string> = {};
+      for (const fileName of chunks) {
+        if (referenced.has(fileName)) continue;
+        dynamic[`/${fileName}`] = generateIntegrity(
+          readFileSync(resolve(outDir, fileName))
+        );
+      }
+
+      if (Object.keys(dynamic).length > 0) {
+        const map = parsed.window.document.createElement("script");
+        map.setAttribute("type", "importmap");
+        map.textContent = JSON.stringify({ integrity: dynamic });
+        parsed.window.document.head.prepend(map);
       }
 
       writeFileSync(indexPath, parsed.serialize());
