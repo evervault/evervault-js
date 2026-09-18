@@ -8,8 +8,10 @@ import type {
   SwipedCard,
   CardFrameClientMessages,
   CardFrameHostMessages,
+  CardFrameConfig,
   SelectorType,
   FieldEvent,
+  ThemeDefinition,
 } from "types";
 
 interface CardEvents {
@@ -111,7 +113,7 @@ export default class Card {
     };
   }
 
-  get config() {
+  get config(): { theme?: ThemeDefinition; config: CardFrameConfig } {
     return {
       theme: this.#options.theme,
       config: {
