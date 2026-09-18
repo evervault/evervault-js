@@ -9,7 +9,9 @@ const FIELD_ORDER: CardField[] = ["name", "number", "expiry", "cvc"];
 export function isSpec(
   fields: CardFrameConfig["fields"]
 ): fields is CardSpecNode[] {
-  return Array.isArray(fields) && typeof fields[0] === "object";
+  return (
+    Array.isArray(fields) && fields.every((field) => typeof field === "object")
+  );
 }
 
 export function legacyNodes(

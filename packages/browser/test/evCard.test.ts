@@ -7,6 +7,7 @@ import {
 import UIComponents from "../lib/ui";
 import type EvervaultClient from "../lib/main";
 import type { CardFrameConfiguration } from "../lib/ui/cardFrame";
+import { serialise } from "../lib/ui/elements/spec";
 import type { CardSpecNode, SelectorType } from "types";
 
 const { frames, FakeCardFrame } = vi.hoisted(() => {
@@ -36,6 +37,14 @@ const { frames, FakeCardFrame } = vi.hoisted(() => {
 vi.mock("../lib/ui/cardFrame", () => ({ CardFrame: FakeCardFrame }));
 
 vi.mock("themes", () => ({ clean: () => ({ styles: { theme: "clean" } }) }));
+
+vi.mock("../lib/ui/elements/spec", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../lib/ui/elements/spec")
+  >();
+
+  return { ...actual, serialise: vi.fn(actual.serialise) };
+});
 
 const client = { config: {} };
 const createClient = vi.fn(() => client as unknown as EvervaultClient);
@@ -78,6 +87,15 @@ function mountedWith() {
 
 function types(nodes: CardSpecNode[] | undefined) {
   return nodes?.map((node) => node.type);
+}
+
+function flush() {
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+function lastSpec() {
+  const calls = frame().setSpec.mock.calls as unknown as [CardSpecNode[]][];
+  return calls[calls.length - 1]?.[0];
 }
 
 describe("<ev-card>", () => {
@@ -244,6 +262,109 @@ describe("<ev-card>", () => {
     );
 
     error.mockRestore();
+  });
+});
+
+describe("<ev-card> declared children", () => {
+  it("mounts the card with the declared children as its tree", () => {
+    const element = append();
+    element.innerHTML =
+      "<ev-card-cvc></ev-card-cvc><ev-card-number></ev-card-number>";
+    element.mountCard(evervault());
+
+    expect(types(mountedWith().config?.fields as CardSpecNode[])).toEqual([
+      "cvc",
+      "number",
+    ]);
+  });
+
+  it("serialises the declared children when mounted", () => {
+    const element = append();
+    element.innerHTML = "<ev-card-number placeholder='Card'></ev-card-number>";
+    element.mountCard(evervault());
+
+    expect(element.spec).toEqual([
+      {
+        type: "number",
+        id: expect.any(String),
+        props: { placeholder: "Card" },
+        children: undefined,
+      },
+    ]);
+  });
+
+  it("sends the tree again when a child is declared", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.append(document.createElement("ev-card-cvc"));
+    await flush();
+
+    expect(types(lastSpec())).toEqual(["cvc"]);
+    expect(types(element.spec)).toEqual(["cvc"]);
+  });
+
+  it("sends the tree again when an attribute changes", async () => {
+    const element = append();
+    element.innerHTML = "<ev-card-number></ev-card-number>";
+    element.mountCard(evervault());
+
+    element.children[0].setAttribute("placeholder", "Card number");
+    await flush();
+
+    expect(lastSpec()[0].props).toEqual({ placeholder: "Card number" });
+  });
+
+  it("keeps the id of a child across reads", async () => {
+    const element = append();
+    element.innerHTML = "<ev-card-number></ev-card-number>";
+    element.mountCard(evervault());
+    const [before] = element.spec;
+
+    element.children[0].setAttribute("placeholder", "Card number");
+    await flush();
+
+    expect(lastSpec()[0].id).toBe(before.id);
+  });
+
+  it("sends the tree once for children declared in the same tick", async () => {
+    const element = append();
+    element.mountCard(evervault());
+    vi.mocked(serialise).mockClear();
+
+    element.append(document.createElement("ev-card-number"));
+    element.append(document.createElement("ev-card-expiry"));
+    element.append(document.createElement("ev-card-cvc"));
+    await flush();
+
+    expect(serialise).toHaveBeenCalledOnce();
+    expect(frame().setSpec).toHaveBeenCalledOnce();
+    expect(types(lastSpec())).toEqual(["number", "expiry", "cvc"]);
+  });
+
+  it("returns to the default fields when every child is removed", async () => {
+    const element = append();
+    element.innerHTML = "<ev-card-number></ev-card-number>";
+    element.mountCard(evervault());
+
+    element.innerHTML = "";
+    await flush();
+
+    expect(types(lastSpec())).toEqual(["number", "expiry", "cvc"]);
+  });
+
+  it("stops reading its children once removed from the DOM", async () => {
+    const element = append();
+    element.mountCard(evervault());
+    element.remove();
+    vi.mocked(serialise).mockClear();
+
+    element.append(document.createElement("ev-card-number"));
+    await flush();
+
+    expect(serialise).not.toHaveBeenCalled();
+    expect(frame().setSpec).not.toHaveBeenCalled();
+    expect(element.spec).toEqual([]);
   });
 });
 
