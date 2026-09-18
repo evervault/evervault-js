@@ -52,6 +52,18 @@ export class EvCard extends HTMLElement {
 
     const card = new CardHost(evervault);
 
+    // The payload `ui.card()` hands to `on("change")`, as a DOM event on the
+    // customer's own element.
+    card.on("change", (payload) => {
+      this.dispatchEvent(
+        new CustomEvent("change", {
+          detail: payload,
+          bubbles: true,
+          composed: true,
+        })
+      );
+    });
+
     card.mount(this.#mountPoint(), {
       theme: clean(),
       config: { fields: DEFAULT_SPEC },
