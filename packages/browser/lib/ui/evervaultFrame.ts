@@ -51,6 +51,7 @@ export class EvervaultFrame<
   #lifecycle: "unmounted" | "hidden" | "visible" = "unmounted";
   #preloadWidth: string | null = null;
   #preloadResizeObserver: ResizeObserver | null = null;
+  #unsubscribes: (() => void)[] = [];
 
   // The constructor accepts an EV client and component name and generates the URL
   // for the iframe. The component param is used to determine which component to render
@@ -175,19 +176,21 @@ export class EvervaultFrame<
 
     // The frame will trigger an EV_FRAME_READY event when it is ready to
     // receive messages from the parent window.
-    this.on("EV_FRAME_HANDSHAKE", () => {
-      this.#setupListeners();
-      // Once the frame is ready, we send an EV_INIT event to the frame with
-      // the theme and configurgation for the frame.
-      this.send("EV_INIT", {
-        theme: this.#theme?.compile(),
-        config: opts.config,
-      });
-    });
+    this.#unsubscribes.push(
+      this.on("EV_FRAME_HANDSHAKE", () => {
+        this.#setupListeners();
+        // Once the frame is ready, we send an EV_INIT event to the frame with
+        // the theme and configurgation for the frame.
+        this.send("EV_INIT", {
+          theme: this.#theme?.compile(),
+          config: opts.config,
+        });
+      }),
 
-    this.on("EV_FRAME_READY", () => {
-      this.#ready = true;
-    });
+      this.on("EV_FRAME_READY", () => {
+        this.#ready = true;
+      })
+    );
 
     this.iframe.onerror = opts.onError ?? null;
 
@@ -205,6 +208,21 @@ export class EvervaultFrame<
 
     const overlay = document.getElementById(`ev-modal-${this.#id}`);
     overlay?.remove();
+
+    return this;
+  }
+
+  // Kept separate from unmount() because components such as threeDSecure
+  // unmount mid-lifecycle and must stay subscribed afterwards.
+  destroy(): this {
+    this.unmount();
+
+    for (const release of this.#unsubscribes) release();
+
+    this.#unsubscribes = [];
+    this.#theme?.destroy();
+    this.#theme = null;
+    this.#ready = false;
 
     return this;
   }
@@ -317,14 +335,16 @@ export class EvervaultFrame<
   }
 
   #setupListeners() {
-    this.on("EV_RESIZE", ({ height, width, minWidth, minHeight }) => {
-      if (!this.iframe) return;
-      if (!this.#size) {
-        this.iframe.style.height = `${height}px`;
-        if (width) this.iframe.style.width = `${width}px`;
-      }
-      if (minWidth) this.iframe.style.minWidth = `${minWidth}px`;
-      if (minHeight) this.iframe.style.minHeight = `${minHeight}px`;
-    });
+    this.#unsubscribes.push(
+      this.on("EV_RESIZE", ({ height, width, minWidth, minHeight }) => {
+        if (!this.iframe) return;
+        if (!this.#size) {
+          this.iframe.style.height = `${height}px`;
+          if (width) this.iframe.style.width = `${width}px`;
+        }
+        if (minWidth) this.iframe.style.minWidth = `${minWidth}px`;
+        if (minHeight) this.iframe.style.minHeight = `${minHeight}px`;
+      })
+    );
   }
 }
