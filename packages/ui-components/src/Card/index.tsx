@@ -5,6 +5,7 @@ import {
 } from "@evervault/card-validator";
 import { useEvervault } from "@evervault/react";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import type { ReactElement } from "react";
 import { useForm, useTranslations } from "shared";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
@@ -17,6 +18,8 @@ import { CardHolder } from "./CardHolder";
 import { CardNumber } from "./CardNumber";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useCardReader } from "./useCardReader";
+import { isSpec, legacyNodes } from "./legacyFields";
+import { declaredFields, fieldFor, useSpec } from "./useSpec";
 import {
   changePayload,
   collectIcons,
@@ -26,9 +29,29 @@ import {
 import type { CardForm, CardConfig } from "./types";
 import type {
   CardField,
+  CardSpecNode,
   CardFrameClientMessages,
   CardFrameHostMessages,
 } from "types";
+
+// Nodes re-declaring a field claimed earlier in the tree: the first wins.
+function duplicateNodes(nodes: CardSpecNode[]): CardSpecNode[] {
+  const rendered = new Set<CardField>();
+
+  const walk = (node: CardSpecNode): CardSpecNode[] => {
+    if (node.type === "row") return (node.children ?? []).flatMap(walk);
+
+    const field = fieldFor(node.type);
+
+    if (!field) return [];
+    if (rendered.has(field)) return [node];
+
+    rendered.add(field);
+    return [];
+  };
+
+  return nodes.flatMap(walk);
+}
 
 export function Card({ config }: { config: CardConfig }) {
   const cvc = useRef<HTMLInputElement | null>(null);
@@ -42,16 +65,30 @@ export function Card({ config }: { config: CardConfig }) {
 
   const { acceptedBrands, customBrands } = config;
 
-  const fields = useMemo(() => {
-    let result = config.fields ?? ["number", "expiry", "cvc"];
-    const hidden = String(config?.hiddenFields ?? "").split(",");
+  // Everything past here reads the tree: the host's `fields` become one at the
+  // boundary, whichever shape they arrived in.
+  const seed = useMemo(
+    () => (isSpec(config.fields) ? config.fields : legacyNodes(config)),
+    [config]
+  );
 
-    if (hidden.length > 0) {
-      result = result.filter((field) => !hidden?.includes(field));
-    }
+  const nodes = useSpec(on, seed);
+  const fields = useMemo(() => declaredFields(nodes), [nodes]);
+  const duplicates = useMemo(() => duplicateNodes(nodes), [nodes]);
 
-    return result;
-  }, [config]);
+  // In an effect, not the render body, so a re-render does not warn again.
+  const warned = useRef("");
+
+  useEffect(() => {
+    const key = duplicates.map((node) => node.id).join(",");
+
+    if (key === warned.current) return;
+    warned.current = key;
+
+    duplicates.forEach((node) => {
+      console.warn(`<ev-card> ignored a duplicate "${node.type}" field.`);
+    });
+  }, [duplicates]);
 
   const form = useForm<CardForm>({
     initialValues: {
@@ -222,14 +259,35 @@ export function Card({ config }: { config: CardConfig }) {
     send("EV_KEYUP", field);
   };
 
-  return (
-    <fieldset
-      ev-component="card"
-      ev-valid={hasErrors ? "false" : "true"}
-      ev-fields={fields}
-    >
-      {fields.includes("name") && (
+  const renderNode = (node: CardSpecNode): ReactElement | null => {
+    if (node.type === "row") {
+      const children = (node.children ?? [])
+        .map(renderNode)
+        .filter((child) => child !== null);
+
+      // An empty wrapper would still take its own track in the card grid.
+      if (children.length === 0) return null;
+
+      return (
+        <div key={node.id} ev-row="">
+          {children}
+        </div>
+      );
+    }
+
+    const field = fieldFor(node.type);
+
+    if (!field) {
+      console.warn(`<ev-card> cannot render a "${node.type}" field yet.`);
+      return null;
+    }
+
+    if (duplicates.includes(node)) return null;
+
+    if (field === "name") {
+      return (
         <Field
+          key={node.id}
           name="name"
           hasValue={form.values.name.length > 0}
           error={form.errors?.name && t(`name.errors.${form.errors.name}`)}
@@ -253,10 +311,13 @@ export function Card({ config }: { config: CardConfig }) {
             <Error>{t(`name.errors.${form.errors.name}`)}</Error>
           )}
         </Field>
-      )}
+      );
+    }
 
-      {fields.includes("number") && (
+    if (field === "number") {
+      return (
         <Field
+          key={node.id}
           name="number"
           hasValue={form.values.number.length > 0}
           error={
@@ -294,10 +355,13 @@ export function Card({ config }: { config: CardConfig }) {
             <Error>{t(`number.errors.${form.errors.number}`)}</Error>
           )}
         </Field>
-      )}
+      );
+    }
 
-      {fields.includes("expiry") && (
+    if (field === "expiry") {
+      return (
         <Field
+          key={node.id}
           name="expiry"
           hasValue={form.values.expiry.length > 0}
           error={
@@ -323,37 +387,48 @@ export function Card({ config }: { config: CardConfig }) {
             <Error>{t(`expiry.errors.${form.errors.expiry}`)}</Error>
           )}
         </Field>
-      )}
+      );
+    }
 
-      {fields.includes("cvc") && (
-        <Field
-          name="cvc"
-          hasValue={form.values.cvc.length > 0}
-          error={form.errors?.cvc && t(`cvc.errors.${form.errors.cvc}`)}
-        >
-          <label htmlFor="cvc">{t("cvc.label")}</label>
-          <CardCVC
-            ref={cvc}
-            value={form.values.cvc}
-            disabled={!config}
-            cardNumber={form.values.number}
-            readOnly={cardReaderListening}
-            placeholder={t("cvc.placeholder")}
-            onFocus={handleFocus("cvc")}
-            onKeyUp={handleKeyUp("cvc")}
-            onKeyDown={handleKeyDown("cvc")}
-            autoComplete={config.autoComplete?.cvc ?? true}
-            redact={config.redactCVC}
-            customBrands={customBrands}
-            {...form.register("cvc", {
-              onBlur: handleBlur("cvc"),
-            })}
-          />
-          {form.errors?.cvc && (
-            <Error>{t(`cvc.errors.${form.errors.cvc}`)}</Error>
-          )}
-        </Field>
-      )}
+    return (
+      <Field
+        key={node.id}
+        name="cvc"
+        hasValue={form.values.cvc.length > 0}
+        error={form.errors?.cvc && t(`cvc.errors.${form.errors.cvc}`)}
+      >
+        <label htmlFor="cvc">{t("cvc.label")}</label>
+        <CardCVC
+          ref={cvc}
+          value={form.values.cvc}
+          disabled={!config}
+          cardNumber={form.values.number}
+          readOnly={cardReaderListening}
+          placeholder={t("cvc.placeholder")}
+          onFocus={handleFocus("cvc")}
+          onKeyUp={handleKeyUp("cvc")}
+          onKeyDown={handleKeyDown("cvc")}
+          autoComplete={config.autoComplete?.cvc ?? true}
+          redact={config.redactCVC}
+          customBrands={customBrands}
+          {...form.register("cvc", {
+            onBlur: handleBlur("cvc"),
+          })}
+        />
+        {form.errors?.cvc && (
+          <Error>{t(`cvc.errors.${form.errors.cvc}`)}</Error>
+        )}
+      </Field>
+    );
+  };
+
+  return (
+    <fieldset
+      ev-component="card"
+      ev-valid={hasErrors ? "false" : "true"}
+      ev-fields={fields}
+    >
+      {nodes.map(renderNode)}
     </fieldset>
   );
 }
