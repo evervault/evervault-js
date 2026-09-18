@@ -1,5 +1,6 @@
 import EventManager from "./eventManager";
 import { EvervaultFrame } from "./evervaultFrame";
+import { diff } from "./specDiff";
 import type EvervaultClient from "../main";
 import type {
   CardEvents,
@@ -7,6 +8,7 @@ import type {
   CardFrameClientMessages,
   CardFrameConfig,
   CardFrameHostMessages,
+  CardSpecNode,
   ColorScheme,
   SelectorType,
   ThemeDefinition,
@@ -22,12 +24,30 @@ export interface CardHostConfiguration {
   config?: CardFrameConfig;
 }
 
-// The card machinery shared by every card front-end.
+export function isSpec(
+  fields: CardFrameConfig["fields"]
+): fields is CardSpecNode[] {
+  return (
+    Array.isArray(fields) && fields.every((field) => typeof field === "object")
+  );
+}
+
+// The card machinery shared by every card front-end: one frame, its
+// subscriptions and their release, the values mirror, validation, and the
+// tree the frame holds when the card is declared as one.
 export class CardHost {
   #values: CardPayload;
   #frame: EvervaultFrame<CardFrameClientMessages, CardFrameHostMessages>;
   #events = new EventManager<CardEvents>();
   #pendingValidate?: () => void;
+  #ready = false;
+  #configuration: CardHostConfiguration = {};
+  #updatedBeforeReady = false;
+  // The tree the front-end wants, the one the frame was mounted with, and the
+  // one the frame holds now. Null until a tree is given: `ui.card()` never does.
+  #spec: CardSpecNode[] | null = null;
+  #mounted: CardSpecNode[] = [];
+  #framed: CardSpecNode[] = [];
 
   constructor(client: EvervaultClient, options: CardHostOptions = {}) {
     this.#frame = new EvervaultFrame(client, "Card", {
@@ -49,6 +69,17 @@ export class CardHost {
     });
 
     this.#frame.on("EV_FRAME_READY", () => {
+      this.#ready = true;
+      // A fresh ready means a frame built from the mount configuration.
+      this.#framed = this.#mounted;
+
+      if (this.#updatedBeforeReady) {
+        this.#updatedBeforeReady = false;
+        this.update({});
+      } else {
+        this.#syncSpec();
+      }
+
       this.#events.dispatch("ready");
     });
 
@@ -96,6 +127,16 @@ export class CardHost {
     // A validate issued while unmounted went nowhere; its reply never comes.
     this.#pendingValidate?.();
     this.#pendingValidate = undefined;
+
+    this.#configuration = configuration;
+
+    const fields = configuration.config?.fields;
+
+    if (isSpec(fields)) {
+      this.#spec = fields;
+      this.#mounted = fields;
+    }
+
     this.#frame.mount(selector, {
       ...configuration,
       onError: () => {
@@ -129,11 +170,49 @@ export class CardHost {
     return this;
   }
 
+  // Merges into the configuration the frame was mounted with. A declared card
+  // always sends its current tree, so the frame never falls back to the fields
+  // `ui.card()` would pick.
   update(configuration: CardHostConfiguration) {
     if (!this.live()) return this;
 
-    this.#frame.update(configuration);
+    const fields = configuration.config?.fields;
+
+    if (isSpec(fields)) this.#spec = fields;
+
+    this.#configuration = {
+      theme: configuration.theme ?? this.#configuration.theme,
+      config: {
+        ...this.#configuration.config,
+        ...configuration.config,
+        ...(this.#spec ? { fields: this.#spec } : {}),
+      },
+    };
+
+    // The frame drops a configuration it is not ready for; only the theme is
+    // kept, so the rest is sent again once it is.
+    if (!this.#ready) this.#updatedBeforeReady = true;
+    else if (this.#spec) this.#framed = this.#spec;
+
+    this.#frame.update(this.#configuration);
+
     return this;
+  }
+
+  // The tree the frame should hold; only the difference is sent.
+  setSpec(spec: CardSpecNode[]) {
+    this.#spec = spec;
+    this.#syncSpec();
+    return this;
+  }
+
+  #syncSpec() {
+    if (!this.#ready || !this.#spec) return;
+
+    const ops = diff(this.#framed, this.#spec);
+    this.#framed = this.#spec;
+
+    if (ops.length > 0) this.#frame.send("EV_SPEC_PATCH", { ops });
   }
 
   send<K extends keyof CardFrameHostMessages>(
@@ -158,6 +237,7 @@ export class CardHost {
 
   destroy() {
     this.#pendingValidate = undefined;
+    this.#ready = false;
     this.#frame.destroy();
     // Nothing can dispatch to them again; let the callbacks go.
     this.#events = new EventManager<CardEvents>();
