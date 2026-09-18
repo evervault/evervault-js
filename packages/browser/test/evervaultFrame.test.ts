@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { EvervaultFrame } from "../lib/ui/evervaultFrame";
 import type EvervaultClient from "../lib/main";
 import type { ThemeUtilities } from "types";
+import { countMessageListeners } from "./helpers/messageListeners";
 
 const mockClient = {
   config: {
@@ -15,28 +16,6 @@ afterEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
-
-// Live "message" handlers on the window, counted by identity: once() removes
-// its own handler and then again through its unsubscribe, so a balance of add
-// and remove calls would read a fired once() as -1.
-function countMessageListeners() {
-  const added = vi.spyOn(window, "addEventListener");
-  const removed = vi.spyOn(window, "removeEventListener");
-
-  return () => {
-    const live = new Set(
-      added.mock.calls
-        .filter(([event]) => event === "message")
-        .map(([, handler]) => handler)
-    );
-
-    for (const [event, handler] of removed.mock.calls) {
-      if (event === "message") live.delete(handler);
-    }
-
-    return live.size;
-  };
-}
 
 describe("EvervaultFrame message listeners", () => {
   it("does not throw when a postMessage event has no data (on)", () => {
