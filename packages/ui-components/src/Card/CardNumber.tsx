@@ -19,6 +19,7 @@ interface CardNumberProps {
   readOnly?: boolean;
   autoComplete?: boolean;
   autoProgress?: boolean;
+  onComplete?: () => void;
   form: UseFormReturn<CardForm>;
   customBrands?: CustomBrand[];
 }
@@ -84,6 +85,7 @@ export function CardNumber({
   readOnly,
   autoComplete,
   autoProgress,
+  onComplete,
   onFocus,
   onKeyUp,
   onKeyDown,
@@ -144,9 +146,9 @@ export function CardNumber({
     const activeField = document.activeElement as HTMLElement;
     const isFocused = activeField === ref.current;
     if (autoProgress && isFocused && isComplete) {
-      document.getElementById("expiry")?.focus();
+      onComplete?.();
     }
-  }, [value, mask, autoProgress]);
+  }, [value, mask, autoProgress, onComplete]);
 
   useEffect(() => {
     setValue(value);
