@@ -1,44 +1,4 @@
-import type {
-  AgentToolsFrameConfig,
-  CustomBrand,
-  ThemeObject,
-  CardField,
-  CardTranslations,
-  CardBrandName,
-  CardIcons,
-} from "types";
-
-export interface CardConfig {
-  icons?: boolean | Partial<CardIcons>;
-  theme?: ThemeObject;
-  autoFocus?: boolean;
-  hiddenFields?: ("number" | "expiry" | "cvc")[];
-  fields?: CardField[];
-  acceptedBrands?: CardBrandName[];
-  customBrands?: CustomBrand[];
-  translations?: Partial<CardTranslations>;
-  autoProgress?: boolean;
-  redactCVC?: boolean;
-  allow3DigitAmexCVC?: boolean;
-  defaultValues?: {
-    name?: string;
-  };
-  autoComplete?: {
-    name?: boolean;
-    number?: boolean;
-    expiry?: boolean;
-    cvc?: boolean;
-  };
-  validation?: {
-    name?: {
-      regex?: RegExp;
-    };
-    cvc?: {
-      optional?: boolean;
-    };
-  };
-  agentTools?: AgentToolsFrameConfig;
-}
+export type { CardFrameConfig as CardConfig } from "types";
 
 export interface CardForm {
   name: string;
