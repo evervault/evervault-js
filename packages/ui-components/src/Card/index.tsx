@@ -9,6 +9,7 @@ import type { ReactElement } from "react";
 import { useForm, useTranslations } from "shared";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
+import { Tooltip } from "../Common/Tooltip";
 import { resize } from "../utilities/resize";
 import { useMessaging } from "../utilities/useMessaging";
 import { BrandIcon } from "./BrandIcon";
@@ -20,6 +21,7 @@ import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useAgentTools } from "./useAgentTools";
 import { useCardReader } from "./useCardReader";
 import { isSpec, legacyNodes } from "./legacyFields";
+import { declaredProps, fieldProps } from "./props";
 import { declaredFields, useSpec } from "./useSpec";
 import {
   changePayload,
@@ -79,6 +81,56 @@ export function Card({ config }: { config: CardConfig }) {
   const nodes = useSpec(on, seed);
   const fields = useMemo(() => declaredFields(nodes), [nodes]);
   const skipped = useMemo(() => skippedNodes(nodes), [nodes]);
+  const declared = useMemo(() => declaredProps(nodes), [nodes]);
+
+  const cvcOptional =
+    declared.get("cvc")?.optional ?? config.validation?.cvc?.optional;
+
+  // Declaring where focus goes, or that it goes nowhere, retires
+  // `config.autoFocus`.
+  const declaresAutoFocus = useMemo(
+    () => [...declared].some(([, props]) => props.autoFocus !== undefined),
+    [declared]
+  );
+
+  const autoFocusField = useMemo(
+    () => [...declared].find(([, props]) => props.autoFocus)?.[0],
+    [declared]
+  );
+
+  const interacted = useRef(false);
+
+  // Focus the card places itself is not the customer taking over: at mount
+  // that is `config.autoFocus`, afterwards the effect below.
+  const autoFocusing = useRef(true);
+
+  useEffect(() => {
+    autoFocusing.current = false;
+  }, []);
+
+  // Focus follows the declaration until the customer touches the card, and a
+  // declaration sending it nowhere takes back what the config gave.
+  useEffect(() => {
+    if (interacted.current) return;
+
+    if (autoFocusField) {
+      autoFocusing.current = true;
+      document.getElementById(autoFocusField)?.focus();
+      autoFocusing.current = false;
+      return;
+    }
+
+    if (!declaresAutoFocus) return;
+
+    const active = document.activeElement;
+
+    if (
+      active instanceof HTMLElement &&
+      fields.includes(active.id as CardField)
+    ) {
+      active.blur();
+    }
+  }, [autoFocusField, declaresAutoFocus, fields]);
 
   // In an effect, not the render body, so a re-render does not warn again.
   const warned = useRef("");
@@ -133,8 +185,7 @@ export function Card({ config }: { config: CardConfig }) {
     },
     cvc: (values) => {
       if (!fields.includes("cvc")) return undefined;
-      if (config.validation?.cvc?.optional && values.cvc.length === 0)
-        return undefined;
+      if (cvcOptional && values.cvc.length === 0) return undefined;
 
       const cardValidation = validateNumber(values.number, { customBrands });
       const cvcValidation = validateCVC(values.cvc, values.number, {
@@ -168,7 +219,7 @@ export function Card({ config }: { config: CardConfig }) {
         if (!ev) return;
         const cardData = await changePayload(ev, formState, fields, {
           allow3DigitAmexCVC: config.allow3DigitAmexCVC,
-          cvcOptional: config.validation?.cvc?.optional,
+          cvcOptional,
           customBrands,
         });
 
@@ -222,7 +273,7 @@ export function Card({ config }: { config: CardConfig }) {
           void (async () => {
             const data = await changePayload(ev, formState, fields, {
               allow3DigitAmexCVC: config.allow3DigitAmexCVC,
-              cvcOptional: config.validation?.cvc?.optional,
+              cvcOptional,
               customBrands,
             });
             send("EV_VALIDATED", data);
@@ -236,7 +287,7 @@ export function Card({ config }: { config: CardConfig }) {
       form,
       fields,
       config.allow3DigitAmexCVC,
-      config.validation?.cvc?.optional,
+      cvcOptional,
       customBrands,
     ]
   );
@@ -249,9 +300,31 @@ export function Card({ config }: { config: CardConfig }) {
     [on, form]
   );
 
+  const appliedDefaultName = useRef(config.defaultValues?.name);
+
+  // A default seeds the field: it applies while the name is still the card's
+  // own, and seeding it is not a change the customer made.
+  useEffect(() => {
+    const defaultName = declared.get("name")?.defaultValue;
+
+    if (defaultName === undefined || defaultName === appliedDefaultName.current)
+      return;
+
+    const seeded =
+      form.values.name.length === 0 ||
+      form.values.name === appliedDefaultName.current;
+
+    if (!seeded) return;
+
+    appliedDefaultName.current = defaultName;
+    form.setValues((values) => ({ ...values, name: defaultName }));
+  }, [declared, form]);
+
   const hasErrors = Object.keys(form.errors ?? {}).length > 0;
 
   const handleFocus = (field: CardField) => () => {
+    if (!autoFocusing.current) interacted.current = true;
+
     send("EV_FOCUS", field);
   };
 
@@ -260,6 +333,8 @@ export function Card({ config }: { config: CardConfig }) {
   };
 
   const handleKeyDown = (field: CardField) => () => {
+    interacted.current = true;
+
     send("EV_KEYDOWN", field);
   };
 
@@ -287,6 +362,8 @@ export function Card({ config }: { config: CardConfig }) {
 
     const field = node.type;
 
+    const props = fieldProps(node);
+
     if (field === "name") {
       return (
         <Field
@@ -295,14 +372,17 @@ export function Card({ config }: { config: CardConfig }) {
           hasValue={form.values.name.length > 0}
           error={form.errors?.name && t(`name.errors.${form.errors.name}`)}
         >
-          <label htmlFor="name">{t("name.label")}</label>
+          <label htmlFor="name">{props.label ?? t("name.label")}</label>
+          {props.tooltip && <Tooltip>{props.tooltip}</Tooltip>}
           <CardHolder
             disabled={!config}
             readOnly={cardReaderListening}
-            autoFocus={config.autoFocus}
-            placeholder={t("name.placeholder")}
+            autoFocus={declaresAutoFocus ? false : config.autoFocus}
+            placeholder={props.placeholder ?? t("name.placeholder")}
             value={form.values.name}
-            autoComplete={config.autoComplete?.name ?? true}
+            autoComplete={
+              props.autoComplete ?? config.autoComplete?.name ?? true
+            }
             onFocus={handleFocus("name")}
             onKeyUp={handleKeyUp("name")}
             onKeyDown={handleKeyDown("name")}
@@ -322,12 +402,14 @@ export function Card({ config }: { config: CardConfig }) {
         <Field
           key={node.id}
           name="number"
+          iconPosition={props.iconPosition}
           hasValue={form.values.number.length > 0}
           error={
             form.errors?.number && t(`number.errors.${form.errors.number}`)
           }
         >
-          <label htmlFor="number">{t("number.label")}</label>
+          <label htmlFor="number">{props.label ?? t("number.label")}</label>
+          {props.tooltip && <Tooltip>{props.tooltip}</Tooltip>}
 
           {config.icons && (
             <BrandIcon
@@ -340,10 +422,12 @@ export function Card({ config }: { config: CardConfig }) {
           <CardNumber
             disabled={!config}
             readOnly={cardReaderListening}
-            autoFocus={config.autoFocus}
-            placeholder={t("number.placeholder")}
+            autoFocus={declaresAutoFocus ? false : config.autoFocus}
+            placeholder={props.placeholder ?? t("number.placeholder")}
             value={form.values.number}
-            autoComplete={config.autoComplete?.number ?? true}
+            autoComplete={
+              props.autoComplete ?? config.autoComplete?.number ?? true
+            }
             autoProgress={config.autoProgress}
             form={form}
             customBrands={customBrands}
@@ -371,13 +455,16 @@ export function Card({ config }: { config: CardConfig }) {
             form.errors?.expiry && t(`expiry.errors.${form.errors.expiry}`)
           }
         >
-          <label htmlFor="expiry">{t("expiry.label")}</label>
+          <label htmlFor="expiry">{props.label ?? t("expiry.label")}</label>
+          {props.tooltip && <Tooltip>{props.tooltip}</Tooltip>}
           <CardExpiry
             value={form.values.expiry}
             disabled={!config}
             readOnly={cardReaderListening}
-            placeholder={t("expiry.placeholder")}
-            autoComplete={config.autoComplete?.expiry ?? true}
+            placeholder={props.placeholder ?? t("expiry.placeholder")}
+            autoComplete={
+              props.autoComplete ?? config.autoComplete?.expiry ?? true
+            }
             autoProgress={config.autoProgress}
             onFocus={handleFocus("expiry")}
             onKeyUp={handleKeyUp("expiry")}
@@ -401,19 +488,20 @@ export function Card({ config }: { config: CardConfig }) {
           hasValue={form.values.cvc.length > 0}
           error={form.errors?.cvc && t(`cvc.errors.${form.errors.cvc}`)}
         >
-          <label htmlFor="cvc">{t("cvc.label")}</label>
+          <label htmlFor="cvc">{props.label ?? t("cvc.label")}</label>
+          {props.tooltip && <Tooltip>{props.tooltip}</Tooltip>}
           <CardCVC
             ref={cvc}
             value={form.values.cvc}
             disabled={!config}
             cardNumber={form.values.number}
             readOnly={cardReaderListening}
-            placeholder={t("cvc.placeholder")}
+            placeholder={props.placeholder ?? t("cvc.placeholder")}
             onFocus={handleFocus("cvc")}
             onKeyUp={handleKeyUp("cvc")}
             onKeyDown={handleKeyDown("cvc")}
-            autoComplete={config.autoComplete?.cvc ?? true}
-            redact={config.redactCVC}
+            autoComplete={props.autoComplete ?? config.autoComplete?.cvc ?? true}
+            redact={props.redact ?? config.redactCVC}
             customBrands={customBrands}
             {...form.register("cvc", {
               onBlur: handleBlur("cvc"),
