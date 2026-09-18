@@ -27,6 +27,7 @@ const { hosts, real, FakeCardHost } = vi.hoisted(() => {
   const real: { CardHost?: new (...args: any[]) => unknown } = {};
 
   class FakeCardHost {
+    options: unknown;
     handlers: Record<string, (payload: unknown) => void> = {};
     mount = vi.fn<
       (selector: SelectorType, configuration: unknown) => FakeCardHost
@@ -43,6 +44,7 @@ const { hosts, real, FakeCardHost } = vi.hoisted(() => {
     constructor(...args: any[]) {
       if (real.CardHost) return new real.CardHost(...args) as FakeCardHost;
 
+      this.options = args[1];
       hosts.push(this);
     }
   }
@@ -54,7 +56,11 @@ const { hosts, real, FakeCardHost } = vi.hoisted(() => {
 
 vi.mock("../lib/ui/cardHost", () => ({ CardHost: FakeCardHost }));
 
-vi.mock("themes", () => ({ clean: () => ({ styles: { theme: "clean" } }) }));
+vi.mock("themes", () => ({
+  clean: () => ({ styles: { theme: "clean" } }),
+  material: () => ({ styles: { theme: "material" } }),
+  minimal: () => ({ styles: { theme: "minimal" } }),
+}));
 
 vi.mock("../lib/ui/elements/spec", async (importOriginal) => {
   const actual = await importOriginal<
