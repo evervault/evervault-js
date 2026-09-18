@@ -4,7 +4,13 @@ import {
   validateExpiry,
 } from "@evervault/card-validator";
 import { useEvervault } from "@evervault/react";
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
 import type { ReactElement } from "react";
 import { useForm, useTranslations } from "shared";
 import { Error } from "../Common/Error";
@@ -23,6 +29,7 @@ import { useCardReader } from "./useCardReader";
 import { isSpec, legacyNodes } from "./legacyFields";
 import { declaredProps, fieldProps } from "./props";
 import { declaredFields, useSpec } from "./useSpec";
+import { useFocusOrder } from "./useFocusOrder";
 import {
   changePayload,
   collectIcons,
@@ -320,6 +327,20 @@ export function Card({ config }: { config: CardConfig }) {
     form.setValues((values) => ({ ...values, name: defaultName }));
   }, [declared, form]);
 
+  const focus = useFocusOrder(fields);
+
+  const advanceFromNumber = useCallback(() => {
+    focus.next("number");
+  }, [focus]);
+
+  const advanceFromExpiry = useCallback(() => {
+    focus.next("expiry");
+  }, [focus]);
+
+  const advanceFromCVC = useCallback(() => {
+    focus.next("cvc");
+  }, [focus]);
+
   const hasErrors = Object.keys(form.errors ?? {}).length > 0;
 
   const handleFocus = (field: CardField) => () => {
@@ -332,11 +353,24 @@ export function Card({ config }: { config: CardConfig }) {
     send("EV_BLUR", field);
   };
 
-  const handleKeyDown = (field: CardField) => () => {
-    interacted.current = true;
+  const handleKeyDown =
+    (field: CardField) => (event: React.KeyboardEvent<HTMLInputElement>) => {
+      interacted.current = true;
 
-    send("EV_KEYDOWN", field);
-  };
+      send("EV_KEYDOWN", field);
+
+      // At keydown the value is still there, so empty means nothing to erase.
+      if (
+        config.autoProgress &&
+        event.key === "Backspace" &&
+        event.currentTarget.value.length === 0
+      ) {
+        // Uncancelled, the deletion lands on the field just stepped back to.
+        if (focus.previous(field)) {
+          event.preventDefault();
+        }
+      }
+    };
 
   const handleKeyUp = (field: CardField) => () => {
     send("EV_KEYUP", field);
@@ -429,6 +463,7 @@ export function Card({ config }: { config: CardConfig }) {
               props.autoComplete ?? config.autoComplete?.number ?? true
             }
             autoProgress={config.autoProgress}
+            onComplete={advanceFromNumber}
             form={form}
             customBrands={customBrands}
             onFocus={handleFocus("number")}
@@ -466,6 +501,7 @@ export function Card({ config }: { config: CardConfig }) {
               props.autoComplete ?? config.autoComplete?.expiry ?? true
             }
             autoProgress={config.autoProgress}
+            onComplete={advanceFromExpiry}
             onFocus={handleFocus("expiry")}
             onKeyUp={handleKeyUp("expiry")}
             onKeyDown={handleKeyDown("expiry")}
@@ -501,6 +537,8 @@ export function Card({ config }: { config: CardConfig }) {
             onKeyUp={handleKeyUp("cvc")}
             onKeyDown={handleKeyDown("cvc")}
             autoComplete={props.autoComplete ?? config.autoComplete?.cvc ?? true}
+            autoProgress={config.autoProgress}
+            onComplete={advanceFromCVC}
             redact={props.redact ?? config.redactCVC}
             customBrands={customBrands}
             {...form.register("cvc", {
