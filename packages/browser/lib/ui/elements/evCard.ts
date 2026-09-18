@@ -1,10 +1,26 @@
-import { clean } from "themes";
+import { clean, material, minimal } from "themes";
 import { CardFrame } from "../cardFrame";
 import { serialise } from "./spec";
 import type EvervaultClient from "../../main";
-import type { CardSpecNode } from "types";
+import type {
+  CardFrameConfig,
+  CardSpecNode,
+  ColorScheme,
+  ThemeDefinition,
+} from "types";
 
 export const EV_CARD_TAG_NAME = "ev-card";
+
+const THEMES: Record<string, () => ThemeDefinition> = {
+  clean,
+  material,
+  minimal,
+};
+
+// Declaring the attribute is what turns it on; only an explicit denial is false.
+function flag(value: string) {
+  return value.trim().toLowerCase() !== "false";
+}
 
 type CreateClient = (teamId: string, appId: string) => EvervaultClient;
 
@@ -25,12 +41,27 @@ export class EvCard extends HTMLElement {
   #spec: CardSpecNode[] = [];
   #observer?: MutationObserver;
   #pending = false;
+  #attributesChanged = false;
+  #theme?: ThemeDefinition | string;
 
   get spec() {
     return this.#spec;
   }
 
+  // A theme name, or a theme `ui.card()` would take; the attribute holds the
+  // name when neither is set.
+  get theme(): ThemeDefinition | string | undefined {
+    return this.#theme ?? this.getAttribute("theme") ?? undefined;
+  }
+
+  set theme(value: ThemeDefinition | string | undefined) {
+    this.#theme = value;
+    this.#card?.update({ theme: this.#resolveTheme() });
+  }
+
   connectedCallback() {
+    this.#adoptProperties();
+
     if (this.hasAttribute("team-id") && this.hasAttribute("app-id")) {
       const teamId = this.getAttribute("team-id") ?? "";
       const appId = this.getAttribute("app-id") ?? "";
@@ -59,7 +90,12 @@ export class EvCard extends HTMLElement {
     this.#client = evervault;
     this.#spec = this.#read();
 
-    const card = new CardFrame(evervault);
+    // The colour scheme goes into the frame URL, so it is read once here.
+    const card = new CardFrame(evervault, {
+      colorScheme: (this.getAttribute("color-scheme") ?? undefined) as
+        | ColorScheme
+        | undefined,
+    });
 
     // The payload `ui.card()` hands to `on("change")`, as a DOM event on the
     // customer's own element.
@@ -74,12 +110,52 @@ export class EvCard extends HTMLElement {
     });
 
     card.mount(this.#mountPoint(), {
-      theme: clean(),
-      config: { fields: this.#spec },
+      theme: this.#resolveTheme(),
+      config: { ...this.#readConfig(), fields: this.#spec },
     });
 
     this.#card = card;
     this.#observe();
+  }
+
+  // A property set before the element upgraded sits on the instance, where it
+  // shadows the accessor; it is taken through the accessor instead.
+  #adoptProperties() {
+    if (!Object.prototype.hasOwnProperty.call(this, "theme")) return;
+
+    const own = this as { theme?: ThemeDefinition | string };
+    const value = own.theme;
+    delete own.theme;
+    this.theme = value;
+  }
+
+  #resolveTheme(): ThemeDefinition {
+    const declared = this.theme ?? "clean";
+
+    if (typeof declared !== "string") return declared;
+
+    const named = THEMES[declared];
+
+    if (!named) {
+      console.warn(
+        `<${EV_CARD_TAG_NAME}> has no "${declared}" theme and will use "clean". Themes are: ${Object.keys(
+          THEMES
+        ).join(", ")}.`
+      );
+      return clean();
+    }
+
+    return named();
+  }
+
+  // The card-level options read off the element's own attributes. Every key is
+  // present so a removed attribute takes its option back to the default.
+  #readConfig(): CardFrameConfig {
+    const autoProgress = this.getAttribute("auto-progress");
+
+    return {
+      autoProgress: autoProgress === null ? undefined : flag(autoProgress),
+    };
   }
 
   // Declaring nothing renders the default card; declaring anything replaces it.
@@ -89,7 +165,16 @@ export class EvCard extends HTMLElement {
   }
 
   #observe() {
-    this.#observer = new MutationObserver(() => this.#queueSync());
+    this.#observer = new MutationObserver((records) => {
+      const own = (record: MutationRecord) =>
+        record.type === "attributes" && record.target === this;
+
+      if (records.some(own)) {
+        this.#attributesChanged = true;
+      }
+
+      this.#queueSync();
+    });
     this.#observer.observe(this, {
       childList: true,
       subtree: true,
@@ -111,6 +196,14 @@ export class EvCard extends HTMLElement {
   #sync() {
     this.#spec = this.#read();
     this.#card?.setSpec(this.#spec);
+
+    if (!this.#attributesChanged) return;
+
+    this.#attributesChanged = false;
+    this.#card?.update({
+      theme: this.#resolveTheme(),
+      config: this.#readConfig(),
+    });
   }
 
   // The frame lives in a closed shadow root with no slot, so the declared
@@ -131,6 +224,7 @@ export class EvCard extends HTMLElement {
     this.#observer?.disconnect();
     this.#observer = undefined;
     this.#pending = false;
+    this.#attributesChanged = false;
     // Destroyed, not unmounted: an unmounted card keeps its window listeners.
     this.#card?.destroy();
     this.#card = undefined;
