@@ -1,4 +1,12 @@
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import {
   EV_CARD_TAG_NAME,
   EvCard,
@@ -6,10 +14,17 @@ import {
 } from "../lib/ui/elements/evCard";
 import UIComponents from "../lib/ui";
 import type EvervaultClient from "../lib/main";
+import { CardHost } from "../lib/ui/cardHost";
 import type { CardHostConfiguration } from "../lib/ui/cardHost";
+import { countMessageListeners } from "./helpers/messageListeners";
 import type { CardSpecNode, SelectorType } from "types";
 
-const { frames, FakeCardFrame } = vi.hoisted(() => {
+// The fake stands in for the card frame in most tests; the teardown tests
+// switch to the real one, since only it registers window listeners to count.
+const { frames, real, FakeCardFrame } = vi.hoisted(() => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const real: { CardHost?: new (...args: any[]) => unknown } = {};
+
   class FakeCardFrame {
     handlers: Record<string, (payload: unknown) => void> = {};
     mount = vi.fn<
@@ -23,14 +38,17 @@ const { frames, FakeCardFrame } = vi.hoisted(() => {
       return () => {};
     });
 
-    constructor() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    constructor(...args: any[]) {
+      if (real.CardHost) return new real.CardHost(...args) as FakeCardFrame;
+
       frames.push(this);
     }
   }
 
   const frames: FakeCardFrame[] = [];
 
-  return { frames, FakeCardFrame };
+  return { frames, real, FakeCardFrame };
 });
 
 vi.mock("../lib/ui/cardHost", () => ({ CardHost: FakeCardFrame }));
@@ -284,5 +302,61 @@ describe("ui.mount", () => {
     expect(frames).toHaveLength(2);
     expect(frames[0].mount).toHaveBeenCalledOnce();
     expect(frames[1].mount).toHaveBeenCalledOnce();
+  });
+});
+
+describe("<ev-card> teardown", () => {
+  const evervault = {
+    config: {
+      teamId: "team_test123",
+      appId: "app_test123",
+      components: { url: "https://ui-components.evervault.com" },
+    },
+  } as unknown as EvervaultClient;
+
+  beforeEach(async () => {
+    const actual = await vi.importActual<{ CardHost: typeof CardHost }>(
+      "../lib/ui/cardHost"
+    );
+    real.CardHost = actual.CardHost;
+  });
+
+  afterEach(() => {
+    delete real.CardHost;
+    vi.restoreAllMocks();
+  });
+
+  function mount() {
+    const element = append();
+    element.mountCard(evervault);
+    return element;
+  }
+
+  it("releases every window listener when removed from the DOM", () => {
+    const listeners = countMessageListeners();
+    const element = mount();
+
+    expect(listeners()).toBe(10);
+
+    element.remove();
+
+    expect(listeners()).toBe(0);
+  });
+
+  it("holds no listeners after repeated moves in the DOM", () => {
+    const listeners = countMessageListeners();
+    const element = mount();
+    const other = document.createElement("div");
+    document.body.append(other);
+
+    for (let i = 0; i < 20; i += 1) {
+      (i % 2 === 0 ? other : document.body).append(element);
+    }
+
+    expect(listeners()).toBe(10);
+
+    element.remove();
+
+    expect(listeners()).toBe(0);
   });
 });
