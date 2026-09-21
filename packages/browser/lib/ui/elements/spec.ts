@@ -2,6 +2,7 @@ import type { CardSpecNode, CardSpecNodeType } from "types";
 
 export const ELEMENTS: Record<string, CardSpecNodeType> = {
   "ev-row": "row",
+  "ev-card-holder": "name",
   "ev-card-number": "number",
   "ev-card-expiry": "expiry",
   "ev-card-expiry-month": "expiryMonth",
