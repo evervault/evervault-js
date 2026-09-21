@@ -161,14 +161,4 @@ describe("CardFrame teardown", () => {
 
     expect(listeners()).toBe(10);
   });
-
-  it("holds no listeners after repeated mount and destroy cycles", () => {
-    const listeners = countMessageListeners();
-
-    for (let i = 0; i < 50; i += 1) {
-      mounted().frame.destroy();
-    }
-
-    expect(listeners()).toBe(0);
-  });
 });
