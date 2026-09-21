@@ -105,6 +105,15 @@ export interface CardPayload {
 
 export type CardField = "name" | "number" | "expiry" | "cvc";
 
+export type CardSpecNodeType =
+  | "row"
+  | "number"
+  | "expiry"
+  | "expiryMonth"
+  | "expiryYear"
+  | "cvc"
+  | "field";
+
 export interface FieldEvent {
   field: CardField;
   data: CardPayload;
