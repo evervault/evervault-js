@@ -2,29 +2,15 @@ import EventManager from "./eventManager";
 import { EvervaultFrame } from "./evervaultFrame";
 import type EvervaultClient from "../main";
 import type {
+  CardEvents,
   CardPayload,
-  SwipedCard,
   CardFrameClientMessages,
   CardFrameConfig,
   CardFrameHostMessages,
   ColorScheme,
   SelectorType,
-  FieldEvent,
   ThemeDefinition,
 } from "types";
-
-export interface CardEvents {
-  ready: () => void;
-  error: () => void;
-  change: (payload: CardPayload) => void;
-  complete: (payload: CardPayload) => void;
-  swipe: (payload: SwipedCard) => void;
-  validate: (payload: CardPayload) => void;
-  focus: (event: FieldEvent) => void;
-  blur: (event: FieldEvent) => void;
-  keydown: (event: FieldEvent) => void;
-  keyup: (event: FieldEvent) => void;
-}
 
 export interface CardFrameOptions {
   colorScheme?: ColorScheme;
