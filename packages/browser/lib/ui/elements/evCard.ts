@@ -52,8 +52,7 @@ export class EvCard extends HTMLElement {
 
     const card = new CardFrame(evervault);
 
-    // The payload `ui.card()` hands to `on("change")`, as a DOM event on the
-    // customer's own element.
+    // The card payload as a DOM event on the customer's own element.
     card.on("change", (payload) => {
       this.dispatchEvent(
         new CustomEvent("change", {
