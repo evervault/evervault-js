@@ -253,7 +253,8 @@ export interface CardFrameConfig {
   icons?: boolean | Partial<CardIcons>;
   autoFocus?: boolean;
   hiddenFields?: string; // deprecated, sent comma-joined
-  fields?: CardField[];
+  // A field list from `ui.card()`, or the node tree a declared card renders.
+  fields?: CardField[] | CardSpecNode[];
   acceptedBrands?: CardBrandName[];
   customBrands?: CustomBrand[];
   translations?: Partial<CardTranslations>;
