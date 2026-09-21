@@ -4,12 +4,10 @@ import { ELEMENTS, serialise, warnUnknownChild } from "../lib/ui/elements/spec";
 describe("warnUnknownChild", () => {
   it("warns naming the element and returns null", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const element = document.createElement("ev-card-holder");
+    const element = document.createElement("ev-card-pin");
 
     expect(warnUnknownChild(element)).toBeNull();
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining("<ev-card-holder>")
-    );
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("<ev-card-pin>"));
 
     warn.mockRestore();
   });
@@ -44,6 +42,12 @@ describe("serialise", () => {
       props: {},
       children: undefined,
     });
+  });
+
+  it("serialises a card holder field", () => {
+    const [node] = serialise(card(`<ev-card-holder></ev-card-holder>`));
+
+    expect(node.type).toBe("name");
   });
 
   it("keeps the declared order of the children", () => {
