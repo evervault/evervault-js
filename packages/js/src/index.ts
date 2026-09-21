@@ -1,8 +1,17 @@
 import type EvervaultClient from "@evervault/browser";
-import type { CustomConfig } from "@evervault/browser";
+import type { CustomConfig as BrowserConfig } from "@evervault/browser";
+import { injectScript } from "sdk-loader";
 
 export type EvervaultInstance = EvervaultClient;
 export type EvervaultConstructor = typeof EvervaultClient;
+
+export interface CustomConfig extends BrowserConfig {
+  /**
+   * URL to load the Evervault browser SDK from. Defaults to the Evervault
+   * hosted bundle. Set this when serving Evervault assets from a custom domain.
+   */
+  jsSdkUrl?: string;
+}
 
 declare global {
   interface Window {
@@ -10,45 +19,20 @@ declare global {
   }
 }
 
-let injectionPromise: Promise<void> | null = null;
+const DEFAULT_JS_SDK_URL = import.meta.env.VITE_EVERVAULT_JS_URL!;
 
-async function injectScript(): Promise<void> {
-  if (injectionPromise) return injectionPromise;
+let loadRequested = false;
 
-  injectionPromise = new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = import.meta.env.VITE_EVERVAULT_JS_URL!;
-
-    script.onload = () => resolve();
-
-    script.onerror = () => {
-      injectionPromise = null;
-      reject();
-    };
-
-    if (!document.head) {
-      throw new Error(
-        "Expected document.head not to be null. Evervault.js requires a <head> element."
-      );
-    }
-
-    document.head.appendChild(script);
-  });
-
-  return injectionPromise;
-}
-
-async function load(): Promise<EvervaultConstructor> {
-  // If already loaded, return immediately.
-  if (window.Evervault) {
-    return window.Evervault;
-  }
+async function load(jsSdkUrl?: string): Promise<EvervaultConstructor> {
+  loadRequested = true;
 
   try {
-    await injectScript();
-    return window.Evervault!;
-  } catch {
-    throw new Error("Failed to load Evervault.js");
+    return await injectScript<EvervaultConstructor>(
+      jsSdkUrl ?? DEFAULT_JS_SDK_URL,
+      { reuseExistingClient: !jsSdkUrl }
+    );
+  } catch (cause) {
+    throw new Error("Failed to load Evervault.js", { cause });
   }
 }
 
@@ -57,7 +41,7 @@ export async function loadEvervault(
   app: string,
   config?: CustomConfig
 ): Promise<EvervaultInstance> {
-  const Client = await load();
+  const Client = await load(config?.jsSdkUrl);
   return new Client(team, app, config);
 }
 
@@ -65,5 +49,5 @@ export async function loadEvervault(
 // We call this after 1 tick to allow users to handle the script
 // injection themselves.
 Promise.resolve().then(() => {
-  load();
+  if (!loadRequested) load().catch(() => undefined);
 });
