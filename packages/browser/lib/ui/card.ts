@@ -1,7 +1,7 @@
 import { CardFrame } from "./cardFrame";
-import type { CardEvents } from "./cardFrame";
 import type EvervaultClient from "../main";
 import type {
+  CardEvents,
   CardOptions,
   CardFrameConfig,
   SelectorType,
