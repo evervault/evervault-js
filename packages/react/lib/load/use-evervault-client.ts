@@ -73,7 +73,7 @@ export function useEvervaultClient({
         }
         const Evervault = await injectScript<typeof EvervaultClient>(
           url.toString(),
-          { timeout }
+          { timeout, reuseExistingClient: !customConfig?.jsSdkUrl }
         );
         const client = await Evervault.init(teamId, appId, customConfig);
         resolve(client);

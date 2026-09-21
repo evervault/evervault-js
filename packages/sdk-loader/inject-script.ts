@@ -12,8 +12,32 @@ export interface InjectScriptOptions {
    * The timeout in milliseconds for the script load.
    * If the script load takes longer than the timeout, the promise will be rejected.
    * Not compatible with AMD require.
+   *
+   * @default 15000
    */
   timeout?: number;
+  /**
+   * Whether a client already on `window` may be reused instead of loading
+   * `url`. Reuse wins over a bundle this loader fetched for `url`, so a page
+   * that loads Evervault.js itself is never overridden by a speculative load.
+   *
+   * Pass `false` whenever the caller asked for a specific URL. Nothing records
+   * which bundle defined the global, so reusing it would silently ignore that
+   * URL, and whether it exists yet depends on network timing — which would
+   * make the resolved client nondeterministic.
+   *
+   * @default true
+   */
+  reuseExistingClient?: boolean;
+}
+
+const DEFAULT_TIMEOUT_MS = 15_000;
+
+const loads = new Map<string, Promise<unknown>>();
+
+/** Discards every in-flight and completed load. For tests only. */
+export function resetScriptLoads(): void {
+  loads.clear();
 }
 
 function globalClient<TClient>(): TClient | undefined {
@@ -35,8 +59,12 @@ function amdRequire(): RequireFunction | undefined {
 
 /**
  * Loads the Evervault browser SDK from `url` and resolves the client it
- * defines. A client already on `window` is used in preference to loading
- * `url`.
+ * defines. A script already in the document for that URL is waited on rather
+ * than loaded again, concurrent and repeat calls for the same URL share one
+ * load, and a failed load is discarded so the next call retries.
+ *
+ * The timeout of the call that starts a load governs every caller waiting on
+ * it.
  */
 export function injectScript<TClient = unknown>(
   url: string,
@@ -51,10 +79,22 @@ export function injectScript<TClient = unknown>(
     );
   }
 
-  const existing = globalClient<TClient>();
-  if (existing) return Promise.resolve(existing);
+  if (options?.reuseExistingClient !== false) {
+    const existing = globalClient<TClient>();
+    if (existing) return Promise.resolve(existing);
+  }
 
-  return resolveClient<TClient>(url, options);
+  const cached = loads.get(url);
+  if (cached) return cached as Promise<TClient>;
+
+  const load = resolveClient<TClient>(url, {
+    ...options,
+    timeout: options?.timeout ?? DEFAULT_TIMEOUT_MS,
+  });
+  loads.set(url, load);
+  load.catch(() => loads.delete(url));
+
+  return load;
 }
 
 async function resolveClient<TClient>(

@@ -15,7 +15,6 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@evervault/browser": "workspace:*",
     "happy-dom": "^20.10.2",
     "tsconfig": "workspace:*",
     "typescript": "catalog:",

@@ -6,6 +6,8 @@ import { vi, afterEach, describe, it, expect } from "vitest";
 import { loadScript } from "./load-script";
 import { ScriptLoadError } from "./error";
 
+const w = window as unknown as { Evervault?: unknown };
+
 function mockScript(src: string) {
   const element = vi.mocked(document.createElement("script"));
   const listeners = {
@@ -39,8 +41,8 @@ afterEach(() => {
   vi.clearAllMocks();
   vi.resetAllMocks();
 
-  window.Evervault = undefined;
-  delete window.Evervault;
+  w.Evervault = undefined;
+  delete w.Evervault;
 
   const elements = document.querySelectorAll(
     "script[src^='https://js.evervault.com']"
@@ -141,6 +143,18 @@ describe("loadScript", () => {
       `script[src="https://js.evervault.com/v2"]`
     );
     expect(elements).toHaveLength(1);
+  });
+
+  it("should not write src to a script it did not inject", async () => {
+    const script = mockScript("https://js.evervault.com/v2");
+    document.head.appendChild(script.element);
+    const setSrc = vi.spyOn(script.element, "src", "set");
+
+    const promise = loadScript("https://js.evervault.com/v2");
+    script.dispatchEvent("load");
+
+    await expect(promise).resolves.toBeUndefined();
+    expect(setSrc).not.toHaveBeenCalled();
   });
 
   it("should succeed if the script loads before the timeout", async () => {

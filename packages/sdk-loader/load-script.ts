@@ -13,12 +13,13 @@ export function loadScript(
   options?: LoadScriptOptions
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    // Find or create the script element
     let script = document.querySelector<HTMLScriptElement>(
       `script[src="${url}"]`
     );
+    let injected = false;
     if (!script) {
       script = document.createElement("script");
+      injected = true;
 
       const headOrBody = document.head || document.body;
       if (!headOrBody) {
@@ -36,7 +37,6 @@ export function loadScript(
 
     let timeout: NodeJS.Timeout | undefined;
 
-    // Resolve the promise if the script loads
     script.addEventListener(
       "load",
       () => {
@@ -46,11 +46,11 @@ export function loadScript(
       { once: true }
     );
 
-    // Reject the promise if the script load fails
     script.addEventListener(
       "error",
       (event) => {
         clearTimeout(timeout);
+        if (injected) script.remove();
         reject(
           new ScriptLoadError(
             "script_error",
@@ -64,10 +64,11 @@ export function loadScript(
       { once: true }
     );
 
-    script.src = url;
+    // A script element that has already started never re-fetches, so setting
+    // src on an adopted element would leave both listeners waiting forever.
+    if (injected) script.src = url;
 
     if (options?.timeout) {
-      // Reject the promise if the script load times out
       timeout = setTimeout(() => {
         reject(
           new ScriptLoadError(

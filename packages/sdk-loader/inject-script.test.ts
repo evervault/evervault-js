@@ -3,9 +3,12 @@
  */
 
 import { Mock, vi, afterEach, describe, it, expect, beforeEach } from "vitest";
-import { injectScript } from "./inject-script";
-import EvervaultClient from "@evervault/browser";
+import { injectScript, resetScriptLoads } from "./inject-script";
 import { ScriptLoadError } from "./error";
+
+class EvervaultClient {}
+
+const w = window as unknown as { Evervault?: unknown };
 
 interface CustomWindow extends Window {
   require?: Mock;
@@ -48,9 +51,10 @@ function mockScript(src = "https://js.evervault.com/v2") {
 afterEach(() => {
   vi.clearAllMocks();
   vi.resetAllMocks();
+  resetScriptLoads();
 
-  window.Evervault = undefined;
-  delete window.Evervault;
+  w.Evervault = undefined;
+  delete w.Evervault;
 
   const elements = document.querySelectorAll(
     "script[src^='https://js.evervault.com']"
@@ -63,8 +67,10 @@ afterEach(() => {
 describe("injectScript", () => {
   it("should inject the script", async () => {
     const script = mockScript();
+    vi.spyOn(document, "createElement").mockReturnValue(script.element);
+
     const promise = injectScript("https://js.evervault.com/v2");
-    window.Evervault = EvervaultClient;
+    w.Evervault = EvervaultClient;
     script.dispatchEvent("load");
     await expect(promise).resolves.toBe(EvervaultClient);
   });
@@ -113,7 +119,7 @@ describe("injectScript", () => {
     vi.spyOn(document, "createElement").mockReturnValue(script.element);
 
     const promise = injectScript("https://js.evervault.com/v2");
-    window.Evervault = undefined;
+    w.Evervault = undefined;
     script.dispatchEvent("load");
     await expect(promise).rejects.toThrow(
       new ScriptLoadError(
@@ -126,19 +132,102 @@ describe("injectScript", () => {
   it("should return the cached client if it is already loaded", async () => {
     const createElementSpy = vi.spyOn(document, "createElement");
 
-    window.Evervault = EvervaultClient;
+    w.Evervault = EvervaultClient;
     const promise = injectScript("https://js.evervault.com/v2");
     await expect(promise).resolves.toBe(EvervaultClient);
     expect(createElementSpy).not.toHaveBeenCalled();
   });
 
+  it("should ignore an existing global when a url was asked for", async () => {
+    const script = mockScript("https://js.evervault.com/v3");
+    vi.spyOn(document, "createElement").mockReturnValue(script.element);
+
+    w.Evervault = EvervaultClient;
+    const promise = injectScript("https://js.evervault.com/v3", {
+      reuseExistingClient: false,
+    });
+
+    const custom = class CustomBundleClient {};
+    w.Evervault = custom;
+    script.dispatchEvent("load");
+
+    await expect(promise).resolves.toBe(custom);
+  });
+
+  it("should share one load between concurrent callers for the same url", async () => {
+    const script = mockScript();
+    vi.spyOn(document, "createElement").mockReturnValue(script.element);
+
+    const first = injectScript("https://js.evervault.com/v2", {
+      reuseExistingClient: false,
+    });
+    const second = injectScript("https://js.evervault.com/v2", {
+      reuseExistingClient: false,
+    });
+    expect(first).toBe(second);
+
+    w.Evervault = EvervaultClient;
+    script.dispatchEvent("load");
+
+    await expect(Promise.all([first, second])).resolves.toEqual([
+      EvervaultClient,
+      EvervaultClient,
+    ]);
+    expect(
+      document.querySelectorAll('script[src="https://js.evervault.com/v2"]')
+    ).toHaveLength(1);
+  });
+
+  it("should prefer an existing global over a bundle it already loaded", async () => {
+    const script = mockScript();
+    vi.spyOn(document, "createElement").mockReturnValue(script.element);
+
+    const speculative = injectScript("https://js.evervault.com/v2");
+    w.Evervault = EvervaultClient;
+    script.dispatchEvent("load");
+    await expect(speculative).resolves.toBe(EvervaultClient);
+
+    const pageClient = class PageClient {};
+    w.Evervault = pageClient;
+
+    await expect(injectScript("https://js.evervault.com/v2")).resolves.toBe(
+      pageClient
+    );
+  });
+
+  it("should retry after a failed load", async () => {
+    const failing = mockScript();
+    vi.spyOn(document, "createElement").mockReturnValue(failing.element);
+
+    const first = injectScript("https://js.evervault.com/v2", {
+      reuseExistingClient: false,
+    });
+    failing.dispatchEvent("error");
+    await expect(first).rejects.toThrow(ScriptLoadError);
+    expect(
+      document.querySelectorAll('script[src="https://js.evervault.com/v2"]')
+    ).toHaveLength(0);
+
+    const retry = mockScript();
+    vi.spyOn(document, "createElement").mockReturnValue(retry.element);
+
+    const second = injectScript("https://js.evervault.com/v2", {
+      reuseExistingClient: false,
+    });
+    w.Evervault = EvervaultClient;
+    retry.dispatchEvent("load");
+
+    await expect(second).resolves.toBe(EvervaultClient);
+  });
+
   it("should resolve the promise if the script loads before the timeout is reached", async () => {
     const script = mockScript();
+    vi.spyOn(document, "createElement").mockReturnValue(script.element);
 
     const promise = injectScript("https://js.evervault.com/v2", {
       timeout: 100,
     });
-    window.Evervault = EvervaultClient;
+    w.Evervault = EvervaultClient;
     script.dispatchEvent("load");
     await expect(promise).resolves.toBe(EvervaultClient);
   });
@@ -156,6 +245,24 @@ describe("injectScript", () => {
         "Failed to load Evervault.js after 100ms."
       )
     );
+  });
+
+  it("should time out a load the caller did not bound", async () => {
+    vi.useFakeTimers();
+    const script = mockScript();
+    vi.spyOn(document, "createElement").mockReturnValue(script.element);
+
+    const promise = injectScript("https://js.evervault.com/v2");
+    const rejects = expect(promise).rejects.toThrow(
+      new ScriptLoadError(
+        "timed_out",
+        "Failed to load Evervault.js after 15000ms."
+      )
+    );
+
+    await vi.advanceTimersByTimeAsync(15_000);
+    await rejects;
+    vi.useRealTimers();
   });
 
   describe("AMD support", () => {
@@ -220,7 +327,7 @@ describe("injectScript", () => {
       const promise = injectScript("https://js.evervault.com/v2");
       expect(w.require).toHaveBeenCalledTimes(1);
 
-      const client = {} as typeof EvervaultClient;
+      const client = {};
       const resolve = w.require?.mock.calls[0][1];
       resolve?.(client);
 
@@ -232,7 +339,7 @@ describe("injectScript", () => {
 
       const promise = injectScript("https://js.evervault.com/v2");
       expect(w.require).toHaveBeenCalledTimes(1);
-      const client = {} as typeof EvervaultClient;
+      const client = {};
       const resolve = w.require?.mock.calls[0][1];
       resolve?.(client);
 
