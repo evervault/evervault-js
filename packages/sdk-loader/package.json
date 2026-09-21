@@ -1,0 +1,24 @@
+{
+  "name": "sdk-loader",
+  "private": true,
+  "version": "0.1.0",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "clean": "rm -rf node_modules",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@evervault/browser": "workspace:*",
+    "happy-dom": "^20.10.2",
+    "tsconfig": "workspace:*",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

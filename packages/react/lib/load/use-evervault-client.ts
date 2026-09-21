@@ -1,7 +1,7 @@
 import { CustomConfig as BrowserConfig } from "@evervault/browser";
 import { useCallback, useMemo, useRef, useState } from "react";
+import { injectScript } from "sdk-loader";
 import { PromisifiedEvervaultClient } from "./client";
-import { injectScript } from "./inject-script";
 
 const EVERVAULT_URL = "https://js.evervault.com/v2";
 
