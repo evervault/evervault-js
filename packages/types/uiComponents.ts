@@ -110,6 +110,20 @@ export interface FieldEvent {
   data: CardPayload;
 }
 
+// The events a card front-end dispatches, however the card was mounted.
+export interface CardEvents {
+  ready: () => void;
+  error: () => void;
+  change: (payload: CardPayload) => void;
+  complete: (payload: CardPayload) => void;
+  swipe: (payload: SwipedCard) => void;
+  validate: (payload: CardPayload) => void;
+  focus: (event: FieldEvent) => void;
+  blur: (event: FieldEvent) => void;
+  keydown: (event: FieldEvent) => void;
+  keyup: (event: FieldEvent) => void;
+}
+
 interface CardFieldTranslations<E extends TranslationsObject>
   extends TranslationsObject {
   label?: string;
