@@ -35,7 +35,7 @@ vi.mock(import("sdk-loader"), async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    injectScript: injectScriptMock,
+    injectScript: injectScriptMock as unknown as typeof actual.injectScript,
   };
 });
 

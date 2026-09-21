@@ -1,4 +1,6 @@
-import { CustomConfig as BrowserConfig } from "@evervault/browser";
+import EvervaultClient, {
+  CustomConfig as BrowserConfig,
+} from "@evervault/browser";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { injectScript } from "sdk-loader";
 import { PromisifiedEvervaultClient } from "./client";
@@ -69,7 +71,10 @@ export function useEvervaultClient({
         if (reloadAttempt > 0) {
           url.searchParams.set("attempt", String(reloadAttempt + 1));
         }
-        const Evervault = await injectScript(url.toString(), { timeout });
+        const Evervault = await injectScript<typeof EvervaultClient>(
+          url.toString(),
+          { timeout }
+        );
         const client = await Evervault.init(teamId, appId, customConfig);
         resolve(client);
       } catch (error) {
