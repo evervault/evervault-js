@@ -80,6 +80,10 @@ export function integrity() {
         );
       }
 
+      parsed.window.document
+        .querySelector('script[type="importmap"]')
+        ?.remove();
+
       if (Object.keys(dynamic).length > 0) {
         const map = parsed.window.document.createElement("script");
         map.setAttribute("type", "importmap");
