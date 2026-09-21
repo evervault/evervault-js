@@ -241,6 +241,22 @@ If you need to wait for the iFrame that serves Inputs to load before doing some 
 />
 ```
 
+## `<Card />`
+
+Pass `preload` to boot the card hidden as soon as it mounts, then call `reveal()` via a ref when
+the user reaches the payment step. Useful when the card sits behind a later checkout step.
+
+```jsx
+const cardRef = useRef(null);
+
+<Card ref={cardRef} preload />;
+
+// Later.
+cardRef.current?.reveal();
+```
+
+Without `preload`, `<Card />` behaves exactly as before.
+
 ## `<EvervaultReveal />`
 
 Use [Evervault Reveal](https://docs.evervault.com/products/inputs#reveal) to show encrypted card
