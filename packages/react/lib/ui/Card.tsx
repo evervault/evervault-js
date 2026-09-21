@@ -18,6 +18,7 @@ import EvervaultClient from "@evervault/browser";
 
 export interface CardRef {
   validate: () => void;
+  reveal: () => void;
 }
 
 export interface CardProps {
@@ -45,6 +46,7 @@ export interface CardProps {
   allow3DigitAmexCVC?: boolean;
   validation?: CardOptions["validation"];
   customBrands?: CustomBrand[];
+  preload?: boolean;
 }
 
 type CardInstance = ReturnType<EvervaultClient["ui"]["card"]>;
@@ -75,6 +77,7 @@ export const Card = React.forwardRef<CardRef, CardProps>(function Card(
     allow3DigitAmexCVC,
     validation,
     customBrands,
+    preload,
   }: CardProps,
   forwardedRef
 ) {
@@ -87,6 +90,9 @@ export const Card = React.forwardRef<CardRef, CardProps>(function Card(
       return {
         validate: () => {
           inst.current?.validate();
+        },
+        reveal: () => {
+          inst.current?.reveal();
         },
       };
     },
@@ -132,7 +138,11 @@ export const Card = React.forwardRef<CardRef, CardProps>(function Card(
     onMount(evervault) {
       if (!ref.current) return;
       const inst = evervault.ui.card(config);
-      inst.mount(ref.current);
+      if (preload) {
+        inst.preload(ref.current);
+      } else {
+        inst.mount(ref.current);
+      }
       return inst;
     },
     onUpdate(instance) {
