@@ -25,14 +25,8 @@ vi.mock("../src/utilities/useMessaging", () => ({
   useMessaging: () => ({ send, on: () => () => {} }),
 }));
 
-// The `ui.card()` options that pick fields, as every SDK ever shipped sends
-// them. The renderer must keep answering these the same way forever: it is one
-// rolling deployment loaded by hosts that cannot be updated.
-//
-// The fixture is a recording of the renderer before it read a node tree, one
-// line per sample, made with RECORD_CARD_LEGACY_FIXTURE=true. Its first line
-// describes each input once, since nothing in the options changes an input's
-// attributes; every other line is what one set of options rendered.
+// A recording of how the renderer answered the `ui.card()` field options
+// before it read a node tree; re-record with RECORD_CARD_LEGACY_FIXTURE=true.
 interface LegacyOptions {
   fields?: string[];
   hiddenFields?: string;
