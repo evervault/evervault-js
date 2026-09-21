@@ -48,6 +48,9 @@ export class EvervaultFrame<
   #client: EvervaultClient;
   #ready = false;
   #size?: { width: string; height: string };
+  #lifecycle: "unmounted" | "hidden" | "visible" = "unmounted";
+  #preloadWidth: string | null = null;
+  #preloadResizeObserver: ResizeObserver | null = null;
 
   // The constructor accepts an EV client and component name and generates the URL
   // for the iframe. The component param is used to determine which component to render
@@ -93,8 +96,81 @@ export class EvervaultFrame<
       throw new Error("Evervault frame already mounted");
     }
 
+    this.#boot(resolveSelector(selector), opts);
+    this.#lifecycle = "visible";
+
+    return this;
+  }
+
+  preload(selector: SelectorType, opts: FrameConfiguration = {}) {
+    if (this.#lifecycle !== "unmounted") {
+      return this;
+    }
+
     const element = resolveSelector(selector);
 
+    this.iframe.style.visibility = "hidden";
+    this.iframe.style.position = "absolute";
+
+    this.iframe.style.top = "0";
+
+    this.#pinWidth(element);
+    if (typeof ResizeObserver !== "undefined") {
+      this.#preloadResizeObserver = new ResizeObserver(() => {
+        if (this.#lifecycle !== "hidden") return;
+        this.#pinWidth(element);
+      });
+      this.#preloadResizeObserver.observe(element);
+    }
+
+    this.#boot(element, opts);
+    this.#lifecycle = "hidden";
+
+    return this;
+  }
+
+  #pinWidth(element: Element) {
+    if (this.#preloadWidth && this.iframe.style.width !== this.#preloadWidth) {
+      return;
+    }
+
+    if (element.clientWidth > 0) {
+      this.#preloadWidth = `${element.clientWidth}px`;
+      this.iframe.style.width = this.#preloadWidth;
+    }
+  }
+
+  reveal(): this {
+    if (this.#lifecycle === "visible") {
+      return this;
+    }
+
+    if (this.#lifecycle !== "hidden") {
+      throw new Error(
+        "Evervault frame must be preloaded before it can be revealed. Call preload(selector) first."
+      );
+    }
+
+    this.iframe.style.visibility = "";
+    this.iframe.style.position = "";
+    this.iframe.style.top = "";
+    this.#restoreWidth();
+    this.#lifecycle = "visible";
+
+    return this;
+  }
+
+  #restoreWidth() {
+    this.#preloadResizeObserver?.disconnect();
+    this.#preloadResizeObserver = null;
+
+    if (this.#preloadWidth && this.iframe.style.width === this.#preloadWidth) {
+      this.iframe.style.width = "100%";
+    }
+    this.#preloadWidth = null;
+  }
+
+  #boot(element: Element, opts: FrameConfiguration) {
     this.#theme = opts.theme ? new Theme(this, opts.theme) : null;
 
     // The frame will trigger an EV_FRAME_READY event when it is ready to
@@ -116,12 +192,16 @@ export class EvervaultFrame<
     this.iframe.onerror = opts.onError ?? null;
 
     element.appendChild(this.iframe);
-
-    return this;
   }
 
   unmount(): this {
     this.iframe.remove();
+    this.iframe.style.visibility = "";
+    this.iframe.style.position = "";
+    this.iframe.style.top = "";
+    this.#restoreWidth();
+    this.#lifecycle = "unmounted";
+    this.#ready = false;
 
     const overlay = document.getElementById(`ev-modal-${this.#id}`);
     overlay?.remove();
@@ -211,7 +291,7 @@ export class EvervaultFrame<
   }
 
   get isMounted() {
-    return !!this.iframe.parentNode;
+    return this.#lifecycle !== "unmounted";
   }
 
   get url() {
