@@ -1,6 +1,7 @@
 import {
   Card,
   CardPayload,
+  CardRef,
   EvervaultProvider,
   isScriptLoadError,
   themes,
@@ -29,6 +30,7 @@ const customConfig = {
 
 function App() {
   const ref = useRef<EvervaultProvider>(null);
+  const cardRef = useRef<CardRef>(null);
 
   const handleChange = (payload: CardPayload) => {
     console.log(payload);
@@ -51,7 +53,8 @@ function App() {
     >
       <h1>Example React app</h1>
       <button onClick={() => ref.current?.reload()}>Reload script</button>
-      <Card icons onChange={handleChange} theme={theme} />
+      <button onClick={() => cardRef.current?.reveal()}>Reveal card</button>
+      <Card ref={cardRef} preload icons onChange={handleChange} theme={theme} />
     </EvervaultProvider>
   );
 }
