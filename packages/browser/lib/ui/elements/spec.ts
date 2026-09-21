@@ -1,4 +1,4 @@
-import type { CardSpecNodeType } from "types";
+import type { CardSpecNode, CardSpecNodeType } from "types";
 
 export const ELEMENTS: Record<string, CardSpecNodeType> = {
   "ev-row": "row",
@@ -20,4 +20,45 @@ export function warnUnknownChild(element: Element) {
   );
 
   return null;
+}
+
+const ids = new WeakMap<Element, string>();
+let counter = 0;
+
+function idFor(element: Element) {
+  let id = ids.get(element);
+
+  if (!id) {
+    counter += 1;
+    id = `ev-${counter}`;
+    ids.set(element, id);
+  }
+
+  return id;
+}
+
+function readAttributes(element: Element) {
+  return Object.fromEntries(
+    [...element.attributes].map((attribute) => [
+      attribute.name,
+      attribute.value,
+    ])
+  );
+}
+
+export function serialise(parent: Element): CardSpecNode[] {
+  return [...parent.children]
+    .map((element) => {
+      const type = ELEMENTS[element.localName];
+
+      if (!type) return warnUnknownChild(element);
+
+      return {
+        type,
+        id: idFor(element),
+        props: readAttributes(element),
+        children: type === "row" ? serialise(element) : undefined,
+      };
+    })
+    .filter((node) => node !== null);
 }

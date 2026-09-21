@@ -114,6 +114,13 @@ export type CardSpecNodeType =
   | "cvc"
   | "field";
 
+export interface CardSpecNode {
+  type: CardSpecNodeType;
+  id: string;
+  props: Record<string, string>;
+  children?: CardSpecNode[];
+}
+
 export interface FieldEvent {
   field: CardField;
   data: CardPayload;
