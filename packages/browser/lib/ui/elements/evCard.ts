@@ -27,12 +27,23 @@ type CreateClient = (teamId: string, appId: string) => EvervaultClient;
 // Given at registration: the client module is the one registering.
 let createClient: CreateClient | undefined;
 
-// What `<ev-card></ev-card>` renders: the card `ui.card()` renders by default.
+// What `<ev-card></ev-card>` renders: the card `ui.card()` renders by default,
+// expiry and cvc side by side.
 const DEFAULT_SPEC: CardSpecNode[] = [
   { type: "number", id: "number", props: {} },
-  { type: "expiry", id: "expiry", props: {} },
-  { type: "cvc", id: "cvc", props: {} },
+  {
+    type: "row",
+    id: "row",
+    props: {},
+    children: [
+      { type: "expiry", id: "expiry", props: {} },
+      { type: "cvc", id: "cvc", props: {} },
+    ],
+  },
 ];
+
+// The host attributes the card is configured from after mounting.
+const OPTION_ATTRIBUTES = ["theme", "auto-progress"];
 
 // Importing the module must not need a DOM; the element is only registered
 // where there is one.
@@ -167,10 +178,11 @@ export class EvCard extends Base {
 
   #observe() {
     this.#observer = new MutationObserver((records) => {
-      const own = (record: MutationRecord) =>
-        record.type === "attributes" && record.target === this;
+      const option = (record: MutationRecord) =>
+        record.target === this &&
+        OPTION_ATTRIBUTES.includes(record.attributeName ?? "");
 
-      if (records.some(own)) {
+      if (records.some(option)) {
         this.#attributesChanged = true;
       }
 
