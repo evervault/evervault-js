@@ -243,7 +243,13 @@ If you need to wait for the iFrame that serves Inputs to load before doing some 
 
 ## `<Card />`
 
-Pass `preload` to boot the card hidden as soon as it mounts, then call `reveal()` via a ref when
+**Default.** Mounts and shows immediately.
+
+```jsx
+<Card />
+```
+
+**With `preload`.** Boots the card hidden as soon as it mounts, then call `reveal()` via a ref when
 the user reaches the payment step. Useful when the card sits behind a later checkout step.
 
 ```jsx
@@ -254,8 +260,6 @@ const cardRef = useRef(null);
 // Later.
 cardRef.current?.reveal();
 ```
-
-Without `preload`, `<Card />` behaves exactly as before.
 
 ## `<EvervaultReveal />`
 
