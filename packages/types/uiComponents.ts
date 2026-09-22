@@ -131,6 +131,7 @@ export type CardSpecPatchOp =
     }
   | { op: "remove"; id: string }
   | { op: "update"; id: string; props: Record<string, string> }
+  // `index` counts the destination's children after the node has left them.
   | { op: "move"; id: string; parentId: string | null; index: number };
 
 export interface FieldEvent {
