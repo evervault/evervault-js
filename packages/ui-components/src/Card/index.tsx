@@ -36,8 +36,9 @@ import type {
   CardFrameHostMessages,
 } from "types";
 
-// Nodes re-declaring a field claimed earlier in the tree: the first wins.
-function duplicateNodes(nodes: CardSpecNode[]): CardSpecNode[] {
+// Nodes the card leaves out: types it cannot render yet, and fields already
+// claimed earlier in the tree (the first wins).
+function skippedNodes(nodes: CardSpecNode[]): CardSpecNode[] {
   const rendered = new Set<CardField>();
 
   const walk = (node: CardSpecNode): CardSpecNode[] => {
@@ -45,14 +46,19 @@ function duplicateNodes(nodes: CardSpecNode[]): CardSpecNode[] {
 
     const field = fieldFor(node.type);
 
-    if (!field) return [];
-    if (rendered.has(field)) return [node];
+    if (!field || rendered.has(field)) return [node];
 
     rendered.add(field);
     return [];
   };
 
   return nodes.flatMap(walk);
+}
+
+function skipReason(node: CardSpecNode) {
+  return fieldFor(node.type)
+    ? `<ev-card> ignored a duplicate "${node.type}" field.`
+    : `<ev-card> cannot render a "${node.type}" field yet.`;
 }
 
 export function Card({ config }: { config: CardConfig }) {
@@ -76,21 +82,19 @@ export function Card({ config }: { config: CardConfig }) {
 
   const nodes = useSpec(on, seed);
   const fields = useMemo(() => declaredFields(nodes), [nodes]);
-  const duplicates = useMemo(() => duplicateNodes(nodes), [nodes]);
+  const skipped = useMemo(() => skippedNodes(nodes), [nodes]);
 
   // In an effect, not the render body, so a re-render does not warn again.
   const warned = useRef("");
 
   useEffect(() => {
-    const key = duplicates.map((node) => node.id).join(",");
+    const key = skipped.map((node) => node.id).join(",");
 
     if (key === warned.current) return;
     warned.current = key;
 
-    duplicates.forEach((node) => {
-      console.warn(`<ev-card> ignored a duplicate "${node.type}" field.`);
-    });
-  }, [duplicates]);
+    skipped.forEach((node) => console.warn(skipReason(node)));
+  }, [skipped]);
 
   const validators: CardFormValidators = {
     name: (values) => {
@@ -285,12 +289,7 @@ export function Card({ config }: { config: CardConfig }) {
 
     const field = fieldFor(node.type);
 
-    if (!field) {
-      console.warn(`<ev-card> cannot render a "${node.type}" field yet.`);
-      return null;
-    }
-
-    if (duplicates.includes(node)) return null;
+    if (!field || skipped.includes(node)) return null;
 
     if (field === "name") {
       return (

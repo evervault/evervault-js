@@ -12,11 +12,12 @@ function withChildren(
   let touched = false;
 
   const next = spec.map((node) => {
-    if (!node.children) return node;
+    if (node.type !== "row") return node;
 
-    const children = apply(node.children, node);
+    const current = node.children ?? [];
+    const children = apply(current, node);
 
-    if (children === node.children) return node;
+    if (children === current) return node;
 
     touched = true;
     return { ...node, children };
