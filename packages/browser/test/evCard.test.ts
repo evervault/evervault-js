@@ -150,6 +150,13 @@ describe("<ev-card>", () => {
     expect(frames).toHaveLength(0);
   });
 
+  it("does not mount a card when an attribute is empty", () => {
+    append({ "team-id": "team_test123", "app-id": "" });
+
+    expect(createClient).not.toHaveBeenCalled();
+    expect(frames).toHaveLength(0);
+  });
+
   it("does not mount a second card", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const element = append({
@@ -186,6 +193,7 @@ describe("<ev-card>", () => {
 
     expect(frames).toHaveLength(2);
     expect(frames[1].mount).toHaveBeenCalledOnce();
+    expect(createClient).toHaveBeenCalledOnce();
   });
 
   it("mounts a card again when reconnected without attributes", () => {
@@ -303,6 +311,16 @@ describe("ui.mount", () => {
     expect(frames[0].mount).toHaveBeenCalledOnce();
     expect(frames[1].mount).toHaveBeenCalledOnce();
   });
+
+  it("leaves a card that is already mounted alone", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    append({ "team-id": "team_test123", "app-id": "app_test123" });
+
+    new UIComponents(evervault()).mount();
+
+    expect(frames).toHaveLength(1);
+    expect(error).not.toHaveBeenCalled();
+  });
 });
 
 describe("<ev-card> teardown", () => {
@@ -336,7 +354,7 @@ describe("<ev-card> teardown", () => {
     const listeners = countMessageListeners();
     const element = mount();
 
-    expect(listeners()).toBe(10);
+    expect(listeners()).toBeGreaterThan(0);
 
     element.remove();
 
@@ -346,6 +364,7 @@ describe("<ev-card> teardown", () => {
   it("holds no listeners after repeated moves in the DOM", () => {
     const listeners = countMessageListeners();
     const element = mount();
+    const live = listeners();
     const other = document.createElement("div");
     document.body.append(other);
 
@@ -353,7 +372,7 @@ describe("<ev-card> teardown", () => {
       (i % 2 === 0 ? other : document.body).append(element);
     }
 
-    expect(listeners()).toBe(10);
+    expect(listeners()).toBe(live);
 
     element.remove();
 

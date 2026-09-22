@@ -17,32 +17,34 @@ const DEFAULT_SPEC: CardSpecNode[] = [
   { type: "cvc", id: "cvc", props: {} },
 ];
 
-export class EvCard extends HTMLElement {
+// Importing the module must not need a DOM; the element is only registered
+// where there is one.
+const Base = (
+  typeof HTMLElement === "undefined" ? class {} : HTMLElement
+) as typeof HTMLElement;
+
+export class EvCard extends Base {
   #client?: EvervaultClient;
   #card?: CardHost;
   #container?: HTMLDivElement;
 
   connectedCallback() {
-    if (this.hasAttribute("team-id") && this.hasAttribute("app-id")) {
-      const teamId = this.getAttribute("team-id") ?? "";
-      const appId = this.getAttribute("app-id") ?? "";
+    // A card that is already live is left alone. After a DOM move the client
+    // from the previous mount is reused; otherwise the attributes name one.
+    if (this.#card) return;
 
-      if (!createClient) return;
+    const client = this.#client ?? this.#declaredClient();
 
-      this.mountCard(createClient(teamId, appId));
-      return;
-    }
+    if (client) this.mountCard(client);
+  }
 
-    // Without attributes, the client from a previous mount is the only route
-    // back after a DOM move; a card that is already live is left alone.
-    if (!this.#client || this.#card) return;
-
-    this.mountCard(this.#client);
+  get isMounted() {
+    return this.#card !== undefined;
   }
 
   mountCard(evervault: EvervaultClient) {
-    // `ui.mount()` sweeps every card on the page, so a live card is never
-    // replaced: mounting must not throw away details already entered.
+    // A live card is never replaced: mounting must not throw away details
+    // already entered.
     if (this.#card) {
       console.error(`<${EV_CARD_TAG_NAME}> has already been mounted`);
       return;
@@ -71,6 +73,15 @@ export class EvCard extends HTMLElement {
     this.#card = card;
   }
 
+  #declaredClient() {
+    const teamId = this.getAttribute("team-id");
+    const appId = this.getAttribute("app-id");
+
+    if (!teamId || !appId || !createClient) return undefined;
+
+    return createClient(teamId, appId);
+  }
+
   // The frame lives in a closed shadow root with no slot, so the declared
   // children are read but never rendered.
   #mountPoint() {
@@ -93,6 +104,8 @@ export class EvCard extends HTMLElement {
 }
 
 export function registerEvCard(create: CreateClient) {
+  if (typeof customElements === "undefined") return;
+
   createClient = create;
 
   if (!customElements.get(EV_CARD_TAG_NAME)) {
