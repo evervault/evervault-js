@@ -29,8 +29,7 @@ export function frameMessage(
   type: string,
   payload?: unknown
 ) {
-  const frame =
-    typeof target === "string" ? target : target.querySelector("iframe")?.id;
+  const frame = typeof target === "string" ? target : frameId(target);
 
   window.dispatchEvent(
     new MessageEvent("message", { data: { frame, type, payload } })
