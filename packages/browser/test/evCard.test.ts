@@ -146,11 +146,10 @@ describe("<ev-card>", () => {
     const element = append();
     element.mountCard(evervault());
 
-    expect(types(mountedWith().config?.fields as CardSpecNode[])).toEqual([
-      "number",
-      "expiry",
-      "cvc",
-    ]);
+    const fields = mountedWith().config?.fields as CardSpecNode[];
+
+    expect(types(fields)).toEqual(["number", "row"]);
+    expect(types(fields[1].children)).toEqual(["expiry", "cvc"]);
   });
 
   it("mounts with the clean theme", () => {
@@ -382,7 +381,7 @@ describe("<ev-card> declared children", () => {
     element.innerHTML = "";
     await flush();
 
-    expect(types(lastSpec())).toEqual(["number", "expiry", "cvc"]);
+    expect(types(lastSpec())).toEqual(["number", "row"]);
   });
 
   it("stops reading its children once removed from the DOM", async () => {
