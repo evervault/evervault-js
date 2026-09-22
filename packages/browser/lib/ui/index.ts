@@ -60,10 +60,10 @@ export default class UIComponents {
     return new ApplePayButton(this.client, tx, opts);
   }
 
-  // Mounts every declared `<ev-card>` on the page with this client.
+  // Mounts every `<ev-card>` on the page not yet mounted with this client.
   mount() {
     document.querySelectorAll<EvCard>(EV_CARD_TAG_NAME).forEach((card) => {
-      card.mountCard(this.client);
+      if (!card.isMounted) card.mountCard(this.client);
     });
   }
 }
