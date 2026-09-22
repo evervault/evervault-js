@@ -21,11 +21,7 @@ declare global {
 
 const DEFAULT_JS_SDK_URL = import.meta.env.VITE_EVERVAULT_JS_URL!;
 
-let loadRequested = false;
-
 async function load(jsSdkUrl?: string): Promise<EvervaultConstructor> {
-  loadRequested = true;
-
   try {
     return await injectScript<EvervaultConstructor>(
       jsSdkUrl ?? DEFAULT_JS_SDK_URL,
@@ -44,10 +40,3 @@ export async function loadEvervault(
   const Client = await load(config?.jsSdkUrl);
   return new Client(team, app, config);
 }
-
-// Automatically inject the Evervault browser script
-// We call this after 1 tick to allow users to handle the script
-// injection themselves.
-Promise.resolve().then(() => {
-  if (!loadRequested) load().catch(() => undefined);
-});

@@ -60,18 +60,17 @@ beforeEach(() => {
   constructions = [];
 });
 
-describe("preloading", () => {
-  it("injects the default bundle without being asked to", async () => {
+describe("loading", () => {
+  it("injects nothing until a client is asked for", async () => {
     await importSdk();
     await flush();
 
-    expect(injectedUrls()).toEqual([DEFAULT_URL]);
+    expect(injectedUrls()).toEqual([]);
   });
 
-  it("preloads the default bundle anyway when loadEvervault is called after the tick with a custom url", async () => {
+  it("injects only the custom bundle when a custom url is given", async () => {
     const { loadEvervault } = await importSdk();
     await flush();
-    completeLoad(DEFAULT_URL, "default");
 
     const pending = loadEvervault("team_1", "app_1", {
       jsSdkUrl: CUSTOM_URL,
@@ -79,7 +78,7 @@ describe("preloading", () => {
     completeLoad(CUSTOM_URL, "custom");
     await pending;
 
-    expect(injectedUrls()).toEqual([DEFAULT_URL, CUSTOM_URL]);
+    expect(injectedUrls()).toEqual([CUSTOM_URL]);
     expect(constructions.map((c) => c.bundle)).toEqual(["custom"]);
   });
 
@@ -109,7 +108,7 @@ describe("preloading", () => {
 });
 
 describe("loadEvervault", () => {
-  it("constructs the client from the preloaded default bundle", async () => {
+  it("constructs the client from the default bundle", async () => {
     const { loadEvervault } = await importSdk();
     await flush();
 
@@ -147,7 +146,7 @@ describe("loadEvervault", () => {
     const third = loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
     await third;
 
-    expect(injectedUrls()).toEqual([DEFAULT_URL, CUSTOM_URL]);
+    expect(injectedUrls()).toEqual([CUSTOM_URL]);
     expect(constructions).toHaveLength(3);
   });
 
@@ -163,10 +162,10 @@ describe("loadEvervault", () => {
     completeLoad(CUSTOM_URL, "custom");
     await retried;
 
-    expect(injectedUrls()).toEqual([DEFAULT_URL, CUSTOM_URL]);
+    expect(injectedUrls()).toEqual([CUSTOM_URL]);
   });
 
-  it("uses a client the page defined while the preload was still in flight", async () => {
+  it("uses a client the page defined before the first call", async () => {
     const tag = document.createElement("script");
     tag.src = OTHER_URL;
     document.head.appendChild(tag);
@@ -177,24 +176,8 @@ describe("loadEvervault", () => {
     completeLoad(OTHER_URL, "page");
     await loadEvervault("team_1", "app_1");
 
+    expect(injectedUrls()).toEqual([OTHER_URL]);
     expect(constructions.map((c) => c.bundle)).toEqual(["page"]);
-  });
-
-  it("keeps returning the custom bundle after a slow preload resolves", async () => {
-    const { loadEvervault } = await importSdk();
-    await flush();
-
-    const custom = loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
-    completeLoad(CUSTOM_URL, "custom");
-    await custom;
-
-    completeLoad(DEFAULT_URL, "default");
-
-    const again = loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
-    await again;
-
-    expect(injectedUrls()).toEqual([DEFAULT_URL, CUSTOM_URL]);
-    expect(constructions.map((c) => c.bundle)).toEqual(["custom", "custom"]);
   });
 
   it("rejects when the bundle loads without defining a client", async () => {
@@ -219,7 +202,7 @@ describe("loadEvervault", () => {
     completeLoad(OTHER_URL, "other");
     await second;
 
-    expect(injectedUrls()).toEqual([DEFAULT_URL, CUSTOM_URL, OTHER_URL]);
+    expect(injectedUrls()).toEqual([CUSTOM_URL, OTHER_URL]);
     expect(constructions.map((c) => c.bundle)).toEqual(["custom", "other"]);
   });
 });
@@ -241,20 +224,6 @@ describe("script tag consumers", () => {
     await loadEvervault("team_1", "app_1");
 
     expect(injectedUrls()).toEqual([OTHER_URL]);
-    expect(constructions.map((c) => c.bundle)).toEqual(["page"]);
-  });
-
-  it("prefers a page tag that lands after the preload was issued", async () => {
-    const tag = pageTag(OTHER_URL);
-
-    const { loadEvervault } = await importSdk();
-    await flush();
-    expect(injectedUrls()).toEqual([OTHER_URL, DEFAULT_URL]);
-
-    window.Evervault = bundleClient("page");
-    tag.dispatchEvent(new Event("load"));
-    await loadEvervault("team_1", "app_1");
-
     expect(constructions.map((c) => c.bundle)).toEqual(["page"]);
   });
 
