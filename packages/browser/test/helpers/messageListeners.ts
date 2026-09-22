@@ -22,14 +22,23 @@ export function countMessageListeners() {
   };
 }
 
+// The frame is named by the container holding its iframe, or by the iframe id
+// captured before the iframe was removed.
 export function frameMessage(
-  container: HTMLElement,
+  target: HTMLElement | string,
   type: string,
   payload?: unknown
 ) {
+  const frame =
+    typeof target === "string" ? target : target.querySelector("iframe")?.id;
+
   window.dispatchEvent(
-    new MessageEvent("message", {
-      data: { frame: container.querySelector("iframe")?.id, type, payload },
-    })
+    new MessageEvent("message", { data: { frame, type, payload } })
   );
+}
+
+export function frameId(container: HTMLElement) {
+  const id = container.querySelector("iframe")?.id;
+  if (!id) throw new Error("no iframe in container");
+  return id;
 }

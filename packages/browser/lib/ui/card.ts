@@ -1,12 +1,12 @@
 import { resolveAgentToolsConfig } from "./agentTools";
 import { CardFrame } from "./cardFrame";
+import type { CardFrameConfiguration } from "./cardFrame";
 import type EvervaultClient from "../main";
 import type {
   CardEvents,
-  CardOptions,
   CardFrameConfig,
+  CardOptions,
   SelectorType,
-  ThemeDefinition,
 } from "types";
 
 // The `ui.card()` front-end: translates `CardOptions` for the card frame.
@@ -30,7 +30,7 @@ export default class Card {
     return this.#frame.values;
   }
 
-  get config(): { theme?: ThemeDefinition; config: CardFrameConfig } {
+  get config(): CardFrameConfiguration & { config: CardFrameConfig } {
     return {
       theme: this.#options.theme,
       config: {
@@ -72,6 +72,12 @@ export default class Card {
   }
 
   update(options?: CardOptions) {
+    // Reported once by the frame; the options stay as they were.
+    if (this.#frame.isDestroyed) {
+      this.#frame.update(this.config);
+      return this;
+    }
+
     if (options) {
       this.#options = { ...this.#options, ...options };
     }
@@ -86,6 +92,11 @@ export default class Card {
 
   unmount() {
     this.#frame.unmount();
+    return this;
+  }
+
+  destroy() {
+    this.#frame.destroy();
     return this;
   }
 

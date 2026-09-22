@@ -32,7 +32,6 @@ export class Theme {
   }
 
   update(definition: ThemeDefinition) {
-    // Parsing re-registers the media queries, so release the current ones first.
     this.destroy();
     this.object = this.#parseThemeDefinition(definition);
   }
@@ -82,6 +81,8 @@ export class Theme {
     }
 
     this.#queries = [];
+    this.#breakpoints = {};
+    this.#extension = undefined;
   }
 
   compile(): ThemeObject {

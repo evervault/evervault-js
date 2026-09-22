@@ -46,12 +46,15 @@ export class EvervaultFrame<
   #id = generateID();
   #theme: Theme | null = null;
   #client: EvervaultClient;
+  #component: string;
   #ready = false;
   #size?: { width: string; height: string };
   #lifecycle: "unmounted" | "hidden" | "visible" = "unmounted";
   #preloadWidth: string | null = null;
   #preloadResizeObserver: ResizeObserver | null = null;
+  #destroyed = false;
   #unsubscribes: (() => void)[] = [];
+  #mountUnsubscribes: (() => void)[] = [];
 
   // The constructor accepts an EV client and component name and generates the URL
   // for the iframe. The component param is used to determine which component to render
@@ -62,6 +65,7 @@ export class EvervaultFrame<
     options?: FrameOptions
   ) {
     this.#client = client;
+    this.#component = component;
     this.iframe = document.createElement("iframe");
     this.iframe.id = this.#id;
     this.iframe.src = this.#generateUrl(component, options);
@@ -93,6 +97,8 @@ export class EvervaultFrame<
   // to the DOM. This method accepts a selector or HTMLElement and appends
   // the iframe to the element.
   mount(selector: SelectorType, opts: FrameConfiguration = {}) {
+    if (!this.#live()) return this;
+
     if (this.isMounted) {
       throw new Error("Evervault frame already mounted");
     }
@@ -104,6 +110,8 @@ export class EvervaultFrame<
   }
 
   preload(selector: SelectorType, opts: FrameConfiguration = {}) {
+    if (!this.#live()) return this;
+
     if (this.#lifecycle !== "unmounted") {
       return this;
     }
@@ -142,6 +150,8 @@ export class EvervaultFrame<
   }
 
   reveal(): this {
+    if (!this.#live()) return this;
+
     if (this.#lifecycle === "visible") {
       return this;
     }
@@ -172,31 +182,35 @@ export class EvervaultFrame<
   }
 
   #boot(element: Element, opts: FrameConfiguration) {
+    // A theme given through update() while unmounted still holds listeners.
+    this.#theme?.destroy();
     this.#theme = opts.theme ? new Theme(this, opts.theme) : null;
 
-    // The frame will trigger an EV_FRAME_READY event when it is ready to
-    // receive messages from the parent window.
-    this.#unsubscribes.push(
-      this.on("EV_FRAME_HANDSHAKE", () => {
-        this.#setupListeners();
-        // Once the frame is ready, we send an EV_INIT event to the frame with
-        // the theme and configurgation for the frame.
-        this.send("EV_INIT", {
-          theme: this.#theme?.compile(),
-          config: opts.config,
-        });
-      }),
+    // Answered on every handshake: a moved iframe loads and handshakes again.
+    this.#subscribe("EV_FRAME_HANDSHAKE", this.#mountUnsubscribes, () => {
+      this.send("EV_INIT", {
+        theme: this.#theme?.compile(),
+        config: opts.config,
+      });
+    });
 
-      this.on("EV_FRAME_READY", () => {
-        this.#ready = true;
-      })
-    );
+    this.#subscribe("EV_RESIZE", this.#mountUnsubscribes, (size) => {
+      const { height, width, minWidth, minHeight } = size;
+      if (!this.#size) {
+        this.iframe.style.height = `${height}px`;
+        if (width) this.iframe.style.width = `${width}px`;
+      }
+      if (minWidth) this.iframe.style.minWidth = `${minWidth}px`;
+      if (minHeight) this.iframe.style.minHeight = `${minHeight}px`;
+    });
 
     this.iframe.onerror = opts.onError ?? null;
 
     element.appendChild(this.iframe);
   }
 
+  // Undoes mount() only: threeDSecure unmounts mid-lifecycle and keeps its
+  // own subscriptions.
   unmount(): this {
     this.iframe.remove();
     this.iframe.style.visibility = "";
@@ -204,25 +218,25 @@ export class EvervaultFrame<
     this.iframe.style.top = "";
     this.#restoreWidth();
     this.#lifecycle = "unmounted";
-    this.#ready = false;
 
     const overlay = document.getElementById(`ev-modal-${this.#id}`);
     overlay?.remove();
 
-    return this;
-  }
-
-  // Kept separate from unmount() because components such as threeDSecure
-  // unmount mid-lifecycle and must stay subscribed afterwards.
-  destroy(): this {
-    this.unmount();
-
-    for (const release of this.#unsubscribes) release();
-
-    this.#unsubscribes = [];
+    for (const release of this.#mountUnsubscribes.splice(0)) release();
     this.#theme?.destroy();
     this.#theme = null;
     this.#ready = false;
+
+    return this;
+  }
+
+  destroy(): this {
+    if (this.#destroyed) return this;
+
+    this.unmount();
+
+    for (const release of this.#unsubscribes.splice(0)) release();
+    this.#destroyed = true;
 
     return this;
   }
@@ -243,6 +257,8 @@ export class EvervaultFrame<
   // Takes an update configuration object and posts it into the iframe via an
   // EV_UPDATE event.
   update(opts?: FrameConfiguration): this {
+    if (!this.#live()) return this;
+
     if (opts?.theme) {
       if (!this.#theme) {
         this.#theme = new Theme(this, opts.theme);
@@ -269,30 +285,22 @@ export class EvervaultFrame<
     event: K,
     callback: (message: ReceivableMessages[K]) => void
   ) {
-    const handleMessage = (e: MessageEvent<EvervaultFrameMessageDetail>) => {
-      if (!e.data || e.data.frame !== this.#id) return;
-      if (e.data.type === event)
-        callback(e.data.payload as ReceivableMessages[K]);
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    if (!this.#live()) return () => {};
+    return this.#subscribe(event, this.#unsubscribes, callback);
   }
 
+  // Released before the callback runs, so a callback that subscribes again is
+  // not undone.
   once<K extends keyof ReceivableMessages>(
     event: K,
     callback: (message: ReceivableMessages[K]) => void
   ) {
-    const handleMessage = (e: MessageEvent<EvervaultFrameMessageDetail>) => {
-      if (!e.data || e.data.frame !== this.#id) return;
-      if (e.data.type === event) {
-        callback(e.data.payload as ReceivableMessages[K]);
-        window.removeEventListener("message", handleMessage);
-      }
-    };
+    const release = this.on(event, (message) => {
+      release();
+      callback(message);
+    });
 
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    return release;
   }
 
   // The send method is used to send messages to the iframe.
@@ -300,9 +308,7 @@ export class EvervaultFrame<
     type: K,
     payload?: SendableMessages[K]
   ) {
-    if (!this.iframe.contentWindow) {
-      return;
-    }
+    if (!this.#live() || !this.iframe.contentWindow) return;
 
     const data = { type, payload };
     this.iframe.contentWindow?.postMessage(data, this.url);
@@ -334,17 +340,43 @@ export class EvervaultFrame<
     return url.toString();
   }
 
-  #setupListeners() {
-    this.#unsubscribes.push(
-      this.on("EV_RESIZE", ({ height, width, minWidth, minHeight }) => {
-        if (!this.iframe) return;
-        if (!this.#size) {
-          this.iframe.style.height = `${height}px`;
-          if (width) this.iframe.style.width = `${width}px`;
-        }
-        if (minWidth) this.iframe.style.minWidth = `${minWidth}px`;
-        if (minHeight) this.iframe.style.minHeight = `${minHeight}px`;
-      })
-    );
+  get isDestroyed() {
+    return this.#destroyed;
+  }
+
+  // A destroyed frame stays inert: the call is reported, not honoured.
+  #live() {
+    if (this.#destroyed) {
+      console.error(`Evervault ${this.#component} frame has been destroyed`);
+    }
+
+    return !this.#destroyed;
+  }
+
+  // Held in `held` until released, by hand or with the rest of the list.
+  #subscribe<K extends keyof ReceivableMessages>(
+    event: K,
+    held: (() => void)[],
+    callback: (message: ReceivableMessages[K]) => void
+  ) {
+    const handleMessage = (e: MessageEvent<EvervaultFrameMessageDetail>) => {
+      if (!e.data || e.data.frame !== this.#id) return;
+      // Noted here, ahead of every listener, so one that updates from the
+      // component's ready event finds the frame ready.
+      if (e.data.type === "EV_FRAME_READY") this.#ready = true;
+      if (e.data.type !== event) return;
+      callback(e.data.payload as ReceivableMessages[K]);
+    };
+
+    const release = () => {
+      window.removeEventListener("message", handleMessage);
+      const index = held.indexOf(release);
+      if (index !== -1) held.splice(index, 1);
+    };
+
+    window.addEventListener("message", handleMessage);
+    held.push(release);
+
+    return release;
   }
 }

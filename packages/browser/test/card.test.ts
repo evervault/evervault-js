@@ -87,6 +87,19 @@ describe("ui.card", () => {
     });
   });
 
+  it("reports one error and keeps its options when updated once destroyed", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const card = new Card(client, { autoProgress: false }).mount(
+      document.createElement("div")
+    );
+
+    card.destroy();
+    card.update({ autoProgress: true, defaultValues: { name: "Jane" } });
+
+    expect(error).toHaveBeenCalledOnce();
+    expect(card.config.config.autoProgress).toBe(false);
+  });
+
   it("merges updated options into the card config", () => {
     const card = new Card(client, { fields: ["number"], autoProgress: true });
 

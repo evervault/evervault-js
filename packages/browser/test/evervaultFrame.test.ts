@@ -1,8 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { EvervaultFrame } from "../lib/ui/evervaultFrame";
+import { Theme } from "../lib/ui/theme";
 import type EvervaultClient from "../lib/main";
 import type { ThemeUtilities } from "types";
-import { countMessageListeners } from "./helpers/messageListeners";
+import {
+  countMessageListeners,
+  frameMessage,
+} from "./helpers/messageListeners";
 
 const mockClient = {
   config: {
@@ -262,17 +266,14 @@ describe("EvervaultFrame teardown", () => {
   it("counts a fired once() subscription as released", () => {
     const listeners = countMessageListeners();
     const frame = new EvervaultFrame(mockClient, "card");
+    const callback = vi.fn();
 
-    const release = frame.once("EV_FRAME_READY", () => {});
+    frame.once("EV_FRAME_READY", callback);
 
-    window.dispatchEvent(
-      new MessageEvent("message", {
-        data: { frame: frame.iframe.id, type: "EV_FRAME_READY" },
-      })
-    );
+    frameMessage(frame.iframe.id, "EV_FRAME_READY");
+    frameMessage(frame.iframe.id, "EV_FRAME_READY");
 
-    release();
-
+    expect(callback).toHaveBeenCalledOnce();
     expect(listeners()).toBe(0);
   });
 
@@ -289,9 +290,8 @@ describe("EvervaultFrame teardown", () => {
       })
     );
 
-    // EV_FRAME_HANDSHAKE and EV_FRAME_READY, plus the EV_RESIZE listener the
-    // handshake sets up.
-    expect(listeners()).toBe(3);
+    // The handshake and resize listeners.
+    expect(listeners()).toBe(2);
 
     frame.destroy();
 
@@ -299,15 +299,199 @@ describe("EvervaultFrame teardown", () => {
     expect(container.contains(frame.iframe)).toBe(false);
   });
 
-  it("keeps its listeners when only unmounted", () => {
+  it("releases only the mount listeners when unmounted", () => {
+    const listeners = countMessageListeners();
+    const frame = new EvervaultFrame(mockClient, "card");
+    frame.on("EV_FRAME_READY", () => {});
+
+    frame.mount(document.createElement("div"));
+    expect(listeners()).toBe(3);
+
+    frame.unmount();
+
+    // threeDSecure and the like unmount mid-lifecycle and carry on listening.
+    expect(listeners()).toBe(1);
+  });
+
+  it("is ready when a component's own ready listener runs", () => {
+    const frame = new EvervaultFrame(mockClient, "card");
+    const container = document.createElement("div");
+    document.body.append(container);
+    let sent: unknown;
+
+    frame.on("EV_FRAME_READY", () => {
+      frame.update({ config: { updated: true } });
+    });
+    frame.mount(container);
+
+    const target = container.querySelector("iframe")?.contentWindow;
+    if (!target) throw new Error("no frame window");
+    vi.spyOn(target, "postMessage").mockImplementation((data) => {
+      sent = data;
+    });
+
+    frameMessage(container, "EV_FRAME_READY");
+
+    expect(sent).toEqual({
+      type: "EV_UPDATE",
+      payload: { theme: undefined, config: { updated: true } },
+    });
+    container.remove();
+  });
+
+  it("registers no listeners of its own on a handshake", () => {
+    const listeners = countMessageListeners();
+    const frame = new EvervaultFrame(mockClient, "card");
+    const container = document.createElement("div");
+
+    frame.mount(container);
+    frameMessage(container, "EV_FRAME_HANDSHAKE");
+    frameMessage(container, "EV_FRAME_HANDSHAKE");
+
+    expect(listeners()).toBe(2);
+  });
+
+  it("is not ready again until the remounted frame says so", () => {
+    const frame = new EvervaultFrame(mockClient, "card");
+    const container = document.createElement("div");
+    document.body.append(container);
+
+    frame.mount(container);
+    frameMessage(container, "EV_FRAME_READY");
+    frame.unmount();
+    frame.mount(container);
+
+    const target = container.querySelector("iframe")?.contentWindow;
+    if (!target) throw new Error("no frame window");
+    const posted = vi.spyOn(target, "postMessage");
+
+    frame.update({ config: {} });
+    expect(posted).not.toHaveBeenCalled();
+
+    frameMessage(container, "EV_FRAME_READY");
+    frame.update({ config: {} });
+    expect(posted).toHaveBeenCalledOnce();
+    container.remove();
+  });
+
+  it("releases a theme given before mounting when it mounts", () => {
+    const addEventListener = vi.fn();
+    const removeEventListener = vi.fn();
+
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn(() => ({ matches: false, addEventListener, removeEventListener }))
+    );
+
+    const theme = ({ media }: ThemeUtilities) => {
+      media("(min-width: 600px)", {});
+      return {};
+    };
+
+    const frame = new EvervaultFrame(mockClient, "card");
+    frame.update({ theme });
+    frame.mount(document.createElement("div"), { theme });
+
+    expect(removeEventListener).toHaveBeenCalledOnce();
+  });
+
+  it("sizes the iframe from the frame's resize messages", () => {
+    const frame = new EvervaultFrame(mockClient, "card");
+    const container = document.createElement("div");
+
+    frame.mount(container);
+    frameMessage(container, "EV_RESIZE", {
+      height: 120,
+      width: 300,
+      minWidth: 200,
+      minHeight: 40,
+    });
+
+    expect(frame.iframe.style.height).toBe("120px");
+    expect(frame.iframe.style.width).toBe("300px");
+    expect(frame.iframe.style.minWidth).toBe("200px");
+    expect(frame.iframe.style.minHeight).toBe("40px");
+  });
+
+  it("keeps a fixed size against the frame's resize messages", () => {
+    const frame = new EvervaultFrame(mockClient, "card", {
+      size: { width: "400px", height: "500px" },
+    });
+    const container = document.createElement("div");
+
+    frame.mount(container);
+    frameMessage(container, "EV_RESIZE", { height: 120, width: 300 });
+
+    expect(frame.iframe.style.height).toBe("500px");
+    expect(frame.iframe.style.width).toBe("400px");
+  });
+
+  it("destroys once however often it is asked", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const listeners = countMessageListeners();
     const frame = new EvervaultFrame(mockClient, "card");
 
     frame.mount(document.createElement("div"));
-    frame.unmount();
+    frame.destroy();
+    frame.destroy();
 
-    // threeDSecure and the like unmount mid-lifecycle and carry on listening.
-    expect(listeners()).toBe(2);
+    expect(error).not.toHaveBeenCalled();
+    expect(listeners()).toBe(0);
+  });
+
+  it("lets a once() callback subscribe again", () => {
+    const frame = new EvervaultFrame(mockClient, "card");
+    const second = vi.fn();
+
+    frame.once("EV_FRAME_READY", () => {
+      frame.once("EV_FRAME_READY", second);
+    });
+
+    frameMessage(frame.iframe.id, "EV_FRAME_READY");
+    frameMessage(frame.iframe.id, "EV_FRAME_READY");
+
+    expect(second).toHaveBeenCalledOnce();
+  });
+
+  it("sends nothing once destroyed", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const frame = new EvervaultFrame(mockClient, "card");
+    const container = document.createElement("div");
+    document.body.append(container);
+
+    frame.mount(container);
+    const target = container.querySelector("iframe")?.contentWindow;
+    if (!target) throw new Error("no frame window");
+    const posted = vi.spyOn(target, "postMessage");
+
+    frame.destroy();
+    frame.send("EV_INIT", {});
+
+    expect(posted).not.toHaveBeenCalled();
+    expect(error).toHaveBeenCalledWith(expect.stringContaining("destroyed"));
+    container.remove();
+  });
+
+  it("releases the previous theme when mounted again", () => {
+    const addEventListener = vi.fn();
+    const removeEventListener = vi.fn();
+
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn(() => ({ matches: false, addEventListener, removeEventListener }))
+    );
+
+    const theme = ({ media }: ThemeUtilities) => {
+      media("(min-width: 600px)", {});
+      return {};
+    };
+
+    const frame = new EvervaultFrame(mockClient, "card");
+    frame.mount(document.createElement("div"), { theme });
+    frame.unmount();
+    frame.mount(document.createElement("div"), { theme });
+
+    expect(removeEventListener).toHaveBeenCalledOnce();
   });
 });
 
@@ -338,6 +522,39 @@ describe("Theme teardown", () => {
       "change",
       addEventListener.mock.calls[0][1]
     );
+  });
+
+  it("drops what the previous definition extended when updated", () => {
+    const frame = new EvervaultFrame(mockClient, "card");
+    const theme = new Theme(frame, ({ extend }) => {
+      extend({ styles: { label: { color: "red" } } });
+      return {};
+    });
+
+    theme.update({});
+
+    expect(theme.compile().styles).toEqual({});
+  });
+
+  it("drops the previous breakpoints when updated", () => {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn(() => ({
+        matches: true,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }))
+    );
+
+    const frame = new EvervaultFrame(mockClient, "card");
+    const theme = new Theme(frame, ({ media }) => {
+      media("(min-width: 600px)", { fontSize: "20px" });
+      return {};
+    });
+
+    theme.update({});
+
+    expect(theme.compile().styles).toEqual({});
   });
 
   it("releases the previous media query listeners when updated", () => {
