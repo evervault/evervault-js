@@ -104,7 +104,10 @@ async function resolveClient<TClient>(
   const require = amdRequire();
   if (require) return requireModule<TClient>(require, url);
 
-  await loadScript(url, options);
+  await loadScript(url, {
+    ...options,
+    isLoaded: () => globalClient<TClient>() !== undefined,
+  });
 
   const client = globalClient<TClient>();
   if (!client) {

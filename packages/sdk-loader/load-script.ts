@@ -6,6 +6,32 @@ export interface LoadScriptOptions {
    * If the script load takes longer than the timeout, the promise will be rejected.
    */
   timeout?: number;
+  /**
+   * Reports whether a script element already in the document has finished.
+   * A script that finished before this call never fires `load` again, so
+   * adopting one without this check waits until the timeout instead.
+   *
+   * Nothing attributes a finished script to the URL that produced it, so a
+   * caller can only answer this from a side effect the script is known to
+   * have, such as a global it defines.
+   */
+  isLoaded?: () => boolean;
+}
+
+function findScript(url: string): HTMLScriptElement | null {
+  let href: string;
+  try {
+    href = new URL(url, document.baseURI).href;
+  } catch {
+    href = url;
+  }
+
+  const scripts = document.querySelectorAll<HTMLScriptElement>("script[src]");
+  for (const script of scripts) {
+    if (script.src === href) return script;
+  }
+
+  return null;
 }
 
 export function loadScript(
@@ -13,9 +39,7 @@ export function loadScript(
   options?: LoadScriptOptions
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    let script = document.querySelector<HTMLScriptElement>(
-      `script[src="${url}"]`
-    );
+    let script = findScript(url);
     let injected = false;
     if (!script) {
       script = document.createElement("script");
@@ -33,6 +57,9 @@ export function loadScript(
       }
 
       headOrBody.appendChild(script);
+    } else if (options?.isLoaded?.()) {
+      resolve();
+      return;
     }
 
     let timeout: NodeJS.Timeout | undefined;
