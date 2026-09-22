@@ -18,8 +18,8 @@ export interface InjectScriptOptions {
   timeout?: number;
   /**
    * Whether a client already on `window` may be reused instead of loading
-   * `url`. Reuse wins over a bundle this loader fetched for `url`, so a page
-   * that loads Evervault.js itself is never overridden by a speculative load.
+   * `url`, so a page that loads Evervault.js itself is not made to fetch a
+   * second copy of it.
    *
    * Pass `false` whenever the caller asked for a specific URL. Nothing records
    * which bundle defined the global, so reusing it would silently ignore that

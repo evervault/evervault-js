@@ -180,6 +180,28 @@ describe("loadEvervault", () => {
     expect(constructions.map((c) => c.bundle)).toEqual(["page"]);
   });
 
+  it("keeps returning a url's own bundle after another url overwrote the global", async () => {
+    const { loadEvervault } = await importSdk();
+    await flush();
+
+    const custom = loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
+    completeLoad(CUSTOM_URL, "custom");
+    await custom;
+
+    const other = loadEvervault("team_1", "app_1", { jsSdkUrl: OTHER_URL });
+    completeLoad(OTHER_URL, "other");
+    await other;
+
+    await loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
+
+    expect(injectedUrls()).toEqual([CUSTOM_URL, OTHER_URL]);
+    expect(constructions.map((c) => c.bundle)).toEqual([
+      "custom",
+      "other",
+      "custom",
+    ]);
+  });
+
   it("rejects when the bundle loads without defining a client", async () => {
     const { loadEvervault } = await importSdk();
     await flush();
