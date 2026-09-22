@@ -47,6 +47,15 @@ describe("applyPatch", () => {
     expect(spec.map((entry) => entry.id)).toEqual(["c", "a", "b"]);
   });
 
+  it("counts the move index without the node being moved", () => {
+    const spec = applyPatch(
+      [node("a"), node("b"), node("c")],
+      [{ op: "move", id: "a", parentId: null, index: 2 }]
+    );
+
+    expect(spec.map((entry) => entry.id)).toEqual(["b", "c", "a"]);
+  });
+
   it("applies an op to the children of a row", () => {
     const spec = applyPatch(
       [row("row", [node("a")])],

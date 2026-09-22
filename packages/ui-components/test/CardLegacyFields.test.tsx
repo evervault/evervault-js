@@ -138,15 +138,15 @@ async function observe(options: LegacyOptions) {
   }
 
   let isComplete: boolean | null = null;
+  const typed = Object.keys(inputs).length;
 
-  if (Object.keys(inputs).length > 0) {
-    await waitFor(() =>
-      expect(send).toHaveBeenCalledWith("EV_CHANGE", expect.anything())
-    );
-    await settle();
+  if (typed > 0) {
+    // Every input typed into answers with its own change.
+    const changes = () =>
+      send.mock.calls.filter(([type]) => type === "EV_CHANGE");
+    await waitFor(() => expect(changes().length).toBeGreaterThanOrEqual(typed));
 
-    const changes = send.mock.calls.filter(([type]) => type === "EV_CHANGE");
-    isComplete = changes[changes.length - 1][1].isComplete;
+    isComplete = changes().at(-1)?.[1].isComplete;
   }
 
   unmount();
