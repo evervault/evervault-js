@@ -63,6 +63,15 @@ describe("diff", () => {
     expect(ops).toContainEqual({ op: "remove", id: "b" });
   });
 
+  it("fills a row that had no children in order", () => {
+    const bare = { type: "row" as const, id: "row", props: {} };
+    const ops = diff([bare], [row("row", [node("a"), node("b")])]);
+
+    expect(applyPatch([bare], ops)).toEqual([
+      row("row", [node("a"), node("b")]),
+    ]);
+  });
+
   it("diffs the children of a row against the row id", () => {
     const ops = diff(
       [row("row", [node("a")])],

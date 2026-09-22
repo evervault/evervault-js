@@ -110,6 +110,8 @@ export class EvCard extends Base {
   }
 
   #sync() {
+    if (!this.#observer) return;
+
     this.#spec = this.#read();
     this.#card?.setSpec(this.#spec);
   }

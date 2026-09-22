@@ -8,7 +8,13 @@ export const ELEMENTS: Record<string, CardSpecNodeType> = {
   "ev-card-cvc": "cvc",
 };
 
+// Every mutation re-reads the children, so an unsupported one is named once.
+const warned = new WeakSet<Element>();
+
 export function warnUnknownChild(element: Element) {
+  if (warned.has(element)) return null;
+  warned.add(element);
+
   const supported = Object.keys(ELEMENTS)
     .map((tag) => `<${tag}>`)
     .join(", ");
