@@ -22,14 +22,12 @@ export interface CardFrameConfiguration {
   config?: CardFrameConfig;
 }
 
-// The card machinery shared by every card front-end: one frame, its
-// subscriptions and their release, the values mirror and validation.
+// The card machinery shared by every card front-end.
 export class CardFrame {
-  values: CardPayload;
+  #values: CardPayload;
   #frame: EvervaultFrame<CardFrameClientMessages, CardFrameHostMessages>;
   #events = new EventManager<CardEvents>();
-  #unsubscribes: (() => void)[] = [];
-  #destroyed = false;
+  #pendingValidate?: () => void;
 
   constructor(client: EvervaultClient, options: CardFrameOptions = {}) {
     this.#frame = new EvervaultFrame(client, "Card", {
@@ -37,42 +35,40 @@ export class CardFrame {
       allow: options.allow,
     });
 
-    this.#unsubscribes.push(
-      this.#frame.on("EV_CHANGE", (payload) => {
-        this.values = payload;
-        this.#events.dispatch("change", payload);
-      }),
+    this.#frame.on("EV_CHANGE", (payload) => {
+      this.#values = payload;
+      this.#events.dispatch("change", payload);
+    });
 
-      this.#frame.on("EV_COMPLETE", (payload) => {
-        this.#events.dispatch("complete", payload);
-      }),
+    this.#frame.on("EV_COMPLETE", (payload) => {
+      this.#events.dispatch("complete", payload);
+    });
 
-      this.#frame.on("EV_SWIPE", (payload) => {
-        this.#events.dispatch("swipe", payload);
-      }),
+    this.#frame.on("EV_SWIPE", (payload) => {
+      this.#events.dispatch("swipe", payload);
+    });
 
-      this.#frame.on("EV_FRAME_READY", () => {
-        this.#events.dispatch("ready");
-      }),
+    this.#frame.on("EV_FRAME_READY", () => {
+      this.#events.dispatch("ready");
+    });
 
-      this.#frame.on("EV_FOCUS", (field) => {
-        this.#events.dispatch("focus", { field, data: this.values });
-      }),
+    this.#frame.on("EV_FOCUS", (field) => {
+      this.#events.dispatch("focus", { field, data: this.values });
+    });
 
-      this.#frame.on("EV_BLUR", (field) => {
-        this.#events.dispatch("blur", { field, data: this.values });
-      }),
+    this.#frame.on("EV_BLUR", (field) => {
+      this.#events.dispatch("blur", { field, data: this.values });
+    });
 
-      this.#frame.on("EV_KEYDOWN", (field) => {
-        this.#events.dispatch("keydown", { field, data: this.values });
-      }),
+    this.#frame.on("EV_KEYDOWN", (field) => {
+      this.#events.dispatch("keydown", { field, data: this.values });
+    });
 
-      this.#frame.on("EV_KEYUP", (field) => {
-        this.#events.dispatch("keyup", { field, data: this.values });
-      })
-    );
+    this.#frame.on("EV_KEYUP", (field) => {
+      this.#events.dispatch("keyup", { field, data: this.values });
+    });
 
-    this.values = {
+    this.#values = {
       card: {
         name: null,
         brand: null,
@@ -89,15 +85,16 @@ export class CardFrame {
     };
   }
 
-  mount(selector: SelectorType, configuration: CardFrameConfiguration = {}) {
-    // The subscriptions are made once, in the constructor, so a frame mounted
-    // after destroy() would never report back.
-    if (this.#destroyed) {
-      throw new Error(
-        "Evervault card has been destroyed and cannot be mounted"
-      );
-    }
+  // Kept current by the frame's change and validate replies.
+  get values() {
+    return this.#values;
+  }
 
+  get isDestroyed() {
+    return this.#frame.isDestroyed;
+  }
+
+  mount(selector: SelectorType, configuration: CardFrameConfiguration = {}) {
     this.#frame.mount(selector, {
       ...configuration,
       onError: () => {
@@ -141,47 +138,50 @@ export class CardFrame {
   }
 
   unmount() {
+    // A reply to the unmounted frame's request must not land in the next one.
+    this.#pendingValidate?.();
+    this.#pendingValidate = undefined;
     this.#frame.unmount();
     return this;
   }
 
-  // Unlike unmount(), releases every subscription; a destroyed frame cannot be
-  // mounted again.
   destroy() {
-    for (const release of this.#unsubscribes) release();
-
-    this.#unsubscribes = [];
-    this.#destroyed = true;
+    this.#pendingValidate = undefined;
     this.#frame.destroy();
-
+    // Nothing can dispatch to them again; let the callbacks go.
+    this.#events = new EventManager<CardEvents>();
     return this;
   }
 
   on<T extends keyof CardEvents>(event: T, callback: CardEvents[T]) {
+    if (!this.#live()) return () => {};
+
     return this.#events.on(event, callback);
   }
 
   validate() {
-    if (this.#destroyed) {
-      console.error(
-        "Evervault card has been destroyed and cannot be validated"
-      );
-      return this;
-    }
+    if (!this.#live()) return this;
 
-    this.#frame.send("EV_VALIDATE");
-
-    // Dropped once it fires, so repeated calls do not pile up.
-    const release = this.#frame.once("EV_VALIDATED", (payload) => {
-      this.#unsubscribes = this.#unsubscribes.filter(
-        (held) => held !== release
-      );
-      this.values = payload;
+    // One reply answers the latest request, however many were sent.
+    this.#pendingValidate?.();
+    this.#pendingValidate = this.#frame.once("EV_VALIDATED", (payload) => {
+      this.#pendingValidate = undefined;
+      this.#values = payload;
       this.#events.dispatch("validate", payload);
     });
 
-    this.#unsubscribes.push(release);
+    this.#frame.send("EV_VALIDATE");
 
     return this;
+  }
+
+  // The frame reports its own calls once destroyed; this covers the two that
+  // do not reach it as one call.
+  #live() {
+    if (this.#frame.isDestroyed) {
+      console.error("Evervault Card frame has been destroyed");
+    }
+
+    return !this.#frame.isDestroyed;
   }
 }

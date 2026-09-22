@@ -4,6 +4,7 @@ import type EvervaultClient from "../lib/main";
 import type { CardPayload } from "types";
 import {
   countMessageListeners,
+  frameId,
   frameMessage,
 } from "./helpers/messageListeners";
 
@@ -131,7 +132,7 @@ describe("CardFrame teardown", () => {
     ).toHaveLength(10);
   });
 
-  it("does not subscribe when validated after being destroyed", () => {
+  it("reports a validate call once destroyed and subscribes nothing", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const listeners = countMessageListeners();
     const { frame } = mounted();
@@ -139,26 +140,77 @@ describe("CardFrame teardown", () => {
     frame.destroy();
     frame.validate();
 
-    expect(listeners()).toBe(0);
     expect(error).toHaveBeenCalledWith(expect.stringContaining("destroyed"));
+    expect(listeners()).toBe(0);
   });
 
-  it("cannot be mounted again once destroyed", () => {
+  it("answers overlapping validate calls once", () => {
+    const { frame, container } = mounted();
+    const validate = vi.fn();
+    frame.on("validate", validate);
+
+    frame.validate();
+    frame.validate();
+    frameMessage(container, "EV_VALIDATED", payload);
+
+    expect(validate).toHaveBeenCalledOnce();
+  });
+
+  it("reports a mount once destroyed and mounts nothing", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const { frame } = mounted();
+    const container = document.createElement("div");
 
     frame.destroy();
+    frame.mount(container);
 
-    expect(() => frame.mount(document.createElement("div"))).toThrow(
-      /destroyed/
-    );
+    expect(error).toHaveBeenCalledWith(expect.stringContaining("destroyed"));
+    expect(container.querySelector("iframe")).toBeNull();
   });
 
-  it("keeps its subscriptions when only unmounted", () => {
+  it("keeps its own subscriptions when only unmounted", () => {
     const listeners = countMessageListeners();
     const { frame } = mounted();
 
     frame.unmount();
 
-    expect(listeners()).toBe(10);
+    expect(listeners()).toBe(8);
+  });
+
+  it("releases a pending validate reply when unmounted", () => {
+    const { frame, container } = mounted();
+    const validate = vi.fn();
+    frame.on("validate", validate);
+
+    const id = frameId(container);
+    frame.validate();
+    frame.unmount();
+    frameMessage(id, "EV_VALIDATED", payload);
+
+    expect(validate).not.toHaveBeenCalled();
+  });
+
+  it("reports a subscription once destroyed and registers nothing", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { frame, container } = mounted();
+    const change = vi.fn();
+    const id = frameId(container);
+
+    frame.destroy();
+    frame.on("change", change);
+    frameMessage(id, "EV_CHANGE", payload);
+
+    expect(error).toHaveBeenCalledWith(expect.stringContaining("destroyed"));
+    expect(change).not.toHaveBeenCalled();
+  });
+
+  it("reports one error for an update once destroyed", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { frame } = mounted();
+
+    frame.destroy();
+    frame.update({ config: { autoProgress: true } });
+
+    expect(error).toHaveBeenCalledOnce();
   });
 });
