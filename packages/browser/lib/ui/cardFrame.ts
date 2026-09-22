@@ -95,6 +95,9 @@ export class CardFrame {
   }
 
   mount(selector: SelectorType, configuration: CardFrameConfiguration = {}) {
+    // A validate issued while unmounted went nowhere; its reply never comes.
+    this.#pendingValidate?.();
+    this.#pendingValidate = undefined;
     this.#frame.mount(selector, {
       ...configuration,
       onError: () => {
