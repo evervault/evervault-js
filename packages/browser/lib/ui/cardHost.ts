@@ -231,6 +231,7 @@ export class CardHost {
     // A reply to the unmounted frame's request must not land in the next one.
     this.#pendingValidate?.();
     this.#pendingValidate = undefined;
+    this.#ready = false;
     this.#frame.unmount();
     return this;
   }

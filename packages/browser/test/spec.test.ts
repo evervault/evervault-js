@@ -107,6 +107,16 @@ describe("serialise", () => {
     expect(warn).toHaveBeenCalledOnce();
   });
 
+  it("warns about an unknown child once across re-reads", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const element = card(`<div></div>`);
+
+    serialise(element);
+    serialise(element);
+
+    expect(warn).toHaveBeenCalledOnce();
+  });
+
   it("gives an element the same id across re-reads", () => {
     const element = card(`<ev-card-number></ev-card-number>`);
 

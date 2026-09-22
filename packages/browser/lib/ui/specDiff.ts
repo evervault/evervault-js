@@ -49,7 +49,7 @@ function track(spec: CardSpecNode[], parentId: string | null, plan: Plan) {
   for (const node of spec) {
     plan.parents.set(node.id, parentId);
 
-    if (node.children) track(node.children, node.id, plan);
+    if (node.type === "row") track(node.children ?? [], node.id, plan);
   }
 }
 
@@ -65,7 +65,9 @@ function attach(plan: Plan, node: CardSpecNode, op: InsertOp | MoveOp) {
   siblings.splice(op.index, 0, node.id);
   plan.parents.set(node.id, op.parentId);
 
-  if (op.op === "insert" && node.children) track(node.children, node.id, plan);
+  if (op.op === "insert" && node.type === "row") {
+    track(node.children ?? [], node.id, plan);
+  }
 }
 
 // An existing descendant is moved into the new node rather than recreated in it.
