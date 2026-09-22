@@ -194,7 +194,7 @@ user gets there. Both are opt-in; a card that calls neither behaves exactly as b
 ```javascript
 const card = evervault.ui.card();
 
-// On page load, while the user is still on an earlier step.
+// On page load.
 card.preload("#payment-form");
 
 // When they reach the payment step.
