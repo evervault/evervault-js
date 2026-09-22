@@ -1,5 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { ELEMENTS, serialise, warnUnknownChild } from "../lib/ui/elements/spec";
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("warnUnknownChild", () => {
   it("warns naming the element and returns null", () => {
@@ -8,8 +12,6 @@ describe("warnUnknownChild", () => {
 
     expect(warnUnknownChild(element)).toBeNull();
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("<ev-card-pin>"));
-
-    warn.mockRestore();
   });
 
   it("lists the supported children in the warning", () => {
@@ -21,8 +23,6 @@ describe("warnUnknownChild", () => {
     for (const tag of Object.keys(ELEMENTS)) {
       expect(message).toContain(`<${tag}>`);
     }
-
-    warn.mockRestore();
   });
 });
 
@@ -36,7 +36,7 @@ describe("serialise", () => {
   it("serialises a declared field into a spec node", () => {
     const [node] = serialise(card(`<ev-card-number></ev-card-number>`));
 
-    expect(node).toEqual({
+    expect(node).toStrictEqual({
       type: "number",
       id: expect.any(String),
       props: {},
@@ -108,8 +108,6 @@ describe("serialise", () => {
 
     expect(spec.map((node) => node.type)).toEqual(["number"]);
     expect(warn).toHaveBeenCalledOnce();
-
-    warn.mockRestore();
   });
 
   it("gives an element the same id across re-reads", () => {

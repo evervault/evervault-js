@@ -19,8 +19,8 @@ vi.mock("../src/utilities/useSearchParams", () => ({
 
 let patch: (payload: { ops: CardSpecPatchOp[] }) => void = () => {};
 
-vi.mock("../src/utilities/useMessaging", () => ({
-  useMessaging: () => ({
+vi.mock("../src/utilities/useMessaging", () => {
+  const messaging = {
     send: vi.fn(),
     on: (type: string, callback: (payload: unknown) => void) => {
       if (type === "EV_SPEC_PATCH") {
@@ -28,8 +28,10 @@ vi.mock("../src/utilities/useMessaging", () => ({
       }
       return () => {};
     },
-  }),
-}));
+  };
+
+  return { useMessaging: () => messaging };
+});
 
 function node(
   type: CardSpecNode["type"],
