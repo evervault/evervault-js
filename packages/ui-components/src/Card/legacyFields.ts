@@ -6,6 +6,8 @@ import type { CardField, CardFrameConfig, CardSpecNode } from "types";
 const DEFAULT_FIELDS: CardField[] = ["number", "expiry", "cvc"];
 const FIELD_ORDER: CardField[] = ["name", "number", "expiry", "cvc"];
 
+// Deliberately not shared with the SDK's copy: the two deploy separately, so
+// one edit to a shared helper would change both sides at once.
 export function isSpec(
   fields: CardFrameConfig["fields"]
 ): fields is CardSpecNode[] {
