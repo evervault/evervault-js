@@ -74,7 +74,10 @@ export default class RevealText {
     return this;
   }
 
-  on<T extends keyof RevealTextEvents>(event: T, callback: RevealTextEvents[T]) {
+  on<T extends keyof RevealTextEvents>(
+    event: T,
+    callback: RevealTextEvents[T]
+  ) {
     return this.#events.on(event, callback);
   }
 }

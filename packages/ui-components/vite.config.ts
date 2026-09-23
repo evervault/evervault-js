@@ -4,7 +4,11 @@ import { integrity } from "./vite/integrity";
 import { componentPreload } from "./vite/preload";
 import istanbul from "vite-plugin-istanbul";
 
-const plugins: UserConfig["plugins"] = [react(), integrity(), componentPreload()];
+const plugins: UserConfig["plugins"] = [
+  react(),
+  integrity(),
+  componentPreload(),
+];
 
 if (process.env.VITE_TEST_COVERAGE === "true") {
   plugins.push(
