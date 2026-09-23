@@ -127,6 +127,32 @@ describe("EvervaultFrame preload and reveal", () => {
     expect(frame.iframe.style.visibility).toBe("hidden");
   });
 
+  it("preloads nothing once destroyed", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const frame = new EvervaultFrame(mockClient, "card");
+    const target = container();
+
+    frame.destroy();
+    frame.preload(target);
+
+    expect(target.contains(frame.iframe)).toBe(false);
+    expect(frame.isMounted).toBe(false);
+    expect(error).toHaveBeenCalledWith(expect.stringContaining("destroyed"));
+  });
+
+  it("reveals nothing once destroyed", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const frame = new EvervaultFrame(mockClient, "card");
+    const target = container();
+
+    frame.preload(target);
+    frame.destroy();
+
+    expect(() => frame.reveal()).not.toThrow();
+    expect(frame.isMounted).toBe(false);
+    expect(error).toHaveBeenCalledWith(expect.stringContaining("destroyed"));
+  });
+
   it("leaves mount unchanged when preload is never called", () => {
     const frame = new EvervaultFrame(mockClient, "card");
     const target = container();
