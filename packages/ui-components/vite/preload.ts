@@ -16,10 +16,26 @@ function preloadRequestedComponent(manifest: Record<string, string[]>) {
   const files = component ? manifest[component] : undefined;
   if (!files) return;
 
+  let integrity: Record<string, string> = {};
+  try {
+    const importMap = document.querySelector('script[type="importmap"]');
+    integrity = importMap
+      ? (JSON.parse(importMap.textContent ?? "{}") as {
+          integrity?: Record<string, string>;
+        }).integrity ?? {}
+      : {};
+  } catch {
+    integrity = {};
+  }
+
   for (const file of files) {
+    const href = `/${file}`;
     const link = document.createElement("link");
     link.rel = "modulepreload";
-    link.href = `/${file}`;
+    link.href = href;
+    link.crossOrigin = "";
+    const hash = integrity[href];
+    if (hash) link.integrity = hash;
     document.head.appendChild(link);
   }
 }
@@ -76,6 +92,17 @@ export function componentPreload() {
       const indexPath = resolve(outDir, "index.html");
       const parsed = new jsdom.JSDOM(readFileSync(indexPath, "utf-8"));
       const doc = parsed.window.document;
+
+      const staticPreloads = new Set(
+        [...doc.querySelectorAll('link[rel="modulepreload"]')].map((link) =>
+          link.getAttribute("href")?.replace(/^\//, "")
+        )
+      );
+      for (const [component, files] of Object.entries(preloadManifest)) {
+        preloadManifest[component] = files.filter(
+          (file) => !staticPreloads.has(file)
+        );
+      }
 
       const script = doc.createElement("script");
       script.textContent = `(${preloadRequestedComponent.toString()})(${JSON.stringify(
