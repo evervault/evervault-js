@@ -22,7 +22,7 @@ import type { ThreeDSecure as ThreeDSecureComponent } from "./ThreeDSecure";
 import type { GooglePay as GooglePayComponent } from "./GooglePay";
 import { GooglePayConfig } from "./GooglePay/types";
 
-function loadComponent(component: string | undefined): Promise<unknown> {
+export function loadComponent(component: string | undefined): Promise<unknown> {
   switch (component) {
     case "Card":
       return import("./Card").then((m) => m.Card);

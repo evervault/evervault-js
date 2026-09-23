@@ -2,17 +2,7 @@ import { readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
 import jsdom from "jsdom";
 import { ResolvedConfig } from "vite";
-
-const COMPONENT_ENTRIES: Record<string, string> = {
-  Card: "src/Card/index.tsx",
-  Pin: "src/Pin/index.tsx",
-  Form: "src/Form/index.tsx",
-  ThreeDSecure: "src/ThreeDSecure/index.tsx",
-  GooglePay: "src/GooglePay/index.tsx",
-  RevealRequest: "src/Reveal/RevealRequest.tsx",
-  RevealText: "src/Reveal/RevealText.tsx",
-  RevealCopyButton: "src/Reveal/RevealCopyButton.tsx",
-};
+import { COMPONENT_ENTRIES } from "../src/utilities/componentEntries";
 
 interface ManifestChunk {
   file: string;

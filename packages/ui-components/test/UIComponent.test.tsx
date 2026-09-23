@@ -4,7 +4,8 @@
 
 import { act, render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { UIComponent } from "../src/UIComponent";
+import { loadComponent, UIComponent } from "../src/UIComponent";
+import { COMPONENT_ENTRIES } from "../src/utilities/componentEntries";
 
 vi.mock("../src/Card", () => ({
   Card: () => <div>card</div>,
@@ -75,5 +76,19 @@ describe("UIComponent EV_FRAME_READY timing", () => {
     });
 
     expect(readyMessagesSent(postMessage)).toBe(1);
+  });
+});
+
+describe("loadComponent", () => {
+  it("has a switch case for every name in COMPONENT_ENTRIES", () => {
+    for (const name of Object.keys(COMPONENT_ENTRIES)) {
+      // Only the synchronous switch dispatch is under test here, so the
+      // resulting promise is swallowed rather than awaited or asserted on.
+      expect(() => loadComponent(name)?.catch(() => {})).not.toThrow();
+    }
+  });
+
+  it("throws for a name not in COMPONENT_ENTRIES", () => {
+    expect(() => loadComponent("NotARealComponent")).toThrow();
   });
 });
