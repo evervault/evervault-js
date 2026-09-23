@@ -20,9 +20,11 @@ function preloadRequestedComponent(manifest: Record<string, string[]>) {
   try {
     const importMap = document.querySelector('script[type="importmap"]');
     integrity = importMap
-      ? (JSON.parse(importMap.textContent ?? "{}") as {
-          integrity?: Record<string, string>;
-        }).integrity ?? {}
+      ? (
+          JSON.parse(importMap.textContent ?? "{}") as {
+            integrity?: Record<string, string>;
+          }
+        ).integrity ?? {}
       : {};
   } catch {
     integrity = {};
