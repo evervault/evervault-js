@@ -34,9 +34,6 @@ function preloadRequestedComponent(manifest: Record<string, string[]>) {
   }
 }
 
-// Vite's own build manifest already resolves each entry's full chunk import
-// graph, so building our preload manifest from it is a plain lookup rather
-// than re-deriving that graph from Rollup's internal bundle output.
 function collectChunkFiles(manifest: Manifest, entryKey: string): string[] {
   const files = new Set<string>();
   const stack = [entryKey];
@@ -52,14 +49,6 @@ function collectChunkFiles(manifest: Manifest, entryKey: string): string[] {
   return [...files];
 }
 
-// The component-specific chunk otherwise only starts fetching once the
-// shared entry script has fully downloaded and executed, since that's the
-// code that triggers its dynamic import(). That's a real, unavoidable
-// sequential network round trip. This plugin injects a tiny inline script
-// into index.html, placed before the main entry script, that reads
-// ?component= from the URL and issues modulepreload requests for that one
-// component's chunk (and its own dependency chunks) immediately, in
-// parallel with the entry script rather than after it.
 export function componentPreload() {
   let outDir = "dist";
 

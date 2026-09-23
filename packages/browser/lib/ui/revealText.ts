@@ -1,3 +1,4 @@
+import EventManager from "./eventManager";
 import { EvervaultFrame } from "./evervaultFrame";
 import type Reveal from "./reveal";
 import type EvervaultClient from "../main";
@@ -16,6 +17,10 @@ export interface RevealTextOptions {
   format?: RevealFormat;
 }
 
+interface RevealTextEvents {
+  error: () => void;
+}
+
 export default class RevealText {
   path: string;
   ready = false;
@@ -26,6 +31,7 @@ export default class RevealText {
   >;
 
   #options: RevealTextOptions;
+  #events = new EventManager<RevealTextEvents>();
 
   constructor(
     reveal: Reveal,
@@ -43,6 +49,10 @@ export default class RevealText {
     this.#frame.on("EV_REVEAL_CONSUMER_READY", () => {
       this.ready = true;
       reveal.checkIfReady();
+    });
+
+    this.#frame.on("EV_ERROR", () => {
+      this.#events.dispatch("error");
     });
   }
 
@@ -62,5 +72,9 @@ export default class RevealText {
   unmount() {
     this.#frame.unmount();
     return this;
+  }
+
+  on<T extends keyof RevealTextEvents>(event: T, callback: RevealTextEvents[T]) {
+    return this.#events.on(event, callback);
   }
 }
