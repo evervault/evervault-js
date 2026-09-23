@@ -185,6 +185,28 @@ inputs.isInputsLoaded.then(() => {
 });
 ```
 
+### card.preload() and card.reveal()
+
+When the card form sits behind a later checkout step, `preload` boots its iFrame hidden inside the
+target container so the network fetch and JS boot happen up front, and `reveal` shows it when the
+user gets there. Both are opt-in; a card that calls neither behaves exactly as before.
+
+```javascript
+const card = evervault.ui.card();
+
+// On page load.
+card.preload("#payment-form");
+
+// When they reach the payment step.
+card.reveal();
+```
+
+**Where to call it.** As soon as the target container exists in the DOM, visible or not. For example:
+
+- A step-based checkout on one page: when the payment step's container mounts, even while another step is showing.
+- A multi-page checkout: once the payment page's container exists, so render it hidden on an earlier page or preload the instant that route loads.
+- A card gated behind a toggle: when the toggle's container first mounts, not when the user opens it.
+
 ### evervault.reveal()
 
 Use [evervault.reveal](https://docs.evervault.com/products/inputs#reveal) to show encrypted card

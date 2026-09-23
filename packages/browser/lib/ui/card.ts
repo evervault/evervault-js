@@ -133,6 +133,22 @@ export default class Card {
     return this;
   }
 
+  preload(selector: SelectorType) {
+    this.#frame.preload(selector, {
+      ...this.config,
+      onError: () => {
+        this.#events.dispatch("error");
+      },
+    });
+
+    return this;
+  }
+
+  reveal() {
+    this.#frame.reveal();
+    return this;
+  }
+
   update(options?: CardOptions) {
     if (options) {
       this.#options = { ...this.#options, ...options };
