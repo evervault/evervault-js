@@ -1,5 +1,3 @@
-export const SDK_CONFIG_META_NAME = "evervault:config";
-
 export interface SdkConfig {
   jsSdkUrl: string;
   keysUrl: string;
@@ -26,19 +24,22 @@ const ORIGIN_ONLY_KEYS: readonly (keyof SdkConfig)[] = ["keysUrl", "apiUrl"];
 
 const LOOPBACK_HOSTNAMES = ["localhost", "127.0.0.1", "[::1]"];
 
+const EVERVAULT_ORIGINS = [
+  "https://ui-components.evervault.com",
+  "https://ui-components.evervault.io",
+];
+
 function envString(env: BuildEnv, key: string): string | undefined {
   const value = env[key];
   return typeof value === "string" && value !== "" ? value : undefined;
 }
 
 /**
- * The URLs baked into the bundle at build time. These are written into the
- * `evervault:config` meta tag and are also the fallback used when that tag is
- * missing or invalid.
+ * The URLs baked into the bundle at build time, used when the frame is served
+ * from an Evervault origin.
  *
  * Build environment overrides go through the same validation and origin
- * normalisation as the meta tag, so a URL reaches the frame in one shape
- * whichever route it took. An override that fails validation is dropped in
+ * normalisation, so a URL reaches the frame in one shape. An override that fails validation is dropped in
  * favour of the Evervault production host.
  */
 export function buildTimeSdkConfig(env: BuildEnv): SdkConfig {
@@ -100,56 +101,27 @@ function validate(key: keyof SdkConfig, value: unknown): Validated {
 }
 
 /**
- * Parses the `evervault:config` meta tag content. Any problem with the tag
- * discards it entirely in favour of `defaults`, so a partially rewritten tag
- * can never leave some requests pointed at a custom domain and others not.
+ * Picks the URLs for the frame served from `origin`. On an Evervault origin or
+ * loopback this is `defaults`. Any other origin is a custom domain that routes
+ * by path, so every URL is built on that same origin.
  */
-export function parseSdkConfig(
-  content: string | null | undefined,
+export function resolveSdkConfig(
+  origin: string,
   defaults: SdkConfig
 ): SdkConfig {
-  if (content == null) {
-    console.error(
-      `Missing <meta name="${SDK_CONFIG_META_NAME}">: falling back to default Evervault hosts`
-    );
-    return defaults;
-  }
+  if (EVERVAULT_ORIGINS.includes(origin)) return defaults;
 
-  let parsed: unknown;
+  let url: URL;
   try {
-    parsed = JSON.parse(content);
+    url = new URL(origin);
   } catch {
-    console.error(
-      `Ignoring <meta name="${SDK_CONFIG_META_NAME}">: content is not valid JSON`
-    );
     return defaults;
   }
+  if (LOOPBACK_HOSTNAMES.includes(url.hostname)) return defaults;
 
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    console.error(
-      `Ignoring <meta name="${SDK_CONFIG_META_NAME}">: content is not a JSON object`
-    );
-    return defaults;
-  }
-
-  const record = parsed as Record<string, unknown>;
-  const results = SDK_CONFIG_KEYS.map(
-    (key) => [key, validate(key, record[key])] as const
-  );
-  const errors = results.flatMap(([, result]) =>
-    "error" in result ? [result.error] : []
-  );
-
-  if (errors.length > 0) {
-    console.error(
-      `Ignoring <meta name="${SDK_CONFIG_META_NAME}">: ${errors.join(", ")}`
-    );
-    return defaults;
-  }
-
-  const config = {} as SdkConfig;
-  for (const [key, result] of results) {
-    if ("url" in result) config[key] = result.url;
-  }
-  return config;
+  return {
+    jsSdkUrl: `${url.origin}/js/v2`,
+    keysUrl: `${url.origin}/keys/`,
+    apiUrl: `${url.origin}/api`,
+  };
 }

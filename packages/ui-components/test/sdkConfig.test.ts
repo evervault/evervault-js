@@ -5,8 +5,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildTimeSdkConfig,
-  parseSdkConfig,
-  SDK_CONFIG_META_NAME,
+  resolveSdkConfig,
   type SdkConfig,
 } from "../src/utilities/sdkConfig";
 
@@ -16,25 +15,11 @@ const defaults: SdkConfig = {
   apiUrl: "https://api.evervault.com",
 };
 
-const custom: SdkConfig = {
-  jsSdkUrl: "https://payments.acme.com/v2",
-  keysUrl: "https://keys.acme.com",
-  apiUrl: "https://api.acme.com",
-};
-
-function setMeta(content: string) {
-  const meta = document.createElement("meta");
-  meta.setAttribute("name", SDK_CONFIG_META_NAME);
-  meta.setAttribute("content", content);
-  document.head.appendChild(meta);
-}
-
 beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
 afterEach(() => {
-  document.head.innerHTML = "";
   vi.restoreAllMocks();
   vi.resetModules();
 });
@@ -79,125 +64,53 @@ describe("buildTimeSdkConfig", () => {
   });
 });
 
-describe("parseSdkConfig", () => {
-  it("uses a valid tag", () => {
-    expect(parseSdkConfig(JSON.stringify(custom), defaults)).toEqual(custom);
-    expect(console.error).not.toHaveBeenCalled();
-  });
-
-  it("normalises the origin-only URLs to their origin", () => {
+describe("resolveSdkConfig", () => {
+  it("uses the defaults on an Evervault origin", () => {
     expect(
-      parseSdkConfig(
-        JSON.stringify({ ...custom, apiUrl: "https://api.acme.com/" }),
-        defaults
-      )
-    ).toEqual(custom);
+      resolveSdkConfig("https://ui-components.evervault.com", defaults)
+    ).toBe(defaults);
+    expect(
+      resolveSdkConfig("https://ui-components.evervault.io", defaults)
+    ).toBe(defaults);
   });
 
-  it("falls back when the tag is missing", () => {
-    expect(parseSdkConfig(null, defaults)).toEqual(defaults);
-    expect(console.error).toHaveBeenCalled();
+  it("uses the defaults on loopback so local development works", () => {
+    expect(resolveSdkConfig("http://localhost:4001", defaults)).toBe(defaults);
+    expect(resolveSdkConfig("http://127.0.0.1:4001", defaults)).toBe(defaults);
   });
 
-  it("falls back on malformed JSON", () => {
-    expect(parseSdkConfig("{ not json", defaults)).toEqual(defaults);
-    expect(console.error).toHaveBeenCalled();
+  it("uses the defaults on an opaque origin", () => {
+    expect(resolveSdkConfig("null", defaults)).toBe(defaults);
   });
 
-  it("falls back when the content is not an object", () => {
-    expect(parseSdkConfig('"https://api.acme.com"', defaults)).toEqual(
-      defaults
+  it("routes by path on a custom domain", () => {
+    expect(resolveSdkConfig("https://payments.acme.com", defaults)).toEqual({
+      jsSdkUrl: "https://payments.acme.com/js/v2",
+      keysUrl: "https://payments.acme.com/keys/",
+      apiUrl: "https://payments.acme.com/api",
+    });
+  });
+
+  it("keeps a custom domain's port", () => {
+    expect(
+      resolveSdkConfig("https://payments.acme.com:8443", defaults).apiUrl
+    ).toBe("https://payments.acme.com:8443/api");
+  });
+
+  it("builds a keys URL that keeps its path when resolved against", () => {
+    const { keysUrl } = resolveSdkConfig("https://payments.acme.com", defaults);
+    expect(new URL("team/apps/app", keysUrl).href).toBe(
+      "https://payments.acme.com/keys/team/apps/app"
     );
-    expect(parseSdkConfig("[]", defaults)).toEqual(defaults);
-  });
-
-  it("falls back on a http: value", () => {
-    expect(
-      parseSdkConfig(
-        JSON.stringify({ ...custom, apiUrl: "http://api.acme.com" }),
-        defaults
-      )
-    ).toEqual(defaults);
-    expect(console.error).toHaveBeenCalled();
-  });
-
-  it("falls back on an origin-only value carrying a path", () => {
-    expect(
-      parseSdkConfig(
-        JSON.stringify({
-          ...custom,
-          keysUrl: "https://keys.acme.com/evervault",
-        }),
-        defaults
-      )
-    ).toEqual(defaults);
-    expect(console.error).toHaveBeenCalled();
-  });
-
-  it("falls back on a value carrying a query string or fragment", () => {
-    expect(
-      parseSdkConfig(
-        JSON.stringify({ ...custom, apiUrl: "https://api.acme.com?a=1" }),
-        defaults
-      )
-    ).toEqual(defaults);
-    expect(
-      parseSdkConfig(
-        JSON.stringify({
-          ...custom,
-          jsSdkUrl: "https://payments.acme.com/v2#x",
-        }),
-        defaults
-      )
-    ).toEqual(defaults);
-  });
-
-  it("falls back on a value carrying credentials", () => {
-    expect(
-      parseSdkConfig(
-        JSON.stringify({ ...custom, apiUrl: "https://user:pass@api.acme.com" }),
-        defaults
-      )
-    ).toEqual(defaults);
-    expect(console.error).toHaveBeenCalled();
-  });
-
-  it("falls back when a key is missing or not a URL", () => {
-    expect(
-      parseSdkConfig(JSON.stringify({ apiUrl: custom.apiUrl }), defaults)
-    ).toEqual(defaults);
-    expect(
-      parseSdkConfig(JSON.stringify({ ...custom, keysUrl: "nope" }), defaults)
-    ).toEqual(defaults);
-  });
-
-  it("allows http on loopback so local development works", () => {
-    const local = {
-      jsSdkUrl: "http://localhost:4002/evervault-browser.main.umd.cjs",
-      keysUrl: "http://localhost:4000",
-      apiUrl: "http://127.0.0.1:4000",
-    };
-    expect(parseSdkConfig(JSON.stringify(local), defaults)).toEqual(local);
-    expect(console.error).not.toHaveBeenCalled();
-  });
-
-  it("rejects the whole tag when only one value is invalid", () => {
-    expect(
-      parseSdkConfig(
-        JSON.stringify({ ...custom, keysUrl: "http://keys.acme.com" }),
-        defaults
-      )
-    ).toEqual(defaults);
   });
 });
 
 describe("config", () => {
-  it("reads the meta tag from the document", async () => {
-    setMeta(JSON.stringify(custom));
+  it("uses the build-time defaults on a loopback origin", async () => {
     const { sdkConfig, apiConfig } = await import("../src/utilities/config");
-    expect(sdkConfig).toEqual(custom);
-    expect(apiConfig.apiUrl).toBe(custom.apiUrl);
-    expect(apiConfig.keysUrl).toBe(custom.keysUrl);
+    expect(sdkConfig).toEqual(buildTimeSdkConfig(import.meta.env));
+    expect(apiConfig.apiUrl).toBe(sdkConfig.apiUrl);
+    expect(apiConfig.keysUrl).toBe(sdkConfig.keysUrl);
   });
 
   it("ignores URLs passed in the query string", async () => {
@@ -206,12 +119,6 @@ describe("config", () => {
       "",
       "/?apiUrl=https%3A%2F%2Fevil.com&keysUrl=https%3A%2F%2Fevil.com&jsSdkUrl=https%3A%2F%2Fevil.com%2Fv2"
     );
-    setMeta(JSON.stringify(custom));
-    const { sdkConfig } = await import("../src/utilities/config");
-    expect(sdkConfig).toEqual(custom);
-  });
-
-  it("falls back to the build-time defaults when the tag is absent", async () => {
     const { sdkConfig } = await import("../src/utilities/config");
     expect(sdkConfig).toEqual(buildTimeSdkConfig(import.meta.env));
   });
