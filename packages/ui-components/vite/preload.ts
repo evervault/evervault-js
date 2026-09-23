@@ -56,17 +56,22 @@ export function componentPreload() {
       let manifest: Manifest;
       try {
         manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
-      } catch {
-        return;
+      } catch (cause) {
+        throw new Error(
+          `vite-plugin-component-preload: could not read build manifest at ${manifestPath}. Is "build.manifest: true" set?`,
+          { cause }
+        );
       }
 
       const preloadManifest: Record<string, string[]> = {};
       for (const [component, entryKey] of Object.entries(COMPONENT_ENTRIES)) {
-        if (!manifest[entryKey]) continue;
+        if (!manifest[entryKey]) {
+          throw new Error(
+            `vite-plugin-component-preload: no manifest entry for "${entryKey}" (component "${component}"). Has this file moved?`
+          );
+        }
         preloadManifest[component] = collectChunkFiles(manifest, entryKey);
       }
-
-      if (Object.keys(preloadManifest).length === 0) return;
 
       const indexPath = resolve(outDir, "index.html");
       const parsed = new jsdom.JSDOM(readFileSync(indexPath, "utf-8"));
