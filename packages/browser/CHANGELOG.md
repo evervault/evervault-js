@@ -1,5 +1,13 @@
 # @evervault/browser
 
+## 2.66.0
+
+### Minor Changes
+
+- 080335e: Add `card.preload(selector)` and `card.reveal()`, which separate booting the card iframe from showing it: `preload()` boots it hidden in its container, `reveal()` shows it later with no DOM move. Used in stepped payment experiences.
+
+  Both are opt-in. `reveal()` without a prior `preload()` throws.
+
 ## 2.65.0
 
 ### Minor Changes
