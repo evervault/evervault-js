@@ -3,6 +3,7 @@ import {
   ThreeDSecureFrameClientMessages,
   ThreeDSecureFrameHostMessages,
 } from "types";
+import { apiConfig } from "../utilities/config";
 import { useMessaging } from "../utilities/useMessaging";
 import { useSearchParams } from "../utilities/useSearchParams";
 import {
@@ -13,7 +14,7 @@ import {
   TrampolineMessage,
 } from "./types";
 
-const API = import.meta.env.VITE_API_URL as string;
+const API = apiConfig.apiUrl;
 
 class SessionError extends Error {
   code: string;

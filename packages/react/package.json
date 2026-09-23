@@ -49,6 +49,7 @@
     "msw": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "sdk-loader": "workspace:*",
     "shared": "workspace:*",
     "themes": "workspace:*",
     "tsconfig": "workspace:*",

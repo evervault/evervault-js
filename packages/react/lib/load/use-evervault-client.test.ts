@@ -7,7 +7,7 @@ import { PromisifiedEvervaultClient } from "./client";
 import { useEvervaultClient, type CustomConfig } from "./use-evervault-client";
 import { act, renderHook } from "@testing-library/react";
 import { vi, expect, afterEach, describe, it } from "vitest";
-import { ScriptLoadError } from "./error";
+import { ScriptLoadError } from "sdk-loader";
 
 const evervaultClientMock = vi.hoisted(() =>
   vi.fn(
@@ -31,11 +31,11 @@ const injectScriptMock = vi.hoisted(() =>
   vi.fn(() => Promise.resolve(evervaultClientMock))
 );
 
-vi.mock(import("./inject-script"), async (importOriginal) => {
+vi.mock(import("sdk-loader"), async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    injectScript: injectScriptMock,
+    injectScript: injectScriptMock as unknown as typeof actual.injectScript,
   };
 });
 

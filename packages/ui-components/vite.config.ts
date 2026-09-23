@@ -1,9 +1,10 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig, UserConfig } from "vite";
 import { integrity } from "./vite/integrity";
+import { sdkConfigMeta } from "./vite/sdkConfigMeta";
 import istanbul from "vite-plugin-istanbul";
 
-const plugins: UserConfig["plugins"] = [react(), integrity()];
+const plugins: UserConfig["plugins"] = [react(), sdkConfigMeta(), integrity()];
 
 if (process.env.VITE_TEST_COVERAGE === "true") {
   plugins.push(

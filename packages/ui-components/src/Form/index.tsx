@@ -1,4 +1,5 @@
 import { type JSX, useEffect, useLayoutEffect, useState } from "react";
+import { apiConfig } from "../utilities/config";
 import { resize } from "../utilities/resize";
 import usStates from "../utilities/usStates";
 import { useMessaging } from "../utilities/useMessaging";
@@ -80,7 +81,7 @@ export function Form({ config }: { config: FormConfig }): JSX.Element {
     async function makeRequest() {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/forms/${config.formUuid}`
+          `${apiConfig.apiUrl}/forms/${config.formUuid}`
         );
         const { targetElements }: FormApiResponse =
           (await response.json()) as FormApiResponse;

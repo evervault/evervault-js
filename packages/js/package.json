@@ -24,16 +24,21 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "preinstall": "npx only-allow pnpm",
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf node_modules dist"
   },
   "devDependencies": {
     "@evervault/browser": "workspace:*",
+    "jsdom": "catalog:",
+    "sdk-loader": "workspace:*",
     "themes": "workspace:*",
     "tsconfig": "workspace:*",
     "types": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:"
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   }
 }
