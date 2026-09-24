@@ -259,7 +259,6 @@ export interface CardFrameClientMessages extends EvervaultFrameClientMessages {
   EV_BLUR: CardField;
   EV_KEYDOWN: CardField;
   EV_KEYUP: CardField;
-  EV_AGENT_SUBMIT: CardPayload;
 }
 
 export interface CardFrameHostMessages extends EvervaultFrameHostMessages {

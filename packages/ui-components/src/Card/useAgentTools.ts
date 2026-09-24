@@ -1,4 +1,3 @@
-import { PromisifiedEvervaultClient } from "@evervault/react";
 import { useEffect, useRef } from "react";
 import { UseFormReturn } from "shared";
 import {
@@ -6,32 +5,17 @@ import {
   buildFieldStatuses,
   fieldNotAvailableMessage,
   getFocusedField,
-  incompleteFormMessage,
-  notReadyMessage,
   type CardFormValidators,
 } from "./agentTools";
-import { changePayload } from "./utilities";
 import type { CardForm } from "./types";
-import type {
-  AgentToolsFrameConfig,
-  CardField,
-  CardPayload,
-  CustomBrand,
-} from "types";
+import type { AgentToolsFrameConfig, CardField } from "types";
 
 interface UseAgentToolsParams {
   config: AgentToolsFrameConfig | undefined;
   fields: CardField[];
   form: UseFormReturn<CardForm>;
   validators: CardFormValidators;
-  ev: PromisifiedEvervaultClient | null;
-  payloadOptions: {
-    allow3DigitAmexCVC?: boolean;
-    cvcOptional?: boolean;
-    customBrands?: CustomBrand[];
-  };
   t: (key: string) => string;
-  onSubmit: (payload: CardPayload) => void;
 }
 
 // Registers WebMCP tools for the card form. Tool handlers read the latest
@@ -41,13 +25,10 @@ export function useAgentTools({
   fields,
   form,
   validators,
-  ev,
-  payloadOptions,
   t,
-  onSubmit,
 }: UseAgentToolsParams) {
-  const latest = useRef({ form, validators, ev, payloadOptions, t, onSubmit });
-  latest.current = { form, validators, ev, payloadOptions, t, onSubmit };
+  const latest = useRef({ form, validators, t });
+  latest.current = { form, validators, t };
 
   const namePrefix = config?.namePrefix;
   const productName = config?.productName;
@@ -74,24 +55,21 @@ export function useAgentTools({
     const activeFields = fieldList.split(",") as CardField[];
     const exposedTo = exposeTo ? exposeTo.split(",") : [];
 
+    const buildStatus = (values: CardForm) => {
+      const { validators, t } = latest.current;
+      const statuses = buildFieldStatuses(activeFields, values, validators, t);
+      return {
+        fields: statuses,
+        isComplete: statuses.every((status) => status.isValid),
+        focusedField: getFocusedField(activeFields),
+      };
+    };
+
     const tools = buildAgentTools(
       { namePrefix, productName, exposeTo: exposedTo },
       activeFields,
       {
-        getStatus: () => {
-          const { form, validators, t } = latest.current;
-          const statuses = buildFieldStatuses(
-            activeFields,
-            form.values,
-            validators,
-            t
-          );
-          return {
-            fields: statuses,
-            isComplete: statuses.every((status) => status.isValid),
-            focusedField: getFocusedField(activeFields),
-          };
-        },
+        getStatus: () => buildStatus(latest.current.form.values),
         focusField: (field) => {
           const input = document.getElementById(field);
           if (!(input instanceof HTMLInputElement)) {
@@ -100,45 +78,13 @@ export function useAgentTools({
           input.focus();
           return { focused: field };
         },
-        submit: async () => {
-          const { form, validators, ev, payloadOptions, t, onSubmit } =
-            latest.current;
-          if (!ev) throw new Error(notReadyMessage(productName));
-
-          const invalid = buildFieldStatuses(
-            activeFields,
-            form.values,
-            validators,
-            t
-          )
-            .filter((status) => !status.isValid)
-            .map((status) => status.field);
-
-          if (invalid.length > 0) {
-            // Surface validation errors in the UI so the user sees why the
-            // agent's submission was rejected.
-            form.validate();
-            throw new Error(incompleteFormMessage(productName, invalid));
-          }
-
-          const payload = await changePayload(
-            ev,
-            form,
-            activeFields,
-            payloadOptions
-          );
-
-          if (!payload.isComplete) {
-            throw new Error(incompleteFormMessage(productName, activeFields));
-          }
-
-          onSubmit(payload);
-
-          return {
-            status: "submitted" as const,
-            brand: payload.card.brand,
-            lastFour: payload.card.lastFour,
-          };
+        setFieldValue: (field, value) => {
+          const { form, validators } = latest.current;
+          const nextValues = { ...form.values, [field]: value };
+          form.setValue(field, value);
+          // Validate straight away, as a blur would after typing.
+          form.setError(field, validators[field](nextValues));
+          return buildStatus(nextValues);
         },
       }
     );

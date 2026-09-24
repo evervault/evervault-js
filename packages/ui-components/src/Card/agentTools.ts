@@ -22,16 +22,10 @@ export interface CardFormStatus {
   focusedField: CardField | null;
 }
 
-export interface CardSubmitResult {
-  status: "submitted";
-  brand: string | null;
-  lastFour: string | null;
-}
-
 export interface AgentToolHandlers {
   getStatus: () => CardFormStatus;
   focusField: (field: CardField) => { focused: CardField };
-  submit: () => Promise<CardSubmitResult>;
+  setFieldValue: (field: CardField, value: string) => CardFormStatus;
 }
 
 export function agentToolName(prefix: string, suffix: string): string {
@@ -61,13 +55,16 @@ export function getFocusedField(fields: CardField[]): CardField | null {
   return fields.find((field) => field === id) ?? null;
 }
 
-export function incompleteFormMessage(
-  productName: string,
-  invalidFields: CardField[]
-): string {
-  return `Cannot submit ${productName}: the following fields are missing or invalid: ${invalidFields.join(
-    ", "
-  )}. Ask the user to complete them and try again.`;
+// Mirrors what the input masks keep when the value is typed, so the form
+// receives the same shape it does from a human.
+export function normalizeFieldValue(field: CardField, value: string): string {
+  if (field === "name") return value.trim();
+
+  const digits = value.replace(/\D/g, "");
+  if (field === "expiry" && digits.length === 6) {
+    return digits.slice(0, 2) + digits.slice(4);
+  }
+  return digits;
 }
 
 export function fieldNotAvailableMessage(
@@ -77,8 +74,22 @@ export function fieldNotAvailableMessage(
   return `${productName} does not show a "${field}" field.`;
 }
 
-export function notReadyMessage(productName: string): string {
-  return `${productName} is still loading. Try again in a moment.`;
+export function invalidValueMessage(
+  productName: string,
+  field: CardField
+): string {
+  return `${productName} expects a string value for the "${field}" field.`;
+}
+
+function assertField(
+  productName: string,
+  fields: CardField[],
+  field: unknown
+): CardField {
+  if (typeof field !== "string" || !fields.includes(field as CardField)) {
+    throw new Error(fieldNotAvailableMessage(productName, String(field)));
+  }
+  return field as CardField;
 }
 
 export function buildAgentTools(
@@ -98,7 +109,7 @@ export function buildAgentTools(
     },
     {
       name: agentToolName(namePrefix, "focus-card-field"),
-      description: `Move keyboard focus to a field in ${productName} so the user can type into it. Card details must always be entered by the user; this tool cannot fill fields.`,
+      description: `Move keyboard focus to a field in ${productName} so the user can type into it.`,
       inputSchema: {
         type: "object",
         properties: {
@@ -111,19 +122,42 @@ export function buildAgentTools(
         required: ["field"],
       },
       execute: (input) => {
-        const field = (input as { field?: unknown } | null)?.field;
-        if (typeof field !== "string" || !fields.includes(field as CardField)) {
-          throw new Error(fieldNotAvailableMessage(productName, String(field)));
-        }
-        return handlers.focusField(field as CardField);
+        const field = assertField(
+          productName,
+          fields,
+          (input as { field?: unknown } | null)?.field
+        );
+        return handlers.focusField(field);
       },
     },
     {
-      name: agentToolName(namePrefix, "submit-card"),
-      description: `Submit the card details the user entered in ${productName} for tokenization. Only succeeds when every field is complete and valid; otherwise it fails and reports which fields still need attention. Returns an opaque confirmation, never card details.`,
-      inputSchema: { type: "object", properties: {} },
-      annotations: { consequentialHint: true },
-      execute: () => handlers.submit(),
+      name: agentToolName(namePrefix, "set-card-field-value"),
+      description: `Enter a value into a field in ${productName}, exactly as if the user had typed it. The field is validated immediately. Card number and CVC are digits; expiry is MM/YY. Returns the updated form status, never the value.`,
+      inputSchema: {
+        type: "object",
+        properties: {
+          field: {
+            type: "string",
+            enum: fields,
+            description: "The card field to fill.",
+          },
+          value: {
+            type: "string",
+            description:
+              "The value to enter. Formatting characters such as spaces and slashes are ignored.",
+          },
+        },
+        required: ["field", "value"],
+      },
+      execute: (input) => {
+        const { field: rawField, value } =
+          (input as { field?: unknown; value?: unknown } | null) ?? {};
+        const field = assertField(productName, fields, rawField);
+        if (typeof value !== "string") {
+          throw new Error(invalidValueMessage(productName, field));
+        }
+        return handlers.setFieldValue(field, normalizeFieldValue(field, value));
+      },
     },
   ];
 }

@@ -19,7 +19,6 @@ interface CardEvents {
   complete: (payload: CardPayload) => void;
   swipe: (payload: SwipedCard) => void;
   validate: (payload: CardPayload) => void;
-  submit: (payload: CardPayload) => void;
   focus: (event: FieldEvent) => void;
   blur: (event: FieldEvent) => void;
   keydown: (event: FieldEvent) => void;
@@ -65,11 +64,6 @@ export default class Card {
 
     this.#frame.on("EV_ERROR", () => {
       this.#events.dispatch("error");
-    });
-
-    this.#frame.on("EV_AGENT_SUBMIT", (payload) => {
-      this.values = payload;
-      this.#events.dispatch("submit", payload);
     });
 
     this.#frame.on("EV_FOCUS", (field) => {

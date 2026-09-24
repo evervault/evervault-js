@@ -8,7 +8,6 @@ import { useAgentTools } from "../src/Card/useAgentTools";
 import type { CardFormValidators } from "../src/Card/agentTools";
 import type { CardForm } from "../src/Card/types";
 import type { UseFormReturn } from "shared";
-import type { PromisifiedEvervaultClient } from "@evervault/react";
 
 const config = {
   namePrefix: "acmepay",
@@ -36,20 +35,15 @@ function makeForm(values: Partial<CardForm> = {}) {
   } as unknown as UseFormReturn<CardForm>;
 }
 
-function baseParams(
-  overrides: Partial<Parameters<typeof useAgentTools>[0]> = {}
-) {
+type Params = Parameters<typeof useAgentTools>[0];
+
+function baseParams(overrides: Partial<Params> = {}): Params {
   return {
     config,
-    fields: ["number", "expiry", "cvc"] as const as Parameters<
-      typeof useAgentTools
-    >[0]["fields"],
+    fields: ["number", "expiry", "cvc"],
     form: makeForm(),
     validators,
-    ev: null,
-    payloadOptions: {},
     t: (key: string) => `t:${key}`,
-    onSubmit: vi.fn(),
     ...overrides,
   };
 }
@@ -94,7 +88,7 @@ describe("useAgentTools registration", () => {
     expect(registered.map((r) => r.tool.name).sort()).toEqual([
       "acmepay-focus-card-field",
       "acmepay-get-card-form-status",
-      "acmepay-submit-card",
+      "acmepay-set-card-field-value",
     ]);
   });
 
@@ -135,8 +129,11 @@ describe("useAgentTools registration", () => {
   });
 
   it("registers nothing when the browser lacks WebMCP", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     delete (document as { modelContext?: unknown }).modelContext;
     expect(() => renderHook(() => useAgentTools(baseParams()))).not.toThrow();
+    expect(warn).toHaveBeenCalledTimes(1);
+    warn.mockRestore();
   });
 });
 
@@ -177,27 +174,30 @@ describe("useAgentTools handlers", () => {
     expect(JSON.stringify(status)).not.toContain("4242");
   });
 
-  it("rejects submission while the form is incomplete and surfaces errors", async () => {
-    const form = makeForm({ number: "4242424242424242" });
-    const onSubmit = vi.fn();
-    renderHook(() =>
-      useAgentTools(
-        baseParams({
-          form,
-          onSubmit,
-          ev: {} as PromisifiedEvervaultClient,
-        })
-      )
-    );
+  it("sets a field value, validates it, and reports the resulting status", () => {
+    const form = makeForm({ number: "4242424242424242", expiry: "0135" });
+    renderHook(() => useAgentTools(baseParams({ form })));
 
-    await expect(find("submit-card").execute({}, { signal })).rejects.toThrow(
-      "Cannot submit Acme Pay"
+    const status = find("set-card-field-value").execute(
+      { field: "cvc", value: "12" },
+      { signal }
+    ) as { fields: { field: string; isValid: boolean }[]; isComplete: boolean };
+
+    expect(form.setValue).toHaveBeenCalledWith("cvc", "12");
+    expect(form.setError).toHaveBeenCalledWith("cvc", "invalid");
+    expect(status.isComplete).toBe(false);
+    expect(status.fields[2]).toEqual(
+      expect.objectContaining({ field: "cvc", hasValue: true, isValid: false })
     );
-    await expect(find("submit-card").execute({}, { signal })).rejects.toThrow(
-      "expiry, cvc"
-    );
-    expect(form.validate).toHaveBeenCalled();
-    expect(onSubmit).not.toHaveBeenCalled();
+    expect(JSON.stringify(status)).not.toContain("12");
+
+    const complete = find("set-card-field-value").execute(
+      { field: "cvc", value: "123" },
+      { signal }
+    ) as { isComplete: boolean };
+
+    expect(form.setError).toHaveBeenLastCalledWith("cvc", undefined);
+    expect(complete.isComplete).toBe(true);
   });
 
   it("focuses the requested field", () => {

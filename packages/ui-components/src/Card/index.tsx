@@ -169,14 +169,7 @@ export function Card({ config }: { config: CardConfig }) {
     fields,
     form,
     validators,
-    ev,
-    payloadOptions: {
-      allow3DigitAmexCVC: config.allow3DigitAmexCVC,
-      cvcOptional: config.validation?.cvc?.optional,
-      customBrands,
-    },
     t,
-    onSubmit: (payload) => send("EV_AGENT_SUBMIT", payload),
   });
 
   useLayoutEffect(() => {

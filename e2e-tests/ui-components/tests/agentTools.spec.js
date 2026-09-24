@@ -8,7 +8,7 @@ const OTHER_ORIGIN = "http://[::1]:4005";
 const TOOL_NAMES = [
   "acmepay-focus-card-field",
   "acmepay-get-card-form-status",
-  "acmepay-submit-card",
+  "acmepay-set-card-field-value",
 ];
 
 test.describe("card agent tools (WebMCP)", () => {
@@ -20,9 +20,7 @@ test.describe("card agent tools (WebMCP)", () => {
   async function mountCard(page, agentTools) {
     await page.waitForFunction(() => window.Evervault);
     await page.evaluate(async (agentTools) => {
-      window.submissions = [];
       window.card = window.evervault.ui.card({ agentTools });
-      window.card.on("submit", (payload) => window.submissions.push(payload));
       const ready = new Promise((resolve) => window.card.on("ready", resolve));
       window.card.mount("#form");
       await ready;
@@ -121,15 +119,9 @@ test.describe("card agent tools (WebMCP)", () => {
     expect(await listTools(page)).toEqual([]);
   });
 
-  test("reports status without card values and rejects incomplete submits", async ({
-    page,
-  }) => {
+  test("reports status without card values", async ({ page }) => {
     await page.goto(HOST_ORIGIN);
-    await mountCard(page, {
-      enabled: true,
-      namePrefix: "acmepay",
-      productName: "Acme Pay",
-    });
+    await mountCard(page, { enabled: true, namePrefix: "acmepay" });
     await expect.poll(() => listTools(page)).toEqual(TOOL_NAMES);
 
     const frame = page.frameLocator("iframe[data-evervault]");
@@ -157,49 +149,60 @@ test.describe("card agent tools (WebMCP)", () => {
       }),
     ]);
     expect(JSON.stringify(status)).not.toContain("4242");
-
-    // Chrome 154 collapses tool exceptions into a generic UnknownError, so
-    // assert the rejection plus its visible side effect rather than the text.
-    const rejected = await page.evaluate(() =>
-      window.callTool("submit-card").then(
-        () => false,
-        () => true
-      )
-    );
-    expect(rejected).toBe(true);
-    await expect(
-      frame.getByText("Your expiration date is invalid")
-    ).toBeVisible();
-    await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
-    expect(await page.evaluate(() => window.submissions.length)).toBe(0);
   });
 
-  test("submits a complete form and emits the encrypted payload to the host", async ({
+  test("fills fields like a user would and validates each one", async ({
     page,
   }) => {
     await page.goto(HOST_ORIGIN);
-    await mountCard(page, { enabled: true, namePrefix: "acmepay" });
+    await mountCard(page, {
+      enabled: true,
+      namePrefix: "acmepay",
+      productName: "Acme Pay",
+    });
     await expect.poll(() => listTools(page)).toEqual(TOOL_NAMES);
 
     const card = VALID_CARDS.visa;
     const frame = page.frameLocator("iframe[data-evervault]");
-    await frame.getByLabel("Number").fill(card.number);
-    await frame.getByLabel("Expiration").fill(`${card.month}/${card.year}`);
-    await frame.getByLabel("CVC").fill(card.cvc);
 
-    const result = await page.evaluate(() => window.callTool("submit-card"));
-    expect(result).toEqual({
-      status: "submitted",
-      brand: card.brand,
-      lastFour: card.lastFour,
-    });
+    const afterBadCvc = await page.evaluate(() =>
+      window.callTool("set-card-field-value", { field: "cvc", value: "12" })
+    );
+    expect(afterBadCvc.fields[2]).toEqual(
+      expect.objectContaining({ field: "cvc", hasValue: true, isValid: false })
+    );
+    await expect(frame.getByText("Your CVC is invalid")).toBeVisible();
 
-    await expect
-      .poll(() => page.evaluate(() => window.submissions.length))
-      .toBe(1);
-    const payload = await page.evaluate(() => window.submissions[0]);
-    expect(payload.isComplete).toBe(true);
-    expect(payload.card.number).toBeEncrypted();
-    expect(payload.card.cvc).toBeEncrypted();
+    await page.evaluate(
+      (card) =>
+        window.callTool("set-card-field-value", {
+          field: "number",
+          value: card.number,
+        }),
+      card
+    );
+    await page.evaluate(
+      (card) =>
+        window.callTool("set-card-field-value", {
+          field: "expiry",
+          value: `${card.month}/${card.year}`,
+        }),
+      card
+    );
+    const status = await page.evaluate(
+      (card) =>
+        window.callTool("set-card-field-value", {
+          field: "cvc",
+          value: card.cvc,
+        }),
+      card
+    );
+
+    expect(status.isComplete).toBe(true);
+    expect(JSON.stringify(status)).not.toContain(card.number);
+    await expect(frame.getByLabel("Number")).toHaveValue("4242 4242 4242 4242");
+    await expect(frame.getByLabel("Expiration")).toHaveValue("01 / 35");
+    await expect(frame.getByLabel("CVC")).toHaveValue(card.cvc);
+    await expect(frame.getByText("Your CVC is invalid")).toBeHidden();
   });
 });
