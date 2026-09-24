@@ -45,6 +45,10 @@ export default class Pin {
     this.#frame.on("EV_FRAME_READY", () => {
       this.#events.dispatch("ready");
     });
+
+    this.#frame.on("EV_ERROR", () => {
+      this.#events.dispatch("error");
+    });
   }
 
   get config() {
