@@ -1,0 +1,28 @@
+# Small reusable workflow that resolves the installed @playwright/test version from pnpm-lock.yaml,
+# so the mcr.microsoft.com/playwright container image always matches the version the tests run with.
+on:
+  workflow_call:
+    outputs:
+      version:
+        description: The resolved @playwright/test version (eg. 1.63.0).
+        value: ${{ jobs.get-playwright-version.outputs.version }}
+jobs:
+  get-playwright-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-playwright-version.outputs.version }}
+    steps:
+      - name: Check out lockfile
+        uses: actions/checkout@v7
+        with:
+          sparse-checkout: pnpm-lock.yaml
+          sparse-checkout-cone-mode: false
+      - name: Get Playwright version
+        id: get-playwright-version
+        run: |-
+          VERSIONS=$(grep -oP "^  '@playwright/test@\K[0-9]+\.[0-9]+\.[0-9]+(?=':)" pnpm-lock.yaml | sort -u)
+          if [ "$(echo "$VERSIONS" | grep -c .)" -ne 1 ]; then
+            echo "::error::Expected exactly one @playwright/test version in pnpm-lock.yaml, found: ${VERSIONS:-none}"
+            exit 1
+          fi
+          echo "version=$VERSIONS" >> $GITHUB_OUTPUT

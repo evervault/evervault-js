@@ -31,7 +31,7 @@ catalogs:
       specifier: ^1.5.0
       version: 1.5.0
     '@playwright/test':
-      specifier: ^1.63.0
+      specifier: 1.63.0
       version: 1.63.0
     '@swc/core':
       specifier: ^1.4.11

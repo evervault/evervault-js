@@ -56,6 +56,8 @@ permissions:
   contents: write
   id-token: write
 jobs:
+  get-playwright-version:
+    uses: ./.github/workflows/get-playwright-version.yml
   # Resolve the name of the artifact to be used in the deployment
   get-artifact-name:
     uses: ./.github/workflows/get-artifact-name.yml
@@ -136,11 +138,11 @@ jobs:
           CF_DISTRO_SECRET_NAME: ${{ inputs.cloudfront-distribution-id }}
 
   validate-preview-deployment:
-    needs: [get-artifact-name, deploy-preview]
+    needs: [get-artifact-name, deploy-preview, get-playwright-version]
     runs-on: ubuntu-latest
     environment: ${{ inputs.preview-environment }}
     container:
-      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      image: mcr.microsoft.com/playwright:v${{ needs.get-playwright-version.outputs.version }}-noble
     if: ${{ inputs.perform-gated-preview-deployment }}
     name: "[PREVIEW] Validate ${{ inputs.package-name }} preview"
     steps:

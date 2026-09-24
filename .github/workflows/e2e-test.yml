@@ -23,6 +23,8 @@ on:
         required: true
         type: boolean
 jobs:
+  get-playwright-version:
+    uses: ./.github/workflows/get-playwright-version.yml
   get-e2e-targets:
     name: "Build list of E2E test projects"
     runs-on: ubuntu-latest
@@ -49,7 +51,7 @@ jobs:
   # The e2e tests run for quite a long time. Until we can accurately select the appropriate tests to run, we're running them in parallel (2 jobs per project, each with 3-4 worker processes.)
   e2e-test:
     name: "Run E2E Tests for ${{ matrix.project }} (Shard ${{ matrix.shard }}/${{ matrix.total-shards }})"
-    needs: [get-e2e-targets]
+    needs: [get-e2e-targets, get-playwright-version]
     strategy:
       fail-fast: false
       matrix:
@@ -60,7 +62,7 @@ jobs:
     timeout-minutes: 25
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      image: mcr.microsoft.com/playwright:v${{ needs.get-playwright-version.outputs.version }}-noble
     permissions:
       contents: write
       pull-requests: write
