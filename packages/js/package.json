@@ -27,9 +27,11 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf node_modules dist"
   },
+  "dependencies": {
+    "themes": "workspace:*"
+  },
   "devDependencies": {
     "@evervault/browser": "workspace:*",
-    "themes": "workspace:*",
     "tsconfig": "workspace:*",
     "types": "workspace:*",
     "typescript": "catalog:",
