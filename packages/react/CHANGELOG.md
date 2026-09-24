@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.30.0
+
+### Minor Changes
+
+- 492dafa: Add opt-in `agentTools` option to the card component that registers white-labeled WebMCP tools inside the card iframe for reading form status, focusing a field, and entering a field value.
+
 ## 2.29.0
 
 ### Minor Changes

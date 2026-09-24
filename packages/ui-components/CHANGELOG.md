@@ -1,5 +1,16 @@
 # @evervault/ui-components
 
+## 1.44.0
+
+### Minor Changes
+
+- 492dafa: Add opt-in `agentTools` option to the card component that registers white-labeled WebMCP tools inside the card iframe for reading form status, focusing a field, and entering a field value.
+
+### Patch Changes
+
+- Updated dependencies [492dafa]
+  - @evervault/react@2.30.0
+
 ## 1.43.3
 
 ### Patch Changes
