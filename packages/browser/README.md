@@ -207,6 +207,44 @@ card.reveal();
 - A multi-page checkout: once the payment page's container exists, so render it hidden on an earlier page or preload the instant that route loads.
 - A card gated behind a toggle: when the toggle's container first mounts, not when the user opens it.
 
+### Agent tools (experimental WebMCP)
+
+Opt in to register [WebMCP](https://developer.chrome.com/docs/ai/webmcp) tools inside the card
+iFrame so browser AI agents can work with the form without ever touching card data. The SDK sets
+`allow="payment; tools"` on the iFrame it injects, so no Permissions Policy setup is needed on the
+host page. Requires a browser with WebMCP enabled (Chrome origin trial or the
+`#enable-webmcp-testing` flag).
+
+```javascript
+const card = evervault.ui.card({
+  agentTools: {
+    enabled: true,
+    namePrefix: "acmepay", // -> "acmepay-submit-card"
+    productName: "Acme Pay", // used in tool descriptions and error messages
+    exposeTo: ["https://checkout.acmepay.com"], // defaults to the current page origin
+  },
+});
+
+card.on("submit", (payload) => {
+  // Encrypted card payload produced by an agent-triggered submission.
+});
+```
+
+| Option        | Type       | Default                    | Description                                                                          |
+| ------------- | ---------- | -------------------------- | ------------------------------------------------------------------------------------ |
+| `enabled`     | `boolean`  | `false`                    | Registers the tools when `true`.                                                     |
+| `namePrefix`  | `string`   | slug of your App ID        | Prefix for every tool name.                                                          |
+| `productName` | `string`   | `"the secure card form"`   | Name used in tool descriptions and error strings.                                    |
+| `exposeTo`    | `string[]` | `[window.location.origin]` | Secure origins allowed to discover and call the tools. Insecure origins are dropped. |
+
+Three tools are registered:
+
+- `<prefix>-get-card-form-status`: per-field `hasValue` / `isValid` / error code plus `isComplete`. No values.
+- `<prefix>-focus-card-field`: focuses a field so the user can type into it. Agents cannot fill fields.
+- `<prefix>-submit-card`: validates the form and, only when complete, encrypts it and emits the `submit` event on the host. Throws when any field is missing or invalid.
+
+The host page discovers them with `document.modelContext.getTools({ fromOrigins: [componentsOrigin] })`.
+
 ### evervault.reveal()
 
 Use [evervault.reveal](https://docs.evervault.com/products/inputs#reveal) to show encrypted card

@@ -1,3 +1,4 @@
+import { resolveAgentToolsConfig } from "./agentTools";
 import EventManager from "./eventManager";
 import { EvervaultFrame } from "./evervaultFrame";
 import type EvervaultClient from "../main";
@@ -18,6 +19,7 @@ interface CardEvents {
   complete: (payload: CardPayload) => void;
   swipe: (payload: SwipedCard) => void;
   validate: (payload: CardPayload) => void;
+  submit: (payload: CardPayload) => void;
   focus: (event: FieldEvent) => void;
   blur: (event: FieldEvent) => void;
   keydown: (event: FieldEvent) => void;
@@ -27,14 +29,19 @@ interface CardEvents {
 export default class Card {
   values: CardPayload;
   #options: CardOptions;
+  #client: EvervaultClient;
   #frame: EvervaultFrame<CardFrameClientMessages, CardFrameHostMessages>;
 
   #events = new EventManager<CardEvents>();
 
   constructor(client: EvervaultClient, options?: CardOptions) {
     this.#options = options ?? {};
+    this.#client = client;
     this.#frame = new EvervaultFrame(client, "Card", {
       colorScheme: this.#options.colorScheme,
+      // Cross-origin iframes need the `tools` Permissions Policy delegated
+      // before they can register WebMCP tools.
+      allow: this.#options.agentTools?.enabled ? "payment; tools" : undefined,
     });
 
     // update the values when the frame sends a change event and dispatch
@@ -58,6 +65,11 @@ export default class Card {
 
     this.#frame.on("EV_ERROR", () => {
       this.#events.dispatch("error");
+    });
+
+    this.#frame.on("EV_AGENT_SUBMIT", (payload) => {
+      this.values = payload;
+      this.#events.dispatch("submit", payload);
     });
 
     this.#frame.on("EV_FOCUS", (field) => {
@@ -122,6 +134,10 @@ export default class Card {
         redactCVC: this.#options.redactCVC,
         allow3DigitAmexCVC: this.#options.allow3DigitAmexCVC,
         validation: this.#options.validation,
+        agentTools: resolveAgentToolsConfig(
+          this.#options.agentTools,
+          this.#client.config.appId
+        ),
       },
     };
   }

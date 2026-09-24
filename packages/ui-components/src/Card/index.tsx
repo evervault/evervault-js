@@ -16,6 +16,7 @@ import { CardExpiry } from "./CardExpiry";
 import { CardHolder } from "./CardHolder";
 import { CardNumber } from "./CardNumber";
 import { DEFAULT_TRANSLATIONS } from "./translations";
+import { useAgentTools } from "./useAgentTools";
 import { useCardReader } from "./useCardReader";
 import {
   changePayload,
@@ -23,6 +24,7 @@ import {
   isBrandSupported,
   swipePayload,
 } from "./utilities";
+import type { CardFormValidators } from "./agentTools";
 import type { CardForm, CardConfig } from "./types";
 import type {
   CardField,
@@ -53,6 +55,71 @@ export function Card({ config }: { config: CardConfig }) {
     return result;
   }, [config]);
 
+  const validators: CardFormValidators = {
+    name: (values) => {
+      if (!fields.includes("name")) return undefined;
+
+      if (values.name.length === 0) {
+        return "invalid";
+      }
+
+      // Check custom regex validation if provided
+      if (config.validation?.name?.regex) {
+        if (!config.validation.name.regex.test(values.name)) {
+          return "regex";
+        }
+      }
+
+      return undefined;
+    },
+    number: (values) => {
+      if (!fields.includes("number")) return undefined;
+
+      const cardValidation = validateNumber(values.number, { customBrands });
+      if (!cardValidation.isValid) {
+        return "invalid";
+      }
+
+      if (!isBrandSupported(cardValidation, { acceptedBrands, customBrands })) {
+        return "unsupportedBrand";
+      }
+
+      return undefined;
+    },
+    expiry: (values) => {
+      if (!fields.includes("expiry")) return undefined;
+
+      const expiryValidation = validateExpiry(values.expiry);
+      if (!expiryValidation.isValid) {
+        return "invalid";
+      }
+
+      return undefined;
+    },
+    cvc: (values) => {
+      if (!fields.includes("cvc")) return undefined;
+      if (config.validation?.cvc?.optional && values.cvc.length === 0)
+        return undefined;
+
+      const cardValidation = validateNumber(values.number, { customBrands });
+      const cvcValidation = validateCVC(values.cvc, values.number, {
+        customBrands,
+      });
+
+      if (!cvcValidation.isValid) {
+        return "invalid";
+      }
+
+      const allow3DigitAmex = config.allow3DigitAmexCVC ?? true;
+      const isAmex = cardValidation.brand === "american-express";
+      if (isAmex && values.cvc?.length === 3 && !allow3DigitAmex) {
+        return "invalid";
+      }
+
+      return undefined;
+    },
+  };
+
   const form = useForm<CardForm>({
     initialValues: {
       cvc: "",
@@ -60,72 +127,7 @@ export function Card({ config }: { config: CardConfig }) {
       number: "",
       name: config.defaultValues?.name ?? "",
     },
-    validate: {
-      name: (values) => {
-        if (!fields.includes("name")) return undefined;
-
-        if (values.name.length === 0) {
-          return "invalid";
-        }
-
-        // Check custom regex validation if provided
-        if (config.validation?.name?.regex) {
-          if (!config.validation.name.regex.test(values.name)) {
-            return "regex";
-          }
-        }
-
-        return undefined;
-      },
-      number: (values) => {
-        if (!fields.includes("number")) return undefined;
-
-        const cardValidation = validateNumber(values.number, { customBrands });
-        if (!cardValidation.isValid) {
-          return "invalid";
-        }
-
-        if (
-          !isBrandSupported(cardValidation, { acceptedBrands, customBrands })
-        ) {
-          return "unsupportedBrand";
-        }
-
-        return undefined;
-      },
-      expiry: (values) => {
-        if (!fields.includes("expiry")) return undefined;
-
-        const expiryValidation = validateExpiry(values.expiry);
-        if (!expiryValidation.isValid) {
-          return "invalid";
-        }
-
-        return undefined;
-      },
-      cvc: (values) => {
-        if (!fields.includes("cvc")) return undefined;
-        if (config.validation?.cvc?.optional && values.cvc.length === 0)
-          return undefined;
-
-        const cardValidation = validateNumber(values.number, { customBrands });
-        const cvcValidation = validateCVC(values.cvc, values.number, {
-          customBrands,
-        });
-
-        if (!cvcValidation.isValid) {
-          return "invalid";
-        }
-
-        const allow3DigitAmex = config.allow3DigitAmexCVC ?? true;
-        const isAmex = cardValidation.brand === "american-express";
-        if (isAmex && values.cvc?.length === 3 && !allow3DigitAmex) {
-          return "invalid";
-        }
-
-        return undefined;
-      },
-    },
+    validate: validators,
     onChange: (formState) => {
       const triggerChange = async () => {
         if (!ev) return;
@@ -162,6 +164,21 @@ export function Card({ config }: { config: CardConfig }) {
 
     cvc.current?.focus();
     void triggerSwipe();
+  });
+
+  useAgentTools({
+    config: config.agentTools,
+    fields,
+    form,
+    validators,
+    ev,
+    payloadOptions: {
+      allow3DigitAmexCVC: config.allow3DigitAmexCVC,
+      cvcOptional: config.validation?.cvc?.optional,
+      customBrands,
+    },
+    t,
+    onSubmit: (payload) => send("EV_AGENT_SUBMIT", payload),
   });
 
   useLayoutEffect(() => {
