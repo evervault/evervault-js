@@ -56,6 +56,22 @@ export default defineConfig({
       name: "Pixel 7",
       use: devices["Pixel 7"],
     },
+    // WebMCP is only in Chrome 149+ behind flags, which the bundled Chromium
+    // predates, so this project drives the locally installed Google Chrome.
+    {
+      name: "chrome-webmcp",
+      testMatch: /agentTools\.spec\.js/,
+      use: {
+        ...devices["Desktop Chrome"],
+        channel: "chrome",
+        launchOptions: {
+          args: [
+            "--enable-features=WebMCP,WebMCPTesting",
+            "--enable-experimental-web-platform-features",
+          ],
+        },
+      },
+    },
   ],
 
   webServer: [
