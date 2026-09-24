@@ -94,6 +94,11 @@ jobs:
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Build ${{ matrix.project }}
         run: pnpm run -r --filter="${{ matrix.project }}..." --if-present build
+      # The chrome-webmcp Playwright project needs Google Chrome, which the
+      # Playwright image does not ship and the bundled Chromium is too old for.
+      - name: Install Google Chrome
+        if: ${{ matrix.project == '@evervault/ui-components-e2e-tests' }}
+        run: pnpm --filter="${{ matrix.project }}" exec playwright install chrome
       - name: E2E test
         id: run-e2e-test
         if: ${{ inputs.update-screenshots == false }}
