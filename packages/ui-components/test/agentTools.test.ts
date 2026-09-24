@@ -97,9 +97,9 @@ describe("buildAgentTools", () => {
 
   it("prefixes tool names and brands descriptions with the product name", () => {
     expect(tools.map((tool) => tool.name)).toEqual([
-      "acmepay-get-card-form-status",
-      "acmepay-focus-card-field",
-      "acmepay-set-card-field-value",
+      "acmepay-get-form-status",
+      "acmepay-focus-field",
+      "acmepay-set-field-value",
     ]);
     for (const tool of tools) {
       expect(tool.description).toContain("Acme Pay");

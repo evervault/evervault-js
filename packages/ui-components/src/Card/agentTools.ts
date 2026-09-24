@@ -101,14 +101,14 @@ export function buildAgentTools(
 
   return [
     {
-      name: agentToolName(namePrefix, "get-card-form-status"),
+      name: agentToolName(namePrefix, "get-form-status"),
       description: `Read the state of ${productName}. Returns, for each card field, whether the user has entered a value and whether it is valid, plus whether the whole form is complete. Never returns card details.`,
       inputSchema: { type: "object", properties: {} },
       annotations: { readOnlyHint: true },
       execute: () => handlers.getStatus(),
     },
     {
-      name: agentToolName(namePrefix, "focus-card-field"),
+      name: agentToolName(namePrefix, "focus-field"),
       description: `Move keyboard focus to a field in ${productName} so the user can type into it.`,
       inputSchema: {
         type: "object",
@@ -131,7 +131,7 @@ export function buildAgentTools(
       },
     },
     {
-      name: agentToolName(namePrefix, "set-card-field-value"),
+      name: agentToolName(namePrefix, "set-field-value"),
       description: `Enter a value into a field in ${productName}, exactly as if the user had typed it. The field is validated immediately. Card number and CVC are digits; expiry is MM/YY. Returns the updated form status, never the value.`,
       inputSchema: {
         type: "object",

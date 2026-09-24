@@ -6,9 +6,9 @@ const HOST_ORIGIN = "http://localhost:4005";
 const OTHER_ORIGIN = "http://[::1]:4005";
 
 const TOOL_NAMES = [
-  "acmepay-focus-card-field",
-  "acmepay-get-card-form-status",
-  "acmepay-set-card-field-value",
+  "acmepay-focus-field",
+  "acmepay-get-form-status",
+  "acmepay-set-field-value",
 ];
 
 test.describe("card agent tools (WebMCP)", () => {
@@ -128,7 +128,7 @@ test.describe("card agent tools (WebMCP)", () => {
     await frame.getByLabel("Number").fill(VALID_CARDS.visa.number);
 
     const status = await page.evaluate(() =>
-      window.callTool("get-card-form-status")
+      window.callTool("get-form-status")
     );
     expect(status.isComplete).toBe(false);
     expect(status.fields).toEqual([
@@ -166,7 +166,7 @@ test.describe("card agent tools (WebMCP)", () => {
     const frame = page.frameLocator("iframe[data-evervault]");
 
     const afterBadCvc = await page.evaluate(() =>
-      window.callTool("set-card-field-value", { field: "cvc", value: "12" })
+      window.callTool("set-field-value", { field: "cvc", value: "12" })
     );
     expect(afterBadCvc.fields[2]).toEqual(
       expect.objectContaining({ field: "cvc", hasValue: true, isValid: false })
@@ -175,7 +175,7 @@ test.describe("card agent tools (WebMCP)", () => {
 
     await page.evaluate(
       (card) =>
-        window.callTool("set-card-field-value", {
+        window.callTool("set-field-value", {
           field: "number",
           value: card.number,
         }),
@@ -183,7 +183,7 @@ test.describe("card agent tools (WebMCP)", () => {
     );
     await page.evaluate(
       (card) =>
-        window.callTool("set-card-field-value", {
+        window.callTool("set-field-value", {
           field: "expiry",
           value: `${card.month}/${card.year}`,
         }),
@@ -191,7 +191,7 @@ test.describe("card agent tools (WebMCP)", () => {
     );
     const status = await page.evaluate(
       (card) =>
-        window.callTool("set-card-field-value", {
+        window.callTool("set-field-value", {
           field: "cvc",
           value: card.cvc,
         }),

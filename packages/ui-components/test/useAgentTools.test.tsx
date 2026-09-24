@@ -86,9 +86,9 @@ describe("useAgentTools registration", () => {
       expect(options.signal?.aborted).toBe(false);
     }
     expect(registered.map((r) => r.tool.name).sort()).toEqual([
-      "acmepay-focus-card-field",
-      "acmepay-get-card-form-status",
-      "acmepay-set-card-field-value",
+      "acmepay-focus-field",
+      "acmepay-get-form-status",
+      "acmepay-set-field-value",
     ]);
   });
 
@@ -152,7 +152,7 @@ describe("useAgentTools handlers", () => {
       form: makeForm({ number: "4242424242424242", cvc: "12" }),
     });
 
-    const status = find("get-card-form-status").execute({}, { signal }) as {
+    const status = find("get-form-status").execute({}, { signal }) as {
       fields: { field: string; hasValue: boolean; isValid: boolean }[];
       isComplete: boolean;
     };
@@ -178,7 +178,7 @@ describe("useAgentTools handlers", () => {
     const form = makeForm({ number: "4242424242424242", expiry: "0135" });
     renderHook(() => useAgentTools(baseParams({ form })));
 
-    const status = find("set-card-field-value").execute(
+    const status = find("set-field-value").execute(
       { field: "cvc", value: "12" },
       { signal }
     ) as { fields: { field: string; isValid: boolean }[]; isComplete: boolean };
@@ -191,7 +191,7 @@ describe("useAgentTools handlers", () => {
     );
     expect(JSON.stringify(status)).not.toContain("12");
 
-    const complete = find("set-card-field-value").execute(
+    const complete = find("set-field-value").execute(
       { field: "cvc", value: "123" },
       { signal }
     ) as { isComplete: boolean };
@@ -206,16 +206,16 @@ describe("useAgentTools handlers", () => {
     document.body.appendChild(input);
     renderHook(() => useAgentTools(baseParams()));
 
-    expect(
-      find("focus-card-field").execute({ field: "cvc" }, { signal })
-    ).toEqual({ focused: "cvc" });
+    expect(find("focus-field").execute({ field: "cvc" }, { signal })).toEqual({
+      focused: "cvc",
+    });
     expect(document.activeElement).toBe(input);
   });
 
   it("throws when asked to focus a field that is not rendered", () => {
     renderHook(() => useAgentTools(baseParams()));
     expect(() =>
-      find("focus-card-field").execute({ field: "name" }, { signal })
+      find("focus-field").execute({ field: "name" }, { signal })
     ).toThrow('Acme Pay does not show a "name" field.');
   });
 });

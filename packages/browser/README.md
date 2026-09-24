@@ -218,7 +218,7 @@ at the DOM. Requires Chrome 149 or newer with the `#devtools-webmcp-support` and
 const card = evervault.ui.card({
   agentTools: {
     enabled: true,
-    namePrefix: "acmepay", // -> "acmepay-focus-card-field"
+    namePrefix: "acmepay", // -> "acmepay-focus-field"
     productName: "Acme Pay", // used in tool descriptions and error messages
     exposeTo: ["https://checkout.acmepay.com"], // defaults to the current page origin
   },
@@ -235,9 +235,9 @@ const card = evervault.ui.card({
 Three tools are registered. Each maps onto something a user can already do in the form, and none
 returns card values:
 
-- `<prefix>-get-card-form-status`: per-field `hasValue` / `isValid` / error code plus `isComplete`.
-- `<prefix>-focus-card-field`: focuses a field so the user can type into it.
-- `<prefix>-set-card-field-value`: enters a value into a field as if the user had typed it, validates
+- `<prefix>-get-form-status`: per-field `hasValue` / `isValid` / error code plus `isComplete`.
+- `<prefix>-focus-field`: focuses a field so the user can type into it.
+- `<prefix>-set-field-value`: enters a value into a field as if the user had typed it, validates
   it immediately, and returns the updated form status. Card number and CVC are digits; expiry is
   `MM/YY`.
 
