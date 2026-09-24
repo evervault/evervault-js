@@ -13,7 +13,7 @@ const TOOL_NAMES = [
 
 test.describe("card agent tools (WebMCP)", () => {
   test.skip(
-    ({ channel }) => channel !== "chrome",
+    () => test.info().project.name !== "chrome-webmcp",
     "needs the chrome-webmcp project"
   );
 
