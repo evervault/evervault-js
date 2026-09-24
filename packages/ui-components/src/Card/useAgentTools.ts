@@ -58,7 +58,16 @@ export function useAgentTools({
     if (!namePrefix || !productName) return undefined;
 
     const modelContext = document.modelContext;
-    if (!modelContext || typeof modelContext.registerTool !== "function") {
+    if (!modelContext) {
+      console.warn(
+        "Agent tools are enabled but this browser does not expose document.modelContext (WebMCP)."
+      );
+      return undefined;
+    }
+    if (typeof modelContext.registerTool !== "function") {
+      console.warn(
+        "Agent tools are enabled but document.modelContext.registerTool is unavailable; the WebMCP build may be too old."
+      );
       return undefined;
     }
 
@@ -105,11 +114,10 @@ export function useAgentTools({
             .filter((status) => !status.isValid)
             .map((status) => status.field);
 
-          // Surface validation errors in the UI so the user sees why the
-          // agent's submission was rejected.
-          form.validate();
-
           if (invalid.length > 0) {
+            // Surface validation errors in the UI so the user sees why the
+            // agent's submission was rejected.
+            form.validate();
             throw new Error(incompleteFormMessage(productName, invalid));
           }
 

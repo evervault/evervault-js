@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   isSecureOrigin,
   resolveAgentToolsConfig,
@@ -41,6 +41,18 @@ describe("resolveAgentToolsConfig", () => {
   it("defaults exposeTo to the current origin", () => {
     const resolved = resolveAgentToolsConfig({ enabled: true }, "app_x");
     expect(resolved?.exposeTo).toEqual([window.location.origin]);
+  });
+
+  it("warns when every requested origin is filtered out", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const resolved = resolveAgentToolsConfig(
+      { enabled: true, exposeTo: ["http://merchant.example", "nope"] },
+      "app_x"
+    );
+    expect(resolved?.exposeTo).toEqual([]);
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toContain("http://merchant.example");
+    warn.mockRestore();
   });
 
   it("drops insecure and malformed origins", () => {

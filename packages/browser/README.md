@@ -210,10 +210,9 @@ card.reveal();
 ### Agent tools (experimental WebMCP)
 
 Opt in to register [WebMCP](https://developer.chrome.com/docs/ai/webmcp) tools inside the card
-iFrame so browser AI agents can work with the form without ever touching card data. The SDK sets
-`allow="payment; tools"` on the iFrame it injects, so no Permissions Policy setup is needed on the
-host page. Requires a browser with WebMCP enabled (Chrome origin trial or the
-`#enable-webmcp-testing` flag).
+iFrame so browser agents can work with the form without touching card data. Requires Chrome 149 or
+newer with the `#devtools-webmcp-support` and `#enable-webmcp-testing` flags enabled in
+`chrome://flags`.
 
 ```javascript
 const card = evervault.ui.card({
@@ -230,12 +229,12 @@ card.on("submit", (payload) => {
 });
 ```
 
-| Option        | Type       | Default                    | Description                                                                          |
-| ------------- | ---------- | -------------------------- | ------------------------------------------------------------------------------------ |
-| `enabled`     | `boolean`  | `false`                    | Registers the tools when `true`.                                                     |
-| `namePrefix`  | `string`   | slug of your App ID        | Prefix for every tool name.                                                          |
-| `productName` | `string`   | `"the secure card form"`   | Name used in tool descriptions and error strings.                                    |
-| `exposeTo`    | `string[]` | `[window.location.origin]` | Secure origins allowed to discover and call the tools. Insecure origins are dropped. |
+| Option        | Type       | Default                    | Description                                                                             |
+| ------------- | ---------- | -------------------------- | --------------------------------------------------------------------------------------- |
+| `enabled`     | `boolean`  | `false`                    | Registers the tools when `true`.                                                        |
+| `namePrefix`  | `string`   | slug of your App ID        | Prefix for every tool name. Set a distinct prefix per card when mounting more than one. |
+| `productName` | `string`   | `"the secure card form"`   | Name used in tool descriptions and error strings.                                       |
+| `exposeTo`    | `string[]` | `[window.location.origin]` | Secure origins allowed to discover and call the tools. Insecure origins are dropped.    |
 
 Three tools are registered:
 

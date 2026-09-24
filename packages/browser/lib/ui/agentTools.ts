@@ -42,5 +42,13 @@ export function resolveAgentToolsConfig(
   const requested = config.exposeTo ?? [window.location.origin];
   const exposeTo = Array.from(new Set(requested)).filter(isSecureOrigin);
 
+  if (exposeTo.length === 0) {
+    console.warn(
+      `agentTools.exposeTo contains no secure origins (${requested.join(
+        ", "
+      )}); the tools will be registered but no page will be able to discover them.`
+    );
+  }
+
   return { namePrefix, productName, exposeTo };
 }
