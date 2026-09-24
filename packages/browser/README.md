@@ -230,12 +230,12 @@ card.on("submit", (payload) => {
 });
 ```
 
-| Option        | Type       | Default                                   | Description                                                                |
-| ------------- | ---------- | ----------------------------------------- | -------------------------------------------------------------------------- |
-| `enabled`     | `boolean`  | `false`                                   | Registers the tools when `true`.                                           |
-| `namePrefix`  | `string`   | slug of your App ID                       | Prefix for every tool name.                                                |
-| `productName` | `string`   | `"the secure card form"`                  | Name used in tool descriptions and error strings.                          |
-| `exposeTo`    | `string[]` | `[window.location.origin]`                | Secure origins allowed to discover and call the tools. Insecure origins are dropped. |
+| Option        | Type       | Default                    | Description                                                                          |
+| ------------- | ---------- | -------------------------- | ------------------------------------------------------------------------------------ |
+| `enabled`     | `boolean`  | `false`                    | Registers the tools when `true`.                                                     |
+| `namePrefix`  | `string`   | slug of your App ID        | Prefix for every tool name.                                                          |
+| `productName` | `string`   | `"the secure card form"`   | Name used in tool descriptions and error strings.                                    |
+| `exposeTo`    | `string[]` | `[window.location.origin]` | Secure origins allowed to discover and call the tools. Insecure origins are dropped. |
 
 Three tools are registered:
 

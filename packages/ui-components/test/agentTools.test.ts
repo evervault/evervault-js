@@ -66,7 +66,11 @@ describe("buildFieldStatuses", () => {
 
 describe("buildAgentTools", () => {
   const handlers = {
-    getStatus: vi.fn(() => ({ fields: [], isComplete: false, focusedField: null })),
+    getStatus: vi.fn(() => ({
+      fields: [],
+      isComplete: false,
+      focusedField: null,
+    })),
     focusField: vi.fn((field) => ({ focused: field })),
     submit: vi.fn(async () => ({
       status: "submitted" as const,

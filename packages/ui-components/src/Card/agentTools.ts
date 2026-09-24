@@ -65,7 +65,9 @@ export function incompleteFormMessage(
   productName: string,
   invalidFields: CardField[]
 ): string {
-  return `Cannot submit ${productName}: the following fields are missing or invalid: ${invalidFields.join(", ")}. Ask the user to complete them and try again.`;
+  return `Cannot submit ${productName}: the following fields are missing or invalid: ${invalidFields.join(
+    ", "
+  )}. Ask the user to complete them and try again.`;
 }
 
 export function fieldNotAvailableMessage(

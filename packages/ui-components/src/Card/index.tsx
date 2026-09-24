@@ -80,9 +80,7 @@ export function Card({ config }: { config: CardConfig }) {
         return "invalid";
       }
 
-      if (
-        !isBrandSupported(cardValidation, { acceptedBrands, customBrands })
-      ) {
+      if (!isBrandSupported(cardValidation, { acceptedBrands, customBrands })) {
         return "unsupportedBrand";
       }
 
