@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  isSecureOrigin,
   resolveAgentToolsConfig,
   slugify,
+  toSecureOrigin,
 } from "../lib/ui/agentTools";
 import Card from "../lib/ui/card";
 import type EvervaultClient from "../lib/main";
@@ -71,6 +71,17 @@ describe("resolveAgentToolsConfig", () => {
     );
     expect(resolved?.exposeTo).toEqual(["https://merchant.example"]);
   });
+
+  it("accepts a trailing slash and normalises it to the origin", () => {
+    const resolved = resolveAgentToolsConfig(
+      {
+        enabled: true,
+        exposeTo: ["https://shop.example/", "https://shop.example"],
+      },
+      "app_x"
+    );
+    expect(resolved?.exposeTo).toEqual(["https://shop.example"]);
+  });
 });
 
 describe("helpers", () => {
@@ -79,10 +90,19 @@ describe("helpers", () => {
     expect(slugify("!!!")).toBe("");
   });
 
-  it("isSecureOrigin", () => {
-    expect(isSecureOrigin("https://a.example")).toBe(true);
-    expect(isSecureOrigin("http://localhost:3000")).toBe(true);
-    expect(isSecureOrigin("http://a.example")).toBe(false);
+  it("toSecureOrigin", () => {
+    expect(toSecureOrigin("https://a.example")).toBe("https://a.example");
+    expect(toSecureOrigin("https://a.example/")).toBe("https://a.example");
+    expect(toSecureOrigin("HTTPS://A.Example:443/")).toBe("https://a.example");
+    expect(toSecureOrigin("http://localhost:3000")).toBe(
+      "http://localhost:3000"
+    );
+    expect(toSecureOrigin("http://a.example")).toBeNull();
+    expect(toSecureOrigin("https://a.example/checkout")).toBeNull();
+    expect(toSecureOrigin("https://a.example/?x=1")).toBeNull();
+    expect(toSecureOrigin("https://a.example/#top")).toBeNull();
+    expect(toSecureOrigin("https://user:pw@a.example/")).toBeNull();
+    expect(toSecureOrigin("nope")).toBeNull();
   });
 });
 
