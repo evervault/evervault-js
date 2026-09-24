@@ -21,6 +21,7 @@ export interface RevealCopyButtonOptions {
 
 interface RevealCopyButtonEvents {
   copy: () => void;
+  error: () => void;
 }
 
 export default class RevealCopyButton {
@@ -57,6 +58,10 @@ export default class RevealCopyButton {
 
     this.#frame.on("EV_COPY", () => {
       this.#events.dispatch("copy");
+    });
+
+    this.#frame.on("EV_ERROR", () => {
+      this.#events.dispatch("error");
     });
   }
 

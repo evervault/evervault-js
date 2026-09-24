@@ -63,6 +63,14 @@ export function integrity() {
         if (href) addIntegrityToNode(link, href);
       }
 
+      const preloads = parsed.window.document.querySelectorAll(
+        "link[rel=modulepreload]"
+      );
+      for (const link of preloads) {
+        const href = link.getAttribute("href");
+        if (href) addIntegrityToNode(link, href);
+      }
+
       const referenced = new Set(
         [...scripts, ...links].map((node) =>
           (node.getAttribute("src") ?? node.getAttribute("href"))?.replace(

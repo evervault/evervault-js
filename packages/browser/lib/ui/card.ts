@@ -68,6 +68,10 @@ export default class Card {
       this.#events.dispatch("submit", payload);
     });
 
+    this.#frame.on("EV_ERROR", () => {
+      this.#events.dispatch("error");
+    });
+
     this.#frame.on("EV_FOCUS", (field) => {
       this.#events.dispatch("focus", {
         field,
