@@ -56,6 +56,21 @@ export default defineConfig({
       name: "Pixel 7",
       use: devices["Pixel 7"],
     },
+    // WebMCP ships behind flags in Chromium 149+, so the agent tools spec
+    // runs in its own project with the feature enabled.
+    {
+      name: "chrome-webmcp",
+      testMatch: /agentTools\.spec\.js/,
+      use: {
+        ...devices["Desktop Chrome"],
+        launchOptions: {
+          args: [
+            "--enable-features=WebMCP,WebMCPTesting",
+            "--enable-experimental-web-platform-features",
+          ],
+        },
+      },
+    },
   ],
 
   webServer: [

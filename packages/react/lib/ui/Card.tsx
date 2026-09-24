@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useEffect, useMemo, useRef, useImperativeHandle } from "react";
 import type {
+  AgentToolsConfig,
   CardBrandName,
   CardField,
   CardIcons,
@@ -45,6 +46,7 @@ export interface CardProps {
   allow3DigitAmexCVC?: boolean;
   validation?: CardOptions["validation"];
   customBrands?: CustomBrand[];
+  agentTools?: AgentToolsConfig;
 }
 
 type CardInstance = ReturnType<EvervaultClient["ui"]["card"]>;
@@ -75,6 +77,7 @@ export const Card = React.forwardRef<CardRef, CardProps>(function Card(
     allow3DigitAmexCVC,
     validation,
     customBrands,
+    agentTools,
   }: CardProps,
   forwardedRef
 ) {
@@ -109,6 +112,7 @@ export const Card = React.forwardRef<CardRef, CardProps>(function Card(
       allow3DigitAmexCVC,
       validation,
       customBrands,
+      agentTools,
     }),
     [
       colorScheme,
@@ -125,6 +129,7 @@ export const Card = React.forwardRef<CardRef, CardProps>(function Card(
       allow3DigitAmexCVC,
       validation,
       customBrands,
+      agentTools,
     ]
   );
 

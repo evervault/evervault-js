@@ -207,6 +207,47 @@ card.reveal();
 - A multi-page checkout: once the payment page's container exists, so render it hidden on an earlier page or preload the instant that route loads.
 - A card gated behind a toggle: when the toggle's container first mounts, not when the user opens it.
 
+### Agent tools (experimental WebMCP)
+
+Opt in to register [WebMCP](https://developer.chrome.com/docs/ai/webmcp) tools inside the card
+iFrame so browser agents can work with the form through a structured interface instead of guessing
+at the DOM. Requires Chrome 149 or newer with the `#devtools-webmcp-support` and
+`#enable-webmcp-testing` flags enabled in `chrome://flags`.
+
+```javascript
+const card = evervault.ui.card({
+  agentTools: {
+    enabled: true,
+    namePrefix: "acmepay", // -> "acmepay-focus-field"
+    productName: "Acme Pay", // used in tool descriptions and error messages
+    exposeTo: ["https://checkout.acmepay.com"], // defaults to the current page origin
+  },
+});
+```
+
+| Option        | Type       | Default                    | Description                                                                             |
+| ------------- | ---------- | -------------------------- | --------------------------------------------------------------------------------------- |
+| `enabled`     | `boolean`  | `false`                    | Registers the tools when `true`.                                                        |
+| `namePrefix`  | `string`   | slug of your App ID        | Prefix for every tool name. Set a distinct prefix per card when mounting more than one. |
+| `productName` | `string`   | `"the secure card form"`   | Name used in tool descriptions and error strings.                                       |
+| `exposeTo`    | `string[]` | `[window.location.origin]` | Secure origins allowed to discover and call the tools. Insecure origins are dropped.    |
+
+Three tools are registered. Each maps onto something a user can already do in the form, and none
+returns card values:
+
+- `<prefix>-get-form-status`: per-field `hasValue` / `isValid` / error code plus `isComplete`.
+- `<prefix>-focus-field`: focuses a field so the user can type into it.
+- `<prefix>-set-field-value`: enters a value into a field as if the user had typed it, validates
+  it immediately, and returns the updated form status. Card number and CVC are digits; expiry is
+  `MM/YY`.
+
+Values entered this way flow through the normal `change` and `complete` events, so your existing
+checkout submit handles agent-filled forms without changes. Submission stays with your page: once
+the status tool reports `isComplete`, the agent calls your checkout action.
+
+The host page discovers the tools with
+`document.modelContext.getTools({ fromOrigins: [componentsOrigin] })`.
+
 ### evervault.reveal()
 
 Use [evervault.reveal](https://docs.evervault.com/products/inputs#reveal) to show encrypted card

@@ -17,6 +17,13 @@ const card = evervault.ui.card({
   icons: true,
   theme: evervault.ui.themes.clean(),
   autoProgress: true,
+  agentTools: {
+    enabled: true,
+    namePrefix: "Evervault",
+    productName: "Card",
+    exposeTo: ["http://localhost:4000"],
+  },
+
 });
 
 card.on("change", (values) => {
