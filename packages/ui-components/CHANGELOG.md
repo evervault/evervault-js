@@ -1,5 +1,12 @@
 # @evervault/ui-components
 
+## 1.43.3
+
+### Patch Changes
+
+- 746aa0d: Code-split each component type behind a dynamic import instead of bundling all eight into one chunk. An iframe now only fetches the code for the component it was asked to render. No public API change.
+- @evervault/react@2.29.0
+
 ## 1.43.2
 
 ### Patch Changes
