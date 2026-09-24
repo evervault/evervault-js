@@ -154,6 +154,23 @@ export interface CustomBrand {
   iconSrc?: string;
 }
 
+// Opt-in WebMCP tool registration inside the card iframe. Names,
+// descriptions and error strings derive from namePrefix/productName so
+// white-labeled integrations never expose a vendor brand to agents.
+export interface AgentToolsConfig {
+  enabled: boolean;
+  namePrefix?: string;
+  productName?: string;
+  exposeTo?: string[];
+}
+
+// The fully resolved form of AgentToolsConfig sent to the iframe.
+export interface AgentToolsFrameConfig {
+  namePrefix: string;
+  productName: string;
+  exposeTo: string[];
+}
+
 export interface CardOptions {
   colorScheme?: ColorScheme;
   icons?: boolean | Partial<CardIcons>;
@@ -184,6 +201,7 @@ export interface CardOptions {
       optional?: boolean;
     };
   };
+  agentTools?: AgentToolsConfig;
 }
 
 export interface FormOptions {
@@ -241,6 +259,7 @@ export interface CardFrameClientMessages extends EvervaultFrameClientMessages {
   EV_BLUR: CardField;
   EV_KEYDOWN: CardField;
   EV_KEYUP: CardField;
+  EV_AGENT_SUBMIT: CardPayload;
 }
 
 export interface CardFrameHostMessages extends EvervaultFrameHostMessages {
