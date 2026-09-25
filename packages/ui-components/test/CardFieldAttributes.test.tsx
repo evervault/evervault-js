@@ -49,7 +49,9 @@ function validity(container: HTMLElement, name: string) {
 
 describe("autocomplete", () => {
   it("turns autocomplete off when declared off", async () => {
-    const container = card({}, [node("number", "number", { autocomplete: "off" })]);
+    const container = card({}, [
+      node("number", "number", { autocomplete: "off" }),
+    ]);
 
     expect(input(container, "number").autocomplete).toBe("off");
   });
@@ -202,7 +204,10 @@ describe("redact", () => {
 
 describe("optional", () => {
   it("accepts an empty security code when declared optional", async () => {
-    const container = card({}, [node("number"), node("cvc", "cvc", { optional: "" })]);
+    const container = card({}, [
+      node("number"),
+      node("cvc", "cvc", { optional: "" }),
+    ]);
 
     fireEvent.blur(input(container, "cvc"));
 
@@ -231,7 +236,9 @@ describe("optional", () => {
 
 describe("default-value", () => {
   it("fills the card holder with the declared default value", async () => {
-    const container = card({}, [node("name", "name", { "default-value": "Jane Doe" })]);
+    const container = card({}, [
+      node("name", "name", { "default-value": "Jane Doe" }),
+    ]);
 
     await waitFor(() =>
       expect(input(container, "name").value).toBe("Jane Doe")
@@ -258,7 +265,9 @@ describe("default-value", () => {
   });
 
   it("reports no change of its own for a seeded default value", async () => {
-    const container = card({}, [node("name", "name", { "default-value": "Jane Doe" })]);
+    const container = card({}, [
+      node("name", "name", { "default-value": "Jane Doe" }),
+    ]);
 
     await waitFor(() =>
       expect(input(container, "name").value).toBe("Jane Doe")
@@ -268,7 +277,9 @@ describe("default-value", () => {
   });
 
   it("takes a new default value while the customer has typed nothing", async () => {
-    const container = card({}, [node("name", "name", { "default-value": "Jane Doe" })]);
+    const container = card({}, [
+      node("name", "name", { "default-value": "Jane Doe" }),
+    ]);
 
     await waitFor(() =>
       expect(input(container, "name").value).toBe("Jane Doe")
@@ -284,7 +295,9 @@ describe("default-value", () => {
   });
 
   it("keeps the typed name when the default value changes", async () => {
-    const container = card({}, [node("name", "name", { "default-value": "Jane Doe" })]);
+    const container = card({}, [
+      node("name", "name", { "default-value": "Jane Doe" }),
+    ]);
 
     await waitFor(() =>
       expect(input(container, "name").value).toBe("Jane Doe")
