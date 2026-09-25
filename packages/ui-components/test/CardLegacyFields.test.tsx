@@ -4,12 +4,12 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { fireEvent, render, waitFor } from "@testing-library/react";
-import { act } from "react";
+import { render, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { Card } from "../src/Card";
 import type { CardConfig } from "../src/Card/types";
 import type { CardField } from "types";
+import { settle, type } from "./helpers/card";
 
 vi.mock("@evervault/react", () => ({
   useEvervault: () => ({ encrypt: vi.fn(async (value) => `ev:${value}`) }),
@@ -69,15 +69,6 @@ const VALUES: Record<CardField, string> = {
 function focused() {
   const id = document.activeElement?.id;
   return id ? id : null;
-}
-
-function type(element: HTMLInputElement, value: string) {
-  element.focus();
-  fireEvent.input(element, { target: { value } });
-}
-
-async function settle() {
-  await act(async () => {});
 }
 
 // `ev-fields` used to echo `config.fields` as given, invalid entries and all.

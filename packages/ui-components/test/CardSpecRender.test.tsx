@@ -3,11 +3,10 @@
  */
 
 import { render, waitFor } from "@testing-library/react";
-import { act } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { Card } from "../src/Card";
 import type { CardConfig } from "../src/Card/types";
-import type { CardSpecNode, CardSpecPatchOp } from "types";
+import { apply, fieldNames, inserts, node, row, spec } from "./helpers/card";
 
 vi.mock("@evervault/react", () => ({
   useEvervault: () => ({ encrypt: vi.fn() }),
@@ -17,14 +16,12 @@ vi.mock("../src/utilities/useSearchParams", () => ({
   useSearchParams: () => ({ app: "app_test123", id: "frame1" }),
 }));
 
-let patch: (payload: { ops: CardSpecPatchOp[] }) => void = () => {};
-
 vi.mock("../src/utilities/useMessaging", () => {
   const messaging = {
     send: vi.fn(),
     on: (type: string, callback: (payload: unknown) => void) => {
       if (type === "EV_SPEC_PATCH") {
-        patch = callback as typeof patch;
+        spec.patch = callback as typeof spec.patch;
       }
       return () => {};
     },
@@ -32,39 +29,6 @@ vi.mock("../src/utilities/useMessaging", () => {
 
   return { useMessaging: () => messaging };
 });
-
-function node(
-  type: CardSpecNode["type"],
-  id: string,
-  props: Record<string, string> = {}
-): CardSpecNode {
-  return { type, id, props };
-}
-
-function row(id: string, children: CardSpecNode[]): CardSpecNode {
-  return { type: "row", id, props: {}, children };
-}
-
-function inserts(nodes: CardSpecNode[]): CardSpecPatchOp[] {
-  return nodes.map((node, index) => ({
-    op: "insert",
-    parentId: null,
-    index,
-    node,
-  }));
-}
-
-function apply(ops: CardSpecPatchOp[]) {
-  act(() => {
-    patch({ ops });
-  });
-}
-
-function fieldNames(container: HTMLElement) {
-  return [...container.querySelectorAll("[ev-name]")].map((field) =>
-    field.getAttribute("ev-name")
-  );
-}
 
 function card(config: CardConfig) {
   return render(<Card config={config} />);
