@@ -397,36 +397,40 @@ export function Card({ config }: { config: CardConfig }) {
       );
     }
 
-    return (
-      <Field
-        key={node.id}
-        name="cvc"
-        hasValue={form.values.cvc.length > 0}
-        error={form.errors?.cvc && t(`cvc.errors.${form.errors.cvc}`)}
-      >
-        <label htmlFor="cvc">{t("cvc.label")}</label>
-        <CardCVC
-          ref={cvc}
-          value={form.values.cvc}
-          disabled={!config}
-          cardNumber={form.values.number}
-          readOnly={cardReaderListening}
-          placeholder={t("cvc.placeholder")}
-          onFocus={handleFocus("cvc")}
-          onKeyUp={handleKeyUp("cvc")}
-          onKeyDown={handleKeyDown("cvc")}
-          autoComplete={config.autoComplete?.cvc ?? true}
-          redact={config.redactCVC}
-          customBrands={customBrands}
-          {...form.register("cvc", {
-            onBlur: handleBlur("cvc"),
-          })}
-        />
-        {form.errors?.cvc && (
-          <Error>{t(`cvc.errors.${form.errors.cvc}`)}</Error>
-        )}
-      </Field>
-    );
+    if (field === "cvc") {
+      return (
+        <Field
+          key={node.id}
+          name="cvc"
+          hasValue={form.values.cvc.length > 0}
+          error={form.errors?.cvc && t(`cvc.errors.${form.errors.cvc}`)}
+        >
+          <label htmlFor="cvc">{t("cvc.label")}</label>
+          <CardCVC
+            ref={cvc}
+            value={form.values.cvc}
+            disabled={!config}
+            cardNumber={form.values.number}
+            readOnly={cardReaderListening}
+            placeholder={t("cvc.placeholder")}
+            onFocus={handleFocus("cvc")}
+            onKeyUp={handleKeyUp("cvc")}
+            onKeyDown={handleKeyDown("cvc")}
+            autoComplete={config.autoComplete?.cvc ?? true}
+            redact={config.redactCVC}
+            customBrands={customBrands}
+            {...form.register("cvc", {
+              onBlur: handleBlur("cvc"),
+            })}
+          />
+          {form.errors?.cvc && (
+            <Error>{t(`cvc.errors.${form.errors.cvc}`)}</Error>
+          )}
+        </Field>
+      );
+    }
+
+    return null;
   };
 
   return (
