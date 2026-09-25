@@ -41,7 +41,7 @@ jobs:
       - name: Get publishable packages
         id: get-publishable-packages
         run: |-
-          PUBLISHABLE=$(pnpm m ls --depth=1 --json | jq -cr '[.[] | select(.name|startswith("@evervault")) | select(.private == false) | .name]')
+          PUBLISHABLE=$(pnpm m ls --depth=1 --json | jq -cr '[.[] | select(.name|startswith("@evervault")) | select(.private == false or .name == "@evervault/browser") | .name]')
           echo "publishable-packages=$PUBLISHABLE" >> $GITHUB_OUTPUT
   build:
     uses: ./.github/workflows/build.yml
