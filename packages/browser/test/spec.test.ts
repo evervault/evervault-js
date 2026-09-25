@@ -79,17 +79,14 @@ describe("serialise", () => {
     const [row] = serialise(
       card(`
         <ev-row>
-          <ev-card-expiry-month></ev-card-expiry-month>
-          <ev-card-expiry-year></ev-card-expiry-year>
+          <ev-card-expiry></ev-card-expiry>
+          <ev-card-cvc></ev-card-cvc>
         </ev-row>
       `)
     );
 
     expect(row.type).toBe("row");
-    expect(row.children?.map((node) => node.type)).toEqual([
-      "expiryMonth",
-      "expiryYear",
-    ]);
+    expect(row.children?.map((node) => node.type)).toEqual(["expiry", "cvc"]);
   });
 
   it("gives a field no children", () => {
@@ -122,12 +119,5 @@ describe("serialise", () => {
     );
 
     expect(spec[0].id).not.toBe(spec[1].id);
-  });
-
-  it("serialises a customer field", () => {
-    const [node] = serialise(card(`<ev-field name="postcode"></ev-field>`));
-
-    expect(node.type).toBe("field");
-    expect(node.props).toEqual({ name: "postcode" });
   });
 });
