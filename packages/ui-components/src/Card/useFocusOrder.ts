@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { CardField } from "types";
 
 // Each reports whether there was a field to move to.
@@ -12,7 +12,10 @@ export interface FocusOrder {
 export function useFocusOrder(order: CardField[]): FocusOrder {
   // A patch can reorder the card, so the order is read when focus moves.
   const current = useRef(order);
-  current.current = order;
+
+  useEffect(() => {
+    current.current = order;
+  }, [order]);
 
   const move = useCallback((field: CardField, offset: number) => {
     const index = current.current.indexOf(field);
