@@ -56,7 +56,9 @@ function track(spec: CardSpecNode[], parentId: string | null, plan: Plan) {
 function detach(plan: Plan, id: string) {
   const siblings = plan.containers.get(plan.parents.get(id) ?? null) ?? [];
 
-  siblings.splice(siblings.indexOf(id), 1);
+  const index = siblings.indexOf(id);
+
+  if (index !== -1) siblings.splice(index, 1);
 }
 
 function attach(plan: Plan, node: CardSpecNode, op: InsertOp | MoveOp) {
