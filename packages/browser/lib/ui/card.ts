@@ -72,11 +72,7 @@ export default class Card {
   }
 
   update(options?: CardOptions) {
-    // Reported once by the frame; the options stay as they were.
-    if (this.#host.isDestroyed) {
-      this.#host.update(this.config);
-      return this;
-    }
+    if (!this.#host.live()) return this;
 
     if (options) {
       this.#options = { ...this.#options, ...options };
