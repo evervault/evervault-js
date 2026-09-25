@@ -105,12 +105,7 @@ export interface CardPayload {
 
 export type CardField = "name" | "number" | "expiry" | "cvc";
 
-export type CardSpecNodeType =
-  | "row"
-  | "name"
-  | "number"
-  | "expiry"
-  | "cvc";
+export type CardSpecNodeType = "row" | CardField;
 
 export interface CardSpecNode {
   type: CardSpecNodeType;

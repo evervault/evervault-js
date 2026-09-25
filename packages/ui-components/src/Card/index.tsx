@@ -20,7 +20,7 @@ import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useAgentTools } from "./useAgentTools";
 import { useCardReader } from "./useCardReader";
 import { isSpec, legacyNodes } from "./legacyFields";
-import { declaredFields, fieldFor, useSpec } from "./useSpec";
+import { declaredFields, useSpec } from "./useSpec";
 import {
   changePayload,
   collectIcons,
@@ -44,11 +44,9 @@ function skippedNodes(nodes: CardSpecNode[]): CardSpecNode[] {
   const walk = (node: CardSpecNode): CardSpecNode[] => {
     if (node.type === "row") return (node.children ?? []).flatMap(walk);
 
-    const field = fieldFor(node.type);
+    if (rendered.has(node.type)) return [node];
 
-    if (rendered.has(field)) return [node];
-
-    rendered.add(field);
+    rendered.add(node.type);
     return [];
   };
 
@@ -287,7 +285,7 @@ export function Card({ config }: { config: CardConfig }) {
 
     if (skipped.includes(node)) return null;
 
-    const field = fieldFor(node.type);
+    const field = node.type;
 
     if (field === "name") {
       return (
