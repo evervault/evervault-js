@@ -319,6 +319,10 @@ export class EvervaultFrame<
     this.iframe.contentWindow?.postMessage(data, this.url);
   }
 
+  get isReady() {
+    return this.#ready;
+  }
+
   get isMounted() {
     return this.#lifecycle !== "unmounted";
   }
