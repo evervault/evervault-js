@@ -16,6 +16,19 @@ const STYLE = /^(normal|italic|oblique)$/;
 const DISPLAY = /^(auto|block|swap|fallback|optional)$/;
 const CARD_FIELD_CHARACTERS = "0123456789";
 
+const ALLOWED_FONT_HOSTS = new Set(["fonts.googleapis.com"]);
+
+export function isAllowedFontUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return (
+      parsed.protocol === "https:" && ALLOWED_FONT_HOSTS.has(parsed.hostname)
+    );
+  } catch {
+    return false;
+  }
+}
+
 function matchOrNull(
   value: string | number | undefined,
   pattern: RegExp
