@@ -3,11 +3,12 @@
  */
 
 import { fireEvent, render, waitFor } from "@testing-library/react";
-import { act } from "react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Card } from "../src/Card";
 import type { CardConfig } from "../src/Card/types";
-import type { CardSpecNode, CardSpecPatchOp } from "types";
+import type { CardSpecNode } from "types";
+import { apply, input, node, spec } from "./helpers/card";
 
 vi.mock("@evervault/react", () => ({
   useEvervault: () => ({ encrypt: vi.fn() }),
@@ -19,14 +20,12 @@ vi.mock("../src/utilities/useSearchParams", () => ({
 
 const { send } = vi.hoisted(() => ({ send: vi.fn() }));
 
-let patch: (payload: { ops: CardSpecPatchOp[] }) => void = () => {};
-
 vi.mock("../src/utilities/useMessaging", () => ({
   useMessaging: () => ({
     send,
     on: (type: string, callback: (payload: unknown) => void) => {
       if (type === "EV_SPEC_PATCH") {
-        patch = callback as typeof patch;
+        spec.patch = callback as typeof spec.patch;
       }
       return () => {};
     },
@@ -37,19 +36,6 @@ beforeEach(() => {
   send.mockClear();
 });
 
-function node(
-  type: CardSpecNode["type"],
-  props: Record<string, string> = {}
-): CardSpecNode {
-  return { type, id: type, props };
-}
-
-function apply(ops: CardSpecPatchOp[]) {
-  act(() => {
-    patch({ ops });
-  });
-}
-
 function card(config: CardConfig, nodes?: CardSpecNode[]) {
   const { container } = render(
     <Card config={nodes ? { ...config, fields: nodes } : config} />
@@ -58,25 +44,13 @@ function card(config: CardConfig, nodes?: CardSpecNode[]) {
   return container;
 }
 
-function input(container: HTMLElement, id: string) {
-  const found = container.querySelector<HTMLInputElement>(`#${id}`);
-  if (!found) throw new Error(`no ${id} input`);
-  return found;
-}
-
 function validity(container: HTMLElement, name: string) {
   return container.querySelector(`[ev-name=${name}]`)?.getAttribute("ev-valid");
 }
 
-function type(element: HTMLInputElement, value: string) {
-  element.focus();
-  fireEvent.keyDown(element, { key: value.slice(-1) });
-  fireEvent.input(element, { target: { value } });
-}
-
 describe("autocomplete", () => {
   it("turns autocomplete off when declared off", async () => {
-    const container = card({}, [node("number", { autocomplete: "off" })]);
+    const container = card({}, [node("number", "number", { autocomplete: "off" })]);
 
     expect(input(container, "number").autocomplete).toBe("off");
   });
@@ -89,7 +63,7 @@ describe("autocomplete", () => {
 
   it("prefers the declared autocomplete over the config", async () => {
     const container = card({ autoComplete: { number: false } }, [
-      node("number", { autocomplete: "" }),
+      node("number", "number", { autocomplete: "" }),
     ]);
 
     expect(input(container, "number").autocomplete).toBe("billing cc-number");
@@ -97,10 +71,10 @@ describe("autocomplete", () => {
 
   it("turns autocomplete off on every field type", async () => {
     const container = card({}, [
-      node("name", { autocomplete: "off" }),
-      node("number", { autocomplete: "off" }),
-      node("expiry", { autocomplete: "off" }),
-      node("cvc", { autocomplete: "off" }),
+      node("name", "name", { autocomplete: "off" }),
+      node("number", "number", { autocomplete: "off" }),
+      node("expiry", "expiry", { autocomplete: "off" }),
+      node("cvc", "cvc", { autocomplete: "off" }),
     ]);
 
     expect(input(container, "name").autocomplete).toBe("off");
@@ -114,7 +88,7 @@ describe("autofocus", () => {
   it("focuses the field declaring autofocus", async () => {
     const container = card({}, [
       node("number"),
-      node("cvc", { autofocus: "" }),
+      node("cvc", "cvc", { autofocus: "" }),
     ]);
 
     expect(document.activeElement).toBe(input(container, "cvc"));
@@ -122,8 +96,8 @@ describe("autofocus", () => {
 
   it("focuses the first field declaring autofocus", async () => {
     const container = card({}, [
-      node("number", { autofocus: "" }),
-      node("cvc", { autofocus: "" }),
+      node("number", "number", { autofocus: "" }),
+      node("cvc", "cvc", { autofocus: "" }),
     ]);
 
     expect(document.activeElement).toBe(input(container, "number"));
@@ -138,7 +112,7 @@ describe("autofocus", () => {
   it("prefers the declared autofocus over the config", async () => {
     const container = card({ autoFocus: true }, [
       node("number"),
-      node("expiry", { autofocus: "" }),
+      node("expiry", "expiry", { autofocus: "" }),
     ]);
 
     expect(document.activeElement).toBe(input(container, "expiry"));
@@ -146,7 +120,7 @@ describe("autofocus", () => {
 
   it("focuses nothing when the only declaration is autofocus=false", async () => {
     const container = card({ autoFocus: true }, [
-      node("number", { autofocus: "false" }),
+      node("number", "number", { autofocus: "false" }),
       node("cvc"),
     ]);
 
@@ -162,15 +136,15 @@ describe("autofocus", () => {
 
   it("leaves focus alone once the customer has typed", async () => {
     const container = card({}, [
-      node("number", { autofocus: "" }),
+      node("number", "number", { autofocus: "" }),
       node("expiry"),
-      node("cvc", { autofocus: "" }),
+      node("cvc", "cvc", { autofocus: "" }),
     ]);
 
     expect(document.activeElement).toBe(input(container, "number"));
 
     const expiry = input(container, "expiry");
-    type(expiry, "12");
+    await userEvent.type(expiry, "12");
 
     apply([{ op: "remove", id: "number" }]);
 
@@ -180,7 +154,7 @@ describe("autofocus", () => {
 
   it("focuses a re-declared field while the customer has done nothing", async () => {
     const container = card({}, [
-      node("number", { autofocus: "" }),
+      node("number", "number", { autofocus: "" }),
       node("cvc"),
     ]);
 
@@ -195,7 +169,7 @@ describe("autofocus", () => {
         op: "insert",
         parentId: null,
         index: 0,
-        node: node("number", { autofocus: "" }),
+        node: node("number", "number", { autofocus: "" }),
       },
     ]);
 
@@ -207,7 +181,7 @@ describe("autofocus", () => {
 
 describe("redact", () => {
   it("redacts the security code when declared", async () => {
-    const container = card({}, [node("cvc", { redact: "" })]);
+    const container = card({}, [node("cvc", "cvc", { redact: "" })]);
 
     expect(input(container, "cvc").type).toBe("password");
   });
@@ -220,7 +194,7 @@ describe("redact", () => {
 
   it("prefers the declared redact over the config", async () => {
     const container = card({ redactCVC: true }, [
-      node("cvc", { redact: "false" }),
+      node("cvc", "cvc", { redact: "false" }),
     ]);
 
     expect(input(container, "cvc").type).toBe("text");
@@ -229,7 +203,7 @@ describe("redact", () => {
 
 describe("optional", () => {
   it("accepts an empty security code when declared optional", async () => {
-    const container = card({}, [node("number"), node("cvc", { optional: "" })]);
+    const container = card({}, [node("number"), node("cvc", "cvc", { optional: "" })]);
 
     fireEvent.blur(input(container, "cvc"));
 
@@ -247,7 +221,7 @@ describe("optional", () => {
   it("prefers the declared optional over the config", async () => {
     const container = card({ validation: { cvc: { optional: true } } }, [
       node("number"),
-      node("cvc", { optional: "false" }),
+      node("cvc", "cvc", { optional: "false" }),
     ]);
 
     fireEvent.blur(input(container, "cvc"));
@@ -258,7 +232,7 @@ describe("optional", () => {
 
 describe("defaultvalue", () => {
   it("fills the card holder with the declared default value", async () => {
-    const container = card({}, [node("name", { defaultvalue: "Jane Doe" })]);
+    const container = card({}, [node("name", "name", { "defaultvalue": "Jane Doe" })]);
 
     await waitFor(() =>
       expect(input(container, "name").value).toBe("Jane Doe")
@@ -276,7 +250,7 @@ describe("defaultvalue", () => {
 
   it("prefers the declared default value over the config", async () => {
     const container = card({ defaultValues: { name: "From config" } }, [
-      node("name", { defaultvalue: "Jane Doe" }),
+      node("name", "name", { "defaultvalue": "Jane Doe" }),
     ]);
 
     await waitFor(() =>
@@ -285,7 +259,7 @@ describe("defaultvalue", () => {
   });
 
   it("reports no change of its own for a seeded default value", async () => {
-    const container = card({}, [node("name", { defaultvalue: "Jane Doe" })]);
+    const container = card({}, [node("name", "name", { "defaultvalue": "Jane Doe" })]);
 
     await waitFor(() =>
       expect(input(container, "name").value).toBe("Jane Doe")
@@ -295,14 +269,14 @@ describe("defaultvalue", () => {
   });
 
   it("takes a new default value while the customer has typed nothing", async () => {
-    const container = card({}, [node("name", { defaultvalue: "Jane Doe" })]);
+    const container = card({}, [node("name", "name", { "defaultvalue": "Jane Doe" })]);
 
     await waitFor(() =>
       expect(input(container, "name").value).toBe("Jane Doe")
     );
 
     apply([
-      { op: "update", id: "name", props: { defaultvalue: "Jane A Doe" } },
+      { op: "update", id: "name", props: { "defaultvalue": "Jane A Doe" } },
     ]);
 
     await waitFor(() =>
@@ -311,7 +285,7 @@ describe("defaultvalue", () => {
   });
 
   it("keeps the typed name when the default value changes", async () => {
-    const container = card({}, [node("name", { defaultvalue: "Jane Doe" })]);
+    const container = card({}, [node("name", "name", { "defaultvalue": "Jane Doe" })]);
 
     await waitFor(() =>
       expect(input(container, "name").value).toBe("Jane Doe")
@@ -326,7 +300,7 @@ describe("defaultvalue", () => {
     );
 
     apply([
-      { op: "update", id: "name", props: { defaultvalue: "Jane A Doe" } },
+      { op: "update", id: "name", props: { "defaultvalue": "Jane A Doe" } },
     ]);
 
     await waitFor(() =>
