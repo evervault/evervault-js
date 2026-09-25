@@ -1,117 +1,36 @@
 import { resolveAgentToolsConfig } from "./agentTools";
-import EventManager from "./eventManager";
-import { EvervaultFrame } from "./evervaultFrame";
+import { CardHost } from "./cardHost";
+import type { CardHostConfiguration } from "./cardHost";
 import type EvervaultClient from "../main";
 import type {
-  CardPayload,
+  CardEvents,
+  CardFrameConfig,
   CardOptions,
-  SwipedCard,
-  CardFrameClientMessages,
-  CardFrameHostMessages,
   SelectorType,
-  FieldEvent,
 } from "types";
 
-interface CardEvents {
-  ready: () => void;
-  error: () => void;
-  change: (payload: CardPayload) => void;
-  complete: (payload: CardPayload) => void;
-  swipe: (payload: SwipedCard) => void;
-  validate: (payload: CardPayload) => void;
-  focus: (event: FieldEvent) => void;
-  blur: (event: FieldEvent) => void;
-  keydown: (event: FieldEvent) => void;
-  keyup: (event: FieldEvent) => void;
-}
-
+// The `ui.card()` front-end: translates `CardOptions` for the card frame.
 export default class Card {
-  values: CardPayload;
   #options: CardOptions;
   #client: EvervaultClient;
-  #frame: EvervaultFrame<CardFrameClientMessages, CardFrameHostMessages>;
-
-  #events = new EventManager<CardEvents>();
+  #host: CardHost;
 
   constructor(client: EvervaultClient, options?: CardOptions) {
     this.#options = options ?? {};
     this.#client = client;
-    this.#frame = new EvervaultFrame(client, "Card", {
+    this.#host = new CardHost(client, {
       colorScheme: this.#options.colorScheme,
       // Cross-origin iframes need the `tools` Permissions Policy delegated
       // before they can register WebMCP tools.
       allow: this.#options.agentTools?.enabled ? "payment; tools" : undefined,
     });
-
-    // update the values when the frame sends a change event and dispatch
-    // a change event.
-    this.#frame.on("EV_CHANGE", (payload) => {
-      this.values = payload;
-      this.#events.dispatch("change", payload);
-    });
-
-    this.#frame.on("EV_COMPLETE", (payload) => {
-      this.#events.dispatch("complete", payload);
-    });
-
-    this.#frame.on("EV_SWIPE", (payload) => {
-      this.#events.dispatch("swipe", payload);
-    });
-
-    this.#frame.on("EV_FRAME_READY", () => {
-      this.#events.dispatch("ready");
-    });
-
-    this.#frame.on("EV_ERROR", () => {
-      this.#events.dispatch("error");
-    });
-
-    this.#frame.on("EV_FOCUS", (field) => {
-      this.#events.dispatch("focus", {
-        field,
-        data: this.values,
-      });
-    });
-
-    this.#frame.on("EV_BLUR", (field) => {
-      this.#events.dispatch("blur", {
-        field,
-        data: this.values,
-      });
-    });
-
-    this.#frame.on("EV_KEYDOWN", (field) => {
-      this.#events.dispatch("keydown", {
-        field,
-        data: this.values,
-      });
-    });
-
-    this.#frame.on("EV_KEYUP", (field) => {
-      this.#events.dispatch("keyup", {
-        field,
-        data: this.values,
-      });
-    });
-
-    this.values = {
-      card: {
-        name: null,
-        brand: null,
-        localBrands: [],
-        bin: null,
-        lastFour: null,
-        number: null,
-        expiry: { month: null, year: null },
-        cvc: null,
-      },
-      isValid: false,
-      isComplete: false,
-      errors: null,
-    };
   }
 
-  get config() {
+  get values() {
+    return this.#host.values;
+  }
+
+  get config(): CardHostConfiguration & { config: CardFrameConfig } {
     return {
       theme: this.#options.theme,
       config: {
@@ -137,60 +56,52 @@ export default class Card {
   }
 
   mount(selector: SelectorType) {
-    this.#frame.mount(selector, {
-      ...this.config,
-      onError: () => {
-        this.#events.dispatch("error");
-      },
-    });
-
+    this.#host.mount(selector, this.config);
     return this;
   }
 
   preload(selector: SelectorType) {
-    this.#frame.preload(selector, {
-      ...this.config,
-      onError: () => {
-        this.#events.dispatch("error");
-      },
-    });
+    this.#host.preload(selector, this.config);
 
     return this;
   }
 
   reveal() {
-    this.#frame.reveal();
+    this.#host.reveal();
     return this;
   }
 
   update(options?: CardOptions) {
+    if (!this.#host.live()) return this;
+
     if (options) {
       this.#options = { ...this.#options, ...options };
     }
 
     if (options?.defaultValues?.name) {
-      this.#frame.send("EV_UPDATE_NAME", options.defaultValues.name);
+      this.#host.send("EV_UPDATE_NAME", options.defaultValues.name);
     }
 
-    this.#frame.update(this.config);
+    this.#host.update(this.config);
     return this;
   }
 
   unmount() {
-    this.#frame.unmount();
+    this.#host.unmount();
+    return this;
+  }
+
+  destroy() {
+    this.#host.destroy();
     return this;
   }
 
   on<T extends keyof CardEvents>(event: T, callback: CardEvents[T]) {
-    return this.#events.on(event, callback);
+    return this.#host.on(event, callback);
   }
 
   validate() {
-    this.#frame.send("EV_VALIDATE");
-    this.#frame.once("EV_VALIDATED", (payload) => {
-      this.values = payload;
-      this.#events.dispatch("validate", payload);
-    });
+    this.#host.validate();
     return this;
   }
 }

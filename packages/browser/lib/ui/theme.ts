@@ -21,6 +21,10 @@ export class Theme {
       matches: boolean;
     }
   > = {};
+  #queries: {
+    list: MediaQueryList;
+    handler: (e: MediaQueryListEvent) => void;
+  }[] = [];
 
   constructor(frame: EvervaultFrame, definition: ThemeDefinition = {}) {
     this.object = this.#parseThemeDefinition(definition);
@@ -28,6 +32,7 @@ export class Theme {
   }
 
   update(definition: ThemeDefinition) {
+    this.destroy();
     this.object = this.#parseThemeDefinition(definition);
   }
 
@@ -60,6 +65,7 @@ export class Theme {
     };
 
     media.addEventListener("change", handler);
+    this.#queries.push({ list: media, handler });
 
     this.#breakpoints[query] = {
       styles,
@@ -67,6 +73,16 @@ export class Theme {
     };
 
     return {};
+  }
+
+  destroy() {
+    for (const { list, handler } of this.#queries) {
+      list.removeEventListener("change", handler);
+    }
+
+    this.#queries = [];
+    this.#breakpoints = {};
+    this.#extension = undefined;
   }
 
   compile(): ThemeObject {
