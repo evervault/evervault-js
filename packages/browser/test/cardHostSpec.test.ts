@@ -1,16 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CardHost } from "../lib/ui/cardHost";
-import type EvervaultClient from "../lib/main";
 import type { CardSpecNode } from "types";
 import { frameMessage } from "./helpers/messageListeners";
-
-const client = {
-  config: {
-    teamId: "team_test123",
-    appId: "app_test123",
-    components: { url: "https://ui-components.evervault.com" },
-  },
-} as unknown as EvervaultClient;
+import { client } from "./helpers/client";
 
 function node(type: CardSpecNode["type"], id: string): CardSpecNode {
   return { type, id, props: {} };
@@ -21,17 +13,17 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-// Everything the host posts into the frame, by message type.
+// Everything the host posts into the cardHost, by message type.
 function mounted(spec: CardSpecNode[], config = {}) {
   const container = document.createElement("div");
   document.body.append(container);
 
-  const frame = new CardHost(client).mount(container, {
+  const cardHost = new CardHost(client).mount(container, {
     config: { fields: spec, ...config },
   });
 
   const iframe = container.querySelector("iframe");
-  if (!iframe?.contentWindow) throw new Error("no frame window");
+  if (!iframe?.contentWindow) throw new Error("no cardHost window");
   const posted = vi.spyOn(iframe.contentWindow, "postMessage");
 
   const sent = (type: string) =>
@@ -43,11 +35,11 @@ function mounted(spec: CardSpecNode[], config = {}) {
   const handshake = () => frameMessage(container, "EV_FRAME_HANDSHAKE");
   const ready = () => frameMessage(container, "EV_FRAME_READY");
 
-  return { frame, sent, handshake, ready };
+  return { cardHost, sent, handshake, ready };
 }
 
 describe("CardHost spec", () => {
-  it("mounts the frame with the declared tree as its fields", () => {
+  it("mounts the cardHost with the declared tree as its fields", () => {
     const spec = [node("number", "a")];
     const { sent, handshake } = mounted(spec);
 
@@ -59,10 +51,10 @@ describe("CardHost spec", () => {
   });
 
   it("sends only the difference when the tree changes", () => {
-    const { frame, sent, ready } = mounted([node("number", "a")]);
+    const { cardHost, sent, ready } = mounted([node("number", "a")]);
     ready();
 
-    frame.setSpec([node("number", "a"), node("cvc", "b")]);
+    cardHost.setSpec([node("number", "a"), node("cvc", "b")]);
 
     expect(sent("EV_SPEC_PATCH")).toEqual([
       {
@@ -73,20 +65,20 @@ describe("CardHost spec", () => {
     ]);
   });
 
-  it("sends nothing when the tree is set to what the frame holds", () => {
+  it("sends nothing when the tree is set to what the cardHost holds", () => {
     const spec = [node("number", "a")];
-    const { frame, sent, ready } = mounted(spec);
+    const { cardHost, sent, ready } = mounted(spec);
     ready();
 
-    frame.setSpec([node("number", "a")]);
+    cardHost.setSpec([node("number", "a")]);
 
     expect(sent("EV_SPEC_PATCH")).toEqual([]);
   });
 
-  it("holds a changed tree until the frame is ready", () => {
-    const { frame, sent, ready } = mounted([node("number", "a")]);
+  it("holds a changed tree until the cardHost is ready", () => {
+    const { cardHost, sent, ready } = mounted([node("number", "a")]);
 
-    frame.setSpec([node("cvc", "b")]);
+    cardHost.setSpec([node("cvc", "b")]);
 
     expect(sent("EV_SPEC_PATCH")).toEqual([]);
 
@@ -102,22 +94,22 @@ describe("CardHost spec", () => {
     ]);
   });
 
-  it("sends no patch when the frame becomes ready again", () => {
-    const { frame, sent, ready } = mounted([node("number", "a")]);
+  it("sends no patch when the cardHost becomes ready again", () => {
+    const { cardHost, sent, ready } = mounted([node("number", "a")]);
     ready();
-    frame.setSpec([node("number", "a")]);
+    cardHost.setSpec([node("number", "a")]);
 
     ready();
 
     expect(sent("EV_SPEC_PATCH")).toEqual([]);
   });
 
-  it("patches from the mounted tree when the frame becomes ready again", () => {
-    const { frame, sent, ready } = mounted([node("number", "a")]);
+  it("patches from the mounted tree when the cardHost becomes ready again", () => {
+    const { cardHost, sent, ready } = mounted([node("number", "a")]);
     ready();
-    frame.setSpec([node("number", "a"), node("cvc", "b")]);
+    cardHost.setSpec([node("number", "a"), node("cvc", "b")]);
 
-    // The frame reloaded from the mount configuration, so it lost the patch.
+    // The cardHost reloaded from the mount configuration, so it lost the patch.
     ready();
 
     expect(sent("EV_SPEC_PATCH")).toHaveLength(2);
@@ -125,11 +117,11 @@ describe("CardHost spec", () => {
   });
 
   it("carries the current tree when the configuration is updated", () => {
-    const { frame, sent, ready } = mounted([node("number", "a")]);
+    const { cardHost, sent, ready } = mounted([node("number", "a")]);
     ready();
-    frame.setSpec([node("cvc", "b")]);
+    cardHost.setSpec([node("cvc", "b")]);
 
-    frame.update({ config: { autoProgress: true } });
+    cardHost.update({ config: { autoProgress: true } });
 
     expect(sent("EV_UPDATE")).toEqual([
       {
@@ -140,33 +132,33 @@ describe("CardHost spec", () => {
   });
 
   it("keeps the mounted configuration under an update", () => {
-    const { frame, sent, ready } = mounted([node("number", "a")], {
+    const { cardHost, sent, ready } = mounted([node("number", "a")], {
       autoFocus: true,
     });
     ready();
 
-    frame.update({ config: { autoProgress: true } });
+    cardHost.update({ config: { autoProgress: true } });
 
     expect(sent("EV_UPDATE")[0]).toMatchObject({
       config: { autoFocus: true, autoProgress: true },
     });
   });
 
-  it("takes a tree given through an update as the one the frame holds", () => {
-    const { frame, sent, ready } = mounted([node("number", "a")]);
+  it("takes a tree given through an update as the one the cardHost holds", () => {
+    const { cardHost, sent, ready } = mounted([node("number", "a")]);
     ready();
 
-    frame.update({ config: { fields: [node("cvc", "b")] } });
-    frame.setSpec([node("cvc", "b")]);
+    cardHost.update({ config: { fields: [node("cvc", "b")] } });
+    cardHost.setSpec([node("cvc", "b")]);
 
     expect(sent("EV_UPDATE")).toHaveLength(1);
     expect(sent("EV_SPEC_PATCH")).toEqual([]);
   });
 
-  it("sends a configuration updated before ready once the frame is ready", async () => {
-    const { frame, sent, ready } = mounted([node("number", "a")]);
+  it("sends a configuration updated before ready once the cardHost is ready", async () => {
+    const { cardHost, sent, ready } = mounted([node("number", "a")]);
 
-    frame.update({ config: { autoProgress: true } });
+    cardHost.update({ config: { autoProgress: true } });
 
     expect(sent("EV_UPDATE")).toEqual([]);
 
@@ -181,11 +173,11 @@ describe("CardHost spec", () => {
     ]);
   });
 
-  it("sends no patch for a tree the frame was told about in an update", async () => {
-    const { frame, sent, ready } = mounted([node("number", "a")]);
+  it("sends no patch for a tree the cardHost was told about in an update", async () => {
+    const { cardHost, sent, ready } = mounted([node("number", "a")]);
 
-    frame.setSpec([node("cvc", "b")]);
-    frame.update({ config: { autoProgress: true } });
+    cardHost.setSpec([node("cvc", "b")]);
+    cardHost.update({ config: { autoProgress: true } });
     ready();
     await Promise.resolve();
 
@@ -196,10 +188,10 @@ describe("CardHost spec", () => {
   });
 
   it("does not track a tree for a card described by a field list", () => {
-    const { frame, sent, ready } = mounted(["number", "cvc"] as never);
+    const { cardHost, sent, ready } = mounted(["number", "cvc"] as never);
     ready();
 
-    frame.update({ config: { autoProgress: true } });
+    cardHost.update({ config: { autoProgress: true } });
 
     expect(sent("EV_UPDATE")[0]).toMatchObject({
       config: { fields: ["number", "cvc"] },
