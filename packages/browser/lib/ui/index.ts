@@ -61,7 +61,7 @@ export default class UIComponents {
   }
 
   // Mounts every `<ev-card>` on the page not yet mounted with this client.
-  mount() {
+  mountElements() {
     document.querySelectorAll<EvCard>(EV_CARD_TAG_NAME).forEach((card) => {
       if (!card.isMounted) card.mountCard(this.client);
     });
