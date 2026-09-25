@@ -110,10 +110,7 @@ export type CardSpecNodeType =
   | "name"
   | "number"
   | "expiry"
-  | "expiryMonth"
-  | "expiryYear"
-  | "cvc"
-  | "field";
+  | "cvc";
 
 export interface CardSpecNode {
   type: CardSpecNodeType;

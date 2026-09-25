@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { applyPatch } from "./spec";
 import type { CardField, CardFrameHostMessages, CardSpecNode } from "types";
 
-const FIELDS: Partial<Record<CardSpecNode["type"], CardField>> = {
+const FIELDS: Record<Exclude<CardSpecNode["type"], "row">, CardField> = {
   name: "name",
   number: "number",
   expiry: "expiry",
   cvc: "cvc",
 };
 
-export function fieldFor(type: CardSpecNode["type"]) {
+export function fieldFor(type: Exclude<CardSpecNode["type"], "row">) {
   return FIELDS[type];
 }
 
@@ -18,8 +18,7 @@ export function declaredFields(spec: CardSpecNode[]): CardField[] {
   const fields = spec.flatMap((node) => {
     if (node.type === "row") return declaredFields(node.children ?? []);
 
-    const field = fieldFor(node.type);
-    return field ? [field] : [];
+    return [fieldFor(node.type)];
   });
 
   return [...new Set(fields)];
