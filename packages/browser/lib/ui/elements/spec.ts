@@ -12,7 +12,7 @@ export const ELEMENTS: Record<string, CardSpecNodeType> = {
 const warned = new WeakSet<Element>();
 
 export function warnUnknownChild(element: Element) {
-  if (warned.has(element)) return null;
+  if (warned.has(element)) return;
   warned.add(element);
 
   const supported = Object.keys(ELEMENTS)
