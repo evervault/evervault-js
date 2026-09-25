@@ -12,7 +12,9 @@ export function isSpec(
   fields: CardFrameConfig["fields"]
 ): fields is CardSpecNode[] {
   return (
-    Array.isArray(fields) && fields.every((field) => typeof field === "object")
+    Array.isArray(fields) &&
+    fields.length > 0 &&
+    fields.every((field) => typeof field === "object")
   );
 }
 
