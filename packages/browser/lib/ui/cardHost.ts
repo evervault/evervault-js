@@ -90,11 +90,9 @@ export class CardHost {
     return this.#values;
   }
 
-  get isDestroyed() {
-    return this.#frame.isDestroyed;
-  }
-
   mount(selector: SelectorType, configuration: CardHostConfiguration = {}) {
+    if (!this.live()) return this;
+
     // A validate issued while unmounted went nowhere; its reply never comes.
     this.#pendingValidate?.();
     this.#pendingValidate = undefined;
@@ -109,6 +107,8 @@ export class CardHost {
   }
 
   preload(selector: SelectorType, configuration: CardHostConfiguration = {}) {
+    if (!this.live()) return this;
+
     // A validate issued while unmounted went nowhere; its reply never comes.
     this.#pendingValidate?.();
     this.#pendingValidate = undefined;
@@ -123,11 +123,15 @@ export class CardHost {
   }
 
   reveal() {
+    if (!this.live()) return this;
+
     this.#frame.reveal();
     return this;
   }
 
   update(configuration: CardHostConfiguration) {
+    if (!this.live()) return this;
+
     this.#frame.update(configuration);
     return this;
   }
@@ -136,11 +140,15 @@ export class CardHost {
     type: K,
     payload?: CardFrameHostMessages[K]
   ) {
+    if (!this.live()) return this;
+
     this.#frame.send(type, payload);
     return this;
   }
 
   unmount() {
+    if (!this.live()) return this;
+
     // A reply to the unmounted frame's request must not land in the next one.
     this.#pendingValidate?.();
     this.#pendingValidate = undefined;
@@ -157,13 +165,13 @@ export class CardHost {
   }
 
   on<T extends keyof CardEvents>(event: T, callback: CardEvents[T]) {
-    if (!this.#live()) return () => {};
+    if (!this.live()) return () => {};
 
     return this.#events.on(event, callback);
   }
 
   validate() {
-    if (!this.#live()) return this;
+    if (!this.live()) return this;
 
     // One reply answers the latest request, however many were sent.
     this.#pendingValidate?.();
@@ -178,13 +186,8 @@ export class CardHost {
     return this;
   }
 
-  // The frame reports its own calls once destroyed; this covers the two that
-  // do not reach it as one call.
-  #live() {
-    if (this.#frame.isDestroyed) {
-      console.error("Evervault Card frame has been destroyed");
-    }
-
-    return !this.#frame.isDestroyed;
+  // The frame reports a destroyed call; nothing here reaches it once it has.
+  live() {
+    return this.#frame.live();
   }
 }

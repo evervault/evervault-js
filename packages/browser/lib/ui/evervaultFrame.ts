@@ -97,7 +97,7 @@ export class EvervaultFrame<
   // to the DOM. This method accepts a selector or HTMLElement and appends
   // the iframe to the element.
   mount(selector: SelectorType, opts: FrameConfiguration = {}) {
-    if (!this.#live()) return this;
+    if (!this.live()) return this;
 
     if (this.isMounted) {
       throw new Error("Evervault frame already mounted");
@@ -110,7 +110,7 @@ export class EvervaultFrame<
   }
 
   preload(selector: SelectorType, opts: FrameConfiguration = {}) {
-    if (!this.#live()) return this;
+    if (!this.live()) return this;
 
     if (this.#lifecycle !== "unmounted") {
       return this;
@@ -150,7 +150,7 @@ export class EvervaultFrame<
   }
 
   reveal(): this {
-    if (!this.#live()) return this;
+    if (!this.live()) return this;
 
     if (this.#lifecycle === "visible") {
       return this;
@@ -257,7 +257,7 @@ export class EvervaultFrame<
   // Takes an update configuration object and posts it into the iframe via an
   // EV_UPDATE event.
   update(opts?: FrameConfiguration): this {
-    if (!this.#live()) return this;
+    if (!this.live()) return this;
 
     if (opts?.theme) {
       if (!this.#theme) {
@@ -285,7 +285,7 @@ export class EvervaultFrame<
     event: K,
     callback: (message: ReceivableMessages[K]) => void
   ) {
-    if (!this.#live()) return () => {};
+    if (!this.live()) return () => {};
     return this.#subscribe(event, this.#unsubscribes, callback);
   }
 
@@ -308,7 +308,7 @@ export class EvervaultFrame<
     type: K,
     payload?: SendableMessages[K]
   ) {
-    if (!this.#live() || !this.iframe.contentWindow) return;
+    if (!this.live() || !this.iframe.contentWindow) return;
 
     const data = { type, payload };
     this.iframe.contentWindow?.postMessage(data, this.url);
@@ -345,7 +345,7 @@ export class EvervaultFrame<
   }
 
   // A destroyed frame stays inert: the call is reported, not honoured.
-  #live() {
+  live() {
     if (this.#destroyed) {
       console.error(`Evervault ${this.#component} frame has been destroyed`);
     }
