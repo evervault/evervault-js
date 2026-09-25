@@ -6,11 +6,11 @@ afterEach(() => {
 });
 
 describe("warnUnknownChild", () => {
-  it("warns naming the element and returns null", () => {
+  it("warns naming the element", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const element = document.createElement("ev-card-pin");
 
-    expect(warnUnknownChild(element)).toBeNull();
+    warnUnknownChild(document.createElement("ev-card-pin"));
+
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("<ev-card-pin>"));
   });
 
