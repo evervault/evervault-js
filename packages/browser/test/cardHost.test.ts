@@ -1,20 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CardHost } from "../lib/ui/cardHost";
-import type EvervaultClient from "../lib/main";
 import type { CardPayload } from "types";
 import {
   countMessageListeners,
   frameId,
   frameMessage,
 } from "./helpers/messageListeners";
-
-const client = {
-  config: {
-    teamId: "team_test123",
-    appId: "app_test123",
-    components: { url: "https://ui-components.evervault.com" },
-  },
-} as unknown as EvervaultClient;
+import { client } from "./helpers/client";
 
 const payload: CardPayload = {
   card: {

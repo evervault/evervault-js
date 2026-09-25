@@ -1,20 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { EvervaultFrame } from "../lib/ui/evervaultFrame";
 import { Theme } from "../lib/ui/theme";
-import type EvervaultClient from "../lib/main";
 import type { ThemeUtilities } from "types";
 import {
   countMessageListeners,
   frameMessage,
 } from "./helpers/messageListeners";
-
-const mockClient = {
-  config: {
-    appId: "app_test123",
-    teamId: "team_test123",
-    components: { url: "https://components.evervault.com" },
-  },
-} as unknown as EvervaultClient;
+import { client } from "./helpers/client";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -23,7 +15,7 @@ afterEach(() => {
 
 describe("EvervaultFrame message listeners", () => {
   it("does not throw when a postMessage event has no data (on)", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const callback = vi.fn();
     frame.on("EV_FRAME_READY", callback);
 
@@ -34,7 +26,7 @@ describe("EvervaultFrame message listeners", () => {
   });
 
   it("does not throw when a postMessage event has no data (once)", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const callback = vi.fn();
     frame.once("EV_FRAME_READY", callback);
 
@@ -53,7 +45,7 @@ describe("EvervaultFrame preload and reveal", () => {
   }
 
   it("boots the frame hidden and out of flow", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const target = container();
 
     frame.preload(target);
@@ -65,7 +57,7 @@ describe("EvervaultFrame preload and reveal", () => {
   });
 
   it("reveals without moving the frame", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const target = container();
 
     frame.preload(target);
@@ -79,13 +71,13 @@ describe("EvervaultFrame preload and reveal", () => {
   });
 
   it("throws when revealed without a prior preload", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
 
     expect(() => frame.reveal()).toThrow(/preload/);
   });
 
   it("ignores a second preload", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const target = container();
     const other = container();
 
@@ -97,7 +89,7 @@ describe("EvervaultFrame preload and reveal", () => {
   });
 
   it("throws when mounted after preload", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const target = container();
 
     frame.preload(target);
@@ -106,7 +98,7 @@ describe("EvervaultFrame preload and reveal", () => {
   });
 
   it("ignores a second reveal", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const target = container();
 
     frame.preload(target);
@@ -116,7 +108,7 @@ describe("EvervaultFrame preload and reveal", () => {
   });
 
   it("allows preloading again after unmount", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const target = container();
 
     frame.preload(target);
@@ -129,7 +121,7 @@ describe("EvervaultFrame preload and reveal", () => {
 
   it("preloads nothing once destroyed", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const target = container();
 
     frame.destroy();
@@ -142,7 +134,7 @@ describe("EvervaultFrame preload and reveal", () => {
 
   it("reveals nothing once destroyed", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const target = container();
 
     frame.preload(target);
@@ -154,7 +146,7 @@ describe("EvervaultFrame preload and reveal", () => {
   });
 
   it("leaves mount unchanged when preload is never called", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const target = container();
 
     frame.mount(target);
@@ -165,7 +157,7 @@ describe("EvervaultFrame preload and reveal", () => {
   });
 
   it("boots at the container's pixel width while hidden", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const target = container();
     Object.defineProperty(target, "clientWidth", { value: 400 });
 
@@ -175,7 +167,7 @@ describe("EvervaultFrame preload and reveal", () => {
   });
 
   it("restores width: 100% on reveal", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const target = container();
     Object.defineProperty(target, "clientWidth", { value: 400 });
 
@@ -186,7 +178,7 @@ describe("EvervaultFrame preload and reveal", () => {
   });
 
   it("keeps a width the frame set itself during the hidden boot", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const target = container();
     Object.defineProperty(target, "clientWidth", { value: 400 });
 
@@ -198,7 +190,7 @@ describe("EvervaultFrame preload and reveal", () => {
   });
 
   it("leaves width alone when the container has no measurable width", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const target = container();
 
     frame.preload(target);
@@ -207,7 +199,7 @@ describe("EvervaultFrame preload and reveal", () => {
   });
 
   it("restores width: 100% when unmounted while hidden", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const target = container();
     Object.defineProperty(target, "clientWidth", { value: 400 });
 
@@ -244,7 +236,7 @@ describe("EvervaultFrame preload and reveal", () => {
 
     it("re-pins the width when the container resizes while hidden", () => {
       stubResizeObserver();
-      const frame = new EvervaultFrame(mockClient, "card");
+      const frame = new EvervaultFrame(client, "card");
       const target = container();
       Object.defineProperty(target, "clientWidth", {
         value: 400,
@@ -262,7 +254,7 @@ describe("EvervaultFrame preload and reveal", () => {
 
     it("keeps the frame's own requested width when the container resizes", () => {
       stubResizeObserver();
-      const frame = new EvervaultFrame(mockClient, "card");
+      const frame = new EvervaultFrame(client, "card");
       const target = container();
       Object.defineProperty(target, "clientWidth", { value: 400 });
 
@@ -276,7 +268,7 @@ describe("EvervaultFrame preload and reveal", () => {
 
     it("stops observing on reveal", () => {
       stubResizeObserver();
-      const frame = new EvervaultFrame(mockClient, "card");
+      const frame = new EvervaultFrame(client, "card");
       const target = container();
       Object.defineProperty(target, "clientWidth", { value: 400 });
 
@@ -290,7 +282,7 @@ describe("EvervaultFrame preload and reveal", () => {
 
 describe("EvervaultFrame teardown", () => {
   it("counts a fired once() subscription as released", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const listeners = countMessageListeners();
     const callback = vi.fn();
 
@@ -304,7 +296,7 @@ describe("EvervaultFrame teardown", () => {
   });
 
   it("releases the listeners it registered when destroyed", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const listeners = countMessageListeners();
     const container = document.createElement("div");
 
@@ -326,7 +318,7 @@ describe("EvervaultFrame teardown", () => {
   });
 
   it("releases only the mount listeners when unmounted", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const listeners = countMessageListeners();
     frame.on("EV_FRAME_READY", () => {});
 
@@ -340,7 +332,7 @@ describe("EvervaultFrame teardown", () => {
   });
 
   it("is ready when a component's own ready listener runs", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const container = document.createElement("div");
     document.body.append(container);
     let sent: unknown;
@@ -366,7 +358,7 @@ describe("EvervaultFrame teardown", () => {
   });
 
   it("registers no listeners of its own on a handshake", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const listeners = countMessageListeners();
     const container = document.createElement("div");
 
@@ -378,7 +370,7 @@ describe("EvervaultFrame teardown", () => {
   });
 
   it("is not ready again until the remounted frame says so", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const container = document.createElement("div");
     document.body.append(container);
 
@@ -414,7 +406,7 @@ describe("EvervaultFrame teardown", () => {
       return {};
     };
 
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     frame.update({ theme });
     frame.mount(document.createElement("div"), { theme });
 
@@ -422,7 +414,7 @@ describe("EvervaultFrame teardown", () => {
   });
 
   it("sizes the iframe from the frame's resize messages", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const container = document.createElement("div");
 
     frame.mount(container);
@@ -440,7 +432,7 @@ describe("EvervaultFrame teardown", () => {
   });
 
   it("keeps a fixed size against the frame's resize messages", () => {
-    const frame = new EvervaultFrame(mockClient, "card", {
+    const frame = new EvervaultFrame(client, "card", {
       size: { width: "400px", height: "500px" },
     });
     const container = document.createElement("div");
@@ -455,7 +447,7 @@ describe("EvervaultFrame teardown", () => {
   it("destroys once however often it is asked", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const listeners = countMessageListeners();
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
 
     frame.mount(document.createElement("div"));
     frame.destroy();
@@ -466,7 +458,7 @@ describe("EvervaultFrame teardown", () => {
   });
 
   it("lets a once() callback subscribe again", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const second = vi.fn();
 
     frame.once("EV_FRAME_READY", () => {
@@ -481,7 +473,7 @@ describe("EvervaultFrame teardown", () => {
 
   it("sends nothing once destroyed", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const container = document.createElement("div");
     document.body.append(container);
 
@@ -512,7 +504,7 @@ describe("EvervaultFrame teardown", () => {
       return {};
     };
 
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     frame.mount(document.createElement("div"), { theme });
     frame.unmount();
     frame.mount(document.createElement("div"), { theme });
@@ -531,7 +523,7 @@ describe("Theme teardown", () => {
       vi.fn(() => ({ matches: false, addEventListener, removeEventListener }))
     );
 
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
 
     frame.mount(document.createElement("div"), {
       theme: ({ media }) => {
@@ -551,7 +543,7 @@ describe("Theme teardown", () => {
   });
 
   it("drops what the previous definition extended when updated", () => {
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const theme = new Theme(frame, ({ extend }) => {
       extend({ styles: { label: { color: "red" } } });
       return {};
@@ -572,7 +564,7 @@ describe("Theme teardown", () => {
       }))
     );
 
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
     const theme = new Theme(frame, ({ media }) => {
       media("(min-width: 600px)", { fontSize: "20px" });
       return {};
@@ -597,7 +589,7 @@ describe("Theme teardown", () => {
       return {};
     };
 
-    const frame = new EvervaultFrame(mockClient, "card");
+    const frame = new EvervaultFrame(client, "card");
 
     frame.mount(document.createElement("div"), { theme });
     frame.update({ theme });
