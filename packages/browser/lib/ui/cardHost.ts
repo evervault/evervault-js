@@ -42,7 +42,6 @@ export class CardHost {
   #frame: EvervaultFrame<CardFrameClientMessages, CardFrameHostMessages>;
   #events = new EventManager<CardEvents>();
   #pendingValidate?: () => void;
-  #ready = false;
   #configuration: CardHostConfiguration = {};
   #updatedBeforeReady = false;
   // The tree the front-end wants, the one the frame was mounted with, and the
@@ -71,13 +70,12 @@ export class CardHost {
     });
 
     this.#frame.on("EV_FRAME_READY", () => {
-      this.#ready = true;
       // A fresh ready means a frame built from the mount configuration.
       this.#framed = this.#mounted;
 
       if (this.#updatedBeforeReady) {
         this.#updatedBeforeReady = false;
-        this.update({});
+        this.#resend();
       } else {
         this.#syncSpec();
       }
@@ -177,12 +175,13 @@ export class CardHost {
       },
     };
 
-    // The frame drops a configuration it is not ready for; only the theme is
-    // kept, so the rest is sent again once it is.
-    if (!this.#ready) this.#updatedBeforeReady = true;
-    else if (this.#spec) this.#framed = this.#spec;
-
-    this.#frame.update(this.#configuration);
+    if (this.#frame.isReady) {
+      this.#resend();
+    } else {
+      // The frame keeps only the theme until it is ready; the rest goes again then.
+      this.#updatedBeforeReady = true;
+      this.#frame.update(this.#configuration);
+    }
 
     return this;
   }
@@ -210,8 +209,15 @@ export class CardHost {
     }
   }
 
+  // The tree the merged configuration carries is the one the frame holds next.
+  #resend() {
+    if (this.#spec) this.#framed = this.#spec;
+
+    this.#frame.update(this.#configuration);
+  }
+
   #syncSpec() {
-    if (!this.#ready || !this.#spec) return;
+    if (!this.#frame.isReady || !this.#spec) return;
 
     const ops = diff(this.#framed, this.#spec);
     this.#framed = this.#spec;
@@ -235,14 +241,12 @@ export class CardHost {
     // A reply to the unmounted frame's request must not land in the next one.
     this.#pendingValidate?.();
     this.#pendingValidate = undefined;
-    this.#ready = false;
     this.#frame.unmount();
     return this;
   }
 
   destroy() {
     this.#pendingValidate = undefined;
-    this.#ready = false;
     this.#frame.destroy();
     // Nothing can dispatch to them again; let the callbacks go.
     this.#events = new EventManager<CardEvents>();
