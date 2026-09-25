@@ -95,6 +95,7 @@ export function integrity() {
       if (Object.keys(dynamic).length > 0) {
         const map = parsed.window.document.createElement("script");
         map.setAttribute("type", "importmap");
+        map.setAttribute("nonce", "%%CSP_NONCE%%");
         map.textContent = JSON.stringify({ integrity: dynamic });
         parsed.window.document.head.prepend(map);
       }
