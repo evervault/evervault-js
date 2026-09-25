@@ -1,4 +1,5 @@
 import * as themes from "themes";
+import { cssVar } from "themes";
 import Card from "./card";
 import Form from "./form";
 import Pin from "./pin";
@@ -19,6 +20,7 @@ import ApplePayButton, { ApplePayButtonOptions } from "./ApplePay/index";
 export default class UIComponents {
   client: EvervaultClient;
   themes = themes;
+  cssVar = cssVar;
 
   constructor(client: EvervaultClient) {
     this.client = client;

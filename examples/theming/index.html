@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Theming</title>
+  </head>
+
+  <body>
+    <div class="page">
+      <h1>Theming</h1>
+
+      <section class="example">
+        <div class="code">
+          <h3>Selector override + CSS variable</h3>
+          <pre><code>const card = evervault.ui.card({
+  theme: clean(undefined, {
+    primary: cssVar("--brand-color"),
+
+    selectors: {
+      label: {
+        display: "block",
+        marginBottom: 8,
+        fontWeight: 600,
+        color: cssVar("--brand-color"),
+      },
+    },
+  }),
+});</code></pre>
+        </div>
+        <div class="widget"><div id="card-1"></div></div>
+      </section>
+    </div>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
