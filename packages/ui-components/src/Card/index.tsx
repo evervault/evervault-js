@@ -36,8 +36,8 @@ import type {
   CardFrameHostMessages,
 } from "types";
 
-// Nodes the card leaves out: types it cannot render yet, and fields already
-// claimed earlier in the tree (the first wins).
+// Nodes the card leaves out: fields already claimed earlier in the tree (the
+// first wins).
 function skippedNodes(nodes: CardSpecNode[]): CardSpecNode[] {
   const rendered = new Set<CardField>();
 
@@ -46,7 +46,7 @@ function skippedNodes(nodes: CardSpecNode[]): CardSpecNode[] {
 
     const field = fieldFor(node.type);
 
-    if (!field || rendered.has(field)) return [node];
+    if (rendered.has(field)) return [node];
 
     rendered.add(field);
     return [];
@@ -56,9 +56,7 @@ function skippedNodes(nodes: CardSpecNode[]): CardSpecNode[] {
 }
 
 function skipReason(node: CardSpecNode) {
-  return fieldFor(node.type)
-    ? `<ev-card> ignored a duplicate "${node.type}" field.`
-    : `<ev-card> cannot render a "${node.type}" field yet.`;
+  return `<ev-card> ignored a duplicate "${node.type}" field.`;
 }
 
 export function Card({ config }: { config: CardConfig }) {
@@ -287,9 +285,9 @@ export function Card({ config }: { config: CardConfig }) {
       );
     }
 
-    const field = fieldFor(node.type);
+    if (skipped.includes(node)) return null;
 
-    if (!field || skipped.includes(node)) return null;
+    const field = fieldFor(node.type);
 
     if (field === "name") {
       return (

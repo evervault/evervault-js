@@ -5,10 +5,7 @@ export const ELEMENTS: Record<string, CardSpecNodeType> = {
   "ev-card-holder": "name",
   "ev-card-number": "number",
   "ev-card-expiry": "expiry",
-  "ev-card-expiry-month": "expiryMonth",
-  "ev-card-expiry-year": "expiryYear",
   "ev-card-cvc": "cvc",
-  "ev-field": "field",
 };
 
 export function warnUnknownChild(element: Element) {
