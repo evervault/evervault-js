@@ -15,6 +15,7 @@ import type {
 import { Transaction } from "../resources/transaction";
 import GooglePay from "./googlePay";
 import ApplePayButton, { ApplePayButtonOptions } from "./ApplePay/index";
+import { EvCard, EV_CARD_TAG_NAME } from "./elements/evCard";
 
 export default class UIComponents {
   client: EvervaultClient;
@@ -57,5 +58,12 @@ export default class UIComponents {
    */
   applePayButton(tx: Transaction, opts: ApplePayButtonOptions) {
     return new ApplePayButton(this.client, tx, opts);
+  }
+
+  // Mounts every `<ev-card>` on the page not yet mounted with this client.
+  mountElements() {
+    document.querySelectorAll<EvCard>(EV_CARD_TAG_NAME).forEach((card) => {
+      if (!card.isMounted) card.mountCard(this.client);
+    });
   }
 }

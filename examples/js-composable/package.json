@@ -1,0 +1,19 @@
+{
+  "name": "example-js-composable",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "dotenv -- concurrently --kill-others \"pnpm --filter @evervault/browser dev\" \"pnpm --filter @evervault/ui-components dev\" \"vite --port 4000\"",
+    "clean": "rm -rf node_modules dist"
+  },
+  "dependencies": {
+    "@evervault/js": "workspace:*"
+  },
+  "devDependencies": {
+    "concurrently": "catalog:",
+    "dotenv-cli": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}
