@@ -2,12 +2,11 @@ import { createHash } from "crypto";
 import { readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
 import jsdom from "jsdom";
-import { ResolvedConfig, Rollup } from "vite";
+import { ResolvedConfig } from "vite";
 
 // custom vite plugin to add integrity attribute to scripts and stylesheets
 export function integrity() {
   let outDir = "dist";
-  let chunks: string[] = [];
 
   return {
     name: "vite-plugin-integrity",
@@ -16,18 +15,6 @@ export function integrity() {
 
     configResolved(config: ResolvedConfig) {
       outDir = resolve(config.root, config.build.outDir);
-    },
-
-    buildStart() {
-      chunks = [];
-    },
-
-    generateBundle(_options: unknown, bundle: Rollup.OutputBundle) {
-      chunks.push(
-        ...Object.values(bundle)
-          .filter((output) => output.type === "chunk")
-          .map((output) => output.fileName)
-      );
     },
 
     closeBundle() {
@@ -56,47 +43,11 @@ export function integrity() {
       }
 
       const links = parsed.window.document.querySelectorAll(
-        "link[rel=stylesheet]"
+        "link[rel=stylesheet], link[rel=modulepreload]"
       );
       for (const link of links) {
         const href = link.getAttribute("href");
         if (href) addIntegrityToNode(link, href);
-      }
-
-      const preloads = parsed.window.document.querySelectorAll(
-        "link[rel=modulepreload]"
-      );
-      for (const link of preloads) {
-        const href = link.getAttribute("href");
-        if (href) addIntegrityToNode(link, href);
-      }
-
-      const referenced = new Set(
-        [...scripts, ...links].map((node) =>
-          (node.getAttribute("src") ?? node.getAttribute("href"))?.replace(
-            /^\//,
-            ""
-          )
-        )
-      );
-
-      const dynamic: Record<string, string> = {};
-      for (const fileName of chunks) {
-        if (referenced.has(fileName)) continue;
-        dynamic[`/${fileName}`] = generateIntegrity(
-          readFileSync(resolve(outDir, fileName))
-        );
-      }
-
-      parsed.window.document
-        .querySelector('script[type="importmap"]')
-        ?.remove();
-
-      if (Object.keys(dynamic).length > 0) {
-        const map = parsed.window.document.createElement("script");
-        map.setAttribute("type", "importmap");
-        map.textContent = JSON.stringify({ integrity: dynamic });
-        parsed.window.document.head.prepend(map);
       }
 
       writeFileSync(indexPath, parsed.serialize());
@@ -104,7 +55,7 @@ export function integrity() {
   };
 }
 
-function generateIntegrity(code: Buffer) {
+export function generateIntegrity(code: Buffer) {
   const hash = createHash("sha512");
   hash.update(code);
   return `sha512-${hash.digest("base64")}`;
