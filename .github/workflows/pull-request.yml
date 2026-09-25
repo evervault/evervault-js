@@ -6,10 +6,8 @@ on:
   push:
     branches:
       - "changeset-release/main"
-      - "changeset-release/master"
   pull_request:
     branches:
-      - "master"
       - "main"
   merge_group:
 jobs:
