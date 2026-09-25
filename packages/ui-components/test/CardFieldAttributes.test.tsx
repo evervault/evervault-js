@@ -50,7 +50,9 @@ function validity(container: HTMLElement, name: string) {
 
 describe("autocomplete", () => {
   it("turns autocomplete off when declared off", async () => {
-    const container = card({}, [node("number", "number", { autocomplete: "off" })]);
+    const container = card({}, [
+      node("number", "number", { autocomplete: "off" }),
+    ]);
 
     expect(input(container, "number").autocomplete).toBe("off");
   });
@@ -203,7 +205,10 @@ describe("redact", () => {
 
 describe("optional", () => {
   it("accepts an empty security code when declared optional", async () => {
-    const container = card({}, [node("number"), node("cvc", "cvc", { optional: "" })]);
+    const container = card({}, [
+      node("number"),
+      node("cvc", "cvc", { optional: "" }),
+    ]);
 
     fireEvent.blur(input(container, "cvc"));
 
@@ -232,7 +237,9 @@ describe("optional", () => {
 
 describe("defaultvalue", () => {
   it("fills the card holder with the declared default value", async () => {
-    const container = card({}, [node("name", "name", { "defaultvalue": "Jane Doe" })]);
+    const container = card({}, [
+      node("name", "name", { defaultvalue: "Jane Doe" }),
+    ]);
 
     await waitFor(() =>
       expect(input(container, "name").value).toBe("Jane Doe")
@@ -250,7 +257,7 @@ describe("defaultvalue", () => {
 
   it("prefers the declared default value over the config", async () => {
     const container = card({ defaultValues: { name: "From config" } }, [
-      node("name", "name", { "defaultvalue": "Jane Doe" }),
+      node("name", "name", { defaultvalue: "Jane Doe" }),
     ]);
 
     await waitFor(() =>
@@ -259,7 +266,9 @@ describe("defaultvalue", () => {
   });
 
   it("reports no change of its own for a seeded default value", async () => {
-    const container = card({}, [node("name", "name", { "defaultvalue": "Jane Doe" })]);
+    const container = card({}, [
+      node("name", "name", { defaultvalue: "Jane Doe" }),
+    ]);
 
     await waitFor(() =>
       expect(input(container, "name").value).toBe("Jane Doe")
@@ -269,14 +278,16 @@ describe("defaultvalue", () => {
   });
 
   it("takes a new default value while the customer has typed nothing", async () => {
-    const container = card({}, [node("name", "name", { "defaultvalue": "Jane Doe" })]);
+    const container = card({}, [
+      node("name", "name", { defaultvalue: "Jane Doe" }),
+    ]);
 
     await waitFor(() =>
       expect(input(container, "name").value).toBe("Jane Doe")
     );
 
     apply([
-      { op: "update", id: "name", props: { "defaultvalue": "Jane A Doe" } },
+      { op: "update", id: "name", props: { defaultvalue: "Jane A Doe" } },
     ]);
 
     await waitFor(() =>
@@ -285,7 +296,9 @@ describe("defaultvalue", () => {
   });
 
   it("keeps the typed name when the default value changes", async () => {
-    const container = card({}, [node("name", "name", { "defaultvalue": "Jane Doe" })]);
+    const container = card({}, [
+      node("name", "name", { defaultvalue: "Jane Doe" }),
+    ]);
 
     await waitFor(() =>
       expect(input(container, "name").value).toBe("Jane Doe")
@@ -300,7 +313,7 @@ describe("defaultvalue", () => {
     );
 
     apply([
-      { op: "update", id: "name", props: { "defaultvalue": "Jane A Doe" } },
+      { op: "update", id: "name", props: { defaultvalue: "Jane A Doe" } },
     ]);
 
     await waitFor(() =>
