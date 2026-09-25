@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CardFrame } from "../lib/ui/cardFrame";
+import { CardHost } from "../lib/ui/cardHost";
 import type EvervaultClient from "../lib/main";
 import type { CardPayload } from "types";
 import {
@@ -38,26 +38,26 @@ afterEach(() => {
 
 function mounted() {
   const container = document.createElement("div");
-  const frame = new CardFrame(client).mount(container);
-  return { frame, container };
+  const cardHost = new CardHost(client).mount(container);
+  return { cardHost, container };
 }
 
-describe("CardFrame events", () => {
+describe("CardHost events", () => {
   it("mirrors the frame's change payload into values and dispatches change", () => {
-    const { frame, container } = mounted();
+    const { cardHost, container } = mounted();
     const change = vi.fn();
-    frame.on("change", change);
+    cardHost.on("change", change);
 
     frameMessage(container, "EV_CHANGE", payload);
 
-    expect(frame.values).toBe(payload);
+    expect(cardHost.values).toBe(payload);
     expect(change).toHaveBeenCalledWith(payload);
   });
 
   it("dispatches ready when the frame is ready", () => {
-    const { frame, container } = mounted();
+    const { cardHost, container } = mounted();
     const ready = vi.fn();
-    frame.on("ready", ready);
+    cardHost.on("ready", ready);
 
     frameMessage(container, "EV_FRAME_READY");
 
@@ -65,9 +65,9 @@ describe("CardFrame events", () => {
   });
 
   it("carries the current values on a field event", () => {
-    const { frame, container } = mounted();
+    const { cardHost, container } = mounted();
     const focus = vi.fn();
-    frame.on("focus", focus);
+    cardHost.on("focus", focus);
 
     frameMessage(container, "EV_CHANGE", payload);
     frameMessage(container, "EV_FOCUS", "number");
@@ -76,51 +76,51 @@ describe("CardFrame events", () => {
   });
 
   it("mirrors the validated payload into values and dispatches validate", () => {
-    const { frame, container } = mounted();
+    const { cardHost, container } = mounted();
     const validate = vi.fn();
-    frame.on("validate", validate);
+    cardHost.on("validate", validate);
 
-    frame.validate();
+    cardHost.validate();
     frameMessage(container, "EV_VALIDATED", payload);
 
-    expect(frame.values).toBe(payload);
+    expect(cardHost.values).toBe(payload);
     expect(validate).toHaveBeenCalledWith(payload);
   });
 });
 
-describe("CardFrame teardown", () => {
+describe("CardHost teardown", () => {
   it("releases every frame subscription when destroyed", () => {
     const listeners = countMessageListeners();
-    const { frame } = mounted();
+    const { cardHost } = mounted();
 
     expect(listeners()).toBeGreaterThan(0);
 
-    frame.destroy();
+    cardHost.destroy();
 
     expect(listeners()).toBe(0);
   });
 
   it("releases the validate subscription when destroyed", () => {
     const listeners = countMessageListeners();
-    const { frame } = mounted();
+    const { cardHost } = mounted();
     const before = listeners();
 
-    frame.validate();
+    cardHost.validate();
 
     expect(listeners()).toBe(before + 1);
 
-    frame.destroy();
+    cardHost.destroy();
 
     expect(listeners()).toBe(0);
   });
 
   it("drops a validate subscription once it has fired", () => {
     const listeners = countMessageListeners();
-    const { frame, container } = mounted();
+    const { cardHost, container } = mounted();
     const before = listeners();
 
     for (let i = 0; i < 5; i += 1) {
-      frame.validate();
+      cardHost.validate();
       frameMessage(container, "EV_VALIDATED", payload);
     }
 
@@ -130,22 +130,22 @@ describe("CardFrame teardown", () => {
   it("reports a validate call once destroyed and subscribes nothing", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const listeners = countMessageListeners();
-    const { frame } = mounted();
+    const { cardHost } = mounted();
 
-    frame.destroy();
-    frame.validate();
+    cardHost.destroy();
+    cardHost.validate();
 
     expect(error).toHaveBeenCalledWith(expect.stringContaining("destroyed"));
     expect(listeners()).toBe(0);
   });
 
   it("answers overlapping validate calls once", () => {
-    const { frame, container } = mounted();
+    const { cardHost, container } = mounted();
     const validate = vi.fn();
-    frame.on("validate", validate);
+    cardHost.on("validate", validate);
 
-    frame.validate();
-    frame.validate();
+    cardHost.validate();
+    cardHost.validate();
     frameMessage(container, "EV_VALIDATED", payload);
 
     expect(validate).toHaveBeenCalledOnce();
@@ -153,11 +153,11 @@ describe("CardFrame teardown", () => {
 
   it("reports a mount once destroyed and mounts nothing", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
-    const { frame } = mounted();
+    const { cardHost } = mounted();
     const container = document.createElement("div");
 
-    frame.destroy();
-    frame.mount(container);
+    cardHost.destroy();
+    cardHost.mount(container);
 
     expect(error).toHaveBeenCalledWith(expect.stringContaining("destroyed"));
     expect(container.querySelector("iframe")).toBeNull();
@@ -165,23 +165,23 @@ describe("CardFrame teardown", () => {
 
   it("keeps its own subscriptions when only unmounted", () => {
     const listeners = countMessageListeners();
-    const frame = new CardFrame(client);
+    const cardHost = new CardHost(client);
     const own = listeners();
 
-    frame.mount(document.createElement("div"));
-    frame.unmount();
+    cardHost.mount(document.createElement("div"));
+    cardHost.unmount();
 
     expect(listeners()).toBe(own);
   });
 
   it("releases a pending validate reply when unmounted", () => {
-    const { frame, container } = mounted();
+    const { cardHost, container } = mounted();
     const validate = vi.fn();
-    frame.on("validate", validate);
+    cardHost.on("validate", validate);
 
     const id = frameId(container);
-    frame.validate();
-    frame.unmount();
+    cardHost.validate();
+    cardHost.unmount();
     frameMessage(id, "EV_VALIDATED", payload);
 
     expect(validate).not.toHaveBeenCalled();
@@ -189,12 +189,12 @@ describe("CardFrame teardown", () => {
 
   it("reports a subscription once destroyed and registers nothing", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
-    const { frame, container } = mounted();
+    const { cardHost, container } = mounted();
     const change = vi.fn();
     const id = frameId(container);
 
-    frame.destroy();
-    frame.on("change", change);
+    cardHost.destroy();
+    cardHost.on("change", change);
     frameMessage(id, "EV_CHANGE", payload);
 
     expect(error).toHaveBeenCalledWith(expect.stringContaining("destroyed"));
@@ -203,10 +203,10 @@ describe("CardFrame teardown", () => {
 
   it("reports one error for an update once destroyed", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
-    const { frame } = mounted();
+    const { cardHost } = mounted();
 
-    frame.destroy();
-    frame.update({ config: { autoProgress: true } });
+    cardHost.destroy();
+    cardHost.update({ config: { autoProgress: true } });
 
     expect(error).toHaveBeenCalledOnce();
   });
