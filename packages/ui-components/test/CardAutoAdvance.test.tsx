@@ -8,10 +8,10 @@ import {
   render,
   waitFor,
 } from "@testing-library/react";
-import { act } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { Card } from "../src/Card";
-import type { CardSpecNode, CardSpecPatchOp } from "types";
+import type { CardSpecNode } from "types";
+import { apply, input, node, settle, spec, type } from "./helpers/card";
 
 vi.mock("@evervault/react", () => ({
   useEvervault: () => ({ encrypt: vi.fn() }),
@@ -21,29 +21,17 @@ vi.mock("../src/utilities/useSearchParams", () => ({
   useSearchParams: () => ({ app: "app_test123", id: "frame1" }),
 }));
 
-let patch: (payload: { ops: CardSpecPatchOp[] }) => void = () => {};
-
 vi.mock("../src/utilities/useMessaging", () => ({
   useMessaging: () => ({
     send: vi.fn(),
     on: (type: string, callback: (payload: unknown) => void) => {
       if (type === "EV_SPEC_PATCH") {
-        patch = callback as typeof patch;
+        spec.patch = callback as typeof spec.patch;
       }
       return () => {};
     },
   }),
 }));
-
-function node(type: CardSpecNode["type"], id: string): CardSpecNode {
-  return { type, id, props: {} };
-}
-
-function apply(ops: CardSpecPatchOp[]) {
-  act(() => {
-    patch({ ops });
-  });
-}
 
 // A card declared with these fields, in this order, and auto-progress on.
 function declared(types: CardSpecNode["type"][]) {
@@ -54,27 +42,10 @@ function declared(types: CardSpecNode["type"][]) {
   );
 }
 
-function input(container: HTMLElement, id: string) {
-  const found = container.querySelector<HTMLInputElement>(`#${id}`);
-  if (!found) throw new Error(`no ${id} input`);
-  return found;
-}
-
-// imask reads the element on input, so a value must arrive as an input event.
-function type(element: HTMLInputElement, value: string) {
-  element.focus();
-  fireEvent.input(element, { target: { value } });
-}
-
 function backspace(element: HTMLInputElement) {
   const event = createEvent.keyDown(element, { key: "Backspace" });
   fireEvent(element, event);
   return event;
-}
-
-// Flushes the promises the card's encrypt-on-change re-render queues.
-async function settle() {
-  await act(async () => {});
 }
 
 const NUMBER = "4242424242424242";
