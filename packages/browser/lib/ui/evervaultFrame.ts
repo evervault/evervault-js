@@ -85,6 +85,11 @@ export class EvervaultFrame<
     if (options?.allow) {
       this.iframe.allow = options.allow;
     }
+
+    // First in line, so a component's own ready listener finds the frame ready.
+    this.#subscribe("EV_FRAME_READY", this.#unsubscribes, () => {
+      this.#ready = true;
+    });
   }
 
   setSize(size: { width: string; height: string }) {
@@ -340,10 +345,6 @@ export class EvervaultFrame<
     return url.toString();
   }
 
-  get isDestroyed() {
-    return this.#destroyed;
-  }
-
   // A destroyed frame stays inert: the call is reported, not honoured.
   live() {
     if (this.#destroyed) {
@@ -361,9 +362,6 @@ export class EvervaultFrame<
   ) {
     const handleMessage = (e: MessageEvent<EvervaultFrameMessageDetail>) => {
       if (!e.data || e.data.frame !== this.#id) return;
-      // Noted here, ahead of every listener, so one that updates from the
-      // component's ready event finds the frame ready.
-      if (e.data.type === "EV_FRAME_READY") this.#ready = true;
       if (e.data.type !== event) return;
       callback(e.data.payload as ReceivableMessages[K]);
     };
