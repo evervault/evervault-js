@@ -12,24 +12,24 @@ import type {
   ThemeDefinition,
 } from "types";
 
-export interface CardFrameOptions {
+export interface CardHostOptions {
   colorScheme?: ColorScheme;
   allow?: string;
 }
 
-export interface CardFrameConfiguration {
+export interface CardHostConfiguration {
   theme?: ThemeDefinition;
   config?: CardFrameConfig;
 }
 
 // The card machinery shared by every card front-end.
-export class CardFrame {
+export class CardHost {
   #values: CardPayload;
   #frame: EvervaultFrame<CardFrameClientMessages, CardFrameHostMessages>;
   #events = new EventManager<CardEvents>();
   #pendingValidate?: () => void;
 
-  constructor(client: EvervaultClient, options: CardFrameOptions = {}) {
+  constructor(client: EvervaultClient, options: CardHostOptions = {}) {
     this.#frame = new EvervaultFrame(client, "Card", {
       colorScheme: options.colorScheme,
       allow: options.allow,
@@ -94,7 +94,7 @@ export class CardFrame {
     return this.#frame.isDestroyed;
   }
 
-  mount(selector: SelectorType, configuration: CardFrameConfiguration = {}) {
+  mount(selector: SelectorType, configuration: CardHostConfiguration = {}) {
     // A validate issued while unmounted went nowhere; its reply never comes.
     this.#pendingValidate?.();
     this.#pendingValidate = undefined;
@@ -108,7 +108,7 @@ export class CardFrame {
     return this;
   }
 
-  preload(selector: SelectorType, configuration: CardFrameConfiguration = {}) {
+  preload(selector: SelectorType, configuration: CardHostConfiguration = {}) {
     // A validate issued while unmounted went nowhere; its reply never comes.
     this.#pendingValidate?.();
     this.#pendingValidate = undefined;
@@ -127,7 +127,7 @@ export class CardFrame {
     return this;
   }
 
-  update(configuration: CardFrameConfiguration) {
+  update(configuration: CardHostConfiguration) {
     this.#frame.update(configuration);
     return this;
   }
