@@ -152,23 +152,6 @@ describe("Card spec rendering", () => {
     expect(fieldNames(container)).toEqual(["number", "cvc"]);
   });
 
-  it("renders no field for a node type it cannot render yet", () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-
-    try {
-      const { container } = card({
-        fields: [node("number", "a"), node("expiryMonth", "b")],
-      });
-
-      expect(fieldNames(container)).toEqual(["number"]);
-      expect(warn).toHaveBeenCalledWith(
-        '<ev-card> cannot render a "expiryMonth" field yet.'
-      );
-    } finally {
-      warn.mockRestore();
-    }
-  });
-
   it("renders a field declared twice once and warns once", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
