@@ -4,10 +4,17 @@ interface FieldProps {
   name?: string;
   hasValue?: boolean;
   error?: string | null;
+  iconPosition?: string;
   children: React.ReactNode;
 }
 
-export function Field({ name, error, children, hasValue }: FieldProps) {
+export function Field({
+  name,
+  error,
+  children,
+  hasValue,
+  iconPosition,
+}: FieldProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const isValid = useMemo(() => !error, [error]);
@@ -26,6 +33,7 @@ export function Field({ name, error, children, hasValue }: FieldProps) {
     <div
       ref={ref}
       ev-name={name}
+      ev-icon-position={iconPosition}
       ev-valid={isValid ? "true" : "false"}
       ev-has-value={String(hasValue)}
       aria-invalid={!isValid}
