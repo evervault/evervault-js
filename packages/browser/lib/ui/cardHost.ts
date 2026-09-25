@@ -126,19 +126,7 @@ export class CardHost {
   mount(selector: SelectorType, configuration: CardHostConfiguration = {}) {
     if (!this.live()) return this;
 
-    // A validate issued while unmounted went nowhere; its reply never comes.
-    this.#pendingValidate?.();
-    this.#pendingValidate = undefined;
-
-    this.#configuration = configuration;
-
-    const fields = configuration.config?.fields;
-
-    if (isSpec(fields)) {
-      this.#spec = fields;
-      this.#mounted = fields;
-    }
-
+    this.#configure(configuration);
     this.#frame.mount(selector, {
       ...configuration,
       onError: () => {
@@ -152,9 +140,7 @@ export class CardHost {
   preload(selector: SelectorType, configuration: CardHostConfiguration = {}) {
     if (!this.live()) return this;
 
-    // A validate issued while unmounted went nowhere; its reply never comes.
-    this.#pendingValidate?.();
-    this.#pendingValidate = undefined;
+    this.#configure(configuration);
     this.#frame.preload(selector, {
       ...configuration,
       onError: () => {
@@ -206,6 +192,22 @@ export class CardHost {
     this.#spec = spec;
     this.#syncSpec();
     return this;
+  }
+
+  // The configuration a new frame boots from, and the tree it will hold.
+  #configure(configuration: CardHostConfiguration) {
+    // A validate issued while unmounted went nowhere; its reply never comes.
+    this.#pendingValidate?.();
+    this.#pendingValidate = undefined;
+
+    this.#configuration = configuration;
+
+    const fields = configuration.config?.fields;
+
+    if (isSpec(fields)) {
+      this.#spec = fields;
+      this.#mounted = fields;
+    }
   }
 
   #syncSpec() {
