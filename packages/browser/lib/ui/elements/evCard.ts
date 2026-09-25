@@ -59,7 +59,7 @@ export class EvCard extends Base {
     }
 
     this.#client = evervault;
-    this.#spec = this.#read();
+    this.#spec = this.#readSpec();
 
     const card = new CardHost(evervault);
 
@@ -84,7 +84,7 @@ export class EvCard extends Base {
   }
 
   // Declaring nothing renders the default card; declaring anything replaces it.
-  #read() {
+  #readSpec() {
     const declared = serialise(this);
     return declared.length > 0 ? declared : DEFAULT_SPEC;
   }
@@ -112,7 +112,7 @@ export class EvCard extends Base {
   #sync() {
     if (!this.#observer) return;
 
-    this.#spec = this.#read();
+    this.#spec = this.#readSpec();
     this.#card?.setSpec(this.#spec);
   }
 
