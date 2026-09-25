@@ -21,14 +21,14 @@ import type { CardSpecNode, SelectorType } from "types";
 
 // The fake stands in for the card frame in most tests; the teardown tests
 // switch to the real one, since only it registers window listeners to count.
-const { frames, real, FakeCardFrame } = vi.hoisted(() => {
+const { hosts, real, FakeCardHost } = vi.hoisted(() => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const real: { CardHost?: new (...args: any[]) => unknown } = {};
 
-  class FakeCardFrame {
+  class FakeCardHost {
     handlers: Record<string, (payload: unknown) => void> = {};
     mount = vi.fn<
-      (selector: SelectorType, configuration: unknown) => FakeCardFrame
+      (selector: SelectorType, configuration: unknown) => FakeCardHost
     >(() => this);
     update = vi.fn(() => this);
     setSpec = vi.fn(() => this);
@@ -40,18 +40,18 @@ const { frames, real, FakeCardFrame } = vi.hoisted(() => {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(...args: any[]) {
-      if (real.CardHost) return new real.CardHost(...args) as FakeCardFrame;
+      if (real.CardHost) return new real.CardHost(...args) as FakeCardHost;
 
-      frames.push(this);
+      hosts.push(this);
     }
   }
 
-  const frames: FakeCardFrame[] = [];
+  const hosts: FakeCardHost[] = [];
 
-  return { frames, real, FakeCardFrame };
+  return { hosts, real, FakeCardHost };
 });
 
-vi.mock("../lib/ui/cardHost", () => ({ CardHost: FakeCardFrame }));
+vi.mock("../lib/ui/cardHost", () => ({ CardHost: FakeCardHost }));
 
 vi.mock("themes", () => ({ clean: () => ({ styles: { theme: "clean" } }) }));
 
@@ -64,7 +64,7 @@ beforeAll(() => {
 
 afterEach(() => {
   document.body.innerHTML = "";
-  frames.length = 0;
+  hosts.length = 0;
   vi.clearAllMocks();
 });
 
@@ -84,7 +84,7 @@ function evervault() {
 }
 
 function frame() {
-  const [latest] = frames.slice(-1);
+  const [latest] = hosts.slice(-1);
   if (!latest) throw new Error("no card frame was created");
   return latest;
 }
@@ -147,14 +147,14 @@ describe("<ev-card>", () => {
     append({ "team-id": "team_test123" });
 
     expect(createClient).not.toHaveBeenCalled();
-    expect(frames).toHaveLength(0);
+    expect(hosts).toHaveLength(0);
   });
 
   it("does not mount a card when an attribute is empty", () => {
     append({ "team-id": "team_test123", "app-id": "" });
 
     expect(createClient).not.toHaveBeenCalled();
-    expect(frames).toHaveLength(0);
+    expect(hosts).toHaveLength(0);
   });
 
   it("does not mount a second card", () => {
@@ -166,7 +166,7 @@ describe("<ev-card>", () => {
 
     element.mountCard(evervault());
 
-    expect(frames).toHaveLength(1);
+    expect(hosts).toHaveLength(1);
     expect(error).toHaveBeenCalledWith(
       expect.stringContaining("already been mounted")
     );
@@ -191,8 +191,8 @@ describe("<ev-card>", () => {
     element.remove();
     document.body.append(element);
 
-    expect(frames).toHaveLength(2);
-    expect(frames[1].mount).toHaveBeenCalledOnce();
+    expect(hosts).toHaveLength(2);
+    expect(hosts[1].mount).toHaveBeenCalledOnce();
     expect(createClient).toHaveBeenCalledOnce();
   });
 
@@ -204,8 +204,8 @@ describe("<ev-card>", () => {
     element.remove();
     document.body.append(element);
 
-    expect(frames).toHaveLength(2);
-    expect(frames[1].mount).toHaveBeenCalledOnce();
+    expect(hosts).toHaveLength(2);
+    expect(hosts[1].mount).toHaveBeenCalledOnce();
     expect(error).not.toHaveBeenCalled();
 
     error.mockRestore();
@@ -218,8 +218,8 @@ describe("<ev-card>", () => {
     element.remove();
     document.body.append(element);
 
-    const [first] = frames[0].mount.mock.calls[0];
-    const [second] = frames[1].mount.mock.calls[0];
+    const [first] = hosts[0].mount.mock.calls[0];
+    const [second] = hosts[1].mount.mock.calls[0];
 
     expect(second).toBe(first);
   });
@@ -231,7 +231,7 @@ describe("<ev-card>", () => {
 
     document.body.append(element);
 
-    expect(frames).toHaveLength(1);
+    expect(hosts).toHaveLength(1);
     expect(error).not.toHaveBeenCalled();
 
     error.mockRestore();
@@ -247,8 +247,8 @@ describe("<ev-card>", () => {
 
     element.mountCard(evervault());
 
-    expect(frames).toHaveLength(2);
-    expect(frames[1].destroy).not.toHaveBeenCalled();
+    expect(hosts).toHaveLength(2);
+    expect(hosts[1].destroy).not.toHaveBeenCalled();
     expect(error).toHaveBeenCalledWith(
       expect.stringContaining("already been mounted")
     );
@@ -263,8 +263,8 @@ describe("<ev-card>", () => {
 
     element.mountCard({ config: {} } as unknown as EvervaultClient);
 
-    expect(frames).toHaveLength(1);
-    expect(frames[0].destroy).not.toHaveBeenCalled();
+    expect(hosts).toHaveLength(1);
+    expect(hosts[0].destroy).not.toHaveBeenCalled();
     expect(error).toHaveBeenCalledWith(
       expect.stringContaining("already been mounted")
     );
@@ -305,20 +305,20 @@ describe("ui.mount", () => {
     append();
     append();
 
-    new UIComponents(evervault()).mount();
+    new UIComponents(evervault()).mountElements();
 
-    expect(frames).toHaveLength(2);
-    expect(frames[0].mount).toHaveBeenCalledOnce();
-    expect(frames[1].mount).toHaveBeenCalledOnce();
+    expect(hosts).toHaveLength(2);
+    expect(hosts[0].mount).toHaveBeenCalledOnce();
+    expect(hosts[1].mount).toHaveBeenCalledOnce();
   });
 
   it("leaves a card that is already mounted alone", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     append({ "team-id": "team_test123", "app-id": "app_test123" });
 
-    new UIComponents(evervault()).mount();
+    new UIComponents(evervault()).mountElements();
 
-    expect(frames).toHaveLength(1);
+    expect(hosts).toHaveLength(1);
     expect(error).not.toHaveBeenCalled();
   });
 });
