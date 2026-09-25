@@ -19,8 +19,6 @@ export function warnUnknownChild(element: Element) {
   console.warn(
     `<${element.localName}> is not a supported child of <ev-card> and will be ignored. Supported children are: ${supported}.`
   );
-
-  return null;
 }
 
 const ids = new WeakMap<Element, string>();
@@ -52,7 +50,10 @@ export function serialise(parent: Element): CardSpecNode[] {
     .map((element) => {
       const type = ELEMENTS[element.localName];
 
-      if (!type) return warnUnknownChild(element);
+      if (!type) {
+        warnUnknownChild(element);
+        return null;
+      }
 
       return {
         type,
