@@ -5,6 +5,7 @@ on:
   # which are created by a bot, so do not inherit the pull_request trigger.
   push:
     branches:
+      - "changeset-release/main"
       - "changeset-release/master"
   pull_request:
     branches:
