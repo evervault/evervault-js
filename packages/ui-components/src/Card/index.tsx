@@ -80,11 +80,11 @@ export function Card({ config }: { config: CardConfig }) {
 
   // Everything past here reads the tree: the host's `fields` become one at the
   // boundary, whichever shape they arrived in.
-  const declaredTree = isSpec(config.fields);
+  const declaredTree = isSpec(config.fields) ? config.fields : null;
 
   const seed = useMemo(
-    () => (isSpec(config.fields) ? config.fields : legacyNodes(config)),
-    [config]
+    () => declaredTree ?? legacyNodes(config),
+    [declaredTree, config]
   );
 
   const nodes = useSpec(on, seed);
