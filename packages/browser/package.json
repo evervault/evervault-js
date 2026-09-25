@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@evervault/browser",
-  "version": "2.66.1",
+  "version": "2.67.1",
   "engines": {
     "node": "~24"
   },
