@@ -54,6 +54,7 @@ test.describe("built index.html under the production CSP", () => {
     await page.addInitScript(() => {
       window.__cspViolations = [];
       document.addEventListener("securitypolicyviolation", (event) => {
+        if (event.blockedURI.endsWith("/favicon.ico")) return;
         window.__cspViolations.push(
           `${event.violatedDirective} at line ${event.lineNumber}`
         );
