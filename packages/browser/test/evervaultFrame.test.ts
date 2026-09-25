@@ -290,8 +290,8 @@ describe("EvervaultFrame preload and reveal", () => {
 
 describe("EvervaultFrame teardown", () => {
   it("counts a fired once() subscription as released", () => {
-    const listeners = countMessageListeners();
     const frame = new EvervaultFrame(mockClient, "card");
+    const listeners = countMessageListeners();
     const callback = vi.fn();
 
     frame.once("EV_FRAME_READY", callback);
@@ -304,8 +304,8 @@ describe("EvervaultFrame teardown", () => {
   });
 
   it("releases the listeners it registered when destroyed", () => {
-    const listeners = countMessageListeners();
     const frame = new EvervaultFrame(mockClient, "card");
+    const listeners = countMessageListeners();
     const container = document.createElement("div");
 
     frame.mount(container);
@@ -326,8 +326,8 @@ describe("EvervaultFrame teardown", () => {
   });
 
   it("releases only the mount listeners when unmounted", () => {
-    const listeners = countMessageListeners();
     const frame = new EvervaultFrame(mockClient, "card");
+    const listeners = countMessageListeners();
     frame.on("EV_FRAME_READY", () => {});
 
     frame.mount(document.createElement("div"));
@@ -366,8 +366,8 @@ describe("EvervaultFrame teardown", () => {
   });
 
   it("registers no listeners of its own on a handshake", () => {
-    const listeners = countMessageListeners();
     const frame = new EvervaultFrame(mockClient, "card");
+    const listeners = countMessageListeners();
     const container = document.createElement("div");
 
     frame.mount(container);
