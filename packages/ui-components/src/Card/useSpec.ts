@@ -2,23 +2,12 @@ import { useEffect, useState } from "react";
 import { applyPatch } from "./spec";
 import type { CardField, CardFrameHostMessages, CardSpecNode } from "types";
 
-const FIELDS: Record<Exclude<CardSpecNode["type"], "row">, CardField> = {
-  name: "name",
-  number: "number",
-  expiry: "expiry",
-  cvc: "cvc",
-};
-
-export function fieldFor(type: Exclude<CardSpecNode["type"], "row">) {
-  return FIELDS[type];
-}
-
 // The fields a tree renders, first declaration first.
 export function declaredFields(spec: CardSpecNode[]): CardField[] {
   const fields = spec.flatMap((node) => {
     if (node.type === "row") return declaredFields(node.children ?? []);
 
-    return [fieldFor(node.type)];
+    return [node.type];
   });
 
   return [...new Set(fields)];
