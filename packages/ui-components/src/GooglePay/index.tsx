@@ -19,7 +19,7 @@ import {
 } from "types";
 import { useSearchParams } from "../utilities/useSearchParams";
 import { getMerchant } from "../utilities/useMerchant";
-import { getAppSDKConfig } from "shared";
+import { getAppSDKConfig, markStart, markEndAndReport } from "shared";
 import { apiConfig } from "../utilities/config";
 
 // Google's own default when buttonRadius is unset. The Android SDK uses the same
@@ -88,6 +88,8 @@ export function GooglePay({ config }: GooglePayProps) {
 
     if (called.current) return;
     called.current = true;
+
+    markStart("ev:google-pay:mount");
 
     async function onLoad() {
       const appConfigPromise = getAppSDKConfig(app, apiConfig.apiUrl);
@@ -334,6 +336,7 @@ export function GooglePay({ config }: GooglePayProps) {
 
         if (container.current) {
           container.current.appendChild(btn);
+          markEndAndReport("ev:google-pay:mount");
 
           setSize({
             width: container.current.offsetWidth,

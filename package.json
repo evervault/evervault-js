@@ -20,7 +20,9 @@
     "coverage:report:html": "npx nyc --reporter=html --exclude-after-remap=false report && open coverage/index.html",
     "coverage:check": "npx nyc check-coverage",
     "react-native": "pnpm --filter @evervault/react-native",
-    "examples:expo": "pnpm --filter evervault-expo-example"
+    "examples:expo": "pnpm --filter evervault-expo-example",
+    "examples:apple-pay:tunnel": "pnpm --filter example-apple-pay dev:tunnel",
+    "examples:apple-pay:perf-baseline": "pnpm --filter example-apple-pay perf:baseline"
   },
   "devDependencies": {
     "@changesets/cli": "catalog:",
