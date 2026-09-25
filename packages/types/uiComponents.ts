@@ -105,6 +105,27 @@ export interface CardPayload {
 
 export type CardField = "name" | "number" | "expiry" | "cvc";
 
+export type CardSpecNodeType = "row" | CardField;
+
+export interface CardSpecNode {
+  type: CardSpecNodeType;
+  id: string;
+  props: Record<string, string>;
+  children?: CardSpecNode[];
+}
+
+export type CardSpecPatchOp =
+  | {
+      op: "insert";
+      parentId: string | null;
+      index: number;
+      node: CardSpecNode;
+    }
+  | { op: "remove"; id: string }
+  | { op: "update"; id: string; props: Record<string, string> }
+  // `index` counts the destination's children after the node has left them.
+  | { op: "move"; id: string; parentId: string | null; index: number };
+
 export interface FieldEvent {
   field: CardField;
   data: CardPayload;
@@ -225,7 +246,8 @@ export interface CardFrameConfig {
   icons?: boolean | Partial<CardIcons>;
   autoFocus?: boolean;
   hiddenFields?: string; // deprecated, sent comma-joined
-  fields?: CardField[];
+  // A field list from `ui.card()`, or the node tree a declared card renders.
+  fields?: CardField[] | CardSpecNode[];
   acceptedBrands?: CardBrandName[];
   customBrands?: CustomBrand[];
   translations?: Partial<CardTranslations>;
@@ -312,6 +334,7 @@ export interface CardFrameClientMessages extends EvervaultFrameClientMessages {
 export interface CardFrameHostMessages extends EvervaultFrameHostMessages {
   EV_VALIDATE: undefined;
   EV_UPDATE_NAME: string;
+  EV_SPEC_PATCH: { ops: CardSpecPatchOp[] };
 }
 
 export interface PinOptions {

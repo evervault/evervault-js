@@ -5,6 +5,7 @@ import {
 } from "@evervault/card-validator";
 import { useEvervault } from "@evervault/react";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import type { ReactElement } from "react";
 import { useForm, useTranslations } from "shared";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
@@ -18,6 +19,8 @@ import { CardNumber } from "./CardNumber";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useAgentTools } from "./useAgentTools";
 import { useCardReader } from "./useCardReader";
+import { isSpec, legacyNodes } from "./legacyFields";
+import { declaredFields, useSpec } from "./useSpec";
 import {
   changePayload,
   collectIcons,
@@ -28,9 +31,31 @@ import type { CardFormValidators } from "./agentTools";
 import type { CardForm, CardConfig } from "./types";
 import type {
   CardField,
+  CardSpecNode,
   CardFrameClientMessages,
   CardFrameHostMessages,
 } from "types";
+
+// Nodes the card leaves out: fields already claimed earlier in the tree (the
+// first wins).
+function skippedNodes(nodes: CardSpecNode[]): CardSpecNode[] {
+  const rendered = new Set<CardField>();
+
+  const walk = (node: CardSpecNode): CardSpecNode[] => {
+    if (node.type === "row") return (node.children ?? []).flatMap(walk);
+
+    if (rendered.has(node.type)) return [node];
+
+    rendered.add(node.type);
+    return [];
+  };
+
+  return nodes.flatMap(walk);
+}
+
+function skipReason(node: CardSpecNode) {
+  return `<ev-card> ignored a duplicate "${node.type}" field.`;
+}
 
 export function Card({ config }: { config: CardConfig }) {
   const cvc = useRef<HTMLInputElement | null>(null);
@@ -44,16 +69,28 @@ export function Card({ config }: { config: CardConfig }) {
 
   const { acceptedBrands, customBrands } = config;
 
-  const fields = useMemo(() => {
-    let result = config.fields ?? ["number", "expiry", "cvc"];
-    const hidden = String(config?.hiddenFields ?? "").split(",");
+  // Everything past here reads the tree: the host's `fields` become one at the
+  // boundary, whichever shape they arrived in.
+  const seed = useMemo(
+    () => (isSpec(config.fields) ? config.fields : legacyNodes(config)),
+    [config]
+  );
 
-    if (hidden.length > 0) {
-      result = result.filter((field) => !hidden?.includes(field));
-    }
+  const nodes = useSpec(on, seed);
+  const fields = useMemo(() => declaredFields(nodes), [nodes]);
+  const skipped = useMemo(() => skippedNodes(nodes), [nodes]);
 
-    return result;
-  }, [config]);
+  // In an effect, not the render body, so a re-render does not warn again.
+  const warned = useRef("");
+
+  useEffect(() => {
+    const key = skipped.map((node) => node.id).join(",");
+
+    if (key === warned.current) return;
+    warned.current = key;
+
+    skipped.forEach((node) => console.warn(skipReason(node)));
+  }, [skipped]);
 
   const validators: CardFormValidators = {
     name: (values) => {
@@ -230,14 +267,30 @@ export function Card({ config }: { config: CardConfig }) {
     send("EV_KEYUP", field);
   };
 
-  return (
-    <fieldset
-      ev-component="card"
-      ev-valid={hasErrors ? "false" : "true"}
-      ev-fields={fields}
-    >
-      {fields.includes("name") && (
+  const renderNode = (node: CardSpecNode): ReactElement | null => {
+    if (node.type === "row") {
+      const children = (node.children ?? [])
+        .map(renderNode)
+        .filter((child) => child !== null);
+
+      // An empty wrapper would still take its own track in the card grid.
+      if (children.length === 0) return null;
+
+      return (
+        <div key={node.id} ev-row="">
+          {children}
+        </div>
+      );
+    }
+
+    if (skipped.includes(node)) return null;
+
+    const field = node.type;
+
+    if (field === "name") {
+      return (
         <Field
+          key={node.id}
           name="name"
           hasValue={form.values.name.length > 0}
           error={form.errors?.name && t(`name.errors.${form.errors.name}`)}
@@ -261,10 +314,13 @@ export function Card({ config }: { config: CardConfig }) {
             <Error>{t(`name.errors.${form.errors.name}`)}</Error>
           )}
         </Field>
-      )}
+      );
+    }
 
-      {fields.includes("number") && (
+    if (field === "number") {
+      return (
         <Field
+          key={node.id}
           name="number"
           hasValue={form.values.number.length > 0}
           error={
@@ -302,10 +358,13 @@ export function Card({ config }: { config: CardConfig }) {
             <Error>{t(`number.errors.${form.errors.number}`)}</Error>
           )}
         </Field>
-      )}
+      );
+    }
 
-      {fields.includes("expiry") && (
+    if (field === "expiry") {
+      return (
         <Field
+          key={node.id}
           name="expiry"
           hasValue={form.values.expiry.length > 0}
           error={
@@ -331,10 +390,13 @@ export function Card({ config }: { config: CardConfig }) {
             <Error>{t(`expiry.errors.${form.errors.expiry}`)}</Error>
           )}
         </Field>
-      )}
+      );
+    }
 
-      {fields.includes("cvc") && (
+    if (field === "cvc") {
+      return (
         <Field
+          key={node.id}
           name="cvc"
           hasValue={form.values.cvc.length > 0}
           error={form.errors?.cvc && t(`cvc.errors.${form.errors.cvc}`)}
@@ -361,7 +423,19 @@ export function Card({ config }: { config: CardConfig }) {
             <Error>{t(`cvc.errors.${form.errors.cvc}`)}</Error>
           )}
         </Field>
-      )}
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <fieldset
+      ev-component="card"
+      ev-valid={hasErrors ? "false" : "true"}
+      ev-fields={fields}
+    >
+      {nodes.map(renderNode)}
     </fieldset>
   );
 }
