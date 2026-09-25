@@ -538,7 +538,9 @@ export function Card({ config }: { config: CardConfig }) {
             onFocus={handleFocus("cvc")}
             onKeyUp={handleKeyUp("cvc")}
             onKeyDown={handleKeyDown("cvc")}
-            autoComplete={props.autoComplete ?? config.autoComplete?.cvc ?? true}
+            autoComplete={
+              props.autoComplete ?? config.autoComplete?.cvc ?? true
+            }
             autoProgress={config.autoProgress}
             onComplete={advanceFromCVC}
             redact={props.redact ?? config.redactCVC}
