@@ -26,3 +26,7 @@ export function unsupportedFieldType(name: string | undefined, type: string) {
   const types = CUSTOM_FIELD_TYPES.map((type) => `"${type}"`).join(", ");
   return `<ev-card> renders the <ev-field> named "${name}" as a "text" field: "${type}" is not a type it supports. Types are: ${types}.`;
 }
+
+export function invalidPattern(name: string | undefined, pattern: string) {
+  return `<ev-card> ignores the pattern of the <ev-field> named "${name}": "${pattern}" is not a valid regular expression.`;
+}

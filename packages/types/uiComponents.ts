@@ -94,7 +94,7 @@ export interface CardPayload {
     expiry: CardExpiry;
     cvc: string | null;
   };
-  // Each value encrypted; null when empty.
+  // Each value encrypted; null when empty or invalid.
   fields: Record<string, string | null>;
   isValid: boolean;
   isComplete: boolean;
@@ -102,6 +102,7 @@ export interface CardPayload {
     number?: string;
     cvc?: string;
     expiry?: string;
+    fields?: Record<string, string>;
   }>;
 }
 
@@ -179,6 +180,8 @@ export interface CardTranslations extends TranslationsObject {
   expiryMonth?: CardLabelTranslations;
   expiryYear?: CardLabelTranslations;
   cvc: CardFieldTranslations<{ invalid?: string }>;
+  // For an <ev-field> without an `errormessage`.
+  field?: { errors?: { required?: string; invalid?: string } };
 }
 
 export type CardIcons = Record<CardBrandName | "default", string>;

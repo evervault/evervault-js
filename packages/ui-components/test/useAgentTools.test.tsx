@@ -45,6 +45,7 @@ function baseParams(overrides: Partial<Params> = {}): Params {
     form: makeForm(),
     validators,
     t: (key: string) => `t:${key}`,
+    customFieldsComplete: true,
     ...overrides,
   };
 }

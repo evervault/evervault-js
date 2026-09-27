@@ -42,6 +42,7 @@ export function CustomFieldInput({
       autoCapitalize={field.autoCapitalize}
       spellCheck={field.spellCheck}
       enterKeyHint={field.enterKeyHint as EnterKeyHint}
+      aria-required={field.required}
       maxLength={field.maxLength}
       min={field.min}
       max={field.max}
