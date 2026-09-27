@@ -1,4 +1,5 @@
 import { FocusEvent, HTMLAttributes } from "react";
+import { capitalised } from "./customField";
 import type { CustomFieldProps } from "./customField";
 import type { CustomFieldInputId } from "./types";
 
@@ -47,7 +48,20 @@ export function CustomFieldInput({
       min={field.min}
       max={field.max}
       step={field.step}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={(e) => {
+        const input = e.target;
+        const composing = (e.nativeEvent as InputEvent).isComposing;
+        const next = composing ? input.value : capitalised(field, input.value);
+
+        if (next !== input.value) {
+          const { selectionStart, selectionEnd } = input;
+          const sameLength = next.length === input.value.length;
+          input.value = next;
+          if (sameLength) input.setSelectionRange(selectionStart, selectionEnd);
+        }
+
+        onChange(next);
+      }}
       onBlur={onBlur}
       onFocus={onFocus}
       onKeyUp={onKeyUp}
