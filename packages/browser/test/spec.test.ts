@@ -44,6 +44,19 @@ describe("serialise", () => {
     });
   });
 
+  it("serialises a customer's own field with its attributes", () => {
+    const [node] = serialise(
+      card(`<ev-field name="postcode" label="Postcode" readonly></ev-field>`)
+    );
+
+    expect(node).toStrictEqual({
+      type: "field",
+      id: expect.any(String),
+      props: { name: "postcode", label: "Postcode", readonly: "" },
+      children: undefined,
+    });
+  });
+
   it("serialises a card holder field", () => {
     const [node] = serialise(card(`<ev-card-holder></ev-card-holder>`));
 

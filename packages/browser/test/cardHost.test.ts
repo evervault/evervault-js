@@ -67,6 +67,26 @@ describe("CardHost events", () => {
     expect(focus).toHaveBeenCalledWith({ field: "number", data: payload });
   });
 
+  it.each([
+    ["EV_FOCUS", "focus"],
+    ["EV_BLUR", "blur"],
+    ["EV_KEYDOWN", "keydown"],
+    ["EV_KEYUP", "keyup"],
+  ] as const)("names the customer's own field on %s", (message, event) => {
+    const { cardHost, container } = mounted();
+    const listener = vi.fn();
+    cardHost.on(event, listener);
+
+    frameMessage(container, "EV_CHANGE", payload);
+    frameMessage(container, message, { field: "field", name: "postcode" });
+
+    expect(listener).toHaveBeenCalledWith({
+      field: "field",
+      name: "postcode",
+      data: payload,
+    });
+  });
+
   it("mirrors the validated payload into values and dispatches validate", () => {
     const { cardHost, container } = mounted();
     const validate = vi.fn();
