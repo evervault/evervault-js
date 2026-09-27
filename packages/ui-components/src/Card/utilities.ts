@@ -8,6 +8,7 @@ import {
 import { PromisifiedEvervaultClient } from "@evervault/react";
 import { UseFormReturn } from "shared";
 import { ICONS } from "./icons";
+import type { CustomFieldProps } from "./customField";
 import { MagStripeData } from "./useCardReader";
 import type { CardForm } from "./types";
 import type {
@@ -20,10 +21,16 @@ import type {
 } from "types";
 import { CARD_BRAND_NAMES } from "types";
 
+export interface CustomFields {
+  declared: Map<string, CustomFieldProps>;
+  values: Map<string, string>;
+}
+
 export async function changePayload(
   ev: PromisifiedEvervaultClient,
   form: UseFormReturn<CardForm>,
   fields: CardField[],
+  custom: CustomFields,
   opts?: {
     allow3DigitAmexCVC?: boolean;
     cvcOptional?: boolean;
@@ -52,6 +59,7 @@ export async function changePayload(
         customBrands: opts?.customBrands,
       }),
     },
+    fields: await encryptedFields(ev, custom),
     isValid: form.isValid,
     isComplete: isComplete(form, fields, opts),
     errors: Object.keys(form.errors ?? {}).length > 0 ? form.errors : null,
@@ -166,6 +174,21 @@ function formatExpiry(expiry: string) {
 
 async function encryptedNumber(ev: PromisifiedEvervaultClient, number: string) {
   return ev.encrypt(number);
+}
+
+// Every declared field is reported, an empty one as null.
+async function encryptedFields(
+  ev: PromisifiedEvervaultClient,
+  { declared, values }: CustomFields
+): Promise<Record<string, string | null>> {
+  const entries = await Promise.all(
+    [...declared.keys()].map(async (name) => {
+      const value = values.get(name) ?? "";
+      return [name, value.length > 0 ? await ev.encrypt(value) : null];
+    })
+  );
+
+  return Object.fromEntries(entries);
 }
 
 async function encryptedCVC(
