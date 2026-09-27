@@ -18,6 +18,8 @@ interface UseAgentToolsParams {
   form: UseFormReturn<CardForm>;
   validators: CardFormValidators;
   t: (key: string) => string;
+  // Agents never see the customer's own fields, but the card waits on them.
+  customFieldsComplete: boolean;
 }
 
 // Registers WebMCP tools for the card form. Tool handlers read the latest
@@ -29,9 +31,10 @@ export function useAgentTools({
   form,
   validators,
   t,
+  customFieldsComplete,
 }: UseAgentToolsParams) {
-  const latest = useRef({ form, validators, t });
-  latest.current = { form, validators, t };
+  const latest = useRef({ form, validators, t, customFieldsComplete });
+  latest.current = { form, validators, t, customFieldsComplete };
 
   const namePrefix = config?.namePrefix;
   const productName = config?.productName;
@@ -61,11 +64,12 @@ export function useAgentTools({
     const exposedTo = exposeTo ? exposeTo.split(",") : [];
 
     const buildStatus = (values: CardForm) => {
-      const { validators, t } = latest.current;
+      const { validators, t, customFieldsComplete } = latest.current;
       const statuses = buildFieldStatuses(activeFields, values, validators, t);
       return {
         fields: statuses,
-        isComplete: statuses.every((status) => status.isValid),
+        isComplete:
+          customFieldsComplete && statuses.every((status) => status.isValid),
         focusedField: getFocusedField(activeInputs),
       };
     };

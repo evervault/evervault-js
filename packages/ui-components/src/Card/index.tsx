@@ -30,7 +30,7 @@ import { CustomFieldInput } from "./CustomFieldInput";
 import {
   customFieldNodes,
   customFieldProps,
-  customFieldWarning,
+  customFieldWarnings,
 } from "./customField";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useAgentTools } from "./useAgentTools";
@@ -56,6 +56,7 @@ import { useFocusOrder } from "./useFocusOrder";
 import {
   changePayload,
   collectIcons,
+  customComplete,
   isBrandSupported,
   swipePayload,
 } from "./utilities";
@@ -198,8 +199,7 @@ export function Card({ config }: { config: CardConfig }) {
       ...skipped.map(skipReason),
       ...customFieldNodes(nodes)
         .filter((node) => !skipped.includes(node))
-        .map(customFieldWarning)
-        .filter((warning) => warning !== null),
+        .flatMap(customFieldWarnings),
     ],
     [nodes, skipped]
   );
@@ -365,6 +365,7 @@ export function Card({ config }: { config: CardConfig }) {
     form,
     validators,
     t,
+    customFieldsComplete: customComplete(customFields),
   });
 
   useLayoutEffect(() => {
@@ -376,13 +377,15 @@ export function Card({ config }: { config: CardConfig }) {
       on("EV_VALIDATE", () => {
         if (!ev) return;
 
+        const errors = customFields.validate();
+
         form.validate((formState) => {
           void (async () => {
             const data = await changePayload(
               ev,
               formState,
               fields,
-              customFields,
+              { ...customFields, errors },
               {
                 allow3DigitAmexCVC: config.allow3DigitAmexCVC,
                 cvcOptional,
@@ -456,7 +459,8 @@ export function Card({ config }: { config: CardConfig }) {
     focus.next("cvc");
   }, [focus]);
 
-  const hasErrors = Object.keys(form.errors ?? {}).length > 0;
+  const hasErrors =
+    Object.keys(form.errors ?? {}).length > 0 || customFields.errors.size > 0;
 
   const handleFocus = (field: FieldTarget) => () => {
     if (!autoFocusing.current) interacted.current = true;
@@ -520,9 +524,17 @@ export function Card({ config }: { config: CardConfig }) {
       const id = customFieldInputId(name);
       const target = { field: "field", name } as const;
       const value = customFields.valueOf(name);
+      const code = customFields.errors.get(name);
+      const error =
+        code && (declared.errorMessage ?? t(`field.errors.${code}`));
 
       return (
-        <Field key={node.id} name={id} hasValue={value.length > 0}>
+        <Field
+          key={node.id}
+          name={id}
+          hasValue={value.length > 0}
+          error={error}
+        >
           {declared.label && <label htmlFor={id}>{declared.label}</label>}
           {declared.tooltip && <Tooltip>{declared.tooltip}</Tooltip>}
           <CustomFieldInput
@@ -532,10 +544,14 @@ export function Card({ config }: { config: CardConfig }) {
             disabled={!config}
             onChange={(next) => customFields.setValue(name, next)}
             onFocus={handleFocus(target)}
-            onBlur={handleBlur(target)}
+            onBlur={() => {
+              customFields.blur(name);
+              handleBlur(target)();
+            }}
             onKeyUp={handleKeyUp(target)}
             onKeyDown={handleKeyDown(target)}
           />
+          {error && <Error>{error}</Error>}
         </Field>
       );
     }
