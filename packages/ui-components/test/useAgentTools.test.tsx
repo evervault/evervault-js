@@ -213,6 +213,41 @@ describe("useAgentTools handlers", () => {
     expect(document.activeElement).toBe(input);
   });
 
+  it("focuses the first half of a split expiry", () => {
+    const month = document.createElement("input");
+    month.id = "expiry-month";
+    const year = document.createElement("input");
+    year.id = "expiry-year";
+    document.body.append(year, month);
+    renderHook(() =>
+      useAgentTools(
+        baseParams({ inputs: ["number", "expiry-year", "expiry-month", "cvc"] })
+      )
+    );
+
+    expect(
+      find("focus-field").execute({ field: "expiry" }, { signal })
+    ).toEqual({ focused: "expiry" });
+    expect(document.activeElement).toBe(year);
+  });
+
+  it("reports focus on a half of a split expiry as the expiry", () => {
+    const month = document.createElement("input");
+    month.id = "expiry-month";
+    document.body.append(month);
+    renderHook(() =>
+      useAgentTools(
+        baseParams({ inputs: ["number", "expiry-month", "expiry-year", "cvc"] })
+      )
+    );
+
+    month.focus();
+
+    expect(find("get-form-status").execute({}, { signal })).toEqual(
+      expect.objectContaining({ focusedField: "expiry" })
+    );
+  });
+
   it("throws when asked to focus a field that is not rendered", () => {
     renderHook(() => useAgentTools(baseParams()));
     expect(() =>
