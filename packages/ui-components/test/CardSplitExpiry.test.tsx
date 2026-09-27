@@ -184,37 +184,68 @@ describe("split expiry rendering", () => {
 });
 
 describe("split expiry declaration", () => {
-  it("refuses a month without a year", () => {
+  const LONE_MONTH = loneExpiryHalf("expiryMonth");
+
+  it("renders nothing and logs why for a month without a year", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
 
     try {
-      expect(() => card([node("number"), node("expiryMonth")])).toThrow(
-        loneExpiryHalf("expiryMonth")
-      );
+      const container = card([node("number"), node("expiryMonth")]);
+
+      expect(fieldNames(container)).toEqual([]);
+      expect(error).toHaveBeenCalledWith(LONE_MONTH);
     } finally {
       error.mockRestore();
     }
   });
 
-  it("refuses a year without a month", () => {
+  it("logs why for the combined field alongside the halves", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
 
     try {
-      expect(() => card([node("number"), node("expiryYear")])).toThrow(
-        loneExpiryHalf("expiryYear")
-      );
+      card([node("expiry"), node("expiryMonth"), node("expiryYear")]);
+
+      expect(error).toHaveBeenCalledWith(COMBINED_EXPIRY_WITH_HALF);
     } finally {
       error.mockRestore();
     }
   });
 
-  it("refuses the combined field alongside the halves", () => {
+  it("keeps the last tree it rendered when a patch leaves a lone half", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
 
     try {
-      expect(() =>
-        card([node("expiry"), node("expiryMonth"), node("expiryYear")])
-      ).toThrow(COMBINED_EXPIRY_WITH_HALF);
+      const container = card(SPLIT);
+
+      apply([{ op: "remove", id: "expiryYear" }]);
+
+      expect(fieldNames(container)).toEqual([
+        "number",
+        "expiry-month",
+        "expiry-year",
+        "cvc",
+      ]);
+      expect(error).toHaveBeenCalledWith(LONE_MONTH);
+    } finally {
+      error.mockRestore();
+    }
+  });
+
+  it("renders the tree once a patch makes it whole again", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    try {
+      const container = card([node("number"), node("expiryMonth")]);
+
+      apply([
+        { op: "insert", parentId: null, index: 2, node: node("expiryYear") },
+      ]);
+
+      expect(fieldNames(container)).toEqual([
+        "number",
+        "expiry-month",
+        "expiry-year",
+      ]);
     } finally {
       error.mockRestore();
     }
