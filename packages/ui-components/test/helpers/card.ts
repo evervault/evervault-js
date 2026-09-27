@@ -9,6 +9,13 @@ export function node(
   return { type, id, props };
 }
 
+export function field(
+  id: string,
+  props: Record<string, string> = {}
+): CardSpecNode {
+  return node("field", id, props);
+}
+
 export function row(id: string, children: CardSpecNode[]): CardSpecNode {
   return { type: "row", id, props: {}, children };
 }
