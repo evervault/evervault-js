@@ -202,6 +202,25 @@ describe("useAgentTools handlers", () => {
     expect(complete.isComplete).toBe(true);
   });
 
+  it("is not complete while the customer's own fields are not", () => {
+    const form = makeForm({
+      number: "4242424242424242",
+      expiry: "0135",
+      cvc: "123",
+    });
+    renderHook(() =>
+      useAgentTools(baseParams({ form, customFieldsComplete: false }))
+    );
+
+    const status = find("get-form-status").execute({}, { signal }) as {
+      fields: { isValid: boolean }[];
+      isComplete: boolean;
+    };
+
+    expect(status.fields.every((field) => field.isValid)).toBe(true);
+    expect(status.isComplete).toBe(false);
+  });
+
   it("focuses the requested field", () => {
     const input = document.createElement("input");
     input.id = "cvc";

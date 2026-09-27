@@ -180,6 +180,35 @@ describe("<ev-field> values", () => {
     );
   });
 
+  it.each(["constructor", "toString", "__proto__"])(
+    "treats a field named %s like any other",
+    async (name) => {
+      const container = card([
+        node("name"),
+        field("custom", { name, required: "" }),
+      ]);
+      const custom = input(container, `field-${name}`);
+
+      expect(custom.value).toBe("");
+
+      await userEvent.type(input(container, "name"), "Jane Doe");
+
+      await waitFor(() => expect(lastChange()?.card.name).toBe("Jane Doe"));
+      expect(
+        Object.getOwnPropertyDescriptor(lastChange()?.fields, name)?.value
+      ).toBeNull();
+      expect(lastChange()?.errors).toBeNull();
+
+      await userEvent.type(custom, "value");
+
+      await waitFor(() =>
+        expect(
+          Object.getOwnPropertyDescriptor(lastChange()?.fields, name)?.value
+        ).toBe("encrypted(value)")
+      );
+    }
+  );
+
   it("reports no fields for a card that declares none", async () => {
     const { container } = render(<Card config={{ fields: ["name"] }} />);
 
