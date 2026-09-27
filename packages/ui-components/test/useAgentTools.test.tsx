@@ -41,6 +41,7 @@ function baseParams(overrides: Partial<Params> = {}): Params {
   return {
     config,
     fields: ["number", "expiry", "cvc"],
+    inputs: ["number", "expiry", "cvc"],
     form: makeForm(),
     validators,
     t: (key: string) => `t:${key}`,

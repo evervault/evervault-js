@@ -10,8 +10,9 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
-import type { ReactElement } from "react";
+import type { FocusEvent, ReactElement } from "react";
 import { useForm, useTranslations } from "shared";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
@@ -21,14 +22,17 @@ import { useMessaging } from "../utilities/useMessaging";
 import { BrandIcon } from "./BrandIcon";
 import { CardCVC } from "./CardCVC";
 import { CardExpiry } from "./CardExpiry";
+import { CardExpiryPart } from "./CardExpiryPart";
 import { CardHolder } from "./CardHolder";
 import { CardNumber } from "./CardNumber";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useAgentTools } from "./useAgentTools";
 import { useCardReader } from "./useCardReader";
+import { duplicateField } from "./developerMessages";
+import { declaredExpiry, joinExpiry, splitExpiry } from "./expiry";
 import { isSpec, legacyNodes } from "./legacyFields";
 import { declaredProps, fieldProps } from "./props";
-import { declaredFields, useSpec } from "./useSpec";
+import { declaredFields, declaredInputs, inputFor, useSpec } from "./useSpec";
 import { useFocusOrder } from "./useFocusOrder";
 import {
   changePayload,
@@ -37,7 +41,7 @@ import {
   swipePayload,
 } from "./utilities";
 import type { CardFormValidators } from "./agentTools";
-import type { CardForm, CardConfig } from "./types";
+import type { CardForm, CardConfig, CardInput } from "./types";
 import type {
   CardField,
   CardSpecNode,
@@ -45,25 +49,23 @@ import type {
   CardFrameHostMessages,
 } from "types";
 
-// Nodes the card leaves out: fields already claimed earlier in the tree (the
+// Nodes the card leaves out: inputs already claimed earlier in the tree (the
 // first wins).
 function skippedNodes(nodes: CardSpecNode[]): CardSpecNode[] {
-  const rendered = new Set<CardField>();
+  const rendered = new Set<CardInput>();
 
   const walk = (node: CardSpecNode): CardSpecNode[] => {
     if (node.type === "row") return (node.children ?? []).flatMap(walk);
 
-    if (rendered.has(node.type)) return [node];
+    const input = inputFor(node.type);
 
-    rendered.add(node.type);
+    if (rendered.has(input)) return [node];
+
+    rendered.add(input);
     return [];
   };
 
   return nodes.flatMap(walk);
-}
-
-function skipReason(node: CardSpecNode) {
-  return `<ev-card> ignored a duplicate "${node.type}" field.`;
 }
 
 export function Card({ config }: { config: CardConfig }) {
@@ -88,9 +90,11 @@ export function Card({ config }: { config: CardConfig }) {
   );
 
   const nodes = useSpec(on, seed);
+  const inputs = useMemo(() => declaredInputs(nodes), [nodes]);
   const fields = useMemo(() => declaredFields(nodes), [nodes]);
   const skipped = useMemo(() => skippedNodes(nodes), [nodes]);
   const declared = useMemo(() => declaredProps(nodes), [nodes]);
+  const expiry = useMemo(() => declaredExpiry(nodes), [nodes]);
 
   const cvcOptional =
     declared.get("cvc")?.optional ?? config.validation?.cvc?.optional;
@@ -102,7 +106,7 @@ export function Card({ config }: { config: CardConfig }) {
     [declared]
   );
 
-  const autoFocusField = useMemo(
+  const autoFocusInput = useMemo(
     () => [...declared].find(([, props]) => props.autoFocus)?.[0],
     [declared]
   );
@@ -122,9 +126,9 @@ export function Card({ config }: { config: CardConfig }) {
   useEffect(() => {
     if (interacted.current) return;
 
-    if (autoFocusField) {
+    if (autoFocusInput) {
       autoFocusing.current = true;
-      document.getElementById(autoFocusField)?.focus();
+      document.getElementById(autoFocusInput)?.focus();
       autoFocusing.current = false;
       return;
     }
@@ -135,11 +139,11 @@ export function Card({ config }: { config: CardConfig }) {
 
     if (
       active instanceof HTMLElement &&
-      fields.includes(active.id as CardField)
+      inputs.includes(active.id as CardInput)
     ) {
       active.blur();
     }
-  }, [autoFocusField, declaresAutoFocus, fields]);
+  }, [autoFocusInput, declaresAutoFocus, inputs]);
 
   // In an effect, not the render body, so a re-render does not warn again.
   const warned = useRef("");
@@ -150,7 +154,7 @@ export function Card({ config }: { config: CardConfig }) {
     if (key === warned.current) return;
     warned.current = key;
 
-    skipped.forEach((node) => console.warn(skipReason(node)));
+    skipped.forEach((node) => console.warn(duplicateField(node.type)));
   }, [skipped]);
 
   const validators: CardFormValidators = {
@@ -243,11 +247,35 @@ export function Card({ config }: { config: CardConfig }) {
     },
   });
 
+  // The halves of a split expiry, kept apart so a year typed ahead of the
+  // month survives; any other write to the expiry is split back into them.
+  const [halves, setHalves] = useState(() => ({
+    expiry: form.values.expiry,
+    parts: splitExpiry(form.values.expiry),
+  }));
+  const split = expiry?.form === "split";
+
+  let expiryParts = halves.parts;
+
+  if (split && halves.expiry !== form.values.expiry) {
+    expiryParts = splitExpiry(form.values.expiry);
+    setHalves({ expiry: form.values.expiry, parts: expiryParts });
+  }
+
+  const changeExpiryPart = (part: "month" | "year") => (value: string) => {
+    const parts = { ...expiryParts, [part]: value };
+    const joined = joinExpiry(parts);
+    setHalves({ expiry: joined, parts });
+    form.setValue("expiry", joined);
+  };
+
   const cardReaderListening = useCardReader((card) => {
     form.setValues({
       name: `${card.firstName} ${card.lastName}`,
       number: card.number,
-      expiry: `${card.month}/${card.year}`,
+      expiry: split
+        ? `${card.month}${card.year}`
+        : `${card.month}/${card.year}`,
       cvc: "",
     });
 
@@ -264,6 +292,7 @@ export function Card({ config }: { config: CardConfig }) {
   useAgentTools({
     config: config.agentTools,
     fields,
+    inputs,
     form,
     validators,
     t,
@@ -329,7 +358,7 @@ export function Card({ config }: { config: CardConfig }) {
     form.setValues((values) => ({ ...values, name: defaultName }));
   }, [declared, form]);
 
-  const focus = useFocusOrder(fields);
+  const focus = useFocusOrder(inputs);
 
   const advanceFromNumber = useCallback(() => {
     focus.next("number");
@@ -337,6 +366,14 @@ export function Card({ config }: { config: CardConfig }) {
 
   const advanceFromExpiry = useCallback(() => {
     focus.next("expiry");
+  }, [focus]);
+
+  const advanceFromExpiryMonth = useCallback(() => {
+    focus.next("expiry-month");
+  }, [focus]);
+
+  const advanceFromExpiryYear = useCallback(() => {
+    focus.next("expiry-year");
   }, [focus]);
 
   const advanceFromCVC = useCallback(() => {
@@ -355,8 +392,10 @@ export function Card({ config }: { config: CardConfig }) {
     send("EV_BLUR", field);
   };
 
+  // The host hears about fields; focus moves between inputs.
   const handleKeyDown =
-    (field: CardField) => (event: React.KeyboardEvent<HTMLInputElement>) => {
+    (field: CardField, input: CardInput = field) =>
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
       interacted.current = true;
 
       send("EV_KEYDOWN", field);
@@ -368,7 +407,7 @@ export function Card({ config }: { config: CardConfig }) {
         event.currentTarget.value.length === 0
       ) {
         // Uncancelled, the deletion lands on the field just stepped back to.
-        if (focus.previous(field)) {
+        if (focus.previous(input)) {
           event.preventDefault();
         }
       }
@@ -478,6 +517,63 @@ export function Card({ config }: { config: CardConfig }) {
           {form.errors?.number && (
             <Error>{t(`number.errors.${form.errors.number}`)}</Error>
           )}
+        </Field>
+      );
+    }
+
+    if (node.type === "expiryMonth" || node.type === "expiryYear") {
+      const part = node.type === "expiryMonth" ? "month" : "year";
+      const otherPart = part === "month" ? "year" : "month";
+      const later = expiry?.form === "split" && expiry.later === node.type;
+      const error =
+        form.errors?.expiry && t(`expiry.errors.${form.errors.expiry}`);
+      const registered = form.register("expiry", {
+        onBlur: handleBlur("expiry"),
+      });
+
+      // Moving into the other half while it is empty is not finishing the date.
+      const onBlur = (event: FocusEvent<HTMLInputElement>) => {
+        const toOther = event.relatedTarget?.id === `expiry-${otherPart}`;
+
+        if (toOther && expiryParts[otherPart].length === 0) {
+          handleBlur("expiry")();
+          return;
+        }
+
+        registered.onBlur(event);
+      };
+
+      return (
+        <Field
+          key={node.id}
+          name={`expiry-${part}`}
+          hasValue={expiryParts[part].length > 0}
+          error={error}
+        >
+          <label htmlFor={`expiry-${part}`}>
+            {props.label ?? t(`${node.type}.label`)}
+          </label>
+          {props.tooltip && <Tooltip>{props.tooltip}</Tooltip>}
+          <CardExpiryPart
+            part={part}
+            value={expiryParts[part]}
+            disabled={!config}
+            readOnly={cardReaderListening}
+            placeholder={props.placeholder ?? t(`${node.type}.placeholder`)}
+            autoComplete={
+              props.autoComplete ?? config.autoComplete?.expiry ?? true
+            }
+            autoProgress={config.autoProgress}
+            onComplete={
+              part === "month" ? advanceFromExpiryMonth : advanceFromExpiryYear
+            }
+            onChange={changeExpiryPart(part)}
+            onBlur={onBlur}
+            onFocus={handleFocus("expiry")}
+            onKeyUp={handleKeyUp("expiry")}
+            onKeyDown={handleKeyDown("expiry", `expiry-${part}`)}
+          />
+          {later && error && <Error>{error}</Error>}
         </Field>
       );
     }

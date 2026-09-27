@@ -1,10 +1,10 @@
-import IMask from "imask";
 import { FocusEvent, useEffect, useRef } from "react";
 import { useMask } from "../utilities/useMask";
-import type { CardForm } from "./types";
+import { EXPIRY_BLOCKS } from "./CardExpiry";
 
-interface CardExpiryProps {
-  onChange: (value: CardForm["expiry"]) => void;
+interface CardExpiryPartProps {
+  part: "month" | "year";
+  onChange: (value: string) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: FocusEvent<HTMLInputElement>) => void;
   onKeyUp?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
@@ -18,25 +18,23 @@ interface CardExpiryProps {
   onComplete?: () => void;
 }
 
-export const EXPIRY_BLOCKS = {
-  MM: {
-    mask: IMask.MaskedRange,
-    placeholderChar: "MM",
-    from: 1,
-    to: 12,
-    maxLength: 2,
-    autofix: "pad",
+const PARTS = {
+  month: {
+    id: "expiry-month",
+    mask: "MM",
+    autoComplete: "billing cc-exp-month",
   },
-  YY: {
-    mask: IMask.MaskedRange,
-    placeholderChar: "YY",
-    from: 0,
-    to: 99,
-    maxLength: 2,
-  },
+  year: { id: "expiry-year", mask: "YY", autoComplete: "billing cc-exp-year" },
 };
 
-export function CardExpiry({
+// Browsers fill `cc-exp-year` with all four digits.
+const YEAR_BLOCK = {
+  ...EXPIRY_BLOCKS.YY,
+  prepare: (value: string) => (value.length === 4 ? value.slice(2) : value),
+};
+
+export function CardExpiryPart({
+  part,
   onChange,
   onBlur,
   disabled,
@@ -49,17 +47,20 @@ export function CardExpiry({
   onFocus,
   onKeyUp,
   onKeyDown,
-}: CardExpiryProps) {
+}: CardExpiryPartProps) {
   const ref = useRef<HTMLInputElement>(null);
+  const { id, mask: pattern, autoComplete: token } = PARTS[part];
   const { setValue, mask } = useMask(ref, onChange, {
-    mask: "MM / YY",
-    blocks: EXPIRY_BLOCKS as typeof useMask.prototype.blocks,
+    mask: pattern,
+    blocks: {
+      MM: EXPIRY_BLOCKS.MM,
+      YY: YEAR_BLOCK,
+    } as typeof useMask.prototype.blocks,
   });
 
   useEffect(() => {
     const isComplete = mask.current?.masked.isComplete ?? false;
-    const activeField = document.activeElement as HTMLElement;
-    const isFocused = activeField === ref.current;
+    const isFocused = document.activeElement === ref.current;
     if (autoProgress && isFocused && isComplete) {
       onComplete?.();
     }
@@ -73,14 +74,14 @@ export function CardExpiry({
     <input
       ref={ref}
       type="text"
-      id="expiry"
-      name="expiry"
+      id={id}
+      name={id}
       disabled={disabled}
       onBlur={onBlur}
       placeholder={placeholder}
       pattern="[0-9]*"
       inputMode="numeric"
-      autoComplete={autoComplete ? "billing cc-exp" : "off"}
+      autoComplete={autoComplete ? token : "off"}
       readOnly={readOnly}
       onFocus={onFocus}
       onKeyUp={onKeyUp}
