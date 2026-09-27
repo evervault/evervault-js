@@ -8,6 +8,7 @@ export const ELEMENTS: Record<string, CardSpecNodeType> = {
   "ev-card-expiry-month": "expiryMonth",
   "ev-card-expiry-year": "expiryYear",
   "ev-card-cvc": "cvc",
+  "ev-field": "field",
 };
 
 // Every mutation re-reads the children, so an unsupported one is named once.

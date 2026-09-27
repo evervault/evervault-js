@@ -10,6 +10,8 @@ import type {
   CardFrameHostMessages,
   CardSpecNode,
   ColorScheme,
+  FieldEvent,
+  FieldTarget,
   SelectorType,
   ThemeDefinition,
 } from "types";
@@ -83,20 +85,20 @@ export class CardHost {
       this.#events.dispatch("ready");
     });
 
-    this.#frame.on("EV_FOCUS", (field) => {
-      this.#events.dispatch("focus", { field, data: this.values });
+    this.#frame.on("EV_FOCUS", (target) => {
+      this.#events.dispatch("focus", this.#fieldEvent(target));
     });
 
-    this.#frame.on("EV_BLUR", (field) => {
-      this.#events.dispatch("blur", { field, data: this.values });
+    this.#frame.on("EV_BLUR", (target) => {
+      this.#events.dispatch("blur", this.#fieldEvent(target));
     });
 
-    this.#frame.on("EV_KEYDOWN", (field) => {
-      this.#events.dispatch("keydown", { field, data: this.values });
+    this.#frame.on("EV_KEYDOWN", (target) => {
+      this.#events.dispatch("keydown", this.#fieldEvent(target));
     });
 
-    this.#frame.on("EV_KEYUP", (field) => {
-      this.#events.dispatch("keyup", { field, data: this.values });
+    this.#frame.on("EV_KEYUP", (target) => {
+      this.#events.dispatch("keyup", this.#fieldEvent(target));
     });
 
     this.#values = {
@@ -114,6 +116,14 @@ export class CardHost {
       isComplete: false,
       errors: null,
     };
+  }
+
+  #fieldEvent(target: FieldTarget): FieldEvent {
+    const data = this.values;
+
+    return typeof target === "string"
+      ? { field: target, data }
+      : { ...target, data };
   }
 
   // Kept current by the frame's change and validate replies.
