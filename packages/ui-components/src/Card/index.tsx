@@ -29,7 +29,7 @@ import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useAgentTools } from "./useAgentTools";
 import { useCardReader } from "./useCardReader";
 import { duplicateField } from "./developerMessages";
-import { declaredExpiry, joinExpiry, splitExpiry } from "./expiry";
+import { declaredExpiry, expiryError, joinExpiry, splitExpiry } from "./expiry";
 import { isSpec, legacyNodes } from "./legacyFields";
 import { declaredProps, fieldProps } from "./props";
 import { declaredFields, declaredInputs, inputFor, useSpec } from "./useSpec";
@@ -89,7 +89,22 @@ export function Card({ config }: { config: CardConfig }) {
     [declaredTree, config]
   );
 
-  const nodes = useSpec(on, seed);
+  const received = useSpec(on, seed);
+  const refusal = useMemo(() => expiryError(received), [received]);
+
+  // A refused tree leaves the card on the last one it could render.
+  const [renderable, setRenderable] = useState(refusal ? [] : received);
+
+  if (!refusal && renderable !== received) {
+    setRenderable(received);
+  }
+
+  const nodes = refusal ? renderable : received;
+
+  useEffect(() => {
+    if (refusal) console.error(refusal);
+  }, [refusal]);
+
   const inputs = useMemo(() => declaredInputs(nodes), [nodes]);
   const fields = useMemo(() => declaredFields(nodes), [nodes]);
   const skipped = useMemo(() => skippedNodes(nodes), [nodes]);
