@@ -44,6 +44,16 @@
         placeholder="SW1A 1AA"
         autocomplete="postal-code"
         autocapitalize="characters"
+        pattern="[A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}"
+        errormessage="Enter a UK postcode"
+        required
+      ></ev-field>
+      <ev-field
+        name="email"
+        type="email"
+        label="Email"
+        placeholder="jane@example.com"
+        autocomplete="email"
       ></ev-field>
     </ev-card>
   </body>
