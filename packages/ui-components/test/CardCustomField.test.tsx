@@ -282,6 +282,28 @@ describe("<ev-field> input attributes", () => {
   });
 });
 
+describe("<ev-field> autocapitalize", () => {
+  it("capitalises what is typed on any keyboard", async () => {
+    const container = card([
+      field("postcode", { name: "postcode", autocapitalize: "characters" }),
+    ]);
+
+    await userEvent.type(input(container, "field-postcode"), "sw1a 1aa");
+
+    expect(input(container, "field-postcode").value).toBe("SW1A 1AA");
+  });
+
+  it("carries the declared autocapitalize onto the input", () => {
+    const container = card([
+      field("custom", { name: "custom", autocapitalize: "off" }),
+    ]);
+
+    expect(
+      input(container, "field-custom").getAttribute("autocapitalize")
+    ).toBe("none");
+  });
+});
+
 describe("<ev-field> autocomplete", () => {
   it.each([
     ["", "on"],

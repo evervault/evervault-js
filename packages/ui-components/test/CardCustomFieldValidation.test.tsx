@@ -126,6 +126,24 @@ describe("<ev-field> validation", () => {
     await waitFor(() => expect(errorText(container)).toBe(REQUIRED));
   });
 
+  it("accepts a lowercase postcode capitalised to match the pattern", async () => {
+    const container = postcodeCard({
+      pattern: POSTCODE,
+      autocapitalize: "characters",
+    });
+    const postcode = input(container, "field-postcode");
+
+    await userEvent.type(postcode, "sw1a 1aa");
+    leave(postcode);
+
+    await waitFor(() =>
+      expect(lastSent("EV_CHANGE")?.fields).toEqual({
+        postcode: "encrypted(SW1A 1AA)",
+      })
+    );
+    expect(validity(container)).toBe("true");
+  });
+
   it("marks a required field as required", () => {
     const container = postcodeCard({ required: "" });
 
