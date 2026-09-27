@@ -4,6 +4,8 @@ import { invalidPattern, unsupportedFieldType } from "./developerMessages";
 import { flag } from "./props";
 import type { CardSpecNode } from "types";
 
+export type AutoCapitalize = "none" | "sentences" | "words" | "characters";
+
 export interface CustomFieldProps {
   name: string;
   type: CustomFieldType;
@@ -14,7 +16,7 @@ export interface CustomFieldProps {
   autoComplete?: string;
   readOnly?: boolean;
   inputMode?: string;
-  autoCapitalize?: string;
+  autoCapitalize?: AutoCapitalize;
   spellCheck?: boolean;
   enterKeyHint?: string;
   required?: boolean;
@@ -43,6 +45,15 @@ function autoComplete(value: string) {
   if (["false", "off"].includes(normalised)) return "off";
   return value;
 }
+
+const AUTO_CAPITALIZE = new Map<string, AutoCapitalize>([
+  ["none", "none"],
+  ["off", "none"],
+  ["sentences", "sentences"],
+  ["on", "sentences"],
+  ["words", "words"],
+  ["characters", "characters"],
+]);
 
 function length(value: string | undefined) {
   if (value === undefined) return undefined;
@@ -86,7 +97,9 @@ export function customFieldProps(
     autoComplete: read("autocomplete", autoComplete),
     readOnly: read("readonly", flag),
     inputMode: props.inputmode,
-    autoCapitalize: props.autocapitalize,
+    autoCapitalize: AUTO_CAPITALIZE.get(
+      props.autocapitalize?.trim().toLowerCase() ?? ""
+    ),
     spellCheck: read("spellcheck", flag),
     enterKeyHint: props.enterkeyhint,
     required: read("required", flag),
@@ -98,6 +111,25 @@ export function customFieldProps(
     step: props.step,
     errorMessage: props.errormessage,
   };
+}
+
+const WORD_START = /(^|\s)(\p{Ll})/gu;
+const SENTENCE_START = /(^\s*|[.!?]\s+)(\p{Ll})/gu;
+
+// Browsers capitalise only on virtual keyboards, and never an email or a url.
+export function capitalised(field: CustomFieldProps, value: string): string {
+  if (field.type !== "text" && field.type !== "tel") return value;
+
+  const upper = (_: string, before: string, letter: string) =>
+    before + letter.toUpperCase();
+
+  if (field.autoCapitalize === "characters") return value.toUpperCase();
+  if (field.autoCapitalize === "words") return value.replace(WORD_START, upper);
+  if (field.autoCapitalize === "sentences") {
+    return value.replace(SENTENCE_START, upper);
+  }
+
+  return value;
 }
 
 // The rules a value is judged by, as one comparable key.
