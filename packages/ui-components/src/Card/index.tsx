@@ -14,6 +14,7 @@ import {
 } from "react";
 import type { FocusEvent, ReactElement } from "react";
 import { useForm, useTranslations } from "shared";
+import type { UseFormReturn } from "shared";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
 import { Tooltip } from "../Common/Tooltip";
@@ -142,7 +143,6 @@ export function Card({ config }: { config: CardConfig }) {
   const skipped = useMemo(() => skippedNodes(nodes), [nodes]);
   const declared = useMemo(() => declaredProps(nodes), [nodes]);
   const expiry = useMemo(() => declaredExpiry(nodes), [nodes]);
-  const customFields = useCustomFields(nodes);
 
   const cvcOptional =
     declared.get("cvc")?.optional ?? config.validation?.cvc?.optional;
@@ -286,25 +286,36 @@ export function Card({ config }: { config: CardConfig }) {
       name: config.defaultValues?.name ?? "",
     },
     validate: validators,
-    onChange: (formState) => {
-      const triggerChange = async () => {
-        if (!ev) return;
-        const cardData = await changePayload(ev, formState, fields, {
+    onChange: (formState) => sendChange(formState),
+  });
+
+  const customFields = useCustomFields(nodes, () => sendChange(form));
+
+  // Only called after a render, once `customFields` exists.
+  function sendChange(formState: UseFormReturn<CardForm>) {
+    const triggerChange = async () => {
+      if (!ev) return;
+      const cardData = await changePayload(
+        ev,
+        formState,
+        fields,
+        customFields,
+        {
           allow3DigitAmexCVC: config.allow3DigitAmexCVC,
           cvcOptional,
           customBrands,
-        });
-
-        if (cardData.isComplete) {
-          send("EV_COMPLETE", cardData);
         }
+      );
 
-        send("EV_CHANGE", cardData);
-      };
+      if (cardData.isComplete) {
+        send("EV_COMPLETE", cardData);
+      }
 
-      void triggerChange();
-    },
-  });
+      send("EV_CHANGE", cardData);
+    };
+
+    void triggerChange();
+  }
 
   // What the shopper typed in each half. A year typed before the month
   // isn't part of the form's date yet, so it's kept here.
@@ -367,11 +378,17 @@ export function Card({ config }: { config: CardConfig }) {
 
         form.validate((formState) => {
           void (async () => {
-            const data = await changePayload(ev, formState, fields, {
-              allow3DigitAmexCVC: config.allow3DigitAmexCVC,
-              cvcOptional,
-              customBrands,
-            });
+            const data = await changePayload(
+              ev,
+              formState,
+              fields,
+              customFields,
+              {
+                allow3DigitAmexCVC: config.allow3DigitAmexCVC,
+                cvcOptional,
+                customBrands,
+              }
+            );
             send("EV_VALIDATED", data);
           })();
         });
@@ -382,6 +399,7 @@ export function Card({ config }: { config: CardConfig }) {
       send,
       form,
       fields,
+      customFields,
       config.allow3DigitAmexCVC,
       cvcOptional,
       customBrands,

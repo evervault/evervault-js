@@ -3,13 +3,28 @@ import { declaredCustomFields } from "./customField";
 import type { CardSpecNode } from "types";
 
 // A value outlives its field leaving the tree, so declaring it again brings it back.
-export function useCustomFields(nodes: CardSpecNode[]) {
+// `onChange` hears of each value the customer enters, once it has rendered.
+export function useCustomFields(nodes: CardSpecNode[], onChange: () => void) {
   const declared = useMemo(() => declaredCustomFields(nodes), [nodes]);
   const [values, setValues] = useState(() => new Map<string, string>());
+  const changed = useRef(false);
+  const latestOnChange = useRef(onChange);
+
+  useEffect(() => {
+    latestOnChange.current = onChange;
+  });
 
   const setValue = useCallback((name: string, value: string) => {
+    changed.current = true;
     setValues((current) => new Map(current).set(name, value));
   }, []);
+
+  useEffect(() => {
+    if (!changed.current) return;
+
+    changed.current = false;
+    latestOnChange.current();
+  }, [values]);
 
   const applied = useRef(new Map<string, string>());
 
@@ -41,5 +56,8 @@ export function useCustomFields(nodes: CardSpecNode[]) {
     [values]
   );
 
-  return { declared, valueOf, setValue };
+  return useMemo(
+    () => ({ declared, values, valueOf, setValue }),
+    [declared, values, valueOf, setValue]
+  );
 }

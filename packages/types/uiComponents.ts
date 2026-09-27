@@ -94,6 +94,8 @@ export interface CardPayload {
     expiry: CardExpiry;
     cvc: string | null;
   };
+  // Each value encrypted; null when empty.
+  fields: Record<string, string | null>;
   isValid: boolean;
   isComplete: boolean;
   errors: null | Partial<{

@@ -19,6 +19,7 @@ const payload: CardPayload = {
     expiry: { month: "12", year: "30" },
     cvc: "ev:cvc",
   },
+  fields: {},
   isValid: true,
   isComplete: true,
   errors: null,
