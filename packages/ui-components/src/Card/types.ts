@@ -8,6 +8,12 @@ export interface CardForm {
   expiry: string;
 }
 
-// The inputs a card can render: the fields, and the two halves of a split
-// expiry, which write the one expiry between them.
-export type CardInput = CardField | "expiry-month" | "expiry-year";
+export type CustomFieldInputId = `field-${string}`;
+
+// The inputs a card can render: the fields, the two halves of a split expiry,
+// which write the one expiry between them, and the customer's own fields.
+export type CardInput =
+  | CardField
+  | "expiry-month"
+  | "expiry-year"
+  | CustomFieldInputId;

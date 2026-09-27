@@ -108,7 +108,7 @@ export type CardField = "name" | "number" | "expiry" | "cvc";
 // The halves of a split expiry.
 export type ExpiryHalf = "expiryMonth" | "expiryYear";
 
-export type CardSpecNodeType = "row" | CardField | ExpiryHalf;
+export type CardSpecNodeType = "row" | CardField | ExpiryHalf | "field";
 
 export interface CardSpecNode {
   type: CardSpecNodeType;
@@ -129,10 +129,17 @@ export type CardSpecPatchOp =
   // `index` counts the destination's children after the node has left them.
   | { op: "move"; id: string; parentId: string | null; index: number };
 
-export interface FieldEvent {
-  field: CardField;
-  data: CardPayload;
+// Kept apart from the card fields, so no field name can pass for one.
+export interface CustomFieldTarget {
+  field: "field";
+  name: string;
 }
+
+export type FieldTarget = CardField | CustomFieldTarget;
+
+export type FieldEvent = ({ field: CardField } | CustomFieldTarget) & {
+  data: CardPayload;
+};
 
 // The events a card front-end dispatches, however the card was mounted.
 export interface CardEvents {
@@ -336,10 +343,10 @@ export interface CardFrameClientMessages extends EvervaultFrameClientMessages {
   EV_CHANGE: CardPayload;
   EV_COMPLETE: CardPayload;
   EV_VALIDATED: CardPayload;
-  EV_FOCUS: CardField;
-  EV_BLUR: CardField;
-  EV_KEYDOWN: CardField;
-  EV_KEYUP: CardField;
+  EV_FOCUS: FieldTarget;
+  EV_BLUR: FieldTarget;
+  EV_KEYDOWN: FieldTarget;
+  EV_KEYUP: FieldTarget;
 }
 
 export interface CardFrameHostMessages extends EvervaultFrameHostMessages {
