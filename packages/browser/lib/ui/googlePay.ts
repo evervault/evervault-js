@@ -50,6 +50,13 @@ export default class GooglePay {
       this.#events.dispatch("ready");
     });
 
+    this.#frame.on("EV_ERROR", (error) => {
+      this.#events.dispatch(
+        "error",
+        error?.message ?? "An unexpected error occurred."
+      );
+    });
+
     this.#frame.on("EV_GOOGLE_PAY_AUTH", async (payload) => {
       try {
         let failed = false;

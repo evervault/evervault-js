@@ -1,5 +1,31 @@
 # @evervault/browser
 
+## 2.67.1
+
+### Patch Changes
+
+- 7b02525: Update the Playwright Docker image used in the release preview validation gate to v1.63.0-noble, fixing a version mismatch with the pinned @playwright/test version that was blocking the production release.
+
+## 2.67.0
+
+### Minor Changes
+
+- 492dafa: Add opt-in `agentTools` option to the card component that registers white-labeled WebMCP tools inside the card iframe for reading form status, focusing a field, and entering a field value.
+
+## 2.66.1
+
+### Patch Changes
+
+- 746aa0d: Wire up `EV_ERROR` handling for `Card`, `Pin`, `GooglePay`, `RevealText`, and `RevealCopyButton` so a failed component chunk load (introduced by ui-components' code-splitting) surfaces as their `error` event instead of failing silently. `RevealText` did not previously expose an `on()` method or any events; it now exposes `on("error", ...)`.
+
+## 2.66.0
+
+### Minor Changes
+
+- 080335e: Add `card.preload(selector)` and `card.reveal()`, which separate booting the card iframe from showing it: `preload()` boots it hidden in its container, `reveal()` shows it later with no DOM move. Used in stepped payment experiences.
+
+  Both are opt-in. `reveal()` without a prior `preload()` throws.
+
 ## 2.65.0
 
 ### Minor Changes

@@ -1,4 +1,5 @@
 import type {
+  AgentToolsFrameConfig,
   CustomBrand,
   ThemeObject,
   CardField,
@@ -36,6 +37,7 @@ export interface CardConfig {
       optional?: boolean;
     };
   };
+  agentTools?: AgentToolsFrameConfig;
 }
 
 export interface CardForm {

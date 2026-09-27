@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>iframe Preload</title>
+  </head>
+
+  <body>
+    <div class="page">
+      <h1 class="title">iframe Preload</h1>
+
+      <div class="columns">
+        <div class="panel" data-variant="baseline">
+          <h2 class="variant-label">No preload</h2>
+          <button class="button make-payment" id="make-payment-baseline">
+            Make Payment
+          </button>
+          <div id="form-baseline"></div>
+
+          <div class="phase-output" id="phase-output-baseline"></div>
+        </div>
+
+        <div class="panel" data-variant="preload">
+          <h2 class="variant-label">Preloaded</h2>
+
+          <div class="preload-status" id="preload-status" data-state="booting">
+            <div class="preload-status-row">
+              <span class="preload-status-label" id="preload-label"
+                >Preloading in background</span
+              >
+              <span class="preload-status-time" id="preload-time">0ms</span>
+            </div>
+            <div class="preload-status-track">
+              <div class="preload-status-fill" id="preload-fill"></div>
+            </div>
+          </div>
+
+          <button class="button make-payment" id="make-payment-preload">
+            Make Payment
+          </button>
+          <div id="form-preload"></div>
+
+          <div class="phase-output" id="phase-output-preload"></div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

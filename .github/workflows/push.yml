@@ -1,9 +1,8 @@
-# Deploy packages to staging enviroments on push to master
+# Deploy packages to staging enviroments on push to main
 name: Main Push Workflow
 on:
   push:
     branches:
-      - "master"
       - "main"
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
