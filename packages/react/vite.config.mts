@@ -29,7 +29,12 @@ export default defineConfig({
     ...react({ jsxRuntime: "classic" }),
     dts({
       bundleTypes: {
-        bundledPackages: ["types", "themes", "@evervault/browser"],
+        bundledPackages: [
+          "types",
+          "themes",
+          "@evervault/browser",
+          "sdk-loader",
+        ],
       },
     }),
   ],

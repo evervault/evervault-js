@@ -14,6 +14,7 @@ const plugins = [
         "jss",
         "csstype",
         "@evervault/browser",
+        "sdk-loader",
       ],
     },
   }),

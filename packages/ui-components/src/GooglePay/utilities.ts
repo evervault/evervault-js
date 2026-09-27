@@ -187,7 +187,7 @@ function formatAmount(amount: number): string {
   return (amount / 100).toFixed(2).toString();
 }
 
-const API = import.meta.env.VITE_API_URL as string;
+const API = apiConfig.apiUrl;
 
 export async function exchangePaymentData(
   app: string,

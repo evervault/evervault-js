@@ -20,7 +20,7 @@ export {
   isScriptLoadError,
   ScriptLoadError,
   type ScriptLoadErrorCode,
-} from "./load/error";
+} from "sdk-loader";
 export { useEvervault, themes };
 
 export interface EvervaultProvider {
