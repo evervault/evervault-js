@@ -727,14 +727,14 @@ describe("<ev-card> settings", () => {
     const element = append();
     element.acceptedBrands = ["visa"];
     element.translations = { number: { label: "Number" } };
-    element.redactCVC = true;
+    element.validation = { cvc: { optional: true } };
 
     element.mountCard(evervault());
 
     expect(mountedWith().config).toMatchObject({
       acceptedBrands: ["visa"],
       translations: { number: { label: "Number" } },
-      redactCVC: true,
+      validation: { cvc: { optional: true } },
     });
   });
 
@@ -774,7 +774,7 @@ describe("<ev-card> settings", () => {
     element.mountCard(evervault());
 
     element.icons = true;
-    element.redactCVC = true;
+    element.translations = { number: { label: "Number" } };
     element.acceptedBrands = ["visa"];
     await flush();
 
@@ -783,7 +783,7 @@ describe("<ev-card> settings", () => {
       theme: expect.anything(),
       config: expect.objectContaining({
         icons: true,
-        redactCVC: true,
+        translations: { number: { label: "Number" } },
         acceptedBrands: ["visa"],
       }),
     });
@@ -840,7 +840,7 @@ describe("<ev-card> settings", () => {
 
     element.validation = validation;
 
-    expect(element.validation).toBe(validation);
+    expect(element.validation).toEqual(validation);
   });
 
   it("sends a changed cardholder name to a mounted card", () => {
@@ -891,6 +891,135 @@ describe("<ev-card> settings", () => {
       Object.prototype.hasOwnProperty.call(element, "acceptedBrands")
     ).toBe(false);
     expect(mountedWith().config).toMatchObject({ acceptedBrands: ["visa"] });
+  });
+});
+
+describe("<ev-card> settings as attributes", () => {
+  it.each([
+    ["colorScheme", "colorscheme", "dark", "dark"],
+    ["autoFocus", "autofocus", true, ""],
+    ["autoProgress", "autoprogress", false, "false"],
+    ["autoComplete", "autocomplete", true, ""],
+    [
+      "acceptedBrands",
+      "acceptedbrands",
+      ["visa", "mastercard"],
+      "visa mastercard",
+    ],
+  ])("writes %s as its %s attribute", (property, attribute, value, written) => {
+    const element = append();
+
+    (element as unknown as Record<string, unknown>)[property] = value;
+
+    expect(element.getAttribute(attribute)).toBe(written);
+  });
+
+  it.each([
+    ["colorScheme", "colorscheme", "light", "light"],
+    ["autoFocus", "autofocus", "", true],
+    ["autoProgress", "autoprogress", "yes", true],
+    ["autoComplete", "autocomplete", "off", false],
+    [
+      "acceptedBrands",
+      "acceptedbrands",
+      " visa  mastercard ",
+      ["visa", "mastercard"],
+    ],
+  ])(
+    "reads %s from its %s attribute",
+    (property, attribute, written, value) => {
+      const element = append({ [attribute]: written });
+
+      expect((element as unknown as Record<string, unknown>)[property]).toEqual(
+        value
+      );
+    }
+  );
+
+  it("removes the attribute of a setting set to undefined", () => {
+    const element = append({ autofocus: "" });
+
+    element.autoFocus = undefined;
+
+    expect(element.hasAttribute("autofocus")).toBe(false);
+  });
+
+  it("writes a theme name as the theme attribute", () => {
+    const element = append();
+
+    element.theme = "minimal";
+
+    expect(element.getAttribute("theme")).toBe("minimal");
+  });
+
+  it("shows icons from the attribute and keeps a brand icon map", () => {
+    const element = append();
+    const map = { visa: "visa.svg" };
+
+    element.icons = map;
+    expect(element.getAttribute("icons")).toBe("");
+    expect(element.icons).toBe(map);
+
+    element.icons = false;
+    expect(element.getAttribute("icons")).toBe("false");
+    expect(element.icons).toBe(false);
+  });
+
+  it("mounts with the settings its attributes declare", () => {
+    const element = append({
+      icons: "",
+      acceptedbrands: "visa",
+      autocomplete: "off",
+    });
+
+    element.mountCard(evervault());
+
+    expect(mountedWith().config).toMatchObject({
+      icons: true,
+      acceptedBrands: ["visa"],
+      autoComplete: false,
+    });
+  });
+
+  it("pushes a setting whose attribute changes", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.setAttribute("acceptedbrands", "mastercard");
+    await flush();
+
+    expect(frame().update).toHaveBeenLastCalledWith({
+      theme: expect.anything(),
+      config: expect.objectContaining({ acceptedBrands: ["mastercard"] }),
+    });
+  });
+});
+
+describe("<ev-card> per-field settings", () => {
+  it("sends the card's setting for every field and each field's own", () => {
+    const element = append({ autoprogress: "" });
+    element.innerHTML = '<ev-card-cvc autoprogress="false"></ev-card-cvc>';
+
+    element.mountCard(evervault());
+
+    expect(mountedWith().config?.autoProgress).toBe(true);
+    expect(element.spec[0].props).toEqual({ autoprogress: "false" });
+  });
+});
+
+describe("<ev-card> field properties", () => {
+  it("sends a setting a field takes as a property", async () => {
+    const element = append();
+    element.innerHTML = "<ev-card-number></ev-card-number>";
+    element.mountCard(evervault());
+
+    const number = element.querySelector("ev-card-number") as HTMLElement & {
+      autoProgress?: boolean;
+    };
+    number.autoProgress = true;
+    await flush();
+
+    expect(lastSpec()?.[0].props).toEqual({ autoprogress: "" });
   });
 });
 
