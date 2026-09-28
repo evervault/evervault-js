@@ -88,10 +88,11 @@ export class EvCard extends ElementBase {
   #observer?: MutationObserver;
   #pending = false;
   #stopWaiting?: () => void;
-  #attributesChanged = false;
+  #optionsChanged = false;
   #warned = false;
   #theme?: ThemeDefinition | ThemeName;
   #settings: CardSettings = {};
+  #agentTools?: CardSettings["agentTools"];
 
   get spec() {
     return this.#spec;
@@ -109,11 +110,7 @@ export class EvCard extends ElementBase {
 
   set theme(value: ThemeDefinition | ThemeName | undefined) {
     this.#theme = value;
-
-    if (!this.#card) return;
-
-    this.#attributesChanged = true;
-    this.#queueSync();
+    this.#changed();
   }
 
   get icons() {
@@ -207,12 +204,20 @@ export class EvCard extends ElementBase {
   }
 
   set agentTools(value: CardSettings["agentTools"]) {
-    this.#set({ agentTools: value });
+    this.#settings = { ...this.#settings, agentTools: value };
   }
 
   #set(setting: CardSettings) {
     this.#settings = { ...this.#settings, ...setting };
-    this.#card?.update({ config: this.#readConfig() });
+    this.#changed();
+  }
+
+  // Settings changed together reach the card as one update.
+  #changed() {
+    if (!this.#card) return;
+
+    this.#optionsChanged = true;
+    this.#queueSync();
   }
 
   // The answer arrives as a `validate` event.
@@ -283,12 +288,14 @@ export class EvCard extends ElementBase {
   #mount(evervault: EvervaultClient, spec: CardSpecNode[]) {
     this.#spec = spec;
 
+    this.#agentTools = this.#settings.agentTools;
+
     // The colour scheme goes into the frame URL, so it is read once here.
     const card = new CardHost(evervault, {
       colorScheme: readAttribute(this, "colorscheme", "text") as
         | ColorScheme
         | undefined,
-      allow: framePermissions(this.#settings.agentTools),
+      allow: framePermissions(this.#agentTools),
     });
 
     // The card payload as a DOM event on the customer's own element.
@@ -335,7 +342,11 @@ export class EvCard extends ElementBase {
   // Every key is present so a removed one takes its option back to the default.
   #readConfig(): CardFrameConfig {
     return {
-      ...(this.#client && cardSettingsConfig(this.#settings, this.#client)),
+      ...(this.#client &&
+        cardSettingsConfig(
+          { ...this.#settings, agentTools: this.#agentTools },
+          this.#client
+        )),
       autoProgress: readAttribute(this, "autoprogress", "flag") as
         | boolean
         | undefined,
@@ -372,7 +383,7 @@ export class EvCard extends ElementBase {
         OPTION_ATTRIBUTES.includes(record.attributeName ?? "");
 
       if (records.some(option)) {
-        this.#attributesChanged = true;
+        this.#optionsChanged = true;
       }
 
       this.#queueSync();
@@ -403,7 +414,7 @@ export class EvCard extends ElementBase {
 
     if (spec && !this.#card && this.#client) {
       // Mounting reads the options afresh.
-      this.#attributesChanged = false;
+      this.#optionsChanged = false;
       this.#mount(this.#client, spec);
       return;
     }
@@ -413,9 +424,9 @@ export class EvCard extends ElementBase {
       this.#card?.setSpec(spec);
     }
 
-    if (!this.#attributesChanged) return;
+    if (!this.#optionsChanged) return;
 
-    this.#attributesChanged = false;
+    this.#optionsChanged = false;
     this.#card?.update({
       theme: this.#resolveTheme(),
       config: this.#readConfig(),
@@ -457,7 +468,7 @@ export class EvCard extends ElementBase {
     this.#observer?.disconnect();
     this.#observer = undefined;
     this.#pending = false;
-    this.#attributesChanged = false;
+    this.#optionsChanged = false;
     this.#warned = false;
     // Destroyed, not unmounted: an unmounted card keeps its window listeners.
     this.#card?.destroy();
