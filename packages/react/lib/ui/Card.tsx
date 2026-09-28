@@ -357,7 +357,8 @@ const CardRoot = React.forwardRef<CardRef, CardProps>(function Card(
   props,
   forwardedRef
 ) {
-  if (React.Children.toArray(props.children).length === 0) {
+  // Children that render nothing for a moment must not remount the card.
+  if (props.children === undefined) {
     return <OptionsCard {...props} ref={forwardedRef} />;
   }
 
