@@ -1,18 +1,24 @@
+import { Children, ReactNode } from "react";
 import { StyleSheet, View, ViewProps } from "react-native";
-import { CardRowContext } from "../Input";
 
 export type CardRowProps = ViewProps;
 
-export function CardRow({ style, ...props }: CardRowProps) {
+// Each child takes an equal share of the row's width.
+export function CardRow({ style, children, ...props }: CardRowProps) {
   return (
-    <CardRowContext.Provider value={true}>
-      <View {...props} style={[styles.row, style]} />
-    </CardRowContext.Provider>
+    <View {...props} style={[styles.row, style]}>
+      {Children.map(children, (child: ReactNode) => (
+        <View style={styles.cell}>{child}</View>
+      ))}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
+  },
+  cell: {
+    flex: 1,
   },
 });

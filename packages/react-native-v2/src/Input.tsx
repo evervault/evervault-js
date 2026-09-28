@@ -14,7 +14,6 @@ import {
 } from "react";
 import {
   StyleProp,
-  StyleSheet,
   Text,
   TextInput,
   TextInputProps,
@@ -33,9 +32,6 @@ export interface EvervaultInputContextValue {
 export const EvervaultInputContext = createContext<EvervaultInputContextValue>({
   validationMode: "all",
 });
-
-// Fields inside a `Card.Row` share its width.
-export const CardRowContext = createContext(false);
 
 export interface FocusTarget {
   focus(): void;
@@ -196,7 +192,6 @@ export const EvervaultInput = forwardRef<
   ref
 ) {
   const { validationMode, autoProgress } = useContext(EvervaultInputContext);
-  const inRow = useContext(CardRowContext);
   const focusOrder = useContext(FocusOrderContext);
 
   const inputRef = useForwardedInputRef(ref);
@@ -235,7 +230,6 @@ export const EvervaultInput = forwardRef<
       id={field.name}
       accessibilityLabel={label}
       {...props}
-      style={label || !inRow ? props.style : [styles.shared, props.style]}
       // Strict props
       ref={mergeRefs(inputRef, field.ref)}
       editable={!field.disabled && (props.editable ?? true)}
@@ -281,7 +275,7 @@ export const EvervaultInput = forwardRef<
   if (!label) return input;
 
   return (
-    <View style={inRow ? styles.shared : undefined}>
+    <View>
       <Text style={labelStyle}>{label}</Text>
       {input}
     </View>
@@ -289,9 +283,3 @@ export const EvervaultInput = forwardRef<
 }) as <Values extends Record<string, unknown>>(
   props: EvervaultInputProps<Values> & { ref?: Ref<EvervaultInput> }
 ) => ReactNode;
-
-const styles = StyleSheet.create({
-  shared: {
-    flex: 1,
-  },
-});
