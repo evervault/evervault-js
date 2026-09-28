@@ -46,6 +46,11 @@ export interface CardPayload {
     expiry: CardExpiry | null;
     cvc: string | null;
   };
+  /**
+   * Each `Card.Field`'s value encrypted, by name; null when empty or invalid.
+   * Present only when the card declares one.
+   */
+  fields?: Record<string, string | null>;
   isValid: boolean;
   isComplete: boolean;
   errors: {
@@ -53,5 +58,6 @@ export interface CardPayload {
     number?: string;
     expiry?: string;
     cvc?: string;
+    fields?: Record<string, string>;
   };
 }

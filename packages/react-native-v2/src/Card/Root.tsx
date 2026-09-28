@@ -15,6 +15,12 @@ import { useEvervault } from "../useEvervault";
 import { formatPayload } from "./utils";
 import { EvervaultInputContext, EvervaultInputContextValue } from "../Input";
 import { EvervaultContextValue } from "../context";
+import {
+  CustomFieldsContext,
+  CustomFieldsContextValue,
+  DeclaredCustomField,
+  rulesByName,
+} from "./customFields";
 
 const DEFAULT_ACCEPTED_BRANDS: CardBrandName[] = [];
 
@@ -91,6 +97,24 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     [validationMode]
   );
 
+  const customFields = useRef(new Map<string, DeclaredCustomField>());
+  const emitChange = useRef<() => void>(() => {});
+
+  // A field declared or dropped changes the payload without a value changing.
+  const customFieldsContext = useMemo<CustomFieldsContextValue>(
+    () => ({
+      set(id, name, rules) {
+        customFields.current.set(id, { name, rules });
+        emitChange.current();
+      },
+      remove(id) {
+        customFields.current.delete(id);
+        emitChange.current();
+      },
+    }),
+    []
+  );
+
   // Use refs to prevent closures from being captured
   const onChangeRef = useRef<typeof onChange>(onChange);
   onChangeRef.current = onChange;
@@ -114,6 +138,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
           const payload = await formatPayload(values, {
             encrypt: evervault.encrypt,
             form: methods,
+            customFields: rulesByName(customFields.current),
           });
           if (signal.aborted) return;
           onChangeRef.current?.(payload);
@@ -123,9 +148,13 @@ export const Card = forwardRef<Card, CardProps>(function Card(
       });
     }
 
+    emitChange.current = () => handleChange(methods.getValues());
     handleChange(methods.getValues());
     const subscription = methods.watch(handleChange);
-    return () => subscription.unsubscribe();
+    return () => {
+      emitChange.current = () => {};
+      subscription.unsubscribe();
+    };
   }, [evervault.encrypt]);
 
   useImperativeHandle(
@@ -143,7 +172,9 @@ export const Card = forwardRef<Card, CardProps>(function Card(
   return (
     <FormProvider {...methods}>
       <EvervaultInputContext.Provider value={inputContext}>
-        {children}
+        <CustomFieldsContext.Provider value={customFieldsContext}>
+          {children}
+        </CustomFieldsContext.Provider>
       </EvervaultInputContext.Provider>
     </FormProvider>
   );
