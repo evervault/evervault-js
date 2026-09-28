@@ -4,7 +4,7 @@
 
 import * as React from "react";
 import { render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   CardCustomField,
   CardCvc,
@@ -19,6 +19,52 @@ import {
 function html(element: React.ReactElement) {
   return render(element).container.innerHTML;
 }
+
+// As browsers do: React 19 sets a prop an element has as that property.
+const REFLECTED = ["autofocus", "spellcheck"];
+
+describe("card elements with browser-reflected attributes", () => {
+  beforeEach(() => {
+    for (const attribute of REFLECTED) {
+      Object.defineProperty(HTMLElement.prototype, attribute, {
+        configurable: true,
+        get(this: HTMLElement) {
+          return this.hasAttribute(attribute);
+        },
+        set(this: HTMLElement, value: unknown) {
+          if (value) this.setAttribute(attribute, "");
+          else this.removeAttribute(attribute);
+        },
+      });
+    }
+  });
+
+  afterEach(() => {
+    for (const attribute of REFLECTED) {
+      delete (HTMLElement.prototype as unknown as Record<string, unknown>)[
+        attribute
+      ];
+    }
+  });
+
+  it("declares autofocus when autoFocus is true", () => {
+    expect(html(<CardNumber autoFocus />)).toBe(
+      '<ev-card-number autofocus=""></ev-card-number>'
+    );
+  });
+
+  it("denies autofocus when autoFocus is false", () => {
+    expect(html(<CardNumber autoFocus={false} />)).toBe(
+      '<ev-card-number autofocus="false"></ev-card-number>'
+    );
+  });
+
+  it("declares spellcheck when spellCheck is true", () => {
+    expect(html(<CardCustomField name="note" spellCheck />)).toBe(
+      '<ev-field name="note" spellcheck=""></ev-field>'
+    );
+  });
+});
 
 describe("card elements", () => {
   it.each([
@@ -62,6 +108,14 @@ describe("card elements", () => {
     expect(html(<CardCvc redact optional={false} autoComplete={false} />)).toBe(
       '<ev-card-cvc autocomplete="false" redact="" optional="false"></ev-card-cvc>'
     );
+  });
+
+  it("removes an attribute whose prop is no longer given", () => {
+    const { container, rerender } = render(<CardNumber label="Number" />);
+
+    rerender(<CardNumber />);
+
+    expect(container.innerHTML).toBe("<ev-card-number></ev-card-number>");
   });
 
   it("reads each field's own props only", () => {
