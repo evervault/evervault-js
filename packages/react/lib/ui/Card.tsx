@@ -1,5 +1,11 @@
 import * as React from "react";
-import { useEffect, useMemo, useRef, useImperativeHandle } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useImperativeHandle,
+} from "react";
 import type {
   AgentToolsConfig,
   CardBrandName,
@@ -15,7 +21,19 @@ import type {
   ThemeDefinition,
 } from "types";
 import { useEvInstance } from "../useEvInstance";
+import { useEvervault } from "../useEvervault";
 import EvervaultClient from "@evervault/browser";
+import type { EvCard } from "@evervault/browser";
+import {
+  CardCustomField,
+  CardCvc,
+  CardExpiry,
+  CardExpiryMonth,
+  CardExpiryYear,
+  CardHolder,
+  CardNumber,
+  CardRow,
+} from "./cardElements";
 
 export interface CardRef {
   validate: () => void;
@@ -23,6 +41,8 @@ export interface CardRef {
 }
 
 export interface CardProps {
+  // Declared fields replace `fields`, rendered in the order written.
+  children?: React.ReactNode;
   autoFocus?: boolean;
   colorScheme?: ColorScheme;
   theme?: ThemeDefinition;
@@ -53,7 +73,7 @@ export interface CardProps {
 
 type CardInstance = ReturnType<EvervaultClient["ui"]["card"]>;
 
-export const Card = React.forwardRef<CardRef, CardProps>(function Card(
+const OptionsCard = React.forwardRef<CardRef, CardProps>(function OptionsCard(
   {
     colorScheme,
     theme,
@@ -219,4 +239,138 @@ export const Card = React.forwardRef<CardRef, CardProps>(function Card(
   }, [instance, onValidate]);
 
   return <div ref={ref} />;
+});
+
+// The `<ev-card>` properties a declared card's props are passed through to.
+const SETTINGS = [
+  "theme",
+  "icons",
+  "autoFocus",
+  "translations",
+  "acceptedBrands",
+  "customBrands",
+  "defaultValues",
+  "autoComplete",
+  "redactCVC",
+  "allow3DigitAmexCVC",
+  "validation",
+  "agentTools",
+] as const;
+
+const EVENTS = {
+  ready: "onReady",
+  error: "onError",
+  change: "onChange",
+  complete: "onComplete",
+  swipe: "onSwipe",
+  validate: "onValidate",
+  focus: "onFocus",
+  blur: "onBlur",
+  keydown: "onKeyDown",
+  keyup: "onKeyUp",
+} as const;
+
+// A card rendered as the `<ev-card>` element, from its declared children.
+const DeclaredCard = React.forwardRef<CardRef, CardProps>(function DeclaredCard(
+  props,
+  forwardedRef
+) {
+  const { children, colorScheme, autoProgress } = props;
+  const ref = useRef<EvCard | null>(null);
+  const evervault = useEvervault();
+
+  const latest = useRef(props);
+  latest.current = props;
+
+  useImperativeHandle(
+    forwardedRef,
+    () => ({
+      validate: () => {
+        ref.current?.validate();
+      },
+    }),
+    []
+  );
+
+  // Before mounting, so the card mounts with them; only a changed one is set,
+  // since each sends the card its settings again.
+  useLayoutEffect(() => {
+    const card = ref.current as Record<string, unknown> | null;
+    if (!card) return;
+
+    for (const setting of SETTINGS) {
+      if (card[setting] !== props[setting]) card[setting] = props[setting];
+    }
+  });
+
+  useEffect(() => {
+    const card = ref.current;
+    if (!card) return undefined;
+
+    const listeners = Object.entries(EVENTS).map(([event, prop]) => {
+      const listener = (dispatched: Event) => {
+        const callback = latest.current[prop] as
+          | ((detail?: unknown) => void)
+          | undefined;
+        callback?.((dispatched as CustomEvent).detail ?? undefined);
+      };
+
+      card.addEventListener(event, listener);
+      return () => card.removeEventListener(event, listener);
+    });
+
+    return () => listeners.forEach((remove) => remove());
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    evervault?.then(
+      (client) => {
+        const card = ref.current;
+        if (!cancelled && card && !card.isMounted) card.mountCard(client);
+      },
+      (error: unknown) => {
+        latest.current.onError?.();
+        console.error(error);
+      }
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, [evervault]);
+
+  return React.createElement(
+    "ev-card",
+    {
+      ref,
+      colorscheme: colorScheme,
+      autoprogress:
+        autoProgress === undefined ? undefined : autoProgress ? "" : "false",
+    },
+    children
+  );
+});
+
+const CardRoot = React.forwardRef<CardRef, CardProps>(function Card(
+  props,
+  forwardedRef
+) {
+  if (React.Children.toArray(props.children).length === 0) {
+    return <OptionsCard {...props} ref={forwardedRef} />;
+  }
+
+  return <DeclaredCard {...props} ref={forwardedRef} />;
+});
+
+export const Card = Object.assign(CardRoot, {
+  Row: CardRow,
+  Holder: CardHolder,
+  Number: CardNumber,
+  Expiry: CardExpiry,
+  ExpiryMonth: CardExpiryMonth,
+  ExpiryYear: CardExpiryYear,
+  Cvc: CardCvc,
+  Field: CardCustomField,
 });
