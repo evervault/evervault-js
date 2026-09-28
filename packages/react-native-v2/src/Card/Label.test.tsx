@@ -35,6 +35,17 @@ it("reads the label out as the field's accessibility label", async () => {
   expect(getByLabelText("Card number")).toHaveProp("testID", "number");
 });
 
+it("leaves the label text for the field to read out", async () => {
+  const { getByText } = await render(
+    <Card>
+      <CardNumber label="Card number" />
+    </Card>,
+    { wrapper }
+  );
+
+  expect(getByText("Card number")).toHaveProp("accessible", false);
+});
+
 it("keeps an accessibility label given alongside the label", async () => {
   const { getByTestId } = await render(
     <Card>
