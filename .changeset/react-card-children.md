@@ -1,0 +1,5 @@
+---
+"@evervault/react": minor
+---
+
+Declare the fields of a `<Card>` as its children: `Card.Holder`, `Card.Number`, `Card.Expiry`, `Card.ExpiryMonth`, `Card.ExpiryYear`, `Card.Cvc` and `Card.Field`, rendered in the order written, with `Card.Row` placing the fields inside it side by side. A `<Card>` with children renders the `<ev-card>` element and its `<ev-card-*>` children, so it follows the same rules: each child takes the props matching its element's attributes (`label`, `placeholder`, `tooltip`, `iconPosition`, `redact`, `optional` and the rest), children changed after the card mounted keep the details already typed, and an unsupported child is dropped with a warning. The card's other props and events work as before. A `<Card>` without children renders from its props exactly as before; declaring children replaces `fields`.
