@@ -20,7 +20,7 @@ export type {
   CardExpiryYearProps,
   CardCvcProps,
   CardHolderProps,
-  CardCustomFieldProps,
+  CardFieldProps,
 } from "./ui/cardElements";
 export { Pin } from "./ui/Pin";
 export { ThreeDSecure } from "./ui/ThreeDSecure";

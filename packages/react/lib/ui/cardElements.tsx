@@ -1,6 +1,6 @@
 import * as React from "react";
 
-export interface CardFieldProps {
+export interface CardFieldBaseProps {
   label?: string;
   placeholder?: string;
   tooltip?: string;
@@ -12,26 +12,26 @@ export interface CardRowProps {
   children?: React.ReactNode;
 }
 
-export interface CardNumberProps extends CardFieldProps {
+export interface CardNumberProps extends CardFieldBaseProps {
   iconPosition?: string;
 }
 
-export type CardExpiryProps = CardFieldProps;
+export type CardExpiryProps = CardFieldBaseProps;
 
-export type CardExpiryMonthProps = CardFieldProps;
+export type CardExpiryMonthProps = CardFieldBaseProps;
 
-export type CardExpiryYearProps = CardFieldProps;
+export type CardExpiryYearProps = CardFieldBaseProps;
 
-export interface CardCvcProps extends CardFieldProps {
+export interface CardCvcProps extends CardFieldBaseProps {
   redact?: boolean;
   optional?: boolean;
 }
 
-export interface CardHolderProps extends CardFieldProps {
+export interface CardHolderProps extends CardFieldBaseProps {
   defaultValue?: string;
 }
 
-export interface CardCustomFieldProps {
+export interface CardFieldProps {
   name: string;
   type?: "text" | "email" | "tel" | "url" | "number" | "date";
   label?: string;
@@ -167,7 +167,4 @@ export const CardCvc = field<CardCvcProps>("ev-card-cvc", {
   optional: "optional",
 });
 
-export const CardCustomField = field<CardCustomFieldProps>(
-  "ev-field",
-  CUSTOM_FIELD
-);
+export const CardCustomField = field<CardFieldProps>("ev-field", CUSTOM_FIELD);
