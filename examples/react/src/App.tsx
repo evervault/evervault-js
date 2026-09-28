@@ -55,6 +55,26 @@ function App() {
       <button onClick={() => ref.current?.reload()}>Reload script</button>
       <button onClick={() => cardRef.current?.show()}>Show card</button>
       <Card ref={cardRef} preload icons onChange={handleChange} theme={theme} />
+
+      <h2>Declared card</h2>
+      <Card icons autoProgress onChange={handleChange} theme={theme}>
+        <Card.Number label="Card number" iconPosition="inline-start" />
+        <Card.Row>
+          <Card.ExpiryMonth label="Month" />
+          <Card.ExpiryYear label="Year" />
+          <Card.Cvc label="CVC" tooltip="3 digits on the back" />
+        </Card.Row>
+        <Card.Field
+          name="postcode"
+          label="Postcode"
+          placeholder="SW1A 1AA"
+          autoComplete="postal-code"
+          autoCapitalize="characters"
+          pattern="[A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}"
+          errorMessage="Enter a UK postcode"
+          required
+        />
+      </Card>
     </EvervaultProvider>
   );
 }
