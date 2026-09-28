@@ -40,6 +40,8 @@ const { hosts, real, FakeCardHost } = vi.hoisted(() => {
     >(() => this);
     update = vi.fn(() => this);
     setSpec = vi.fn(() => this);
+    send = vi.fn(() => this);
+    validate = vi.fn(() => this);
     destroy = vi.fn(() => this);
     on = vi.fn((event: string, callback: (payload: unknown) => void) => {
       this.handlers[event] = callback;
@@ -661,6 +663,164 @@ describe("<ev-card> change event", () => {
     expect(listener).toHaveBeenCalledOnce();
 
     document.body.removeEventListener("change", listener);
+  });
+});
+
+describe("<ev-card> events", () => {
+  it.each([
+    ["ready", null],
+    ["error", null],
+    ["complete", { isComplete: true }],
+    ["swipe", { number: "4242" }],
+    ["validate", { isValid: false }],
+    ["focus", { field: "number" }],
+    ["blur", { field: "cvc" }],
+    ["keydown", { field: "field", name: "postcode" }],
+    ["keyup", { field: "expiry" }],
+  ])("dispatches the card's %s event with its payload", (event, payload) => {
+    const element = append();
+    const listener = vi.fn();
+    element.addEventListener(event, listener);
+
+    element.mountCard(evervault());
+    frame().handlers[event](payload);
+
+    expect(listener).toHaveBeenCalledOnce();
+    expect(listener.mock.calls[0][0].detail).toEqual(payload);
+  });
+
+  it.each(["ready", "focus", "keydown"])(
+    "keeps the %s event on the element",
+    (event) => {
+      const element = append();
+      const listener = vi.fn();
+      document.body.addEventListener(event, listener);
+
+      element.mountCard(evervault());
+      frame().handlers[event]({ field: "number" });
+
+      expect(listener).not.toHaveBeenCalled();
+
+      document.body.removeEventListener(event, listener);
+    }
+  );
+
+  it("asks the card to validate its fields", () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.validate();
+
+    expect(frame().validate).toHaveBeenCalledOnce();
+  });
+
+  it("does nothing when asked to validate before mounting", () => {
+    const element = append();
+
+    expect(() => element.validate()).not.toThrow();
+  });
+});
+
+describe("<ev-card> settings", () => {
+  it("mounts with the settings set as properties", () => {
+    const element = append();
+    element.acceptedBrands = ["visa"];
+    element.translations = { number: { label: "Number" } };
+    element.redactCVC = true;
+
+    element.mountCard(evervault());
+
+    expect(mountedWith().config).toMatchObject({
+      acceptedBrands: ["visa"],
+      translations: { number: { label: "Number" } },
+      redactCVC: true,
+    });
+  });
+
+  it("pushes a setting changed on a mounted card", () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.icons = true;
+
+    expect(frame().update).toHaveBeenLastCalledWith({
+      config: expect.objectContaining({ icons: true }),
+    });
+  });
+
+  it("keeps the other settings when one changes", () => {
+    const element = append({ autoprogress: "" });
+    element.acceptedBrands = ["visa"];
+    element.mountCard(evervault());
+
+    element.icons = true;
+
+    expect(frame().update).toHaveBeenLastCalledWith({
+      config: expect.objectContaining({
+        acceptedBrands: ["visa"],
+        icons: true,
+        autoProgress: true,
+      }),
+    });
+  });
+
+  it("reads each setting back through its property", () => {
+    const element = append();
+    const validation = { cvc: { optional: true } };
+
+    element.validation = validation;
+
+    expect(element.validation).toBe(validation);
+  });
+
+  it("sends a changed cardholder name to a mounted card", () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.defaultValues = { name: "Jane" };
+
+    expect(frame().send).toHaveBeenCalledWith("EV_UPDATE_NAME", "Jane");
+  });
+
+  it("sends the cardholder name again only when it changes", () => {
+    const element = append();
+    element.mountCard(evervault());
+    element.defaultValues = { name: "Jane" };
+
+    element.defaultValues = {
+      ...element.defaultValues,
+      fields: { postcode: "SW1A" },
+    };
+
+    expect(frame().send).toHaveBeenCalledOnce();
+  });
+
+  it("delegates the tools permission to a frame with agent tools", () => {
+    const element = append();
+    element.agentTools = { enabled: true };
+
+    element.mountCard({
+      config: { appId: "app_test123" },
+    } as unknown as EvervaultClient);
+
+    expect(frame().options).toMatchObject({ allow: "payment; tools" });
+  });
+
+  it("takes a setting set before the element upgraded", () => {
+    const element = document.createElement(EV_CARD_TAG_NAME) as EvCard;
+    Object.defineProperty(element, "acceptedBrands", {
+      value: ["visa"],
+      writable: true,
+      configurable: true,
+    });
+
+    document.body.append(element);
+    element.mountCard(evervault());
+
+    expect(
+      Object.prototype.hasOwnProperty.call(element, "acceptedBrands")
+    ).toBe(false);
+    expect(mountedWith().config).toMatchObject({ acceptedBrands: ["visa"] });
   });
 });
 
