@@ -689,21 +689,22 @@ describe("<ev-card> events", () => {
     expect(listener.mock.calls[0][0].detail).toEqual(payload);
   });
 
-  it.each(["ready", "focus", "keydown"])(
-    "keeps the %s event on the element",
-    (event) => {
-      const element = append();
-      const listener = vi.fn();
-      document.body.addEventListener(event, listener);
+  it.each([
+    ["ready", undefined],
+    ["focus", { field: "number" }],
+    ["keydown", { field: "number" }],
+  ])("keeps the %s event on the element", (event, payload) => {
+    const element = append();
+    const listener = vi.fn();
+    document.body.addEventListener(event, listener);
 
-      element.mountCard(evervault());
-      frame().handlers[event]({ field: "number" });
+    element.mountCard(evervault());
+    frame().handlers[event](payload);
 
-      expect(listener).not.toHaveBeenCalled();
+    expect(listener).not.toHaveBeenCalled();
 
-      document.body.removeEventListener(event, listener);
-    }
-  );
+    document.body.removeEventListener(event, listener);
+  });
 
   it("asks the card to validate its fields", () => {
     const element = append();
@@ -737,30 +738,99 @@ describe("<ev-card> settings", () => {
     });
   });
 
-  it("pushes a setting changed on a mounted card", () => {
+  it("pushes a setting changed on a mounted card", async () => {
     const element = append();
     element.mountCard(evervault());
 
     element.icons = true;
+    await flush();
 
     expect(frame().update).toHaveBeenLastCalledWith({
+      theme: expect.anything(),
       config: expect.objectContaining({ icons: true }),
     });
   });
 
-  it("keeps the other settings when one changes", () => {
+  it("keeps the other settings when one changes", async () => {
     const element = append({ autoprogress: "" });
     element.acceptedBrands = ["visa"];
     element.mountCard(evervault());
 
     element.icons = true;
+    await flush();
 
     expect(frame().update).toHaveBeenLastCalledWith({
+      theme: expect.anything(),
       config: expect.objectContaining({
         acceptedBrands: ["visa"],
         icons: true,
         autoProgress: true,
       }),
+    });
+  });
+
+  it("pushes settings changed together as one update", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.icons = true;
+    element.redactCVC = true;
+    element.acceptedBrands = ["visa"];
+    await flush();
+
+    expect(frame().update).toHaveBeenCalledOnce();
+    expect(frame().update).toHaveBeenCalledWith({
+      theme: expect.anything(),
+      config: expect.objectContaining({
+        icons: true,
+        redactCVC: true,
+        acceptedBrands: ["visa"],
+      }),
+    });
+  });
+
+  it("pushes a theme definition with the settings changed alongside it", async () => {
+    const element = append();
+    const theme = { styles: { theme: "custom" } };
+    element.mountCard(evervault());
+
+    element.theme = theme;
+    element.translations = { number: { label: "Number" } };
+    await flush();
+
+    expect(frame().update).toHaveBeenCalledOnce();
+    expect(frame().update).toHaveBeenCalledWith({
+      theme,
+      config: expect.objectContaining({
+        translations: { number: { label: "Number" } },
+      }),
+    });
+  });
+
+  it("pushes nothing for agent tools set on a mounted card", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.agentTools = { enabled: true };
+    await flush();
+
+    expect(frame().update).not.toHaveBeenCalled();
+    expect(element.agentTools).toEqual({ enabled: true });
+  });
+
+  it("keeps the agent tools the card mounted with", async () => {
+    const element = append();
+    element.mountCard({
+      config: { appId: "app_test123" },
+    } as unknown as EvervaultClient);
+
+    element.agentTools = { enabled: true };
+    element.icons = true;
+    await flush();
+
+    expect(frame().update).toHaveBeenLastCalledWith({
+      theme: expect.anything(),
+      config: expect.objectContaining({ agentTools: undefined }),
     });
   });
 
