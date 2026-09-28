@@ -3,7 +3,6 @@ name: Main Push Workflow
 on:
   push:
     branches:
-      - "master"
       - "main"
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
