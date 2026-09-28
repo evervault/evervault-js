@@ -83,6 +83,33 @@ it("reports an invalid date as the expiry's error", async () => {
   });
 });
 
+it("reports no expiry error when the month is left for the year", async () => {
+  const { onChange, month } = await renderSplit();
+
+  const user = userEvent.setup();
+  await user.type(month, "12");
+  fireEvent(month, "blur");
+
+  await waitFor(() => {
+    expect(onChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({ errors: {} })
+    );
+  });
+});
+
+it("does not check the expiry while the year is being typed", async () => {
+  const { onChange, month, year } = await renderSplit();
+
+  const user = userEvent.setup();
+  await user.type(month, "12");
+  fireEvent(month, "blur");
+  await user.type(year, "3", { skipBlur: true });
+
+  expect(onChange).toHaveBeenLastCalledWith(
+    expect.objectContaining({ errors: {} })
+  );
+});
+
 it("gives each half an id of its own", async () => {
   const { month, year } = await renderSplit();
 
