@@ -6,11 +6,22 @@
 // "off" as off, as `autocomplete` does.
 export type ReflectionKind = "flag" | "switch" | "text" | "number" | "list";
 
-export type Reflection = [
-  property: string,
-  attribute: string,
-  kind: ReflectionKind
+// For an attribute whose property holds more than its text: reads and writes
+// the two together.
+export interface Codec<E extends Element> {
+  get(element: E): unknown;
+  set(element: E, value: unknown): void;
+}
+
+export type Reflection<E extends Element = Element> = [
+  property: keyof E & string,
+  kind: ReflectionKind | Codec<E>
 ];
+
+// As HTML names them: `readOnly` is `readonly`, `autoProgress` `autoprogress`.
+export function attributeFor(property: string) {
+  return property.toLowerCase();
+}
 
 export function readAttribute(
   element: Element,
@@ -36,7 +47,7 @@ export function readAttribute(
   return value;
 }
 
-function write(
+export function writeAttribute(
   element: Element,
   attribute: string,
   kind: ReflectionKind,
@@ -62,16 +73,23 @@ function write(
 
 // The attribute holds the value: the property reads it and writes it, so the
 // two never disagree.
-export function reflect(prototype: object, reflections: Reflection[]) {
-  for (const [property, attribute, kind] of reflections) {
+export function reflect<E extends Element>(
+  prototype: E,
+  reflections: readonly Reflection<E>[]
+) {
+  for (const [property, kind] of reflections) {
+    const attribute = attributeFor(property);
+
     Object.defineProperty(prototype, property, {
       configurable: true,
       enumerable: true,
-      get(this: Element) {
+      get(this: E) {
+        if (typeof kind === "object") return kind.get(this);
         return readAttribute(this, attribute, kind);
       },
-      set(this: Element, value: unknown) {
-        write(this, attribute, kind, value);
+      set(this: E, value: unknown) {
+        if (typeof kind === "object") kind.set(this, value);
+        else writeAttribute(this, attribute, kind, value);
       },
     });
   }

@@ -7,7 +7,14 @@ import type { ThemeName } from "./cardThemes";
 import { unknownTheme } from "./developerMessages";
 import { expiryError, expiryWarning } from "./expiry";
 import { registerFieldElements } from "./fields";
-import { ElementBase, adoptProperties, reflect } from "./reflect";
+import {
+  ElementBase,
+  adoptProperties,
+  attributeFor,
+  readAttribute,
+  reflect,
+  writeAttribute,
+} from "./reflect";
 import type { Reflection } from "./reflect";
 import { serialise } from "./spec";
 import type EvervaultClient from "../../main";
@@ -42,23 +49,6 @@ const DEFAULT_SPEC: CardSpecNode[] = [
   },
 ];
 
-const REFLECTIONS: Reflection[] = [
-  ["colorScheme", "colorscheme", "text"],
-  ["autoFocus", "autofocus", "flag"],
-  ["acceptedBrands", "acceptedbrands", "list"],
-  ["autoProgress", "autoprogress", "flag"],
-  ["autoComplete", "autocomplete", "switch"],
-];
-
-// The host attributes the card is configured from after mounting.
-const OPTION_ATTRIBUTES = [
-  "theme",
-  "icons",
-  ...REFLECTIONS.map(([, attribute]) => attribute).filter(
-    (attribute) => attribute !== "colorscheme"
-  ),
-];
-
 // Heard only on the element itself: `focus` and the key events share their
 // names with the browser's, which say more than these can.
 const EVENTS: Exclude<keyof CardEvents, "change">[] = [
@@ -73,16 +63,12 @@ const EVENTS: Exclude<keyof CardEvents, "change">[] = [
   "keyup",
 ];
 
-// Every property, taken through its accessor if set before the upgrade.
-const PROPERTIES = [
-  "theme",
-  "icons",
-  "validation",
+const PROPERTY_ONLY_SETTINGS = [
   "translations",
   "customBrands",
   "defaultValues",
+  "validation",
   "agentTools",
-  ...REFLECTIONS.map(([property]) => property),
 ];
 
 // The parser reads top to bottom, so any node after the element means its
@@ -95,6 +81,22 @@ function parsedPast(element: Element) {
   return false;
 }
 
+// Every property the attributes back, typed as read and as written.
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging -- reflect() defines them on the prototype
+export interface EvCard {
+  get theme(): ThemeDefinition | ThemeName | undefined;
+  set theme(value: ThemeDefinition | ThemeName | undefined);
+  colorScheme?: ColorScheme;
+  get icons(): CardSettings["icons"];
+  set icons(value: CardSettings["icons"]);
+  autoFocus?: boolean;
+  acceptedBrands?: CardSettings["acceptedBrands"];
+  // Every field's default; a field element's own setting wins.
+  autoProgress?: boolean;
+  autoComplete?: boolean;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging -- typed by the interface above
 export class EvCard extends ElementBase {
   #client?: EvervaultClient;
   #card?: CardHost;
@@ -105,34 +107,50 @@ export class EvCard extends ElementBase {
   #stopWaiting?: () => void;
   #optionsChanged = false;
   #warned = false;
-  #theme?: ThemeDefinition | ThemeName;
+  #theme?: ThemeDefinition;
   #settings: CardSettings = {};
   #agentTools?: CardSettings["agentTools"];
   #iconMap?: Partial<CardIcons>;
 
-  // Every setting a plain value holds, as an attribute of the card.
-  declare colorScheme?: ColorScheme;
-  declare autoFocus?: boolean;
-  declare acceptedBrands?: CardSettings["acceptedBrands"];
-  // Every field's default; a field element's own setting wins.
-  declare autoProgress?: boolean;
-  declare autoComplete?: boolean;
+  // Every attribute of the card, as the property reading and writing it.
+  static readonly reflections: Reflection<EvCard>[] = [
+    [
+      "theme",
+      {
+        // A theme definition is kept here; the attribute holds a name.
+        get: (card) => card.#theme ?? card.getAttribute("theme") ?? undefined,
+        set: (card, value) => card.#setTheme(value as EvCard["theme"]),
+      },
+    ],
+    ["colorScheme", "text"],
+    [
+      "icons",
+      {
+        // A brand icon map is kept here; the attribute says whether icons show.
+        get: (card) => {
+          const shown = readAttribute(card, "icons", "flag");
+          return shown && card.#iconMap ? card.#iconMap : shown;
+        },
+        set: (card, value) => {
+          card.#iconMap =
+            typeof value === "object" && value !== null
+              ? (value as Partial<CardIcons>)
+              : undefined;
+          writeAttribute(card, "icons", "flag", value);
+        },
+      },
+    ],
+    ["autoFocus", "flag"],
+    ["acceptedBrands", "list"],
+    ["autoProgress", "flag"],
+    ["autoComplete", "switch"],
+  ];
 
   get spec() {
     return this.#spec;
   }
 
-  // A theme name, or a theme `ui.card()` would take; the attribute holds the
-  // name when neither is set.
-  get theme(): ThemeDefinition | ThemeName | undefined {
-    return (
-      this.#theme ??
-      (this.getAttribute("theme") as ThemeName | null) ??
-      undefined
-    );
-  }
-
-  set theme(value: ThemeDefinition | ThemeName | undefined) {
+  #setTheme(value: EvCard["theme"]) {
     if (value !== undefined && value !== null && typeof value !== "string") {
       this.#theme = value;
       this.#changed();
@@ -143,22 +161,6 @@ export class EvCard extends ElementBase {
 
     if (value === undefined || value === null) this.removeAttribute("theme");
     else this.setAttribute("theme", value);
-  }
-
-  // A brand icon map is kept here; the attribute says only whether icons show.
-  get icons(): CardSettings["icons"] {
-    const shown = this.hasAttribute("icons")
-      ? this.getAttribute("icons")?.trim().toLowerCase() !== "false"
-      : undefined;
-
-    return shown && this.#iconMap ? this.#iconMap : shown;
-  }
-
-  set icons(value: CardSettings["icons"]) {
-    this.#iconMap = typeof value === "object" ? value : undefined;
-
-    if (value === undefined || value === null) this.removeAttribute("icons");
-    else this.setAttribute("icons", value ? "" : "false");
   }
 
   get translations() {
@@ -226,7 +228,10 @@ export class EvCard extends ElementBase {
   }
 
   connectedCallback() {
-    adoptProperties(this, PROPERTIES);
+    adoptProperties(this, [
+      ...EvCard.reflections.map(([property]) => property),
+      ...PROPERTY_ONLY_SETTINGS,
+    ]);
 
     // A card that is already live is left alone. After a DOM move the client
     // from the previous mount is reused; otherwise the attributes name one.
@@ -385,7 +390,7 @@ export class EvCard extends ElementBase {
     this.#observer = new MutationObserver((records) => {
       const option = (record: MutationRecord) =>
         record.target === this &&
-        OPTION_ATTRIBUTES.includes(record.attributeName ?? "");
+        OPTION_ATTRIBUTES.has(record.attributeName ?? "");
 
       if (records.some(option)) {
         this.#optionsChanged = true;
@@ -496,4 +501,13 @@ export function registerEvCard(create: CreateClient) {
   }
 }
 
-reflect(EvCard.prototype, REFLECTIONS);
+reflect(EvCard.prototype, EvCard.reflections);
+
+// The attributes the card is configured from after mounting; the colour
+// scheme is read once, when it mounts.
+const OPTION_ATTRIBUTES = new Set(
+  EvCard.reflections
+    .map(([property]) => property)
+    .filter((property) => property !== "colorScheme")
+    .map(attributeFor)
+);

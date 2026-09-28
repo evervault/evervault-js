@@ -3,7 +3,8 @@ import {
   FIELD_ELEMENTS,
   registerFieldElements,
 } from "../lib/ui/elements/fields";
-import type { Reflection } from "../lib/ui/elements/reflect";
+import { attributeFor } from "../lib/ui/elements/reflect";
+import type { Reflection, ReflectionKind } from "../lib/ui/elements/reflect";
 
 beforeAll(() => {
   registerFieldElements();
@@ -21,7 +22,13 @@ const reflected = Object.entries(FIELD_ELEMENTS).flatMap(([tag, element]) =>
   (
     (element as unknown as { reflections?: Reflection[] }).reflections ?? []
   ).map(
-    ([property, attribute, kind]) => [tag, property, attribute, kind] as const
+    ([property, kind]) =>
+      [
+        tag,
+        property as string,
+        attributeFor(property),
+        kind as ReflectionKind,
+      ] as const
   )
 );
 
@@ -77,6 +84,22 @@ describe("field elements", () => {
 
     expect(element.autoProgress).toBe(true);
   });
+
+  it.each([
+    ["ev-card-cvc", "allow3DigitAmex", true, "allow3digitamex"],
+    ["ev-card-number", "errorMessage", "Check it", "errormessage"],
+    ["ev-field", "readOnly", true, "readonly"],
+    ["ev-field", "maxLength", 8, "maxlength"],
+  ])(
+    "names <%s>.%s's attribute in lower case",
+    (tag, property, value, attribute) => {
+      const element = create(tag);
+
+      element[property] = value;
+
+      expect(element.hasAttribute(attribute)).toBe(true);
+    }
+  );
 
   it("reads autocomplete denied with off as off", () => {
     const element = create("ev-card-number");

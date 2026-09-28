@@ -1,20 +1,6 @@
 import { ElementBase, adoptProperties, reflect } from "./reflect";
 import type { Reflection } from "./reflect";
 
-const COMMON: Reflection[] = [
-  ["label", "label", "text"],
-  ["placeholder", "placeholder", "text"],
-  ["tooltip", "tooltip", "text"],
-  ["autoFocus", "autofocus", "flag"],
-  ["autoProgress", "autoprogress", "flag"],
-  ["errorMessage", "errormessage", "text"],
-];
-
-const CARD_FIELD: Reflection[] = [
-  ...COMMON,
-  ["autoComplete", "autocomplete", "switch"],
-];
-
 // A field of the card: its settings are its attributes, readable and writable
 // as properties.
 class FieldElement extends ElementBase {
@@ -25,7 +11,8 @@ class FieldElement extends ElementBase {
   declare autoProgress?: boolean;
   declare errorMessage?: string;
 
-  static reflections: Reflection[] = COMMON;
+  // Each field declares its own.
+  static readonly reflections: readonly Reflection<never>[] = [];
 
   connectedCallback() {
     const { reflections } = this.constructor as typeof FieldElement;
@@ -36,20 +23,32 @@ class FieldElement extends ElementBase {
   }
 }
 
+const COMMON: Reflection<FieldElement>[] = [
+  ["label", "text"],
+  ["placeholder", "text"],
+  ["tooltip", "text"],
+  ["autoFocus", "flag"],
+  ["autoProgress", "flag"],
+  ["errorMessage", "text"],
+];
+
 class EvCardFieldElement extends FieldElement {
   declare autoComplete?: boolean;
-
-  static reflections: Reflection[] = CARD_FIELD;
 }
+
+const CARD_FIELD: Reflection<EvCardFieldElement>[] = [
+  ...COMMON,
+  ["autoComplete", "switch"],
+];
 
 export class EvCardHolder extends EvCardFieldElement {
   declare defaultValue?: string;
   declare pattern?: string;
 
-  static reflections: Reflection[] = [
+  static readonly reflections: Reflection<EvCardHolder>[] = [
     ...CARD_FIELD,
-    ["defaultValue", "defaultvalue", "text"],
-    ["pattern", "pattern", "text"],
+    ["defaultValue", "text"],
+    ["pattern", "text"],
   ];
 }
 
@@ -59,24 +58,30 @@ export class EvCardNumber extends EvCardFieldElement {
   declare iconPosition?: string;
   declare unsupportedBrandMessage?: string;
 
-  static reflections: Reflection[] = [
+  static readonly reflections: Reflection<EvCardNumber>[] = [
     ...CARD_FIELD,
-    ["iconPosition", "iconposition", "text"],
-    ["unsupportedBrandMessage", "unsupportedbrandmessage", "text"],
+    ["iconPosition", "text"],
+    ["unsupportedBrandMessage", "text"],
   ];
 }
 
 reflect(EvCardNumber.prototype, EvCardNumber.reflections);
 
-export class EvCardExpiry extends EvCardFieldElement {}
+export class EvCardExpiry extends EvCardFieldElement {
+  static readonly reflections: Reflection<EvCardExpiry>[] = CARD_FIELD;
+}
 
 reflect(EvCardExpiry.prototype, EvCardExpiry.reflections);
 
-export class EvCardExpiryMonth extends EvCardFieldElement {}
+export class EvCardExpiryMonth extends EvCardFieldElement {
+  static readonly reflections: Reflection<EvCardExpiryMonth>[] = CARD_FIELD;
+}
 
 reflect(EvCardExpiryMonth.prototype, EvCardExpiryMonth.reflections);
 
-export class EvCardExpiryYear extends EvCardFieldElement {}
+export class EvCardExpiryYear extends EvCardFieldElement {
+  static readonly reflections: Reflection<EvCardExpiryYear>[] = CARD_FIELD;
+}
 
 reflect(EvCardExpiryYear.prototype, EvCardExpiryYear.reflections);
 
@@ -85,11 +90,11 @@ export class EvCardCvc extends EvCardFieldElement {
   declare optional?: boolean;
   declare allow3DigitAmex?: boolean;
 
-  static reflections: Reflection[] = [
+  static readonly reflections: Reflection<EvCardCvc>[] = [
     ...CARD_FIELD,
-    ["redact", "redact", "flag"],
-    ["optional", "optional", "flag"],
-    ["allow3DigitAmex", "allow3digitamex", "flag"],
+    ["redact", "flag"],
+    ["optional", "flag"],
+    ["allow3DigitAmex", "flag"],
   ];
 }
 
@@ -112,24 +117,24 @@ export class EvField extends FieldElement {
   declare step?: string;
   declare autoComplete?: string;
 
-  static reflections: Reflection[] = [
+  static readonly reflections: Reflection<EvField>[] = [
     ...COMMON,
-    ["autoComplete", "autocomplete", "text"],
-    ["name", "name", "text"],
-    ["type", "type", "text"],
-    ["defaultValue", "defaultvalue", "text"],
-    ["readOnly", "readonly", "flag"],
-    ["inputMode", "inputmode", "text"],
-    ["autoCapitalize", "autocapitalize", "text"],
-    ["spellCheck", "spellcheck", "flag"],
-    ["enterKeyHint", "enterkeyhint", "text"],
-    ["required", "required", "flag"],
-    ["minLength", "minlength", "number"],
-    ["maxLength", "maxlength", "number"],
-    ["pattern", "pattern", "text"],
-    ["min", "min", "text"],
-    ["max", "max", "text"],
-    ["step", "step", "text"],
+    ["autoComplete", "text"],
+    ["name", "text"],
+    ["type", "text"],
+    ["defaultValue", "text"],
+    ["readOnly", "flag"],
+    ["inputMode", "text"],
+    ["autoCapitalize", "text"],
+    ["spellCheck", "flag"],
+    ["enterKeyHint", "text"],
+    ["required", "flag"],
+    ["minLength", "number"],
+    ["maxLength", "number"],
+    ["pattern", "text"],
+    ["min", "text"],
+    ["max", "text"],
+    ["step", "text"],
   ];
 }
 
