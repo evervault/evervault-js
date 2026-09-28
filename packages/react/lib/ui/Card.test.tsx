@@ -137,6 +137,25 @@ describe("Card", () => {
     expect(evervault.ui.card).not.toHaveBeenCalled();
   });
 
+  it("keeps the <ev-card> while its children render nothing", async () => {
+    const { evervault, wrapper } = fakeClient();
+
+    const { rerender } = render(
+      <Card>
+        <Card.Number />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+    const card = evCard();
+
+    rerender(<Card>{false}</Card>);
+    await settle();
+
+    expect(evCard()).toBe(card);
+    expect(evervault.ui.card).not.toHaveBeenCalled();
+  });
+
   it("mounts the <ev-card> with the client once it has loaded", async () => {
     const { evervault, wrapper } = fakeClient();
 
