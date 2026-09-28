@@ -28,10 +28,12 @@ import { CardHolder } from "./CardHolder";
 import { CardNumber } from "./CardNumber";
 import { CustomFieldInput } from "./CustomFieldInput";
 import {
+  compilePattern,
   customFieldNodes,
   customFieldProps,
   customFieldWarnings,
 } from "./customField";
+import { settingForInput, applyCardSettingsToFields } from "./fieldSettings";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useAgentTools } from "./useAgentTools";
 import { useCardReader } from "./useCardReader";
@@ -40,6 +42,7 @@ import { declaredExpiry, expiryError, joinExpiry, splitExpiry } from "./expiry";
 import type { ExpiryHalves } from "./expiry";
 import { isSpec, legacyNodes } from "./legacyFields";
 import { declaredProps, fieldProps } from "./props";
+import type { FieldProps } from "./props";
 import {
   customFieldInputId,
   declaredFields,
@@ -119,7 +122,10 @@ export function Card({ config }: { config: CardConfig }) {
     setRenderable(received);
   }
 
-  const nodes = refusal ? renderable : received;
+  const nodes = useMemo(
+    () => applyCardSettingsToFields(refusal ? renderable : received, config),
+    [refusal, renderable, received, config]
+  );
 
   useEffect(() => {
     if (refusal) console.error(refusal);
@@ -133,6 +139,38 @@ export function Card({ config }: { config: CardConfig }) {
 
   const cvcOptional =
     declared.get("cvc")?.optional ?? config.validation?.cvc?.optional;
+
+  const allow3DigitAmexCVC =
+    declared.get("cvc")?.allow3DigitAmex ?? config.allow3DigitAmexCVC;
+
+  // An invalid pattern on the holder is as good as none.
+  const holderPattern = declared.get("name")?.pattern;
+  const nameRegex =
+    (holderPattern === undefined ? undefined : compilePattern(holderPattern)) ??
+    config.validation?.name?.regex;
+
+  const autoProgressOf = (input: CardInput) =>
+    declared.get(input)?.autoProgress ??
+    settingForInput(config.autoProgress, input) ??
+    false;
+
+  const autoCompleteOf = (input: CardInput, props: FieldProps) =>
+    props.autoComplete ?? settingForInput(config.autoComplete, input) ?? true;
+
+  const errorText = (
+    props: FieldProps,
+    field: string,
+    code: string | undefined
+  ) => {
+    if (!code) return undefined;
+
+    const declaredText =
+      code === "unsupportedBrand"
+        ? props.unsupportedBrandMessage
+        : props.errorMessage;
+
+    return declaredText ?? t(`${field}.errors.${code}`);
+  };
 
   // Declaring where focus goes, or that it goes nowhere, retires
   // `config.autoFocus`.
@@ -210,8 +248,7 @@ export function Card({ config }: { config: CardConfig }) {
         return "invalid";
       }
 
-      const regex = config.validation?.name?.regex;
-      if (regex && !regex.test(values.name)) {
+      if (nameRegex && !nameRegex.test(values.name)) {
         return "regex";
       }
 
@@ -254,7 +291,7 @@ export function Card({ config }: { config: CardConfig }) {
         return "invalid";
       }
 
-      const allow3DigitAmex = config.allow3DigitAmexCVC ?? true;
+      const allow3DigitAmex = allow3DigitAmexCVC ?? true;
       const isAmex = cardValidation.brand === "american-express";
       if (isAmex && values.cvc?.length === 3 && !allow3DigitAmex) {
         return "invalid";
@@ -287,7 +324,7 @@ export function Card({ config }: { config: CardConfig }) {
         fields,
         customFields,
         {
-          allow3DigitAmexCVC: config.allow3DigitAmexCVC,
+          allow3DigitAmexCVC,
           cvcOptional,
           customBrands,
         }
@@ -373,7 +410,7 @@ export function Card({ config }: { config: CardConfig }) {
               fields,
               { ...customFields, errors },
               {
-                allow3DigitAmexCVC: config.allow3DigitAmexCVC,
+                allow3DigitAmexCVC,
                 cvcOptional,
                 customBrands,
               }
@@ -389,7 +426,7 @@ export function Card({ config }: { config: CardConfig }) {
       form,
       fields,
       customFields,
-      config.allow3DigitAmexCVC,
+      allow3DigitAmexCVC,
       cvcOptional,
       customBrands,
     ]
@@ -468,7 +505,7 @@ export function Card({ config }: { config: CardConfig }) {
 
       // At keydown the value is still there, so empty means nothing to erase.
       if (
-        config.autoProgress &&
+        autoProgressOf(input) &&
         event.key === "Backspace" &&
         event.currentTarget.value.length === 0
       ) {
@@ -512,7 +549,10 @@ export function Card({ config }: { config: CardConfig }) {
       const value = customFields.valueOf(name);
       const code = customFields.errors.get(name);
       const error =
-        code && (declared.errorMessage ?? t(`field.errors.${code}`));
+        code &&
+        (declared.errorMessage ??
+          config.translations?.fields?.[name]?.errors?.[code] ??
+          t(`field.errors.${code}`));
 
       return (
         <Field
@@ -528,7 +568,16 @@ export function Card({ config }: { config: CardConfig }) {
             field={declared}
             value={value}
             disabled={!config}
-            onChange={(next) => customFields.setValue(name, next)}
+            onChange={(next) => {
+              customFields.setValue(name, next);
+
+              // A field with no set length has no point at which it is done.
+              const full =
+                declared.maxLength !== undefined &&
+                next.length >= declared.maxLength;
+
+              if (declared.autoProgress && full) focus.next(id);
+            }}
             onFocus={handleFocus(target)}
             onBlur={() => {
               customFields.blur(name);
@@ -552,7 +601,7 @@ export function Card({ config }: { config: CardConfig }) {
           key={node.id}
           name="name"
           hasValue={form.values.name.length > 0}
-          error={form.errors?.name && t(`name.errors.${form.errors.name}`)}
+          error={errorText(props, "name", form.errors?.name)}
         >
           <label htmlFor="name">{props.label ?? t("name.label")}</label>
           {props.tooltip && <Tooltip>{props.tooltip}</Tooltip>}
@@ -562,9 +611,7 @@ export function Card({ config }: { config: CardConfig }) {
             autoFocus={declaresAutoFocus ? false : config.autoFocus}
             placeholder={props.placeholder ?? t("name.placeholder")}
             value={form.values.name}
-            autoComplete={
-              props.autoComplete ?? config.autoComplete?.name ?? true
-            }
+            autoComplete={autoCompleteOf("name", props)}
             onFocus={handleFocus("name")}
             onKeyUp={handleKeyUp("name")}
             onKeyDown={handleKeyDown("name")}
@@ -573,7 +620,7 @@ export function Card({ config }: { config: CardConfig }) {
             })}
           />
           {form.errors?.name && (
-            <Error>{t(`name.errors.${form.errors.name}`)}</Error>
+            <Error>{errorText(props, "name", form.errors.name)}</Error>
           )}
         </Field>
       );
@@ -586,9 +633,7 @@ export function Card({ config }: { config: CardConfig }) {
           name="number"
           iconPosition={props.iconPosition}
           hasValue={form.values.number.length > 0}
-          error={
-            form.errors?.number && t(`number.errors.${form.errors.number}`)
-          }
+          error={errorText(props, "number", form.errors?.number)}
         >
           <label htmlFor="number">{props.label ?? t("number.label")}</label>
           {props.tooltip && <Tooltip>{props.tooltip}</Tooltip>}
@@ -607,10 +652,8 @@ export function Card({ config }: { config: CardConfig }) {
             autoFocus={declaresAutoFocus ? false : config.autoFocus}
             placeholder={props.placeholder ?? t("number.placeholder")}
             value={form.values.number}
-            autoComplete={
-              props.autoComplete ?? config.autoComplete?.number ?? true
-            }
-            autoProgress={config.autoProgress}
+            autoComplete={autoCompleteOf("number", props)}
+            autoProgress={autoProgressOf("number")}
             onComplete={advanceFromNumber}
             form={form}
             customBrands={customBrands}
@@ -622,7 +665,7 @@ export function Card({ config }: { config: CardConfig }) {
             })}
           />
           {form.errors?.number && (
-            <Error>{t(`number.errors.${form.errors.number}`)}</Error>
+            <Error>{errorText(props, "number", form.errors.number)}</Error>
           )}
         </Field>
       );
@@ -632,8 +675,16 @@ export function Card({ config }: { config: CardConfig }) {
       const half = node.type === "expiryMonth" ? "month" : "year";
       const otherHalf = half === "month" ? "year" : "month";
       const later = expiry?.form === "split" && expiry.later === node.type;
-      const error =
-        form.errors?.expiry && t(`expiry.errors.${form.errors.expiry}`);
+      // The halves share one error; either may declare its text.
+      const error = errorText(
+        {
+          errorMessage:
+            props.errorMessage ??
+            declared.get(`expiry-${otherPart}`)?.errorMessage,
+        },
+        "expiry",
+        form.errors?.expiry
+      );
       const registered = form.register("expiry", {
         onBlur: handleBlur("expiry"),
       });
@@ -670,10 +721,8 @@ export function Card({ config }: { config: CardConfig }) {
             disabled={!config}
             readOnly={cardReaderListening}
             placeholder={props.placeholder ?? t(`${node.type}.placeholder`)}
-            autoComplete={
-              props.autoComplete ?? config.autoComplete?.expiry ?? true
-            }
-            autoProgress={config.autoProgress ?? false}
+            autoComplete={autoCompleteOf(`expiry-${part}`, props)}
+            autoProgress={autoProgressOf(`expiry-${part}`)}
             onComplete={
               half === "month" ? advanceFromExpiryMonth : advanceFromExpiryYear
             }
@@ -694,9 +743,7 @@ export function Card({ config }: { config: CardConfig }) {
           key={node.id}
           name="expiry"
           hasValue={form.values.expiry.length > 0}
-          error={
-            form.errors?.expiry && t(`expiry.errors.${form.errors.expiry}`)
-          }
+          error={errorText(props, "expiry", form.errors?.expiry)}
         >
           <label htmlFor="expiry">{props.label ?? t("expiry.label")}</label>
           {props.tooltip && <Tooltip>{props.tooltip}</Tooltip>}
@@ -705,10 +752,8 @@ export function Card({ config }: { config: CardConfig }) {
             disabled={!config}
             readOnly={cardReaderListening}
             placeholder={props.placeholder ?? t("expiry.placeholder")}
-            autoComplete={
-              props.autoComplete ?? config.autoComplete?.expiry ?? true
-            }
-            autoProgress={config.autoProgress}
+            autoComplete={autoCompleteOf("expiry", props)}
+            autoProgress={autoProgressOf("expiry")}
             onComplete={advanceFromExpiry}
             onFocus={handleFocus("expiry")}
             onKeyUp={handleKeyUp("expiry")}
@@ -718,7 +763,7 @@ export function Card({ config }: { config: CardConfig }) {
             })}
           />
           {form.errors?.expiry && (
-            <Error>{t(`expiry.errors.${form.errors.expiry}`)}</Error>
+            <Error>{errorText(props, "expiry", form.errors.expiry)}</Error>
           )}
         </Field>
       );
@@ -730,7 +775,7 @@ export function Card({ config }: { config: CardConfig }) {
           key={node.id}
           name="cvc"
           hasValue={form.values.cvc.length > 0}
-          error={form.errors?.cvc && t(`cvc.errors.${form.errors.cvc}`)}
+          error={errorText(props, "cvc", form.errors?.cvc)}
         >
           <label htmlFor="cvc">{props.label ?? t("cvc.label")}</label>
           {props.tooltip && <Tooltip>{props.tooltip}</Tooltip>}
@@ -744,10 +789,8 @@ export function Card({ config }: { config: CardConfig }) {
             onFocus={handleFocus("cvc")}
             onKeyUp={handleKeyUp("cvc")}
             onKeyDown={handleKeyDown("cvc")}
-            autoComplete={
-              props.autoComplete ?? config.autoComplete?.cvc ?? true
-            }
-            autoProgress={config.autoProgress}
+            autoComplete={autoCompleteOf("cvc", props)}
+            autoProgress={autoProgressOf("cvc")}
             onComplete={advanceFromCVC}
             redact={props.redact ?? config.redactCVC}
             customBrands={customBrands}
@@ -756,7 +799,7 @@ export function Card({ config }: { config: CardConfig }) {
             })}
           />
           {form.errors?.cvc && (
-            <Error>{t(`cvc.errors.${form.errors.cvc}`)}</Error>
+            <Error>{errorText(props, "cvc", form.errors.cvc)}</Error>
           )}
         </Field>
       );

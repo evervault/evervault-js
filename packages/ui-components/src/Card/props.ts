@@ -10,8 +10,13 @@ export interface FieldProps {
   defaultValue?: string;
   autoComplete?: boolean;
   autoFocus?: boolean;
+  autoProgress?: boolean;
+  errorMessage?: string;
+  unsupportedBrandMessage?: string;
+  pattern?: string;
   redact?: boolean;
   optional?: boolean;
+  allow3DigitAmex?: boolean;
 }
 
 interface Attribute {
@@ -30,16 +35,25 @@ const COMMON: Record<string, Attribute> = {
   tooltip: { prop: "tooltip" },
   autocomplete: { prop: "autoComplete", read: (value) => flag(value, "off") },
   autofocus: { prop: "autoFocus", read: flag },
+  autoprogress: { prop: "autoProgress", read: flag },
+  errormessage: { prop: "errorMessage" },
 };
 
 const PER_TYPE: Partial<
   Record<CardSpecNode["type"], Record<string, Attribute>>
 > = {
-  name: { defaultvalue: { prop: "defaultValue" } },
-  number: { iconposition: { prop: "iconPosition" } },
+  name: {
+    defaultvalue: { prop: "defaultValue" },
+    pattern: { prop: "pattern" },
+  },
+  number: {
+    iconposition: { prop: "iconPosition" },
+    unsupportedbrandmessage: { prop: "unsupportedBrandMessage" },
+  },
   cvc: {
     redact: { prop: "redact", read: flag },
     optional: { prop: "optional", read: flag },
+    allow3digitamex: { prop: "allow3DigitAmex", read: flag },
   },
 };
 
