@@ -172,6 +172,8 @@ export interface EvervaultInputProps<Values extends Record<string, unknown>>
   write?(typed: string, stored: string): string;
   // The longest value an input without a mask takes.
   limit?: number;
+  // Whether leaving the input leaves a value ready to check; by default always.
+  checksOnBlur?(stored: string): boolean;
 }
 
 export const EvervaultInput = forwardRef<
@@ -185,6 +187,7 @@ export const EvervaultInput = forwardRef<
     read,
     write,
     limit,
+    checksOnBlur,
     label,
     labelStyle,
     ...props
@@ -234,6 +237,11 @@ export const EvervaultInput = forwardRef<
       ref={mergeRefs(inputRef, field.ref)}
       editable={!field.disabled && (props.editable ?? true)}
       onBlur={(evt) => {
+        if (checksOnBlur && !checksOnBlur(field.value ?? "")) {
+          props.onBlur?.(evt);
+          return;
+        }
+
         const shouldValidate =
           validationMode === "onBlur" ||
           validationMode === "onTouched" ||

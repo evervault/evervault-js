@@ -5,6 +5,7 @@ import { CardFormValues } from "./schema";
 const PART_MASK = mask("99");
 
 // Both halves write the one expiry, "MMYY", the month padded while partial.
+// Leaving a half checks the expiry only once the other half holds something.
 function month(stored: string) {
   return stored.slice(0, 2).trim();
 }
@@ -35,6 +36,7 @@ export const CardExpiryMonth = forwardRef<
       mask={PART_MASK}
       read={month}
       write={(typed, stored) => join(typed, year(stored))}
+      checksOnBlur={(stored) => year(stored).length > 0}
       inputMode="numeric"
       autoComplete="cc-exp-month"
       keyboardType="number-pad"
@@ -58,6 +60,7 @@ export const CardExpiryYear = forwardRef<CardExpiryYear, CardExpiryYearProps>(
         mask={PART_MASK}
         read={year}
         write={(typed, stored) => join(month(stored), typed)}
+        checksOnBlur={(stored) => month(stored).length > 0}
         inputMode="numeric"
         autoComplete="cc-exp-year"
         keyboardType="number-pad"
