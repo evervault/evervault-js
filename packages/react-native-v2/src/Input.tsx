@@ -282,9 +282,16 @@ export const EvervaultInput = forwardRef<
 
   if (!label) return input;
 
+  // The input reads the label out itself.
   return (
     <View>
-      <Text style={labelStyle}>{label}</Text>
+      <Text
+        style={labelStyle}
+        accessible={false}
+        importantForAccessibility="no"
+      >
+        {label}
+      </Text>
       {input}
     </View>
   );
