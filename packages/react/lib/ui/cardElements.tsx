@@ -104,9 +104,34 @@ export function attributes(
   );
 }
 
+// Written by hand: given them as props, React 19 sets `autofocus` and
+// `spellcheck` as the element's properties, which read "" as false.
+function useAttributes(
+  ref: React.RefObject<HTMLElement | null>,
+  declared: Record<string, string>
+) {
+  React.useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    for (const { name } of [...element.attributes]) {
+      if (!(name in declared)) element.removeAttribute(name);
+    }
+
+    for (const [name, value] of Object.entries(declared)) {
+      if (element.getAttribute(name) !== value) {
+        element.setAttribute(name, value);
+      }
+    }
+  });
+}
+
 function field<P extends object>(tag: string, names: Record<string, string>) {
   return function CardField(props: P) {
-    return React.createElement(tag, attributes(names, props));
+    const ref = React.useRef<HTMLElement | null>(null);
+    useAttributes(ref, attributes(names, props));
+
+    return React.createElement(tag, { ref });
   };
 }
 
