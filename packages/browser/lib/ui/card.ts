@@ -9,7 +9,8 @@ import type {
   SelectorType,
 } from "types";
 
-// The `ui.card()` settings a declared card takes as properties of its own.
+// The `ui.card()` settings a declared card takes as its own attributes and
+// properties.
 export type CardSettings = Pick<
   CardOptions,
   | "icons"
@@ -19,6 +20,7 @@ export type CardSettings = Pick<
   | "customBrands"
   | "defaultValues"
   | "autoComplete"
+  | "autoProgress"
   | "redactCVC"
   | "allow3DigitAmexCVC"
   | "validation"
@@ -43,6 +45,7 @@ export function cardSettingsConfig(
     customBrands: settings.customBrands,
     defaultValues: settings.defaultValues,
     autoComplete: settings.autoComplete,
+    autoProgress: settings.autoProgress,
     redactCVC: settings.redactCVC,
     allow3DigitAmexCVC: settings.allow3DigitAmexCVC,
     validation: settings.validation,
@@ -79,7 +82,6 @@ export default class Card {
         ...cardSettingsConfig(this.#options, this.#client),
         hiddenFields: (this.#options.hiddenFields ?? [])?.join(","),
         fields: this.#options.fields,
-        autoProgress: this.#options.autoProgress,
       },
     };
   }
