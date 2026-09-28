@@ -34,6 +34,106 @@ describe("EvervaultFrame message listeners", () => {
   });
 });
 
+describe("EvervaultFrame message source and origin", () => {
+  function mountedFrame(client = mockClient) {
+    const frame = new EvervaultFrame(client, "card");
+    document.body.appendChild(frame.iframe);
+    return frame;
+  }
+
+  function dispatch(frame: EvervaultFrame, init: MessageEventInit) {
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        source: frame.iframe.contentWindow,
+        origin: "https://components.evervault.com",
+        data: { frame: frame.iframe.id, type: "EV_FRAME_READY" },
+        ...init,
+      })
+    );
+  }
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+  });
+
+  it("accepts a message from its own frame (on)", () => {
+    const frame = mountedFrame();
+    const callback = vi.fn();
+    frame.on("EV_FRAME_READY", callback);
+
+    dispatch(frame, {});
+
+    expect(callback).toHaveBeenCalledOnce();
+  });
+
+  it("accepts a message from its own frame (once)", () => {
+    const frame = mountedFrame();
+    const callback = vi.fn();
+    frame.once("EV_FRAME_READY", callback);
+
+    dispatch(frame, {});
+    dispatch(frame, {});
+
+    expect(callback).toHaveBeenCalledOnce();
+  });
+
+  it.each(["on", "once"] as const)(
+    "ignores the right frame ID from another window (%s)",
+    (method) => {
+      const frame = mountedFrame();
+      const other = mountedFrame();
+      const callback = vi.fn();
+      frame[method]("EV_FRAME_READY", callback);
+
+      dispatch(frame, { source: window });
+      dispatch(frame, { source: other.iframe.contentWindow });
+      dispatch(frame, { source: null });
+
+      expect(callback).not.toHaveBeenCalled();
+    }
+  );
+
+  it.each(["on", "once"] as const)(
+    "ignores the right frame ID and source from the wrong origin (%s)",
+    (method) => {
+      const frame = mountedFrame();
+      const callback = vi.fn();
+      frame[method]("EV_FRAME_READY", callback);
+
+      dispatch(frame, { origin: "https://attacker.example" });
+
+      expect(callback).not.toHaveBeenCalled();
+    }
+  );
+
+  it("ignores messages when the frame is not mounted", () => {
+    const frame = new EvervaultFrame(mockClient, "card");
+    const callback = vi.fn();
+    frame.on("EV_FRAME_READY", callback);
+
+    dispatch(frame, { source: null });
+
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it("expects the origin of a custom components URL", () => {
+    const customClient = {
+      config: {
+        ...mockClient.config,
+        components: { url: "https://pay.merchant.example/components/" },
+      },
+    } as unknown as EvervaultClient;
+    const frame = mountedFrame(customClient);
+    const callback = vi.fn();
+    frame.on("EV_FRAME_READY", callback);
+
+    dispatch(frame, { origin: "https://components.evervault.com" });
+    dispatch(frame, { origin: "https://pay.merchant.example" });
+
+    expect(callback).toHaveBeenCalledOnce();
+  });
+});
+
 describe("EvervaultFrame preload and reveal", () => {
   function container() {
     const element = document.createElement("div");

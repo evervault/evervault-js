@@ -252,7 +252,7 @@ export class EvervaultFrame<
     callback: (message: ReceivableMessages[K]) => void
   ) {
     const handleMessage = (e: MessageEvent<EvervaultFrameMessageDetail>) => {
-      if (!e.data || e.data.frame !== this.#id) return;
+      if (!this.#isFromFrame(e)) return;
       if (e.data.type === event)
         callback(e.data.payload as ReceivableMessages[K]);
     };
@@ -266,7 +266,7 @@ export class EvervaultFrame<
     callback: (message: ReceivableMessages[K]) => void
   ) {
     const handleMessage = (e: MessageEvent<EvervaultFrameMessageDetail>) => {
-      if (!e.data || e.data.frame !== this.#id) return;
+      if (!this.#isFromFrame(e)) return;
       if (e.data.type === event) {
         callback(e.data.payload as ReceivableMessages[K]);
         window.removeEventListener("message", handleMessage);
@@ -296,6 +296,15 @@ export class EvervaultFrame<
 
   get url() {
     return this.#client.config.components.url;
+  }
+
+  #isFromFrame(e: MessageEvent<EvervaultFrameMessageDetail>) {
+    return (
+      e.source !== null &&
+      e.source === this.iframe.contentWindow &&
+      e.origin === new URL(this.url).origin &&
+      e.data?.frame === this.#id
+    );
   }
 
   #generateUrl(component: string, options?: FrameOptions) {
