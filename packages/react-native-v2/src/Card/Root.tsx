@@ -13,7 +13,13 @@ import { CardFormValues, getCardFormSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEvervault } from "../useEvervault";
 import { formatPayload } from "./utils";
-import { EvervaultInputContext, EvervaultInputContextValue } from "../Input";
+import {
+  EvervaultInputContext,
+  EvervaultInputContextValue,
+  FocusOrderContext,
+  FocusOrderContextValue,
+  FocusTarget,
+} from "../Input";
 import { EvervaultContextValue } from "../context";
 import {
   CustomFieldsContext,
@@ -56,6 +62,14 @@ export interface CardProps extends PropsWithChildren, CardConfig {
    * @default "all"
    */
   validationMode?: "onChange" | "onBlur" | "onTouched" | "all";
+
+  /**
+   * Whether to move focus to the next field once one is filled, along the
+   * order the fields first rendered in.
+   *
+   * @default false
+   */
+  autoProgress?: boolean;
 }
 
 export interface Card {
@@ -73,6 +87,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     onError,
     acceptedBrands = DEFAULT_ACCEPTED_BRANDS,
     validationMode = "all",
+    autoProgress = false,
   },
   ref
 ) {
@@ -93,8 +108,31 @@ export const Card = forwardRef<Card, CardProps>(function Card(
   const inputContext = useMemo<EvervaultInputContextValue>(
     () => ({
       validationMode,
+      autoProgress,
     }),
-    [validationMode]
+    [validationMode, autoProgress]
+  );
+
+  const focusTargets = useRef<FocusTarget[]>([]);
+
+  // Stable, so the inputs never register again and lose their first order.
+  const focusOrder = useMemo<FocusOrderContextValue>(
+    () => ({
+      register(target) {
+        focusTargets.current.push(target);
+
+        return () => {
+          focusTargets.current = focusTargets.current.filter(
+            (registered) => registered !== target
+          );
+        };
+      },
+      next(target) {
+        const targets = focusTargets.current;
+        targets[targets.indexOf(target) + 1]?.focus();
+      },
+    }),
+    []
   );
 
   const customFields = useRef(new Map<string, DeclaredCustomField>());
@@ -173,7 +211,9 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     <FormProvider {...methods}>
       <EvervaultInputContext.Provider value={inputContext}>
         <CustomFieldsContext.Provider value={customFieldsContext}>
-          {children}
+          <FocusOrderContext.Provider value={focusOrder}>
+            {children}
+          </FocusOrderContext.Provider>
         </CustomFieldsContext.Provider>
       </EvervaultInputContext.Provider>
     </FormProvider>

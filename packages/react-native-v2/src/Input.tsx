@@ -8,6 +8,7 @@ import {
   useCallback,
   useContext,
   useImperativeHandle,
+  useLayoutEffect,
   useMemo,
   useRef,
 } from "react";
@@ -26,6 +27,7 @@ import MaskInput, { Mask, MaskArray } from "react-native-mask-input";
 
 export interface EvervaultInputContextValue {
   validationMode: "onChange" | "onBlur" | "onTouched" | "all";
+  autoProgress?: boolean;
 }
 
 export const EvervaultInputContext = createContext<EvervaultInputContextValue>({
@@ -34,6 +36,21 @@ export const EvervaultInputContext = createContext<EvervaultInputContextValue>({
 
 // Fields inside a `Card.Row` share its width.
 export const CardRowContext = createContext(false);
+
+export interface FocusTarget {
+  focus(): void;
+}
+
+// The inputs in the order they first rendered, which auto-advance moves along.
+export interface FocusOrderContextValue {
+  register(target: FocusTarget): () => void;
+  next(target: FocusTarget): void;
+}
+
+export const FocusOrderContext = createContext<FocusOrderContextValue>({
+  register: () => () => {},
+  next: () => {},
+});
 
 export type EvervaultInput = Pick<
   TextInput,
@@ -127,6 +144,17 @@ export function mask(format: string): MaskArray {
   return maskArray;
 }
 
+// Filled when every slot the mask has for the value holds a typed character.
+function isMaskFilled(mask: Mask | undefined, typed: string) {
+  if (!mask) return false;
+
+  const slots = (typeof mask === "function" ? mask(typed) : mask).filter(
+    (slot) => typeof slot !== "string"
+  ).length;
+
+  return typed.length === slots;
+}
+
 function getMaskLength(mask: Mask | undefined, value?: string) {
   if (!mask) {
     return undefined;
@@ -167,10 +195,21 @@ export const EvervaultInput = forwardRef<
   },
   ref
 ) {
-  const { validationMode } = useContext(EvervaultInputContext);
+  const { validationMode, autoProgress } = useContext(EvervaultInputContext);
   const inRow = useContext(CardRowContext);
+  const focusOrder = useContext(FocusOrderContext);
 
   const inputRef = useForwardedInputRef(ref);
+
+  const focusTarget = useMemo<FocusTarget>(
+    () => ({ focus: () => inputRef.current?.focus() }),
+    [inputRef]
+  );
+
+  useLayoutEffect(
+    () => focusOrder.register(focusTarget),
+    [focusOrder, focusTarget]
+  );
 
   const methods = useFormContext();
 
@@ -228,6 +267,10 @@ export const EvervaultInput = forwardRef<
           shouldDirty: true,
           shouldValidate,
         });
+
+        if (autoProgress && isMaskFilled(mask, unmasked)) {
+          focusOrder.next(focusTarget);
+        }
       }}
       // Remove unwanted props
       defaultValue={undefined}
