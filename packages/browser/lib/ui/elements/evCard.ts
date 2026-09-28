@@ -6,12 +6,15 @@ import { THEMES } from "./cardThemes";
 import type { ThemeName } from "./cardThemes";
 import { unknownTheme } from "./developerMessages";
 import { expiryError, expiryWarning } from "./expiry";
-import { ElementBase, adoptProperties, readAttribute } from "./reflect";
+import { registerFieldElements } from "./fields";
+import { ElementBase, adoptProperties, reflect } from "./reflect";
+import type { Reflection } from "./reflect";
 import { serialise } from "./spec";
 import type EvervaultClient from "../../main";
 import type {
   CardEvents,
   CardFrameConfig,
+  CardIcons,
   CardSpecNode,
   ColorScheme,
   ThemeDefinition,
@@ -39,8 +42,22 @@ const DEFAULT_SPEC: CardSpecNode[] = [
   },
 ];
 
+const REFLECTIONS: Reflection[] = [
+  ["colorScheme", "colorscheme", "text"],
+  ["autoFocus", "autofocus", "flag"],
+  ["acceptedBrands", "acceptedbrands", "list"],
+  ["autoProgress", "autoprogress", "flag"],
+  ["autoComplete", "autocomplete", "switch"],
+];
+
 // The host attributes the card is configured from after mounting.
-const OPTION_ATTRIBUTES = ["theme", "autoprogress"];
+const OPTION_ATTRIBUTES = [
+  "theme",
+  "icons",
+  ...REFLECTIONS.map(([, attribute]) => attribute).filter(
+    (attribute) => attribute !== "colorscheme"
+  ),
+];
 
 // Heard only on the element itself: `focus` and the key events share their
 // names with the browser's, which say more than these can.
@@ -56,18 +73,16 @@ const EVENTS: Exclude<keyof CardEvents, "change">[] = [
   "keyup",
 ];
 
-const SETTINGS: (keyof CardSettings)[] = [
+// Every property, taken through its accessor if set before the upgrade.
+const PROPERTIES = [
+  "theme",
   "icons",
-  "autoFocus",
+  "validation",
   "translations",
-  "acceptedBrands",
   "customBrands",
   "defaultValues",
-  "autoComplete",
-  "redactCVC",
-  "allow3DigitAmexCVC",
-  "validation",
   "agentTools",
+  ...REFLECTIONS.map(([property]) => property),
 ];
 
 // The parser reads top to bottom, so any node after the element means its
@@ -93,6 +108,15 @@ export class EvCard extends ElementBase {
   #theme?: ThemeDefinition | ThemeName;
   #settings: CardSettings = {};
   #agentTools?: CardSettings["agentTools"];
+  #iconMap?: Partial<CardIcons>;
+
+  // Every setting a plain value holds, as an attribute of the card.
+  declare colorScheme?: ColorScheme;
+  declare autoFocus?: boolean;
+  declare acceptedBrands?: CardSettings["acceptedBrands"];
+  // Every field's default; a field element's own setting wins.
+  declare autoProgress?: boolean;
+  declare autoComplete?: boolean;
 
   get spec() {
     return this.#spec;
@@ -109,24 +133,32 @@ export class EvCard extends ElementBase {
   }
 
   set theme(value: ThemeDefinition | ThemeName | undefined) {
-    this.#theme = value;
-    this.#changed();
+    if (value !== undefined && value !== null && typeof value !== "string") {
+      this.#theme = value;
+      this.#changed();
+      return;
+    }
+
+    this.#theme = undefined;
+
+    if (value === undefined || value === null) this.removeAttribute("theme");
+    else this.setAttribute("theme", value);
   }
 
-  get icons() {
-    return this.#settings.icons;
+  // A brand icon map is kept here; the attribute says only whether icons show.
+  get icons(): CardSettings["icons"] {
+    const shown = this.hasAttribute("icons")
+      ? this.getAttribute("icons")?.trim().toLowerCase() !== "false"
+      : undefined;
+
+    return shown && this.#iconMap ? this.#iconMap : shown;
   }
 
   set icons(value: CardSettings["icons"]) {
-    this.#set({ icons: value });
-  }
+    this.#iconMap = typeof value === "object" ? value : undefined;
 
-  get autoFocus() {
-    return this.#settings.autoFocus;
-  }
-
-  set autoFocus(value: CardSettings["autoFocus"]) {
-    this.#set({ autoFocus: value });
+    if (value === undefined || value === null) this.removeAttribute("icons");
+    else this.setAttribute("icons", value ? "" : "false");
   }
 
   get translations() {
@@ -135,14 +167,6 @@ export class EvCard extends ElementBase {
 
   set translations(value: CardSettings["translations"]) {
     this.#set({ translations: value });
-  }
-
-  get acceptedBrands() {
-    return this.#settings.acceptedBrands;
-  }
-
-  set acceptedBrands(value: CardSettings["acceptedBrands"]) {
-    this.#set({ acceptedBrands: value });
   }
 
   get customBrands() {
@@ -164,30 +188,6 @@ export class EvCard extends ElementBase {
     }
 
     this.#set({ defaultValues: value });
-  }
-
-  get autoComplete() {
-    return this.#settings.autoComplete;
-  }
-
-  set autoComplete(value: CardSettings["autoComplete"]) {
-    this.#set({ autoComplete: value });
-  }
-
-  get redactCVC() {
-    return this.#settings.redactCVC;
-  }
-
-  set redactCVC(value: CardSettings["redactCVC"]) {
-    this.#set({ redactCVC: value });
-  }
-
-  get allow3DigitAmexCVC() {
-    return this.#settings.allow3DigitAmexCVC;
-  }
-
-  set allow3DigitAmexCVC(value: CardSettings["allow3DigitAmexCVC"]) {
-    this.#set({ allow3DigitAmexCVC: value });
   }
 
   get validation() {
@@ -226,7 +226,7 @@ export class EvCard extends ElementBase {
   }
 
   connectedCallback() {
-    adoptProperties(this, ["theme", ...SETTINGS]);
+    adoptProperties(this, PROPERTIES);
 
     // A card that is already live is left alone. After a DOM move the client
     // from the previous mount is reused; otherwise the attributes name one.
@@ -292,9 +292,7 @@ export class EvCard extends ElementBase {
 
     // The colour scheme goes into the frame URL, so it is read once here.
     const card = new CardHost(evervault, {
-      colorScheme: readAttribute(this, "colorscheme", "text") as
-        | ColorScheme
-        | undefined,
+      colorScheme: this.colorScheme,
       allow: framePermissions(this.#agentTools),
     });
 
@@ -338,19 +336,26 @@ export class EvCard extends ElementBase {
     return named();
   }
 
-  // The card-level options read off the element's attributes and properties.
-  // Every key is present so a removed one takes its option back to the default.
+  // Every key is present so a removed setting takes its option back to the
+  // default.
   #readConfig(): CardFrameConfig {
-    return {
-      ...(this.#client &&
-        cardSettingsConfig(
-          { ...this.#settings, agentTools: this.#agentTools },
-          this.#client
-        )),
-      autoProgress: readAttribute(this, "autoprogress", "flag") as
-        | boolean
-        | undefined,
-    };
+    if (!this.#client) return {};
+
+    return cardSettingsConfig(
+      {
+        icons: this.icons,
+        autoFocus: this.autoFocus,
+        translations: this.translations,
+        acceptedBrands: this.acceptedBrands,
+        customBrands: this.customBrands,
+        defaultValues: this.defaultValues,
+        autoComplete: this.autoComplete,
+        autoProgress: this.autoProgress,
+        validation: this.validation,
+        agentTools: this.#agentTools,
+      },
+      this.#client
+    );
   }
 
   // Declaring nothing renders the default card; declaring anything replaces it.
@@ -482,8 +487,13 @@ export function registerEvCard(create: CreateClient) {
 
   createClient = create;
 
+  // Before the card, so each field has taken its properties when it is read.
+  registerFieldElements();
+
   // The tag is defined once per page, so the first SDK to load owns <ev-card>.
   if (!customElements.get(EV_CARD_TAG_NAME)) {
     customElements.define(EV_CARD_TAG_NAME, EvCard);
   }
 }
+
+reflect(EvCard.prototype, REFLECTIONS);
