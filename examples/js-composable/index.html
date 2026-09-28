@@ -22,6 +22,8 @@
 
         card.acceptedBrands = ["visa", "mastercard", "american-express"];
 
+        document.querySelector("ev-card-cvc").redact = true;
+
         for (const type of ["change", "ready", "focus", "blur", "validate"]) {
           card.addEventListener(type, (event) => {
             console.log(type, event.detail);
@@ -40,7 +42,7 @@
       <ev-row>
         <ev-card-expiry-month></ev-card-expiry-month>
         <ev-card-expiry-year></ev-card-expiry-year>
-        <ev-card-cvc></ev-card-cvc>
+        <ev-card-cvc autoprogress="false"></ev-card-cvc>
       </ev-row>
       <ev-field
         name="postcode"
