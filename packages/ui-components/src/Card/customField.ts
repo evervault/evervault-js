@@ -14,6 +14,7 @@ export interface CustomFieldProps {
   tooltip?: string;
   defaultValue?: string;
   autoComplete?: string;
+  autoProgress?: boolean;
   readOnly?: boolean;
   inputMode?: string;
   autoCapitalize?: AutoCapitalize;
@@ -91,7 +92,7 @@ function parseLength(value: string | undefined) {
 }
 
 // Anchored as in HTML; engines without the `v` flag fall back to `u`.
-function compilePattern(source: string): RegExp | undefined {
+export function compilePattern(source: string): RegExp | undefined {
   for (const flags of ["v", "u"]) {
     try {
       return new RegExp(`^(?:${source})$`, flags);
@@ -123,6 +124,7 @@ export function customFieldProps(
     tooltip: props.tooltip,
     defaultValue: props.defaultvalue,
     autoComplete: read("autocomplete", autoComplete),
+    autoProgress: read("autoprogress", flag),
     readOnly: read("readonly", flag),
     inputMode: props.inputmode,
     autoCapitalize: autoCapitalize(props.autocapitalize),
