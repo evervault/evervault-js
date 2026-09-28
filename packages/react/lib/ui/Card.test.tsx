@@ -3,62 +3,334 @@
  */
 
 import * as React from "react";
-import { render, waitFor } from "@testing-library/react";
-import { vi, expect, describe, it } from "vitest";
-import { EvervaultContext } from "../context";
-import { PromisifiedEvervaultClient } from "../load/client";
+import { act, render } from "@testing-library/react";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { Card, type CardRef } from "./Card";
+import { EvervaultContext } from "../context";
+import type { PromisifiedEvervaultClient } from "../load/client";
 
-function withMockClient(cardInstance: unknown) {
-  const evervault = new PromisifiedEvervaultClient((resolve) => {
-    resolve({ ui: { card: () => cardInstance } } as never);
-  });
+// Stands in for the `<ev-card>` the browser SDK registers, recording what the
+// wrapper hands it.
+class FakeEvCard extends HTMLElement {
+  static cards: FakeEvCard[] = [];
+  client: unknown;
+  settingsAtMount: Record<string, unknown> = {};
+  assigned: string[] = [];
+  validate = vi.fn();
+  #settings: Record<string, unknown> = {};
 
-  return function wrapper({ children }: { children: React.ReactNode }) {
-    return (
-      <EvervaultContext.Provider value={evervault}>
-        {children}
-      </EvervaultContext.Provider>
-    );
-  };
+  constructor() {
+    super();
+    FakeEvCard.cards.push(this);
+  }
+
+  get isMounted() {
+    return this.client !== undefined;
+  }
+
+  mountCard(client: unknown) {
+    this.client = client;
+    this.settingsAtMount = { ...this.#settings };
+  }
+
+  static {
+    for (const setting of ["theme", "acceptedBrands", "translations"]) {
+      Object.defineProperty(this.prototype, setting, {
+        get(this: FakeEvCard) {
+          return this.#settings[setting];
+        },
+        set(this: FakeEvCard, value: unknown) {
+          this.assigned.push(setting);
+          this.#settings[setting] = value;
+        },
+      });
+    }
+  }
 }
 
-function mockCardInstance() {
-  return {
-    mount: vi.fn(),
-    preload: vi.fn(),
-    show: vi.fn(),
-    validate: vi.fn(),
-    update: vi.fn(),
+beforeAll(() => {
+  customElements.define("ev-card", FakeEvCard);
+});
+
+afterEach(() => {
+  FakeEvCard.cards = [];
+  vi.restoreAllMocks();
+});
+
+function fakeClient() {
+  const card = {
+    mount: vi.fn(() => card),
+    preload: vi.fn(() => card),
+    show: vi.fn(() => card),
+    update: vi.fn(() => card),
+    validate: vi.fn(() => card),
     on: vi.fn(() => () => {}),
   };
+  const evervault = { ui: { card: vi.fn(() => card) } };
+  const client = Promise.resolve(
+    evervault
+  ) as unknown as PromisifiedEvervaultClient;
+
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <EvervaultContext.Provider value={client}>
+      {children}
+    </EvervaultContext.Provider>
+  );
+
+  return { evervault, card, wrapper };
+}
+
+async function settle() {
+  await act(async () => {
+    await Promise.resolve();
+  });
+}
+
+function evCard() {
+  const [card] = FakeEvCard.cards.slice(-1);
+  if (!card) throw new Error("no <ev-card> was rendered");
+  return card;
 }
 
 describe("Card", () => {
-  it("mounts by default", async () => {
-    const instance = mockCardInstance();
-    render(<Card />, { wrapper: withMockClient(instance) });
+  it("renders the card from its options when it declares no fields", async () => {
+    const { evervault, card, wrapper } = fakeClient();
 
-    await waitFor(() => expect(instance.mount).toHaveBeenCalledTimes(1));
-    expect(instance.preload).not.toHaveBeenCalled();
+    render(<Card fields={["number", "cvc"]} autoProgress />, { wrapper });
+    await settle();
+
+    expect(evervault.ui.card).toHaveBeenCalledWith(
+      expect.objectContaining({ fields: ["number", "cvc"], autoProgress: true })
+    );
+    expect(card.mount).toHaveBeenCalledOnce();
+    expect(FakeEvCard.cards).toHaveLength(0);
   });
 
-  it("preloads instead of mounting when preload is set", async () => {
-    const instance = mockCardInstance();
-    render(<Card preload />, { wrapper: withMockClient(instance) });
+  it("renders the declared fields as the <ev-card> elements", async () => {
+    const { evervault, wrapper } = fakeClient();
 
-    await waitFor(() => expect(instance.preload).toHaveBeenCalledTimes(1));
-    expect(instance.mount).not.toHaveBeenCalled();
+    const { container } = render(
+      <Card>
+        <Card.Number label="Card number" />
+        <Card.Row>
+          <Card.ExpiryMonth />
+          <Card.ExpiryYear />
+          <Card.Cvc redact />
+        </Card.Row>
+        <Card.Field name="postcode" required />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    expect(container.innerHTML).toBe(
+      "<ev-card>" +
+        '<ev-card-number label="Card number"></ev-card-number>' +
+        "<ev-row>" +
+        "<ev-card-expiry-month></ev-card-expiry-month>" +
+        "<ev-card-expiry-year></ev-card-expiry-year>" +
+        '<ev-card-cvc redact=""></ev-card-cvc>' +
+        "</ev-row>" +
+        '<ev-field name="postcode" required=""></ev-field>' +
+        "</ev-card>"
+    );
+    expect(evervault.ui.card).not.toHaveBeenCalled();
   });
 
-  it("shows the card via the ref", async () => {
-    const instance = mockCardInstance();
+  it("mounts the <ev-card> with the client once it has loaded", async () => {
+    const { evervault, wrapper } = fakeClient();
+
+    render(
+      <Card>
+        <Card.Number />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    expect(evCard().client).toBe(evervault);
+  });
+
+  it("declares the card-level attributes on the <ev-card>", async () => {
+    const { wrapper } = fakeClient();
+
+    render(
+      <Card autoProgress={false} colorScheme="dark">
+        <Card.Number />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    expect(evCard().getAttribute("autoprogress")).toBe("false");
+    expect(evCard().getAttribute("colorscheme")).toBe("dark");
+  });
+
+  it("hands the settings to the <ev-card> before it mounts", async () => {
+    const { wrapper } = fakeClient();
+    const translations = {
+      number: { label: "Number" },
+      expiry: {},
+      cvc: {},
+    };
+
+    render(
+      <Card acceptedBrands={["visa"]} translations={translations}>
+        <Card.Number />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    expect(evCard().settingsAtMount).toEqual({
+      acceptedBrands: ["visa"],
+      translations,
+    });
+  });
+
+  it("sets only the settings that changed", async () => {
+    const { wrapper } = fakeClient();
+    const brands = ["visa" as const];
+
+    const { rerender } = render(
+      <Card acceptedBrands={brands}>
+        <Card.Number />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+    evCard().assigned = [];
+
+    rerender(
+      <Card
+        acceptedBrands={brands}
+        translations={{ number: {}, expiry: {}, cvc: {} }}
+      >
+        <Card.Number />
+      </Card>
+    );
+
+    expect(evCard().assigned).toEqual(["translations"]);
+  });
+
+  it("calls the event props with what the <ev-card> reports", async () => {
+    const { wrapper } = fakeClient();
+    const onChange = vi.fn();
+    const onFocus = vi.fn();
+    const onReady = vi.fn();
+
+    render(
+      <Card onChange={onChange} onFocus={onFocus} onReady={onReady}>
+        <Card.Number />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    const card = evCard();
+    card.dispatchEvent(
+      new CustomEvent("change", { detail: { isValid: true } })
+    );
+    card.dispatchEvent(
+      new CustomEvent("focus", { detail: { field: "number" } })
+    );
+    card.dispatchEvent(new CustomEvent("ready"));
+
+    expect(onChange).toHaveBeenCalledWith({ isValid: true });
+    expect(onFocus).toHaveBeenCalledWith({ field: "number" });
+    expect(onReady).toHaveBeenCalledOnce();
+  });
+
+  it("calls the latest event prop", async () => {
+    const { wrapper } = fakeClient();
+    const first = vi.fn();
+    const second = vi.fn();
+
+    const { rerender } = render(
+      <Card onChange={first}>
+        <Card.Number />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    rerender(
+      <Card onChange={second}>
+        <Card.Number />
+      </Card>
+    );
+    evCard().dispatchEvent(new CustomEvent("change", { detail: {} }));
+
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledOnce();
+  });
+
+  it("validates the <ev-card> through its ref", async () => {
+    const { wrapper } = fakeClient();
     const ref = React.createRef<CardRef>();
-    render(<Card preload ref={ref} />, { wrapper: withMockClient(instance) });
 
-    await waitFor(() => expect(instance.preload).toHaveBeenCalledTimes(1));
+    render(
+      <Card ref={ref}>
+        <Card.Number />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    ref.current?.validate();
+
+    expect(evCard().validate).toHaveBeenCalledOnce();
+  });
+
+  it("reports a client that failed to load as an error", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const onError = vi.fn();
+    const failed = Promise.reject(
+      new Error("no script")
+    ) as unknown as PromisifiedEvervaultClient;
+    failed.catch(() => {});
+
+    render(
+      <EvervaultContext.Provider value={failed}>
+        <Card onError={onError}>
+          <Card.Number />
+        </Card>
+      </EvervaultContext.Provider>
+    );
+    await settle();
+
+    expect(onError).toHaveBeenCalledOnce();
+    expect(evCard().isMounted).toBe(false);
+  });
+
+  it("mounts the card from its options by default", async () => {
+    const { card, wrapper } = fakeClient();
+
+    render(<Card />, { wrapper });
+    await settle();
+
+    expect(card.mount).toHaveBeenCalledOnce();
+    expect(card.preload).not.toHaveBeenCalled();
+  });
+
+  it("preloads the card from its options instead of mounting it", async () => {
+    const { card, wrapper } = fakeClient();
+
+    render(<Card preload />, { wrapper });
+    await settle();
+
+    expect(card.preload).toHaveBeenCalledOnce();
+    expect(card.mount).not.toHaveBeenCalled();
+  });
+
+  it("shows a preloaded card through its ref", async () => {
+    const { card, wrapper } = fakeClient();
+    const ref = React.createRef<CardRef>();
+
+    render(<Card preload ref={ref} />, { wrapper });
+    await settle();
     ref.current?.show();
 
-    expect(instance.show).toHaveBeenCalledTimes(1);
+    expect(card.show).toHaveBeenCalledOnce();
   });
 });
