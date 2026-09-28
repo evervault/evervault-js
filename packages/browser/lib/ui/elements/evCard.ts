@@ -1,4 +1,6 @@
 import { clean } from "themes";
+import { cardSettingsConfig, framePermissions } from "../card";
+import type { CardSettings } from "../card";
 import { CardHost } from "../cardHost";
 import { THEMES } from "./cardThemes";
 import type { ThemeName } from "./cardThemes";
@@ -8,6 +10,7 @@ import { ElementBase, adoptProperties, readAttribute } from "./reflect";
 import { serialise } from "./spec";
 import type EvervaultClient from "../../main";
 import type {
+  CardEvents,
   CardFrameConfig,
   CardSpecNode,
   ColorScheme,
@@ -39,6 +42,34 @@ const DEFAULT_SPEC: CardSpecNode[] = [
 // The host attributes the card is configured from after mounting.
 const OPTION_ATTRIBUTES = ["theme", "autoprogress"];
 
+// Heard only on the element itself: `focus` and the key events share their
+// names with the browser's, which say more than these can.
+const EVENTS: Exclude<keyof CardEvents, "change">[] = [
+  "ready",
+  "error",
+  "complete",
+  "swipe",
+  "validate",
+  "focus",
+  "blur",
+  "keydown",
+  "keyup",
+];
+
+const SETTINGS: (keyof CardSettings)[] = [
+  "icons",
+  "autoFocus",
+  "translations",
+  "acceptedBrands",
+  "customBrands",
+  "defaultValues",
+  "autoComplete",
+  "redactCVC",
+  "allow3DigitAmexCVC",
+  "validation",
+  "agentTools",
+];
+
 // The parser reads top to bottom, so any node after the element means its
 // closing tag, and so every child, has been read.
 function parsedPast(element: Element) {
@@ -60,6 +91,7 @@ export class EvCard extends ElementBase {
   #attributesChanged = false;
   #warned = false;
   #theme?: ThemeDefinition | ThemeName;
+  #settings: CardSettings = {};
 
   get spec() {
     return this.#spec;
@@ -84,8 +116,112 @@ export class EvCard extends ElementBase {
     this.#queueSync();
   }
 
+  get icons() {
+    return this.#settings.icons;
+  }
+
+  set icons(value: CardSettings["icons"]) {
+    this.#set({ icons: value });
+  }
+
+  get autoFocus() {
+    return this.#settings.autoFocus;
+  }
+
+  set autoFocus(value: CardSettings["autoFocus"]) {
+    this.#set({ autoFocus: value });
+  }
+
+  get translations() {
+    return this.#settings.translations;
+  }
+
+  set translations(value: CardSettings["translations"]) {
+    this.#set({ translations: value });
+  }
+
+  get acceptedBrands() {
+    return this.#settings.acceptedBrands;
+  }
+
+  set acceptedBrands(value: CardSettings["acceptedBrands"]) {
+    this.#set({ acceptedBrands: value });
+  }
+
+  get customBrands() {
+    return this.#settings.customBrands;
+  }
+
+  set customBrands(value: CardSettings["customBrands"]) {
+    this.#set({ customBrands: value });
+  }
+
+  get defaultValues() {
+    return this.#settings.defaultValues;
+  }
+
+  set defaultValues(value: CardSettings["defaultValues"]) {
+    // Replaces what the shopper typed, so only a new name is sent.
+    if (value?.name && value.name !== this.#settings.defaultValues?.name) {
+      this.#card?.send("EV_UPDATE_NAME", value.name);
+    }
+
+    this.#set({ defaultValues: value });
+  }
+
+  get autoComplete() {
+    return this.#settings.autoComplete;
+  }
+
+  set autoComplete(value: CardSettings["autoComplete"]) {
+    this.#set({ autoComplete: value });
+  }
+
+  get redactCVC() {
+    return this.#settings.redactCVC;
+  }
+
+  set redactCVC(value: CardSettings["redactCVC"]) {
+    this.#set({ redactCVC: value });
+  }
+
+  get allow3DigitAmexCVC() {
+    return this.#settings.allow3DigitAmexCVC;
+  }
+
+  set allow3DigitAmexCVC(value: CardSettings["allow3DigitAmexCVC"]) {
+    this.#set({ allow3DigitAmexCVC: value });
+  }
+
+  get validation() {
+    return this.#settings.validation;
+  }
+
+  set validation(value: CardSettings["validation"]) {
+    this.#set({ validation: value });
+  }
+
+  // Read once, when the card mounts: the frame is created with it.
+  get agentTools() {
+    return this.#settings.agentTools;
+  }
+
+  set agentTools(value: CardSettings["agentTools"]) {
+    this.#set({ agentTools: value });
+  }
+
+  #set(setting: CardSettings) {
+    this.#settings = { ...this.#settings, ...setting };
+    this.#card?.update({ config: this.#readConfig() });
+  }
+
+  // The answer arrives as a `validate` event.
+  validate() {
+    this.#card?.validate();
+  }
+
   connectedCallback() {
-    adoptProperties(this, ["theme"]);
+    adoptProperties(this, ["theme", ...SETTINGS]);
 
     // A card that is already live is left alone. After a DOM move the client
     // from the previous mount is reused; otherwise the attributes name one.
@@ -152,6 +288,7 @@ export class EvCard extends ElementBase {
       colorScheme: readAttribute(this, "colorscheme", "text") as
         | ColorScheme
         | undefined,
+      allow: framePermissions(this.#settings.agentTools),
     });
 
     // The card payload as a DOM event on the customer's own element.
@@ -164,6 +301,12 @@ export class EvCard extends ElementBase {
         })
       );
     });
+
+    for (const event of EVENTS) {
+      card.on(event, (detail?: unknown) => {
+        this.dispatchEvent(new CustomEvent(event, { detail }));
+      });
+    }
 
     card.mount(this.#mountPoint(), {
       theme: this.#resolveTheme(),
@@ -188,10 +331,11 @@ export class EvCard extends ElementBase {
     return named();
   }
 
-  // The card-level options read off the element's own attributes. Every key is
-  // present so a removed attribute takes its option back to the default.
+  // The card-level options read off the element's attributes and properties.
+  // Every key is present so a removed one takes its option back to the default.
   #readConfig(): CardFrameConfig {
     return {
+      ...(this.#client && cardSettingsConfig(this.#settings, this.#client)),
       autoProgress: readAttribute(this, "autoprogress", "flag") as
         | boolean
         | undefined,
