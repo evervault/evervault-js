@@ -20,9 +20,13 @@
 
         const card = document.querySelector("ev-card");
 
-        card.addEventListener("change", (event) => {
-          console.log("change", event.detail);
-        });
+        card.acceptedBrands = ["visa", "mastercard", "american-express"];
+
+        for (const type of ["change", "ready", "focus", "blur", "validate"]) {
+          card.addEventListener(type, (event) => {
+            console.log(type, event.detail);
+          });
+        }
 
         console.log("spec", card.spec);
       }
