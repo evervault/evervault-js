@@ -9,6 +9,50 @@ import type {
   SelectorType,
 } from "types";
 
+// The `ui.card()` settings a declared card takes as properties of its own.
+export type CardSettings = Pick<
+  CardOptions,
+  | "icons"
+  | "autoFocus"
+  | "translations"
+  | "acceptedBrands"
+  | "customBrands"
+  | "defaultValues"
+  | "autoComplete"
+  | "redactCVC"
+  | "allow3DigitAmexCVC"
+  | "validation"
+  | "agentTools"
+>;
+
+// Cross-origin iframes need the `tools` Permissions Policy delegated before
+// they can register WebMCP tools.
+export function framePermissions(agentTools: CardOptions["agentTools"]) {
+  return agentTools?.enabled ? "payment; tools" : undefined;
+}
+
+export function cardSettingsConfig(
+  settings: CardSettings,
+  client: EvervaultClient
+): CardFrameConfig {
+  return {
+    icons: settings.icons,
+    autoFocus: settings.autoFocus,
+    translations: settings.translations,
+    acceptedBrands: settings.acceptedBrands,
+    customBrands: settings.customBrands,
+    defaultValues: settings.defaultValues,
+    autoComplete: settings.autoComplete,
+    redactCVC: settings.redactCVC,
+    allow3DigitAmexCVC: settings.allow3DigitAmexCVC,
+    validation: settings.validation,
+    agentTools: resolveAgentToolsConfig(
+      settings.agentTools,
+      client.config.appId
+    ),
+  };
+}
+
 // The `ui.card()` front-end: translates `CardOptions` for the card frame.
 export default class Card {
   #options: CardOptions;
@@ -20,9 +64,7 @@ export default class Card {
     this.#client = client;
     this.#host = new CardHost(client, {
       colorScheme: this.#options.colorScheme,
-      // Cross-origin iframes need the `tools` Permissions Policy delegated
-      // before they can register WebMCP tools.
-      allow: this.#options.agentTools?.enabled ? "payment; tools" : undefined,
+      allow: framePermissions(this.#options.agentTools),
     });
   }
 
@@ -34,23 +76,10 @@ export default class Card {
     return {
       theme: this.#options.theme,
       config: {
-        icons: this.#options.icons,
-        autoFocus: this.#options.autoFocus,
-        translations: this.#options.translations,
+        ...cardSettingsConfig(this.#options, this.#client),
         hiddenFields: (this.#options.hiddenFields ?? [])?.join(","),
         fields: this.#options.fields,
-        acceptedBrands: this.#options.acceptedBrands,
-        customBrands: this.#options.customBrands,
-        defaultValues: this.#options.defaultValues,
-        autoComplete: this.#options.autoComplete,
         autoProgress: this.#options.autoProgress,
-        redactCVC: this.#options.redactCVC,
-        allow3DigitAmexCVC: this.#options.allow3DigitAmexCVC,
-        validation: this.#options.validation,
-        agentTools: resolveAgentToolsConfig(
-          this.#options.agentTools,
-          this.#client.config.appId
-        ),
       },
     };
   }
