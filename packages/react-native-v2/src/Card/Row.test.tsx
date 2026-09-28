@@ -18,25 +18,27 @@ it("places its fields side by side", async () => {
   expect(getByTestId("row")).toHaveStyle({ flexDirection: "row", gap: 12 });
 });
 
-it("shares its width between the fields inside it", async () => {
-  const { getByTestId, getByText } = await render(
+it("gives each child an equal share of its width", async () => {
+  const { getByTestId } = await render(
     <Card>
       <CardRow>
-        <CardNumber testID="number" style={{ height: 40 }} />
-        <CardCvc testID="cvc" label="CVC" />
+        <CardNumber testID="number" />
+        <CardCvc testID="cvc" />
       </CardRow>
     </Card>,
     { wrapper }
   );
 
-  expect(getByTestId("number")).toHaveStyle({ flex: 1, height: 40 });
-  expect(getByText("CVC").parent).toHaveStyle({ flex: 1 });
+  expect(getByTestId("number").parent).toHaveStyle({ flex: 1 });
+  expect(getByTestId("cvc").parent).toHaveStyle({ flex: 1 });
 });
 
-it("leaves the style of a field outside a row as given", async () => {
+it("leaves the style of the fields inside it as given", async () => {
   const { getByTestId } = await render(
     <Card>
-      <CardNumber testID="number" style={{ height: 40 }} />
+      <CardRow>
+        <CardNumber testID="number" style={{ height: 40 }} />
+      </CardRow>
     </Card>,
     { wrapper }
   );
