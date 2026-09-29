@@ -1,5 +1,10 @@
 import { forwardRef, useMemo } from "react";
-import { BaseEvervaultInputProps, EvervaultInput, mask } from "../Input";
+import {
+  AutoProgressProps,
+  BaseEvervaultInputProps,
+  EvervaultInput,
+  mask,
+} from "../Input";
 import { CardFormValues } from "./schema";
 import { Mask } from "react-native-mask-input";
 import { validateNumber } from "@evervault/card-validator";
@@ -13,7 +18,9 @@ const CARD_CVC_MASKS: Partial<Record<CardBrandName, Mask>> = {
   "american-express": mask("[9999]"),
 };
 
-export interface CardCvcProps extends BaseEvervaultInputProps {
+export interface CardCvcProps
+  extends BaseEvervaultInputProps,
+    AutoProgressProps {
   /**
    * Whether to obfuscate the entire CVC value.
    *

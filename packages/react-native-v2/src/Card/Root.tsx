@@ -27,6 +27,7 @@ import {
   DeclaredCustomField,
   rulesByName,
 } from "./customFields";
+import { duplicateFieldName, unreportableFieldName } from "./developerMessages";
 import {
   CardFieldSettings,
   CardFieldSettingsContext,
@@ -149,7 +150,8 @@ export const Card = forwardRef<Card, CardProps>(function Card(
       },
       next(target) {
         const targets = focusTargets.current;
-        targets[targets.indexOf(target) + 1]?.focus();
+        const index = targets.indexOf(target);
+        if (index !== -1) targets[index + 1]?.focus();
       },
     }),
     []
@@ -162,7 +164,18 @@ export const Card = forwardRef<Card, CardProps>(function Card(
   const customFieldsContext = useMemo<CustomFieldsContextValue>(
     () => ({
       set(id, name, rules) {
-        customFields.current.set(id, { name, rules });
+        const declared = customFields.current;
+
+        if (declared.get(id)?.name !== name) {
+          if (name.includes(".")) {
+            console.warn(unreportableFieldName(name));
+          }
+          if ([...declared.values()].some((field) => field.name === name)) {
+            console.warn(duplicateFieldName(name));
+          }
+        }
+
+        declared.set(id, { name, rules });
         emitChange.current();
       },
       remove(id) {
@@ -173,16 +186,17 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     []
   );
 
+  // A field showing an error is checked again under its new settings.
   const fieldSettingsContext = useMemo<CardFieldSettingsContextValue>(
     () => ({
-      register(id, field, settings) {
+      set(id, field, settings) {
         fieldSettings.current.set(id, { field, settings });
+        if (methods.getFieldState(field).error) void methods.trigger(field);
         emitChange.current();
-
-        return () => {
-          fieldSettings.current.delete(id);
-          emitChange.current();
-        };
+      },
+      remove(id) {
+        fieldSettings.current.delete(id);
+        emitChange.current();
       },
     }),
     []
@@ -230,6 +244,19 @@ export const Card = forwardRef<Card, CardProps>(function Card(
       subscription.unsubscribe();
     };
   }, [evervault.encrypt]);
+
+  // The security code is judged against the number, so it is checked again
+  // once it has been left or shows an error.
+  useEffect(() => {
+    const subscription = methods.watch((_values, { name }) => {
+      if (name !== "number") return;
+
+      const cvc = methods.getFieldState("cvc");
+      if (cvc.isTouched || cvc.error) void methods.trigger("cvc");
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useImperativeHandle(
     ref,

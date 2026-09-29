@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react";
+import { Children, isValidElement } from "react";
 import { StyleSheet, View, ViewProps } from "react-native";
 
 export type CardRowProps = ViewProps;
@@ -7,8 +7,13 @@ export type CardRowProps = ViewProps;
 export function CardRow({ style, children, ...props }: CardRowProps) {
   return (
     <View {...props} style={[styles.row, style]}>
-      {Children.map(children, (child: ReactNode) => (
-        <View style={styles.cell}>{child}</View>
+      {Children.toArray(children).map((child, index) => (
+        <View
+          key={isValidElement(child) ? child.key : index}
+          style={styles.cell}
+        >
+          {child}
+        </View>
       ))}
     </View>
   );

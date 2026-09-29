@@ -1,5 +1,10 @@
 import { forwardRef } from "react";
-import { BaseEvervaultInputProps, EvervaultInput, mask } from "../Input";
+import {
+  AutoProgressProps,
+  BaseEvervaultInputProps,
+  EvervaultInput,
+  mask,
+} from "../Input";
 import { CardFormValues } from "./schema";
 import { useCardFieldSettings } from "./fieldSettings";
 
@@ -19,7 +24,9 @@ function join(typedMonth: string, typedYear: string) {
   return typedYear ? typedMonth.padEnd(2, " ") + typedYear : typedMonth;
 }
 
-export interface CardExpiryPartProps extends BaseEvervaultInputProps {
+export interface CardExpiryPartProps
+  extends BaseEvervaultInputProps,
+    AutoProgressProps {
   /**
    * Replaces the text of the expiry's error in the payload's `errors`; either
    * half may declare it.

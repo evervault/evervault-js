@@ -13,7 +13,7 @@ import {
   compilePattern,
   customFieldError,
 } from "./customFields";
-import type { CardSettingsByField } from "./fieldSettings";
+import type { CardFieldSettings, CardSettingsByField } from "./fieldSettings";
 
 export interface FormatPayloadContext {
   form: UseFormReturn<CardFormValues>;
@@ -84,11 +84,8 @@ export async function formatPayload(
   }
 
   const settings = context.fieldSettings ?? {};
-  const checked = validateCVC(values.cvc ?? "", number);
-  const cvc = checked.cvc;
-  const isCvcValid =
-    checked.isValid &&
-    !isRefusedAmexCvc(values.cvc ?? "", number, settings.cvc?.allow3DigitAmex);
+  const { cvc } = validateCVC(values.cvc ?? "", number);
+  const isCvcValid = isCvcAccepted(values.cvc ?? "", number, settings.cvc);
 
   const formErrors = context.form.formState.errors;
   const isValid = !Object.keys(formErrors).length;
@@ -140,11 +137,7 @@ export function areValuesComplete(
     return false;
   }
 
-  const namePattern =
-    settings.name?.pattern === undefined
-      ? undefined
-      : compilePattern(settings.name.pattern);
-  if ("name" in values && namePattern && !namePattern.test(values.name ?? "")) {
+  if ("name" in values && !nameMatches(values.name ?? "", settings.name)) {
     return false;
   }
 
@@ -156,16 +149,12 @@ export function areValuesComplete(
     return false;
   }
 
-  if ("cvc" in values && !(settings.cvc?.optional && !values.cvc)) {
-    const cvc = values.cvc ?? "";
-    const number = values.number ?? "";
-
-    if (
-      !validateCVC(cvc, values.number).isValid ||
-      isRefusedAmexCvc(cvc, number, settings.cvc?.allow3DigitAmex)
-    ) {
-      return false;
-    }
+  if (
+    "cvc" in values &&
+    !(settings.cvc?.optional && !values.cvc) &&
+    !isCvcAccepted(values.cvc ?? "", values.number ?? "", settings.cvc)
+  ) {
+    return false;
   }
 
   return true;
@@ -180,8 +169,26 @@ export function isRefusedAmexCvc(
   return (
     allow3DigitAmex === false &&
     cvc.length === 3 &&
-    validateNumber(number.replace(/\s/g, "")).brand === "american-express"
+    validateNumber(number).brand === "american-express"
   );
+}
+
+// A security code valid for the number that the field's settings accept.
+export function isCvcAccepted(
+  cvc: string,
+  number: string,
+  settings: CardFieldSettings = {}
+) {
+  return (
+    validateCVC(cvc, number).isValid &&
+    !isRefusedAmexCvc(cvc, number, settings.allow3DigitAmex)
+  );
+}
+
+// A name matching the holder's `pattern`, when it declares one.
+export function nameMatches(name: string, settings: CardFieldSettings = {}) {
+  const pattern = compilePattern(settings.pattern);
+  return !pattern || pattern.test(name);
 }
 
 export function isAcceptedBrand(

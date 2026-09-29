@@ -1,11 +1,18 @@
 import { forwardRef } from "react";
-import { BaseEvervaultInputProps, EvervaultInput, mask } from "../Input";
+import {
+  AutoProgressProps,
+  BaseEvervaultInputProps,
+  EvervaultInput,
+  mask,
+} from "../Input";
 import { CardFormValues } from "./schema";
 import { useCardFieldSettings } from "./fieldSettings";
 
 const CARD_EXPIRY_MASK = mask("99 / 99");
 
-export interface CardExpiryProps extends BaseEvervaultInputProps {
+export interface CardExpiryProps
+  extends BaseEvervaultInputProps,
+    AutoProgressProps {
   /**
    * Replaces the text of this field's error in the payload's `errors`.
    */

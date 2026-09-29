@@ -115,7 +115,10 @@ export interface BaseEvervaultInputProps
    * The style of the `label` text.
    */
   labelStyle?: StyleProp<TextStyle>;
+}
 
+// For the fields with a fixed length, which auto-advance can move on from.
+export interface AutoProgressProps {
   /**
    * Whether to move focus to the next field once this one is filled. Overrides
    * the card's `autoProgress` for this field.
@@ -168,7 +171,8 @@ function getMaskLength(mask: Mask | undefined, value?: string) {
 }
 
 export interface EvervaultInputProps<Values extends Record<string, unknown>>
-  extends BaseEvervaultInputProps {
+  extends BaseEvervaultInputProps,
+    AutoProgressProps {
   name: keyof Values;
   mask?: Mask;
   obfuscateValue?: boolean | string;

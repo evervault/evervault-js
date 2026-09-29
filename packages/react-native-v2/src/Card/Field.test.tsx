@@ -153,3 +153,50 @@ it("keeps a field's place in the payload when its rules change", async () => {
     "email",
   ]);
 });
+
+describe("a name declared twice", () => {
+  beforeEach(() => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("takes the rules of the first field declaring it", async () => {
+    const { onChange } = await renderCard(
+      <>
+        <CardField name="postcode" required />
+        <CardField name="postcode" />
+      </>
+    );
+
+    await waitFor(() => expect(onChange).toHaveBeenCalled());
+    expect(lastPayload(onChange)).toMatchObject({
+      fields: { postcode: null },
+      isComplete: false,
+    });
+  });
+
+  it("keeps reporting the name once the other field is gone", async () => {
+    const { onChange, rerender } = await renderCard(
+      <>
+        <CardField name="postcode" required />
+        <CardField name="postcode" />
+      </>
+    );
+
+    await rerender(
+      <Card onChange={onChange}>
+        <CardField name="postcode" required />
+      </Card>
+    );
+
+    await waitFor(() =>
+      expect(lastPayload(onChange)).toMatchObject({
+        fields: { postcode: null },
+        isComplete: false,
+      })
+    );
+  });
+});

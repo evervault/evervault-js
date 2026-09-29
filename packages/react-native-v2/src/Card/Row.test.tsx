@@ -45,3 +45,18 @@ it("leaves the style of the fields inside it as given", async () => {
 
   expect(getByTestId("number")).toHaveProp("style", { height: 40 });
 });
+
+it("leaves no cell for a child that renders nothing", async () => {
+  const showCvc = false;
+  const { getByTestId } = await render(
+    <Card>
+      <CardRow testID="row">
+        <CardNumber testID="number" />
+        {showCvc && <CardCvc testID="cvc" />}
+      </CardRow>
+    </Card>,
+    { wrapper }
+  );
+
+  expect(getByTestId("row").children).toHaveLength(1);
+});

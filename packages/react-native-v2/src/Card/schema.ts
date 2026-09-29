@@ -5,8 +5,7 @@ import {
   validateExpiry,
 } from "@evervault/card-validator";
 import { CardBrandName } from "./types";
-import { isAcceptedBrand, isRefusedAmexCvc } from "./utils";
-import { compilePattern } from "./customFields";
+import { isAcceptedBrand, isRefusedAmexCvc, nameMatches } from "./utils";
 import type { CardInputName, CardSettingsByField } from "./fieldSettings";
 
 // The number decides whether a 3-digit security code passes on an Amex card.
@@ -19,14 +18,12 @@ export function getCardFormSchema(
     isRefusedAmexCvc(value, cardNumber, settings.cvc?.allow3DigitAmex);
 
   const { name = {}, number = {}, expiry = {}, cvc = {} } = settings;
-  const namePattern =
-    name.pattern === undefined ? undefined : compilePattern(name.pattern);
 
   return z.object({
     name: z
       .string()
       .min(1, name.errorMessage ?? "Missing name")
-      .refine((value) => !namePattern || namePattern.test(value), {
+      .refine((value) => nameMatches(value, name), {
         message: name.errorMessage ?? "Invalid name",
       }),
 
@@ -48,26 +45,15 @@ export function getCardFormSchema(
         message: expiry.errorMessage ?? "Invalid expiry",
       }),
 
-    cvc: cvc.optional
-      ? z
-          .string()
-          .refine(
-            (value) =>
-              value === "" ||
-              (validateCVC(value).isValid && !refusedAmexCvc(value)),
-            {
-              message: cvc.errorMessage ?? "Invalid CVC",
-            }
-          )
-      : z
-          .string()
-          .min(1, cvc.errorMessage ?? "Required")
-          .refine(
-            (value) => validateCVC(value).isValid && !refusedAmexCvc(value),
-            {
-              message: cvc.errorMessage ?? "Invalid CVC",
-            }
-          ),
+    cvc: (cvc.optional
+      ? z.string()
+      : z.string().min(1, cvc.errorMessage ?? "Required")
+    ).refine(
+      (value) =>
+        (cvc.optional && value === "") ||
+        (validateCVC(value).isValid && !refusedAmexCvc(value)),
+      { message: cvc.errorMessage ?? "Invalid CVC" }
+    ),
   } satisfies Record<CardInputName, z.ZodTypeAny>);
 }
 

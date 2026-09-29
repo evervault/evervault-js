@@ -16,16 +16,14 @@ export type CardSettingsByField = Partial<
 >;
 
 export interface CardFieldSettingsContextValue {
-  register(
-    id: string,
-    field: CardInputName,
-    settings: CardFieldSettings
-  ): () => void;
+  set(id: string, field: CardInputName, settings: CardFieldSettings): void;
+  remove(id: string): void;
 }
 
 export const CardFieldSettingsContext =
   createContext<CardFieldSettingsContextValue>({
-    register: () => () => {},
+    set: () => {},
+    remove: () => {},
   });
 
 // Each field's settings, from every input writing it: the expiry halves both
@@ -64,12 +62,15 @@ export function useCardFieldSettings(
     allow3DigitAmex,
   }: CardFieldSettings
 ) {
-  const { register } = useContext(CardFieldSettingsContext);
+  const { set, remove } = useContext(CardFieldSettingsContext);
   const id = useId();
+
+  // Removed only on unmount, so a changed setting keeps the input's place.
+  useLayoutEffect(() => () => remove(id), [remove, id]);
 
   useLayoutEffect(
     () =>
-      register(id, field, {
+      set(id, field, {
         errorMessage,
         unsupportedBrandMessage,
         pattern,
@@ -77,7 +78,7 @@ export function useCardFieldSettings(
         allow3DigitAmex,
       }),
     [
-      register,
+      set,
       id,
       field,
       errorMessage,

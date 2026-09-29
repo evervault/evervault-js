@@ -1,5 +1,10 @@
 import { forwardRef, useCallback } from "react";
-import { BaseEvervaultInputProps, EvervaultInput, mask } from "../Input";
+import {
+  AutoProgressProps,
+  BaseEvervaultInputProps,
+  EvervaultInput,
+  mask,
+} from "../Input";
 import { CardFormValues } from "./schema";
 import { MaskArray } from "react-native-mask-input";
 import { validateNumber } from "@evervault/card-validator";
@@ -13,7 +18,9 @@ const CARD_NUMBER_MASKS: Partial<Record<CardBrandName, MaskArray>> = {
   "american-express": mask("9999 99[9999 99999]"),
 };
 
-export interface CardNumberProps extends BaseEvervaultInputProps {
+export interface CardNumberProps
+  extends BaseEvervaultInputProps,
+    AutoProgressProps {
   /**
    * Whether to obfuscate the card number value (excluding the last 4 digits).
    *
