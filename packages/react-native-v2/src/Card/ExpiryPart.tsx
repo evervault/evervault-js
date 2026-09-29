@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 import { BaseEvervaultInputProps, EvervaultInput, mask } from "../Input";
 import { CardFormValues } from "./schema";
+import { useCardFieldSettings } from "./fieldSettings";
 
 const PART_MASK = mask("99");
 
@@ -18,14 +19,24 @@ function join(typedMonth: string, typedYear: string) {
   return typedYear ? typedMonth.padEnd(2, " ") + typedYear : typedMonth;
 }
 
-export type CardExpiryMonthProps = BaseEvervaultInputProps;
+export interface CardExpiryPartProps extends BaseEvervaultInputProps {
+  /**
+   * Replaces the text of the expiry's error in the payload's `errors`; either
+   * half may declare it.
+   */
+  errorMessage?: string;
+}
+
+export type CardExpiryMonthProps = CardExpiryPartProps;
 
 export type CardExpiryMonth = EvervaultInput;
 
 export const CardExpiryMonth = forwardRef<
   CardExpiryMonth,
   CardExpiryMonthProps
->(function CardExpiryMonth(props, ref) {
+>(function CardExpiryMonth({ errorMessage, ...props }, ref) {
+  useCardFieldSettings("expiry", { errorMessage });
+
   return (
     <EvervaultInput<CardFormValues>
       id="expiry-month"
@@ -44,12 +55,14 @@ export const CardExpiryMonth = forwardRef<
   );
 });
 
-export type CardExpiryYearProps = BaseEvervaultInputProps;
+export type CardExpiryYearProps = CardExpiryPartProps;
 
 export type CardExpiryYear = EvervaultInput;
 
 export const CardExpiryYear = forwardRef<CardExpiryYear, CardExpiryYearProps>(
-  function CardExpiryYear(props, ref) {
+  function CardExpiryYear({ errorMessage, ...props }, ref) {
+    useCardFieldSettings("expiry", { errorMessage });
+
     return (
       <EvervaultInput<CardFormValues>
         id="expiry-year"

@@ -115,6 +115,12 @@ export interface BaseEvervaultInputProps
    * The style of the `label` text.
    */
   labelStyle?: StyleProp<TextStyle>;
+
+  /**
+   * Whether to move focus to the next field once this one is filled. Overrides
+   * the card's `autoProgress` for this field.
+   */
+  autoProgress?: boolean;
 }
 
 export function mask(format: string): MaskArray {
@@ -190,11 +196,14 @@ export const EvervaultInput = forwardRef<
     checksOnBlur,
     label,
     labelStyle,
+    autoProgress,
     ...props
   },
   ref
 ) {
-  const { validationMode, autoProgress } = useContext(EvervaultInputContext);
+  const { validationMode, autoProgress: cardAutoProgress } = useContext(
+    EvervaultInputContext
+  );
   const focusOrder = useContext(FocusOrderContext);
 
   const inputRef = useForwardedInputRef(ref);
@@ -270,7 +279,8 @@ export const EvervaultInput = forwardRef<
           shouldValidate,
         });
 
-        if (autoProgress && isMaskFilled(mask, unmasked)) {
+        const advances = autoProgress ?? cardAutoProgress;
+        if (advances && isMaskFilled(mask, unmasked)) {
           focusOrder.next(focusTarget);
         }
       }}

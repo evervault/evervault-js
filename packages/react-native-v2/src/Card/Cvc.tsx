@@ -5,6 +5,7 @@ import { Mask } from "react-native-mask-input";
 import { validateNumber } from "@evervault/card-validator";
 import { useFormContext } from "react-hook-form";
 import { CardBrandName } from "./types";
+import { useCardFieldSettings } from "./fieldSettings";
 
 const DEFAULT_CARD_CVC_MASK = mask("[999]");
 
@@ -19,14 +20,35 @@ export interface CardCvcProps extends BaseEvervaultInputProps {
    * If a string is provided, it will be used to obfuscate the value.
    */
   obfuscateValue?: boolean | string;
+
+  /**
+   * Replaces the text of this field's error in the payload's `errors`.
+   */
+  errorMessage?: string;
+
+  /**
+   * Whether the card is complete without a security code.
+   *
+   * @default false
+   */
+  optional?: boolean;
+
+  /**
+   * Whether an American Express security code may be 3 digits rather than 4.
+   *
+   * @default true
+   */
+  allow3DigitAmex?: boolean;
 }
 
 export type CardCvc = EvervaultInput;
 
 export const CardCvc = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
-  props,
+  { errorMessage, optional, allow3DigitAmex, ...props },
   ref
 ) {
+  useCardFieldSettings("cvc", { errorMessage, optional, allow3DigitAmex });
+
   const methods = useFormContext<CardFormValues>();
 
   const number = methods.watch("number");

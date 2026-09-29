@@ -2,8 +2,9 @@ import { forwardRef, useContext, useId, useLayoutEffect } from "react";
 import { BaseEvervaultInputProps, EvervaultInput } from "../Input";
 import { CustomFieldRules, CustomFieldsContext } from "./customFields";
 
+// A field without a fixed length never auto-advances.
 export interface CardFieldProps
-  extends BaseEvervaultInputProps,
+  extends Omit<BaseEvervaultInputProps, "autoProgress">,
     CustomFieldRules {
   /**
    * The key the field's encrypted value is reported under, in the payload's

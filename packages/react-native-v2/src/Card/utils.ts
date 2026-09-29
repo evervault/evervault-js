@@ -8,12 +8,18 @@ import type { CardBrandName, CardPayload } from "./types";
 import { type CardFormValues } from "./schema";
 import { DeepPartial, UseFormReturn } from "react-hook-form";
 import { type Encrypted, sdk } from "../sdk";
-import { type CustomFieldRules, customFieldError } from "./customFields";
+import {
+  type CustomFieldRules,
+  compilePattern,
+  customFieldError,
+} from "./customFields";
+import type { CardSettingsByField } from "./fieldSettings";
 
 export interface FormatPayloadContext {
   form: UseFormReturn<CardFormValues>;
   encrypt<T>(data: T): Promise<Encrypted<T>>;
   customFields?: ReadonlyMap<string, CustomFieldRules>;
+  fieldSettings?: CardSettingsByField;
 }
 
 interface CustomFieldsPayload {
@@ -77,11 +83,16 @@ export async function formatPayload(
     context.form.setValue("cvc", values.cvc?.slice(0, 3));
   }
 
-  const { cvc, isValid: isCvcValid } = validateCVC(values.cvc ?? "", number);
+  const settings = context.fieldSettings ?? {};
+  const checked = validateCVC(values.cvc ?? "", number);
+  const cvc = checked.cvc;
+  const isCvcValid =
+    checked.isValid &&
+    !isRefusedAmexCvc(values.cvc ?? "", number, settings.cvc?.allow3DigitAmex);
 
   const formErrors = context.form.formState.errors;
   const isValid = !Object.keys(formErrors).length;
-  const isComplete = areValuesComplete(values);
+  const isComplete = areValuesComplete(values, settings);
 
   const errors: Record<string, string> = {};
   if (formErrors.name?.message) {
@@ -121,8 +132,19 @@ export async function formatPayload(
   };
 }
 
-export function areValuesComplete(values: DeepPartial<CardFormValues>) {
+export function areValuesComplete(
+  values: DeepPartial<CardFormValues>,
+  settings: CardSettingsByField = {}
+) {
   if ("name" in values && !values.name?.length) {
+    return false;
+  }
+
+  const namePattern =
+    settings.name?.pattern === undefined
+      ? undefined
+      : compilePattern(settings.name.pattern);
+  if ("name" in values && namePattern && !namePattern.test(values.name ?? "")) {
     return false;
   }
 
@@ -134,14 +156,32 @@ export function areValuesComplete(values: DeepPartial<CardFormValues>) {
     return false;
   }
 
-  if (
-    "cvc" in values &&
-    !validateCVC(values.cvc ?? "", values.number).isValid
-  ) {
-    return false;
+  if ("cvc" in values && !(settings.cvc?.optional && !values.cvc)) {
+    const cvc = values.cvc ?? "";
+    const number = values.number ?? "";
+
+    if (
+      !validateCVC(cvc, values.number).isValid ||
+      isRefusedAmexCvc(cvc, number, settings.cvc?.allow3DigitAmex)
+    ) {
+      return false;
+    }
   }
 
   return true;
+}
+
+// A 3-digit security code on an Amex card, which `allow3DigitAmex={false}` refuses.
+export function isRefusedAmexCvc(
+  cvc: string,
+  number: string,
+  allow3DigitAmex: boolean | undefined
+) {
+  return (
+    allow3DigitAmex === false &&
+    cvc.length === 3 &&
+    validateNumber(number.replace(/\s/g, "")).brand === "american-express"
+  );
 }
 
 export function isAcceptedBrand(

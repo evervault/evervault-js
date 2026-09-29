@@ -9,3 +9,6 @@ Bring the card's building blocks in line with the web and React cards. Every add
 - `Card.Field` collects a value of the app's own, reported encrypted in the payload's `fields` under its `name`, or null while empty or invalid. `required`, `minLength`, `maxLength` and `pattern` validate it, with `errorMessage` replacing the default message in `errors.fields`. A card without one reports no `fields`.
 - `label` on any field renders its text above the field, styled by `labelStyle`, and reads it out as the field's accessibility label.
 - `autoProgress` on `Card` moves focus to the next field once one is filled, along the order the fields first rendered in, whatever views wrap them. It is off unless set.
+- `autoProgress` on a card field turns auto-advance on or off for that field, over the card's.
+- `errorMessage` on a card field replaces the text of its error in `errors`; either expiry half may declare the expiry's. `Card.Number`'s `unsupportedBrandMessage` replaces the text for a brand the card does not accept.
+- `pattern` on `Card.Holder` is a pattern the whole name must match. `optional` on `Card.Cvc` completes the card without a security code, and `allow3DigitAmex={false}` refuses a 3-digit American Express one.

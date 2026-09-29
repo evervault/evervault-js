@@ -42,7 +42,7 @@ export const CUSTOM_FIELD_ERRORS = {
 };
 
 // Anchored as in HTML; engines without the `v` flag fall back to `u`.
-function compilePattern(source: string | undefined): RegExp | undefined {
+export function compilePattern(source: string | undefined): RegExp | undefined {
   if (source === undefined) return undefined;
 
   for (const flags of ["v", "u"]) {

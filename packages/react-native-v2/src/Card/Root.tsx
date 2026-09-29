@@ -8,7 +8,7 @@ import {
   useRef,
 } from "react";
 import { CardBrandName, CardConfig, CardPayload } from "./types";
-import { DeepPartial, FormProvider, useForm } from "react-hook-form";
+import { DeepPartial, FormProvider, Resolver, useForm } from "react-hook-form";
 import { CardFormValues, getCardFormSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEvervault } from "../useEvervault";
@@ -27,6 +27,13 @@ import {
   DeclaredCustomField,
   rulesByName,
 } from "./customFields";
+import {
+  CardFieldSettings,
+  CardFieldSettingsContext,
+  CardFieldSettingsContextValue,
+  CardInputName,
+  settingsByField,
+} from "./fieldSettings";
 
 const DEFAULT_ACCEPTED_BRANDS: CardBrandName[] = [];
 
@@ -93,10 +100,23 @@ export const Card = forwardRef<Card, CardProps>(function Card(
 ) {
   const evervault = useEvervault();
 
-  const resolver = useMemo(() => {
-    const schema = getCardFormSchema(acceptedBrands);
-    return zodResolver(schema);
-  }, [acceptedBrands]);
+  const fieldSettings = useRef(
+    new Map<string, { field: CardInputName; settings: CardFieldSettings }>()
+  );
+
+  // Built when validating, from the settings the fields registered and the
+  // number the security code is checked against.
+  const resolver = useCallback<Resolver<CardFormValues>>(
+    (values, context, options) =>
+      zodResolver(
+        getCardFormSchema(
+          acceptedBrands,
+          settingsByField(fieldSettings.current),
+          values.number
+        )
+      )(values, context, options),
+    [acceptedBrands]
+  );
 
   const methods = useForm<CardFormValues>({
     defaultValues,
@@ -153,6 +173,21 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     []
   );
 
+  const fieldSettingsContext = useMemo<CardFieldSettingsContextValue>(
+    () => ({
+      register(id, field, settings) {
+        fieldSettings.current.set(id, { field, settings });
+        emitChange.current();
+
+        return () => {
+          fieldSettings.current.delete(id);
+          emitChange.current();
+        };
+      },
+    }),
+    []
+  );
+
   // Use refs to prevent closures from being captured
   const onChangeRef = useRef<typeof onChange>(onChange);
   onChangeRef.current = onChange;
@@ -177,6 +212,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
             encrypt: evervault.encrypt,
             form: methods,
             customFields: rulesByName(customFields.current),
+            fieldSettings: settingsByField(fieldSettings.current),
           });
           if (signal.aborted) return;
           onChangeRef.current?.(payload);
@@ -211,9 +247,11 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     <FormProvider {...methods}>
       <EvervaultInputContext.Provider value={inputContext}>
         <CustomFieldsContext.Provider value={customFieldsContext}>
-          <FocusOrderContext.Provider value={focusOrder}>
-            {children}
-          </FocusOrderContext.Provider>
+          <CardFieldSettingsContext.Provider value={fieldSettingsContext}>
+            <FocusOrderContext.Provider value={focusOrder}>
+              {children}
+            </FocusOrderContext.Provider>
+          </CardFieldSettingsContext.Provider>
         </CustomFieldsContext.Provider>
       </EvervaultInputContext.Provider>
     </FormProvider>

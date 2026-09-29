@@ -201,3 +201,35 @@ it("keeps the order when the card turns auto-progress on", async () => {
 
   expect(focused).toHaveBeenLastCalledWith("cvc");
 });
+
+it("lets a field turn off the auto-progress the card turns on", async () => {
+  const { getByTestId } = await render(
+    <Card autoProgress>
+      <CardNumber testID="number" />
+      <CardCvc testID="cvc" autoProgress={false} />
+      <CardExpiry testID="expiry" />
+    </Card>,
+    { wrapper }
+  );
+
+  const user = userEvent.setup();
+  await user.type(getByTestId("number"), "4242424242424242");
+  await user.type(getByTestId("cvc"), "123");
+
+  expect(focused.mock.calls).toEqual([["cvc"]]);
+});
+
+it("advances from a field that turns auto-progress on for itself", async () => {
+  const { getByTestId } = await render(
+    <Card>
+      <CardNumber testID="number" autoProgress />
+      <CardCvc testID="cvc" />
+    </Card>,
+    { wrapper }
+  );
+
+  const user = userEvent.setup();
+  await user.type(getByTestId("number"), "4242424242424242");
+
+  expect(focused).toHaveBeenCalledWith("cvc");
+});

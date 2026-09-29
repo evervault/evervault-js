@@ -1,15 +1,23 @@
 import { forwardRef } from "react";
 import { BaseEvervaultInputProps, EvervaultInput, mask } from "../Input";
 import { CardFormValues } from "./schema";
+import { useCardFieldSettings } from "./fieldSettings";
 
 const CARD_EXPIRY_MASK = mask("99 / 99");
 
-export type CardExpiryProps = BaseEvervaultInputProps;
+export interface CardExpiryProps extends BaseEvervaultInputProps {
+  /**
+   * Replaces the text of this field's error in the payload's `errors`.
+   */
+  errorMessage?: string;
+}
 
 export type CardExpiry = EvervaultInput;
 
 export const CardExpiry = forwardRef<CardExpiry, CardExpiryProps>(
-  function CardExpiry(props, ref) {
+  function CardExpiry({ errorMessage, ...props }, ref) {
+    useCardFieldSettings("expiry", { errorMessage });
+
     return (
       <EvervaultInput<CardFormValues>
         placeholder="MM / YY"
