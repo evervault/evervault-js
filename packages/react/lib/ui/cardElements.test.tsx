@@ -104,6 +104,32 @@ describe("card elements", () => {
     );
   });
 
+  it("carries every setting each card field element takes", () => {
+    expect(
+      html(
+        <CardHolder
+          defaultValue="Jane Doe"
+          pattern="[A-Za-z ]+"
+          autoProgress
+          errorMessage="Check the name"
+        />
+      )
+    ).toBe(
+      '<ev-card-holder autoprogress="" errormessage="Check the name" defaultvalue="Jane Doe" pattern="[A-Za-z ]+"></ev-card-holder>'
+    );
+    expect(
+      html(<CardNumber unsupportedBrandMessage="Visa or Mastercard only" />)
+    ).toBe(
+      '<ev-card-number unsupportedbrandmessage="Visa or Mastercard only"></ev-card-number>'
+    );
+    expect(html(<CardCvc allow3DigitAmex={false} autoProgress={false} />)).toBe(
+      '<ev-card-cvc autoprogress="false" allow3digitamex="false"></ev-card-cvc>'
+    );
+    expect(html(<CardExpiryMonth errorMessage="Check the month" />)).toBe(
+      '<ev-card-expiry-month errormessage="Check the month"></ev-card-expiry-month>'
+    );
+  });
+
   it("declares a boolean prop set to true and denies one set to false", () => {
     expect(html(<CardCvc redact optional={false} autoComplete={false} />)).toBe(
       '<ev-card-cvc autocomplete="false" redact="" optional="false"></ev-card-cvc>'
@@ -141,6 +167,7 @@ describe("card elements", () => {
         maxLength={8}
         pattern="[A-Z0-9 ]+"
         errorMessage="Enter a postcode"
+        autoProgress
       />
     ).container.firstElementChild;
 
@@ -158,6 +185,7 @@ describe("card elements", () => {
       maxlength: "8",
       pattern: "[A-Z0-9 ]+",
       errormessage: "Enter a postcode",
+      autoprogress: "",
     });
   });
 });
