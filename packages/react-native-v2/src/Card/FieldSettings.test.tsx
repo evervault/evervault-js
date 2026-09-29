@@ -322,14 +322,10 @@ describe("settings changed on a mounted card", () => {
 });
 
 describe("autoProgress", () => {
-  it("is offered only on the fields with a fixed length", async () => {
+  it("is not offered on the holder, which has no length to fill", async () => {
     await renderCard(
-      <>
-        {/* @ts-expect-error a holder has no fixed length to advance from */}
-        <CardHolder autoProgress />
-        {/* @ts-expect-error a customer's field has no fixed length to advance from */}
-        <CardField name="postcode" autoProgress />
-      </>
+      // @ts-expect-error a holder has no length to fill
+      <CardHolder autoProgress />
     );
   });
 });

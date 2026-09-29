@@ -3,6 +3,10 @@ import { createContext } from "react";
 export interface CustomFieldRules {
   required?: boolean;
   minLength?: number;
+  /**
+   * The longest value the field takes. Auto-advance moves on once the field
+   * holds this many characters.
+   */
   maxLength?: number;
   pattern?: string;
   errorMessage?: string;

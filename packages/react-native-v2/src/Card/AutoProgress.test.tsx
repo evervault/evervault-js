@@ -140,7 +140,7 @@ it("never advances from fields without a fixed length", async () => {
   const { getByTestId } = await render(
     <Card autoProgress>
       <CardHolder testID="holder" />
-      <CardField testID="postcode" name="postcode" maxLength={4} />
+      <CardField testID="note" name="note" />
       <CardCvc testID="cvc" />
     </Card>,
     { wrapper }
@@ -148,6 +148,43 @@ it("never advances from fields without a fixed length", async () => {
 
   const user = userEvent.setup();
   await user.type(getByTestId("holder"), "Jo");
+  await user.type(getByTestId("note"), "Leave at the door");
+
+  expect(focused).not.toHaveBeenCalled();
+});
+
+it("advances from a custom field once it holds its maxLength", async () => {
+  const { getByTestId } = await render(
+    <Card autoProgress>
+      <CardField testID="postcode" name="postcode" maxLength={4} />
+      <CardCvc testID="cvc" />
+    </Card>,
+    { wrapper }
+  );
+
+  const user = userEvent.setup();
+  await user.type(getByTestId("postcode"), "SW1");
+  expect(focused).not.toHaveBeenCalled();
+
+  await user.type(getByTestId("postcode"), "A");
+  expect(focused).toHaveBeenCalledWith("cvc");
+});
+
+it("lets a custom field turn off the auto-progress the card turns on", async () => {
+  const { getByTestId } = await render(
+    <Card autoProgress>
+      <CardField
+        testID="postcode"
+        name="postcode"
+        maxLength={4}
+        autoProgress={false}
+      />
+      <CardCvc testID="cvc" />
+    </Card>,
+    { wrapper }
+  );
+
+  const user = userEvent.setup();
   await user.type(getByTestId("postcode"), "SW1A");
 
   expect(focused).not.toHaveBeenCalled();

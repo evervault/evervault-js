@@ -1,9 +1,14 @@
 import { forwardRef, useContext, useId, useLayoutEffect } from "react";
-import { BaseEvervaultInputProps, EvervaultInput } from "../Input";
+import {
+  AutoProgressProps,
+  BaseEvervaultInputProps,
+  EvervaultInput,
+} from "../Input";
 import { CustomFieldRules, CustomFieldsContext } from "./customFields";
 
 export interface CardFieldProps
   extends BaseEvervaultInputProps,
+    AutoProgressProps,
     CustomFieldRules {
   /**
    * The key the field's encrypted value is reported under, in the payload's

@@ -117,7 +117,7 @@ export interface BaseEvervaultInputProps
   labelStyle?: StyleProp<TextStyle>;
 }
 
-// For the fields with a fixed length, which auto-advance can move on from.
+// For the fields that can be full: a fixed length, or a `maxLength`.
 export interface AutoProgressProps {
   /**
    * Whether to move focus to the next field once this one is filled. Overrides
@@ -149,9 +149,14 @@ export function mask(format: string): MaskArray {
   return maskArray;
 }
 
-// Filled when every slot the mask has for the value holds a typed character.
-function isMaskFilled(mask: Mask | undefined, typed: string) {
-  if (!mask) return false;
+// Filled when every slot the mask has for the value holds a typed character,
+// or, without a mask, when the value reaches its longest.
+function isFilled(
+  mask: Mask | undefined,
+  limit: number | undefined,
+  typed: string
+) {
+  if (!mask) return limit !== undefined && typed.length >= limit;
 
   const slots = (typeof mask === "function" ? mask(typed) : mask).filter(
     (slot) => typeof slot !== "string"
@@ -284,7 +289,7 @@ export const EvervaultInput = forwardRef<
         });
 
         const advances = autoProgress ?? cardAutoProgress;
-        if (advances && isMaskFilled(mask, unmasked)) {
+        if (advances && isFilled(mask, limit, unmasked)) {
           focusOrder.next(focusTarget);
         }
       }}
