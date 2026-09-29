@@ -40,18 +40,24 @@ export interface CardRef {
   show: () => void;
 }
 
-interface CardBaseProps {
+export interface CardProps {
+  /** The card's fields, in order; given, they replace `fields`. */
+  children?: React.ReactNode;
   autoFocus?: boolean;
   colorScheme?: ColorScheme;
   theme?: ThemeDefinition;
   icons?: boolean | Partial<CardIcons>;
   translations?: CardTranslations;
+  /** @deprecated Declare the fields as the card's children instead. */
+  fields?: CardFieldName[];
   onReady?: () => void;
   onError?: () => void;
   onSwipe?: (data: SwipedCard) => void;
   onChange?: (data: CardPayload) => void;
   onComplete?: (data: CardPayload) => void;
   onValidate?: (data: CardPayload) => void;
+  /** A map by field is deprecated: give each field its own `autoComplete`. */
+  autoComplete?: CardOptions["autoComplete"];
   autoProgress?: boolean;
   acceptedBrands?: CardBrandName[];
   defaultValues?: { name?: string };
@@ -59,31 +65,15 @@ interface CardBaseProps {
   onBlur?: (event: FieldEvent) => void;
   onKeyUp?: (event: FieldEvent) => void;
   onKeyDown?: (event: FieldEvent) => void;
+  /** @deprecated Use `<Card.Cvc redact />` instead. */
+  redactCVC?: boolean;
+  /** @deprecated Use `<Card.Cvc allow3DigitAmex />` instead. */
+  allow3DigitAmexCVC?: boolean;
   validation?: CardOptions["validation"];
   customBrands?: CustomBrand[];
   agentTools?: AgentToolsConfig;
   preload?: boolean;
 }
-
-// A card built from `ui.card()` options.
-export interface OptionsCardProps extends CardBaseProps {
-  children?: undefined;
-  fields?: CardFieldName[];
-  autoComplete?: CardOptions["autoComplete"];
-  redactCVC?: boolean;
-  allow3DigitAmexCVC?: boolean;
-}
-
-// The settings of `<ev-card>` itself; a field's settings are that field's props.
-export interface DeclaredCardProps extends CardBaseProps {
-  children: Exclude<React.ReactNode, undefined>;
-  autoComplete?: boolean;
-  fields?: never;
-  redactCVC?: never;
-  allow3DigitAmexCVC?: never;
-}
-
-export type CardProps = OptionsCardProps | DeclaredCardProps;
 
 type CardInstance = ReturnType<EvervaultClient["ui"]["card"]>;
 
@@ -115,7 +105,7 @@ const OptionsCard = React.forwardRef(function OptionsCard(
     customBrands,
     agentTools,
     preload,
-  }: OptionsCardProps,
+  }: CardProps,
   forwardedRef: React.ForwardedRef<CardRef>
 ) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -298,7 +288,7 @@ const EVENTS = {
 
 // A card rendered as the `<ev-card>` element, from its declared children.
 const DeclaredCard = React.forwardRef(function DeclaredCard(
-  props: DeclaredCardProps,
+  props: CardProps,
   forwardedRef: React.ForwardedRef<CardRef>
 ) {
   const ref = useRef<EvCard | null>(null);
@@ -326,8 +316,19 @@ const DeclaredCard = React.forwardRef(function DeclaredCard(
     const card = ref.current as Record<string, unknown> | null;
     if (!card) return;
 
+    // `<ev-card>` takes autofill on or off; a map by field is for the fields.
+    const settings = {
+      ...props,
+      autoComplete:
+        typeof props.autoComplete === "boolean"
+          ? props.autoComplete
+          : undefined,
+    };
+
     for (const setting of SETTINGS) {
-      if (!same(card[setting], props[setting])) card[setting] = props[setting];
+      if (!same(card[setting], settings[setting])) {
+        card[setting] = settings[setting];
+      }
     }
   });
 
