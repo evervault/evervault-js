@@ -6,6 +6,8 @@ export interface CardFieldBaseProps {
   tooltip?: string;
   autoComplete?: boolean;
   autoFocus?: boolean;
+  autoProgress?: boolean;
+  errorMessage?: string;
 }
 
 export interface CardRowProps {
@@ -14,6 +16,7 @@ export interface CardRowProps {
 
 export interface CardNumberProps extends CardFieldBaseProps {
   iconPosition?: string;
+  unsupportedBrandMessage?: string;
 }
 
 export type CardExpiryProps = CardFieldBaseProps;
@@ -25,10 +28,12 @@ export type CardExpiryYearProps = CardFieldBaseProps;
 export interface CardCvcProps extends CardFieldBaseProps {
   redact?: boolean;
   optional?: boolean;
+  allow3DigitAmex?: boolean;
 }
 
 export interface CardHolderProps extends CardFieldBaseProps {
   defaultValue?: string;
+  pattern?: string;
 }
 
 export interface CardFieldProps {
@@ -41,6 +46,7 @@ export interface CardFieldProps {
   // `true`/`false` turn autofill on or off; a string is a browser token.
   autoComplete?: boolean | string;
   autoFocus?: boolean;
+  autoProgress?: boolean;
   readOnly?: boolean;
   inputMode?: string;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
@@ -56,46 +62,49 @@ export interface CardFieldProps {
   errorMessage?: string;
 }
 
-// The prop each attribute of the `<ev-card-*>` element is read from.
-const COMMON: Record<string, string> = {
-  label: "label",
-  placeholder: "placeholder",
-  tooltip: "tooltip",
-  autocomplete: "autoComplete",
-  autofocus: "autoFocus",
-};
+// The props each `<ev-card-*>` element takes as its attributes.
+const COMMON = [
+  "label",
+  "placeholder",
+  "tooltip",
+  "autoComplete",
+  "autoFocus",
+  "autoProgress",
+  "errorMessage",
+];
 
-const CUSTOM_FIELD: Record<string, string> = {
+const CUSTOM_FIELD = [
   ...COMMON,
-  name: "name",
-  type: "type",
-  defaultvalue: "defaultValue",
-  readonly: "readOnly",
-  inputmode: "inputMode",
-  autocapitalize: "autoCapitalize",
-  spellcheck: "spellCheck",
-  enterkeyhint: "enterKeyHint",
-  required: "required",
-  minlength: "minLength",
-  maxlength: "maxLength",
-  pattern: "pattern",
-  min: "min",
-  max: "max",
-  step: "step",
-  errormessage: "errorMessage",
-};
+  "name",
+  "type",
+  "defaultValue",
+  "readOnly",
+  "inputMode",
+  "autoCapitalize",
+  "spellCheck",
+  "enterKeyHint",
+  "required",
+  "minLength",
+  "maxLength",
+  "pattern",
+  "min",
+  "max",
+  "step",
+];
 
 // Attributes hold strings: a boolean prop is declared by `true` and denied by
 // `false`, as `<ev-card>` reads them.
 export function attributes(
-  names: Record<string, string>,
+  names: string[],
   props: object
 ): Record<string, string> {
   const values = props as Record<string, unknown>;
 
   return Object.fromEntries(
-    Object.entries(names).flatMap(([attribute, prop]) => {
+    names.flatMap((prop) => {
       const value = values[prop];
+      // As `<ev-card>` names them: `autoProgress` is `autoprogress`.
+      const attribute = prop.toLowerCase();
 
       if (value === undefined || value === null) return [];
       if (value === true) return [[attribute, ""]];
@@ -126,7 +135,7 @@ function useAttributes(
   });
 }
 
-function field<P extends object>(tag: string, names: Record<string, string>) {
+function field<P extends object>(tag: string, names: string[]) {
   return function CardField(props: P) {
     const ref = React.useRef<HTMLElement | null>(null);
     useAttributes(ref, attributes(names, props));
@@ -139,15 +148,17 @@ export function CardRow({ children }: CardRowProps) {
   return React.createElement("ev-row", null, children);
 }
 
-export const CardHolder = field<CardHolderProps>("ev-card-holder", {
+export const CardHolder = field<CardHolderProps>("ev-card-holder", [
   ...COMMON,
-  defaultvalue: "defaultValue",
-});
+  "defaultValue",
+  "pattern",
+]);
 
-export const CardNumber = field<CardNumberProps>("ev-card-number", {
+export const CardNumber = field<CardNumberProps>("ev-card-number", [
   ...COMMON,
-  iconposition: "iconPosition",
-});
+  "iconPosition",
+  "unsupportedBrandMessage",
+]);
 
 export const CardExpiry = field<CardExpiryProps>("ev-card-expiry", COMMON);
 
@@ -161,10 +172,11 @@ export const CardExpiryYear = field<CardExpiryYearProps>(
   COMMON
 );
 
-export const CardCvc = field<CardCvcProps>("ev-card-cvc", {
+export const CardCvc = field<CardCvcProps>("ev-card-cvc", [
   ...COMMON,
-  redact: "redact",
-  optional: "optional",
-});
+  "redact",
+  "optional",
+  "allow3DigitAmex",
+]);
 
 export const CardCustomField = field<CardFieldProps>("ev-field", CUSTOM_FIELD);

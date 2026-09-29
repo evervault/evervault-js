@@ -185,6 +185,22 @@ describe("Card", () => {
     expect(evCard().getAttribute("colorscheme")).toBe("dark");
   });
 
+  it("leaves the security code settings to <Card.Cvc>", async () => {
+    const { wrapper } = fakeClient();
+
+    render(
+      // @ts-expect-error a declared card takes the security code settings on <Card.Cvc>
+      <Card redactCVC allow3DigitAmexCVC={false}>
+        <Card.Cvc />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    expect(Object.keys(evCard())).not.toContain("redactCVC");
+    expect(Object.keys(evCard())).not.toContain("allow3DigitAmexCVC");
+  });
+
   it("hands the settings to the <ev-card> before it mounts", async () => {
     const { wrapper } = fakeClient();
     const translations = {
