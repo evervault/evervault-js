@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { withPresetConfig } from "./presetConfig";
 import { cssVar } from "./cssVar";
 
@@ -89,5 +89,15 @@ describe("cssVar", () => {
 
   it("returns an empty string for a property that isn't set", () => {
     expect(cssVar("--not-set")).toBe("");
+  });
+
+  it("returns an empty string when there is no window (SSR)", () => {
+    vi.stubGlobal("window", undefined);
+
+    try {
+      expect(cssVar("--spacing")).toBe("");
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });
