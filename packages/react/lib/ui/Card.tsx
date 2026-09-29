@@ -9,6 +9,7 @@ import {
 import type {
   AgentToolsConfig,
   CardBrandName,
+  CardEvents,
   CardField as CardFieldName,
   CardIcons,
   CardOptions,
@@ -245,21 +246,29 @@ const OptionsCard = React.forwardRef(function OptionsCard(
   return <div ref={ref} />;
 });
 
-// The `<ev-card>` properties a declared card's props are passed through to.
-const SETTINGS = [
-  "theme",
-  "colorScheme",
-  "autoProgress",
-  "icons",
-  "autoFocus",
-  "translations",
-  "acceptedBrands",
-  "customBrands",
-  "defaultValues",
-  "autoComplete",
-  "validation",
-  "agentTools",
-] as const;
+type EventProp = Extract<keyof CardProps, `on${string}`>;
+
+// Not `<ev-card>`'s: the fields, and the deprecated props they replace.
+type FieldProp = "children" | "fields" | "redactCVC" | "allow3DigitAmexCVC";
+
+type SettingProp = Exclude<keyof CardProps, EventProp | FieldProp>;
+
+// The `<ev-card>` properties a declared card's props are passed through to,
+// keyed by prop so that a prop left out fails to compile.
+const SETTINGS = Object.keys({
+  theme: true,
+  colorScheme: true,
+  autoProgress: true,
+  icons: true,
+  autoFocus: true,
+  translations: true,
+  acceptedBrands: true,
+  customBrands: true,
+  defaultValues: true,
+  autoComplete: true,
+  validation: true,
+  agentTools: true,
+} satisfies Record<SettingProp, true>) as SettingProp[] satisfies (keyof EvCard)[];
 
 // A list setting reads back from its attribute as a new array.
 function same(current: unknown, next: unknown) {
@@ -273,18 +282,19 @@ function same(current: unknown, next: unknown) {
   return current === next;
 }
 
+// Keyed by prop so that a prop left out fails to compile.
 const EVENTS = {
-  ready: "onReady",
-  error: "onError",
-  change: "onChange",
-  complete: "onComplete",
-  swipe: "onSwipe",
-  validate: "onValidate",
-  focus: "onFocus",
-  blur: "onBlur",
-  keydown: "onKeyDown",
-  keyup: "onKeyUp",
-} as const;
+  onReady: "ready",
+  onError: "error",
+  onChange: "change",
+  onComplete: "complete",
+  onSwipe: "swipe",
+  onValidate: "validate",
+  onFocus: "focus",
+  onBlur: "blur",
+  onKeyDown: "keydown",
+  onKeyUp: "keyup",
+} as const satisfies Record<EventProp, keyof CardEvents>;
 
 // A card rendered as the `<ev-card>` element, from its declared children.
 const DeclaredCard = React.forwardRef(function DeclaredCard(
@@ -336,12 +346,12 @@ const DeclaredCard = React.forwardRef(function DeclaredCard(
     const card = ref.current;
     if (!card) return undefined;
 
-    const listeners = Object.entries(EVENTS).map(([event, prop]) => {
+    const listeners = Object.entries(EVENTS).map(([prop, event]) => {
       const listener = (dispatched: Event) => {
         // The browser's own focus and key events share these names.
         if (!(dispatched instanceof CustomEvent)) return;
 
-        const callback = latest.current[prop] as
+        const callback = latest.current[prop as EventProp] as
           | ((detail?: unknown) => void)
           | undefined;
         callback?.(dispatched.detail ?? undefined);
