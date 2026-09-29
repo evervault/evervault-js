@@ -114,6 +114,29 @@ describe("Card", () => {
     expect(FakeEvCard.cards).toHaveLength(0);
   });
 
+  it("takes the props of a wrapper that extends them and passes children on", async () => {
+    interface WrapperProps extends React.ComponentProps<typeof Card> {
+      heading: string;
+    }
+
+    function Wrapper({ heading, ...props }: WrapperProps) {
+      return (
+        <section aria-label={heading}>
+          <Card fields={["number"]} {...props} />
+        </section>
+      );
+    }
+
+    const { evervault, wrapper } = fakeClient();
+
+    render(<Wrapper heading="Pay" redactCVC />, { wrapper });
+    await settle();
+
+    expect(evervault.ui.card).toHaveBeenCalledWith(
+      expect.objectContaining({ fields: ["number"], redactCVC: true })
+    );
+  });
+
   it("renders the declared fields as the <ev-card> elements", async () => {
     const { evervault, wrapper } = fakeClient();
 
@@ -199,7 +222,6 @@ describe("Card", () => {
     const { wrapper } = fakeClient();
 
     render(
-      // @ts-expect-error a declared card takes the security code settings on <Card.Cvc>
       <Card redactCVC allow3DigitAmexCVC={false}>
         <Card.Cvc />
       </Card>,
