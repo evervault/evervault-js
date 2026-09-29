@@ -8,23 +8,32 @@ export interface PresetConfig {
   selectors?: ThemeStyles;
 }
 
+const SEMANTIC_VARS = {
+  primary: "--ev-color-primary",
+  greyTone: "--ev-grey-tone",
+  roundness: "--ev-roundness",
+  font: "--ev-font-family",
+} as const;
+
 export function withPresetConfig(
   styles: ThemeStyles,
   config?: PresetConfig
 ): ThemeStyles {
   if (!config) return styles;
 
-  const { primary, greyTone, roundness, font, selectors } = config;
+  const { selectors } = config;
+  const root = { ...(styles[":root"] as Record<string, string> | undefined) };
+
+  for (const [key, prop] of Object.entries(SEMANTIC_VARS)) {
+    const value = config[key as keyof typeof SEMANTIC_VARS];
+    if (value) root[prop] = value;
+  }
 
   return {
     ...styles,
     ...(selectors ?? {}),
     ":root": {
-      ...(styles[":root"] as Record<string, string> | undefined),
-      ...(primary ? { "--ev-color-primary": primary } : {}),
-      ...(greyTone ? { "--ev-grey-tone": greyTone } : {}),
-      ...(roundness ? { "--ev-roundness": roundness } : {}),
-      ...(font ? { "--ev-font-family": font } : {}),
+      ...root,
       ...((selectors?.[":root"] as Record<string, string> | undefined) ?? {}),
     },
   };
