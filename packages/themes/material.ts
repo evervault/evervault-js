@@ -14,7 +14,9 @@ export function material(
   first?: ThemeDefinition | PresetConfig,
   second?: PresetConfig
 ): ThemeDefinition {
-  const [extended, config] = splitPresetArgs(first, second);
+  const args = splitPresetArgs(first, second);
+  const extended = args[0];
+  const config = args[1];
 
   return (utils) => ({
     styles: {
