@@ -110,6 +110,14 @@ it.each([
   expect(() => mount({ shippingOptions })).toThrow(message);
 });
 
+it("rejects totalPriceStatus NOT_CURRENTLY_KNOWN", () => {
+  expect(() =>
+    mount({
+      totalPriceStatus: "NOT_CURRENTLY_KNOWN",
+    } as unknown as Partial<GooglePayOptions>)
+  ).toThrow("NOT_CURRENTLY_KNOWN");
+});
+
 describe("GooglePay data change callbacks", () => {
   beforeEach(() => {
     handlers.clear();

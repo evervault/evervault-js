@@ -1,3 +1,4 @@
+import { resolveAgentToolsConfig } from "./agentTools";
 import EventManager from "./eventManager";
 import { EvervaultFrame } from "./evervaultFrame";
 import type EvervaultClient from "../main";
@@ -27,14 +28,19 @@ interface CardEvents {
 export default class Card {
   values: CardPayload;
   #options: CardOptions;
+  #client: EvervaultClient;
   #frame: EvervaultFrame<CardFrameClientMessages, CardFrameHostMessages>;
 
   #events = new EventManager<CardEvents>();
 
   constructor(client: EvervaultClient, options?: CardOptions) {
     this.#options = options ?? {};
+    this.#client = client;
     this.#frame = new EvervaultFrame(client, "Card", {
       colorScheme: this.#options.colorScheme,
+      // Cross-origin iframes need the `tools` Permissions Policy delegated
+      // before they can register WebMCP tools.
+      allow: this.#options.agentTools?.enabled ? "payment; tools" : undefined,
     });
 
     // update the values when the frame sends a change event and dispatch
@@ -54,6 +60,10 @@ export default class Card {
 
     this.#frame.on("EV_FRAME_READY", () => {
       this.#events.dispatch("ready");
+    });
+
+    this.#frame.on("EV_ERROR", () => {
+      this.#events.dispatch("error");
     });
 
     this.#frame.on("EV_FOCUS", (field) => {
@@ -118,6 +128,10 @@ export default class Card {
         redactCVC: this.#options.redactCVC,
         allow3DigitAmexCVC: this.#options.allow3DigitAmexCVC,
         validation: this.#options.validation,
+        agentTools: resolveAgentToolsConfig(
+          this.#options.agentTools,
+          this.#client.config.appId
+        ),
       },
     };
   }
@@ -130,6 +144,22 @@ export default class Card {
       },
     });
 
+    return this;
+  }
+
+  preload(selector: SelectorType) {
+    this.#frame.preload(selector, {
+      ...this.config,
+      onError: () => {
+        this.#events.dispatch("error");
+      },
+    });
+
+    return this;
+  }
+
+  reveal() {
+    this.#frame.reveal();
     return this;
   }
 

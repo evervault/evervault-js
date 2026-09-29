@@ -3,7 +3,6 @@ name: Auto Format
 on:
   push:
     branches-ignore:
-      - master
       - main
 
 jobs:

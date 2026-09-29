@@ -1,5 +1,49 @@
 # @evervault/browser
 
+## 2.67.1
+
+### Patch Changes
+
+- 7b02525: Update the Playwright Docker image used in the release preview validation gate to v1.63.0-noble, fixing a version mismatch with the pinned @playwright/test version that was blocking the production release.
+
+## 2.67.0
+
+### Minor Changes
+
+- 492dafa: Add opt-in `agentTools` option to the card component that registers white-labeled WebMCP tools inside the card iframe for reading form status, focusing a field, and entering a field value.
+
+## 2.66.1
+
+### Patch Changes
+
+- 746aa0d: Wire up `EV_ERROR` handling for `Card`, `Pin`, `GooglePay`, `RevealText`, and `RevealCopyButton` so a failed component chunk load (introduced by ui-components' code-splitting) surfaces as their `error` event instead of failing silently. `RevealText` did not previously expose an `on()` method or any events; it now exposes `on("error", ...)`.
+
+## 2.66.0
+
+### Minor Changes
+
+- 080335e: Add `card.preload(selector)` and `card.reveal()`, which separate booting the card iframe from showing it: `preload()` boots it hidden in its container, `reveal()` shows it later with no DOM move. Used in stepped payment experiences.
+
+  Both are opt-in. `reveal()` without a prior `preload()` throws.
+
+## 2.65.0
+
+### Minor Changes
+
+- 136bfa9: Fix `EncryptedApplePayData.billingContact`/`shippingContact` types to match the actual shape returned by Apple Pay on the web: address fields (`addressLines`, `administrativeArea`, `country`, `countryCode`, `locality`, `postalCode`, `subAdministrativeArea`, `subLocality`) are flat on the contact object, not nested under an `address` key. These fields were already sent by the browser but were not previously exposed on the `EncryptedApplePayData` type.
+
+  Also removes an unused `buildAddressObject` helper (and its supporting `DisbursementContactDetails`/`DisbursementContactAddress` types) left over from a disbursement billing-contact flow that was replaced by the `requiredRecipientDetails` recipient-contact model.
+
+- 3313a7d: Add a `fontFaces` option to the UI component theme so self-hosted brand fonts can be embedded as base64 data URLs. The iframe CSP only allows stylesheets and font files from Google Fonts, so a font hosted on a customer's own domain could not be loaded through the existing `fonts` option. Faces are validated before injection: the source must be a base64 data URL of type `font/woff2`, `font/woff`, `font/ttf` or `font/otf`, must have distinct, non-empty glyphs for digits 0-9, and invalid faces are dropped with a console error instead of being written into the stylesheet.
+
+## 2.64.0
+
+### Minor Changes
+
+- 576b551: Surface Google Pay card enrichment (`funding`, `segment`, `country`, `currency`, `issuer`) on the `card` object in the `process()` payload. These fields were already sent by the backend but were not previously exposed on the `EncryptedGooglePayData` type.
+- 3862642: Add Google Pay request config passthrough options: `checkoutOption`, `transactionId`, `totalPriceStatus`, `allowPrepaidCards`, `allowCreditCards`, `softwareInfo`, `assuranceDetailsRequired` (surfaced as `assuranceDetails` on the `process()` payload), `existingPaymentMethodRequired`, and `prefetchPaymentData`. Also adds `category` to `TransactionLineItem` for Google Pay's `displayItems[].type`.
+- a489008: Add Google Pay shipping collection on web. `shippingAddress` configures address collection, while `shippingOptions` adds options and enables address collection automatically. Shipping callbacks receive the current checkout state and can update the open sheet. `process()` receives the buyer's shipping address and selected option.
+
 ## 2.63.1
 
 ### Patch Changes

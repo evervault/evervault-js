@@ -18,8 +18,17 @@ export interface UIComponentMessageDetail {
   payload: unknown;
 }
 
+export interface ThemeFontFace {
+  fontFamily: string;
+  src: string;
+  fontWeight?: string | number;
+  fontStyle?: string;
+  fontDisplay?: string;
+}
+
 export interface ThemeObject {
   fonts?: string[];
+  fontFaces?: ThemeFontFace[];
   styles?: ThemeStyles;
 }
 
@@ -145,6 +154,23 @@ export interface CustomBrand {
   iconSrc?: string;
 }
 
+// Opt-in WebMCP tool registration inside the card iframe. Names,
+// descriptions and error strings derive from namePrefix/productName so
+// white-labeled integrations never expose a vendor brand to agents.
+export interface AgentToolsConfig {
+  enabled: boolean;
+  namePrefix?: string;
+  productName?: string;
+  exposeTo?: string[];
+}
+
+// The fully resolved form of AgentToolsConfig sent to the iframe.
+export interface AgentToolsFrameConfig {
+  namePrefix: string;
+  productName: string;
+  exposeTo: string[];
+}
+
 export interface CardOptions {
   colorScheme?: ColorScheme;
   icons?: boolean | Partial<CardIcons>;
@@ -175,6 +201,7 @@ export interface CardOptions {
       optional?: boolean;
     };
   };
+  agentTools?: AgentToolsConfig;
 }
 
 export interface FormOptions {
@@ -333,33 +360,36 @@ export interface ApplePayCardEnrichment {
   issuer?: string;
 }
 
+/** Shape of Apple Pay's native billing/shipping contact, as passed through unmodified. */
+export interface ApplePayContact {
+  givenName?: string;
+  familyName?: string;
+  phoneticGivenName?: string;
+  phoneticFamilyName?: string;
+  emailAddress?: string;
+  phoneNumber?: string;
+  addressLines?: string[];
+  subLocality?: string;
+  locality?: string;
+  postalCode?: string;
+  subAdministrativeArea?: string;
+  administrativeArea?: string;
+  country?: string;
+  countryCode?: string;
+}
+
 export type EncryptedApplePayData = Omit<
   EncryptedDPAN<"apple">,
   "token" | "card"
 > & {
   networkToken: PaymentToken<"apple"> & { rawExpiry: string };
   card: EncryptedDPAN<"apple">["card"] & ApplePayCardEnrichment;
-  billingContact?: {
-    givenName?: string;
-    familyName?: string;
-    phoneticGivenName?: string;
-    phoneticFamilyName?: string;
-    emailAddress?: string;
-    phoneNumber?: string;
-    address?: unknown;
-  };
+  billingContact?: ApplePayContact;
   paymentDataType: string;
   transactionType: ApplePayTransactionType;
   transactionId: string;
   deviceManufacturerIdentifier: string;
-  shippingContact?: {
-    givenName?: string;
-    familyName?: string;
-    phoneticGivenName?: string;
-    phoneticFamilyName?: string;
-    emailAddress?: string;
-    phoneNumber?: string;
-  };
+  shippingContact?: ApplePayContact;
   /**
    * Set when `requestPayerDetails` is used. Apple Pay collects these on the
    * shipping contact, so they also appear on `shippingContact`.
@@ -473,9 +503,25 @@ export interface EncryptedFPAN {
   messageExpiration?: string;
 }
 
+export interface GooglePayCardEnrichment {
+  funding?: string;
+  segment?: string;
+  country?: string;
+  currency?: string;
+  issuer?: string;
+}
+
+export type EncryptedGooglePayDPAN = Omit<EncryptedDPAN<"google">, "card"> & {
+  card: EncryptedDPAN<"google">["card"] & GooglePayCardEnrichment;
+};
+
+export type EncryptedGooglePayFPAN = Omit<EncryptedFPAN, "card"> & {
+  card: EncryptedFPAN["card"] & GooglePayCardEnrichment;
+};
+
 export type EncryptedGooglePayData = (
-  | EncryptedDPAN<"google">
-  | EncryptedFPAN
+  | EncryptedGooglePayDPAN
+  | EncryptedGooglePayFPAN
 ) & {
   email?: string | null;
   billingAddress?: google.payments.api.Address | null;
@@ -489,6 +535,7 @@ export type EncryptedGooglePayData = (
    * `shippingOptions` were configured on the Google Pay button.
    */
   shippingOption?: GooglePayShippingOption | null;
+  assuranceDetails?: google.payments.api.AssuranceDetails | null;
 };
 
 export interface GooglePayErrorMessage {
@@ -620,6 +667,53 @@ export interface GooglePayOptions {
     | void
     | Promise<GooglePayDataChangeUpdate | void>;
   theme?: ThemeDefinition;
+  /**
+   * Whether to show a 'Continue' or 'Pay Now' button on the Google Pay sheet.
+   * @default "DEFAULT"
+   */
+  checkoutOption?: google.payments.api.CheckoutOption;
+  /**
+   * A merchant-generated ID for this transaction, used for fraud correlation.
+   */
+  transactionId?: string;
+  /**
+   * Whether the total price is known and final, or still an estimate.
+   *
+   * `"NOT_CURRENTLY_KNOWN"` isn't supported — same as Android and our
+   * current shipping implementation.
+   * @default "FINAL"
+   */
+  totalPriceStatus?: Exclude<
+    google.payments.api.TotalPriceStatus,
+    "NOT_CURRENTLY_KNOWN"
+  >;
+  /** @default true */
+  allowPrepaidCards?: boolean;
+  /** @default true */
+  allowCreditCards?: boolean;
+  /**
+   * Identifies the software used to integrate with Google Pay, for Google's
+   * own metrics.
+   */
+  softwareInfo?: google.payments.api.SoftwareInfo;
+  /**
+   * When true, requests that Google Pay perform cardholder ID&V/possession
+   * checks and return the result as `assuranceDetails` on the payment method.
+   */
+  assuranceDetailsRequired?: boolean;
+  /**
+   * When true, requires the user to have an existing payment method
+   * associated with their Google account for the button to be shown as
+   * ready. Checked by `isReadyToPay`, not `loadPaymentData`.
+   * @default false
+   */
+  existingPaymentMethodRequired?: boolean;
+  /**
+   * When true, asks Google Pay to prefetch payment data as soon as the
+   * button is ready, so the sheet opens faster when the user clicks it.
+   * Fire-and-forget; has no effect on `process()`'s result.
+   */
+  prefetchPaymentData?: boolean;
 }
 
 export type ApplePayButtonType =
@@ -748,6 +842,12 @@ export interface TransactionLineItem {
    * Defaults to `"final"` when omitted.
    */
   type?: TransactionLineItemType;
+  /**
+   * The kind of line item, for platforms that distinguish it (currently Google
+   * Pay only, where it maps to `displayItems[].type`). Has no effect on Apple
+   * Pay or disbursements. Defaults to `"line_item"` when omitted.
+   */
+  category?: "line_item" | "subtotal" | "tax" | "discount" | "shipping_option";
 }
 
 export interface InstantTransferDetails {

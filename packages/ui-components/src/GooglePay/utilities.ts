@@ -7,46 +7,64 @@ import {
 import { GooglePayConfig } from "./types";
 import { apiConfig } from "../utilities/config";
 
+// Shared for the two builders so they can't drift apart. Named to match the Android SDK's
+// equivalent (PaymentRequest.kt's baseRequest()).
+function baseRequest() {
+  return { apiVersion: 2, apiVersionMinor: 0 } as const;
+}
+
+// The card payment method spec is the same for both the full payment request
+// and the isReadyToPay request.
+function baseCardPaymentMethod(
+  config: GooglePayConfig
+): google.payments.api.IsReadyToPayPaymentMethodSpecification {
+  return {
+    type: "CARD",
+    parameters: {
+      allowedAuthMethods:
+        (config.allowedAuthMethods as google.payments.api.CardAuthMethod[]) || [
+          "PAN_ONLY",
+          "CRYPTOGRAM_3DS",
+        ],
+      allowedCardNetworks:
+        (config.allowedCardNetworks as google.payments.api.CardNetwork[]) || [
+          "AMEX",
+          "DISCOVER",
+          "INTERAC",
+          "JCB",
+          "MASTERCARD",
+          "VISA",
+        ],
+      allowPrepaidCards: config.allowPrepaidCards,
+      allowCreditCards: config.allowCreditCards,
+      assuranceDetailsRequired: config.assuranceDetailsRequired,
+      billingAddressRequired: isBillingRequired(config),
+      // Google ignores these when billingAddressRequired is false. Omit
+      // them so the request says only what it means, and so it matches the
+      // Android SDK.
+      ...(isBillingRequired(config)
+        ? {
+            billingAddressParameters: {
+              format: billingAddressFormat(config),
+              phoneNumberRequired: phoneNumberRequired(config),
+            },
+          }
+        : {}),
+    },
+  };
+}
+
 export function buildPaymentRequest(
   config: GooglePayConfig,
   merchant: MerchantDetail
 ): google.payments.api.PaymentDataRequest {
   const tx = config.transaction;
   return {
-    apiVersion: 2,
-    apiVersionMinor: 0,
+    ...baseRequest(),
     emailRequired: config.emailRequired ?? false,
     allowedPaymentMethods: [
       {
-        type: "CARD",
-        parameters: {
-          allowedAuthMethods:
-            (config.allowedAuthMethods as google.payments.api.CardAuthMethod[]) || [
-              "PAN_ONLY",
-              "CRYPTOGRAM_3DS",
-            ],
-          allowedCardNetworks:
-            (config.allowedCardNetworks as google.payments.api.CardNetwork[]) || [
-              "AMEX",
-              "DISCOVER",
-              "INTERAC",
-              "JCB",
-              "MASTERCARD",
-              "VISA",
-            ],
-          billingAddressRequired: isBillingRequired(config),
-          // Google ignores these when billingAddressRequired is false. Omit
-          // them so the request says only what it means, and so it matches the
-          // Android SDK.
-          ...(isBillingRequired(config)
-            ? {
-                billingAddressParameters: {
-                  format: billingAddressFormat(config),
-                  phoneNumberRequired: phoneNumberRequired(config),
-                },
-              }
-            : {}),
-        },
+        ...baseCardPaymentMethod(config),
         tokenizationSpecification: {
           type: "PAYMENT_GATEWAY",
           parameters: {
@@ -60,6 +78,7 @@ export function buildPaymentRequest(
       merchantId: apiConfig.googlePayMerchantId,
       merchantName: merchant.name,
       merchantOrigin: tx.domain, // merchantOrigin is not present in the GooglePayConfig type but is noted as required by the GooglePay API
+      softwareInfo: config.softwareInfo,
     } as unknown as google.payments.api.MerchantInfo,
     ...(isShippingRequired(config)
       ? {
@@ -104,17 +123,49 @@ export function buildTransactionInfo(
   const lineItems = overrides.lineItems ?? tx.lineItems;
 
   return {
-    totalPriceStatus: "FINAL",
+    totalPriceStatus: config.totalPriceStatus ?? "FINAL",
     totalPriceLabel: tx.priceLabel ?? `Pay ${merchantName}`,
     totalPrice: formatAmount(amount),
     currencyCode: tx.currency,
     countryCode: tx.country,
+    checkoutOption: config.checkoutOption,
+    transactionId: config.transactionId,
     displayItems: lineItems?.map((item) => ({
       label: item.label,
-      type: "LINE_ITEM",
+      type: displayItemType(item.category),
       price: formatAmount(item.amount),
     })),
   };
+}
+
+export function buildIsReadyToPayRequest(
+  config: GooglePayConfig
+): google.payments.api.IsReadyToPayRequest {
+  return {
+    ...baseRequest(),
+    allowedPaymentMethods: [baseCardPaymentMethod(config)],
+    existingPaymentMethodRequired: config.existingPaymentMethodRequired,
+  };
+}
+
+// Google's DisplayItemType is a category (LINE_ITEM/SUBTOTAL/TAX/...), distinct
+// from TransactionLineItem's own "final"/"pending" status field. Defaults to
+// LINE_ITEM to match today's behaviour when category is omitted.
+function displayItemType(
+  category: TransactionLineItem["category"]
+): google.payments.api.DisplayItemType {
+  switch (category) {
+    case "subtotal":
+      return "SUBTOTAL";
+    case "tax":
+      return "TAX";
+    case "discount":
+      return "DISCOUNT";
+    case "shipping_option":
+      return "SHIPPING_OPTION";
+    default:
+      return "LINE_ITEM";
+  }
 }
 
 export function shippingOptionParameters(
@@ -183,7 +234,7 @@ function phoneNumberRequired(config: GooglePayConfig): boolean {
   return billingConfig?.phoneNumber || false;
 }
 
-function isShippingRequired(config: GooglePayConfig): boolean {
+export function isShippingRequired(config: GooglePayConfig): boolean {
   return !!config.shippingAddress || !!config.shippingOptions;
 }
 

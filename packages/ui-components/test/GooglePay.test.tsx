@@ -23,14 +23,45 @@ vi.mock("../src/utilities/useSearchParams", () => ({
 }));
 
 const createButtonMock = vi.fn();
+const exchangePaymentDataMock = vi.fn();
+
+vi.mock("../src/GooglePay/utilities", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../src/GooglePay/utilities")
+  >();
+  return {
+    ...actual,
+    exchangePaymentData: (...args: unknown[]) =>
+      exchangePaymentDataMock(...args),
+  };
+});
+
+let latestOnPaymentAuthorized:
+  | ((
+      data: google.payments.api.PaymentData
+    ) => Promise<google.payments.api.PaymentAuthorizationResult>)
+  | undefined;
+const isReadyToPayMock = vi.fn().mockResolvedValue({ result: true });
+const prefetchPaymentDataMock = vi.fn();
 
 class MockPaymentsClient {
-  isReadyToPay = vi.fn().mockResolvedValue({ result: true });
+  constructor(clientConfig: {
+    paymentDataCallbacks: {
+      onPaymentAuthorized: (
+        data: google.payments.api.PaymentData
+      ) => Promise<google.payments.api.PaymentAuthorizationResult>;
+    };
+  }) {
+    latestOnPaymentAuthorized =
+      clientConfig.paymentDataCallbacks.onPaymentAuthorized;
+  }
+  isReadyToPay = isReadyToPayMock;
   createButton = (...args: unknown[]) => {
     createButtonMock(...args);
     return document.createElement("div");
   };
   loadPaymentData = vi.fn();
+  prefetchPaymentData = prefetchPaymentDataMock;
 }
 
 const config: GooglePayConfig = {
@@ -56,8 +87,13 @@ beforeEach(() => {
   createButtonMock.mockReset();
   getMerchantMock.mockReset();
   getAppSDKConfigMock.mockReset();
+  exchangePaymentDataMock.mockReset();
   getMerchantMock.mockResolvedValue({ id: "merchant_abc", name: "Acme Co" });
   getAppSDKConfigMock.mockResolvedValue({ is_sandbox: false });
+  // Default response for tests that don't care about card details - mirrors
+  // the `{ card: {} }` body used before `exchangePaymentData` was mocked at
+  // the module level. Tests that do care set their own mockResolvedValue.
+  exchangePaymentDataMock.mockResolvedValue({ card: {} });
   (globalThis as unknown as { google: unknown }).google = {
     payments: { api: { PaymentsClient: MockPaymentsClient } },
   };
@@ -128,7 +164,7 @@ describe("GooglePay shipping data changes", () => {
 
   class CapturingPaymentsClient extends MockPaymentsClient {
     constructor(options: google.payments.api.PaymentOptions) {
-      super();
+      super(options as ConstructorParameters<typeof MockPaymentsClient>[0]);
       callbacks = options.paymentDataCallbacks ?? {};
     }
   }
@@ -200,6 +236,22 @@ describe("GooglePay shipping data changes", () => {
         );
       });
   }
+
+  it("registers onPaymentDataChanged when shipping is configured", async () => {
+    await mountWithShipping();
+
+    expect(callbacks.onPaymentDataChanged).toBeDefined();
+  });
+
+  it("does not register onPaymentDataChanged when shipping is not configured", async () => {
+    // Google rejects loadPaymentData with a DEVELOPER_ERROR if this callback is
+    // registered without a matching SHIPPING_ADDRESS/SHIPPING_OPTION callback intent.
+    render(<GooglePay config={config} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+    await waitFor(() => expect(createButtonMock).toHaveBeenCalled());
+
+    expect(callbacks.onPaymentDataChanged).toBeUndefined();
+  });
 
   it("sends the buyer's address to the host and applies the new total", async () => {
     await mountWithShipping();
@@ -420,6 +472,48 @@ describe("GooglePay shipping data changes", () => {
     );
   });
 
+  it("passes the backend's card enrichment fields through to the authorized payload untouched", async () => {
+    await mountWithShipping();
+    const postMessage = vi
+      .spyOn(window.parent, "postMessage")
+      .mockImplementation(() => {});
+    exchangePaymentDataMock.mockResolvedValue({
+      card: {
+        brand: "visa",
+        funding: "credit",
+        segment: "consumer",
+        country: "IE",
+        currency: "EUR",
+        issuer: "Some Bank",
+      },
+    });
+
+    void callbacks.onPaymentAuthorized!({
+      paymentMethodData: {
+        tokenizationData: { token: JSON.stringify({}) },
+      },
+    } as unknown as google.payments.api.PaymentData);
+
+    await waitFor(() =>
+      expect(postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "EV_GOOGLE_PAY_AUTH",
+          payload: expect.objectContaining({
+            card: expect.objectContaining({
+              brand: "visa",
+              funding: "credit",
+              segment: "consumer",
+              country: "IE",
+              currency: "EUR",
+              issuer: "Some Bank",
+            }),
+          }),
+        }),
+        "*"
+      )
+    );
+  });
+
   it("ignores a reply meant for a different data change", async () => {
     await mountWithShipping();
     vi.spyOn(window.parent, "postMessage").mockImplementation(() => {
@@ -446,5 +540,225 @@ describe("GooglePay shipping data changes", () => {
     ]);
 
     expect(settled).toBe("pending");
+  });
+});
+
+describe("GooglePay assuranceDetails response surfacing", () => {
+  beforeEach(() => {
+    createButtonMock.mockReset();
+    exchangePaymentDataMock.mockReset();
+    getMerchantMock.mockReset();
+    getAppSDKConfigMock.mockReset();
+    latestOnPaymentAuthorized = undefined;
+    getMerchantMock.mockResolvedValue({ id: "merchant_abc", name: "Acme Co" });
+    getAppSDKConfigMock.mockResolvedValue({ is_sandbox: false });
+    exchangePaymentDataMock.mockResolvedValue({
+      card: {
+        brand: "visa",
+        number: "ev:token",
+        expiry: { month: "12", year: "31" },
+      },
+    });
+    (globalThis as unknown as { google: unknown }).google = {
+      payments: { api: { PaymentsClient: MockPaymentsClient } },
+    };
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    delete (globalThis as { google?: unknown }).google;
+  });
+
+  async function authorize(info?: Record<string, unknown>) {
+    render(<GooglePay config={config} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+    await waitFor(() => expect(latestOnPaymentAuthorized).toBeDefined());
+
+    // Real useMessaging is in effect (not mocked - see the "shipping data
+    // changes" describe above for why), so `send` goes through the real
+    // `window.parent.postMessage` call, which we spy on here.
+    const postMessage = vi
+      .spyOn(window.parent, "postMessage")
+      .mockImplementation(() => {});
+
+    // Fire and forget - the callback's returned promise only resolves once
+    // EV_GOOGLE_PAY_AUTH_COMPLETE/ERROR comes back over `on`, which this
+    // test never sends. The `send("EV_GOOGLE_PAY_AUTH", payload)` call we
+    // care about happens synchronously before that, so we don't await it.
+    latestOnPaymentAuthorized!({
+      paymentMethodData: {
+        description: "Visa •••• 1234",
+        info,
+      },
+    } as google.payments.api.PaymentData);
+
+    await waitFor(() =>
+      expect(postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "EV_GOOGLE_PAY_AUTH" }),
+        "*"
+      )
+    );
+
+    const call = postMessage.mock.calls.find(
+      ([message]) => (message as { type: string }).type === "EV_GOOGLE_PAY_AUTH"
+    );
+    return (call![0] as { payload: Record<string, unknown> }).payload;
+  }
+
+  it("forwards assuranceDetails to the auth payload when Google Pay returns them", async () => {
+    const assuranceDetails = {
+      accountVerified: true,
+      cardHolderAuthenticated: true,
+    };
+
+    const payload = await authorize({ assuranceDetails });
+
+    expect(payload.assuranceDetails).toEqual(assuranceDetails);
+  });
+
+  it("omits assuranceDetails when Google Pay does not return them", async () => {
+    const payload = await authorize(undefined);
+
+    expect(payload).not.toHaveProperty("assuranceDetails");
+  });
+});
+
+describe("GooglePay isReadyToPay request", () => {
+  beforeEach(() => {
+    createButtonMock.mockReset();
+    getMerchantMock.mockReset();
+    getAppSDKConfigMock.mockReset();
+    isReadyToPayMock.mockClear();
+    getMerchantMock.mockResolvedValue({ id: "merchant_abc", name: "Acme Co" });
+    getAppSDKConfigMock.mockResolvedValue({ is_sandbox: false });
+    (globalThis as unknown as { google: unknown }).google = {
+      payments: { api: { PaymentsClient: MockPaymentsClient } },
+    };
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    delete (globalThis as { google?: unknown }).google;
+  });
+
+  async function renderAndGetIsReadyToPayRequest(
+    existingPaymentMethodRequired?: boolean
+  ) {
+    render(<GooglePay config={{ ...config, existingPaymentMethodRequired }} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+    await waitFor(() => expect(isReadyToPayMock).toHaveBeenCalled());
+    return isReadyToPayMock.mock
+      .calls[0][0] as google.payments.api.IsReadyToPayRequest;
+  }
+
+  it("omits existingPaymentMethodRequired by default", async () => {
+    const request = await renderAndGetIsReadyToPayRequest(undefined);
+
+    expect(request.existingPaymentMethodRequired).toBeUndefined();
+  });
+
+  it("passes existingPaymentMethodRequired through when configured", async () => {
+    const request = await renderAndGetIsReadyToPayRequest(true);
+
+    expect(request.existingPaymentMethodRequired).toBe(true);
+  });
+});
+
+describe("GooglePay button visibility from isReadyToPay response", () => {
+  beforeEach(() => {
+    createButtonMock.mockReset();
+    getMerchantMock.mockReset();
+    getAppSDKConfigMock.mockReset();
+    isReadyToPayMock.mockReset();
+    getMerchantMock.mockResolvedValue({ id: "merchant_abc", name: "Acme Co" });
+    getAppSDKConfigMock.mockResolvedValue({ is_sandbox: false });
+    (globalThis as unknown as { google: unknown }).google = {
+      payments: { api: { PaymentsClient: MockPaymentsClient } },
+    };
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    delete (globalThis as { google?: unknown }).google;
+  });
+
+  async function renderAndSettle(config: GooglePayConfig) {
+    render(<GooglePay config={config} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+    await waitFor(() => expect(isReadyToPayMock).toHaveBeenCalled());
+    // Give the button-creation branch a tick to run (or not run) after the
+    // isReadyToPay response resolves.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+
+  it("does not create the button when result is false", async () => {
+    isReadyToPayMock.mockResolvedValue({ result: false });
+
+    await renderAndSettle(config);
+
+    expect(createButtonMock).not.toHaveBeenCalled();
+  });
+
+  it("does not create the button when existingPaymentMethodRequired is set but paymentMethodPresent is false", async () => {
+    isReadyToPayMock.mockResolvedValue({
+      result: true,
+      paymentMethodPresent: false,
+    });
+
+    await renderAndSettle({ ...config, existingPaymentMethodRequired: true });
+
+    expect(createButtonMock).not.toHaveBeenCalled();
+  });
+
+  it("creates the button when existingPaymentMethodRequired is set and paymentMethodPresent is true", async () => {
+    isReadyToPayMock.mockResolvedValue({
+      result: true,
+      paymentMethodPresent: true,
+    });
+
+    await renderAndSettle({ ...config, existingPaymentMethodRequired: true });
+
+    expect(createButtonMock).toHaveBeenCalled();
+  });
+});
+
+describe("GooglePay prefetchPaymentData", () => {
+  beforeEach(() => {
+    createButtonMock.mockReset();
+    getMerchantMock.mockReset();
+    getAppSDKConfigMock.mockReset();
+    isReadyToPayMock.mockClear();
+    prefetchPaymentDataMock.mockReset();
+    getMerchantMock.mockResolvedValue({ id: "merchant_abc", name: "Acme Co" });
+    getAppSDKConfigMock.mockResolvedValue({ is_sandbox: false });
+    (globalThis as unknown as { google: unknown }).google = {
+      payments: { api: { PaymentsClient: MockPaymentsClient } },
+    };
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    delete (globalThis as { google?: unknown }).google;
+  });
+
+  it("does not prefetch by default", async () => {
+    render(<GooglePay config={config} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+
+    await waitFor(() => expect(createButtonMock).toHaveBeenCalled());
+
+    expect(prefetchPaymentDataMock).not.toHaveBeenCalled();
+  });
+
+  it("prefetches the built payment request when configured", async () => {
+    render(<GooglePay config={{ ...config, prefetchPaymentData: true }} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+
+    await waitFor(() => expect(prefetchPaymentDataMock).toHaveBeenCalled());
+
+    const request = prefetchPaymentDataMock.mock
+      .calls[0][0] as google.payments.api.PaymentDataRequest;
+    expect(request.apiVersion).toBe(2);
+    expect(request.allowedPaymentMethods[0].type).toBe("CARD");
   });
 });

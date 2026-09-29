@@ -33,6 +33,7 @@
             nodejs_24 # Match CI and avoid unsupported engine warnings
             corepack_22 # Required for pnpm
             cocoapods
+            git
           ];
           
           shellHook = ''

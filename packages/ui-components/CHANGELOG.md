@@ -1,5 +1,59 @@
 # @evervault/ui-components
 
+## 1.44.1
+
+### Patch Changes
+
+- b36d62a: Force a fresh release. The @evervault/ui-components@1.44.0 release (from #1058) was cancelled mid-flight when the Playwright Docker image mismatch failed a sibling release job, so it never deployed to production. The Docker image is now fixed (#1061).
+
+## 1.44.0
+
+### Minor Changes
+
+- 492dafa: Add opt-in `agentTools` option to the card component that registers white-labeled WebMCP tools inside the card iframe for reading form status, focusing a field, and entering a field value.
+
+### Patch Changes
+
+- Updated dependencies [492dafa]
+  - @evervault/react@2.30.0
+
+## 1.43.3
+
+### Patch Changes
+
+- 746aa0d: Code-split each component type behind a dynamic import instead of bundling all eight into one chunk. An iframe now only fetches the code for the component it was asked to render. No public API change.
+- @evervault/react@2.29.0
+
+## 1.43.2
+
+### Patch Changes
+
+- 7c41e05: Declare Subresource Integrity hashes for dynamically imported chunks in an import map. Chunks fetched by import() have no tag to carry an integrity attribute, so they previously ran without any hash check.
+
+## 1.43.1
+
+### Patch Changes
+
+- 5f64955: Take Subresource Integrity hashes from the emitted files rather than from the in-memory bundle. When the build is code split, rollup rewrites a chunk after the html has been generated, so hashes taken before the files are written no longer match what ships and the browser blocks the script.
+
+## 1.43.0
+
+### Minor Changes
+
+- 3313a7d: Add a `fontFaces` option to the UI component theme so self-hosted brand fonts can be embedded as base64 data URLs. The iframe CSP only allows stylesheets and font files from Google Fonts, so a font hosted on a customer's own domain could not be loaded through the existing `fonts` option. Faces are validated before injection: the source must be a base64 data URL of type `font/woff2`, `font/woff`, `font/ttf` or `font/otf`, must have distinct, non-empty glyphs for digits 0-9, and invalid faces are dropped with a console error instead of being written into the stylesheet.
+
+### Patch Changes
+
+- Updated dependencies [3313a7d]
+  - @evervault/react@2.29.0
+
+## 1.42.1
+
+### Patch Changes
+
+- 0baeef7: Fix the Google Pay button failing on click with a `DEVELOPER_ERROR` when neither `shippingAddress` nor `shippingOptions` is configured. `onPaymentDataChanged` was registered on the payments client unconditionally, but Google requires a matching `SHIPPING_ADDRESS`/`SHIPPING_OPTION` callback intent whenever it's registered - now it's only registered when shipping is actually requested.
+- @evervault/react@2.28.1
+
 ## 1.42.0
 
 ### Minor Changes

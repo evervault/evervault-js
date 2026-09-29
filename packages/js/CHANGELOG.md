@@ -1,5 +1,21 @@
 # @evervault/js
 
+## 2.22.0
+
+### Minor Changes
+
+- 136bfa9: Fix `EncryptedApplePayData.billingContact`/`shippingContact` types to match the actual shape returned by Apple Pay on the web: address fields (`addressLines`, `administrativeArea`, `country`, `countryCode`, `locality`, `postalCode`, `subAdministrativeArea`, `subLocality`) are flat on the contact object, not nested under an `address` key. These fields were already sent by the browser but were not previously exposed on the `EncryptedApplePayData` type.
+
+  Also removes an unused `buildAddressObject` helper (and its supporting `DisbursementContactDetails`/`DisbursementContactAddress` types) left over from a disbursement billing-contact flow that was replaced by the `requiredRecipientDetails` recipient-contact model.
+
+## 2.21.0
+
+### Minor Changes
+
+- 576b551: Surface Google Pay card enrichment (`funding`, `segment`, `country`, `currency`, `issuer`) on the `card` object in the `process()` payload. These fields were already sent by the backend but were not previously exposed on the `EncryptedGooglePayData` type.
+- 3862642: Add Google Pay request config passthrough options: `checkoutOption`, `transactionId`, `totalPriceStatus`, `allowPrepaidCards`, `allowCreditCards`, `softwareInfo`, `assuranceDetailsRequired` (surfaced as `assuranceDetails` on the `process()` payload), `existingPaymentMethodRequired`, and `prefetchPaymentData`. Also adds `category` to `TransactionLineItem` for Google Pay's `displayItems[].type`.
+- a489008: Add Google Pay shipping collection on web. `shippingAddress` configures address collection, while `shippingOptions` adds options and enables address collection automatically. Shipping callbacks receive the current checkout state and can update the open sheet. `process()` receives the buyer's shipping address and selected option.
+
 ## 2.20.0
 
 ### Minor Changes
