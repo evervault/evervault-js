@@ -169,6 +169,53 @@ describe("Card", () => {
     expect(evervault.ui.card).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ["null", null],
+    ["an empty list", []],
+  ])("renders the <ev-card> for children of %s", async (_, children) => {
+    const { evervault, wrapper } = fakeClient();
+
+    render(<Card fields={["number"]}>{children}</Card>, { wrapper });
+    await settle();
+
+    expect(evCard().client).toBe(evervault);
+    expect(evervault.ui.card).not.toHaveBeenCalled();
+  });
+
+  it("renders the declared children in place of fields", async () => {
+    const { evervault, wrapper } = fakeClient();
+
+    const { container } = render(
+      <Card fields={["number", "expiry"]}>
+        <Card.Cvc />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    expect(container.innerHTML).toBe(
+      "<ev-card><ev-card-cvc></ev-card-cvc></ev-card>"
+    );
+    expect(evervault.ui.card).not.toHaveBeenCalled();
+  });
+
+  it("mounts the <ev-card> once in strict mode", async () => {
+    const { wrapper } = fakeClient();
+    const mountCard = vi.spyOn(FakeEvCard.prototype, "mountCard");
+
+    render(
+      <React.StrictMode>
+        <Card>
+          <Card.Number />
+        </Card>
+      </React.StrictMode>,
+      { wrapper }
+    );
+    await settle();
+
+    expect(mountCard).toHaveBeenCalledOnce();
+  });
+
   it("keeps the <ev-card> while its children render nothing", async () => {
     const { evervault, wrapper } = fakeClient();
 
