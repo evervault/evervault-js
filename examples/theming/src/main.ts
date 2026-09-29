@@ -15,7 +15,7 @@ const evervault = await loadEvervault(
 
 evervault.ui
   .card({
-    theme: clean(undefined, {
+    theme: clean({
       primary: cssVar("--brand-color"),
       selectors: {
         label: {

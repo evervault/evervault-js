@@ -24,6 +24,16 @@ describe.each(Object.entries(presets))("%s", (_name, preset) => {
     expect(utils.extend).toHaveBeenCalledWith(extension);
   });
 
+  it("takes the preset config as its only argument", () => {
+    const utils = stubUtils();
+    const result = apply(preset({ primary: "#16a34a" }), utils);
+
+    expect(
+      (result.styles?.[":root"] as Record<string, string>)["--ev-color-primary"]
+    ).toBe("#16a34a");
+    expect(utils.extend).not.toHaveBeenCalled();
+  });
+
   it("takes the preset config as its second argument", () => {
     const result = apply(
       preset(undefined, { primary: "#16a34a" }),

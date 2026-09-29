@@ -1,4 +1,4 @@
-import type { ThemeStyles } from "types";
+import type { ThemeDefinition, ThemeStyles } from "types";
 
 export interface PresetConfig {
   primary?: string;
@@ -37,4 +37,21 @@ export function withPresetConfig(
       ...((selectors?.[":root"] as Record<string, string> | undefined) ?? {}),
     },
   };
+}
+
+// A preset's first argument is either a theme to extend or the config itself.
+// ThemeObject only has styles/fonts/fontFaces and PresetConfig never does, so
+// the shape tells them apart.
+export function splitPresetArgs(
+  first?: ThemeDefinition | PresetConfig,
+  second?: PresetConfig
+): [ThemeDefinition | undefined, PresetConfig | undefined] {
+  const isTheme =
+    typeof first === "function" ||
+    (first !== undefined &&
+      ("styles" in first || "fonts" in first || "fontFaces" in first));
+
+  return isTheme || first === undefined
+    ? [first as ThemeDefinition | undefined, second]
+    : [undefined, first as PresetConfig];
 }

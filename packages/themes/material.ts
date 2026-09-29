@@ -1,10 +1,21 @@
 import type { ThemeDefinition } from "types";
-import { withPresetConfig, type PresetConfig } from "./presetConfig";
+import {
+  withPresetConfig,
+  splitPresetArgs,
+  type PresetConfig,
+} from "./presetConfig";
 
+export function material(config?: PresetConfig): ThemeDefinition;
 export function material(
   extended?: ThemeDefinition,
   config?: PresetConfig
+): ThemeDefinition;
+export function material(
+  first?: ThemeDefinition | PresetConfig,
+  second?: PresetConfig
 ): ThemeDefinition {
+  const [extended, config] = splitPresetArgs(first, second);
+
   return (utils) => ({
     styles: {
       ...withPresetConfig(
