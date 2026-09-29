@@ -1,4 +1,3 @@
-import { fireEvent } from "@testing-library/react";
 import { act } from "react";
 import type { CardSpecNode, CardSpecPatchOp } from "types";
 
@@ -44,13 +43,6 @@ export function input(container: HTMLElement, id: string) {
   const found = container.querySelector<HTMLInputElement>(`#${id}`);
   if (!found) throw new Error(`no ${id} input`);
   return found;
-}
-
-// imask reads the element on input, so a value must arrive as an input event.
-export function type(element: HTMLInputElement, value: string) {
-  element.focus();
-  fireEvent.keyDown(element, { key: value.slice(-1) });
-  fireEvent.input(element, { target: { value } });
 }
 
 // Flushes the promises the card's encrypt-on-change re-render queues.

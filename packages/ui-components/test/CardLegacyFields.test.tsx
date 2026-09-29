@@ -5,11 +5,12 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { render, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { Card } from "../src/Card";
 import type { CardConfig } from "../src/Card/types";
 import type { CardField } from "types";
-import { settle, type } from "./helpers/card";
+import { settle } from "./helpers/card";
 
 vi.mock("@evervault/react", () => ({
   useEvervault: () => ({ encrypt: vi.fn(async (value) => `ev:${value}`) }),
@@ -117,7 +118,7 @@ async function observe(options: LegacyOptions) {
   const number = container.querySelector<HTMLInputElement>("#number");
 
   if (number) {
-    type(number, VALUES.number);
+    await userEvent.type(number, VALUES.number);
     await settle();
     focusedAfterNumber = focused();
   }
@@ -125,7 +126,7 @@ async function observe(options: LegacyOptions) {
   for (const field of FIELD_ORDER) {
     if (field === "number") continue;
     const input = container.querySelector<HTMLInputElement>(`#${field}`);
-    if (input) type(input, VALUES[field]);
+    if (input) await userEvent.type(input, VALUES[field]);
   }
 
   let isComplete: boolean | null = null;
