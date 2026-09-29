@@ -135,7 +135,7 @@ function useAttributes(
   });
 }
 
-function field<P extends object>(
+function fieldElement<P extends object>(
   displayName: string,
   tag: string,
   names: readonly (keyof P & string)[]
@@ -157,44 +157,44 @@ export function CardRow({ children }: CardRowProps) {
 
 CardRow.displayName = "Card.Row";
 
-export const CardHolder = field<CardHolderProps>(
+export const CardHolder = fieldElement<CardHolderProps>(
   "Card.Holder",
   "ev-card-holder",
   [...COMMON, "defaultValue", "pattern"]
 );
 
-export const CardNumber = field<CardNumberProps>(
+export const CardNumber = fieldElement<CardNumberProps>(
   "Card.Number",
   "ev-card-number",
   [...COMMON, "iconPosition", "unsupportedBrandMessage"]
 );
 
-export const CardExpiry = field<CardExpiryProps>(
+export const CardExpiry = fieldElement<CardExpiryProps>(
   "Card.Expiry",
   "ev-card-expiry",
   COMMON
 );
 
-export const CardExpiryMonth = field<CardExpiryMonthProps>(
+export const CardExpiryMonth = fieldElement<CardExpiryMonthProps>(
   "Card.ExpiryMonth",
   "ev-card-expiry-month",
   COMMON
 );
 
-export const CardExpiryYear = field<CardExpiryYearProps>(
+export const CardExpiryYear = fieldElement<CardExpiryYearProps>(
   "Card.ExpiryYear",
   "ev-card-expiry-year",
   COMMON
 );
 
-export const CardCvc = field<CardCvcProps>("Card.Cvc", "ev-card-cvc", [
+export const CardCvc = fieldElement<CardCvcProps>("Card.Cvc", "ev-card-cvc", [
   ...COMMON,
   "redact",
   "optional",
   "allow3DigitAmex",
 ]);
 
-export const CardField = field<CardFieldProps>(
+export const CardField = fieldElement<CardFieldProps>(
   "Card.Field",
   "ev-field",
   CUSTOM_FIELD
