@@ -125,6 +125,21 @@ describe.each(Object.entries(presets))("%s", (_name, preset) => {
     expect(rootOf(result)?.["--ev-color-primary"]).toBe("#16a34a");
   });
 
+  it("warns when the first argument mixes theme and config keys", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const extension = { styles: {}, primary: "#16a34a" };
+    const utils = stubUtils();
+
+    try {
+      apply(preset(extension as never), utils);
+
+      expect(warn).toHaveBeenCalledOnce();
+      expect(utils.extend).toHaveBeenCalledWith(extension);
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it("treats an object with only `fonts` as the theme extension", () => {
     const extension = { fonts: ["https://example.com/font.css"] };
     const utils = stubUtils();

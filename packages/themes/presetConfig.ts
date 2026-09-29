@@ -52,6 +52,16 @@ export function splitPresetArgs(
     (first !== undefined &&
       ("styles" in first || "fonts" in first || "fontFaces" in first));
 
+  if (
+    isTheme &&
+    typeof first === "object" &&
+    [...Object.keys(SEMANTIC_VARS), "selectors"].some((key) => key in first)
+  ) {
+    console.warn(
+      "Evervault: the first argument looks like a theme but also has preset config keys, which are ignored. Pass the config as the second argument, for example clean(theme, { primary })."
+    );
+  }
+
   return isTheme || first === undefined
     ? [first as ThemeDefinition | undefined, second]
     : [undefined, first as PresetConfig];
