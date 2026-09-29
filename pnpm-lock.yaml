@@ -883,6 +883,9 @@ importers:
       '@evervault/browser':
         specifier: workspace:*
         version: link:../browser
+      '@evervault/card-validator':
+        specifier: workspace:*
+        version: link:../card-validator
       card-validator:
         specifier: 'catalog:'
         version: 10.0.4
