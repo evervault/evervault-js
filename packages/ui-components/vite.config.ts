@@ -1,5 +1,6 @@
 import react from "@vitejs/plugin-react";
-import { defineConfig, UserConfig } from "vite";
+import type { UserConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import { integrity } from "./vite/integrity";
 import { componentPreload } from "./vite/preload";
 import istanbul from "vite-plugin-istanbul";
@@ -30,4 +31,7 @@ export default defineConfig({
     manifest: true,
   },
   plugins,
+  test: {
+    setupFiles: ["./test/setup.ts"],
+  },
 });
