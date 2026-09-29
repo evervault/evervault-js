@@ -34,6 +34,7 @@ import {
   CardHolder,
   CardNumber,
   CardRow,
+  DeprecatedCardContext,
 } from "./cardElements";
 
 export interface CardRef {
@@ -382,7 +383,17 @@ const DeclaredCard = React.forwardRef(function DeclaredCard(
     };
   }, [evervault]);
 
-  return React.createElement("ev-card", { ref }, props.children);
+  const { autoComplete, redactCVC, allow3DigitAmexCVC } = props;
+  const deprecated = useMemo(
+    () => ({ autoComplete, redactCVC, allow3DigitAmexCVC }),
+    [autoComplete, redactCVC, allow3DigitAmexCVC]
+  );
+
+  return (
+    <DeprecatedCardContext.Provider value={deprecated}>
+      {React.createElement("ev-card", { ref }, props.children)}
+    </DeprecatedCardContext.Provider>
+  );
 });
 
 const CardRoot = React.forwardRef<CardRef, CardProps>(function Card(
