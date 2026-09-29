@@ -40,6 +40,7 @@ class FakeEvCard extends HTMLElement {
       "autoProgress",
       "acceptedBrands",
       "translations",
+      "autoComplete",
     ]) {
       Object.defineProperty(this.prototype, setting, {
         // As on the element, a list reads back as a new array.
@@ -218,10 +219,10 @@ describe("Card", () => {
     });
   });
 
-  it("leaves the security code settings to <Card.Cvc>", async () => {
+  it("falls back on the deprecated security code props in <Card.Cvc>", async () => {
     const { wrapper } = fakeClient();
 
-    render(
+    const { container } = render(
       <Card redactCVC allow3DigitAmexCVC={false}>
         <Card.Cvc />
       </Card>,
@@ -229,10 +230,97 @@ describe("Card", () => {
     );
     await settle();
 
-    expect(Object.keys(evCard())).not.toContain("redactCVC");
-    expect(Object.keys(evCard())).not.toContain("allow3DigitAmexCVC");
-    expect(evCard().getAttributeNames()).toEqual([]);
-    expect(evCard().assigned).toEqual([]);
+    expect(container.innerHTML).toBe(
+      '<ev-card><ev-card-cvc redact="" allow3digitamex="false"></ev-card-cvc></ev-card>'
+    );
+  });
+
+  it("lets <Card.Cvc>'s own props win over the deprecated ones", async () => {
+    const { wrapper } = fakeClient();
+
+    const { container } = render(
+      <Card redactCVC allow3DigitAmexCVC={false}>
+        <Card.Cvc redact={false} allow3DigitAmex />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    expect(container.innerHTML).toBe(
+      '<ev-card><ev-card-cvc redact="false" allow3digitamex=""></ev-card-cvc></ev-card>'
+    );
+  });
+
+  it("gives each field its setting from a deprecated autoComplete map", async () => {
+    const { wrapper } = fakeClient();
+
+    const { container } = render(
+      <Card
+        autoComplete={{
+          name: false,
+          number: false,
+          expiryMonth: false,
+          cvc: true,
+          fields: { postcode: false },
+        }}
+      >
+        <Card.Holder />
+        <Card.Number />
+        <Card.ExpiryMonth />
+        <Card.ExpiryYear />
+        <Card.Cvc autoComplete={false} />
+        <Card.Field name="postcode" />
+        <Card.Field name="email" />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    expect(container.innerHTML).toBe(
+      "<ev-card>" +
+        '<ev-card-holder autocomplete="false"></ev-card-holder>' +
+        '<ev-card-number autocomplete="false"></ev-card-number>' +
+        '<ev-card-expiry-month autocomplete="false"></ev-card-expiry-month>' +
+        "<ev-card-expiry-year></ev-card-expiry-year>" +
+        '<ev-card-cvc autocomplete="false"></ev-card-cvc>' +
+        '<ev-field autocomplete="false" name="postcode"></ev-field>' +
+        '<ev-field name="email"></ev-field>' +
+        "</ev-card>"
+    );
+    expect(evCard().assigned).not.toContain("autoComplete");
+  });
+
+  it("gives every custom field one deprecated autoComplete setting", async () => {
+    const { wrapper } = fakeClient();
+
+    const { container } = render(
+      <Card autoComplete={{ fields: false }}>
+        <Card.Field name="postcode" />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    expect(container.innerHTML).toBe(
+      '<ev-card><ev-field autocomplete="false" name="postcode"></ev-field></ev-card>'
+    );
+  });
+
+  it("hands autofill turned on or off to the <ev-card>", async () => {
+    const { wrapper } = fakeClient();
+
+    const { container } = render(
+      <Card autoComplete={false}>
+        <Card.Number />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    expect(evCard().settingsAtMount).toEqual({ autoComplete: false });
+    expect(container.innerHTML).toBe(
+      "<ev-card><ev-card-number></ev-card-number></ev-card>"
+    );
   });
 
   it("hands the settings to the <ev-card> before it mounts", async () => {
