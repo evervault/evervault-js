@@ -6,7 +6,7 @@ import * as React from "react";
 import { render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
-  CardCustomField,
+  CardField,
   CardCvc,
   CardExpiry,
   CardExpiryMonth,
@@ -23,7 +23,7 @@ function html(element: React.ReactElement) {
 // As browsers do: React 19 sets a prop an element has as that property.
 const REFLECTED = ["autofocus", "spellcheck"];
 
-describe("card elements with browser-reflected attributes", () => {
+describe("card elements keeping autofocus and spellcheck as attributes where the browser reflects them", () => {
   beforeEach(() => {
     for (const attribute of REFLECTED) {
       Object.defineProperty(HTMLElement.prototype, attribute, {
@@ -60,7 +60,7 @@ describe("card elements with browser-reflected attributes", () => {
   });
 
   it("declares spellcheck when spellCheck is true", () => {
-    expect(html(<CardCustomField name="note" spellCheck />)).toBe(
+    expect(html(<CardField name="note" spellCheck />)).toBe(
       '<ev-field name="note" spellcheck=""></ev-field>'
     );
   });
@@ -74,7 +74,7 @@ describe("card elements", () => {
     [<CardExpiryMonth key="a" />, "ev-card-expiry-month"],
     [<CardExpiryYear key="a" />, "ev-card-expiry-year"],
     [<CardCvc key="a" />, "ev-card-cvc"],
-    [<CardCustomField key="a" name="a" />, "ev-field"],
+    [<CardField key="a" name="a" />, "ev-field"],
   ])("renders %# as <%s>", (element, tag) => {
     expect(render(element).container.firstElementChild?.localName).toBe(tag);
   });
@@ -157,7 +157,7 @@ describe("card elements", () => {
 
   it("carries a custom field's props, numbers as strings", () => {
     const element = render(
-      <CardCustomField
+      <CardField
         name="postcode"
         defaultValue="SW1A"
         autoComplete="postal-code"

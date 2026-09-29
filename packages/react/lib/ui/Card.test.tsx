@@ -34,10 +34,18 @@ class FakeEvCard extends HTMLElement {
   }
 
   static {
-    for (const setting of ["theme", "acceptedBrands", "translations"]) {
+    for (const setting of [
+      "theme",
+      "colorScheme",
+      "autoProgress",
+      "acceptedBrands",
+      "translations",
+    ]) {
       Object.defineProperty(this.prototype, setting, {
+        // As on the element, a list reads back as a new array.
         get(this: FakeEvCard) {
-          return this.#settings[setting];
+          const value = this.#settings[setting];
+          return Array.isArray(value) ? [...value] : value;
         },
         set(this: FakeEvCard, value: unknown) {
           this.assigned.push(setting);
@@ -170,7 +178,7 @@ describe("Card", () => {
     expect(evCard().client).toBe(evervault);
   });
 
-  it("declares the card-level attributes on the <ev-card>", async () => {
+  it("hands the colour scheme and auto-progress to the <ev-card> before it mounts", async () => {
     const { wrapper } = fakeClient();
 
     render(
@@ -181,8 +189,10 @@ describe("Card", () => {
     );
     await settle();
 
-    expect(evCard().getAttribute("autoprogress")).toBe("false");
-    expect(evCard().getAttribute("colorscheme")).toBe("dark");
+    expect(evCard().settingsAtMount).toEqual({
+      autoProgress: false,
+      colorScheme: "dark",
+    });
   });
 
   it("leaves the security code settings to <Card.Cvc>", async () => {
@@ -199,6 +209,8 @@ describe("Card", () => {
 
     expect(Object.keys(evCard())).not.toContain("redactCVC");
     expect(Object.keys(evCard())).not.toContain("allow3DigitAmexCVC");
+    expect(evCard().getAttributeNames()).toEqual([]);
+    expect(evCard().assigned).toEqual([]);
   });
 
   it("hands the settings to the <ev-card> before it mounts", async () => {
@@ -276,6 +288,45 @@ describe("Card", () => {
     expect(onReady).toHaveBeenCalledOnce();
   });
 
+  it("ignores the browser's own events of the same names", async () => {
+    const { wrapper } = fakeClient();
+    const onFocus = vi.fn();
+    const onKeyDown = vi.fn();
+
+    render(
+      <Card onFocus={onFocus} onKeyDown={onKeyDown}>
+        <Card.Number />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    evCard().dispatchEvent(new FocusEvent("focus"));
+    evCard().dispatchEvent(new KeyboardEvent("keydown"));
+
+    expect(onFocus).not.toHaveBeenCalled();
+    expect(onKeyDown).not.toHaveBeenCalled();
+  });
+
+  it("stops calling the event props once unmounted", async () => {
+    const { wrapper } = fakeClient();
+    const onChange = vi.fn();
+
+    const { unmount } = render(
+      <Card onChange={onChange}>
+        <Card.Number />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+    const card = evCard();
+
+    unmount();
+    card.dispatchEvent(new CustomEvent("change", { detail: {} }));
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it("calls the latest event prop", async () => {
     const { wrapper } = fakeClient();
     const first = vi.fn();
@@ -336,6 +387,26 @@ describe("Card", () => {
 
     expect(onError).toHaveBeenCalledOnce();
     expect(evCard().isMounted).toBe(false);
+  });
+
+  it("reports a card that fails to mount as an error", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { wrapper } = fakeClient();
+    const onError = vi.fn();
+    vi.spyOn(FakeEvCard.prototype, "mountCard").mockImplementation(() => {
+      throw new Error("mount failed");
+    });
+
+    render(
+      <Card onError={onError}>
+        <Card.Number />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    expect(onError).toHaveBeenCalledOnce();
+    expect(error).toHaveBeenCalledWith(new Error("mount failed"));
   });
 
   it("mounts the card from its options by default", async () => {

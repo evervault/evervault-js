@@ -63,7 +63,7 @@ export interface CardFieldProps {
 }
 
 // The props each `<ev-card-*>` element takes as its attributes.
-const COMMON = [
+const COMMON: (keyof CardFieldBaseProps)[] = [
   "label",
   "placeholder",
   "tooltip",
@@ -73,7 +73,7 @@ const COMMON = [
   "errorMessage",
 ];
 
-const CUSTOM_FIELD = [
+const CUSTOM_FIELD: (keyof CardFieldProps)[] = [
   ...COMMON,
   "name",
   "type",
@@ -94,8 +94,8 @@ const CUSTOM_FIELD = [
 
 // Attributes hold strings: a boolean prop is declared by `true` and denied by
 // `false`, as `<ev-card>` reads them.
-export function attributes(
-  names: string[],
+function attributes(
+  names: readonly string[],
   props: object
 ): Record<string, string> {
   const values = props as Record<string, unknown>;
@@ -135,48 +135,67 @@ function useAttributes(
   });
 }
 
-function field<P extends object>(tag: string, names: string[]) {
-  return function CardField(props: P) {
+function field<P extends object>(
+  displayName: string,
+  tag: string,
+  names: readonly (keyof P & string)[]
+) {
+  function Component(props: P) {
     const ref = React.useRef<HTMLElement | null>(null);
     useAttributes(ref, attributes(names, props));
 
     return React.createElement(tag, { ref });
-  };
+  }
+
+  Component.displayName = displayName;
+  return Component;
 }
 
 export function CardRow({ children }: CardRowProps) {
   return React.createElement("ev-row", null, children);
 }
 
-export const CardHolder = field<CardHolderProps>("ev-card-holder", [
-  ...COMMON,
-  "defaultValue",
-  "pattern",
-]);
+CardRow.displayName = "Card.Row";
 
-export const CardNumber = field<CardNumberProps>("ev-card-number", [
-  ...COMMON,
-  "iconPosition",
-  "unsupportedBrandMessage",
-]);
+export const CardHolder = field<CardHolderProps>(
+  "Card.Holder",
+  "ev-card-holder",
+  [...COMMON, "defaultValue", "pattern"]
+);
 
-export const CardExpiry = field<CardExpiryProps>("ev-card-expiry", COMMON);
+export const CardNumber = field<CardNumberProps>(
+  "Card.Number",
+  "ev-card-number",
+  [...COMMON, "iconPosition", "unsupportedBrandMessage"]
+);
+
+export const CardExpiry = field<CardExpiryProps>(
+  "Card.Expiry",
+  "ev-card-expiry",
+  COMMON
+);
 
 export const CardExpiryMonth = field<CardExpiryMonthProps>(
+  "Card.ExpiryMonth",
   "ev-card-expiry-month",
   COMMON
 );
 
 export const CardExpiryYear = field<CardExpiryYearProps>(
+  "Card.ExpiryYear",
   "ev-card-expiry-year",
   COMMON
 );
 
-export const CardCvc = field<CardCvcProps>("ev-card-cvc", [
+export const CardCvc = field<CardCvcProps>("Card.Cvc", "ev-card-cvc", [
   ...COMMON,
   "redact",
   "optional",
   "allow3DigitAmex",
 ]);
 
-export const CardCustomField = field<CardFieldProps>("ev-field", CUSTOM_FIELD);
+export const CardField = field<CardFieldProps>(
+  "Card.Field",
+  "ev-field",
+  CUSTOM_FIELD
+);
