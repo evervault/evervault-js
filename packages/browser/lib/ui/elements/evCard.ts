@@ -74,10 +74,17 @@ export class EvCard extends Base {
   }
 
   #declaredClient() {
+    if (!createClient) {
+      console.error(
+        `<${EV_CARD_TAG_NAME}> was used before the SDK registered it`
+      );
+      return undefined;
+    }
+
     const teamId = this.getAttribute("teamid");
     const appId = this.getAttribute("appid");
 
-    if (!teamId || !appId || !createClient) return undefined;
+    if (!teamId || !appId) return undefined;
 
     return createClient(teamId, appId);
   }
@@ -108,6 +115,7 @@ export function registerEvCard(create: CreateClient) {
 
   createClient = create;
 
+  // The tag is defined once per page, so the first SDK to load owns <ev-card>.
   if (!customElements.get(EV_CARD_TAG_NAME)) {
     customElements.define(EV_CARD_TAG_NAME, EvCard);
   }
