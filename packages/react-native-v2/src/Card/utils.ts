@@ -151,8 +151,7 @@ export function areValuesComplete(
 
   if (
     "cvc" in values &&
-    !(settings.cvc?.optional && !values.cvc) &&
-    !isCvcAccepted(values.cvc ?? "", values.number ?? "", settings.cvc)
+    !isCvcComplete(values.cvc ?? "", values.number ?? "", settings.cvc)
   ) {
     return false;
   }
@@ -161,7 +160,7 @@ export function areValuesComplete(
 }
 
 // A 3-digit security code on an Amex card, which `allow3DigitAmex={false}` refuses.
-export function isRefusedAmexCvc(
+function isRefusedAmexCvc(
   cvc: string,
   number: string,
   allow3DigitAmex: boolean | undefined
@@ -182,6 +181,18 @@ export function isCvcAccepted(
   return (
     validateCVC(cvc, number).isValid &&
     !isRefusedAmexCvc(cvc, number, settings.allow3DigitAmex)
+  );
+}
+
+// A security code the card is complete with, which an optional one may leave empty.
+export function isCvcComplete(
+  cvc: string,
+  number: string,
+  settings: CardFieldSettings = {}
+) {
+  return (
+    (settings.optional === true && cvc === "") ||
+    isCvcAccepted(cvc, number, settings)
   );
 }
 

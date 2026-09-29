@@ -12,3 +12,4 @@ Bring the card's building blocks in line with the web and React cards. Every add
 - `autoProgress` on `Card.Number`, `Card.Expiry`, `Card.ExpiryMonth`, `Card.ExpiryYear`, `Card.Cvc` and `Card.Field` turns auto-advance on or off for that field, over the card's. A `Card.Field` moves on once it holds its `maxLength`; `Card.Holder`, with no length to fill, never does.
 - `errorMessage` on a card field replaces the text of its error in `errors`; either expiry half may declare the expiry's. `Card.Number`'s `unsupportedBrandMessage` replaces the text for a brand the card does not accept.
 - `pattern` on `Card.Holder` is a pattern the whole name must match. `optional` on `Card.Cvc` completes the card without a security code, and `allow3DigitAmex={false}` refuses a 3-digit American Express one.
+- The security code is judged against the card number, as on the web: its length follows the number's brand, and it is invalid while a number is typed but not valid.
