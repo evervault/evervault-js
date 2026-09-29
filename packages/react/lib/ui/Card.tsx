@@ -315,7 +315,8 @@ const DeclaredCard = React.forwardRef(function DeclaredCard(
     forwardedRef,
     () => ({
       validate: () => {
-        ref.current?.validate();
+        // Until the SDK registers `<ev-card>`, the element has no methods.
+        if (ref.current?.isMounted) ref.current.validate();
       },
     }),
     []
