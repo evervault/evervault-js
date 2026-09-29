@@ -9,7 +9,7 @@ import {
 import type {
   AgentToolsConfig,
   CardBrandName,
-  CardField,
+  CardField as CardFieldName,
   CardIcons,
   CardOptions,
   CardPayload,
@@ -25,11 +25,11 @@ import { useEvervault } from "../useEvervault";
 import EvervaultClient from "@evervault/browser";
 import type { EvCard } from "@evervault/browser";
 import {
-  CardCustomField,
   CardCvc,
   CardExpiry,
   CardExpiryMonth,
   CardExpiryYear,
+  CardField,
   CardHolder,
   CardNumber,
   CardRow,
@@ -68,7 +68,7 @@ interface CardBaseProps {
 // A card built from `ui.card()` options.
 export interface OptionsCardProps extends CardBaseProps {
   children?: undefined;
-  fields?: CardField[];
+  fields?: CardFieldName[];
   autoComplete?: CardOptions["autoComplete"];
   redactCVC?: boolean;
   allow3DigitAmexCVC?: boolean;
@@ -258,6 +258,8 @@ const OptionsCard = React.forwardRef(function OptionsCard(
 // The `<ev-card>` properties a declared card's props are passed through to.
 const SETTINGS = [
   "theme",
+  "colorScheme",
+  "autoProgress",
   "icons",
   "autoFocus",
   "translations",
@@ -268,6 +270,18 @@ const SETTINGS = [
   "validation",
   "agentTools",
 ] as const;
+
+// A list setting reads back from its attribute as a new array.
+function same(current: unknown, next: unknown) {
+  if (Array.isArray(current) && Array.isArray(next)) {
+    return (
+      current.length === next.length &&
+      current.every((item, index) => item === next[index])
+    );
+  }
+
+  return current === next;
+}
 
 const EVENTS = {
   ready: "onReady",
@@ -287,12 +301,14 @@ const DeclaredCard = React.forwardRef(function DeclaredCard(
   props: DeclaredCardProps,
   forwardedRef: React.ForwardedRef<CardRef>
 ) {
-  const { children, colorScheme, autoProgress } = props;
   const ref = useRef<EvCard | null>(null);
   const evervault = useEvervault();
 
   const latest = useRef(props);
-  latest.current = props;
+
+  useLayoutEffect(() => {
+    latest.current = props;
+  });
 
   useImperativeHandle(
     forwardedRef,
@@ -311,7 +327,7 @@ const DeclaredCard = React.forwardRef(function DeclaredCard(
     if (!card) return;
 
     for (const setting of SETTINGS) {
-      if (card[setting] !== props[setting]) card[setting] = props[setting];
+      if (!same(card[setting], props[setting])) card[setting] = props[setting];
     }
   });
 
@@ -321,10 +337,13 @@ const DeclaredCard = React.forwardRef(function DeclaredCard(
 
     const listeners = Object.entries(EVENTS).map(([event, prop]) => {
       const listener = (dispatched: Event) => {
+        // The browser's own focus and key events share these names.
+        if (!(dispatched instanceof CustomEvent)) return;
+
         const callback = latest.current[prop] as
           | ((detail?: unknown) => void)
           | undefined;
-        callback?.((dispatched as CustomEvent).detail ?? undefined);
+        callback?.(dispatched.detail ?? undefined);
       };
 
       card.addEventListener(event, listener);
@@ -337,32 +356,22 @@ const DeclaredCard = React.forwardRef(function DeclaredCard(
   useEffect(() => {
     let cancelled = false;
 
-    evervault?.then(
-      (client) => {
+    evervault
+      ?.then((client) => {
         const card = ref.current;
         if (!cancelled && card && !card.isMounted) card.mountCard(client);
-      },
-      (error: unknown) => {
+      })
+      .catch((error: unknown) => {
         latest.current.onError?.();
         console.error(error);
-      }
-    );
+      });
 
     return () => {
       cancelled = true;
     };
   }, [evervault]);
 
-  return React.createElement(
-    "ev-card",
-    {
-      ref,
-      colorscheme: colorScheme,
-      autoprogress:
-        autoProgress === undefined ? undefined : autoProgress ? "" : "false",
-    },
-    children
-  );
+  return React.createElement("ev-card", { ref }, props.children);
 });
 
 const CardRoot = React.forwardRef<CardRef, CardProps>(function Card(
@@ -385,5 +394,5 @@ export const Card = Object.assign(CardRoot, {
   ExpiryMonth: CardExpiryMonth,
   ExpiryYear: CardExpiryYear,
   Cvc: CardCvc,
-  Field: CardCustomField,
+  Field: CardField,
 });
