@@ -39,10 +39,6 @@ export function withPresetConfig(
   };
 }
 
-// A preset's first argument is either a theme to extend or the config itself.
-// ThemeObject only has styles/fonts/fontFaces and PresetConfig never does, so
-// the shape tells them apart. Callers index the result instead of destructuring
-// it, because api-extractor crashes on that when bundling the @evervault/js types.
 export function splitPresetArgs(
   first?: ThemeDefinition | PresetConfig,
   second?: PresetConfig
