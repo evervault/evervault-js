@@ -110,6 +110,20 @@ export interface FieldEvent {
   data: CardPayload;
 }
 
+// The events a card front-end dispatches, however the card was mounted.
+export interface CardEvents {
+  ready: () => void;
+  error: () => void;
+  change: (payload: CardPayload) => void;
+  complete: (payload: CardPayload) => void;
+  swipe: (payload: SwipedCard) => void;
+  validate: (payload: CardPayload) => void;
+  focus: (event: FieldEvent) => void;
+  blur: (event: FieldEvent) => void;
+  keydown: (event: FieldEvent) => void;
+  keyup: (event: FieldEvent) => void;
+}
+
 interface CardFieldTranslations<E extends TranslationsObject>
   extends TranslationsObject {
   label?: string;
@@ -202,6 +216,40 @@ export interface CardOptions {
     };
   };
   agentTools?: AgentToolsConfig;
+}
+
+// The `config` the card host sends in EV_INIT and EV_UPDATE, as the renderer
+// reads it. Every SDK version ever shipped loads today's renderer, so a key can
+// be widened here but never removed.
+export interface CardFrameConfig {
+  icons?: boolean | Partial<CardIcons>;
+  autoFocus?: boolean;
+  hiddenFields?: string; // deprecated, sent comma-joined
+  fields?: CardField[];
+  acceptedBrands?: CardBrandName[];
+  customBrands?: CustomBrand[];
+  translations?: Partial<CardTranslations>;
+  autoProgress?: boolean;
+  redactCVC?: boolean;
+  allow3DigitAmexCVC?: boolean;
+  defaultValues?: {
+    name?: string;
+  };
+  autoComplete?: {
+    name?: boolean;
+    number?: boolean;
+    expiry?: boolean;
+    cvc?: boolean;
+  };
+  validation?: {
+    name?: {
+      regex?: RegExp;
+    };
+    cvc?: {
+      optional?: boolean;
+    };
+  };
+  agentTools?: AgentToolsFrameConfig;
 }
 
 export interface FormOptions {
