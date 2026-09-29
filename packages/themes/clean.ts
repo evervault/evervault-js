@@ -14,9 +14,7 @@ export function clean(
   first?: ThemeDefinition | PresetConfig,
   second?: PresetConfig
 ): ThemeDefinition {
-  const args = splitPresetArgs(first, second);
-  const extended = args[0];
-  const config = args[1];
+  const [extended, config] = splitPresetArgs(first, second);
 
   return (utils) => ({
     styles: {
