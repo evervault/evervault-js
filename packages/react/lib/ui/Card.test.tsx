@@ -6,6 +6,7 @@ import * as React from "react";
 import { act, render } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { Card, type CardRef } from "./Card";
+import { FIELDS_IGNORED } from "./developerMessages";
 import { EvervaultContext } from "../context";
 import type { PromisifiedEvervaultClient } from "../load/client";
 
@@ -197,6 +198,42 @@ describe("Card", () => {
       "<ev-card><ev-card-cvc></ev-card-cvc></ev-card>"
     );
     expect(evervault.ui.card).not.toHaveBeenCalled();
+  });
+
+  it("warns once that fields given with children are ignored", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { wrapper } = fakeClient();
+
+    const { rerender } = render(
+      <Card fields={["number"]}>
+        <Card.Cvc />
+      </Card>,
+      { wrapper }
+    );
+    rerender(
+      <Card fields={["number"]}>
+        <Card.Number />
+      </Card>
+    );
+    await settle();
+
+    expect(warn).toHaveBeenCalledOnce();
+    expect(warn).toHaveBeenCalledWith(FIELDS_IGNORED);
+  });
+
+  it("does not warn about fields when only children are given", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { wrapper } = fakeClient();
+
+    render(
+      <Card>
+        <Card.Cvc />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    expect(warn).not.toHaveBeenCalled();
   });
 
   it("mounts the <ev-card> once in strict mode", async () => {

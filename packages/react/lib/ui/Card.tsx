@@ -36,6 +36,7 @@ import {
   CardRow,
   DeprecatedCardContext,
 } from "./cardElements";
+import { FIELDS_IGNORED } from "./developerMessages";
 
 export interface CardRef {
   validate: () => void;
@@ -365,6 +366,14 @@ const DeclaredCard = React.forwardRef(function DeclaredCard(
 
     return () => listeners.forEach((remove) => remove());
   }, []);
+
+  const fieldsIgnored = props.fields !== undefined;
+
+  useEffect(() => {
+    if (fieldsIgnored) {
+      console.warn(FIELDS_IGNORED);
+    }
+  }, [fieldsIgnored]);
 
   useEffect(() => {
     let cancelled = false;
