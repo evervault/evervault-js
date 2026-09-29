@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi } from "vitest";
+import { afterEach, describe, it, expect, vi } from "vitest";
 import { withPresetConfig } from "./presetConfig";
 import { cssVar } from "./cssVar";
+
+afterEach(() => document.documentElement.removeAttribute("style"));
 
 describe("withPresetConfig", () => {
   it("returns the base styles unchanged when no config is given", () => {
@@ -81,7 +83,13 @@ describe("withPresetConfig", () => {
 });
 
 describe("cssVar", () => {
-  it("reads a custom property off the page", () => {
+  it("returns a custom property declared on the root element", () => {
+    document.documentElement.style.setProperty("--spacing", "12px");
+
+    expect(cssVar("--spacing")).toBe("12px");
+  });
+
+  it("trims whitespace around the value", () => {
     document.documentElement.style.setProperty("--spacing", " 12px ");
 
     expect(cssVar("--spacing")).toBe("12px");
@@ -91,7 +99,7 @@ describe("cssVar", () => {
     expect(cssVar("--not-set")).toBe("");
   });
 
-  it("returns an empty string when there is no window (SSR)", () => {
+  it("returns an empty string instead of throwing when window is undefined, as on the server", () => {
     vi.stubGlobal("window", undefined);
 
     try {

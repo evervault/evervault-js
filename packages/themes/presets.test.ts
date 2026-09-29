@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi } from "vitest";
+import { afterEach, describe, it, expect, vi } from "vitest";
 import type { ThemeFunction, ThemeUtilities } from "types";
 import { cssVar } from "./cssVar";
 import { clean } from "./clean";
@@ -7,6 +7,8 @@ import { material } from "./material";
 import { minimal } from "./minimal";
 
 const presets = { clean, material, minimal };
+
+afterEach(() => document.documentElement.removeAttribute("style"));
 
 function apply(theme: ReturnType<typeof clean>, utils: ThemeUtilities) {
   return (theme as ThemeFunction)(utils);
