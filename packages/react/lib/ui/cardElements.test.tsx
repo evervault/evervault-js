@@ -68,14 +68,14 @@ describe("card elements keeping autofocus and spellcheck as attributes where the
 
 describe("card elements", () => {
   it.each([
-    [<CardHolder key="a" />, "ev-card-holder"],
-    [<CardNumber key="a" />, "ev-card-number"],
-    [<CardExpiry key="a" />, "ev-card-expiry"],
-    [<CardExpiryMonth key="a" />, "ev-card-expiry-month"],
-    [<CardExpiryYear key="a" />, "ev-card-expiry-year"],
-    [<CardCvc key="a" />, "ev-card-cvc"],
-    [<CardField key="a" name="a" />, "ev-field"],
-  ])("renders %# as <%s>", (element, tag) => {
+    ["ev-card-holder", <CardHolder key="a" />],
+    ["ev-card-number", <CardNumber key="a" />],
+    ["ev-card-expiry", <CardExpiry key="a" />],
+    ["ev-card-expiry-month", <CardExpiryMonth key="a" />],
+    ["ev-card-expiry-year", <CardExpiryYear key="a" />],
+    ["ev-card-cvc", <CardCvc key="a" />],
+    ["ev-field", <CardField key="a" name="a" />],
+  ])("renders <%s>", (tag, element) => {
     expect(render(element).container.firstElementChild?.localName).toBe(tag);
   });
 
