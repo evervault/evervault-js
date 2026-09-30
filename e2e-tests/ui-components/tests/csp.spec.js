@@ -1,45 +1,6 @@
-import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
-import { extname, resolve } from "node:path";
 import { test, expect } from "../utils";
 
-const DIST = resolve(__dirname, "../../../packages/ui-components/dist");
-
-const PRODUCTION_CSP =
-  "script-src 'self' *.evervault.com fonts.googleapis.com fonts.gstatic.com https://pay.google.com/gp/p/js/pay.js https://applepay.cdn-apple.com;";
-
-const CONTENT_TYPES = {
-  ".html": "text/html",
-  ".js": "text/javascript",
-  ".css": "text/css",
-};
-
-let server;
-let origin;
-
-test.beforeAll(async () => {
-  server = createServer(async (req, res) => {
-    const path = new URL(req.url, "http://localhost").pathname;
-    const file = path === "/" ? "index.html" : path.slice(1);
-    try {
-      const body = await readFile(resolve(DIST, file));
-      res.writeHead(200, {
-        "Content-Type":
-          CONTENT_TYPES[extname(file)] ?? "application/octet-stream",
-        "Content-Security-Policy": PRODUCTION_CSP,
-      });
-      res.end(body);
-    } catch {
-      res.writeHead(404).end();
-    }
-  });
-  await new Promise((done) => server.listen(0, done));
-  origin = `http://localhost:${server.address().port}`;
-});
-
-test.afterAll(async () => {
-  await new Promise((done) => server.close(done));
-});
+const ORIGIN = "http://localhost:4010";
 
 test.describe("built index.html under the production CSP", () => {
   test("loads Card without CSP violations or blocked resources", async ({
@@ -62,7 +23,7 @@ test.describe("built index.html under the production CSP", () => {
     });
 
     await page.goto(
-      `${origin}/index.html?component=Card&team=team_test&app=app_test&id=test`
+      `${ORIGIN}/index.html?component=Card&team=team_test&app=app_test&id=test`
     );
     await page.waitForFunction(() =>
       document.querySelector("link[rel=modulepreload]")
