@@ -1,5 +1,6 @@
 import type { InputsData, CardData } from "@evervault/browser";
 import Evervault from "@evervault/browser";
+import { getBin } from "@evervault/card-validator";
 import "./styles.css";
 import EvervaultCard from "./EvervaultCard";
 import { InputElementsManager } from "./InputElementsManager";
@@ -224,9 +225,7 @@ async function getData(): Promise<InputsData> {
     lastFour: evCard.cardNumberVerification.isValid
       ? cardNumberValue.substr(cardNumberValue.length - 4)
       : "",
-    bin: evCard.cardNumberVerification.isValid
-      ? binNumber(cardNumberValue, evCard.cardNumberVerification?.card?.type)
-      : "",
+    bin: evCard.cardNumberVerification.isValid ? getBin(cardNumberValue) : "",
   };
 
   setFrameHeight();
@@ -237,17 +236,6 @@ async function getData(): Promise<InputsData> {
     isEmpty,
     error,
   };
-}
-
-// Formatting of BIN taken from https://www.pcisecuritystandards.org/faq/articles/Frequently_Asked_Question/What-are-acceptable-formats-for-truncation-of-primary-account-numbers/
-function binNumber(cardNumber: string, cardType: string | undefined): string {
-  if (cardType) {
-    if (cardType === "amex") {
-      return cardNumber.substring(0, 6);
-    }
-    return cardNumber.substring(0, 8);
-  }
-  return "";
 }
 
 async function encryptSensitiveCardDetails(card: {

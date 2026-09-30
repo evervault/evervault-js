@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@evervault/browser": "workspace:*",
+    "@evervault/card-validator": "workspace:*",
     "card-validator": "catalog:",
     "credit-card-type": "catalog:",
     "imask": "catalog:"
