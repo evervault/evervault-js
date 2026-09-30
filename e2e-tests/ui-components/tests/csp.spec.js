@@ -6,7 +6,7 @@ import { test, expect } from "../utils";
 const DIST = resolve(__dirname, "../../../packages/ui-components/dist");
 
 const PRODUCTION_CSP =
-  "default-src 'self'; script-src 'self' *.evervault.com fonts.googleapis.com fonts.gstatic.com https://pay.google.com/gp/p/js/pay.js https://applepay.cdn-apple.com; connect-src 'self' *.evervault.com *.relay.evervault.app 3ds-trampoline.evervault.app fonts.googleapis.com fonts.gstatic.com https://google.com/pay https://www.google.com/pay https://pay.google.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com fonts.gstatic.com https://google.com/pay; font-src fonts.gstatic.com; img-src data: https://www.gstatic.com; frame-src *;";
+  "script-src 'self' *.evervault.com fonts.googleapis.com fonts.gstatic.com https://pay.google.com/gp/p/js/pay.js https://applepay.cdn-apple.com;";
 
 const CONTENT_TYPES = {
   ".html": "text/html",
