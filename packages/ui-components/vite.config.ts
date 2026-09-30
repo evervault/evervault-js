@@ -27,6 +27,12 @@ export default defineConfig({
   server: {
     port: 4001,
   },
+  preview: {
+    headers: {
+      "Content-Security-Policy":
+        "script-src 'self' *.evervault.com fonts.googleapis.com fonts.gstatic.com https://pay.google.com/gp/p/js/pay.js https://applepay.cdn-apple.com;",
+    },
+  },
   build: {
     manifest: true,
   },
