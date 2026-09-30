@@ -1,5 +1,11 @@
 # @evervault/react
 
+## 2.31.0
+
+### Minor Changes
+
+- c162b53: Add a `preload` prop and `reveal()` ref method to `<Card>`, mirroring `@evervault/browser`'s `card.preload()`/`card.reveal()`. Pass `preload` to boot the card hidden on mount, then call `ref.current.reveal()` to show it.
+
 ## 2.30.0
 
 ### Minor Changes

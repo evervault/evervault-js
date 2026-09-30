@@ -1,5 +1,14 @@
 # @evervault/browser
 
+## 2.68.0
+
+### Minor Changes
+
+- efec8c9: `card.values` is now read-only and is kept current by the card frame; assigning to it is no longer supported. Cards gain a `destroy()` method that releases every listener the card registered. After `destroy()` a card is inert: mounting, updating, subscribing or validating it logs an error and does nothing. Calling `validate()` again before the frame has answered replaces the earlier request, so one `validate` event fires. Updating the theme replaces the previous definition entirely, including anything it extended.
+- 542ec66: Add the `<ev-card>` custom element, a card declared in HTML rather than mounted from `ui.card()`. Loading the SDK registers it; the element renders the default card (number above expiry and cvc) in its own closed shadow root and dispatches `change` as a `CustomEvent` whose `detail` is the card payload.
+
+  `teamid` and `appid` on the element mount it as soon as it is connected. Without them, `evervault.ui.mount()` mounts every `<ev-card>` on the page with that client, skipping any that is already live. `card.mountCard(evervault)` mounts a single card with a given client. Removing the element from the DOM destroys the card and releases its listeners; reinserting it mounts a new one.
+
 ## 2.67.1
 
 ### Patch Changes
