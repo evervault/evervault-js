@@ -270,6 +270,7 @@ const SETTINGS = Object.keys({
   autoComplete: true,
   validation: true,
   agentTools: true,
+  preload: true,
 } satisfies Record<SettingProp, true>) as SettingProp[] satisfies (keyof EvCard)[];
 
 // A list setting reads back from its attribute as a new array.
@@ -318,6 +319,10 @@ const DeclaredCard = React.forwardRef(function DeclaredCard(
       validate: () => {
         // Until the SDK registers `<ev-card>`, the element has no methods.
         if (ref.current?.isMounted) ref.current.validate();
+      },
+      show: () => {
+        // Before the card mounts too: it then mounts shown.
+        ref.current?.show?.();
       },
     }),
     []

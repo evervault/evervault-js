@@ -18,6 +18,7 @@ class FakeEvCard extends HTMLElement {
   settingsAtMount: Record<string, unknown> = {};
   assigned: string[] = [];
   validate = vi.fn();
+  show = vi.fn();
   #settings: Record<string, unknown> = {};
 
   constructor() {
@@ -42,6 +43,7 @@ class FakeEvCard extends HTMLElement {
       "acceptedBrands",
       "translations",
       "autoComplete",
+      "preload",
     ]) {
       Object.defineProperty(this.prototype, setting, {
         // As on the element, a list reads back as a new array.
@@ -560,6 +562,37 @@ describe("Card", () => {
     ref.current?.validate();
 
     expect(evCard().validate).toHaveBeenCalledOnce();
+  });
+
+  it("hands preload to the <ev-card> before it mounts", async () => {
+    const { wrapper } = fakeClient();
+
+    render(
+      <Card preload>
+        <Card.Number />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    expect(evCard().settingsAtMount).toEqual({ preload: true });
+  });
+
+  it("shows the <ev-card> through its ref", async () => {
+    const { wrapper } = fakeClient();
+    const ref = React.createRef<CardRef>();
+
+    render(
+      <Card preload ref={ref}>
+        <Card.Number />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    ref.current?.show();
+
+    expect(evCard().show).toHaveBeenCalledOnce();
   });
 
   it("reports a client that failed to load as an error", async () => {
