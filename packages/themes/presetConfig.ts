@@ -45,7 +45,7 @@ export function splitPresetArgs(
 ): [ThemeDefinition | undefined, PresetConfig | undefined] {
   const isTheme =
     typeof first === "function" ||
-    (first !== undefined &&
+    (first != null &&
       ("styles" in first || "fonts" in first || "fontFaces" in first));
 
   if (
@@ -58,7 +58,7 @@ export function splitPresetArgs(
     );
   }
 
-  return isTheme || first === undefined
-    ? [first as ThemeDefinition | undefined, second]
+  return isTheme || first == null
+    ? [(first ?? undefined) as ThemeDefinition | undefined, second]
     : [undefined, first as PresetConfig];
 }

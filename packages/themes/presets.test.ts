@@ -59,6 +59,22 @@ describe.each(Object.entries(presets))("%s", (_name, preset) => {
     expect(Object.keys(root).filter((k) => k.startsWith("--ev-"))).toEqual([]);
   });
 
+  it("treats a null first argument like no argument", () => {
+    const utils = stubUtils();
+    const result = apply(preset(null as never), utils);
+
+    expect(utils.extend).not.toHaveBeenCalled();
+    expect(result).toEqual(apply(preset(), stubUtils()));
+  });
+
+  it("treats a null theme as no theme when config is the second argument", () => {
+    const utils = stubUtils();
+    const result = apply(preset(null as never, { primary: "#16a34a" }), utils);
+
+    expect(utils.extend).not.toHaveBeenCalled();
+    expect(rootOf(result)?.["--ev-color-primary"]).toBe("#16a34a");
+  });
+
   it("takes only `selectors` as the config", () => {
     const result = apply(
       preset({ selectors: { label: { fontWeight: 600 } } }),
