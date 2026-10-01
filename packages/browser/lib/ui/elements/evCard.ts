@@ -94,6 +94,7 @@ export interface EvCard {
   // Every field's default; a field element's own setting wins.
   autoProgress?: boolean;
   autoComplete?: boolean;
+  preload?: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging -- typed by the interface above
@@ -111,6 +112,7 @@ export class EvCard extends ElementBase {
   #settings: CardSettings = {};
   #agentTools?: CardSettings["agentTools"];
   #iconMap?: Partial<CardIcons>;
+  #shown = false;
 
   // Every attribute of the card, as the property reading and writing it.
   static readonly reflections: Reflection<EvCard>[] = [
@@ -144,6 +146,7 @@ export class EvCard extends ElementBase {
     ["acceptedBrands", "list"],
     ["autoProgress", "flag"],
     ["autoComplete", "switch"],
+    ["preload", "flag"],
   ];
 
   get spec() {
@@ -225,6 +228,12 @@ export class EvCard extends ElementBase {
   // The answer arrives as a `validate` event.
   validate() {
     this.#card?.validate();
+  }
+
+  // Asked before the card mounts, the card mounts shown.
+  show() {
+    this.#shown = true;
+    this.#card?.show();
   }
 
   connectedCallback() {
@@ -318,10 +327,16 @@ export class EvCard extends ElementBase {
       });
     }
 
-    card.mount(this.#mountPoint(), {
+    const configuration = {
       theme: this.#resolveTheme(),
       config: { ...this.#readConfig(), fields: this.#spec },
-    });
+    };
+
+    if (this.preload && !this.#shown) {
+      card.preload(this.#mountPoint(), configuration);
+    } else {
+      card.mount(this.#mountPoint(), configuration);
+    }
 
     this.#card = card;
   }
@@ -504,10 +519,12 @@ export function registerEvCard(create: CreateClient) {
 reflect(EvCard.prototype, EvCard.reflections);
 
 // The attributes the card is configured from after mounting; the colour
-// scheme is read once, when it mounts.
+// scheme and preloading are read once, when it mounts.
+const MOUNT_ONLY = new Set(["colorScheme", "preload"]);
+
 const OPTION_ATTRIBUTES = new Set(
   EvCard.reflections
     .map(([property]) => property)
-    .filter((property) => property !== "colorScheme")
+    .filter((property) => !MOUNT_ONLY.has(property))
     .map(attributeFor)
 );

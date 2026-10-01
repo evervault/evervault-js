@@ -38,6 +38,10 @@ const { hosts, real, FakeCardHost } = vi.hoisted(() => {
     mount = vi.fn<
       (selector: SelectorType, configuration: unknown) => FakeCardHost
     >(() => this);
+    preload = vi.fn<
+      (selector: SelectorType, configuration: unknown) => FakeCardHost
+    >(() => this);
+    show = vi.fn(() => this);
     update = vi.fn(() => this);
     setSpec = vi.fn(() => this);
     send = vi.fn(() => this);
@@ -636,6 +640,68 @@ describe("<ev-card> attributes", () => {
     element.mountCard(evervault());
 
     expect(frame().options).toEqual({ colorScheme: "dark" });
+  });
+});
+
+describe("<ev-card> preloading", () => {
+  it("preloads the card hidden instead of mounting it", () => {
+    const element = append({ preload: "" });
+    element.mountCard(evervault());
+
+    expect(frame().preload).toHaveBeenCalledOnce();
+    expect(frame().mount).not.toHaveBeenCalled();
+  });
+
+  it("preloads with the configuration it would mount with", () => {
+    const element = append({ preload: "" });
+    element.innerHTML = "<ev-card-number></ev-card-number>";
+    element.mountCard(evervault());
+
+    const [, configuration] = frame().preload.mock.calls[0];
+
+    expect(
+      types(
+        (configuration as CardHostConfiguration).config
+          ?.fields as CardSpecNode[]
+      )
+    ).toEqual(["number"]);
+  });
+
+  it("preloads when the property is set before mounting", () => {
+    const element = append();
+    element.preload = true;
+    element.mountCard(evervault());
+
+    expect(frame().preload).toHaveBeenCalledOnce();
+  });
+
+  it("shows a preloaded card", () => {
+    const element = append({ preload: "" });
+    element.mountCard(evervault());
+
+    element.show();
+
+    expect(frame().show).toHaveBeenCalledOnce();
+  });
+
+  it("mounts shown when show() is called before it mounts", () => {
+    const element = append({ preload: "" });
+
+    element.show();
+    element.mountCard(evervault());
+
+    expect(frame().mount).toHaveBeenCalledOnce();
+    expect(frame().preload).not.toHaveBeenCalled();
+  });
+
+  it("sends no update when the attribute changes after mounting", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.setAttribute("preload", "");
+    await flush();
+
+    expect(frame().update).not.toHaveBeenCalled();
   });
 });
 
