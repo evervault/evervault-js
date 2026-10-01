@@ -394,6 +394,69 @@ describe("<ev-card> declared children", () => {
   });
 });
 
+// The parser connects <ev-card> at its opening tag, then appends each child.
+describe("<ev-card> parsed from markup", () => {
+  let readyState: DocumentReadyState;
+
+  beforeEach(() => {
+    readyState = "loading";
+    vi.spyOn(document, "readyState", "get").mockImplementation(
+      () => readyState
+    );
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function finishParsing() {
+    readyState = "interactive";
+    document.dispatchEvent(new Event("DOMContentLoaded"));
+  }
+
+  it("waits for the page to finish parsing before mounting", async () => {
+    const element = append({ teamid: "team_test123", appid: "app_test123" });
+    element.append(document.createElement("ev-card-number"));
+    await flush();
+
+    expect(hosts).toHaveLength(0);
+
+    finishParsing();
+
+    expect(types(mountedWith().config?.fields as CardSpecNode[])).toEqual([
+      "number",
+    ]);
+    expect(frame().setSpec).not.toHaveBeenCalled();
+  });
+
+  it("mounts once the parser reads past its closing tag", async () => {
+    const element = append({ teamid: "team_test123", appid: "app_test123" });
+    element.append(document.createElement("ev-card-number"));
+    document.body.append(document.createElement("p"));
+    await flush();
+
+    expect(types(mountedWith().config?.fields as CardSpecNode[])).toEqual([
+      "number",
+    ]);
+  });
+
+  it("mounts at once when the parser has already read past it", () => {
+    document.body.innerHTML =
+      "<ev-card teamid='team_test123' appid='app_test123'></ev-card><p></p>";
+
+    expect(frame().mount).toHaveBeenCalledOnce();
+  });
+
+  it("does not mount when removed before the page finishes parsing", () => {
+    const element = append({ teamid: "team_test123", appid: "app_test123" });
+    element.remove();
+
+    finishParsing();
+
+    expect(hosts).toHaveLength(0);
+  });
+});
+
 describe("<ev-card> change event", () => {
   it("dispatches a change event carrying the card payload", () => {
     const element = append();
