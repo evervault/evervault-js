@@ -1,0 +1,17 @@
+{
+  "name": "example-theming",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 4010",
+    "clean": "rm -rf node_modules dist"
+  },
+  "dependencies": {
+    "@evervault/js": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

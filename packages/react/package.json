@@ -31,7 +31,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "preinstall": "npx only-allow pnpm",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
     "clean": "rm -rf node_modules dist",
     "test": "vitest run",
     "test:watch": "vitest --watch"
