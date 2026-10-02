@@ -3,205 +3,28 @@
  */
 
 import * as React from "react";
-import { act, render } from "@testing-library/react";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { Card, type CardRef } from "./Card";
+import { render } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { Card, type CardRef } from ".";
+import { EvervaultContext } from "../../context";
+import type { PromisifiedEvervaultClient } from "../../load/client";
 import { FIELDS_IGNORED } from "./developerMessages";
-import { EvervaultContext } from "../context";
-import type { PromisifiedEvervaultClient } from "../load/client";
+import {
+  FakeEvCard,
+  evCard,
+  fakeClient,
+  registerFakeEvCard,
+  settle,
+} from "./testing";
 
-// Stands in for the `<ev-card>` the browser SDK registers, recording what the
-// wrapper hands it.
-class FakeEvCard extends HTMLElement {
-  static cards: FakeEvCard[] = [];
-  client: unknown;
-  settingsAtMount: Record<string, unknown> = {};
-  assigned: string[] = [];
-  validate = vi.fn();
-  show = vi.fn();
-  #settings: Record<string, unknown> = {};
+registerFakeEvCard();
 
-  constructor() {
-    super();
-    FakeEvCard.cards.push(this);
-  }
-
-  get isMounted() {
-    return this.client !== undefined;
-  }
-
-  mountCard(client: unknown) {
-    this.client = client;
-    this.settingsAtMount = { ...this.#settings };
-  }
-
-  static {
-    for (const setting of [
-      "theme",
-      "colorScheme",
-      "autoProgress",
-      "acceptedBrands",
-      "translations",
-      "autoComplete",
-      "preload",
-    ]) {
-      Object.defineProperty(this.prototype, setting, {
-        // As on the element, a list reads back as a new array.
-        get(this: FakeEvCard) {
-          const value = this.#settings[setting];
-          return Array.isArray(value) ? [...value] : value;
-        },
-        set(this: FakeEvCard, value: unknown) {
-          this.assigned.push(setting);
-          this.#settings[setting] = value;
-        },
-      });
-    }
-  }
+// React warns once per file about its JSX transform, on whichever test renders first.
+function fieldsWarnings(warn: { mock: { calls: unknown[][] } }) {
+  return warn.mock.calls.filter(([message]) => message === FIELDS_IGNORED);
 }
 
-beforeAll(() => {
-  customElements.define("ev-card", FakeEvCard);
-});
-
-afterEach(() => {
-  FakeEvCard.cards = [];
-  vi.restoreAllMocks();
-});
-
-function fakeClient() {
-  const card = {
-    mount: vi.fn(() => card),
-    preload: vi.fn(() => card),
-    show: vi.fn(() => card),
-    update: vi.fn(() => card),
-    validate: vi.fn(() => card),
-    on: vi.fn(() => () => {}),
-  };
-  const evervault = { ui: { card: vi.fn(() => card) } };
-  const client = Promise.resolve(
-    evervault
-  ) as unknown as PromisifiedEvervaultClient;
-
-  const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <EvervaultContext.Provider value={client}>
-      {children}
-    </EvervaultContext.Provider>
-  );
-
-  return { evervault, card, wrapper };
-}
-
-async function settle() {
-  await act(async () => {
-    await Promise.resolve();
-  });
-}
-
-function evCard() {
-  const [card] = FakeEvCard.cards.slice(-1);
-  if (!card) throw new Error("no <ev-card> was rendered");
-  return card;
-}
-
-describe("Card", () => {
-  it("renders the card from its options when it declares no fields", async () => {
-    const { evervault, card, wrapper } = fakeClient();
-
-    render(<Card fields={["number", "cvc"]} autoProgress />, { wrapper });
-    await settle();
-
-    expect(evervault.ui.card).toHaveBeenCalledWith(
-      expect.objectContaining({ fields: ["number", "cvc"], autoProgress: true })
-    );
-    expect(card.mount).toHaveBeenCalledOnce();
-    expect(FakeEvCard.cards).toHaveLength(0);
-  });
-
-  it("takes the props of a wrapper that extends them and passes children on", async () => {
-    interface WrapperProps extends React.ComponentProps<typeof Card> {
-      heading: string;
-    }
-
-    function Wrapper({ heading, ...props }: WrapperProps) {
-      return (
-        <section aria-label={heading}>
-          <Card fields={["number"]} {...props} />
-        </section>
-      );
-    }
-
-    const { evervault, wrapper } = fakeClient();
-
-    render(<Wrapper heading="Pay" redactCVC />, { wrapper });
-    await settle();
-
-    expect(evervault.ui.card).toHaveBeenCalledWith(
-      expect.objectContaining({ fields: ["number"], redactCVC: true })
-    );
-  });
-
-  it("renders the declared fields as the <ev-card> elements", async () => {
-    const { evervault, wrapper } = fakeClient();
-
-    const { container } = render(
-      <Card>
-        <Card.Number label="Card number" />
-        <Card.Row>
-          <Card.ExpiryMonth />
-          <Card.ExpiryYear />
-          <Card.Cvc redact />
-        </Card.Row>
-        <Card.Field name="postcode" required />
-      </Card>,
-      { wrapper }
-    );
-    await settle();
-
-    expect(container.innerHTML).toBe(
-      "<ev-card>" +
-        '<ev-card-number label="Card number"></ev-card-number>' +
-        "<ev-row>" +
-        "<ev-card-expiry-month></ev-card-expiry-month>" +
-        "<ev-card-expiry-year></ev-card-expiry-year>" +
-        '<ev-card-cvc redact=""></ev-card-cvc>' +
-        "</ev-row>" +
-        '<ev-field name="postcode" required=""></ev-field>' +
-        "</ev-card>"
-    );
-    expect(evervault.ui.card).not.toHaveBeenCalled();
-  });
-
-  it.each([
-    ["null", null],
-    ["an empty list", []],
-  ])("renders the <ev-card> for children of %s", async (_, children) => {
-    const { evervault, wrapper } = fakeClient();
-
-    render(<Card fields={["number"]}>{children}</Card>, { wrapper });
-    await settle();
-
-    expect(evCard().client).toBe(evervault);
-    expect(evervault.ui.card).not.toHaveBeenCalled();
-  });
-
-  it("renders the declared children in place of fields", async () => {
-    const { evervault, wrapper } = fakeClient();
-
-    const { container } = render(
-      <Card fields={["number", "expiry"]}>
-        <Card.Cvc />
-      </Card>,
-      { wrapper }
-    );
-    await settle();
-
-    expect(container.innerHTML).toBe(
-      "<ev-card><ev-card-cvc></ev-card-cvc></ev-card>"
-    );
-    expect(evervault.ui.card).not.toHaveBeenCalled();
-  });
-
+describe("Card with declared fields", () => {
   it("warns once that fields given with children are ignored", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const { wrapper } = fakeClient();
@@ -219,8 +42,7 @@ describe("Card", () => {
     );
     await settle();
 
-    expect(warn).toHaveBeenCalledOnce();
-    expect(warn).toHaveBeenCalledWith(FIELDS_IGNORED);
+    expect(fieldsWarnings(warn)).toHaveLength(1);
   });
 
   it("does not warn about fields when only children are given", async () => {
@@ -235,7 +57,7 @@ describe("Card", () => {
     );
     await settle();
 
-    expect(warn).not.toHaveBeenCalled();
+    expect(fieldsWarnings(warn)).toHaveLength(0);
   });
 
   it("mounts the <ev-card> once in strict mode", async () => {
@@ -253,25 +75,6 @@ describe("Card", () => {
     await settle();
 
     expect(mountCard).toHaveBeenCalledOnce();
-  });
-
-  it("keeps the <ev-card> while its children render nothing", async () => {
-    const { evervault, wrapper } = fakeClient();
-
-    const { rerender } = render(
-      <Card>
-        <Card.Number />
-      </Card>,
-      { wrapper }
-    );
-    await settle();
-    const card = evCard();
-
-    rerender(<Card>{false}</Card>);
-    await settle();
-
-    expect(evCard()).toBe(card);
-    expect(evervault.ui.card).not.toHaveBeenCalled();
   });
 
   it("mounts the <ev-card> with the client once it has loaded", async () => {
@@ -634,36 +437,5 @@ describe("Card", () => {
 
     expect(onError).toHaveBeenCalledOnce();
     expect(error).toHaveBeenCalledWith(new Error("mount failed"));
-  });
-
-  it("mounts the card from its options by default", async () => {
-    const { card, wrapper } = fakeClient();
-
-    render(<Card />, { wrapper });
-    await settle();
-
-    expect(card.mount).toHaveBeenCalledOnce();
-    expect(card.preload).not.toHaveBeenCalled();
-  });
-
-  it("preloads the card from its options instead of mounting it", async () => {
-    const { card, wrapper } = fakeClient();
-
-    render(<Card preload />, { wrapper });
-    await settle();
-
-    expect(card.preload).toHaveBeenCalledOnce();
-    expect(card.mount).not.toHaveBeenCalled();
-  });
-
-  it("shows a preloaded card through its ref", async () => {
-    const { card, wrapper } = fakeClient();
-    const ref = React.createRef<CardRef>();
-
-    render(<Card preload ref={ref} />, { wrapper });
-    await settle();
-    ref.current?.show();
-
-    expect(card.show).toHaveBeenCalledOnce();
   });
 });

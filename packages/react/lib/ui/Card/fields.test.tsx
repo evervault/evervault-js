@@ -14,7 +14,7 @@ import {
   CardHolder,
   CardNumber,
   CardRow,
-} from "./cardElements";
+} from "./fields";
 
 function html(element: React.ReactElement) {
   return render(element).container.innerHTML;
