@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FIELD_ATTRIBUTES } from "shared";
+import { FIELD_ATTRIBUTES, fieldAttributes } from "shared";
 import type { CardFieldMap, CardOptions } from "types";
 import type {
   EvCardCvc,
@@ -240,29 +240,6 @@ export const DeprecatedCardContext = React.createContext<DeprecatedCardProps>(
   {}
 );
 
-// Attributes hold strings: a boolean prop is declared by `true` and denied by
-// `false`, as `<ev-card>` reads them. A field's own prop wins over a fallback.
-function attributes(
-  names: readonly string[],
-  props: object,
-  fallbacks: object
-): Record<string, string> {
-  const values = props as Record<string, unknown>;
-  const defaults = fallbacks as Record<string, unknown>;
-
-  return Object.fromEntries(
-    names.flatMap((prop) => {
-      const value = values[prop] ?? defaults[prop];
-      // As `<ev-card>` names them: `autoProgress` is `autoprogress`.
-      const attribute = prop.toLowerCase();
-
-      if (value === undefined || value === null) return [];
-      if (value === true) return [[attribute, ""]];
-      return [[attribute, String(value)]];
-    })
-  );
-}
-
 // Written by hand: given them as props, React 19 sets `autofocus` and
 // `spellcheck` as the element's properties, which read "" as false.
 function useAttributes(
@@ -303,7 +280,7 @@ function fieldElement<P extends object, E extends HTMLElement>(
     const deprecated = React.useContext(DeprecatedCardContext);
     useAttributes(
       ref,
-      attributes(
+      fieldAttributes(
         elementAttributes.map(([prop]) => prop),
         props,
         fallbacks(deprecated, props)

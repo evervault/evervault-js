@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { customFieldError, validationRulesKey } from "shared";
-import type { CustomFieldError } from "shared";
-import { declaredCustomFields } from "./customField";
-import type { CustomFieldProps } from "./customField";
+import {
+  customFieldError,
+  declaredCustomFields,
+  validationRulesKey,
+} from "shared";
+import type { CustomFieldError, CustomFieldProps } from "shared";
 import type { CardSpecNode } from "types";
 
 // Every value the shopper types, and every error shown, is stored together with

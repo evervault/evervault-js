@@ -1,4 +1,4 @@
-import { CUSTOM_FIELD_TYPES } from "./customFieldTypes";
+import { CUSTOM_FIELD_TYPES } from "shared";
 import type { CardSpecNode, ExpiryHalf } from "types";
 
 // What the card logs for the developer, shared with the tests that check it.

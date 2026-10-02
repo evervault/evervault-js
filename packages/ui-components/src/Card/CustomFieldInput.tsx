@@ -1,6 +1,6 @@
 import { FocusEvent, HTMLAttributes } from "react";
 import { capitalised } from "./customField";
-import type { CustomFieldProps } from "./customField";
+import type { CustomFieldProps } from "shared";
 import type { CustomFieldInputId } from "./types";
 
 interface CustomFieldInputProps {

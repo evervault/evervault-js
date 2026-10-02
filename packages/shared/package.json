@@ -13,7 +13,8 @@
     "./cvc": "./src/cvc.ts",
     "./cardFieldSettings": "./src/cardFieldSettings.ts",
     "./cardSpec": "./src/cardSpec.ts",
-    "./expiry": "./src/expiry.ts"
+    "./expiry": "./src/expiry.ts",
+    "./fieldProps": "./src/fieldProps.ts"
   },
   "dependencies": {
     "types": "workspace:*",
@@ -25,10 +26,12 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "devDependencies": {
     "typescript": "catalog:",
-    "tsconfig": "workspace:*"
+    "tsconfig": "workspace:*",
+    "vitest": "catalog:"
   }
 }

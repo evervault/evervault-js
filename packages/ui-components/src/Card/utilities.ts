@@ -7,9 +7,8 @@ import {
 } from "@evervault/card-validator";
 import { PromisifiedEvervaultClient } from "@evervault/react";
 import { customFieldError, isRefusedAmexCvc, UseFormReturn } from "shared";
-import type { CustomFieldError } from "shared";
+import type { CustomFieldError, CustomFieldProps } from "shared";
 import { ICONS } from "./icons";
-import type { CustomFieldProps } from "./customField";
 import { MagStripeData } from "./useCardReader";
 import type { CardForm } from "./types";
 import type {

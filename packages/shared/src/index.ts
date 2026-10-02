@@ -8,3 +8,4 @@ export * from "./cvc";
 export * from "./cardFieldSettings";
 export * from "./cardSpec";
 export * from "./expiry";
+export * from "./fieldProps";

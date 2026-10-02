@@ -1,5 +1,21 @@
+import { FIELD_ATTRIBUTES } from "./fieldAttributes";
+import type { FieldAttributeKind } from "./fieldAttributes";
+import { flag } from "./fieldProps";
+import type { CardSpecNode } from "types/cardSpec";
+
+export const CUSTOM_FIELD_TYPES = [
+  "text",
+  "email",
+  "tel",
+  "url",
+  "number",
+  "date",
+] as const;
+
+export type CustomFieldType = (typeof CUSTOM_FIELD_TYPES)[number];
+
 export interface CustomFieldRules {
-  type?: string;
+  type?: CustomFieldType;
   readOnly?: boolean;
   required?: boolean;
   minLength?: number;
@@ -144,4 +160,153 @@ export function customFieldError(
   if (field.pattern && !field.pattern.test(value)) return "invalid";
 
   return matchesType(field, value) ? undefined : "invalid";
+}
+
+export type AutoCapitalize = "none" | "sentences" | "words" | "characters";
+
+export interface CustomFieldProps {
+  name: string;
+  type: CustomFieldType;
+  label?: string;
+  placeholder?: string;
+  tooltip?: string;
+  defaultValue?: string;
+  autoComplete?: string;
+  autoProgress?: boolean;
+  readOnly?: boolean;
+  inputMode?: string;
+  autoCapitalize?: AutoCapitalize;
+  spellCheck?: boolean;
+  enterKeyHint?: string;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: RegExp;
+  min?: string;
+  max?: string;
+  step?: string;
+  errorMessage?: string;
+}
+
+export function isCustomFieldType(
+  value: string | undefined
+): value is CustomFieldType {
+  return (CUSTOM_FIELD_TYPES as readonly (string | undefined)[]).includes(
+    value
+  );
+}
+
+const SWITCH_WORDS = ["", "true", "on", "false", "off"];
+
+// A switch word turns autofill on or off; any other token is passed through.
+// https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill
+function autoComplete(value: string) {
+  if (!SWITCH_WORDS.includes(value.trim().toLowerCase())) return value;
+
+  return flag(value, "off") ? "on" : "off";
+}
+
+type AutoCapitalizeAttribute =
+  | "none"
+  | "off"
+  | "sentences"
+  | "on"
+  | "words"
+  | "characters";
+
+const AUTO_CAPITALIZE: Record<AutoCapitalizeAttribute, AutoCapitalize> = {
+  none: "none",
+  off: "none",
+  sentences: "sentences",
+  on: "sentences",
+  words: "words",
+  characters: "characters",
+};
+
+function isAutoCapitalizeAttribute(
+  value: string
+): value is AutoCapitalizeAttribute {
+  return value in AUTO_CAPITALIZE;
+}
+
+function autoCapitalize(value: string | undefined) {
+  const normalised = value?.trim().toLowerCase() ?? "";
+  return isAutoCapitalizeAttribute(normalised)
+    ? AUTO_CAPITALIZE[normalised]
+    : undefined;
+}
+
+function parseLength(value: string | undefined) {
+  if (value === undefined) return undefined;
+
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : undefined;
+}
+
+// The props whose parsing differs from their kind's.
+const PARSE_BY_PROP: Partial<
+  Record<keyof CustomFieldProps, (value: string) => unknown>
+> = {
+  autoComplete,
+  autoCapitalize,
+  minLength: parseLength,
+  maxLength: parseLength,
+  pattern: compilePattern,
+};
+
+// Parsed apart: name and type below, autofocus with the card fields' settings.
+const PARSED_ELSEWHERE = new Set(["name", "type", "autoFocus"]);
+
+export function customFieldProps(
+  node: CardSpecNode
+): CustomFieldProps | undefined {
+  const { props } = node;
+
+  if (!props.name) return undefined;
+
+  const type = props.type?.trim().toLowerCase();
+
+  const parse = (prop: keyof CustomFieldProps, kind: FieldAttributeKind) => {
+    const value = props[prop.toLowerCase()];
+    const parser = PARSE_BY_PROP[prop];
+
+    if (value === undefined) return undefined;
+    if (parser) return parser(value);
+    return kind === "flag" ? flag(value) : value;
+  };
+
+  return {
+    ...Object.fromEntries(
+      FIELD_ATTRIBUTES.field
+        .filter(([prop]) => !PARSED_ELSEWHERE.has(prop))
+        .map(([prop, kind]) => [
+          prop,
+          parse(prop as keyof CustomFieldProps, kind),
+        ])
+    ),
+    name: props.name,
+    type: isCustomFieldType(type) ? type : "text",
+  } as CustomFieldProps;
+}
+
+export function customFieldNodes(nodes: CardSpecNode[]): CardSpecNode[] {
+  return nodes.flatMap((node) => {
+    if (node.type === "row") return customFieldNodes(node.children ?? []);
+    return node.type === "field" ? [node] : [];
+  });
+}
+
+// The <ev-field> claiming each name, in declared order: the first wins.
+export function declaredCustomFields(
+  nodes: CardSpecNode[]
+): Map<string, CustomFieldProps> {
+  const declared = new Map<string, CustomFieldProps>();
+
+  customFieldNodes(nodes).forEach((node) => {
+    const props = customFieldProps(node);
+
+    if (props && !declared.has(props.name)) declared.set(props.name, props);
+  });
+
+  return declared;
 }

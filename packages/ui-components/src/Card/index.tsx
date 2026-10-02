@@ -16,12 +16,16 @@ import type { FocusEvent, ReactElement } from "react";
 import {
   compilePattern,
   customFieldInputId,
+  customFieldNodes,
+  customFieldProps,
+  declaredProps,
+  fieldProps,
   isRefusedAmexCvc,
   skippedNodes,
   useForm,
   useTranslations,
 } from "shared";
-import type { UseFormReturn } from "shared";
+import type { FieldProps, UseFormReturn } from "shared";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
 import { Tooltip } from "../Common/Tooltip";
@@ -34,11 +38,7 @@ import { CardExpiryHalf } from "./CardExpiryHalf";
 import { CardHolder } from "./CardHolder";
 import { CardNumber } from "./CardNumber";
 import { CustomFieldInput } from "./CustomFieldInput";
-import {
-  customFieldNodes,
-  customFieldProps,
-  customFieldWarnings,
-} from "./customField";
+import { customFieldWarnings } from "./customField";
 import { settingForInput, applyCardSettingsToFields } from "./fieldSettings";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useAgentTools } from "./useAgentTools";
@@ -47,8 +47,6 @@ import { skippedFieldWarning } from "./developerMessages";
 import { declaredExpiry, expiryError, joinExpiry, splitExpiry } from "./expiry";
 import type { ExpiryHalves } from "./expiry";
 import { isSpec, legacyNodes } from "./legacyFields";
-import { declaredProps, fieldProps } from "./props";
-import type { FieldProps } from "./props";
 import { declaredFields, declaredInputs, useSpec } from "./useSpec";
 import { useCustomFields } from "./useCustomFields";
 import { useFocusOrder } from "./useFocusOrder";
