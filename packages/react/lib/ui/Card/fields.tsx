@@ -2,12 +2,42 @@ import * as React from "react";
 import type { CardFieldMap, CardOptions } from "types";
 
 export interface CardFieldBaseProps {
+  /**
+   * Text shown above the field, in place of the card's own label.
+   */
   label?: string;
+
+  /**
+   * Text shown in the field while it is empty, in place of the card's own.
+   */
   placeholder?: string;
+
+  /**
+   * Text shown in a tooltip next to the field's label.
+   */
   tooltip?: string;
+
+  /**
+   * Whether the browser may autofill the field.
+   *
+   * @default true
+   */
   autoComplete?: boolean;
+
+  /**
+   * Whether the field takes focus when the card mounts.
+   */
   autoFocus?: boolean;
+
+  /**
+   * Whether to move focus to the next field once this one is filled. Overrides
+   * the card's `autoProgress` for this field.
+   */
   autoProgress?: boolean;
+
+  /**
+   * Replaces the text of the error shown under this field.
+   */
   errorMessage?: string;
 }
 
@@ -16,7 +46,15 @@ export interface CardRowProps {
 }
 
 export interface CardNumberProps extends CardFieldBaseProps {
+  /**
+   * Where the card brand's icon sits in the field, for the theme to place it.
+   */
   iconPosition?: string;
+
+  /**
+   * Replaces the text of the error for a card whose brand the card does not
+   * accept.
+   */
   unsupportedBrandMessage?: string;
 }
 
@@ -27,39 +65,158 @@ export type CardExpiryMonthProps = CardFieldBaseProps;
 export type CardExpiryYearProps = CardFieldBaseProps;
 
 export interface CardCvcProps extends CardFieldBaseProps {
+  /**
+   * Whether to hide the security code's digits as they are typed.
+   */
   redact?: boolean;
+
+  /**
+   * Whether the card is complete without a security code.
+   *
+   * @default false
+   */
   optional?: boolean;
+
+  /**
+   * Whether an American Express security code may be 3 digits rather than 4.
+   *
+   * @default true
+   */
   allow3DigitAmex?: boolean;
 }
 
 export interface CardHolderProps extends CardFieldBaseProps {
+  /**
+   * The name the field starts with. A changed default replaces only a name
+   * the shopper hasn't changed.
+   */
   defaultValue?: string;
+
+  /**
+   * A pattern the whole name must match, as HTML's `pattern`.
+   */
   pattern?: string;
 }
 
 export interface CardFieldProps {
+  /**
+   * The key the field's encrypted value is reported under, in the payload's
+   * `fields`.
+   */
   name: string;
+
+  /**
+   * The kind of value the field takes, as HTML's input `type`. An `email`,
+   * `url`, `number` or `date` value must be one.
+   *
+   * @default "text"
+   */
   type?: "text" | "email" | "tel" | "url" | "number" | "date";
+
+  /**
+   * Text shown above the field.
+   */
   label?: string;
+
+  /**
+   * Text shown in the field while it is empty.
+   */
   placeholder?: string;
+
+  /**
+   * Text shown in a tooltip next to the field's label.
+   */
   tooltip?: string;
+
+  /**
+   * The value the field starts with. A changed default replaces only a value
+   * the shopper hasn't changed.
+   */
   defaultValue?: string;
-  // `true`/`false` turn autofill on or off; a string is a browser token.
+
+  /**
+   * `true` or `false` turns autofill on or off. A string, such as
+   * `postal-code`, tells the browser what the field is for.
+   */
   autoComplete?: boolean | string;
+
+  /**
+   * Whether the field takes focus when the card mounts.
+   */
   autoFocus?: boolean;
+
+  /**
+   * Whether to move focus to the next field once this one holds its
+   * `maxLength`. Overrides the card's `autoProgress` for this field.
+   */
   autoProgress?: boolean;
+
+  /**
+   * Whether the shopper can't change the value. A read-only field is never
+   * invalid.
+   */
   readOnly?: boolean;
+
+  /**
+   * The keyboard to show for the field, as HTML's `inputmode`.
+   */
   inputMode?: string;
+
+  /**
+   * Which letters to capitalize as the shopper types, as HTML's
+   * `autocapitalize`.
+   */
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
+
+  /**
+   * Whether the browser checks the field's spelling, as HTML's `spellcheck`.
+   */
   spellCheck?: boolean;
+
+  /**
+   * The label of the keyboard's enter key, as HTML's `enterkeyhint`.
+   */
   enterKeyHint?: string;
+
+  /**
+   * Whether the card is incomplete while the field is empty.
+   */
   required?: boolean;
+
+  /**
+   * The shortest value the field takes.
+   */
   minLength?: number;
+
+  /**
+   * The longest value the field takes.
+   */
   maxLength?: number;
+
+  /**
+   * A pattern the whole value must match, as HTML's `pattern`.
+   */
   pattern?: string;
+
+  /**
+   * The lowest `number` or `date` value the field takes, as HTML's `min`.
+   */
   min?: string;
+
+  /**
+   * The highest `number` or `date` value the field takes, as HTML's `max`.
+   */
   max?: string;
+
+  /**
+   * The steps a `number` or `date` value must keep to from `min`, as HTML's
+   * `step`.
+   */
   step?: string;
+
+  /**
+   * Replaces the text of the error shown under this field.
+   */
   errorMessage?: string;
 }
 
