@@ -680,7 +680,7 @@ export function Card({ config }: { config: CardConfig }) {
         {
           errorMessage:
             props.errorMessage ??
-            declared.get(`expiry-${otherPart}`)?.errorMessage,
+            declared.get(`expiry-${otherHalf}`)?.errorMessage,
         },
         "expiry",
         form.errors?.expiry
@@ -721,8 +721,8 @@ export function Card({ config }: { config: CardConfig }) {
             disabled={!config}
             readOnly={cardReaderListening}
             placeholder={props.placeholder ?? t(`${node.type}.placeholder`)}
-            autoComplete={autoCompleteOf(`expiry-${part}`, props)}
-            autoProgress={autoProgressOf(`expiry-${part}`)}
+            autoComplete={autoCompleteOf(`expiry-${half}`, props)}
+            autoProgress={autoProgressOf(`expiry-${half}`)}
             onComplete={
               half === "month" ? advanceFromExpiryMonth : advanceFromExpiryYear
             }
