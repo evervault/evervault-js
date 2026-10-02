@@ -75,7 +75,7 @@ select {
   }
 }
 
-[ev-component="card"][ev-fields*="cvc"][ev-fields*="expiry"] {
+[ev-component="card"][ev-layout="auto"][ev-fields*="cvc"][ev-fields*="expiry"] {
   & .field[ev-name="expiry"],
   & .field[ev-name="cvc"] {
     grid-column: auto;

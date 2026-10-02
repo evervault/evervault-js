@@ -151,21 +151,22 @@ export function minimal(
             },
           },
 
-          "[ev-component=card][ev-fields*=cvc][ev-fields*=expiry]": {
-            "& .field[ev-name=expiry]": {
-              "& input": {
-                borderBottomLeftRadius: "var(--ev-roundness, 6px)",
+          "[ev-component=card][ev-layout=auto][ev-fields*=cvc][ev-fields*=expiry]":
+            {
+              "& .field[ev-name=expiry]": {
+                "& input": {
+                  borderBottomLeftRadius: "var(--ev-roundness, 6px)",
+                },
+              },
+
+              "& .field[ev-name=cvc]": {
+                marginLeft: "-1px",
+
+                "& input": {
+                  borderBottomLeftRadius: 0,
+                },
               },
             },
-
-            "& .field[ev-name=cvc]": {
-              marginLeft: "-1px",
-
-              "& input": {
-                borderBottomLeftRadius: 0,
-              },
-            },
-          },
 
           "[ev-component=pin]": {
             gap: 0,
