@@ -154,9 +154,12 @@ export class EvCard extends ElementBase {
   }
 
   #setTheme(value: EvCard["theme"]) {
+    // A theme definition is never written to the attribute, so its changes go
+    // unseen by the observer.
+    this.#changed();
+
     if (value !== undefined && value !== null && typeof value !== "string") {
       this.#theme = value;
-      this.#changed();
       return;
     }
 
