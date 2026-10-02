@@ -1,5 +1,14 @@
 import * as React from "react";
 import type { CardFieldMap, CardOptions } from "types";
+import type {
+  EvCardCvc,
+  EvCardExpiry,
+  EvCardExpiryMonth,
+  EvCardExpiryYear,
+  EvCardHolder,
+  EvCardNumber,
+  EvField,
+} from "@evervault/browser";
 
 export interface CardFieldBaseProps {
   /**
@@ -305,10 +314,12 @@ function useAttributes(
   });
 }
 
-function fieldElement<P extends object>(
+// Each name is checked against the element's own properties, so a prop the
+// element doesn't take fails to compile.
+function fieldElement<P extends object, E extends HTMLElement>(
   displayName: string,
   tag: string,
-  names: readonly (keyof P & string)[],
+  names: readonly (keyof P & keyof E & string)[],
   fallbacks: (deprecated: DeprecatedCardProps, props: P) => Partial<P>
 ) {
   function Component(props: P) {
@@ -344,42 +355,48 @@ export function CardRow({ children }: CardRowProps) {
 
 CardRow.displayName = "Card.Row";
 
-export const CardHolder = fieldElement<CardHolderProps>(
+export const CardHolder = fieldElement<CardHolderProps, EvCardHolder>(
   "Card.Holder",
   "ev-card-holder",
   [...COMMON, "defaultValue", "pattern"],
   autoCompleteFor("name")
 );
 
-export const CardNumber = fieldElement<CardNumberProps>(
+export const CardNumber = fieldElement<CardNumberProps, EvCardNumber>(
   "Card.Number",
   "ev-card-number",
   [...COMMON, "iconPosition", "unsupportedBrandMessage"],
   autoCompleteFor("number")
 );
 
-export const CardExpiry = fieldElement<CardExpiryProps>(
+export const CardExpiry = fieldElement<CardExpiryProps, EvCardExpiry>(
   "Card.Expiry",
   "ev-card-expiry",
   COMMON,
   autoCompleteFor("expiry")
 );
 
-export const CardExpiryMonth = fieldElement<CardExpiryMonthProps>(
+export const CardExpiryMonth = fieldElement<
+  CardExpiryMonthProps,
+  EvCardExpiryMonth
+>(
   "Card.ExpiryMonth",
   "ev-card-expiry-month",
   COMMON,
   autoCompleteFor("expiryMonth", "expiry")
 );
 
-export const CardExpiryYear = fieldElement<CardExpiryYearProps>(
+export const CardExpiryYear = fieldElement<
+  CardExpiryYearProps,
+  EvCardExpiryYear
+>(
   "Card.ExpiryYear",
   "ev-card-expiry-year",
   COMMON,
   autoCompleteFor("expiryYear", "expiry")
 );
 
-export const CardCvc = fieldElement<CardCvcProps>(
+export const CardCvc = fieldElement<CardCvcProps, EvCardCvc>(
   "Card.Cvc",
   "ev-card-cvc",
   [...COMMON, "redact", "optional", "allow3DigitAmex"],
@@ -390,7 +407,7 @@ export const CardCvc = fieldElement<CardCvcProps>(
   })
 );
 
-export const CardField = fieldElement<CardFieldProps>(
+export const CardField = fieldElement<CardFieldProps, EvField>(
   "Card.Field",
   "ev-field",
   CUSTOM_FIELD,
