@@ -20,7 +20,10 @@ function html(element: React.ReactElement) {
   return render(element).container.innerHTML;
 }
 
-// As browsers do: React 19 sets a prop an element has as that property.
+// Browsers reflect these attributes as properties (`element.autofocus`), and
+// React 19 sets a prop the element has as that property, not the attribute.
+// The test defines them the way browsers do:
+// https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Reflected_attributes
 const REFLECTED = ["autofocus", "spellcheck"];
 
 describe("card elements keeping autofocus and spellcheck as attributes where the browser reflects them", () => {
