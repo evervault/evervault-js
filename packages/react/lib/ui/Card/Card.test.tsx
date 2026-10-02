@@ -12,7 +12,7 @@ import {
   fakeClient,
   registerFakeEvCard,
   settle,
-} from "./testing";
+} from "../../../test/helpers/card";
 
 registerFakeEvCard();
 

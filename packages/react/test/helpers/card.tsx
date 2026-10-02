@@ -1,8 +1,8 @@
 import * as React from "react";
 import { act } from "@testing-library/react";
 import { afterEach, beforeAll, vi } from "vitest";
-import { EvervaultContext } from "../../context";
-import type { PromisifiedEvervaultClient } from "../../load/client";
+import { EvervaultContext } from "../../lib/context";
+import type { PromisifiedEvervaultClient } from "../../lib/load/client";
 
 // Stands in for the `<ev-card>` the browser SDK registers, recording what the
 // wrapper hands it.

@@ -6,7 +6,7 @@ import * as React from "react";
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Card, type CardRef } from ".";
-import { fakeClient, settle } from "./testing";
+import { fakeClient, settle } from "../../../test/helpers/card";
 
 describe("Card from its options", () => {
   it("mounts the card from its options by default", async () => {
