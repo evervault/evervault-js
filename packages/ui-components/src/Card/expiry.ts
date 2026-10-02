@@ -2,7 +2,7 @@ import { fieldTypes } from "shared/fieldTypes";
 import { COMBINED_EXPIRY_WITH_HALF, loneExpiryHalf } from "./developerMessages";
 import type { CardSpecNode, ExpiryHalf } from "types";
 
-export interface ExpiryParts {
+export interface ExpiryHalves {
   month: string;
   year: string;
 }
@@ -48,10 +48,10 @@ export function declaredExpiry(nodes: CardSpecNode[]): DeclaredExpiry {
 
 // The one expiry two halves hold. A year only means something behind a
 // complete month, so until then the value is the month alone.
-export function joinExpiry({ month, year }: ExpiryParts): string {
+export function joinExpiry({ month, year }: ExpiryHalves): string {
   return month.length === 2 ? month + year : month;
 }
 
-export function splitExpiry(expiry: string): ExpiryParts {
+export function splitExpiry(expiry: string): ExpiryHalves {
   return { month: expiry.slice(0, 2), year: expiry.slice(2, 4) };
 }

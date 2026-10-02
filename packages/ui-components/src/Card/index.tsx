@@ -22,7 +22,7 @@ import { useMessaging } from "../utilities/useMessaging";
 import { BrandIcon } from "./BrandIcon";
 import { CardCVC } from "./CardCVC";
 import { CardExpiry } from "./CardExpiry";
-import { CardExpiryPart } from "./CardExpiryPart";
+import { CardExpiryHalf } from "./CardExpiryHalf";
 import { CardHolder } from "./CardHolder";
 import { CardNumber } from "./CardNumber";
 import { DEFAULT_TRANSLATIONS } from "./translations";
@@ -30,7 +30,7 @@ import { useAgentTools } from "./useAgentTools";
 import { useCardReader } from "./useCardReader";
 import { duplicateField } from "./developerMessages";
 import { declaredExpiry, expiryError, joinExpiry, splitExpiry } from "./expiry";
-import type { ExpiryParts } from "./expiry";
+import type { ExpiryHalves } from "./expiry";
 import { isSpec, legacyNodes } from "./legacyFields";
 import { declaredProps, fieldProps } from "./props";
 import { declaredFields, declaredInputs, inputFor, useSpec } from "./useSpec";
@@ -265,23 +265,23 @@ export function Card({ config }: { config: CardConfig }) {
 
   // What the shopper typed in each half. A year typed before the month
   // isn't part of the form's date yet, so it's kept here.
-  const [storedParts, setStoredParts] = useState(() =>
+  const [storedHalves, setStoredHalves] = useState(() =>
     splitExpiry(form.values.expiry)
   );
   const split = expiry?.form === "split";
 
-  let expiryParts = storedParts;
+  let expiryHalves = storedHalves;
 
   // Something else changed the date, such as the card reader, so split it again.
-  if (split && joinExpiry(storedParts) !== form.values.expiry) {
-    expiryParts = splitExpiry(form.values.expiry);
-    setStoredParts(expiryParts);
+  if (split && joinExpiry(storedHalves) !== form.values.expiry) {
+    expiryHalves = splitExpiry(form.values.expiry);
+    setStoredHalves(expiryHalves);
   }
 
-  const changeExpiryPart = (part: keyof ExpiryParts) => (value: string) => {
-    const parts = { ...expiryParts, [part]: value };
-    setStoredParts(parts);
-    form.setValue("expiry", joinExpiry(parts));
+  const changeExpiryHalf = (half: keyof ExpiryHalves) => (value: string) => {
+    const halves = { ...expiryHalves, [half]: value };
+    setStoredHalves(halves);
+    form.setValue("expiry", joinExpiry(halves));
   };
 
   const cardReaderListening = useCardReader((card) => {
@@ -537,8 +537,8 @@ export function Card({ config }: { config: CardConfig }) {
     }
 
     if (node.type === "expiryMonth" || node.type === "expiryYear") {
-      const part = node.type === "expiryMonth" ? "month" : "year";
-      const otherPart = part === "month" ? "year" : "month";
+      const half = node.type === "expiryMonth" ? "month" : "year";
+      const otherHalf = half === "month" ? "year" : "month";
       const later = expiry?.form === "split" && expiry.later === node.type;
       const error =
         form.errors?.expiry && t(`expiry.errors.${form.errors.expiry}`);
@@ -549,8 +549,8 @@ export function Card({ config }: { config: CardConfig }) {
       // Tabbing into the other half while it's empty isn't finishing the date.
       const onBlur = (event: FocusEvent<HTMLInputElement>) => {
         const startingOtherHalf =
-          event.relatedTarget?.id === `expiry-${otherPart}` &&
-          expiryParts[otherPart] === "";
+          event.relatedTarget?.id === `expiry-${otherHalf}` &&
+          expiryHalves[otherHalf] === "";
 
         if (startingOtherHalf) {
           // Only fires the card's `blur` event.
@@ -564,17 +564,17 @@ export function Card({ config }: { config: CardConfig }) {
       return (
         <Field
           key={node.id}
-          name={`expiry-${part}`}
-          hasValue={expiryParts[part].length > 0}
+          name={`expiry-${half}`}
+          hasValue={expiryHalves[half].length > 0}
           error={error}
         >
-          <label htmlFor={`expiry-${part}`}>
+          <label htmlFor={`expiry-${half}`}>
             {props.label ?? t(`${node.type}.label`)}
           </label>
           {props.tooltip && <Tooltip>{props.tooltip}</Tooltip>}
-          <CardExpiryPart
-            part={part}
-            value={expiryParts[part]}
+          <CardExpiryHalf
+            half={half}
+            value={expiryHalves[half]}
             disabled={!config}
             readOnly={cardReaderListening}
             placeholder={props.placeholder ?? t(`${node.type}.placeholder`)}
@@ -583,13 +583,13 @@ export function Card({ config }: { config: CardConfig }) {
             }
             autoProgress={config.autoProgress ?? false}
             onComplete={
-              part === "month" ? advanceFromExpiryMonth : advanceFromExpiryYear
+              half === "month" ? advanceFromExpiryMonth : advanceFromExpiryYear
             }
-            onChange={changeExpiryPart(part)}
+            onChange={changeExpiryHalf(half)}
             onBlur={onBlur}
             onFocus={handleFocus("expiry")}
             onKeyUp={handleKeyUp("expiry")}
-            onKeyDown={handleKeyDown("expiry", `expiry-${part}`)}
+            onKeyDown={handleKeyDown("expiry", `expiry-${half}`)}
           />
           {later && error && <Error>{error}</Error>}
         </Field>

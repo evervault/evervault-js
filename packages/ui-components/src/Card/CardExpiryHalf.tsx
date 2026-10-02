@@ -1,10 +1,10 @@
 import { FocusEvent, useEffect, useRef } from "react";
 import { useMask } from "../utilities/useMask";
 import { EXPIRY_BLOCKS } from "./CardExpiry";
-import type { ExpiryParts } from "./expiry";
+import type { ExpiryHalves } from "./expiry";
 
-interface CardExpiryPartProps {
-  part: keyof ExpiryParts;
+interface CardExpiryHalfProps {
+  half: keyof ExpiryHalves;
   onChange: (value: string) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: FocusEvent<HTMLInputElement>) => void;
@@ -19,7 +19,7 @@ interface CardExpiryPartProps {
   onComplete?: () => void;
 }
 
-const PARTS = {
+const HALVES = {
   month: {
     id: "expiry-month",
     mask: "MM",
@@ -34,8 +34,8 @@ const YEAR_BLOCK = {
   prepare: (value: string) => (value.length === 4 ? value.slice(2) : value),
 };
 
-export function CardExpiryPart({
-  part,
+export function CardExpiryHalf({
+  half,
   onChange,
   onBlur,
   disabled,
@@ -48,9 +48,9 @@ export function CardExpiryPart({
   onFocus,
   onKeyUp,
   onKeyDown,
-}: CardExpiryPartProps) {
+}: CardExpiryHalfProps) {
   const ref = useRef<HTMLInputElement>(null);
-  const { id, mask: pattern, autoComplete: token } = PARTS[part];
+  const { id, mask: pattern, autoComplete: token } = HALVES[half];
   const { setValue, mask } = useMask(ref, onChange, {
     mask: pattern,
     blocks: {
