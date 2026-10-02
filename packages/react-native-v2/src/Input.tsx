@@ -7,6 +7,7 @@ import {
   RefObject,
   useCallback,
   useContext,
+  useEffect,
   useImperativeHandle,
   useLayoutEffect,
   useMemo,
@@ -41,11 +42,14 @@ export interface FocusTarget {
 export interface FocusOrderContextValue {
   register(target: FocusTarget): () => void;
   next(target: FocusTarget): void;
+  // The id of the input holding focus, as its focus and blur events tell it.
+  focused: { current: string | null };
 }
 
 export const FocusOrderContext = createContext<FocusOrderContextValue>({
   register: () => () => {},
   next: () => {},
+  focused: { current: null },
 });
 
 export type EvervaultInput = Pick<
@@ -187,8 +191,9 @@ export interface EvervaultInputProps<Values extends Record<string, unknown>>
   write?(typed: string, stored: string): string;
   // The longest value an input without a mask takes.
   limit?: number;
-  // Whether leaving the input leaves a value ready to check; by default always.
-  checksOnBlur?(stored: string): boolean;
+  // Whether leaving the input leaves a value ready to check, given the input
+  // focus moved to; by default always.
+  checksOnBlur?(stored: string, focused: string | null): boolean;
 }
 
 export const EvervaultInput = forwardRef<
@@ -244,6 +249,23 @@ export const EvervaultInput = forwardRef<
   }, [obfuscateValue]);
 
   const value = read ? read(field.value ?? "") : field.value;
+  const id = props.id ?? String(field.name);
+
+  const pendingCheck = useRef<number | undefined>(undefined);
+
+  useEffect(() => () => cancelAnimationFrame(pendingCheck.current ?? 0), []);
+
+  const check = () => {
+    const shouldValidate =
+      validationMode === "onBlur" ||
+      validationMode === "onTouched" ||
+      validationMode === "all";
+    methods.setValue(field.name, methods.getValues(field.name), {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate,
+    });
+  };
 
   const input = (
     <MaskInput
@@ -254,20 +276,25 @@ export const EvervaultInput = forwardRef<
       // Strict props
       ref={mergeRefs(inputRef, field.ref)}
       editable={!field.disabled && (props.editable ?? true)}
+      onFocus={(evt) => {
+        focusOrder.focused.current = id;
+        props.onFocus?.(evt);
+      }}
       onBlur={(evt) => {
-        if (checksOnBlur && !checksOnBlur(field.value ?? "")) {
+        if (focusOrder.focused.current === id)
+          focusOrder.focused.current = null;
+
+        if (!checksOnBlur) {
+          check();
           props.onBlur?.(evt);
           return;
         }
 
-        const shouldValidate =
-          validationMode === "onBlur" ||
-          validationMode === "onTouched" ||
-          validationMode === "all";
-        methods.setValue(field.name, field.value, {
-          shouldDirty: true,
-          shouldTouch: true,
-          shouldValidate,
+        // The input focus moves to is focused only after this one blurs.
+        cancelAnimationFrame(pendingCheck.current ?? 0);
+        pendingCheck.current = requestAnimationFrame(() => {
+          const stored = methods.getValues(field.name) ?? "";
+          if (checksOnBlur(stored, focusOrder.focused.current)) check();
         });
         props.onBlur?.(evt);
       }}

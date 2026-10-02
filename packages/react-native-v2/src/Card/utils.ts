@@ -8,12 +8,11 @@ import type { CardBrandName, CardPayload } from "./types";
 import { type CardFormValues } from "./schema";
 import { DeepPartial, UseFormReturn } from "react-hook-form";
 import { type Encrypted, sdk } from "../sdk";
-import {
-  type CustomFieldRules,
-  compilePattern,
-  customFieldError,
-} from "./customFields";
-import type { CardFieldSettings, CardSettingsByField } from "./fieldSettings";
+import { compilePattern } from "shared/customField";
+import { isRefusedAmexCvc } from "shared/cvc";
+import type { CardFieldSettings } from "shared/cardFieldSettings";
+import { type CustomFieldRules, customFieldMessage } from "./customFields";
+import type { CardSettingsByField } from "./fieldSettings";
 
 export interface FormatPayloadContext {
   form: UseFormReturn<CardFormValues>;
@@ -46,7 +45,7 @@ async function formatCustomFields(
 
   for (const [name, rules] of context.customFields) {
     const value = typed?.[name] ?? "";
-    const error = customFieldError(value, rules);
+    const error = customFieldMessage(value, rules);
     const { isTouched } = context.form.getFieldState(
       `fields.${name}` as keyof CardFormValues
     );
@@ -159,19 +158,6 @@ export function areValuesComplete(
   return true;
 }
 
-// A 3-digit security code on an Amex card, which `allow3DigitAmex={false}` refuses.
-function isRefusedAmexCvc(
-  cvc: string,
-  number: string,
-  allow3DigitAmex: boolean | undefined
-) {
-  return (
-    allow3DigitAmex === false &&
-    cvc.length === 3 &&
-    validateNumber(number).brand === "american-express"
-  );
-}
-
 // A security code valid for the number that the field's settings accept.
 export function isCvcAccepted(
   cvc: string,
@@ -180,7 +166,11 @@ export function isCvcAccepted(
 ) {
   return (
     validateCVC(cvc, number).isValid &&
-    !isRefusedAmexCvc(cvc, number, settings.allow3DigitAmex)
+    !isRefusedAmexCvc(
+      cvc,
+      validateNumber(number).brand,
+      settings.allow3DigitAmex
+    )
   );
 }
 
@@ -198,7 +188,10 @@ export function isCvcComplete(
 
 // A name matching the holder's `pattern`, when it declares one.
 export function nameMatches(name: string, settings: CardFieldSettings = {}) {
-  const pattern = compilePattern(settings.pattern);
+  const pattern =
+    settings.pattern === undefined
+      ? undefined
+      : compilePattern(settings.pattern);
   return !pattern || pattern.test(name);
 }
 

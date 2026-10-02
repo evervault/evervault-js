@@ -5,6 +5,7 @@ import {
   EvervaultInput,
 } from "../Input";
 import { CustomFieldRules, CustomFieldsContext } from "./customFields";
+import { declaredField } from "./declaredFields";
 
 export interface CardFieldProps
   extends BaseEvervaultInputProps,
@@ -19,7 +20,7 @@ export interface CardFieldProps
 
 export type CardField = EvervaultInput;
 
-export const CardField = forwardRef<CardField, CardFieldProps>(
+const CardFieldElement = forwardRef<CardField, CardFieldProps>(
   function CardField(
     { name, required, minLength, maxLength, pattern, errorMessage, ...props },
     ref
@@ -52,4 +53,10 @@ export const CardField = forwardRef<CardField, CardFieldProps>(
       />
     );
   }
+);
+
+export const CardField = declaredField(
+  "field",
+  CardFieldElement,
+  (props) => props.name
 );

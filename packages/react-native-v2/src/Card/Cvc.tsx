@@ -11,6 +11,7 @@ import { validateNumber } from "@evervault/card-validator";
 import { useFormContext } from "react-hook-form";
 import { CardBrandName } from "./types";
 import { useCardFieldSettings } from "./fieldSettings";
+import { declaredField } from "./declaredFields";
 
 const DEFAULT_CARD_CVC_MASK = mask("[999]");
 
@@ -50,7 +51,7 @@ export interface CardCvcProps
 
 export type CardCvc = EvervaultInput;
 
-export const CardCvc = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
+const CardCvcElement = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
   { errorMessage, optional, allow3DigitAmex, ...props },
   ref
 ) {
@@ -85,3 +86,5 @@ export const CardCvc = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
     />
   );
 });
+
+export const CardCvc = declaredField("cvc", CardCvcElement);

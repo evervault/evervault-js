@@ -3,6 +3,7 @@ import { forwardRef } from "react";
 import { BaseEvervaultInputProps, EvervaultInput } from "../Input";
 import { CardFormValues } from "./schema";
 import { useCardFieldSettings } from "./fieldSettings";
+import { declaredField } from "./declaredFields";
 
 export interface CardHolderProps extends BaseEvervaultInputProps {
   /**
@@ -18,7 +19,7 @@ export interface CardHolderProps extends BaseEvervaultInputProps {
 
 export type CardHolder = EvervaultInput;
 
-export const CardHolder = forwardRef<CardHolder, CardHolderProps>(
+const CardHolderElement = forwardRef<CardHolder, CardHolderProps>(
   function CardHolder({ errorMessage, pattern, ...props }, ref) {
     useCardFieldSettings("name", { errorMessage, pattern });
 
@@ -38,3 +39,5 @@ export const CardHolder = forwardRef<CardHolder, CardHolderProps>(
     );
   }
 );
+
+export const CardHolder = declaredField("name", CardHolderElement);

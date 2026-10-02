@@ -8,7 +8,7 @@ import { vi } from "vitest";
 import { encryptedValue } from "../__mocks__/NativeEvervault";
 import { lastPayload, renderCard, wrapper } from "../../test/helpers/card";
 import { Card } from "./Root";
-import { CUSTOM_FIELD_ERRORS } from "./customFields";
+import { CUSTOM_FIELD_ERRORS } from "shared/customField";
 import { CardField, CardFieldProps } from "./Field";
 import { CardHolder } from "./Holder";
 
@@ -152,6 +152,73 @@ it("keeps a field's place in the payload when its rules change", async () => {
     "postcode",
     "email",
   ]);
+});
+
+describe("rules that change", () => {
+  it("drop the value typed under the old ones", async () => {
+    const { onChange, getByTestId, rerender } = await renderCard(
+      <CardField testID="code" name="code" pattern="\\d+" />
+    );
+
+    const user = userEvent.setup();
+    await user.type(getByTestId("code"), "123");
+
+    await rerender(
+      <Card onChange={onChange}>
+        <CardField testID="code" name="code" pattern="\\d{3}" />
+      </Card>
+    );
+
+    expect(getByTestId("code")).toHaveDisplayValue("");
+    await waitFor(() =>
+      expect(lastPayload(onChange)).toMatchObject({
+        fields: { code: null },
+        errors: {},
+      })
+    );
+  });
+
+  it("drop the error shown under the old ones", async () => {
+    const { onChange, getByTestId, rerender } = await renderCard(
+      <CardField testID="code" name="code" pattern="\\d+" />
+    );
+
+    const user = userEvent.setup();
+    await user.type(getByTestId("code"), "abc");
+    await waitFor(() =>
+      expect(lastPayload(onChange).errors.fields).toBeDefined()
+    );
+
+    await rerender(
+      <Card onChange={onChange}>
+        <CardField testID="code" name="code" pattern="[a-z]+" />
+      </Card>
+    );
+
+    await waitFor(() => expect(lastPayload(onChange).errors).toEqual({}));
+  });
+
+  it("keep the value when only the message changes", async () => {
+    const { getByTestId, rerender } = await renderCard(
+      <CardField testID="code" name="code" pattern="\\d+" />
+    );
+
+    const user = userEvent.setup();
+    await user.type(getByTestId("code"), "123");
+
+    await rerender(
+      <Card>
+        <CardField
+          testID="code"
+          name="code"
+          pattern="\\d+"
+          errorMessage="Digits only"
+        />
+      </Card>
+    );
+
+    expect(getByTestId("code")).toHaveDisplayValue("123");
+  });
 });
 
 describe("a name declared twice", () => {

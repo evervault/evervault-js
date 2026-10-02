@@ -7,11 +7,11 @@ import {
 } from "../Input";
 import { CardFormValues } from "./schema";
 import { useCardFieldSettings } from "./fieldSettings";
+import { declaredField } from "./declaredFields";
 
 const PART_MASK = mask("99");
 
 // Both halves write the one expiry, "MMYY", the month padded while partial.
-// Leaving a half checks the expiry only once the other half holds something.
 function month(stored: string) {
   return stored.slice(0, 2).trim();
 }
@@ -38,7 +38,7 @@ export type CardExpiryMonthProps = CardExpiryPartProps;
 
 export type CardExpiryMonth = EvervaultInput;
 
-export const CardExpiryMonth = forwardRef<
+const CardExpiryMonthElement = forwardRef<
   CardExpiryMonth,
   CardExpiryMonthProps
 >(function CardExpiryMonth({ errorMessage, ...props }, ref) {
@@ -54,7 +54,10 @@ export const CardExpiryMonth = forwardRef<
       mask={PART_MASK}
       read={month}
       write={(typed, stored) => join(typed, year(stored))}
-      checksOnBlur={(stored) => year(stored).length > 0}
+      // Moving into the other half while it's empty isn't finishing the date.
+      checksOnBlur={(stored, focused) =>
+        !(focused === "expiry-year" && year(stored).length === 0)
+      }
       inputMode="numeric"
       autoComplete="cc-exp-month"
       keyboardType="number-pad"
@@ -66,7 +69,7 @@ export type CardExpiryYearProps = CardExpiryPartProps;
 
 export type CardExpiryYear = EvervaultInput;
 
-export const CardExpiryYear = forwardRef<CardExpiryYear, CardExpiryYearProps>(
+const CardExpiryYearElement = forwardRef<CardExpiryYear, CardExpiryYearProps>(
   function CardExpiryYear({ errorMessage, ...props }, ref) {
     useCardFieldSettings("expiry", { errorMessage });
 
@@ -80,11 +83,23 @@ export const CardExpiryYear = forwardRef<CardExpiryYear, CardExpiryYearProps>(
         mask={PART_MASK}
         read={year}
         write={(typed, stored) => join(month(stored), typed)}
-        checksOnBlur={(stored) => month(stored).length > 0}
+        checksOnBlur={(stored, focused) =>
+          !(focused === "expiry-month" && month(stored).length === 0)
+        }
         inputMode="numeric"
         autoComplete="cc-exp-year"
         keyboardType="number-pad"
       />
     );
   }
+);
+
+export const CardExpiryMonth = declaredField(
+  "expiryMonth",
+  CardExpiryMonthElement
+);
+
+export const CardExpiryYear = declaredField(
+  "expiryYear",
+  CardExpiryYearElement
 );

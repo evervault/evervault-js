@@ -7,6 +7,7 @@ import {
 } from "../Input";
 import { CardFormValues } from "./schema";
 import { useCardFieldSettings } from "./fieldSettings";
+import { declaredField } from "./declaredFields";
 
 const CARD_EXPIRY_MASK = mask("99 / 99");
 
@@ -21,7 +22,7 @@ export interface CardExpiryProps
 
 export type CardExpiry = EvervaultInput;
 
-export const CardExpiry = forwardRef<CardExpiry, CardExpiryProps>(
+const CardExpiryElement = forwardRef<CardExpiry, CardExpiryProps>(
   function CardExpiry({ errorMessage, ...props }, ref) {
     useCardFieldSettings("expiry", { errorMessage });
 
@@ -39,3 +40,5 @@ export const CardExpiry = forwardRef<CardExpiry, CardExpiryProps>(
     );
   }
 );
+
+export const CardExpiry = declaredField("expiry", CardExpiryElement);

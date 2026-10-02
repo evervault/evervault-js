@@ -1,15 +1,7 @@
 import { createContext, useContext, useId, useLayoutEffect } from "react";
+import type { CardFieldSettings } from "shared/cardFieldSettings";
 
 export type CardInputName = "name" | "number" | "expiry" | "cvc";
-
-// What a card field declares about how its value is judged and reported.
-export interface CardFieldSettings {
-  errorMessage?: string;
-  unsupportedBrandMessage?: string;
-  pattern?: string;
-  optional?: boolean;
-  allow3DigitAmex?: boolean;
-}
 
 export type CardSettingsByField = Partial<
   Record<CardInputName, CardFieldSettings>

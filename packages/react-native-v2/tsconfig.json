@@ -5,9 +5,9 @@
     "module": "esnext",
     "lib": ["dom", "DOM.Iterable", "esnext"],
     "jsx": "react-jsx",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "rootDir": "src",
-    "types": ["vitest/globals"],
+    "types": ["vitest/globals", "googlepay", "applepayjs"],
     "declaration": false,
     "declarationMap": false
   },

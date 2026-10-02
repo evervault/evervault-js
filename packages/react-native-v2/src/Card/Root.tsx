@@ -6,6 +6,7 @@ import {
   useImperativeHandle,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import { CardBrandName, CardConfig, CardPayload } from "./types";
 import { DeepPartial, FormProvider, Resolver, useForm } from "react-hook-form";
@@ -22,14 +23,25 @@ import {
 } from "../Input";
 import { EvervaultContextValue } from "../context";
 import {
+  checkedRules,
   CustomFieldsContext,
   CustomFieldsContextValue,
   DeclaredCustomField,
   rulesByName,
 } from "./customFields";
-import { duplicateFieldName, unreportableFieldName } from "./developerMessages";
 import {
-  CardFieldSettings,
+  expiryLayoutMessage,
+  skippedFieldWarning,
+  unreportableFieldName,
+} from "./developerMessages";
+import { DeclaredFieldsContext } from "./declaredFields";
+import type { DeclaredFieldsContextValue } from "./declaredFields";
+import type { CardFieldSettings } from "shared/cardFieldSettings";
+import { skippedNodes } from "shared/cardSpec";
+import { validationRulesKey } from "shared/customField";
+import { expiryLayoutError } from "shared/expiry";
+import type { CardSpecNode } from "types";
+import {
   CardFieldSettingsContext,
   CardFieldSettingsContextValue,
   CardInputName,
@@ -135,6 +147,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
   );
 
   const focusTargets = useRef<FocusTarget[]>([]);
+  const focused = useRef<string | null>(null);
 
   // Stable, so the inputs never register again and lose their first order.
   const focusOrder = useMemo<FocusOrderContextValue>(
@@ -153,32 +166,118 @@ export const Card = forwardRef<Card, CardProps>(function Card(
         const index = targets.indexOf(target);
         if (index !== -1) targets[index + 1]?.focus();
       },
+      focused,
     }),
     []
   );
 
+  // The fields in the order they declared themselves, as the card's tree.
+  const [declared, setDeclared] = useState<CardSpecNode[]>([]);
+
+  const declare = useMemo(
+    () => ({
+      set(node: CardSpecNode) {
+        setDeclared((current) => {
+          const index = current.findIndex(({ id }) => id === node.id);
+
+          if (index === -1) return [...current, node];
+          if (current[index].props.name === node.props.name) return current;
+
+          return current.map((field, i) => (i === index ? node : field));
+        });
+      },
+      remove(id: string) {
+        setDeclared((current) => current.filter((field) => field.id !== id));
+      },
+    }),
+    []
+  );
+
+  const refusal = useMemo(() => {
+    const error = expiryLayoutError(declared);
+    return error && expiryLayoutMessage(error);
+  }, [declared]);
+
+  // A refused tree leaves the card on the last one it could render.
+  const [renderable, setRenderable] = useState(refusal ? [] : declared);
+
+  if (!refusal && renderable !== declared) {
+    setRenderable(declared);
+  }
+
+  // Of the last tree it could render, only the fields still declared remain.
+  const nodes = useMemo(() => {
+    if (!refusal) return declared;
+
+    const kept = new Set(renderable.map(({ id }) => id));
+    return declared.filter(({ id }) => kept.has(id));
+  }, [refusal, renderable, declared]);
+
+  const skipped = useMemo(() => skippedNodes(nodes), [nodes]);
+
+  const declaredFieldsContext = useMemo<DeclaredFieldsContextValue>(
+    () => ({
+      ...declare,
+      shown: new Set(
+        nodes.filter((node) => !skipped.includes(node)).map(({ id }) => id)
+      ),
+    }),
+    [declare, nodes, skipped]
+  );
+
+  useEffect(() => {
+    if (refusal) console.error(refusal);
+  }, [refusal]);
+
+  const notices = useMemo(() => skipped.map(skippedFieldWarning), [skipped]);
+
+  // In an effect, not the render body, so a re-render does not warn again.
+  const warned = useRef("");
+
+  useEffect(() => {
+    const key = notices.join("\n");
+
+    if (key === warned.current) return;
+    warned.current = key;
+
+    notices.forEach((notice) => console.warn(notice));
+  }, [notices]);
+
   const customFields = useRef(new Map<string, DeclaredCustomField>());
+  const rulesKeys = useRef(new Map<string, string>());
   const emitChange = useRef<() => void>(() => {});
 
   // A field declared or dropped changes the payload without a value changing.
   const customFieldsContext = useMemo<CustomFieldsContextValue>(
     () => ({
       set(id, name, rules) {
-        const declared = customFields.current;
+        const fields = customFields.current;
 
-        if (declared.get(id)?.name !== name) {
-          if (name.includes(".")) {
-            console.warn(unreportableFieldName(name));
-          }
-          if ([...declared.values()].some((field) => field.name === name)) {
-            console.warn(duplicateFieldName(name));
-          }
+        if (fields.get(id)?.name !== name && name.includes(".")) {
+          console.warn(unreportableFieldName(name));
         }
 
-        declared.set(id, { name, rules });
+        fields.set(id, { name, rules });
+
+        // A value typed under other rules is dropped, with its error. This is
+        // for security: otherwise the app could keep changing the pattern to
+        // work out what was typed.
+        const key = validationRulesKey(checkedRules(rules));
+        const previous = rulesKeys.current.get(name);
+        rulesKeys.current.set(name, key);
+
+        if (previous !== undefined && previous !== key) {
+          methods.resetField(`fields.${name}` as keyof CardFormValues, {
+            defaultValue: "",
+          });
+        }
+
         emitChange.current();
       },
       remove(id) {
+        const field = customFields.current.get(id);
+        if (field) rulesKeys.current.delete(field.name);
+
         customFields.current.delete(id);
         emitChange.current();
       },
@@ -273,13 +372,15 @@ export const Card = forwardRef<Card, CardProps>(function Card(
   return (
     <FormProvider {...methods}>
       <EvervaultInputContext.Provider value={inputContext}>
-        <CustomFieldsContext.Provider value={customFieldsContext}>
-          <CardFieldSettingsContext.Provider value={fieldSettingsContext}>
-            <FocusOrderContext.Provider value={focusOrder}>
-              {children}
-            </FocusOrderContext.Provider>
-          </CardFieldSettingsContext.Provider>
-        </CustomFieldsContext.Provider>
+        <DeclaredFieldsContext.Provider value={declaredFieldsContext}>
+          <CustomFieldsContext.Provider value={customFieldsContext}>
+            <CardFieldSettingsContext.Provider value={fieldSettingsContext}>
+              <FocusOrderContext.Provider value={focusOrder}>
+                {children}
+              </FocusOrderContext.Provider>
+            </CardFieldSettingsContext.Provider>
+          </CustomFieldsContext.Provider>
+        </DeclaredFieldsContext.Provider>
       </EvervaultInputContext.Provider>
     </FormProvider>
   );

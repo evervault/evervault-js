@@ -84,11 +84,12 @@ it("reports an invalid date as the expiry's error", async () => {
 });
 
 it("reports no expiry error when the month is left for the year", async () => {
-  const { onChange, month } = await renderSplit();
+  const { onChange, month, year } = await renderSplit();
 
   const user = userEvent.setup();
-  await user.type(month, "12");
-  fireEvent(month, "blur");
+  await user.type(month, "12", { skipBlur: true });
+  await fireEvent(month, "blur");
+  await fireEvent(year, "focus");
 
   await waitFor(() => {
     expect(onChange).toHaveBeenLastCalledWith(
@@ -97,12 +98,42 @@ it("reports no expiry error when the month is left for the year", async () => {
   });
 });
 
+it("checks the expiry when the month is left for anywhere but the year", async () => {
+  const { onChange, month } = await renderSplit();
+
+  const user = userEvent.setup();
+  await user.type(month, "12");
+
+  await waitFor(() => {
+    expect(onChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({ errors: { expiry: "Invalid expiry" } })
+    );
+  });
+});
+
+it("checks the expiry when the month is left for a year already typed", async () => {
+  const { onChange, month, year } = await renderSplit();
+
+  const user = userEvent.setup();
+  await user.type(year, "2");
+  await user.type(month, "12", { skipBlur: true });
+  await fireEvent(month, "blur");
+  await fireEvent(year, "focus");
+
+  await waitFor(() => {
+    expect(onChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({ errors: { expiry: "Invalid expiry" } })
+    );
+  });
+});
+
 it("does not check the expiry while the year is being typed", async () => {
   const { onChange, month, year } = await renderSplit();
 
   const user = userEvent.setup();
-  await user.type(month, "12");
-  fireEvent(month, "blur");
+  await user.type(month, "12", { skipBlur: true });
+  await fireEvent(month, "blur");
+  await fireEvent(year, "focus");
   await user.type(year, "3", { skipBlur: true });
 
   expect(onChange).toHaveBeenLastCalledWith(

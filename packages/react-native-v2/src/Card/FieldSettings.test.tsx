@@ -13,7 +13,10 @@ import { CardExpiry } from "./Expiry";
 import { CardExpiryMonth, CardExpiryYear } from "./ExpiryPart";
 import { CardCvc } from "./Cvc";
 import { CardField } from "./Field";
-import { duplicateFieldName, unreportableFieldName } from "./developerMessages";
+import {
+  duplicateCustomField,
+  unreportableFieldName,
+} from "./developerMessages";
 
 const AMEX = "378282246310005";
 const VISA = "4242424242424242";
@@ -398,7 +401,7 @@ describe("Card.Field names", () => {
       </>
     );
 
-    expect(warn).toHaveBeenCalledWith(duplicateFieldName("postcode"));
+    expect(warn).toHaveBeenCalledWith(duplicateCustomField("postcode"));
     warn.mockRestore();
   });
 });

@@ -1,4 +1,10 @@
 import { createContext } from "react";
+import {
+  CUSTOM_FIELD_ERRORS,
+  compilePattern,
+  customFieldError,
+} from "shared/customField";
+import type { CustomFieldRules as CheckedRules } from "shared/customField";
 
 export interface CustomFieldRules {
   required?: boolean;
@@ -40,44 +46,23 @@ export function rulesByName(
   return byName;
 }
 
-export const CUSTOM_FIELD_ERRORS = {
-  required: "This field is required",
-  invalid: "Please enter a valid value",
-};
-
-// Anchored as in HTML; engines without the `v` flag fall back to `u`.
-export function compilePattern(source: string | undefined): RegExp | undefined {
-  if (source === undefined) return undefined;
-
-  for (const flags of ["v", "u"]) {
-    try {
-      return new RegExp(`^(?:${source})$`, flags);
-    } catch {
-      continue;
-    }
-  }
-
-  return undefined;
+// The rules as the shared checks take them, with the pattern compiled.
+export function checkedRules({
+  pattern,
+  ...rules
+}: CustomFieldRules): CheckedRules {
+  return {
+    ...rules,
+    pattern: pattern === undefined ? undefined : compilePattern(pattern),
+  };
 }
 
-// Why a value breaks its field's rules, or null when it keeps them. An empty
-// optional field keeps them.
-export function customFieldError(
+// Why a value breaks its field's rules, or null when it keeps them.
+export function customFieldMessage(
   value: string,
   rules: CustomFieldRules
 ): string | null {
-  if (value.length === 0) {
-    return rules.required
-      ? rules.errorMessage ?? CUSTOM_FIELD_ERRORS.required
-      : null;
-  }
+  const error = customFieldError(checkedRules(rules), value);
 
-  const pattern = compilePattern(rules.pattern);
-
-  const invalid =
-    (rules.minLength !== undefined && value.length < rules.minLength) ||
-    (rules.maxLength !== undefined && value.length > rules.maxLength) ||
-    (pattern !== undefined && !pattern.test(value));
-
-  return invalid ? rules.errorMessage ?? CUSTOM_FIELD_ERRORS.invalid : null;
+  return error ? rules.errorMessage ?? CUSTOM_FIELD_ERRORS[error] : null;
 }
