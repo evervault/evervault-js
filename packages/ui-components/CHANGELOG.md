@@ -1,5 +1,38 @@
 # @evervault/ui-components
 
+## 1.45.0
+
+### Minor Changes
+
+- d138341: Derive card auto-advance from the order the fields actually render in, rather than jumping to a fixed field id. With `autoProgress` enabled, completing a field now focuses whichever field comes next in that order, and backspace in an empty field steps back to the previous one. Completing the security code advances too.
+
+  Three behaviour changes for existing `autoProgress` integrations:
+
+  - **Cards that do not render every field now keep advancing.** Auto-advance used to look for the expiry (and then the security code) by id, so it stopped dead whenever that field was not on the card: `fields: ["number", "cvc"]` or `hiddenFields: "expiry"` left focus sitting in the number field once it was complete. Focus now moves on to the next field that is actually rendered — number to cvc in both of those examples.
+  - **Backspace in an empty field steps back**, on every card including the default `number, expiry, cvc` order: backspace in an empty security code now moves focus to the expiry, and that keystroke is cancelled so it does not delete a character there.
+  - **The security code advances once it fills the mask for its brand**, which is the longest length that brand accepts. A brand accepting three or four digits (American Express, and custom brands declaring both) only advances at four, as does a card number that has not yet identified a brand; a valid three digit code stays put, because the next digit may still be coming.
+
+  Forward auto-advance on a card rendering the full set of fields in the default order is unchanged.
+
+- d138341: Map the remaining per-field card options onto attributes of the `<ev-card-*>` elements, so a declared card no longer has to reach for the config object to set them:
+
+  - `label` and `placeholder` on any field element replace the translated text for that field.
+  - `tooltip` on any field element renders the text beside the label, in an element themes can target as `[ev-tooltip]`.
+  - `iconposition` on `<ev-card-number>` is carried onto the field as `ev-icon-position`, for the theme to place the brand icon.
+  - `autocomplete` on any field element, spelled the HTML way: `<ev-card-number autocomplete="off">` turns the browser's autofill off for that field.
+  - `autofocus` on any field element focuses it when the card renders, and `autofocus="false"` keeps focus away from it. A card declaring `autofocus` settles its own focus, so `config.autoFocus` no longer applies to it; declaring it on more than one field focuses the first of them, and focus never moves once the customer has started on the card.
+  - `redact` on `<ev-card-cvc>` masks the security code as it is typed.
+  - `optional` on `<ev-card-cvc>` accepts the card with an empty security code.
+  - `defaultvalue` on `<ev-card-holder>` fills the cardholder name in. It seeds the field rather than binding it: a changed default applies while the field is untouched, but never replaces a name the customer has typed, and seeding reports no `change` of its own. Hosts that want the name bound to their own state have `card.update({ defaultValues: { name } })`.
+
+  The boolean attributes follow the HTML convention: declaring one is enough to turn it on (`<ev-card-cvc redact>`), and only an explicit `="false"` turns it off. `autocomplete` also accepts `"off"`.
+
+  A declared attribute wins over the same option on the config object for that field. Cards that declare no children, or declare a field without the attribute, keep taking the value from the config exactly as before.
+
+### Patch Changes
+
+- @evervault/react@2.32.0
+
 ## 1.44.4
 
 ### Patch Changes
