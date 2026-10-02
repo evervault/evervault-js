@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.70.0
+
+### Minor Changes
+
+- 779cba9: Configure a declared `<ev-card>` from its own attributes. `theme` names a built-in theme (`clean`, `material` or `minimal`) as an attribute, or takes a theme definition as a property; `clean` is the default. `colorscheme` takes the values `ui.card()` accepts and is read once, when the card mounts. `autoprogress` turns auto-advance on, and only `autoprogress="false"` turns it off. Changing `theme` or `autoprogress` on a live card applies to it.
+
 ## 2.69.0
 
 ### Minor Changes
