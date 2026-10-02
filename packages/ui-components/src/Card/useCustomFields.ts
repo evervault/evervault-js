@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  canFillDefault,
   customFieldError,
   declaredCustomFields,
   validationRulesKey,
@@ -83,9 +84,7 @@ function useDefaultValues(
 
       const value = currentValues.get(name) ?? "";
 
-      // Only fill a field that's empty or still holds the previous default, so
-      // nothing the shopper typed is replaced.
-      if (value.length === 0 || value === previous) {
+      if (canFillDefault(value, previous)) {
         defaultsToFill.set(
           name,
           withRules(defaultValue, name, validationRulesKeys)

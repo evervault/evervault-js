@@ -1,4 +1,8 @@
-import { CUSTOM_FIELD_TYPES } from "./customField";
+import {
+  compilePattern,
+  CUSTOM_FIELD_TYPES,
+  isCustomFieldType,
+} from "./customField";
 import type { ExpiryLayoutError } from "./expiry";
 import type {
   CardSpecNode,
@@ -56,6 +60,18 @@ export function cardMessages(names: CardNames) {
     "expiryYear"
   )}. Declare the combined field or the two halves, not both.`;
 
+  const unsupportedFieldType = (name: string | undefined, type: string) => {
+    const types = CUSTOM_FIELD_TYPES.map((type) => `"${type}"`).join(", ");
+    return `${card} renders the ${node(
+      "field"
+    )} named "${name}" as a "text" field: "${type}" is not a type it supports. Types are: ${types}.`;
+  };
+
+  const invalidPattern = (name: string | undefined, pattern: string) =>
+    `${card} ignores the pattern of the ${node(
+      "field"
+    )} named "${name}": "${pattern}" is not a valid regular expression.`;
+
   const loneExpiryHalf = (declared: ExpiryHalf) => {
     const missing = declared === "expiryMonth" ? "expiryYear" : "expiryMonth";
     return `${card} declares ${node(declared)} without ${node(
@@ -84,17 +100,24 @@ export function cardMessages(names: CardNames) {
         : namelessCustomField;
     },
 
-    unsupportedFieldType(name: string | undefined, type: string) {
-      const types = CUSTOM_FIELD_TYPES.map((type) => `"${type}"`).join(", ");
-      return `${card} renders the ${node(
-        "field"
-      )} named "${name}" as a "text" field: "${type}" is not a type it supports. Types are: ${types}.`;
-    },
+    unsupportedFieldType,
 
-    invalidPattern(name: string | undefined, pattern: string) {
-      return `${card} ignores the pattern of the ${node(
-        "field"
-      )} named "${name}": "${pattern}" is not a valid regular expression.`;
+    invalidPattern,
+
+    // Why a custom field behaves differently from its declaration, if it does.
+    customFieldWarnings(node: CardSpecNode): string[] {
+      const { name, type, pattern } = node.props;
+      const warnings: string[] = [];
+
+      if (type !== undefined && !isCustomFieldType(type.trim().toLowerCase())) {
+        warnings.push(unsupportedFieldType(name, type));
+      }
+
+      if (pattern !== undefined && !compilePattern(pattern)) {
+        warnings.push(invalidPattern(name, pattern));
+      }
+
+      return warnings;
     },
   };
 }

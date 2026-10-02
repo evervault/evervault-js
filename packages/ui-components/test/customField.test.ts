@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { customFieldProps } from "shared";
 import type { CustomFieldProps } from "shared";
-import { capitalised, customFieldWarnings } from "../src/Card/customField";
-import { invalidPattern } from "../src/Card/developerMessages";
+import { capitalised } from "../src/Card/customField";
+import {
+  customFieldWarnings,
+  invalidPattern,
+} from "../src/Card/developerMessages";
 
 function declared(props: Record<string, string>): CustomFieldProps {
   const field = customFieldProps({

@@ -12,6 +12,7 @@ export const {
   expiryLayoutMessage,
   unsupportedFieldType,
   invalidPattern,
+  customFieldWarnings,
 } = messages;
 
 // Kept in the wording the web card already logs, not the shared one.

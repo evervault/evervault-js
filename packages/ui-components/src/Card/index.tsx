@@ -14,10 +14,12 @@ import {
 } from "react";
 import type { FocusEvent, ReactElement } from "react";
 import {
+  canFillDefault,
   compilePattern,
   customFieldInputId,
   customFieldNodes,
   customFieldProps,
+  declaredExpiry,
   declaredProps,
   fieldProps,
   isRefusedAmexCvc,
@@ -38,13 +40,12 @@ import { CardExpiryHalf } from "./CardExpiryHalf";
 import { CardHolder } from "./CardHolder";
 import { CardNumber } from "./CardNumber";
 import { CustomFieldInput } from "./CustomFieldInput";
-import { customFieldWarnings } from "./customField";
 import { settingForInput, applyCardSettingsToFields } from "./fieldSettings";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useAgentTools } from "./useAgentTools";
 import { useCardReader } from "./useCardReader";
-import { skippedFieldWarning } from "./developerMessages";
-import { declaredExpiry, expiryError, joinExpiry, splitExpiry } from "./expiry";
+import { customFieldWarnings, skippedFieldWarning } from "./developerMessages";
+import { expiryError, joinExpiry, splitExpiry } from "./expiry";
 import type { ExpiryHalves } from "./expiry";
 import { isSpec, legacyNodes } from "./legacyFields";
 import { declaredFields, declaredInputs, useSpec } from "./useSpec";
@@ -429,11 +430,7 @@ export function Card({ config }: { config: CardConfig }) {
     if (defaultName === undefined || defaultName === appliedDefaultName.current)
       return;
 
-    const seeded =
-      form.values.name.length === 0 ||
-      form.values.name === appliedDefaultName.current;
-
-    if (!seeded) return;
+    if (!canFillDefault(form.values.name, appliedDefaultName.current)) return;
 
     appliedDefaultName.current = defaultName;
     form.setValues((values) => ({ ...values, name: defaultName }));

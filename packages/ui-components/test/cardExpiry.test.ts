@@ -3,47 +3,8 @@ import {
   COMBINED_EXPIRY_WITH_HALF,
   loneExpiryHalf,
 } from "../src/Card/developerMessages";
-import {
-  declaredExpiry,
-  expiryError,
-  joinExpiry,
-  splitExpiry,
-} from "../src/Card/expiry";
+import { expiryError, joinExpiry, splitExpiry } from "../src/Card/expiry";
 import { node, row } from "./helpers/card";
-
-describe("declaredExpiry", () => {
-  it("finds no expiry in a tree declaring none", () => {
-    expect(declaredExpiry([node("number"), node("cvc")])).toBeNull();
-  });
-
-  it("finds the combined field", () => {
-    expect(declaredExpiry([node("number"), node("expiry")])).toEqual({
-      form: "combined",
-    });
-  });
-
-  it("finds the split halves and the one declared later", () => {
-    expect(
-      declaredExpiry([node("expiryMonth"), node("cvc"), node("expiryYear")])
-    ).toEqual({ form: "split", later: "expiryYear" });
-  });
-
-  it("takes the month as the later half when it follows the year", () => {
-    expect(declaredExpiry([node("expiryYear"), node("expiryMonth")])).toEqual({
-      form: "split",
-      later: "expiryMonth",
-    });
-  });
-
-  it("looks inside rows", () => {
-    expect(
-      declaredExpiry([
-        row("row", [node("expiryMonth")]),
-        row("row", [node("expiryYear")]),
-      ])
-    ).toEqual({ form: "split", later: "expiryYear" });
-  });
-});
 
 describe("expiryError", () => {
   it("accepts a tree without an expiry, the combined field, or both halves", () => {

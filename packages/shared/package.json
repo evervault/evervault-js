@@ -15,6 +15,7 @@
     "./cardSpec": "./src/cardSpec.ts",
     "./expiry": "./src/expiry.ts",
     "./fieldProps": "./src/fieldProps.ts",
+    "./defaultValue": "./src/defaultValue.ts",
     "./developerMessages": "./src/developerMessages.ts"
   },
   "dependencies": {
