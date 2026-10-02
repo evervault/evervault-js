@@ -30,3 +30,12 @@ export function unsupportedFieldType(name: string | undefined, type: string) {
 export function invalidPattern(name: string | undefined, pattern: string) {
   return `<ev-card> ignores the pattern of the <ev-field> named "${name}": "${pattern}" is not a valid regular expression.`;
 }
+
+// Why a declared node was left out of the card.
+export function skippedFieldWarning(node: CardSpecNode) {
+  if (node.type !== "field") return duplicateField(node.type);
+
+  return node.props.name
+    ? duplicateCustomField(node.props.name)
+    : NAMELESS_CUSTOM_FIELD;
+}

@@ -445,4 +445,19 @@ describe("<ev-field> events", () => {
       name: "postcode",
     });
   });
+
+  it("names a field called number apart from the card number", () => {
+    const container = card([
+      node("number"),
+      field("custom", { name: "number" }),
+    ]);
+
+    fireEvent.focus(input(container, "field-number"));
+
+    expect(send).toHaveBeenCalledWith("EV_FOCUS", {
+      field: "field",
+      name: "number",
+    });
+    expect(send).not.toHaveBeenCalledWith("EV_FOCUS", "number");
+  });
 });
