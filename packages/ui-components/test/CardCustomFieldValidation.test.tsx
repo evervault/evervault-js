@@ -210,7 +210,26 @@ describe("<ev-field> validation in the payload", () => {
       })
     );
     expect(lastSent("EV_CHANGE")?.fields).toEqual({ postcode: null });
-    expect(lastSent("EV_CHANGE")?.isValid).toBe(false);
+  });
+
+  it("keeps the card valid while a custom field shows an error", async () => {
+    const container = card([
+      node("name"),
+      field("postcode", { name: "postcode", pattern: POSTCODE }),
+    ]);
+
+    await userEvent.type(input(container, "name"), "Jane Doe");
+    const postcode = input(container, "field-postcode");
+    await userEvent.type(postcode, "123");
+    leave(postcode);
+
+    await waitFor(() =>
+      expect(lastSent("EV_CHANGE")?.errors).toEqual({
+        fields: { postcode: "invalid" },
+      })
+    );
+    expect(lastSent("EV_CHANGE")?.isValid).toBe(true);
+    expect(lastSent("EV_CHANGE")?.isComplete).toBe(false);
   });
 
   it("reports an invalid value as null before the field is left", async () => {
@@ -287,6 +306,21 @@ describe("<ev-field> validation in the payload", () => {
     await waitFor(() => expect(lastSent("EV_CHANGE")?.isComplete).toBe(true));
   });
 
+  it("stays valid but incomplete while a required field is left untouched", async () => {
+    const container = card([
+      node("name"),
+      field("postcode", { name: "postcode", required: "" }),
+    ]);
+
+    await userEvent.type(input(container, "name"), "Jane Doe");
+
+    await waitFor(() =>
+      expect(lastSent("EV_CHANGE")?.card.name).toBe("Jane Doe")
+    );
+    expect(lastSent("EV_CHANGE")?.isComplete).toBe(false);
+    expect(lastSent("EV_CHANGE")?.isValid).toBe(true);
+  });
+
   it("shows the errors of untouched fields when the card is validated", async () => {
     const container = card([
       field("postcode", { name: "postcode", required: "" }),
@@ -299,7 +333,8 @@ describe("<ev-field> validation in the payload", () => {
         fields: { postcode: "required" },
       })
     );
-    expect(lastSent("EV_VALIDATED")?.isValid).toBe(false);
+    expect(lastSent("EV_VALIDATED")?.isValid).toBe(true);
+    expect(lastSent("EV_VALIDATED")?.isComplete).toBe(false);
     expect(errorText(container)).toBe(REQUIRED);
   });
 

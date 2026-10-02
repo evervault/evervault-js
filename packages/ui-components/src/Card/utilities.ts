@@ -64,7 +64,7 @@ export async function changePayload(
       }),
     },
     fields: await encryptedFields(ev, checked),
-    isValid: form.isValid && custom.errors.size === 0,
+    isValid: form.isValid,
     isComplete: isComplete(form, fields, opts) && allValid(checked),
     errors: payloadErrors(form, custom),
   };
