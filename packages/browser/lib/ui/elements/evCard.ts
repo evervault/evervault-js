@@ -1,7 +1,9 @@
 import { clean } from "themes";
 import { CardHost } from "../cardHost";
 import { THEMES } from "./cardThemes";
+import type { ThemeName } from "./cardThemes";
 import { unknownTheme } from "./developerMessages";
+import { ElementBase, adoptProperties, readAttribute } from "./reflect";
 import { serialise } from "./spec";
 import type EvervaultClient from "../../main";
 import type {
@@ -12,11 +14,6 @@ import type {
 } from "types";
 
 export const EV_CARD_TAG_NAME = "ev-card";
-
-// Declaring the attribute is what turns it on; only an explicit denial is false.
-function flag(value: string) {
-  return value.trim().toLowerCase() !== "false";
-}
 
 type CreateClient = (teamId: string, appId: string) => EvervaultClient;
 
@@ -41,12 +38,6 @@ const DEFAULT_SPEC: CardSpecNode[] = [
 // The host attributes the card is configured from after mounting.
 const OPTION_ATTRIBUTES = ["theme", "autoprogress"];
 
-// Importing the module must not need a DOM; the element is only registered
-// where there is one.
-const Base = (
-  typeof HTMLElement === "undefined" ? class {} : HTMLElement
-) as typeof HTMLElement;
-
 // The parser reads top to bottom, so any node after the element means its
 // closing tag, and so every child, has been read.
 function parsedPast(element: Element) {
@@ -57,7 +48,7 @@ function parsedPast(element: Element) {
   return false;
 }
 
-export class EvCard extends Base {
+export class EvCard extends ElementBase {
   #client?: EvervaultClient;
   #card?: CardHost;
   #container?: HTMLDivElement;
@@ -66,7 +57,7 @@ export class EvCard extends Base {
   #pending = false;
   #stopWaiting?: () => void;
   #attributesChanged = false;
-  #theme?: ThemeDefinition | string;
+  #theme?: ThemeDefinition | ThemeName;
 
   get spec() {
     return this.#spec;
@@ -74,11 +65,15 @@ export class EvCard extends Base {
 
   // A theme name, or a theme `ui.card()` would take; the attribute holds the
   // name when neither is set.
-  get theme(): ThemeDefinition | string | undefined {
-    return this.#theme ?? this.getAttribute("theme") ?? undefined;
+  get theme(): ThemeDefinition | ThemeName | undefined {
+    return (
+      this.#theme ??
+      (this.getAttribute("theme") as ThemeName | null) ??
+      undefined
+    );
   }
 
-  set theme(value: ThemeDefinition | string | undefined) {
+  set theme(value: ThemeDefinition | ThemeName | undefined) {
     this.#theme = value;
 
     if (!this.#card) return;
@@ -88,7 +83,7 @@ export class EvCard extends Base {
   }
 
   connectedCallback() {
-    this.#adoptProperties();
+    adoptProperties(this, ["theme"]);
 
     // A card that is already live is left alone. After a DOM move the client
     // from the previous mount is reused; otherwise the attributes name one.
@@ -142,7 +137,7 @@ export class EvCard extends Base {
 
     // The colour scheme goes into the frame URL, so it is read once here.
     const card = new CardHost(evervault, {
-      colorScheme: (this.getAttribute("colorscheme") ?? undefined) as
+      colorScheme: readAttribute(this, "colorscheme", "text") as
         | ColorScheme
         | undefined,
     });
@@ -167,17 +162,6 @@ export class EvCard extends Base {
     this.#observe();
   }
 
-  // A property set before the element upgraded sits on the instance, where it
-  // shadows the accessor; it is taken through the accessor instead.
-  #adoptProperties() {
-    if (!Object.prototype.hasOwnProperty.call(this, "theme")) return;
-
-    const own = this as { theme?: ThemeDefinition | string };
-    const value = own.theme;
-    delete own.theme;
-    this.theme = value;
-  }
-
   #resolveTheme(): ThemeDefinition {
     const declared = this.theme ?? "clean";
 
@@ -196,10 +180,10 @@ export class EvCard extends Base {
   // The card-level options read off the element's own attributes. Every key is
   // present so a removed attribute takes its option back to the default.
   #readConfig(): CardFrameConfig {
-    const autoProgress = this.getAttribute("autoprogress");
-
     return {
-      autoProgress: autoProgress === null ? undefined : flag(autoProgress),
+      autoProgress: readAttribute(this, "autoprogress", "flag") as
+        | boolean
+        | undefined,
     };
   }
 
