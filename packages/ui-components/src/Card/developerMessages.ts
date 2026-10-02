@@ -1,4 +1,4 @@
-import type { ExpiryHalf } from "./expiry";
+import type { ExpiryHalf } from "types";
 import type { CardSpecNode } from "types";
 
 // What the card logs for the developer, shared with the tests that check it.

@@ -1,6 +1,5 @@
 import { THEMES } from "./cardThemes";
-
-type ExpiryHalf = "expiryMonth" | "expiryYear";
+import type { ExpiryHalf } from "types";
 
 const HALF_TAGS: Record<ExpiryHalf, string> = {
   expiryMonth: "<ev-card-expiry-month>",

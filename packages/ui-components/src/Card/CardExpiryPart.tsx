@@ -1,9 +1,10 @@
 import { FocusEvent, useEffect, useRef } from "react";
 import { useMask } from "../utilities/useMask";
 import { EXPIRY_BLOCKS } from "./CardExpiry";
+import type { ExpiryParts } from "./expiry";
 
 interface CardExpiryPartProps {
-  part: "month" | "year";
+  part: keyof ExpiryParts;
   onChange: (value: string) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: FocusEvent<HTMLInputElement>) => void;
@@ -14,7 +15,7 @@ interface CardExpiryPartProps {
   value: string;
   readOnly?: boolean;
   autoComplete?: boolean;
-  autoProgress?: boolean;
+  autoProgress: boolean;
   onComplete?: () => void;
 }
 

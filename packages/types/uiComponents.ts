@@ -105,8 +105,10 @@ export interface CardPayload {
 
 export type CardField = "name" | "number" | "expiry" | "cvc";
 
-// `expiryMonth` and `expiryYear` are the halves of a split expiry.
-export type CardSpecNodeType = "row" | CardField | "expiryMonth" | "expiryYear";
+// The halves of a split expiry.
+export type ExpiryHalf = "expiryMonth" | "expiryYear";
+
+export type CardSpecNodeType = "row" | CardField | ExpiryHalf;
 
 export interface CardSpecNode {
   type: CardSpecNodeType;

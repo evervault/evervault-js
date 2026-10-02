@@ -1,15 +1,10 @@
+import { fieldTypes } from "shared/fieldTypes";
 import {
   COMBINED_EXPIRY_WITH_HALF,
   EXPIRY_HALVES_APART,
   loneExpiryHalf,
 } from "./developerMessages";
 import type { CardSpecNode } from "types";
-
-function fieldTypes(spec: CardSpecNode[]): CardSpecNode["type"][] {
-  return spec.flatMap((node) =>
-    node.type === "row" ? fieldTypes(node.children ?? []) : [node.type]
-  );
-}
 
 // Why a tree's expiry cannot be rendered, or null when it can: a half without
 // the other is not a partial expiry, and the combined field excludes the halves.
