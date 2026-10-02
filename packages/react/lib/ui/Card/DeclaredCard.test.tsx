@@ -307,6 +307,35 @@ describe("Card with declared fields", () => {
     expect(onReady).toHaveBeenCalledOnce();
   });
 
+  it("reports a card with an untouched required field as valid but incomplete", async () => {
+    const { wrapper } = fakeClient();
+    const onChange = vi.fn();
+
+    render(
+      <Card onChange={onChange}>
+        <Card.Number />
+        <Card.Field name="vat" required />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    evCard().dispatchEvent(
+      new CustomEvent("change", {
+        detail: {
+          fields: { vat: null },
+          errors: null,
+          isValid: true,
+          isComplete: false,
+        },
+      })
+    );
+
+    expect(onChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({ isValid: true, isComplete: false })
+    );
+  });
+
   it("ignores the browser's own events of the same names", async () => {
     const { wrapper } = fakeClient();
     const onFocus = vi.fn();
