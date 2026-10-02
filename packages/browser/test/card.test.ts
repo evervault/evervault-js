@@ -25,6 +25,28 @@ afterEach(() => {
 });
 
 describe("ui.card", () => {
+  it("shows a preloaded card with show()", () => {
+    const container = document.createElement("div");
+    const card = new Card(client).preload(container);
+    const iframe = container.querySelector("iframe") as HTMLIFrameElement;
+
+    expect(iframe.style.visibility).toBe("hidden");
+
+    card.show();
+
+    expect(iframe.style.visibility).toBe("");
+  });
+
+  it("still shows a preloaded card with the deprecated reveal()", () => {
+    const container = document.createElement("div");
+    const card = new Card(client).preload(container);
+    const iframe = container.querySelector("iframe") as HTMLIFrameElement;
+
+    card.reveal();
+
+    expect(iframe.style.visibility).toBe("");
+  });
+
   it("reads the latest values the frame reported", () => {
     const container = document.createElement("div");
     const card = new Card(client).mount(container);

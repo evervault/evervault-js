@@ -149,10 +149,10 @@ export class CardHost {
     return this;
   }
 
-  reveal() {
+  show() {
     if (!this.live()) return this;
 
-    this.#frame.reveal();
+    this.#frame.show();
     return this;
   }
 
