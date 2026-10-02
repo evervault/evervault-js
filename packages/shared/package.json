@@ -8,7 +8,12 @@
     "./getAppSDKConfig": "./src/getAppSDKConfig.ts",
     "./createBrand": "./src/createBrand.ts",
     "./fieldTypes": "./src/fieldTypes.ts",
-    "./fieldAttributes": "./src/fieldAttributes.ts"
+    "./fieldAttributes": "./src/fieldAttributes.ts",
+    "./customField": "./src/customField.ts",
+    "./cvc": "./src/cvc.ts",
+    "./cardFieldSettings": "./src/cardFieldSettings.ts",
+    "./cardSpec": "./src/cardSpec.ts",
+    "./expiry": "./src/expiry.ts"
   },
   "dependencies": {
     "types": "workspace:*",
