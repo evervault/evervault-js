@@ -5,9 +5,9 @@
 import * as React from "react";
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { Card, type CardRef } from "./Card";
-import { EvervaultContext } from "../context";
-import type { PromisifiedEvervaultClient } from "../load/client";
+import { Card, type CardRef } from ".";
+import { EvervaultContext } from "../../context";
+import type { PromisifiedEvervaultClient } from "../../load/client";
 
 // No `<ev-card>` is registered here, as before the SDK script has loaded.
 describe("Card before the SDK registers <ev-card>", () => {

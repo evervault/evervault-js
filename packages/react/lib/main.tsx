@@ -21,7 +21,7 @@ export type {
   CardCvcProps,
   CardHolderProps,
   CardFieldProps,
-} from "./ui/cardElements";
+} from "./ui/Card";
 export { Pin } from "./ui/Pin";
 export { ThreeDSecure } from "./ui/ThreeDSecure";
 export { useThreeDSecure } from "./ui/useThreeDSecure";
