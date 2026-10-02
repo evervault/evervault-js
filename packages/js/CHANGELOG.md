@@ -1,5 +1,11 @@
 # @evervault/js
 
+## 2.23.0
+
+### Minor Changes
+
+- 6b9e535: Add semantic theming to the `minimal`, `clean` and `material` presets: pass `primary`, `greyTone`, `roundness`, `font` or `selectors`, for example `clean({ primary: "#16a34a" })` or `clean(myTheme, { primary: "#16a34a" })`. Use `cssVar("--brand-color")`, exported from `@evervault/js`, to take a value from your page's `:root`.
+
 ## 2.22.0
 
 ### Minor Changes
