@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FIELD_ATTRIBUTES, fieldAttributes } from "shared";
+import { COMPONENT_NAMES, FIELD_ATTRIBUTES, fieldAttributes } from "shared";
 import type { CardFieldMap, CardOptions } from "types";
 import type {
   EvCardCvc,
@@ -313,24 +313,24 @@ export function CardRow({ children }: CardRowProps) {
   return React.createElement("ev-row", null, children);
 }
 
-CardRow.displayName = "Card.Row";
+CardRow.displayName = COMPONENT_NAMES.row;
 
 export const CardHolder = fieldElement<CardHolderProps, EvCardHolder>(
-  "Card.Holder",
+  COMPONENT_NAMES.name,
   "ev-card-holder",
   FIELD_ATTRIBUTES.name,
   autoCompleteFor("name")
 );
 
 export const CardNumber = fieldElement<CardNumberProps, EvCardNumber>(
-  "Card.Number",
+  COMPONENT_NAMES.number,
   "ev-card-number",
   FIELD_ATTRIBUTES.number,
   autoCompleteFor("number")
 );
 
 export const CardExpiry = fieldElement<CardExpiryProps, EvCardExpiry>(
-  "Card.Expiry",
+  COMPONENT_NAMES.expiry,
   "ev-card-expiry",
   FIELD_ATTRIBUTES.expiry,
   autoCompleteFor("expiry")
@@ -340,7 +340,7 @@ export const CardExpiryMonth = fieldElement<
   CardExpiryMonthProps,
   EvCardExpiryMonth
 >(
-  "Card.ExpiryMonth",
+  COMPONENT_NAMES.expiryMonth,
   "ev-card-expiry-month",
   FIELD_ATTRIBUTES.expiryMonth,
   autoCompleteFor("expiryMonth", "expiry")
@@ -350,14 +350,14 @@ export const CardExpiryYear = fieldElement<
   CardExpiryYearProps,
   EvCardExpiryYear
 >(
-  "Card.ExpiryYear",
+  COMPONENT_NAMES.expiryYear,
   "ev-card-expiry-year",
   FIELD_ATTRIBUTES.expiryYear,
   autoCompleteFor("expiryYear", "expiry")
 );
 
 export const CardCvc = fieldElement<CardCvcProps, EvCardCvc>(
-  "Card.Cvc",
+  COMPONENT_NAMES.cvc,
   "ev-card-cvc",
   FIELD_ATTRIBUTES.cvc,
   (deprecated) => ({
@@ -368,7 +368,7 @@ export const CardCvc = fieldElement<CardCvcProps, EvCardCvc>(
 );
 
 export const CardField = fieldElement<CardFieldProps, EvField>(
-  "Card.Field",
+  COMPONENT_NAMES.field,
   "ev-field",
   FIELD_ATTRIBUTES.field,
   ({ autoComplete }, { name }) => {

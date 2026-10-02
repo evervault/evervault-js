@@ -1,6 +1,6 @@
 import { expiryLayoutError } from "shared";
 import { fieldTypes } from "shared/fieldTypes";
-import { COMBINED_EXPIRY_WITH_HALF, loneExpiryHalf } from "./developerMessages";
+import { expiryLayoutMessage } from "./developerMessages";
 import type { CardSpecNode, ExpiryHalf } from "types";
 
 export interface ExpiryHalves {
@@ -18,10 +18,7 @@ export type DeclaredExpiry =
 // Why the card cannot render a tree's expiry, or null when it can.
 export function expiryError(nodes: CardSpecNode[]): string | null {
   const error = expiryLayoutError(nodes);
-
-  if (!error) return null;
-  if (error.kind === "combinedWithHalf") return COMBINED_EXPIRY_WITH_HALF;
-  return loneExpiryHalf(error.declared);
+  return error && expiryLayoutMessage(error);
 }
 
 // The expiry of a tree `expiryError` accepts.

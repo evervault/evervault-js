@@ -14,7 +14,8 @@
     "./cardFieldSettings": "./src/cardFieldSettings.ts",
     "./cardSpec": "./src/cardSpec.ts",
     "./expiry": "./src/expiry.ts",
-    "./fieldProps": "./src/fieldProps.ts"
+    "./fieldProps": "./src/fieldProps.ts",
+    "./developerMessages": "./src/developerMessages.ts"
   },
   "dependencies": {
     "types": "workspace:*",
