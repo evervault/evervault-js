@@ -1,7 +1,7 @@
 {
   "name": "example-js-composable",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "dotenv -- concurrently --kill-others \"pnpm --filter @evervault/browser dev\" \"pnpm --filter @evervault/ui-components dev\" \"vite --port 4000\"",

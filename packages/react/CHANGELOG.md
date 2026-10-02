@@ -1,5 +1,12 @@
 # @evervault/react
 
+## 2.32.0
+
+### Minor Changes
+
+- aca478a: Rename `card.reveal()` to `card.show()`, and the `<Card>` ref method `reveal()` to `show()`. They display a card loaded with `preload`. The `reveal` names were released only days ago and are removed.
+- 6b9e535: Add semantic theming to the `minimal`, `clean` and `material` presets: pass `primary`, `greyTone`, `roundness`, `font` or `selectors`, for example `clean({ primary: "#16a34a" })` or `clean(myTheme, { primary: "#16a34a" })`. Use `cssVar("--brand-color")`, exported from `@evervault/js`, to take a value from your page's `:root`.
+
 ## 2.31.0
 
 ### Minor Changes
