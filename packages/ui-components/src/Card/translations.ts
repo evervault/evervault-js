@@ -1,3 +1,4 @@
+import { CUSTOM_FIELD_ERRORS } from "shared";
 import { CardTranslations } from "types";
 
 export const DEFAULT_TRANSLATIONS: CardTranslations = {
@@ -40,9 +41,6 @@ export const DEFAULT_TRANSLATIONS: CardTranslations = {
     },
   },
   field: {
-    errors: {
-      required: "This field is required",
-      invalid: "Please enter a valid value",
-    },
+    errors: CUSTOM_FIELD_ERRORS,
   },
 };

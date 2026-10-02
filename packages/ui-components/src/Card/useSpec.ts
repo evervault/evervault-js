@@ -1,33 +1,8 @@
 import { useEffect, useState } from "react";
 import { applyPatch } from "./spec";
-import type { CardInput, CustomFieldInputId } from "./types";
+import { inputFor, isCustomFieldInput } from "shared";
+import type { CardInput } from "shared";
 import type { CardField, CardFrameHostMessages, CardSpecNode } from "types";
-
-const CUSTOM_FIELD_PREFIX = "field-";
-
-export function customFieldInputId(name: string): CustomFieldInputId {
-  return `${CUSTOM_FIELD_PREFIX}${name}`;
-}
-
-export function isCustomFieldInput(
-  input: CardInput
-): input is CustomFieldInputId {
-  return input.startsWith(CUSTOM_FIELD_PREFIX);
-}
-
-// The input a node renders: a field its own, each half of a split expiry one
-// of the two that write the expiry. An <ev-field> without a name renders none.
-export function inputFor(node: CardSpecNode): CardInput | null {
-  const { type } = node;
-
-  if (type === "row") return null;
-  if (type === "field") {
-    return node.props.name ? customFieldInputId(node.props.name) : null;
-  }
-  if (type === "expiryMonth") return "expiry-month";
-  if (type === "expiryYear") return "expiry-year";
-  return type;
-}
 
 // The card value an input writes: the expiry halves write "expiry"; an
 // <ev-field> writes none.
