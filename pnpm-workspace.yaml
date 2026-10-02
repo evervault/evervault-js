@@ -71,7 +71,7 @@ catalog:
   react-native-gesture-handler: ~2.24.0
   react-native-mask-input: ^1.2.3
   react-native-masked-text: ^1.13.0
-  react-native-reanimated: ~3.17.5
+  react-native-reanimated: ~4.7.0
   react-native-safe-area-context: ^5.4.0
   react-native-screens: ~4.11.1
   react-native-svg: ^15.15.5
