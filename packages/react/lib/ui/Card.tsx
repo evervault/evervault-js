@@ -19,7 +19,7 @@ import EvervaultClient from "@evervault/browser";
 
 export interface CardRef {
   validate: () => void;
-  reveal: () => void;
+  show: () => void;
 }
 
 export interface CardProps {
@@ -94,8 +94,8 @@ export const Card = React.forwardRef<CardRef, CardProps>(function Card(
         validate: () => {
           inst.current?.validate();
         },
-        reveal: () => {
-          inst.current?.reveal();
+        show: () => {
+          inst.current?.show();
         },
       };
     },

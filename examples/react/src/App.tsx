@@ -53,7 +53,7 @@ function App() {
     >
       <h1>Example React app</h1>
       <button onClick={() => ref.current?.reload()}>Reload script</button>
-      <button onClick={() => cardRef.current?.reveal()}>Reveal card</button>
+      <button onClick={() => cardRef.current?.show()}>Show card</button>
       <Card ref={cardRef} preload icons onChange={handleChange} theme={theme} />
     </EvervaultProvider>
   );

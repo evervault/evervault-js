@@ -154,7 +154,7 @@ export class EvervaultFrame<
     }
   }
 
-  reveal(): this {
+  show(): this {
     if (!this.live()) return this;
 
     if (this.#lifecycle === "visible") {
@@ -163,7 +163,7 @@ export class EvervaultFrame<
 
     if (this.#lifecycle !== "hidden") {
       throw new Error(
-        "Evervault frame must be preloaded before it can be revealed. Call preload(selector) first."
+        "Evervault frame must be preloaded before it can be shown. Call preload(selector) first."
       );
     }
 

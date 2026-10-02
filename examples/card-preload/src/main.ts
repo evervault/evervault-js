@@ -145,7 +145,7 @@ async function setupVariant(variant: VariantKey) {
     mark("click");
 
     if (preloaded) {
-      card.reveal();
+      card.show();
     } else {
       card.mount(`#form-${variant}`);
     }

@@ -66,8 +66,8 @@ export default class Card {
     return this;
   }
 
-  reveal() {
-    this.#host.reveal();
+  show() {
+    this.#host.show();
     return this;
   }
 
