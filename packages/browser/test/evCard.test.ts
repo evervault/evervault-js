@@ -873,6 +873,21 @@ describe("<ev-card> settings", () => {
     });
   });
 
+  it("pushes the default theme when a theme definition is cleared", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.theme = { styles: { theme: "custom" } };
+    await flush();
+    element.theme = undefined;
+    await flush();
+
+    expect(frame().update).toHaveBeenCalledTimes(2);
+    expect(frame().update).toHaveBeenLastCalledWith(
+      expect.objectContaining({ theme: { styles: { theme: "clean" } } })
+    );
+  });
+
   it("pushes nothing for agent tools set on a mounted card", async () => {
     const element = append();
     element.mountCard(evervault());
