@@ -166,13 +166,18 @@ function fieldElement<P extends object>(
   return Component;
 }
 
-// A field's setting from a deprecated `autoComplete` map by field.
+// A field's setting from a deprecated `autoComplete` map by field: its own
+// key first, then the key it shares.
 function autoCompleteFor(
-  field: Exclude<keyof CardFieldMap<boolean>, "fields">
+  ...keys: Exclude<keyof CardFieldMap<boolean>, "fields">[]
 ) {
   return ({ autoComplete }: DeprecatedCardProps) => ({
     autoComplete:
-      typeof autoComplete === "object" ? autoComplete[field] : undefined,
+      typeof autoComplete === "object"
+        ? keys
+            .map((key) => autoComplete[key])
+            .find((setting) => setting !== undefined)
+        : undefined,
   });
 }
 
@@ -207,14 +212,14 @@ export const CardExpiryMonth = fieldElement<CardExpiryMonthProps>(
   "Card.ExpiryMonth",
   "ev-card-expiry-month",
   COMMON,
-  autoCompleteFor("expiryMonth")
+  autoCompleteFor("expiryMonth", "expiry")
 );
 
 export const CardExpiryYear = fieldElement<CardExpiryYearProps>(
   "Card.ExpiryYear",
   "ev-card-expiry-year",
   COMMON,
-  autoCompleteFor("expiryYear")
+  autoCompleteFor("expiryYear", "expiry")
 );
 
 export const CardCvc = fieldElement<CardCvcProps>(

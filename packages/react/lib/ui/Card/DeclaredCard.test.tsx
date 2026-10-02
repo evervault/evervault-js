@@ -179,6 +179,26 @@ describe("Card with declared fields", () => {
     expect(evCard().assigned).not.toContain("autoComplete");
   });
 
+  it("gives the expiry halves the deprecated map's expiry setting", async () => {
+    const { wrapper } = fakeClient();
+
+    const { container } = render(
+      <Card autoComplete={{ expiry: false, expiryYear: true }}>
+        <Card.ExpiryMonth />
+        <Card.ExpiryYear />
+      </Card>,
+      { wrapper }
+    );
+    await settle();
+
+    expect(container.innerHTML).toBe(
+      "<ev-card>" +
+        '<ev-card-expiry-month autocomplete="false"></ev-card-expiry-month>' +
+        '<ev-card-expiry-year autocomplete=""></ev-card-expiry-year>' +
+        "</ev-card>"
+    );
+  });
+
   it("gives every custom field one deprecated autoComplete setting", async () => {
     const { wrapper } = fakeClient();
 
