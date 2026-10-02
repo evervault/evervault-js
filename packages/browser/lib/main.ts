@@ -28,6 +28,15 @@ export type * from "./types";
 export type * from "./messages";
 export type { Datatypes };
 export type { EvCard } from "./ui/elements/evCard";
+export type {
+  EvCardHolder,
+  EvCardNumber,
+  EvCardExpiry,
+  EvCardExpiryMonth,
+  EvCardExpiryYear,
+  EvCardCvc,
+  EvField,
+} from "./ui/elements/fields";
 
 export interface CustomConfig {
   isDebugMode?: boolean;
