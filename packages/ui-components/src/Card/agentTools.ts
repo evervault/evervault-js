@@ -1,4 +1,4 @@
-import { fieldOf } from "./useSpec";
+import { cardFieldWrittenBy } from "./useSpec";
 import type { CardForm, CardInput } from "./types";
 import type { AgentToolsFrameConfig, CardField } from "types";
 
@@ -54,7 +54,7 @@ export function buildFieldStatuses(
 export function getFocusedField(inputs: CardInput[]): CardField | null {
   const id = document.activeElement?.id;
   const input = inputs.find((input) => input === id);
-  return input ? fieldOf(input) : null;
+  return input ? cardFieldWrittenBy(input) : null;
 }
 
 // Mirrors what the input masks keep when the value is typed, so the form

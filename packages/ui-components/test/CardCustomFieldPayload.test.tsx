@@ -209,6 +209,22 @@ describe("<ev-field> values", () => {
     }
   );
 
+  it.each(["name", "number", "expiry", "cvc"])(
+    "keeps a field named %s apart from the card's own fields",
+    async (name) => {
+      const container = card([node("name"), field("custom", { name })]);
+
+      await userEvent.type(input(container, "name"), "Jane Doe");
+      await userEvent.type(input(container, `field-${name}`), "value");
+
+      await waitFor(() =>
+        expect(lastChange()?.fields).toEqual({ [name]: "encrypted(value)" })
+      );
+      expect(lastChange()?.card.name).toBe("Jane Doe");
+      expect(input(container, "name").value).toBe("Jane Doe");
+    }
+  );
+
   it("reports no fields for a card that declares none", async () => {
     const { container } = render(<Card config={{ fields: ["name"] }} />);
 

@@ -37,25 +37,53 @@ function isType(value: string | undefined): value is CustomFieldType {
   );
 }
 
-// Bare or "true" turns autofill on; any value but a denial is a browser token.
-function autoComplete(value: string) {
-  const normalised = value.trim().toLowerCase();
+const SWITCH_WORDS = ["", "true", "on", "false", "off"];
 
-  if (["", "true", "on"].includes(normalised)) return "on";
-  if (["false", "off"].includes(normalised)) return "off";
-  return value;
+// <ev-field autocomplete="postal-code"> tells the browser what the field is for,
+// so the value is passed straight through. If autocomplete is one of
+// SWITCH_WORDS, it returns on or off.
+// https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill
+function autoComplete(value: string) {
+  // A browser token such as "postal-code" goes to the input unchanged.
+  if (!SWITCH_WORDS.includes(value.trim().toLowerCase())) return value;
+
+  // "false" and "off" turn autofill off; "", "true" and "on" turn it on.
+  return flag(value, "off") ? "on" : "off";
 }
 
-const AUTO_CAPITALIZE = new Map<string, AutoCapitalize>([
-  ["none", "none"],
-  ["off", "none"],
-  ["sentences", "sentences"],
-  ["on", "sentences"],
-  ["words", "words"],
-  ["characters", "characters"],
-]);
+type AutoCapitalizeAttribute =
+  | "none"
+  | "off"
+  | "sentences"
+  | "on"
+  | "words"
+  | "characters";
 
-function length(value: string | undefined) {
+const AUTO_CAPITALIZE: Record<AutoCapitalizeAttribute, AutoCapitalize> = {
+  none: "none",
+  off: "none",
+  sentences: "sentences",
+  on: "sentences",
+  words: "words",
+  characters: "characters",
+};
+
+function isAutoCapitalizeAttribute(
+  value: string
+): value is AutoCapitalizeAttribute {
+  return value in AUTO_CAPITALIZE;
+}
+
+function autoCapitalize(value: string | undefined) {
+  const normalised = value?.trim().toLowerCase() ?? "";
+  return isAutoCapitalizeAttribute(normalised)
+    ? AUTO_CAPITALIZE[normalised]
+    : undefined;
+}
+
+// minlength/maxlength: a whole number of 0 or more; anything else is invalid
+// and becomes undefined.
+function parseLength(value: string | undefined) {
   if (value === undefined) return undefined;
 
   const parsed = Number(value);
@@ -97,14 +125,12 @@ export function customFieldProps(
     autoComplete: read("autocomplete", autoComplete),
     readOnly: read("readonly", flag),
     inputMode: props.inputmode,
-    autoCapitalize: AUTO_CAPITALIZE.get(
-      props.autocapitalize?.trim().toLowerCase() ?? ""
-    ),
+    autoCapitalize: autoCapitalize(props.autocapitalize),
     spellCheck: read("spellcheck", flag),
     enterKeyHint: props.enterkeyhint,
     required: read("required", flag),
-    minLength: length(props.minlength),
-    maxLength: length(props.maxlength),
+    minLength: parseLength(props.minlength),
+    maxLength: parseLength(props.maxlength),
     pattern: read("pattern", compilePattern),
     min: props.min,
     max: props.max,
@@ -132,8 +158,10 @@ export function capitalised(field: CustomFieldProps, value: string): string {
   return value;
 }
 
-// The rules a value is judged by, as one comparable key.
-export function customFieldRules(field: CustomFieldProps): string {
+// Turns a field's rules into one string, so two sets of rules can be compared
+// with ===.
+export function validationRulesKey(field: CustomFieldProps): string {
+  // Everything that decides whether a value is valid.
   return JSON.stringify([
     field.type,
     field.required,
@@ -163,11 +191,14 @@ export function customFieldWarnings(node: CardSpecNode): string[] {
   return warnings;
 }
 
-// The HTML definition of a valid email address.
+// The HTML standard's valid email address:
+// https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
 const EMAIL =
   /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
 const FLOAT = /^-?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?$/;
+// The browser's date picker shows dates in the shopper's locale, but the value
+// it gives back is always yyyy-mm-dd.
 const DATE = /^(\d{4,})-(\d{2})-(\d{2})$/;
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -202,24 +233,33 @@ function isUrl(value: string) {
   }
 }
 
-// A bound or step that does not parse is no constraint, as in HTML.
-function inRange(
+// min, max and step as HTML applies them: a bad bound is ignored, a bad step
+// becomes 1, and "any" allows any step.
+function withinRangeAndStep(
   field: CustomFieldProps,
   value: number,
   parse: typeof parseNumber
 ) {
+  // A min or max that isn't a valid number or date is null, and ignored.
   const min = field.min === undefined ? null : parse(field.min);
   const max = field.max === undefined ? null : parse(field.max);
 
+  // Below min or above max is out of range.
   if (min !== null && value < min) return false;
   if (max !== null && value > max) return false;
 
+  // step="any" allows any value in range.
   if (field.step?.trim().toLowerCase() === "any") return true;
 
+  // No step, or one that isn't a positive number, becomes 1.
   const declared = field.step === undefined ? null : parseNumber(field.step);
   const step = declared !== null && declared > 0 ? declared : 1;
+
+  // How many steps the value is from min (or from 0 without a min).
   const steps = (value - (min ?? 0)) / step;
 
+  // Valid only on a whole number of steps; 1e-9 absorbs float rounding, so 0.3
+  // with step 0.1 counts.
   return Math.abs(steps - Math.round(steps)) < 1e-9;
 }
 
@@ -231,7 +271,7 @@ function matchesType(field: CustomFieldProps, value: string) {
     const parse = field.type === "number" ? parseNumber : parseDate;
     const parsed = parse(value);
 
-    return parsed !== null && inRange(field, parsed, parse);
+    return parsed !== null && withinRangeAndStep(field, parsed, parse);
   }
 
   return true;

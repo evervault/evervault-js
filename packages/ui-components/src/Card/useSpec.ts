@@ -29,8 +29,9 @@ export function inputFor(node: CardSpecNode): CardInput | null {
   return type;
 }
 
-// An <ev-field>'s input writes no card field.
-export function fieldOf(input: CardInput): CardField | null {
+// The card value an input writes: the expiry halves write "expiry"; an
+// <ev-field> writes none.
+export function cardFieldWrittenBy(input: CardInput): CardField | null {
   if (input === "expiry-month" || input === "expiry-year") return "expiry";
   if (isCustomFieldInput(input)) return null;
   return input as CardField;
@@ -53,7 +54,7 @@ export function declaredFields(spec: CardSpecNode[]): CardField[] {
   return [
     ...new Set(
       declaredInputs(spec)
-        .map(fieldOf)
+        .map(cardFieldWrittenBy)
         .filter((field) => field !== null)
     ),
   ];

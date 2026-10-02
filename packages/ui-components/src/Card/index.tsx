@@ -35,11 +35,7 @@ import {
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useAgentTools } from "./useAgentTools";
 import { useCardReader } from "./useCardReader";
-import {
-  NAMELESS_CUSTOM_FIELD,
-  duplicateCustomField,
-  duplicateField,
-} from "./developerMessages";
+import { skippedFieldWarning } from "./developerMessages";
 import { declaredExpiry, expiryError, joinExpiry, splitExpiry } from "./expiry";
 import type { ExpiryParts } from "./expiry";
 import { isSpec, legacyNodes } from "./legacyFields";
@@ -86,16 +82,6 @@ function skippedNodes(nodes: CardSpecNode[]): CardSpecNode[] {
   };
 
   return nodes.flatMap(walk);
-}
-
-function skipReason(node: CardSpecNode) {
-  if (node.type !== "field") {
-    return duplicateField(node.type);
-  }
-
-  return node.props.name
-    ? duplicateCustomField(node.props.name)
-    : NAMELESS_CUSTOM_FIELD;
 }
 
 function inputOf(target: FieldTarget): CardInput {
@@ -196,7 +182,7 @@ export function Card({ config }: { config: CardConfig }) {
 
   const notices = useMemo(
     () => [
-      ...skipped.map(skipReason),
+      ...skipped.map(skippedFieldWarning),
       ...customFieldNodes(nodes)
         .filter((node) => !skipped.includes(node))
         .flatMap(customFieldWarnings),

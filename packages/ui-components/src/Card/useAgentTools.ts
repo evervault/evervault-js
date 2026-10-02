@@ -7,7 +7,7 @@ import {
   getFocusedField,
   type CardFormValidators,
 } from "./agentTools";
-import { fieldOf } from "./useSpec";
+import { cardFieldWrittenBy } from "./useSpec";
 import type { CardForm, CardInput } from "./types";
 import type { AgentToolsFrameConfig, CardField } from "types";
 
@@ -80,7 +80,9 @@ export function useAgentTools({
       {
         getStatus: () => buildStatus(latest.current.form.values),
         focusField: (field) => {
-          const id = activeInputs.find((input) => fieldOf(input) === field);
+          const id = activeInputs.find(
+            (input) => cardFieldWrittenBy(input) === field
+          );
           const input = id && document.getElementById(id);
           if (!(input instanceof HTMLInputElement)) {
             throw new Error(fieldNotAvailableMessage(productName, field));

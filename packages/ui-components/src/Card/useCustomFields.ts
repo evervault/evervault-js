@@ -1,182 +1,257 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   customFieldError,
-  customFieldRules,
   declaredCustomFields,
+  validationRulesKey,
 } from "./customField";
-import type { CustomFieldError } from "./customField";
+import type { CustomFieldError, CustomFieldProps } from "./customField";
 import type { CardSpecNode } from "types";
 
-interface Ruled<T> {
+// Every value the shopper types, and every error shown, is stored together with
+// the field's rules at that moment.
+// If the merchant's page changes a field's rules after the shopper typed, the
+// old value and error are dropped. This is for security: otherwise the page
+// could keep changing the pattern to work out what was typed.
+interface ValueWithRules<T> {
   value: T;
-  rules: string | undefined;
+  validationRulesKey: string | undefined;
 }
 
-// Only the entries made under their declared field's current rules.
-function underRules<T>(
-  entries: Map<string, Ruled<T>>,
-  rules: Map<string, string>
+type ValuesByFieldName<T> = Map<string, ValueWithRules<T>>;
+
+function withRules<T>(
+  value: T,
+  name: string,
+  validationRulesKeys: Map<string, string>
+): ValueWithRules<T> {
+  return { value, validationRulesKey: validationRulesKeys.get(name) };
+}
+
+// The entries whose field still has the rules they were entered under.
+function enteredUnderCurrentRules<T>(
+  entries: ValuesByFieldName<T>,
+  validationRulesKeys: Map<string, string>
 ): Map<string, T> {
   return new Map(
     [...entries]
-      .filter(([name, entry]) => entry.rules === rules.get(name))
+      .filter(
+        ([name, entry]) =>
+          entry.validationRulesKey === validationRulesKeys.get(name)
+      )
       .map(([name, entry]) => [name, entry.value])
   );
 }
 
-// A value counts only under the rules it was typed under, or rules could probe it.
-export function useCustomFields(nodes: CardSpecNode[], onChange: () => void) {
-  const declared = useMemo(() => declaredCustomFields(nodes), [nodes]);
-  const [entered, setEntered] = useState(
-    () => new Map<string, Ruled<string>>()
+// Drops the entries of fields whose rules have changed, so changing the rules
+// back brings nothing back. Fields no longer declared keep theirs.
+function withoutChangedRules<T>(
+  entries: ValuesByFieldName<T>,
+  validationRulesKeys: Map<string, string>
+): ValuesByFieldName<T> {
+  const kept = [...entries].filter(
+    ([name, entry]) =>
+      !validationRulesKeys.has(name) ||
+      entry.validationRulesKey === validationRulesKeys.get(name)
   );
-  const [judged, setJudged] = useState(
-    () => new Map<string, Ruled<CustomFieldError>>()
-  );
-  const changed = useRef(false);
-  const latestOnChange = useRef(onChange);
+
+  return kept.length === entries.size ? entries : new Map(kept);
+}
+
+// Fills a field with its defaultValue while it is empty or still holds the
+// previous default, so a changed default replaces only an untouched value.
+function useDefaultValues(
+  fieldsByName: Map<string, CustomFieldProps>,
+  currentValues: Map<string, string>,
+  validationRulesKeys: Map<string, string>,
+  setTypedValues: (
+    update: (current: ValuesByFieldName<string>) => ValuesByFieldName<string>
+  ) => void
+) {
+  // The default last filled into each field, by name.
+  const filledDefaults = useRef(new Map<string, string>());
 
   useEffect(() => {
-    latestOnChange.current = onChange;
+    const defaultsToFill: ValuesByFieldName<string> = new Map();
+
+    fieldsByName.forEach(({ defaultValue }, name) => {
+      const previous = filledDefaults.current.get(name);
+
+      // No default declared, or the same one as last time: nothing to fill.
+      if (defaultValue === undefined || defaultValue === previous) return;
+
+      filledDefaults.current.set(name, defaultValue);
+
+      const value = currentValues.get(name) ?? "";
+
+      // Only fill a field that's empty or still holds the previous default, so
+      // nothing the shopper typed is replaced.
+      if (value.length === 0 || value === previous) {
+        defaultsToFill.set(
+          name,
+          withRules(defaultValue, name, validationRulesKeys)
+        );
+      }
+    });
+
+    if (defaultsToFill.size === 0) return;
+
+    // One update for every field, so they re-render together.
+    setTypedValues((current) => new Map([...current, ...defaultsToFill]));
+  }, [fieldsByName, currentValues, validationRulesKeys, setTypedValues]);
+}
+
+export function useCustomFields(nodes: CardSpecNode[], onChange: () => void) {
+  const fieldsByName = useMemo(() => declaredCustomFields(nodes), [nodes]);
+  const [typedValues, setTypedValues] = useState<ValuesByFieldName<string>>(
+    () => new Map()
+  );
+  const [shownErrors, setShownErrors] = useState<
+    ValuesByFieldName<CustomFieldError>
+  >(() => new Map());
+  // Set when values or errors change, so `onChange` runs once after the render.
+  const notifyAfterRender = useRef(false);
+  const onChangeRef = useRef(onChange);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
   });
 
-  const rules = useMemo(
+  const validationRulesKeys = useMemo(
     () =>
       new Map(
-        [...declared].map(([name, field]) => [name, customFieldRules(field)])
+        [...fieldsByName].map(([name, field]) => [
+          name,
+          validationRulesKey(field),
+        ])
       ),
-    [declared]
+    [fieldsByName]
   );
 
-  const values = useMemo(() => underRules(entered, rules), [entered, rules]);
-  const shown = useMemo(() => underRules(judged, rules), [judged, rules]);
+  const currentValues = useMemo(
+    () => enteredUnderCurrentRules(typedValues, validationRulesKeys),
+    [typedValues, validationRulesKeys]
+  );
+  const currentErrors = useMemo(
+    () => enteredUnderCurrentRules(shownErrors, validationRulesKeys),
+    [shownErrors, validationRulesKeys]
+  );
 
-  const check = useCallback(
+  // The error a value would get in its field, if any.
+  const errorFor = useCallback(
     (name: string, value: string) => {
-      const field = declared.get(name);
+      const field = fieldsByName.get(name);
       return field && customFieldError(field, value);
     },
-    [declared]
+    [fieldsByName]
   );
 
-  const show = useCallback(
+  // Shows the error under a field, or clears it when there is none.
+  const setShownError = useCallback(
     (name: string, error: CustomFieldError | undefined) => {
-      if (shown.get(name) === error) return;
+      if (currentErrors.get(name) === error) return;
 
-      changed.current = true;
-      setJudged((current) => {
+      notifyAfterRender.current = true;
+      setShownErrors((current) => {
         const next = new Map(current);
-        if (error) next.set(name, { value: error, rules: rules.get(name) });
+        if (error) next.set(name, withRules(error, name, validationRulesKeys));
         else next.delete(name);
         return next;
       });
     },
-    [shown, rules]
+    [currentErrors, validationRulesKeys]
   );
 
   const setValue = useCallback(
     (name: string, value: string) => {
-      changed.current = true;
-      setEntered((current) =>
-        new Map(current).set(name, { value, rules: rules.get(name) })
+      notifyAfterRender.current = true;
+      setTypedValues((current) =>
+        new Map(current).set(name, withRules(value, name, validationRulesKeys))
       );
 
-      if (shown.has(name)) show(name, check(name, value));
+      // A field already showing an error is re-checked as the shopper types.
+      if (currentErrors.has(name)) setShownError(name, errorFor(name, value));
     },
-    [shown, show, check, rules]
+    [currentErrors, setShownError, errorFor, validationRulesKeys]
   );
 
   const blur = useCallback(
-    (name: string) => show(name, check(name, values.get(name) ?? "")),
-    [show, check, values]
+    (name: string) =>
+      setShownError(name, errorFor(name, currentValues.get(name) ?? "")),
+    [setShownError, errorFor, currentValues]
   );
 
+  // Checks every field and shows each one's error.
   const validate = useCallback(() => {
     const errors = new Map<string, CustomFieldError>();
 
-    declared.forEach((field, name) => {
-      const error = customFieldError(field, values.get(name) ?? "");
+    fieldsByName.forEach((field, name) => {
+      const error = customFieldError(field, currentValues.get(name) ?? "");
       if (error) errors.set(name, error);
     });
 
     const differs =
-      errors.size !== shown.size ||
-      [...errors].some(([name, error]) => shown.get(name) !== error);
+      errors.size !== currentErrors.size ||
+      [...errors].some(([name, error]) => currentErrors.get(name) !== error);
 
-    if (differs) changed.current = true;
+    if (differs) notifyAfterRender.current = true;
 
-    setJudged(
+    setShownErrors(
       new Map(
         [...errors].map(([name, error]) => [
           name,
-          { value: error, rules: rules.get(name) },
+          withRules(error, name, validationRulesKeys),
         ])
       )
     );
     return errors;
-  }, [declared, values, shown, rules]);
-
-  // Forgotten once the rules change, so restoring the old rules restores nothing.
-  useEffect(() => {
-    function current<T>(entries: Map<string, Ruled<T>>) {
-      const kept = [...entries].filter(
-        ([name, entry]) => !rules.has(name) || entry.rules === rules.get(name)
-      );
-
-      return kept.length === entries.size ? entries : new Map(kept);
-    }
-
-    setEntered(current);
-    setJudged(current);
-  }, [rules]);
+  }, [fieldsByName, currentValues, currentErrors, validationRulesKeys]);
 
   useEffect(() => {
-    if (!changed.current) return;
+    setTypedValues((current) =>
+      withoutChangedRules(current, validationRulesKeys)
+    );
+    setShownErrors((current) =>
+      withoutChangedRules(current, validationRulesKeys)
+    );
+  }, [validationRulesKeys]);
 
-    changed.current = false;
-    latestOnChange.current();
-  }, [values, shown]);
-
-  const applied = useRef(new Map<string, string>());
-
-  // Seeds a field that is empty or still holds the previous default.
   useEffect(() => {
-    const seeds = new Map<string, Ruled<string>>();
+    if (!notifyAfterRender.current) return;
 
-    declared.forEach(({ defaultValue }, name) => {
-      const previous = applied.current.get(name);
+    notifyAfterRender.current = false;
+    onChangeRef.current();
+  }, [currentValues, currentErrors]);
 
-      if (defaultValue === undefined || defaultValue === previous) return;
-
-      applied.current.set(name, defaultValue);
-
-      const value = values.get(name) ?? "";
-
-      if (value.length === 0 || value === previous) {
-        seeds.set(name, { value: defaultValue, rules: rules.get(name) });
-      }
-    });
-
-    if (seeds.size === 0) return;
-
-    setEntered((current) => new Map([...current, ...seeds]));
-  }, [declared, values, rules]);
+  useDefaultValues(
+    fieldsByName,
+    currentValues,
+    validationRulesKeys,
+    setTypedValues
+  );
 
   const valueOf = useCallback(
-    (name: string) => values.get(name) ?? "",
-    [values]
+    (name: string) => currentValues.get(name) ?? "",
+    [currentValues]
   );
 
   return useMemo(
     () => ({
-      declared,
-      values,
-      errors: shown,
+      declared: fieldsByName,
+      values: currentValues,
+      errors: currentErrors,
       valueOf,
       setValue,
       blur,
       validate,
     }),
-    [declared, values, shown, valueOf, setValue, blur, validate]
+    [
+      fieldsByName,
+      currentValues,
+      currentErrors,
+      valueOf,
+      setValue,
+      blur,
+      validate,
+    ]
   );
 }
