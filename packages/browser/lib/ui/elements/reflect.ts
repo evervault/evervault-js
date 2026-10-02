@@ -1,6 +1,8 @@
 // An attribute is "reflected" when a property reads and writes it, as
 // `input.readOnly` does the `readonly` attribute:
 // https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Reflected_attributes
+// Each element lists its `reflections`, one `Reflection` per attribute, and
+// `reflect()` defines the properties from that list.
 
 // How a property's value is written as its attribute: `switch` also reads
 // "off" as off, as `autocomplete` does.
@@ -13,6 +15,8 @@ export interface Codec<E extends Element> {
   set(element: E, value: unknown): void;
 }
 
+// One reflected attribute: its property, and how the attribute is read and
+// written.
 export type Reflection<E extends Element = Element> = [
   property: keyof E & string,
   kind: ReflectionKind | Codec<E>
