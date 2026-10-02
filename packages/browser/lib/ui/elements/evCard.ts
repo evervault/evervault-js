@@ -114,7 +114,7 @@ export class EvCard extends ElementBase {
   #iconMap?: Partial<CardIcons>;
   #shown = false;
 
-  // Every attribute of the card, as the property reading and writing it.
+  // Every attribute of the card and the property that reflects it.
   static readonly reflections: Reflection<EvCard>[] = [
     [
       "theme",
