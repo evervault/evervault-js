@@ -1,5 +1,5 @@
 import { fieldTypes } from "./fieldTypes";
-import type { CardSpecNode, ExpiryHalf } from "types";
+import type { CardSpecNode, ExpiryHalf } from "types/cardSpec";
 
 // Why a card cannot render a tree's expiry: a half without the other is not a
 // partial expiry, and the combined field leaves no room for the halves.

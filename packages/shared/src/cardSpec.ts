@@ -1,4 +1,4 @@
-import type { CardField, CardSpecNode } from "types";
+import type { CardField, CardSpecNode } from "types/cardSpec";
 
 export type CustomFieldInputId = `field-${string}`;
 

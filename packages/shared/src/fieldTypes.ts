@@ -1,4 +1,4 @@
-import type { CardSpecNode } from "types";
+import type { CardSpecNode } from "types/cardSpec";
 
 // The field types a card tree declares, in order, with rows flattened.
 export function fieldTypes(nodes: CardSpecNode[]): CardSpecNode["type"][] {
