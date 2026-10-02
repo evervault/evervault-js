@@ -1,4 +1,5 @@
 import { FocusEvent, useEffect, useRef } from "react";
+import { yearFromAutofill } from "shared/expiry";
 import { useMask } from "../utilities/useMask";
 import { EXPIRY_BLOCKS } from "./CardExpiry";
 import type { ExpiryHalves } from "./expiry";
@@ -28,10 +29,9 @@ const HALVES = {
   year: { id: "expiry-year", mask: "YY", autoComplete: "billing cc-exp-year" },
 };
 
-// Browsers fill `cc-exp-year` with all four digits.
 const YEAR_BLOCK = {
   ...EXPIRY_BLOCKS.YY,
-  prepare: (value: string) => (value.length === 4 ? value.slice(2) : value),
+  prepare: yearFromAutofill,
 };
 
 export function CardExpiryHalf({

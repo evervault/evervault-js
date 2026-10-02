@@ -25,3 +25,8 @@ export function expiryLayoutError(
 
   return null;
 }
+
+// Browsers fill `cc-exp-year` with all four digits.
+export function yearFromAutofill(value: string): string {
+  return value.length === 4 ? value.slice(2) : value;
+}
