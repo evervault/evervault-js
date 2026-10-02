@@ -61,15 +61,4 @@ describe("Card", () => {
 
     expect(instance.show).toHaveBeenCalledTimes(1);
   });
-
-  it("still shows the card through the deprecated reveal", async () => {
-    const instance = mockCardInstance();
-    const ref = React.createRef<CardRef>();
-    render(<Card preload ref={ref} />, { wrapper: withMockClient(instance) });
-
-    await waitFor(() => expect(instance.preload).toHaveBeenCalledTimes(1));
-    ref.current?.reveal();
-
-    expect(instance.show).toHaveBeenCalledTimes(1);
-  });
 });

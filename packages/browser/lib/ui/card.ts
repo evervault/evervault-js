@@ -71,11 +71,6 @@ export default class Card {
     return this;
   }
 
-  /** @deprecated Use `show()`. */
-  reveal() {
-    return this.show();
-  }
-
   update(options?: CardOptions) {
     if (!this.#host.live()) return this;
 

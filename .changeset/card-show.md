@@ -3,4 +3,4 @@
 "@evervault/react": minor
 ---
 
-Add `card.show()` and the `<Card>` ref method `show()`, which display a card loaded with `preload`. `reveal()` still works on both but is deprecated, so use `show()` in new code.
+Rename `card.reveal()` to `card.show()`, and the `<Card>` ref method `reveal()` to `show()`. They display a card loaded with `preload`. The `reveal` names were released only days ago and are removed.
