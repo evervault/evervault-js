@@ -20,7 +20,7 @@ interface Attribute {
 }
 
 // Declaring the attribute is what turns it on; only an explicit denial is false.
-function flag(value: string, ...denials: string[]) {
+export function flag(value: string, ...denials: string[]) {
   return !["false", ...denials].includes(value.trim().toLowerCase());
 }
 
@@ -68,9 +68,9 @@ export function declaredProps(
       return;
     }
 
-    const input = inputFor(node.type);
+    const input = inputFor(node);
 
-    if (declared.has(input)) return;
+    if (!input || declared.has(input)) return;
 
     declared.set(input, fieldProps(node));
   };

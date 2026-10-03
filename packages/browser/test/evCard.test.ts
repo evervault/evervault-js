@@ -315,6 +315,18 @@ describe("<ev-card> declared children", () => {
     ]);
   });
 
+  it("mounts the card with a declared <ev-field> in its tree", () => {
+    const element = append();
+    element.innerHTML =
+      "<ev-card-number></ev-card-number><ev-field name='postcode'></ev-field>";
+    element.mountCard(evervault());
+
+    expect(types(mountedWith().config?.fields as CardSpecNode[])).toEqual([
+      "number",
+      "field",
+    ]);
+  });
+
   it("serialises the declared children when mounted", () => {
     const element = append();
     element.innerHTML = "<ev-card-number placeholder='Card'></ev-card-number>";
