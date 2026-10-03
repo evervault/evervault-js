@@ -1,3 +1,4 @@
+import { expiryLayoutError } from "shared";
 import { fieldTypes } from "shared/fieldTypes";
 import { COMBINED_EXPIRY_WITH_HALF, loneExpiryHalf } from "./developerMessages";
 import type { CardSpecNode, ExpiryHalf } from "types";
@@ -14,24 +15,13 @@ export type DeclaredExpiry =
   | { form: "split"; later: ExpiryHalf }
   | null;
 
-// Why the card cannot render a tree's expiry, or null when it can: a half
-// without the other is not a partial expiry, and the combined field leaves no
-// room for the halves.
+// Why the card cannot render a tree's expiry, or null when it can.
 export function expiryError(nodes: CardSpecNode[]): string | null {
-  const types = fieldTypes(nodes);
-  const combined = types.includes("expiry");
-  const month = types.includes("expiryMonth");
-  const year = types.includes("expiryYear");
+  const error = expiryLayoutError(nodes);
 
-  if (combined && (month || year)) {
-    return COMBINED_EXPIRY_WITH_HALF;
-  }
-
-  if (month !== year) {
-    return loneExpiryHalf(month ? "expiryMonth" : "expiryYear");
-  }
-
-  return null;
+  if (!error) return null;
+  if (error.kind === "combinedWithHalf") return COMBINED_EXPIRY_WITH_HALF;
+  return loneExpiryHalf(error.declared);
 }
 
 // The expiry of a tree `expiryError` accepts.

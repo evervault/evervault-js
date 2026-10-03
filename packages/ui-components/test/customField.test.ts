@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { customFieldError } from "shared";
 import {
   capitalised,
-  customFieldError,
   customFieldProps,
   customFieldWarnings,
 } from "../src/Card/customField";

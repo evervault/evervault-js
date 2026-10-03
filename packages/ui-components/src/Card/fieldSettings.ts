@@ -1,4 +1,4 @@
-import { customFieldInputId, isCustomFieldInput } from "./useSpec";
+import { customFieldInputId, isCustomFieldInput } from "shared";
 import type { CardConfig, CardInput } from "./types";
 import type { CardFieldMap, CardSpecNode } from "types";
 

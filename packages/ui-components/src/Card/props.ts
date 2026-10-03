@@ -1,8 +1,9 @@
+import type { CardFieldSettings } from "shared";
 import type { CardSpecNode } from "types";
 import type { CardInput } from "./types";
-import { inputFor } from "./useSpec";
+import { inputFor } from "shared";
 
-export interface FieldProps {
+export interface FieldProps extends CardFieldSettings {
   label?: string;
   placeholder?: string;
   tooltip?: string;
@@ -11,12 +12,7 @@ export interface FieldProps {
   autoComplete?: boolean;
   autoFocus?: boolean;
   autoProgress?: boolean;
-  errorMessage?: string;
-  unsupportedBrandMessage?: string;
-  pattern?: string;
   redact?: boolean;
-  optional?: boolean;
-  allow3DigitAmex?: boolean;
 }
 
 interface Attribute {
