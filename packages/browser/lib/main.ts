@@ -27,6 +27,7 @@ export type * from "./config";
 export type * from "./types";
 export type * from "./messages";
 export type { Datatypes };
+export type { EvCard } from "./ui/elements/evCard";
 
 export interface CustomConfig {
   isDebugMode?: boolean;
