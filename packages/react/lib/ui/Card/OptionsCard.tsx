@@ -1,59 +1,12 @@
 import * as React from "react";
 import { useEffect, useMemo, useRef, useImperativeHandle } from "react";
-import type {
-  AgentToolsConfig,
-  CardBrandName,
-  CardField,
-  CardIcons,
-  CardOptions,
-  CardPayload,
-  CardTranslations,
-  ColorScheme,
-  CustomBrand,
-  FieldEvent,
-  SwipedCard,
-  ThemeDefinition,
-} from "types";
-import { useEvInstance } from "../useEvInstance";
 import EvervaultClient from "@evervault/browser";
-
-export interface CardRef {
-  validate: () => void;
-  show: () => void;
-}
-
-export interface CardProps {
-  autoFocus?: boolean;
-  colorScheme?: ColorScheme;
-  theme?: ThemeDefinition;
-  icons?: boolean | Partial<CardIcons>;
-  translations?: CardTranslations;
-  fields?: CardField[];
-  onReady?: () => void;
-  onError?: () => void;
-  onSwipe?: (data: SwipedCard) => void;
-  onChange?: (data: CardPayload) => void;
-  onComplete?: (data: CardPayload) => void;
-  onValidate?: (data: CardPayload) => void;
-  autoComplete?: CardOptions["autoComplete"];
-  autoProgress?: boolean;
-  acceptedBrands?: CardBrandName[];
-  defaultValues?: { name?: string };
-  onFocus?: (event: FieldEvent) => void;
-  onBlur?: (event: FieldEvent) => void;
-  onKeyUp?: (event: FieldEvent) => void;
-  onKeyDown?: (event: FieldEvent) => void;
-  redactCVC?: boolean;
-  allow3DigitAmexCVC?: boolean;
-  validation?: CardOptions["validation"];
-  customBrands?: CustomBrand[];
-  agentTools?: AgentToolsConfig;
-  preload?: boolean;
-}
+import { useEvInstance } from "../../useEvInstance";
+import type { CardProps, CardRef } from "./Card";
 
 type CardInstance = ReturnType<EvervaultClient["ui"]["card"]>;
 
-export const Card = React.forwardRef<CardRef, CardProps>(function Card(
+export const OptionsCard = React.forwardRef(function OptionsCard(
   {
     colorScheme,
     theme,
@@ -82,7 +35,7 @@ export const Card = React.forwardRef<CardRef, CardProps>(function Card(
     agentTools,
     preload,
   }: CardProps,
-  forwardedRef
+  forwardedRef: React.ForwardedRef<CardRef>
 ) {
   const ref = useRef<HTMLDivElement | null>(null);
   const inst = useRef<CardInstance | null>(null);
