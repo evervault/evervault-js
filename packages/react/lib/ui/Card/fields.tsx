@@ -1,4 +1,5 @@
 import * as React from "react";
+import { FIELD_ATTRIBUTES } from "shared";
 import type { CardFieldMap, CardOptions } from "types";
 import type {
   EvCardCvc,
@@ -229,36 +230,6 @@ export interface CardFieldProps {
   errorMessage?: string;
 }
 
-// The props each `<ev-card-*>` element takes as its attributes.
-const COMMON: (keyof CardFieldBaseProps)[] = [
-  "label",
-  "placeholder",
-  "tooltip",
-  "autoComplete",
-  "autoFocus",
-  "autoProgress",
-  "errorMessage",
-];
-
-const CUSTOM_FIELD: (keyof CardFieldProps)[] = [
-  ...COMMON,
-  "name",
-  "type",
-  "defaultValue",
-  "readOnly",
-  "inputMode",
-  "autoCapitalize",
-  "spellCheck",
-  "enterKeyHint",
-  "required",
-  "minLength",
-  "maxLength",
-  "pattern",
-  "min",
-  "max",
-  "step",
-];
-
 // The deprecated card props a declared card's fields fall back on.
 export type DeprecatedCardProps = Pick<
   CardOptions,
@@ -319,13 +290,25 @@ function useAttributes(
 function fieldElement<P extends object, E extends HTMLElement>(
   displayName: string,
   tag: string,
-  names: readonly (keyof P & keyof E & string)[],
+  // The attributes the field's element takes, from the shared table, each one
+  // checked against both the component's props and the element's properties.
+  elementAttributes: readonly (readonly [
+    keyof P & keyof E & string,
+    unknown
+  ])[],
   fallbacks: (deprecated: DeprecatedCardProps, props: P) => Partial<P>
 ) {
   function Component(props: P) {
     const ref = React.useRef<HTMLElement | null>(null);
     const deprecated = React.useContext(DeprecatedCardContext);
-    useAttributes(ref, attributes(names, props, fallbacks(deprecated, props)));
+    useAttributes(
+      ref,
+      attributes(
+        elementAttributes.map(([prop]) => prop),
+        props,
+        fallbacks(deprecated, props)
+      )
+    );
 
     return React.createElement(tag, { ref });
   }
@@ -358,21 +341,21 @@ CardRow.displayName = "Card.Row";
 export const CardHolder = fieldElement<CardHolderProps, EvCardHolder>(
   "Card.Holder",
   "ev-card-holder",
-  [...COMMON, "defaultValue", "pattern"],
+  FIELD_ATTRIBUTES.name,
   autoCompleteFor("name")
 );
 
 export const CardNumber = fieldElement<CardNumberProps, EvCardNumber>(
   "Card.Number",
   "ev-card-number",
-  [...COMMON, "iconPosition", "unsupportedBrandMessage"],
+  FIELD_ATTRIBUTES.number,
   autoCompleteFor("number")
 );
 
 export const CardExpiry = fieldElement<CardExpiryProps, EvCardExpiry>(
   "Card.Expiry",
   "ev-card-expiry",
-  COMMON,
+  FIELD_ATTRIBUTES.expiry,
   autoCompleteFor("expiry")
 );
 
@@ -382,7 +365,7 @@ export const CardExpiryMonth = fieldElement<
 >(
   "Card.ExpiryMonth",
   "ev-card-expiry-month",
-  COMMON,
+  FIELD_ATTRIBUTES.expiryMonth,
   autoCompleteFor("expiryMonth", "expiry")
 );
 
@@ -392,14 +375,14 @@ export const CardExpiryYear = fieldElement<
 >(
   "Card.ExpiryYear",
   "ev-card-expiry-year",
-  COMMON,
+  FIELD_ATTRIBUTES.expiryYear,
   autoCompleteFor("expiryYear", "expiry")
 );
 
 export const CardCvc = fieldElement<CardCvcProps, EvCardCvc>(
   "Card.Cvc",
   "ev-card-cvc",
-  [...COMMON, "redact", "optional", "allow3DigitAmex"],
+  FIELD_ATTRIBUTES.cvc,
   (deprecated) => ({
     ...autoCompleteFor("cvc")(deprecated),
     redact: deprecated.redactCVC,
@@ -410,7 +393,7 @@ export const CardCvc = fieldElement<CardCvcProps, EvCardCvc>(
 export const CardField = fieldElement<CardFieldProps, EvField>(
   "Card.Field",
   "ev-field",
-  CUSTOM_FIELD,
+  FIELD_ATTRIBUTES.field,
   ({ autoComplete }, { name }) => {
     const setting =
       typeof autoComplete === "object" ? autoComplete.fields : undefined;
