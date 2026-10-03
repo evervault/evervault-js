@@ -1,4 +1,6 @@
-import type { CardField, CardSpecNode } from "types";
+import type { CardSpecNode } from "types";
+import type { CardInput } from "./types";
+import { inputFor } from "./useSpec";
 
 export interface FieldProps {
   label?: string;
@@ -54,11 +56,11 @@ export function fieldProps(node: CardSpecNode): FieldProps {
   ) as FieldProps;
 }
 
-// The node claiming each field, in declared order: the first of a type wins.
+// The node claiming each input, in declared order: the first of a type wins.
 export function declaredProps(
   nodes: CardSpecNode[]
-): Map<CardField, FieldProps> {
-  const declared = new Map<CardField, FieldProps>();
+): Map<CardInput, FieldProps> {
+  const declared = new Map<CardInput, FieldProps>();
 
   const walk = (node: CardSpecNode) => {
     if (node.type === "row") {
@@ -66,9 +68,11 @@ export function declaredProps(
       return;
     }
 
-    if (declared.has(node.type)) return;
+    const input = inputFor(node.type);
 
-    declared.set(node.type, fieldProps(node));
+    if (declared.has(input)) return;
+
+    declared.set(input, fieldProps(node));
   };
 
   nodes.forEach(walk);

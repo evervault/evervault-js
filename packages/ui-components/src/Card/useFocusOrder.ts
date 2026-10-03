@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import type { CardField } from "types";
+import type { CardInput } from "./types";
 
-// Each reports whether there was a field to move to.
+// Each reports whether there was an input to move to.
 export interface FocusOrder {
-  next: (field: CardField) => boolean;
-  previous: (field: CardField) => boolean;
+  next: (input: CardInput) => boolean;
+  previous: (input: CardInput) => boolean;
 }
 
-// Moves focus along the fields in the order the card renders them, so
+// Moves focus along the inputs in the order the card renders them, so
 // auto-advance and native tab order agree.
-export function useFocusOrder(order: CardField[]): FocusOrder {
+export function useFocusOrder(order: CardInput[]): FocusOrder {
   // A patch can reorder the card, so the order is read when focus moves.
   const current = useRef(order);
 
@@ -17,8 +17,8 @@ export function useFocusOrder(order: CardField[]): FocusOrder {
     current.current = order;
   }, [order]);
 
-  const move = useCallback((field: CardField, offset: number) => {
-    const index = current.current.indexOf(field);
+  const move = useCallback((input: CardInput, offset: number) => {
+    const index = current.current.indexOf(input);
 
     if (index === -1) return false;
 
@@ -37,8 +37,8 @@ export function useFocusOrder(order: CardField[]): FocusOrder {
 
   return useMemo(
     () => ({
-      next: (field: CardField) => move(field, 1),
-      previous: (field: CardField) => move(field, -1),
+      next: (input: CardInput) => move(input, 1),
+      previous: (input: CardInput) => move(input, -1),
     }),
     [move]
   );
