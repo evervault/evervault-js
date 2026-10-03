@@ -149,13 +149,22 @@ export class EvCard extends ElementBase {
     ["preload", "flag"],
   ];
 
+  // The browser reports these changing; the observer watches the children.
+  static get observedAttributes() {
+    return [...OPTION_ATTRIBUTES];
+  }
+
+  attributeChangedCallback() {
+    this.#changed();
+  }
+
   get spec() {
     return this.#spec;
   }
 
   #setTheme(value: EvCard["theme"]) {
-    // A theme definition is never written to the attribute, so its changes go
-    // unseen by the observer.
+    // A theme definition is never written to the attribute, so the browser
+    // never reports its changes.
     this.#changed();
 
     if (value !== undefined && value !== null && typeof value !== "string") {
@@ -405,17 +414,7 @@ export class EvCard extends ElementBase {
   }
 
   #observe() {
-    this.#observer = new MutationObserver((records) => {
-      const option = (record: MutationRecord) =>
-        record.target === this &&
-        OPTION_ATTRIBUTES.has(record.attributeName ?? "");
-
-      if (records.some(option)) {
-        this.#optionsChanged = true;
-      }
-
-      this.#queueSync();
-    });
+    this.#observer = new MutationObserver(() => this.#queueSync());
     this.#observer.observe(this, {
       childList: true,
       subtree: true,
