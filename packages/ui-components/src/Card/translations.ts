@@ -39,4 +39,10 @@ export const DEFAULT_TRANSLATIONS: CardTranslations = {
       invalid: "Your CVC is invalid",
     },
   },
+  field: {
+    errors: {
+      required: "This field is required",
+      invalid: "Please enter a valid value",
+    },
+  },
 };

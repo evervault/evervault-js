@@ -7,7 +7,7 @@ import {
   getFocusedField,
   type CardFormValidators,
 } from "./agentTools";
-import { fieldOf } from "./useSpec";
+import { cardFieldWrittenBy } from "./useSpec";
 import type { CardForm, CardInput } from "./types";
 import type { AgentToolsFrameConfig, CardField } from "types";
 
@@ -18,6 +18,8 @@ interface UseAgentToolsParams {
   form: UseFormReturn<CardForm>;
   validators: CardFormValidators;
   t: (key: string) => string;
+  // Agents never see the customer's own fields, but the card waits on them.
+  customFieldsComplete: boolean;
 }
 
 // Registers WebMCP tools for the card form. Tool handlers read the latest
@@ -29,9 +31,10 @@ export function useAgentTools({
   form,
   validators,
   t,
+  customFieldsComplete,
 }: UseAgentToolsParams) {
-  const latest = useRef({ form, validators, t });
-  latest.current = { form, validators, t };
+  const latest = useRef({ form, validators, t, customFieldsComplete });
+  latest.current = { form, validators, t, customFieldsComplete };
 
   const namePrefix = config?.namePrefix;
   const productName = config?.productName;
@@ -61,11 +64,12 @@ export function useAgentTools({
     const exposedTo = exposeTo ? exposeTo.split(",") : [];
 
     const buildStatus = (values: CardForm) => {
-      const { validators, t } = latest.current;
+      const { validators, t, customFieldsComplete } = latest.current;
       const statuses = buildFieldStatuses(activeFields, values, validators, t);
       return {
         fields: statuses,
-        isComplete: statuses.every((status) => status.isValid),
+        isComplete:
+          customFieldsComplete && statuses.every((status) => status.isValid),
         focusedField: getFocusedField(activeInputs),
       };
     };
@@ -76,7 +80,9 @@ export function useAgentTools({
       {
         getStatus: () => buildStatus(latest.current.form.values),
         focusField: (field) => {
-          const id = activeInputs.find((input) => fieldOf(input) === field);
+          const id = activeInputs.find(
+            (input) => cardFieldWrittenBy(input) === field
+          );
           const input = id && document.getElementById(id);
           if (!(input instanceof HTMLInputElement)) {
             throw new Error(fieldNotAvailableMessage(productName, field));
