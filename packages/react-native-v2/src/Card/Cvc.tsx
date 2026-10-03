@@ -1,10 +1,17 @@
 import { forwardRef, useMemo } from "react";
-import { BaseEvervaultInputProps, EvervaultInput, mask } from "../Input";
+import {
+  AutoProgressProps,
+  BaseEvervaultInputProps,
+  EvervaultInput,
+  mask,
+} from "../Input";
 import { CardFormValues } from "./schema";
 import { Mask } from "react-native-mask-input";
 import { validateNumber } from "@evervault/card-validator";
 import { useFormContext } from "react-hook-form";
 import { CardBrandName } from "./types";
+import { useCardFieldSettings } from "./fieldSettings";
+import { declaredField } from "./declaredFields";
 
 const DEFAULT_CARD_CVC_MASK = mask("[999]");
 
@@ -12,21 +19,44 @@ const CARD_CVC_MASKS: Partial<Record<CardBrandName, Mask>> = {
   "american-express": mask("[9999]"),
 };
 
-export interface CardCvcProps extends BaseEvervaultInputProps {
+export interface CardCvcProps
+  extends BaseEvervaultInputProps,
+    AutoProgressProps {
   /**
    * Whether to obfuscate the entire CVC value.
    *
    * If a string is provided, it will be used to obfuscate the value.
    */
   obfuscateValue?: boolean | string;
+
+  /**
+   * Replaces the text of this field's error in the payload's `errors`.
+   */
+  errorMessage?: string;
+
+  /**
+   * Whether the card is complete without a security code.
+   *
+   * @default false
+   */
+  optional?: boolean;
+
+  /**
+   * Whether an American Express security code may be 3 digits rather than 4.
+   *
+   * @default true
+   */
+  allow3DigitAmex?: boolean;
 }
 
 export type CardCvc = EvervaultInput;
 
-export const CardCvc = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
-  props,
+const CardCvcElement = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
+  { errorMessage, optional, allow3DigitAmex, ...props },
   ref
 ) {
+  useCardFieldSettings("cvc", { errorMessage, optional, allow3DigitAmex });
+
   const methods = useFormContext<CardFormValues>();
 
   const number = methods.watch("number");
@@ -56,3 +86,5 @@ export const CardCvc = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
     />
   );
 });
+
+export const CardCvc = declaredField("cvc", CardCvcElement);

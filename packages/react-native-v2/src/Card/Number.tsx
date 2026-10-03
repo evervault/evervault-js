@@ -1,9 +1,16 @@
 import { forwardRef, useCallback } from "react";
-import { BaseEvervaultInputProps, EvervaultInput, mask } from "../Input";
+import {
+  AutoProgressProps,
+  BaseEvervaultInputProps,
+  EvervaultInput,
+  mask,
+} from "../Input";
 import { CardFormValues } from "./schema";
 import { MaskArray } from "react-native-mask-input";
 import { validateNumber } from "@evervault/card-validator";
 import { CardBrandName } from "./types";
+import { useCardFieldSettings } from "./fieldSettings";
+import { declaredField } from "./declaredFields";
 
 const DEFAULT_CARD_NUMBER_MASK = mask("9999 99[99 9999 9999]");
 
@@ -12,19 +19,37 @@ const CARD_NUMBER_MASKS: Partial<Record<CardBrandName, MaskArray>> = {
   "american-express": mask("9999 99[9999 99999]"),
 };
 
-export interface CardNumberProps extends BaseEvervaultInputProps {
+export interface CardNumberProps
+  extends BaseEvervaultInputProps,
+    AutoProgressProps {
   /**
    * Whether to obfuscate the card number value (excluding the last 4 digits).
    *
    * If a string is provided, it will be used to obfuscate the value.
    */
   obfuscateValue?: boolean | string;
+
+  /**
+   * Replaces the text of this field's error in the payload's `errors`.
+   */
+  errorMessage?: string;
+
+  /**
+   * Replaces the text of the error for a card whose brand the card does not
+   * accept.
+   */
+  unsupportedBrandMessage?: string;
 }
 
 export type CardNumber = EvervaultInput;
 
-export const CardNumber = forwardRef<CardNumber, CardNumberProps>(
-  function CardNumber(props, ref) {
+const CardNumberElement = forwardRef<CardNumber, CardNumberProps>(
+  function CardNumber(
+    { errorMessage, unsupportedBrandMessage, ...props },
+    ref
+  ) {
+    useCardFieldSettings("number", { errorMessage, unsupportedBrandMessage });
+
     const mask = useCallback((text?: string): MaskArray => {
       if (!text) {
         return DEFAULT_CARD_NUMBER_MASK;
@@ -52,3 +77,5 @@ export const CardNumber = forwardRef<CardNumber, CardNumberProps>(
     );
   }
 );
+
+export const CardNumber = declaredField("number", CardNumberElement);

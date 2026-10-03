@@ -1134,9 +1134,15 @@ importers:
       react-native-mask-input:
         specifier: ^1.2.3
         version: 1.2.3(react-native@0.79.6(@babel/core@7.29.7)(@react-native-community/cli@20.2.0(typescript@5.9.3))(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)
+      shared:
+        specifier: workspace:*
+        version: link:../shared
       test-renderer:
         specifier: ^1.2.0
         version: 1.2.0(@types/react@19.2.17)(react@19.2.7)
+      types:
+        specifier: workspace:*
+        version: link:../types
       zod:
         specifier: ^3.25.0
         version: 3.25.76
