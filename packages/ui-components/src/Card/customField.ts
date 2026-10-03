@@ -2,6 +2,8 @@ import { CUSTOM_FIELD_TYPES } from "./customFieldTypes";
 import type { CustomFieldType } from "./customFieldTypes";
 import { invalidPattern, unsupportedFieldType } from "./developerMessages";
 import { flag } from "./props";
+import { FIELD_ATTRIBUTES } from "shared";
+import type { FieldAttributeKind } from "shared";
 import type { CardSpecNode } from "types";
 
 export type AutoCapitalize = "none" | "sentences" | "words" | "characters";
@@ -104,6 +106,21 @@ export function compilePattern(source: string): RegExp | undefined {
   return undefined;
 }
 
+// The props whose parsing differs from their kind's.
+const PARSE_BY_PROP: Partial<
+  Record<keyof CustomFieldProps, (value: string) => unknown>
+> = {
+  autoComplete,
+  autoCapitalize,
+  minLength: parseLength,
+  maxLength: parseLength,
+  pattern: compilePattern,
+};
+
+// Parsed elsewhere: the name and type below, and autofocus with the card
+// fields' shared settings.
+const PARSED_ELSEWHERE = new Set(["name", "type", "autoFocus"]);
+
 export function customFieldProps(
   node: CardSpecNode
 ): CustomFieldProps | undefined {
@@ -111,34 +128,29 @@ export function customFieldProps(
 
   if (!props.name) return undefined;
 
-  const read = <T>(attribute: string, parse: (value: string) => T) =>
-    attribute in props ? parse(props[attribute]) : undefined;
-
   const type = props.type?.trim().toLowerCase();
 
+  const parse = (prop: keyof CustomFieldProps, kind: FieldAttributeKind) => {
+    const value = props[prop.toLowerCase()];
+    const parser = PARSE_BY_PROP[prop];
+
+    if (value === undefined) return undefined;
+    if (parser) return parser(value);
+    return kind === "flag" ? flag(value) : value;
+  };
+
   return {
+    ...Object.fromEntries(
+      FIELD_ATTRIBUTES.field
+        .filter(([prop]) => !PARSED_ELSEWHERE.has(prop))
+        .map(([prop, kind]) => [
+          prop,
+          parse(prop as keyof CustomFieldProps, kind),
+        ])
+    ),
     name: props.name,
     type: isType(type) ? type : "text",
-    label: props.label,
-    placeholder: props.placeholder,
-    tooltip: props.tooltip,
-    defaultValue: props.defaultvalue,
-    autoComplete: read("autocomplete", autoComplete),
-    autoProgress: read("autoprogress", flag),
-    readOnly: read("readonly", flag),
-    inputMode: props.inputmode,
-    autoCapitalize: autoCapitalize(props.autocapitalize),
-    spellCheck: read("spellcheck", flag),
-    enterKeyHint: props.enterkeyhint,
-    required: read("required", flag),
-    minLength: parseLength(props.minlength),
-    maxLength: parseLength(props.maxlength),
-    pattern: read("pattern", compilePattern),
-    min: props.min,
-    max: props.max,
-    step: props.step,
-    errorMessage: props.errormessage,
-  };
+  } as CustomFieldProps;
 }
 
 const WORD_START = /(^|\s)(\p{Ll})/gu;

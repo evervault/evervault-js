@@ -1,3 +1,5 @@
+import { CARD_FIELD_ATTRIBUTES, FIELD_ATTRIBUTES } from "shared";
+import type { FieldAttribute, FieldAttributeKind } from "shared";
 import type { CardSpecNode } from "types";
 import type { CardInput } from "./types";
 import { inputFor } from "./useSpec";
@@ -19,54 +21,35 @@ export interface FieldProps {
   allow3DigitAmex?: boolean;
 }
 
-interface Attribute {
-  prop: keyof FieldProps;
-  read?: (value: string) => boolean;
-}
-
 // Declaring the attribute is what turns it on; only an explicit denial is false.
 export function flag(value: string, ...denials: string[]) {
   return !["false", ...denials].includes(value.trim().toLowerCase());
 }
 
-const COMMON: Record<string, Attribute> = {
-  label: { prop: "label" },
-  placeholder: { prop: "placeholder" },
-  tooltip: { prop: "tooltip" },
-  autocomplete: { prop: "autoComplete", read: (value) => flag(value, "off") },
-  autofocus: { prop: "autoFocus", read: flag },
-  autoprogress: { prop: "autoProgress", read: flag },
-  errormessage: { prop: "errorMessage" },
+const PARSE_BY_KIND: Record<FieldAttributeKind, (value: string) => unknown> = {
+  text: (value) => value,
+  flag: (value) => flag(value),
+  switch: (value) => flag(value, "off"),
+  number: Number,
 };
 
-const PER_TYPE: Partial<
-  Record<CardSpecNode["type"], Record<string, Attribute>>
-> = {
-  name: {
-    defaultvalue: { prop: "defaultValue" },
-    pattern: { prop: "pattern" },
-  },
-  number: {
-    iconposition: { prop: "iconPosition" },
-    unsupportedbrandmessage: { prop: "unsupportedBrandMessage" },
-  },
-  cvc: {
-    redact: { prop: "redact", read: flag },
-    optional: { prop: "optional", read: flag },
-    allow3digitamex: { prop: "allow3DigitAmex", read: flag },
-  },
-};
+// A custom field's own attributes are read by customFieldProps; here, only
+// those it shares with the card fields.
+function attributesOf(type: CardSpecNode["type"]): readonly FieldAttribute[] {
+  if (type === "row") return [];
+  if (type === "field") return CARD_FIELD_ATTRIBUTES;
+  return FIELD_ATTRIBUTES[type];
+}
 
 export function fieldProps(node: CardSpecNode): FieldProps {
-  const attributes = { ...COMMON, ...PER_TYPE[node.type] };
-
   return Object.fromEntries(
-    Object.entries(attributes)
-      .filter(([attribute]) => attribute in node.props)
-      .map(([attribute, { prop, read }]) => {
-        const value = node.props[attribute];
-        return [prop, read ? read(value) : value];
-      })
+    attributesOf(node.type)
+      .map(([prop, kind]) => [prop, kind, prop.toLowerCase()] as const)
+      .filter(([, , attribute]) => attribute in node.props)
+      .map(([prop, kind, attribute]) => [
+        prop,
+        PARSE_BY_KIND[kind](node.props[attribute]),
+      ])
   ) as FieldProps;
 }
 
