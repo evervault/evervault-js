@@ -3,6 +3,37 @@ const glob = require("glob");
 const pkgJson = require("./package.json");
 const typescript = require("@rollup/plugin-typescript");
 const resolve = require("@rollup/plugin-node-resolve");
+const ts = require("typescript");
+const path = require("path");
+
+const SHARED = path.resolve(__dirname, "../shared/src");
+
+// `shared` ships TypeScript, which the typescript plugin only compiles in `src`.
+function sharedSource() {
+  return {
+    name: "shared-source",
+    // `shared` imports its own files without their `.ts` extension.
+    resolveId(source, importer) {
+      if (!importer?.startsWith(SHARED) || !source.startsWith(".")) return null;
+
+      return `${path.resolve(path.dirname(importer), source)}.ts`;
+    },
+    transform(code, id) {
+      if (!id.startsWith(SHARED)) return null;
+
+      const { outputText, sourceMapText } = ts.transpileModule(code, {
+        fileName: id,
+        compilerOptions: {
+          module: ts.ModuleKind.ESNext,
+          target: ts.ScriptTarget.ESNext,
+          sourceMap: true,
+        },
+      });
+
+      return { code: outputText, map: sourceMapText };
+    },
+  };
+}
 
 function platformResolution() {
   return {
@@ -46,6 +77,7 @@ module.exports = defineConfig([
     },
     plugins: [
       resolve(),
+      sharedSource(),
       typescript({
         declaration: false,
         declarationMap: false,
@@ -65,6 +97,7 @@ module.exports = defineConfig([
     },
     plugins: [
       resolve(),
+      sharedSource(),
       typescript({
         declaration: true,
         declarationDir: "build/esm",
