@@ -365,6 +365,19 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     });
   }, [customFields, resets]);
 
+  // The security code is judged against the number, so it is checked again
+  // once it has been left or shows an error.
+  useEffect(() => {
+    const subscription = methods.watch((_values, { name }) => {
+      if (name !== "number") return;
+
+      const cvc = methods.getFieldState("cvc");
+      if (cvc.isTouched || cvc.error) void methods.trigger("cvc");
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   useImperativeHandle(
     ref,
     useCallback(

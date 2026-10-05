@@ -1,16 +1,11 @@
 import { z } from "zod";
-import {
-  validateNumber,
-  validateCVC,
-  validateExpiry,
-} from "@evervault/card-validator";
-import { isRefusedAmexCvc } from "shared/cvc";
+import { validateNumber, validateExpiry } from "@evervault/card-validator";
 import { CardBrandName } from "./types";
-import { isAcceptedBrand, nameMatches } from "./utils";
+import { isAcceptedBrand, isCvcComplete, nameMatches } from "./utils";
 import type { CardField } from "./types";
 import type { CardSettings } from "./utils";
 
-// The number decides whether a 3-digit security code passes on an Amex card.
+// The security code is judged against the number, as the web card judges it.
 export function getCardFormSchema(
   acceptedBrands: CardBrandName[],
   settings: CardSettings = {},
@@ -47,17 +42,9 @@ export function getCardFormSchema(
     cvc: (cvc.optional
       ? z.string()
       : z.string().min(1, cvc.errorMessage ?? "Required")
-    ).refine(
-      (value) =>
-        (cvc.optional === true && value === "") ||
-        (validateCVC(value).isValid &&
-          !isRefusedAmexCvc(
-            value,
-            validateNumber(cardNumber).brand,
-            cvc.allow3DigitAmex
-          )),
-      { message: cvc.errorMessage ?? "Invalid CVC" }
-    ),
+    ).refine((value) => isCvcComplete(value, cardNumber, cvc), {
+      message: cvc.errorMessage ?? "Invalid CVC",
+    }),
   } satisfies Record<CardField, z.ZodTypeAny>);
 }
 
