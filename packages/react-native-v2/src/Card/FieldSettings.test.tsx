@@ -166,6 +166,54 @@ describe("field settings", () => {
     });
   });
 
+  describe("Card.Cvc against the number", () => {
+    it("checks only the format while there is no number", async () => {
+      const { onChange, getByTestId } = await renderCard(
+        <>
+          <CardNumber testID="number" />
+          <CardCvc testID="cvc" />
+        </>
+      );
+
+      await typeAndLeave(getByTestId("cvc"), "123");
+
+      await waitFor(() => expect(lastPayload(onChange).errors).toEqual({}));
+    });
+
+    it("refuses a security code while the number is not valid", async () => {
+      const { onChange, getByTestId } = await renderCard(
+        <>
+          <CardNumber testID="number" />
+          <CardCvc testID="cvc" />
+        </>
+      );
+
+      const user = userEvent.setup();
+      await user.type(getByTestId("number"), "4242");
+      await typeAndLeave(getByTestId("cvc"), "123");
+
+      await waitFor(() =>
+        expect(lastPayload(onChange).errors.cvc).toBe("Invalid CVC")
+      );
+    });
+
+    it("accepts it once the number is valid", async () => {
+      const { onChange, getByTestId } = await renderCard(
+        <>
+          <CardNumber testID="number" />
+          <CardCvc testID="cvc" />
+        </>
+      );
+
+      const user = userEvent.setup();
+      await user.type(getByTestId("number"), "4242");
+      await typeAndLeave(getByTestId("cvc"), "123");
+      await user.type(getByTestId("number"), "424242424242");
+
+      await waitFor(() => expect(lastPayload(onChange).errors).toEqual({}));
+    });
+  });
+
   describe("Card.Cvc allow3DigitAmex", () => {
     it("accepts a 3-digit Amex security code by default", async () => {
       const { onChange, getByTestId } = await renderCard(
@@ -225,6 +273,51 @@ describe("field settings", () => {
           errors: {},
           isComplete: true,
         })
+      );
+    });
+  });
+
+  describe("security code checked against the number", () => {
+    it("clears a refused Amex security code once the number changes", async () => {
+      const { onChange, getByTestId } = await renderCard(
+        <>
+          <CardNumber testID="number" />
+          <CardCvc testID="cvc" allow3DigitAmex={false} />
+        </>
+      );
+
+      const user = userEvent.setup();
+      await user.type(getByTestId("number"), AMEX);
+      await typeAndLeave(getByTestId("cvc"), "123");
+      await waitFor(() =>
+        expect(lastPayload(onChange).errors.cvc).toBe("Invalid CVC")
+      );
+
+      await user.clear(getByTestId("number"));
+      await user.type(getByTestId("number"), VISA);
+
+      await waitFor(() =>
+        expect(lastPayload(onChange)).toMatchObject({
+          errors: {},
+          isValid: true,
+        })
+      );
+    });
+
+    it("refuses a security code left before the number became an Amex", async () => {
+      const { onChange, getByTestId } = await renderCard(
+        <>
+          <CardNumber testID="number" />
+          <CardCvc testID="cvc" allow3DigitAmex={false} />
+        </>
+      );
+
+      const user = userEvent.setup();
+      await typeAndLeave(getByTestId("cvc"), "123");
+      await user.type(getByTestId("number"), AMEX);
+
+      await waitFor(() =>
+        expect(lastPayload(onChange).errors.cvc).toBe("Invalid CVC")
       );
     });
   });
