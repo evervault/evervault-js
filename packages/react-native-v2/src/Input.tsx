@@ -11,7 +11,14 @@ import {
   useMemo,
   useRef,
 } from "react";
-import { TextInput, TextInputProps } from "react-native";
+import {
+  StyleProp,
+  Text,
+  TextInput,
+  TextInputProps,
+  TextStyle,
+  View,
+} from "react-native";
 import { mergeRefs } from "./utils";
 import { useController, useFormContext } from "react-hook-form";
 import MaskInput, { Mask, MaskArray } from "react-native-mask-input";
@@ -77,10 +84,21 @@ function useForwardedInputRef(
   return inputRef;
 }
 
-export type BaseEvervaultInputProps = Omit<
-  TextInputProps,
-  "onChange" | "onChangeText" | "value" | "defaultValue"
->;
+export interface BaseEvervaultInputProps
+  extends Omit<
+    TextInputProps,
+    "onChange" | "onChangeText" | "value" | "defaultValue"
+  > {
+  /**
+   * Text rendered above the field, also read out as its accessibility label.
+   */
+  label?: string;
+
+  /**
+   * The style of the `label` text.
+   */
+  labelStyle?: StyleProp<TextStyle>;
+}
 
 export function mask(format: string): MaskArray {
   const maskArray: MaskArray = [];
@@ -125,7 +143,10 @@ export interface EvervaultInputProps<Values extends Record<string, unknown>>
 export const EvervaultInput = forwardRef<
   EvervaultInput,
   EvervaultInputProps<Record<string, unknown>>
->(function EvervaultInput({ name, mask, obfuscateValue, ...props }, ref) {
+>(function EvervaultInput(
+  { name, mask, obfuscateValue, label, labelStyle, ...props },
+  ref
+) {
   const { validationMode } = useContext(EvervaultInputContext);
 
   const inputRef = useForwardedInputRef(ref);
@@ -146,10 +167,11 @@ export const EvervaultInput = forwardRef<
     }
   }, [obfuscateValue]);
 
-  return (
+  const input = (
     <MaskInput
       // Overridable props
       id={field.name}
+      accessibilityLabel={label}
       {...props}
       // Strict props
       ref={mergeRefs(inputRef, field.ref)}
@@ -186,6 +208,22 @@ export const EvervaultInput = forwardRef<
       defaultValue={undefined}
       onChange={undefined}
     />
+  );
+
+  if (!label) return input;
+
+  // The input reads the label out itself.
+  return (
+    <View>
+      <Text
+        style={labelStyle}
+        accessible={false}
+        importantForAccessibility="no"
+      >
+        {label}
+      </Text>
+      {input}
+    </View>
   );
 }) as <Values extends Record<string, unknown>>(
   props: EvervaultInputProps<Values> & { ref?: Ref<EvervaultInput> }
