@@ -26,18 +26,26 @@ import MaskInput, { Mask, MaskArray } from "react-native-mask-input";
 
 export interface EvervaultInputContextValue {
   validationMode: "onChange" | "onBlur" | "onTouched" | "all";
+  autoProgress?: boolean;
 }
 
 export const EvervaultInputContext = createContext<EvervaultInputContextValue>({
   validationMode: "all",
 });
 
+export interface FocusTarget {
+  focus(): void;
+}
+
 export interface FocusOrderContextValue {
+  // Moves focus to the field after this input's, in the card's order.
+  next(): void;
   // The id of the input holding focus, as its focus and blur events tell it.
   focused: { current: string | null };
 }
 
 export const FocusOrderContext = createContext<FocusOrderContextValue>({
+  next: () => {},
   focused: { current: null },
 });
 
@@ -110,6 +118,15 @@ export interface BaseEvervaultInputProps
   labelStyle?: StyleProp<TextStyle>;
 }
 
+// For the fields that can be full: a fixed length, or a `maxLength`.
+export interface AutoProgressProps {
+  /**
+   * Whether to move focus to the next field once this one is filled. Overrides
+   * the card's `autoProgress` for this field.
+   */
+  autoProgress?: boolean;
+}
+
 export function mask(format: string): MaskArray {
   const maskArray: MaskArray = [];
 
@@ -133,6 +150,22 @@ export function mask(format: string): MaskArray {
   return maskArray;
 }
 
+// Filled when every slot the mask has for the value holds a typed character,
+// or, without a mask, when the value reaches its longest.
+function isFilled(
+  mask: Mask | undefined,
+  limit: number | undefined,
+  typed: string
+) {
+  if (!mask) return limit !== undefined && typed.length >= limit;
+
+  const slots = (typeof mask === "function" ? mask(typed) : mask).filter(
+    (slot) => typeof slot !== "string"
+  ).length;
+
+  return typed.length === slots;
+}
+
 function getMaskLength(mask: Mask | undefined, value?: string) {
   if (!mask) {
     return undefined;
@@ -144,7 +177,8 @@ function getMaskLength(mask: Mask | undefined, value?: string) {
 }
 
 export interface EvervaultInputProps<Values extends Record<string, unknown>>
-  extends BaseEvervaultInputProps {
+  extends BaseEvervaultInputProps,
+    AutoProgressProps {
   name: keyof Values;
   mask?: Mask;
   obfuscateValue?: boolean | string;
@@ -154,6 +188,9 @@ export interface EvervaultInputProps<Values extends Record<string, unknown>>
   write?(typed: string, stored: string): string;
   // The longest value an input without a mask takes.
   limit?: number;
+  // Whether the input is full, from the text it shows; by default when the
+  // mask or the limit is.
+  isFull?(shown: string): boolean;
   // Whether leaving the input leaves a value ready to check, given the input
   // focus moved to; by default always.
   checksOnBlur?(stored: string, focused: string | null): boolean;
@@ -170,14 +207,18 @@ export const EvervaultInput = forwardRef<
     read,
     write,
     limit,
+    isFull,
     checksOnBlur,
     label,
     labelStyle,
+    autoProgress,
     ...props
   },
   ref
 ) {
-  const { validationMode } = useContext(EvervaultInputContext);
+  const { validationMode, autoProgress: cardAutoProgress } = useContext(
+    EvervaultInputContext
+  );
   const focusOrder = useContext(FocusOrderContext);
 
   const inputRef = useForwardedInputRef(ref);
@@ -264,6 +305,14 @@ export const EvervaultInput = forwardRef<
           shouldDirty: true,
           shouldValidate,
         });
+
+        const advances = autoProgress ?? cardAutoProgress;
+        const full = isFull
+          ? isFull(read ? read(stored) : stored)
+          : isFilled(mask, limit, unmasked);
+        if (advances && full) {
+          focusOrder.next();
+        }
       }}
       // Remove unwanted props
       defaultValue={undefined}

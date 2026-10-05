@@ -1,6 +1,10 @@
 import { forwardRef } from "react";
 import { yearFromAutofill } from "shared/expiry";
-import { BaseEvervaultInputProps, EvervaultInput } from "../Input";
+import {
+  AutoProgressProps,
+  BaseEvervaultInputProps,
+  EvervaultInput,
+} from "../Input";
 import { CardFormValues } from "./schema";
 import { declaredField } from "./declaredFields";
 
@@ -26,6 +30,8 @@ function yearFromTyped(typed: string) {
   return entered.length === 4 ? yearFromAutofill(entered) : entered.slice(0, 2);
 }
 
+const isFull = (shown: string) => shown.length === 2;
+
 // Both halves write the one expiry, "MMYY", the month padded while partial.
 function month(stored: string) {
   return stored.slice(0, 2).trim();
@@ -39,7 +45,9 @@ function join(typedMonth: string, typedYear: string) {
   return typedYear ? typedMonth.padEnd(2, " ") + typedYear : typedMonth;
 }
 
-export interface CardExpiryHalfProps extends BaseEvervaultInputProps {
+export interface CardExpiryHalfProps
+  extends BaseEvervaultInputProps,
+    AutoProgressProps {
   /**
    * Replaces the text of the expiry's error in the payload's `errors`; either
    * half may declare it.
@@ -63,6 +71,7 @@ const CardExpiryMonthElement = forwardRef<
       id="expiry-month"
       name="expiry"
       limit={2}
+      isFull={isFull}
       read={month}
       write={(typed, stored) => join(monthFromTyped(typed), year(stored))}
       // Moving into the other half while it's empty isn't finishing the date.
@@ -90,6 +99,7 @@ const CardExpiryYearElement = forwardRef<CardExpiryYear, CardExpiryYearProps>(
         id="expiry-year"
         name="expiry"
         limit={4}
+        isFull={isFull}
         read={year}
         write={(typed, stored) => join(month(stored), yearFromTyped(typed))}
         checksOnBlur={(stored, focused) =>

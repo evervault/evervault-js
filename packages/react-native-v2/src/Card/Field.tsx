@@ -4,12 +4,14 @@ import { customFieldInputId } from "shared/cardSpec";
 import { customFieldProps } from "shared/customField";
 import type { CustomFieldType } from "shared/customField";
 import { fieldAttributes } from "shared/fieldProps";
-import { EvervaultInput } from "../Input";
+import { AutoProgressProps, EvervaultInput } from "../Input";
 import type { CardFieldBaseProps } from "./props";
 import { customFieldKey } from "./customFields";
 import { declaredField } from "./declaredFields";
 
-export interface CardFieldProps extends Omit<CardFieldBaseProps, "maxLength"> {
+export interface CardFieldProps
+  extends Omit<CardFieldBaseProps, "maxLength">,
+    AutoProgressProps {
   /**
    * The key the field's encrypted value is reported under, in the payload's
    * `fields`.
@@ -47,7 +49,8 @@ export interface CardFieldProps extends Omit<CardFieldBaseProps, "maxLength"> {
   minLength?: number;
 
   /**
-   * The longest value the field takes.
+   * The longest value the field takes. Auto-advance moves on once the field
+   * holds this many characters.
    */
   maxLength?: number;
 

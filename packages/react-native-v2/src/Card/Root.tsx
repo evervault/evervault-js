@@ -1,6 +1,7 @@
 import {
   forwardRef,
   PropsWithChildren,
+  RefObject,
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -20,7 +21,11 @@ import { CardFormValues, getCardFormSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEvervault } from "../useEvervault";
 import { formatPayload } from "./utils";
-import { EvervaultInputContext, EvervaultInputContextValue } from "../Input";
+import {
+  EvervaultInputContext,
+  EvervaultInputContextValue,
+  FocusTarget,
+} from "../Input";
 import { EvervaultContextValue } from "../context";
 import { customFieldErrors, customFieldKey } from "./customFields";
 import {
@@ -79,6 +84,14 @@ export interface CardProps extends PropsWithChildren, CardConfig {
    * @default "all"
    */
   validationMode?: "onChange" | "onBlur" | "onTouched" | "all";
+
+  /**
+   * Whether to move focus to the next field once one is filled, along the
+   * order the fields first rendered in.
+   *
+   * @default false
+   */
+  autoProgress?: boolean;
 }
 
 export interface Card {
@@ -96,6 +109,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     onError,
     acceptedBrands = DEFAULT_ACCEPTED_BRANDS,
     validationMode = "all",
+    autoProgress = false,
   },
   ref
 ) {
@@ -145,18 +159,24 @@ export const Card = forwardRef<Card, CardProps>(function Card(
   const inputContext = useMemo<EvervaultInputContextValue>(
     () => ({
       validationMode,
+      autoProgress,
     }),
-    [validationMode]
+    [validationMode, autoProgress]
   );
 
   const focused = useRef<string | null>(null);
 
-  // The fields in the order they declared themselves, as the card's tree.
+  // The fields in the order they declared themselves, as the card's tree,
+  // which is also the order auto-advance moves along.
   const [declared, setDeclared] = useState<CardSpecNode[]>([]);
+  const inputs = useRef(new Map<string, RefObject<FocusTarget | null>>());
+  const order = useRef<CardSpecNode[]>([]);
 
   const declare = useMemo(
     () => ({
-      set(node: CardSpecNode) {
+      set(node: CardSpecNode, input: RefObject<FocusTarget | null>) {
+        inputs.current.set(node.id, input);
+
         setDeclared((current) => {
           const index = current.findIndex(({ id }) => id === node.id);
 
@@ -171,7 +191,18 @@ export const Card = forwardRef<Card, CardProps>(function Card(
         });
       },
       remove(id: string) {
+        inputs.current.delete(id);
         setDeclared((current) => current.filter((field) => field.id !== id));
+      },
+      next(id: string) {
+        const index = order.current.findIndex((node) => node.id === id);
+        if (index === -1) return;
+
+        // A field the card leaves out has no input to focus.
+        for (const node of order.current.slice(index + 1)) {
+          const input = inputs.current.get(node.id)?.current;
+          if (input) return input.focus();
+        }
       },
       focused,
     }),
@@ -199,6 +230,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
   }, [refusal, renderable, declared]);
 
   const skipped = useMemo(() => skippedNodes(nodes), [nodes]);
+  order.current = nodes;
 
   const declaredFieldsContext = useMemo<DeclaredFieldsContextValue>(
     () => ({
