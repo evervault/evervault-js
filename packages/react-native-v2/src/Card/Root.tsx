@@ -52,6 +52,14 @@ const CARD_FIELDS: CardField[] = ["name", "number", "expiry", "cvc"];
 
 const DEFAULT_ACCEPTED_BRANDS: CardBrandName[] = [];
 
+function sameProps(a: Record<string, string>, b: Record<string, string>) {
+  const keys = Object.keys(a);
+  return (
+    keys.length === Object.keys(b).length &&
+    keys.every((key) => a[key] === b[key])
+  );
+}
+
 export interface CardProps extends PropsWithChildren, CardConfig {
   /**
    * The default values to use for the form.
@@ -115,14 +123,15 @@ export const Card = forwardRef<Card, CardProps>(function Card(
 ) {
   const evervault = useEvervault();
 
-  // What the declared fields set, read when validating and reporting.
+  // A ref, so the resolver and onChange read the latest settings without being
+  // recreated.
   const declaredSettings = useRef<{
     settings: ReturnType<typeof cardFieldSettings>;
     customFields: ReturnType<typeof declaredCustomFields>;
   }>({ settings: {}, customFields: new Map() });
 
-  // Built when validating, from the fields' settings and the number the
-  // security code is checked against.
+  // Runs on every check, so it uses the latest settings, the current card number
+  // (for the CVC) and the Card.Field rules.
   const resolver = useCallback<Resolver<CardFormValues>>(
     async (values, context, options) => {
       const result = await zodResolver(
@@ -133,8 +142,8 @@ export const Card = forwardRef<Card, CardProps>(function Card(
         )
       )(values, context, options);
 
-      // Card.Fields are checked with the card's fields, so whenever the
-      // validation mode checks one.
+      // Validating Card.Fields here makes their errors follow the card's
+      // validationMode.
       const fields = customFieldErrors(
         values,
         declaredSettings.current.customFields
@@ -166,8 +175,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
 
   const focused = useRef<string | null>(null);
 
-  // The fields in the order they declared themselves, as the card's tree,
-  // which is also the order auto-advance moves along.
+  // Declaration order, which auto-advance also follows.
   const [declared, setDeclared] = useState<CardSpecNode[]>([]);
   const inputs = useRef(new Map<string, RefObject<FocusTarget | null>>());
   const order = useRef<CardSpecNode[]>([]);
@@ -181,11 +189,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
           const index = current.findIndex(({ id }) => id === node.id);
 
           if (index === -1) return [...current, node];
-          if (
-            JSON.stringify(current[index].props) === JSON.stringify(node.props)
-          ) {
-            return current;
-          }
+          if (sameProps(current[index].props, node.props)) return current;
 
           return current.map((field, i) => (i === index ? node : field));
         });
@@ -198,11 +202,11 @@ export const Card = forwardRef<Card, CardProps>(function Card(
         const index = order.current.findIndex((node) => node.id === id);
         if (index === -1) return;
 
-        // A field the card leaves out has no input to focus.
-        for (const node of order.current.slice(index + 1)) {
-          const input = inputs.current.get(node.id)?.current;
-          if (input) return input.focus();
-        }
+        order.current
+          .slice(index + 1)
+          .map((node) => inputs.current.get(node.id)?.current)
+          .find((input) => input)
+          ?.focus();
       },
       focused,
     }),
@@ -214,20 +218,22 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     return error && expiryLayoutMessage(error);
   }, [declared]);
 
-  // A refused tree leaves the card on the last one it could render.
-  const [renderable, setRenderable] = useState(refusal ? [] : declared);
+  const [lastValidLayout, setLastValidLayout] = useState(
+    refusal ? [] : declared
+  );
 
-  if (!refusal && renderable !== declared) {
-    setRenderable(declared);
+  if (!refusal && lastValidLayout !== declared) {
+    setLastValidLayout(declared);
   }
 
-  // Of the last tree it could render, only the fields still declared remain.
+  // While the expiry layout is invalid, render only fields from the last valid
+  // layout that are still declared.
   const nodes = useMemo(() => {
     if (!refusal) return declared;
 
-    const kept = new Set(renderable.map(({ id }) => id));
+    const kept = new Set(lastValidLayout.map(({ id }) => id));
     return declared.filter(({ id }) => kept.has(id));
-  }, [refusal, renderable, declared]);
+  }, [refusal, lastValidLayout, declared]);
 
   const skipped = useMemo(() => skippedNodes(nodes), [nodes]);
   order.current = nodes;
@@ -255,27 +261,23 @@ export const Card = forwardRef<Card, CardProps>(function Card(
 
   declaredSettings.current = { settings, customFields };
 
-  const notices = useMemo(
-    () => [
+  const warned = useRef("");
+
+  // Logs each set of warnings once, not on every render.
+  useEffect(() => {
+    const notices = [
       ...skipped.map(skippedFieldWarning),
       ...customFieldNodes(nodes)
         .filter((node) => !skipped.includes(node))
         .flatMap(customFieldWarnings),
-    ],
-    [nodes, skipped]
-  );
-
-  // In an effect, not the render body, so a re-render does not warn again.
-  const warned = useRef("");
-
-  useEffect(() => {
+    ];
     const key = notices.join("\n");
 
     if (key === warned.current) return;
     warned.current = key;
 
     notices.forEach((notice) => console.warn(notice));
-  }, [notices]);
+  }, [nodes, skipped]);
 
   const emitChange = useRef<() => void>(() => {});
 
@@ -323,14 +325,12 @@ export const Card = forwardRef<Card, CardProps>(function Card(
   }, [evervault.encrypt]);
 
   // A field showing an error is checked again under its new settings.
-  const settingsKey = JSON.stringify(settings);
-
   useEffect(() => {
     CARD_FIELDS.forEach((field) => {
       if (methods.getFieldState(field).error) void methods.trigger(field);
     });
     emitChange.current();
-  }, [settingsKey]);
+  }, [settings]);
 
   const rulesKeys = useRef(new Map<string, string>());
 
@@ -361,10 +361,10 @@ export const Card = forwardRef<Card, CardProps>(function Card(
 
   const appliedDefaultName = useRef(defaultValues?.name);
 
-  // Counts resets, so the declared defaults are filled in again after one.
+  // Bumped by reset() so the default-filling effects run again.
   const [resets, setResets] = useState(0);
 
-  // A default seeds the holder while the name is still the card's own.
+  // Fills the holder's default unless the shopper changed the name.
   useEffect(() => {
     const defaultName = settings.name?.defaultValue;
 
@@ -378,10 +378,9 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     methods.setValue("name", defaultName);
   }, [settings, resets]);
 
-  // The default last filled into each Card.Field, by name.
   const filledDefaults = useRef(new Map<string, string>());
 
-  // A default fills a Card.Field while it is empty or still holds the last one.
+  // Fills each Card.Field's default unless the shopper changed the value.
   useEffect(() => {
     customFields.forEach(({ defaultValue }, name) => {
       const previous = filledDefaults.current.get(name);
@@ -397,8 +396,8 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     });
   }, [customFields, resets]);
 
-  // The security code is judged against the number, so it is checked again
-  // once it has been left or shows an error.
+  // Re-checks the CVC when the number changes, once it's been left or shows an
+  // error.
   useEffect(() => {
     const subscription = methods.watch((_values, { name }) => {
       if (name !== "number") return;

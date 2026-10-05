@@ -1,6 +1,6 @@
 import { cardMessages, COMPONENT_NAMES } from "shared/developerMessages";
+import type { CardSpecNodeType } from "types/cardSpec";
 
-// What the card logs for the developer, shared with the tests that check it.
 export const {
   duplicateField,
   duplicateCustomField,
@@ -13,3 +13,7 @@ export const {
   invalidPattern,
   customFieldWarnings,
 } = cardMessages(COMPONENT_NAMES);
+
+export function fieldOutsideCard(type: CardSpecNodeType) {
+  return `${COMPONENT_NAMES[type]} must be rendered inside <${COMPONENT_NAMES.card}>.`;
+}

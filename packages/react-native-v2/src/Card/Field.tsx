@@ -9,9 +9,7 @@ import type { CardFieldBaseProps } from "./props";
 import { customFieldKey } from "./customFields";
 import { declaredField } from "./declaredFields";
 
-export interface CardFieldProps
-  extends Omit<CardFieldBaseProps, "maxLength">,
-    AutoProgressProps {
+export interface CardFieldProps extends CardFieldBaseProps, AutoProgressProps {
   /**
    * The key the field's encrypted value is reported under, in the payload's
    * `fields`.
@@ -75,7 +73,7 @@ export interface CardFieldProps
   step?: string;
 }
 
-// The props the field declares in the card's tree, as `<ev-field>` takes them.
+// The props sent to the card, named as `<ev-field>`'s attributes.
 const DECLARES = [
   "name",
   "type",
@@ -102,7 +100,8 @@ export type CardField = EvervaultInput;
 
 const CardFieldElement = forwardRef<CardField, CardFieldProps>(
   function CardField(props, ref) {
-    // Read as the card reads it, so a length it ignores is ignored here too.
+    // Parsed as the card parses them, so a maxLength the card ignores (e.g. 1.5)
+    // doesn't limit the input either.
     const declared = useMemo(
       () =>
         customFieldProps({

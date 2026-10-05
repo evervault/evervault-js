@@ -5,7 +5,7 @@ import { isAcceptedBrand, isCvcComplete, nameMatches } from "./utils";
 import type { CardField } from "./types";
 import type { CardSettings } from "./utils";
 
-// The security code is judged against the number, as the web card judges it.
+// The CVC is validated against the card number.
 export function getCardFormSchema(
   acceptedBrands: CardBrandName[],
   settings: CardSettings = {},

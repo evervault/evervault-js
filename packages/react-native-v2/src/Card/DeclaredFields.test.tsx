@@ -1,6 +1,6 @@
-import { waitFor } from "@testing-library/react-native";
+import { render, waitFor } from "@testing-library/react-native";
 import { vi } from "vitest";
-import { lastPayload, renderCard } from "../../test/helpers/card";
+import { lastPayload, renderCard, wrapper } from "../../test/helpers/card";
 import { CardNumber } from "./Number";
 import { CardExpiry } from "./Expiry";
 import { CardExpiryMonth, CardExpiryYear } from "./ExpiryHalf";
@@ -10,6 +10,7 @@ import {
   NAMELESS_CUSTOM_FIELD,
   duplicateCustomField,
   duplicateField,
+  fieldOutsideCard,
   loneExpiryHalf,
 } from "./developerMessages";
 
@@ -189,5 +190,11 @@ describe("declared fields", () => {
       expect(queryByTestId("month")).toBeTruthy();
       expect(queryByTestId("year")).toBeTruthy();
     });
+  });
+
+  it("throws for a field rendered outside a Card", async () => {
+    await expect(render(<CardNumber />, { wrapper })).rejects.toThrow(
+      fieldOutsideCard("number")
+    );
   });
 });

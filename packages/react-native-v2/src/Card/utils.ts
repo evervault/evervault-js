@@ -19,8 +19,8 @@ import { customFieldKey, customFieldMessage } from "./customFields";
 
 export type CardSettings = Partial<Record<CardField, FieldProps>>;
 
-// The settings each card field is judged with. The expiry halves share one,
-// whose message the later half gives before the other, as on the web.
+// The split expiry uses the later half's errorMessage, falling back to the
+// other half's.
 export function cardFieldSettings(
   declared: ReadonlyMap<CardInput, FieldProps>,
   expiry: DeclaredExpiry
@@ -59,8 +59,8 @@ interface CustomFieldsPayload {
   isComplete: boolean;
 }
 
-// A field's error is reported once the card has checked it, as a card field's
-// is; until then it only holds the card back from complete.
+// Errors show once the card has checked the field; until then an invalid value
+// only makes the card incomplete.
 async function formatCustomFields(
   context: FormatPayloadContext
 ): Promise<CustomFieldsPayload | null> {
@@ -191,7 +191,7 @@ export function areValuesComplete(
   return true;
 }
 
-// A security code valid for the number that the field's settings accept.
+// Valid for the card number and allowed by allow3DigitAmex.
 export function isCvcAccepted(
   cvc: string,
   number: string,
@@ -207,7 +207,7 @@ export function isCvcAccepted(
   );
 }
 
-// A security code the card is complete with, which an optional one may leave empty.
+// Also true for an empty CVC when it's optional.
 export function isCvcComplete(
   cvc: string,
   number: string,
@@ -219,7 +219,7 @@ export function isCvcComplete(
   );
 }
 
-// A name matching the holder's `pattern`, when it declares one.
+// True when no pattern is set.
 export function nameMatches(name: string, settings: CardFieldSettings = {}) {
   const pattern =
     settings.pattern === undefined

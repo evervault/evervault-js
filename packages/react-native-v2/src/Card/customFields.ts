@@ -2,9 +2,7 @@ import type { FieldError } from "react-hook-form";
 import { CUSTOM_FIELD_ERRORS, customFieldError } from "shared/customField";
 import type { CustomFieldProps } from "shared/customField";
 
-// The key a Card.Field's value is kept under in the form's `fields`. Any name
-// is kept, even one with a "." or one such as "__proto__", which the form
-// would read as a path.
+// Encodes the name so "." or "__proto__" can't be read as a form path.
 function encodedName(name: string): string {
   const encoded = name.replace(
     /[^A-Za-z0-9]/g,
@@ -14,12 +12,11 @@ function encodedName(name: string): string {
   return `k${encoded}`;
 }
 
-// The form path a Card.Field's value is kept under.
 export function customFieldKey(name: string): string {
   return `fields.${encodedName(name)}`;
 }
 
-// Why a value breaks its field's rules, or null when it keeps them.
+// The error text for a value, or null when it's valid.
 export function customFieldMessage(
   value: string,
   field: CustomFieldProps
@@ -29,8 +26,8 @@ export function customFieldMessage(
   return error ? field.errorMessage ?? CUSTOM_FIELD_ERRORS[error] : null;
 }
 
-// Each Card.Field's error, as the form keeps it under `fields`, or null when
-// no field has one.
+// Each Card.Field's error under its encoded name, as its value is stored in the
+// form; null when there are none.
 export function customFieldErrors(
   values: object,
   fields: ReadonlyMap<string, CustomFieldProps>

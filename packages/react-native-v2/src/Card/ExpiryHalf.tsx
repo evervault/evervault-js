@@ -10,8 +10,8 @@ import { declaredField } from "./declaredFields";
 
 const digits = (typed: string) => typed.replace(/\D/g, "");
 
-// A month as typed, kept between 01 and 12: a first digit above 1 is padded
-// with a 0, and a second digit that would leave that range is dropped.
+// Keeps the month within 01–12: "3" becomes "03", and a second digit past 12 is
+// dropped.
 function monthFromTyped(typed: string): string {
   const [first = "", second = ""] = digits(typed);
 
@@ -23,8 +23,7 @@ function monthFromTyped(typed: string): string {
   return month >= 1 && month <= 12 ? first + second : first;
 }
 
-// A year typed digit by digit stops at two; one filled in by the browser as
-// four digits is cut to two, as on the web.
+// Autofill gives four digits; a typed year stops at two.
 function yearFromTyped(typed: string) {
   const entered = digits(typed);
   return entered.length === 4 ? yearFromAutofill(entered) : entered.slice(0, 2);
@@ -74,7 +73,8 @@ const CardExpiryMonthElement = forwardRef<
       isFull={isFull}
       read={month}
       write={(typed, stored) => join(monthFromTyped(typed), year(stored))}
-      // Moving into the other half while it's empty isn't finishing the date.
+      // Don't check the date when focus moves into the other half while it's
+      // empty.
       checksOnBlur={(stored, focused) =>
         !(focused === "expiry-year" && year(stored).length === 0)
       }

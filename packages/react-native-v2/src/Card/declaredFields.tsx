@@ -16,39 +16,40 @@ import type { CardSpecNode, CardSpecNodeType } from "types/cardSpec";
 import { FocusOrderContext, FocusTarget } from "../Input";
 import type { FocusOrderContextValue } from "../Input";
 import { mergeRefs } from "../utils";
+import { fieldOutsideCard } from "./developerMessages";
 
 export interface DeclaredFieldsContextValue {
   set(node: CardSpecNode, input: RefObject<FocusTarget | null>): void;
   remove(id: string): void;
-  // The fields the card renders; null outside a card, where every field does.
-  shown: ReadonlySet<string> | null;
+  // The ids of the fields the card renders.
+  shown: ReadonlySet<string>;
   // Focuses the first rendered field declared after this one.
   next(id: string): void;
   focused: FocusOrderContextValue["focused"];
 }
 
-export const DeclaredFieldsContext = createContext<DeclaredFieldsContextValue>({
-  set: () => {},
-  remove: () => {},
-  shown: null,
-  next: () => {},
-  focused: { current: null },
-});
+export const DeclaredFieldsContext =
+  createContext<DeclaredFieldsContextValue | null>(null);
 
-// Whether the card renders this field, which it decides once the field has
-// declared itself, so a field it leaves out never mounts its input.
+// Registers the field with the card and returns whether the card renders it;
+// nothing renders until the card has seen it.
 function useDeclaredField(
   type: CardSpecNodeType,
   props: Record<string, string>,
   input: RefObject<FocusTarget | null>
 ) {
-  const { set, remove, shown, next, focused } = useContext(
-    DeclaredFieldsContext
-  );
+  const card = useContext(DeclaredFieldsContext);
+  if (!card) throw new Error(fieldOutsideCard(type));
+
+  const { set, remove, shown, next, focused } = card;
   const id = useId();
+
+  // `props` is a new object every render; its JSON, with keys always in
+  // `declares` order, only changes when a prop does.
   const declared = JSON.stringify(props);
 
-  // Removed only on unmount, so a changed field keeps its place.
+  // A separate effect, so changed props update the field in place rather than
+  // moving it to the end.
   useLayoutEffect(() => () => remove(id), [remove, id]);
 
   useLayoutEffect(
@@ -65,17 +66,17 @@ function useDeclaredField(
     [next, id, focused]
   );
 
-  return { shown: shown === null || shown.has(id), focusOrder };
+  return { shown: shown.has(id), focusOrder };
 }
 
-// A field declaring the given props in the card's tree, as the web element of
-// its type takes them as attributes.
-export function declaredField<Props extends object, Ref extends FocusTarget>(
+// Wraps a card field so it registers with the card; `declares` lists the props
+// sent to it.
+export function declaredField<Ref extends FocusTarget, Props extends object>(
   type: CardSpecNodeType,
   Field: ComponentType<Props & RefAttributes<Ref>>,
   declares: readonly (keyof Props & string)[]
 ) {
-  const Declared = forwardRef<Ref, Props>(function DeclaredField(props, ref) {
+  const Declared = forwardRef<Ref, Props>((props, ref) => {
     const input = useRef<Ref>(null);
     const { shown, focusOrder } = useDeclaredField(
       type,

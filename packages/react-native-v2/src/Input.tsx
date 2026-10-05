@@ -150,8 +150,7 @@ export function mask(format: string): MaskArray {
   return maskArray;
 }
 
-// Filled when every slot the mask has for the value holds a typed character,
-// or, without a mask, when the value reaches its longest.
+// Full when every mask slot is typed, or, without a mask, at the limit.
 function isFilled(
   mask: Mask | undefined,
   limit: number | undefined,
@@ -182,8 +181,7 @@ export interface EvervaultInputProps<Values extends Record<string, unknown>>
   name: keyof Values;
   mask?: Mask;
   obfuscateValue?: boolean | string;
-  // The text the input shows from the stored value, and the value it stores
-  // from the text typed, for inputs writing part of a value.
+  // For inputs that show and edit part of a stored value, like the expiry halves.
   read?(stored: string): string;
   write?(typed: string, stored: string): string;
   // The longest value an input without a mask takes.
@@ -191,8 +189,8 @@ export interface EvervaultInputProps<Values extends Record<string, unknown>>
   // Whether the input is full, from the text it shows; by default when the
   // mask or the limit is.
   isFull?(shown: string): boolean;
-  // Whether leaving the input leaves a value ready to check, given the input
-  // focus moved to; by default always.
+  // Whether leaving the input should validate it, given where focus went;
+  // validates by default.
   checksOnBlur?(stored: string, focused: string | null): boolean;
 }
 
@@ -322,7 +320,8 @@ export const EvervaultInput = forwardRef<
 
   if (!label) return input;
 
-  // The input reads the label out itself.
+  // The input already reads the label out through accessibilityLabel, so the
+  // text is hidden from screen readers.
   return (
     <View>
       <Text
