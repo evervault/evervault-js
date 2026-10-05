@@ -11,7 +11,17 @@ import { CustomConfig, useEvervaultClient } from "./load/use-evervault-client";
 
 export type * from "types";
 export { Reveal } from "./ui/Reveal";
-export { Card, type CardRef } from "./ui/Card";
+export { Card, type CardProps, type CardRef } from "./ui/Card";
+export type {
+  CardRowProps,
+  CardNumberProps,
+  CardExpiryProps,
+  CardExpiryMonthProps,
+  CardExpiryYearProps,
+  CardCvcProps,
+  CardHolderProps,
+  CardFieldProps,
+} from "./ui/Card";
 export { Pin } from "./ui/Pin";
 export { ThreeDSecure } from "./ui/ThreeDSecure";
 export { useThreeDSecure } from "./ui/useThreeDSecure";
