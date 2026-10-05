@@ -453,6 +453,15 @@ describe("field settings", () => {
     });
   });
 
+  describe("autoProgress", () => {
+    it("is not offered on the holder, which has no length to fill", async () => {
+      await renderCard(
+        // @ts-expect-error a holder has no length to fill
+        <CardHolder autoProgress />
+      );
+    });
+  });
+
   describe("Card.Field names", () => {
     it("reports a name with a dot under that name", async () => {
       const { onChange, getByTestId } = await renderCard(
