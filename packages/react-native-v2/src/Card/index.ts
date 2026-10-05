@@ -3,6 +3,7 @@ import { CardHolder } from "./Holder";
 import { CardExpiry } from "./Expiry";
 import { CardCvc } from "./Cvc";
 import { CardNumber } from "./Number";
+import { CardRow } from "./Row";
 
 export type { CardProps } from "./Root";
 export type Card = CardRef;
@@ -11,6 +12,7 @@ export const Card = Object.assign(CardRoot, {
   Expiry: CardExpiry,
   Cvc: CardCvc,
   Number: CardNumber,
+  Row: CardRow,
 });
 
 export type { CardHolderProps } from "./Holder";
@@ -24,5 +26,8 @@ export { CardCvc };
 
 export type { CardNumberProps } from "./Number";
 export { CardNumber };
+
+export type { CardRowProps } from "./Row";
+export { CardRow };
 
 export type { CardPayload, CardBrandName } from "./types";
