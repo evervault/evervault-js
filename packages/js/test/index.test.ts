@@ -2,8 +2,10 @@ import type { EvervaultConstructor } from "../src/index";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const DEFAULT_URL = "https://js.evervault.test/v2";
-const CUSTOM_URL = "https://payments.acme.test/v2";
-const OTHER_URL = "https://payments.other.test/v2";
+const CUSTOM_HOST = "payments.acme.test";
+const CUSTOM_URL = "https://payments.acme.test/js/v2";
+const OTHER_HOST = "payments.other.test";
+const OTHER_URL = "https://payments.other.test/js/v2";
 
 interface Construction {
   bundle: string;
@@ -68,12 +70,12 @@ describe("loading", () => {
     expect(injectedUrls()).toEqual([]);
   });
 
-  it("injects only the custom bundle when a custom url is given", async () => {
+  it("injects only the custom bundle when a host is given", async () => {
     const { loadEvervault } = await importSdk();
     await flush();
 
     const pending = loadEvervault("team_1", "app_1", {
-      jsSdkUrl: CUSTOM_URL,
+      host: CUSTOM_HOST,
     });
     completeLoad(CUSTOM_URL, "custom");
     await pending;
@@ -87,7 +89,7 @@ describe("loading", () => {
     const { loadEvervault } = await importSdk();
     await flush();
 
-    const pending = loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
+    const pending = loadEvervault("team_1", "app_1", { host: CUSTOM_HOST });
     completeLoad(CUSTOM_URL, "custom");
     await pending;
 
@@ -122,11 +124,11 @@ describe("loadEvervault", () => {
     ]);
   });
 
-  it("forwards the whole config, including jsSdkUrl, to the client", async () => {
+  it("forwards the whole config, including host, to the client", async () => {
     const { loadEvervault } = await importSdk();
     await flush();
 
-    const config = { jsSdkUrl: CUSTOM_URL, isDebugMode: true };
+    const config = { host: CUSTOM_HOST, isDebugMode: true };
     const pending = loadEvervault("team_1", "app_1", config);
     completeLoad(CUSTOM_URL, "custom");
     await pending;
@@ -138,12 +140,12 @@ describe("loadEvervault", () => {
     const { loadEvervault } = await importSdk();
     await flush();
 
-    const first = loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
-    const second = loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
+    const first = loadEvervault("team_1", "app_1", { host: CUSTOM_HOST });
+    const second = loadEvervault("team_1", "app_1", { host: CUSTOM_HOST });
     completeLoad(CUSTOM_URL, "custom");
     await Promise.all([first, second]);
 
-    const third = loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
+    const third = loadEvervault("team_1", "app_1", { host: CUSTOM_HOST });
     await third;
 
     expect(injectedUrls()).toEqual([CUSTOM_URL]);
@@ -154,11 +156,11 @@ describe("loadEvervault", () => {
     const { loadEvervault } = await importSdk();
     await flush();
 
-    const failing = loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
+    const failing = loadEvervault("team_1", "app_1", { host: CUSTOM_HOST });
     failLoad(CUSTOM_URL);
     await expect(failing).rejects.toThrow("Failed to load Evervault.js");
 
-    const retried = loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
+    const retried = loadEvervault("team_1", "app_1", { host: CUSTOM_HOST });
     completeLoad(CUSTOM_URL, "custom");
     await retried;
 
@@ -184,15 +186,15 @@ describe("loadEvervault", () => {
     const { loadEvervault } = await importSdk();
     await flush();
 
-    const custom = loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
+    const custom = loadEvervault("team_1", "app_1", { host: CUSTOM_HOST });
     completeLoad(CUSTOM_URL, "custom");
     await custom;
 
-    const other = loadEvervault("team_1", "app_1", { jsSdkUrl: OTHER_URL });
+    const other = loadEvervault("team_1", "app_1", { host: OTHER_HOST });
     completeLoad(OTHER_URL, "other");
     await other;
 
-    await loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
+    await loadEvervault("team_1", "app_1", { host: CUSTOM_HOST });
 
     expect(injectedUrls()).toEqual([CUSTOM_URL, OTHER_URL]);
     expect(constructions.map((c) => c.bundle)).toEqual([
@@ -202,11 +204,24 @@ describe("loadEvervault", () => {
     ]);
   });
 
+  it.each(["https://payments.acme.test", "payments.acme.test/js", ""])(
+    "rejects an invalid host without injecting anything (%j)",
+    async (host) => {
+      const { loadEvervault } = await importSdk();
+      await flush();
+
+      await expect(loadEvervault("team_1", "app_1", { host })).rejects.toThrow(
+        "host must be a hostname"
+      );
+      expect(injectedUrls()).toEqual([]);
+    }
+  );
+
   it("rejects when the bundle loads without defining a client", async () => {
     const { loadEvervault } = await importSdk();
     await flush();
 
-    const pending = loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
+    const pending = loadEvervault("team_1", "app_1", { host: CUSTOM_HOST });
     scriptFor(CUSTOM_URL).dispatchEvent(new Event("load"));
 
     await expect(pending).rejects.toThrow("Failed to load Evervault.js");
@@ -216,11 +231,11 @@ describe("loadEvervault", () => {
     const { loadEvervault } = await importSdk();
     await flush();
 
-    const first = loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
+    const first = loadEvervault("team_1", "app_1", { host: CUSTOM_HOST });
     completeLoad(CUSTOM_URL, "custom");
     await first;
 
-    const second = loadEvervault("team_1", "app_1", { jsSdkUrl: OTHER_URL });
+    const second = loadEvervault("team_1", "app_1", { host: OTHER_HOST });
     completeLoad(OTHER_URL, "other");
     await second;
 
@@ -256,7 +271,7 @@ describe("script tag consumers", () => {
     const { loadEvervault } = await importSdk();
     await flush();
 
-    const pending = loadEvervault("team_1", "app_1", { jsSdkUrl: CUSTOM_URL });
+    const pending = loadEvervault("team_1", "app_1", { host: CUSTOM_HOST });
     completeLoad(CUSTOM_URL, "custom");
     await pending;
 

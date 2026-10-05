@@ -33,6 +33,7 @@
     "@evervault/browser": "workspace:*",
     "jsdom": "catalog:",
     "sdk-loader": "workspace:*",
+    "shared": "workspace:*",
     "themes": "workspace:*",
     "tsconfig": "workspace:*",
     "types": "workspace:*",

@@ -1,21 +1,15 @@
 import type EvervaultClient from "@evervault/browser";
-import type { CustomConfig as BrowserConfig } from "@evervault/browser";
+import type { CustomConfig } from "@evervault/browser";
 import { injectScript } from "sdk-loader";
+import { customHostOrigin, customHostUrls } from "shared/customHost";
 
 export { minimal, clean, material, cssVar } from "themes";
 export type { PresetConfig } from "themes";
 export type { ThemeDefinition } from "types";
 
+export type { CustomConfig };
 export type EvervaultInstance = EvervaultClient;
 export type EvervaultConstructor = typeof EvervaultClient;
-
-export interface CustomConfig extends BrowserConfig {
-  /**
-   * URL to load the Evervault browser SDK from. Defaults to the Evervault
-   * hosted bundle. Set this when serving Evervault assets from a custom domain.
-   */
-  jsSdkUrl?: string;
-}
 
 declare global {
   interface Window {
@@ -25,12 +19,24 @@ declare global {
 
 const DEFAULT_JS_SDK_URL = import.meta.env.VITE_EVERVAULT_JS_URL!;
 
-async function load(jsSdkUrl?: string): Promise<EvervaultConstructor> {
+function sdkUrl(host: string | undefined): string {
+  if (host === undefined) return DEFAULT_JS_SDK_URL;
+
+  const origin = customHostOrigin(host);
+  if (!origin) {
+    throw new Error("host must be a hostname, such as payments.acme.com");
+  }
+
+  return customHostUrls(origin).jsSdkUrl;
+}
+
+async function load(host?: string): Promise<EvervaultConstructor> {
+  const url = sdkUrl(host);
+
   try {
-    return await injectScript<EvervaultConstructor>(
-      jsSdkUrl ?? DEFAULT_JS_SDK_URL,
-      { reuseExistingClient: !jsSdkUrl }
-    );
+    return await injectScript<EvervaultConstructor>(url, {
+      reuseExistingClient: host === undefined,
+    });
   } catch (cause) {
     throw new Error("Failed to load Evervault.js", { cause });
   }
@@ -41,6 +47,6 @@ export async function loadEvervault(
   app: string,
   config?: CustomConfig
 ): Promise<EvervaultInstance> {
-  const Client = await load(config?.jsSdkUrl);
+  const Client = await load(config?.host);
   return new Client(team, app, config);
 }

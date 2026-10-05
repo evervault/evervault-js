@@ -1,6 +1,7 @@
 ---
+"@evervault/browser": minor
 "@evervault/js": minor
 "@evervault/react": minor
 ---
 
-Allows passing a `jsSdkUrl` to instantiate the js library from a custom domain
+Adds a `host` option to serve Evervault from a single custom domain, routing the SDK, keys, API and UI components by path

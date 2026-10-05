@@ -160,4 +160,57 @@ describe("useEvervaultClient", () => {
       "https://js.evervault.com/v3"
     );
   });
+
+  it("loads the SDK from the host when one is given", async () => {
+    const { result } = renderHook(() =>
+      useEvervaultClient({
+        teamId: "team_123",
+        appId: "app_123",
+        customConfig: { host: "payments.acme.com" },
+      })
+    );
+
+    await result.current.client;
+    expect(injectScriptMock).toHaveBeenCalledWith(
+      "https://payments.acme.com/js/v2",
+      expect.objectContaining({ reuseExistingClient: false })
+    );
+  });
+
+  it("prefers jsSdkUrl over the host", async () => {
+    const { result } = renderHook(() =>
+      useEvervaultClient({
+        teamId: "team_123",
+        appId: "app_123",
+        customConfig: {
+          host: "payments.acme.com",
+          jsSdkUrl: "https://js.evervault.io/v2",
+        },
+      })
+    );
+
+    await result.current.client;
+    expect(injectScriptMock).toHaveBeenCalledWith(
+      "https://js.evervault.io/v2",
+      expect.objectContaining({ reuseExistingClient: false })
+    );
+  });
+
+  it("rejects an invalid host without loading the SDK", async () => {
+    const onLoadError = vi.fn();
+    const { result } = renderHook(() =>
+      useEvervaultClient({
+        teamId: "team_123",
+        appId: "app_123",
+        customConfig: { host: "https://payments.acme.com" },
+        onLoadError,
+      })
+    );
+
+    await expect(result.current.client).rejects.toThrow(
+      "host must be a hostname"
+    );
+    expect(onLoadError).toHaveBeenCalled();
+    expect(injectScriptMock).not.toHaveBeenCalled();
+  });
 });

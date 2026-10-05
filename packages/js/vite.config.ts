@@ -15,6 +15,7 @@ const plugins = [
         "csstype",
         "@evervault/browser",
         "sdk-loader",
+        "shared",
       ],
     },
   }),

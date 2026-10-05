@@ -1007,6 +1007,9 @@ importers:
       sdk-loader:
         specifier: workspace:*
         version: link:../sdk-loader
+      shared:
+        specifier: workspace:*
+        version: link:../shared
       themes:
         specifier: workspace:*
         version: link:../themes

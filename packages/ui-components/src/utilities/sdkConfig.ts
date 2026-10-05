@@ -1,3 +1,5 @@
+import { customHostUrls } from "shared/customHost";
+
 export interface SdkConfig {
   jsSdkUrl: string;
   keysUrl: string;
@@ -119,9 +121,6 @@ export function resolveSdkConfig(
   }
   if (LOOPBACK_HOSTNAMES.includes(url.hostname)) return defaults;
 
-  return {
-    jsSdkUrl: `${url.origin}/js/v2`,
-    keysUrl: `${url.origin}/keys/`,
-    apiUrl: `${url.origin}/api`,
-  };
+  const { jsSdkUrl, keysUrl, apiUrl } = customHostUrls(url.origin);
+  return { jsSdkUrl, keysUrl, apiUrl };
 }
