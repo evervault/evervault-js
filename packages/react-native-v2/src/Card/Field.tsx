@@ -4,12 +4,12 @@ import { customFieldInputId } from "shared/cardSpec";
 import { customFieldProps } from "shared/customField";
 import type { CustomFieldType } from "shared/customField";
 import { fieldAttributes } from "shared/fieldProps";
-import { BaseEvervaultInputProps, EvervaultInput } from "../Input";
+import { EvervaultInput } from "../Input";
+import type { CardFieldBaseProps } from "./props";
 import { customFieldKey } from "./customFields";
 import { declaredField } from "./declaredFields";
 
-export interface CardFieldProps
-  extends Omit<BaseEvervaultInputProps, "maxLength"> {
+export interface CardFieldProps extends Omit<CardFieldBaseProps, "maxLength"> {
   /**
    * The key the field's encrypted value is reported under, in the payload's
    * `fields`.
@@ -70,11 +70,6 @@ export interface CardFieldProps
    * The steps a `number` value must keep to from `min`, as HTML's `step`.
    */
   step?: string;
-
-  /**
-   * Replaces the text of this field's error in the payload's `errors`.
-   */
-  errorMessage?: string;
 }
 
 // The props the field declares in the card's tree, as `<ev-field>` takes them.

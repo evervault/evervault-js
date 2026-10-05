@@ -4,17 +4,53 @@ import {
   validateCVC,
   CardNumberValidationResult,
 } from "@evervault/card-validator";
-import type { CardBrandName, CardPayload } from "./types";
+import type { CardBrandName, CardField, CardPayload } from "./types";
 import { type CardFormValues } from "./schema";
 import { DeepPartial, UseFormReturn } from "react-hook-form";
 import { type Encrypted, sdk } from "../sdk";
+import type { CardInput } from "shared/cardSpec";
+import { compilePattern } from "shared/customField";
 import type { CustomFieldProps } from "shared/customField";
+import type { CardFieldSettings } from "shared/cardFieldSettings";
+import { isRefusedAmexCvc } from "shared/cvc";
+import type { DeclaredExpiry } from "shared/expiry";
+import type { FieldProps } from "shared/fieldProps";
 import { customFieldKey, customFieldMessage } from "./customFields";
+
+export type CardSettings = Partial<Record<CardField, FieldProps>>;
+
+// The settings each card field is judged with. The expiry halves share one,
+// whose message the later half gives before the other, as on the web.
+export function cardFieldSettings(
+  declared: ReadonlyMap<CardInput, FieldProps>,
+  expiry: DeclaredExpiry
+): CardSettings {
+  const settings: CardSettings = {
+    name: declared.get("name"),
+    number: declared.get("number"),
+    expiry: declared.get("expiry"),
+    cvc: declared.get("cvc"),
+  };
+
+  if (expiry?.form === "split") {
+    const later = expiry.later === "expiryMonth" ? "month" : "year";
+    const other = later === "month" ? "year" : "month";
+
+    settings.expiry = {
+      errorMessage:
+        declared.get(`expiry-${later}`)?.errorMessage ??
+        declared.get(`expiry-${other}`)?.errorMessage,
+    };
+  }
+
+  return settings;
+}
 
 export interface FormatPayloadContext {
   form: UseFormReturn<CardFormValues>;
   encrypt<T>(data: T): Promise<Encrypted<T>>;
   customFields?: ReadonlyMap<string, CustomFieldProps>;
+  fieldSettings?: CardSettings;
 }
 
 interface CustomFieldsPayload {
@@ -79,11 +115,13 @@ export async function formatPayload(
     context.form.setValue("cvc", values.cvc?.slice(0, 3));
   }
 
-  const { cvc, isValid: isCvcValid } = validateCVC(values.cvc ?? "", number);
+  const settings = context.fieldSettings ?? {};
+  const { cvc } = validateCVC(values.cvc ?? "", number);
+  const isCvcValid = isCvcAccepted(values.cvc ?? "", number, settings.cvc);
 
   const formErrors = context.form.formState.errors;
   const isValid = !Object.keys(formErrors).length;
-  const isComplete = areValuesComplete(values);
+  const isComplete = areValuesComplete(values, settings);
 
   const errors: Record<string, string> = {};
   if (formErrors.name?.message) {
@@ -123,8 +161,15 @@ export async function formatPayload(
   };
 }
 
-export function areValuesComplete(values: DeepPartial<CardFormValues>) {
+export function areValuesComplete(
+  values: DeepPartial<CardFormValues>,
+  settings: CardSettings = {}
+) {
   if ("name" in values && !values.name?.length) {
+    return false;
+  }
+
+  if ("name" in values && !nameMatches(values.name ?? "", settings.name)) {
     return false;
   }
 
@@ -138,12 +183,38 @@ export function areValuesComplete(values: DeepPartial<CardFormValues>) {
 
   if (
     "cvc" in values &&
-    !validateCVC(values.cvc ?? "", values.number).isValid
+    !(settings.cvc?.optional === true && !values.cvc) &&
+    !isCvcAccepted(values.cvc ?? "", values.number ?? "", settings.cvc)
   ) {
     return false;
   }
 
   return true;
+}
+
+// A security code valid for the number that the field's settings accept.
+export function isCvcAccepted(
+  cvc: string,
+  number: string,
+  settings: CardFieldSettings = {}
+) {
+  return (
+    validateCVC(cvc, number).isValid &&
+    !isRefusedAmexCvc(
+      cvc,
+      validateNumber(number).brand,
+      settings.allow3DigitAmex
+    )
+  );
+}
+
+// A name matching the holder's `pattern`, when it declares one.
+export function nameMatches(name: string, settings: CardFieldSettings = {}) {
+  const pattern =
+    settings.pattern === undefined
+      ? undefined
+      : compilePattern(settings.pattern);
+  return !pattern || pattern.test(name);
 }
 
 export function isAcceptedBrand(

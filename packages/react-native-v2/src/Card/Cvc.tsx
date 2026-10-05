@@ -1,5 +1,6 @@
 import { forwardRef, useMemo } from "react";
-import { BaseEvervaultInputProps, EvervaultInput, mask } from "../Input";
+import { EvervaultInput, mask } from "../Input";
+import type { CardFieldBaseProps } from "./props";
 import { CardFormValues } from "./schema";
 import { Mask } from "react-native-mask-input";
 import { validateNumber } from "@evervault/card-validator";
@@ -13,19 +14,33 @@ const CARD_CVC_MASKS: Partial<Record<CardBrandName, Mask>> = {
   "american-express": mask("[9999]"),
 };
 
-export interface CardCvcProps extends BaseEvervaultInputProps {
+export interface CardCvcProps extends CardFieldBaseProps {
   /**
    * Whether to obfuscate the entire CVC value.
    *
    * If a string is provided, it will be used to obfuscate the value.
    */
   obfuscateValue?: boolean | string;
+
+  /**
+   * Whether the card is complete without a security code.
+   *
+   * @default false
+   */
+  optional?: boolean;
+
+  /**
+   * Whether an American Express security code may be 3 digits rather than 4.
+   *
+   * @default true
+   */
+  allow3DigitAmex?: boolean;
 }
 
 export type CardCvc = EvervaultInput;
 
 const CardCvcElement = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
-  props,
+  { errorMessage, optional, allow3DigitAmex, ...props },
   ref
 ) {
   const methods = useFormContext<CardFormValues>();
@@ -58,4 +73,8 @@ const CardCvcElement = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
   );
 });
 
-export const CardCvc = declaredField("cvc", CardCvcElement, []);
+export const CardCvc = declaredField("cvc", CardCvcElement, [
+  "errorMessage",
+  "optional",
+  "allow3DigitAmex",
+]);

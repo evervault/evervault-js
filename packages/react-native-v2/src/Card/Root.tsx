@@ -30,15 +30,20 @@ import {
 } from "./developerMessages";
 import { DeclaredFieldsContext } from "./declaredFields";
 import type { DeclaredFieldsContextValue } from "./declaredFields";
+import { cardFieldSettings } from "./utils";
+import type { CardField } from "./types";
 import { skippedNodes } from "shared/cardSpec";
 import {
   customFieldNodes,
   declaredCustomFields,
   validationRulesKey,
 } from "shared/customField";
-import { expiryLayoutError } from "shared/expiry";
+import { declaredExpiry, expiryLayoutError } from "shared/expiry";
 import { canFillDefault } from "shared/defaultValue";
+import { declaredProps } from "shared/fieldProps";
 import type { CardSpecNode } from "types/cardSpec";
+
+const CARD_FIELDS: CardField[] = ["name", "number", "expiry", "cvc"];
 
 const DEFAULT_ACCEPTED_BRANDS: CardBrandName[] = [];
 
@@ -98,16 +103,21 @@ export const Card = forwardRef<Card, CardProps>(function Card(
 
   // What the declared fields set, read when validating and reporting.
   const declaredSettings = useRef<{
+    settings: ReturnType<typeof cardFieldSettings>;
     customFields: ReturnType<typeof declaredCustomFields>;
-  }>({ customFields: new Map() });
+  }>({ settings: {}, customFields: new Map() });
 
+  // Built when validating, from the fields' settings and the number the
+  // security code is checked against.
   const resolver = useCallback<Resolver<CardFormValues>>(
     async (values, context, options) => {
-      const result = await zodResolver(getCardFormSchema(acceptedBrands))(
-        values,
-        context,
-        options
-      );
+      const result = await zodResolver(
+        getCardFormSchema(
+          acceptedBrands,
+          declaredSettings.current.settings,
+          values.number
+        )
+      )(values, context, options);
 
       // Card.Fields are checked with the card's fields, so whenever the
       // validation mode checks one.
@@ -204,9 +214,14 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     if (refusal) console.error(refusal);
   }, [refusal]);
 
+  const settings = useMemo(
+    () => cardFieldSettings(declaredProps(nodes), declaredExpiry(nodes)),
+    [nodes]
+  );
+
   const customFields = useMemo(() => declaredCustomFields(nodes), [nodes]);
 
-  declaredSettings.current = { customFields };
+  declaredSettings.current = { settings, customFields };
 
   const notices = useMemo(
     () => [
@@ -256,6 +271,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
             encrypt: evervault.encrypt,
             form: methods,
             customFields: declaredSettings.current.customFields,
+            fieldSettings: declaredSettings.current.settings,
           });
           if (signal.aborted) return;
           onChangeRef.current?.(payload);
@@ -273,6 +289,16 @@ export const Card = forwardRef<Card, CardProps>(function Card(
       subscription.unsubscribe();
     };
   }, [evervault.encrypt]);
+
+  // A field showing an error is checked again under its new settings.
+  const settingsKey = JSON.stringify(settings);
+
+  useEffect(() => {
+    CARD_FIELDS.forEach((field) => {
+      if (methods.getFieldState(field).error) void methods.trigger(field);
+    });
+    emitChange.current();
+  }, [settingsKey]);
 
   const rulesKeys = useRef(new Map<string, string>());
 
@@ -301,8 +327,24 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     emitChange.current();
   }, [customFields]);
 
+  const appliedDefaultName = useRef(defaultValues?.name);
+
   // Counts resets, so the declared defaults are filled in again after one.
   const [resets, setResets] = useState(0);
+
+  // A default seeds the holder while the name is still the card's own.
+  useEffect(() => {
+    const defaultName = settings.name?.defaultValue;
+
+    if (defaultName === undefined || defaultName === appliedDefaultName.current)
+      return;
+
+    const name = methods.getValues("name") ?? "";
+    if (!canFillDefault(name, appliedDefaultName.current)) return;
+
+    appliedDefaultName.current = defaultName;
+    methods.setValue("name", defaultName);
+  }, [settings, resets]);
 
   // The default last filled into each Card.Field, by name.
   const filledDefaults = useRef(new Map<string, string>());
@@ -329,6 +371,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
       () => ({
         reset() {
           methods.reset();
+          appliedDefaultName.current = defaultValues?.name;
           filledDefaults.current.clear();
           setResets((count) => count + 1);
         },

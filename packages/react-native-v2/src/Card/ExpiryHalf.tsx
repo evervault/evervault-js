@@ -39,7 +39,13 @@ function join(typedMonth: string, typedYear: string) {
   return typedYear ? typedMonth.padEnd(2, " ") + typedYear : typedMonth;
 }
 
-export type CardExpiryHalfProps = BaseEvervaultInputProps;
+export interface CardExpiryHalfProps extends BaseEvervaultInputProps {
+  /**
+   * Replaces the text of the expiry's error in the payload's `errors`; either
+   * half may declare it.
+   */
+  errorMessage?: string;
+}
 
 export type CardExpiryMonthProps = CardExpiryHalfProps;
 
@@ -48,7 +54,7 @@ export type CardExpiryMonth = EvervaultInput;
 const CardExpiryMonthElement = forwardRef<
   CardExpiryMonth,
   CardExpiryMonthProps
->(function CardExpiryMonth(props, ref) {
+>(function CardExpiryMonth({ errorMessage, ...props }, ref) {
   return (
     <EvervaultInput<CardFormValues>
       placeholder="MM"
@@ -75,7 +81,7 @@ export type CardExpiryYearProps = CardExpiryHalfProps;
 export type CardExpiryYear = EvervaultInput;
 
 const CardExpiryYearElement = forwardRef<CardExpiryYear, CardExpiryYearProps>(
-  function CardExpiryYear(props, ref) {
+  function CardExpiryYear({ errorMessage, ...props }, ref) {
     return (
       <EvervaultInput<CardFormValues>
         placeholder="YY"
@@ -100,11 +106,11 @@ const CardExpiryYearElement = forwardRef<CardExpiryYear, CardExpiryYearProps>(
 export const CardExpiryMonth = declaredField(
   "expiryMonth",
   CardExpiryMonthElement,
-  []
+  ["errorMessage"]
 );
 
 export const CardExpiryYear = declaredField(
   "expiryYear",
   CardExpiryYearElement,
-  []
+  ["errorMessage"]
 );
