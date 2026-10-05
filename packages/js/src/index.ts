@@ -1,6 +1,10 @@
 import type EvervaultClient from "@evervault/browser";
 import type { CustomConfig } from "@evervault/browser";
 
+export { minimal, clean, material, cssVar } from "themes";
+export type { PresetConfig } from "themes";
+export type { ThemeDefinition } from "types";
+
 export type EvervaultInstance = EvervaultClient;
 export type EvervaultConstructor = typeof EvervaultClient;
 

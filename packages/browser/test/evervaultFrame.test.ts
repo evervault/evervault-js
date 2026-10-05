@@ -37,7 +37,7 @@ describe("EvervaultFrame message listeners", () => {
   });
 });
 
-describe("EvervaultFrame preload and reveal", () => {
+describe("EvervaultFrame preload and show", () => {
   function container() {
     const element = document.createElement("div");
     document.body.appendChild(element);
@@ -56,24 +56,24 @@ describe("EvervaultFrame preload and reveal", () => {
     expect(frame.iframe.style.top).toBe("0px");
   });
 
-  it("reveals without moving the frame", () => {
+  it("shows without moving the frame", () => {
     const frame = new EvervaultFrame(client, "card");
     const target = container();
 
     frame.preload(target);
-    const parentBeforeReveal = frame.iframe.parentNode;
-    frame.reveal();
+    const parentBeforeShow = frame.iframe.parentNode;
+    frame.show();
 
-    expect(frame.iframe.parentNode).toBe(parentBeforeReveal);
+    expect(frame.iframe.parentNode).toBe(parentBeforeShow);
     expect(frame.iframe.style.visibility).toBe("");
     expect(frame.iframe.style.position).toBe("");
     expect(frame.iframe.style.top).toBe("");
   });
 
-  it("throws when revealed without a prior preload", () => {
+  it("throws when shown without a prior preload", () => {
     const frame = new EvervaultFrame(client, "card");
 
-    expect(() => frame.reveal()).toThrow(/preload/);
+    expect(() => frame.show()).toThrow(/preload/);
   });
 
   it("ignores a second preload", () => {
@@ -97,14 +97,14 @@ describe("EvervaultFrame preload and reveal", () => {
     expect(() => frame.mount(target)).toThrow(/already mounted/);
   });
 
-  it("ignores a second reveal", () => {
+  it("ignores a second show", () => {
     const frame = new EvervaultFrame(client, "card");
     const target = container();
 
     frame.preload(target);
-    frame.reveal();
+    frame.show();
 
-    expect(() => frame.reveal()).not.toThrow();
+    expect(() => frame.show()).not.toThrow();
   });
 
   it("allows preloading again after unmount", () => {
@@ -132,7 +132,7 @@ describe("EvervaultFrame preload and reveal", () => {
     expect(error).toHaveBeenCalledWith(expect.stringContaining("destroyed"));
   });
 
-  it("reveals nothing once destroyed", () => {
+  it("shows nothing once destroyed", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const frame = new EvervaultFrame(client, "card");
     const target = container();
@@ -140,7 +140,7 @@ describe("EvervaultFrame preload and reveal", () => {
     frame.preload(target);
     frame.destroy();
 
-    expect(() => frame.reveal()).not.toThrow();
+    expect(() => frame.show()).not.toThrow();
     expect(frame.isMounted).toBe(false);
     expect(error).toHaveBeenCalledWith(expect.stringContaining("destroyed"));
   });
@@ -166,13 +166,13 @@ describe("EvervaultFrame preload and reveal", () => {
     expect(frame.iframe.style.width).toBe("400px");
   });
 
-  it("restores width: 100% on reveal", () => {
+  it("restores width: 100% on show", () => {
     const frame = new EvervaultFrame(client, "card");
     const target = container();
     Object.defineProperty(target, "clientWidth", { value: 400 });
 
     frame.preload(target);
-    frame.reveal();
+    frame.show();
 
     expect(frame.iframe.style.width).toBe("100%");
   });
@@ -184,7 +184,7 @@ describe("EvervaultFrame preload and reveal", () => {
 
     frame.preload(target);
     frame.iframe.style.width = "512px";
-    frame.reveal();
+    frame.show();
 
     expect(frame.iframe.style.width).toBe("512px");
   });
@@ -266,14 +266,14 @@ describe("EvervaultFrame preload and reveal", () => {
       expect(frame.iframe.style.width).toBe("512px");
     });
 
-    it("stops observing on reveal", () => {
+    it("stops observing on show", () => {
       stubResizeObserver();
       const frame = new EvervaultFrame(client, "card");
       const target = container();
       Object.defineProperty(target, "clientWidth", { value: 400 });
 
       frame.preload(target);
-      frame.reveal();
+      frame.show();
 
       expect(disconnected).toBe(true);
     });

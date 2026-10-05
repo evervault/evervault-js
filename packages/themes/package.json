@@ -3,20 +3,24 @@
   "private": true,
   "version": "0.1.24",
   "main": "index.ts",
-  "types": "index.ts",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "types": "workspace:*"
   },
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
     "clean": "rm -rf node_modules dist",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "devDependencies": {
     "typescript": "catalog:",
-    "tsconfig": "workspace:*"
+    "tsconfig": "workspace:*",
+    "vitest": "catalog:",
+    "jsdom": "catalog:"
   }
 }

@@ -27,7 +27,7 @@ function mockCardInstance() {
   return {
     mount: vi.fn(),
     preload: vi.fn(),
-    reveal: vi.fn(),
+    show: vi.fn(),
     validate: vi.fn(),
     update: vi.fn(),
     on: vi.fn(() => () => {}),
@@ -51,14 +51,14 @@ describe("Card", () => {
     expect(instance.mount).not.toHaveBeenCalled();
   });
 
-  it("reveals the card via the ref", async () => {
+  it("shows the card via the ref", async () => {
     const instance = mockCardInstance();
     const ref = React.createRef<CardRef>();
     render(<Card preload ref={ref} />, { wrapper: withMockClient(instance) });
 
     await waitFor(() => expect(instance.preload).toHaveBeenCalledTimes(1));
-    ref.current?.reveal();
+    ref.current?.show();
 
-    expect(instance.reveal).toHaveBeenCalledTimes(1);
+    expect(instance.show).toHaveBeenCalledTimes(1);
   });
 });
