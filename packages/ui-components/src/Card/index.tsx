@@ -13,8 +13,21 @@ import {
   useState,
 } from "react";
 import type { FocusEvent, ReactElement } from "react";
-import { useForm, useTranslations } from "shared";
-import type { UseFormReturn } from "shared";
+import {
+  canFillDefault,
+  compilePattern,
+  customFieldInputId,
+  customFieldNodes,
+  customFieldProps,
+  declaredExpiry,
+  declaredProps,
+  fieldProps,
+  isRefusedAmexCvc,
+  skippedNodes,
+  useForm,
+  useTranslations,
+} from "shared";
+import type { FieldProps, UseFormReturn } from "shared";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
 import { Tooltip } from "../Common/Tooltip";
@@ -27,29 +40,15 @@ import { CardExpiryHalf } from "./CardExpiryHalf";
 import { CardHolder } from "./CardHolder";
 import { CardNumber } from "./CardNumber";
 import { CustomFieldInput } from "./CustomFieldInput";
-import {
-  compilePattern,
-  customFieldNodes,
-  customFieldProps,
-  customFieldWarnings,
-} from "./customField";
 import { settingForInput, applyCardSettingsToFields } from "./fieldSettings";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useAgentTools } from "./useAgentTools";
 import { useCardReader } from "./useCardReader";
-import { skippedFieldWarning } from "./developerMessages";
-import { declaredExpiry, expiryError, joinExpiry, splitExpiry } from "./expiry";
+import { customFieldWarnings, skippedFieldWarning } from "./developerMessages";
+import { expiryError, joinExpiry, splitExpiry } from "./expiry";
 import type { ExpiryHalves } from "./expiry";
 import { isSpec, legacyNodes } from "./legacyFields";
-import { declaredProps, fieldProps } from "./props";
-import type { FieldProps } from "./props";
-import {
-  customFieldInputId,
-  declaredFields,
-  declaredInputs,
-  inputFor,
-  useSpec,
-} from "./useSpec";
+import { declaredFields, declaredInputs, useSpec } from "./useSpec";
 import { useCustomFields } from "./useCustomFields";
 import { useFocusOrder } from "./useFocusOrder";
 import {
@@ -67,25 +66,6 @@ import type {
   CardFrameHostMessages,
   FieldTarget,
 } from "types";
-
-// Nodes the card leaves out: inputs already claimed earlier in the tree (the
-// first wins), and <ev-field>s without a name.
-function skippedNodes(nodes: CardSpecNode[]): CardSpecNode[] {
-  const rendered = new Set<CardInput>();
-
-  const walk = (node: CardSpecNode): CardSpecNode[] => {
-    if (node.type === "row") return (node.children ?? []).flatMap(walk);
-
-    const input = inputFor(node);
-
-    if (!input || rendered.has(input)) return [node];
-
-    rendered.add(input);
-    return [];
-  };
-
-  return nodes.flatMap(walk);
-}
 
 function inputOf(target: FieldTarget): CardInput {
   return typeof target === "string" ? target : customFieldInputId(target.name);
@@ -291,9 +271,9 @@ export function Card({ config }: { config: CardConfig }) {
         return "invalid";
       }
 
-      const allow3DigitAmex = allow3DigitAmexCVC ?? true;
-      const isAmex = cardValidation.brand === "american-express";
-      if (isAmex && values.cvc?.length === 3 && !allow3DigitAmex) {
+      if (
+        isRefusedAmexCvc(values.cvc, cardValidation.brand, allow3DigitAmexCVC)
+      ) {
         return "invalid";
       }
 
@@ -450,11 +430,7 @@ export function Card({ config }: { config: CardConfig }) {
     if (defaultName === undefined || defaultName === appliedDefaultName.current)
       return;
 
-    const seeded =
-      form.values.name.length === 0 ||
-      form.values.name === appliedDefaultName.current;
-
-    if (!seeded) return;
+    if (!canFillDefault(form.values.name, appliedDefaultName.current)) return;
 
     appliedDefaultName.current = defaultName;
     form.setValues((values) => ({ ...values, name: defaultName }));

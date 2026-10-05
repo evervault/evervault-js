@@ -8,7 +8,15 @@
     "./getAppSDKConfig": "./src/getAppSDKConfig.ts",
     "./createBrand": "./src/createBrand.ts",
     "./fieldTypes": "./src/fieldTypes.ts",
-    "./fieldAttributes": "./src/fieldAttributes.ts"
+    "./fieldAttributes": "./src/fieldAttributes.ts",
+    "./customField": "./src/customField.ts",
+    "./cvc": "./src/cvc.ts",
+    "./cardFieldSettings": "./src/cardFieldSettings.ts",
+    "./cardSpec": "./src/cardSpec.ts",
+    "./expiry": "./src/expiry.ts",
+    "./fieldProps": "./src/fieldProps.ts",
+    "./defaultValue": "./src/defaultValue.ts",
+    "./developerMessages": "./src/developerMessages.ts"
   },
   "dependencies": {
     "types": "workspace:*",
@@ -20,10 +28,12 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "devDependencies": {
     "typescript": "catalog:",
-    "tsconfig": "workspace:*"
+    "tsconfig": "workspace:*",
+    "vitest": "catalog:"
   }
 }

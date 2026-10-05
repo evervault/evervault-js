@@ -1,4 +1,4 @@
-import type { CardSpecNodeType } from "types";
+import type { CardSpecNodeType } from "types/cardSpec";
 
 // How an attribute holds its prop's value: `switch` also reads "off" as off,
 // as `autocomplete` does.

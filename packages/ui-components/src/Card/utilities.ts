@@ -6,10 +6,9 @@ import {
   CardNumberValidationOptions,
 } from "@evervault/card-validator";
 import { PromisifiedEvervaultClient } from "@evervault/react";
-import { UseFormReturn } from "shared";
+import { customFieldError, isRefusedAmexCvc, UseFormReturn } from "shared";
+import type { CustomFieldError, CustomFieldProps } from "shared";
 import { ICONS } from "./icons";
-import { customFieldError } from "./customField";
-import type { CustomFieldError, CustomFieldProps } from "./customField";
 import { MagStripeData } from "./useCardReader";
 import type { CardForm } from "./types";
 import type {
@@ -146,9 +145,13 @@ function isComplete(
     });
     if (!cvcValidation.isValid) return false;
 
-    const allow3DigitAmex = opts?.allow3DigitAmexCVC ?? true;
-    const isAmex = cardValidation.brand === "american-express";
-    if (isAmex && form.values.cvc?.length === 3 && !allow3DigitAmex) {
+    if (
+      isRefusedAmexCvc(
+        form.values.cvc,
+        cardValidation.brand,
+        opts?.allow3DigitAmexCVC
+      )
+    ) {
       return false;
     }
   }

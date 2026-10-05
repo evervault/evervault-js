@@ -1,10 +1,11 @@
-import { CARD_FIELD_ATTRIBUTES, FIELD_ATTRIBUTES } from "shared";
-import type { FieldAttribute, FieldAttributeKind } from "shared";
-import type { CardSpecNode } from "types";
-import type { CardInput } from "./types";
-import { inputFor } from "./useSpec";
+import type { CardFieldSettings } from "./cardFieldSettings";
+import { inputFor } from "./cardSpec";
+import type { CardInput } from "./cardSpec";
+import { CARD_FIELD_ATTRIBUTES, FIELD_ATTRIBUTES } from "./fieldAttributes";
+import type { FieldAttribute, FieldAttributeKind } from "./fieldAttributes";
+import type { CardSpecNode } from "types/cardSpec";
 
-export interface FieldProps {
+export interface FieldProps extends CardFieldSettings {
   label?: string;
   placeholder?: string;
   tooltip?: string;
@@ -13,12 +14,7 @@ export interface FieldProps {
   autoComplete?: boolean;
   autoFocus?: boolean;
   autoProgress?: boolean;
-  errorMessage?: string;
-  unsupportedBrandMessage?: string;
-  pattern?: string;
   redact?: boolean;
-  optional?: boolean;
-  allow3DigitAmex?: boolean;
 }
 
 // Declaring the attribute is what turns it on; only an explicit denial is false.
@@ -75,4 +71,27 @@ export function declaredProps(
   nodes.forEach(walk);
 
   return declared;
+}
+
+// Attributes hold strings: a boolean prop is declared by `true` and denied by
+// `false`, as `<ev-card>` reads them. A field's own prop wins over a fallback.
+export function fieldAttributes(
+  names: readonly string[],
+  props: object,
+  fallbacks: object
+): Record<string, string> {
+  const values = props as Record<string, unknown>;
+  const defaults = fallbacks as Record<string, unknown>;
+
+  return Object.fromEntries(
+    names.flatMap((prop) => {
+      const value = values[prop] ?? defaults[prop];
+      // As `<ev-card>` names them: `autoProgress` is `autoprogress`.
+      const attribute = prop.toLowerCase();
+
+      if (value === undefined || value === null) return [];
+      if (value === true) return [[attribute, ""]];
+      return [[attribute, String(value)]];
+    })
+  );
 }

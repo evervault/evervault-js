@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  canFillDefault,
   customFieldError,
   declaredCustomFields,
   validationRulesKey,
-} from "./customField";
-import type { CustomFieldError, CustomFieldProps } from "./customField";
+} from "shared";
+import type { CustomFieldError, CustomFieldProps } from "shared";
 import type { CardSpecNode } from "types";
 
 // Every value the shopper types, and every error shown, is stored together with
@@ -83,9 +84,7 @@ function useDefaultValues(
 
       const value = currentValues.get(name) ?? "";
 
-      // Only fill a field that's empty or still holds the previous default, so
-      // nothing the shopper typed is replaced.
-      if (value.length === 0 || value === previous) {
+      if (canFillDefault(value, previous)) {
         defaultsToFill.set(
           name,
           withRules(defaultValue, name, validationRulesKeys)

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FIELD_ATTRIBUTES } from "shared";
+import { COMPONENT_NAMES, FIELD_ATTRIBUTES, fieldAttributes } from "shared";
 import type { CardFieldMap, CardOptions } from "types";
 import type {
   EvCardCvc,
@@ -240,29 +240,6 @@ export const DeprecatedCardContext = React.createContext<DeprecatedCardProps>(
   {}
 );
 
-// Attributes hold strings: a boolean prop is declared by `true` and denied by
-// `false`, as `<ev-card>` reads them. A field's own prop wins over a fallback.
-function attributes(
-  names: readonly string[],
-  props: object,
-  fallbacks: object
-): Record<string, string> {
-  const values = props as Record<string, unknown>;
-  const defaults = fallbacks as Record<string, unknown>;
-
-  return Object.fromEntries(
-    names.flatMap((prop) => {
-      const value = values[prop] ?? defaults[prop];
-      // As `<ev-card>` names them: `autoProgress` is `autoprogress`.
-      const attribute = prop.toLowerCase();
-
-      if (value === undefined || value === null) return [];
-      if (value === true) return [[attribute, ""]];
-      return [[attribute, String(value)]];
-    })
-  );
-}
-
 // Written by hand: given them as props, React 19 sets `autofocus` and
 // `spellcheck` as the element's properties, which read "" as false.
 function useAttributes(
@@ -303,7 +280,7 @@ function fieldElement<P extends object, E extends HTMLElement>(
     const deprecated = React.useContext(DeprecatedCardContext);
     useAttributes(
       ref,
-      attributes(
+      fieldAttributes(
         elementAttributes.map(([prop]) => prop),
         props,
         fallbacks(deprecated, props)
@@ -336,24 +313,24 @@ export function CardRow({ children }: CardRowProps) {
   return React.createElement("ev-row", null, children);
 }
 
-CardRow.displayName = "Card.Row";
+CardRow.displayName = COMPONENT_NAMES.row;
 
 export const CardHolder = fieldElement<CardHolderProps, EvCardHolder>(
-  "Card.Holder",
+  COMPONENT_NAMES.name,
   "ev-card-holder",
   FIELD_ATTRIBUTES.name,
   autoCompleteFor("name")
 );
 
 export const CardNumber = fieldElement<CardNumberProps, EvCardNumber>(
-  "Card.Number",
+  COMPONENT_NAMES.number,
   "ev-card-number",
   FIELD_ATTRIBUTES.number,
   autoCompleteFor("number")
 );
 
 export const CardExpiry = fieldElement<CardExpiryProps, EvCardExpiry>(
-  "Card.Expiry",
+  COMPONENT_NAMES.expiry,
   "ev-card-expiry",
   FIELD_ATTRIBUTES.expiry,
   autoCompleteFor("expiry")
@@ -363,7 +340,7 @@ export const CardExpiryMonth = fieldElement<
   CardExpiryMonthProps,
   EvCardExpiryMonth
 >(
-  "Card.ExpiryMonth",
+  COMPONENT_NAMES.expiryMonth,
   "ev-card-expiry-month",
   FIELD_ATTRIBUTES.expiryMonth,
   autoCompleteFor("expiryMonth", "expiry")
@@ -373,14 +350,14 @@ export const CardExpiryYear = fieldElement<
   CardExpiryYearProps,
   EvCardExpiryYear
 >(
-  "Card.ExpiryYear",
+  COMPONENT_NAMES.expiryYear,
   "ev-card-expiry-year",
   FIELD_ATTRIBUTES.expiryYear,
   autoCompleteFor("expiryYear", "expiry")
 );
 
 export const CardCvc = fieldElement<CardCvcProps, EvCardCvc>(
-  "Card.Cvc",
+  COMPONENT_NAMES.cvc,
   "ev-card-cvc",
   FIELD_ATTRIBUTES.cvc,
   (deprecated) => ({
@@ -391,7 +368,7 @@ export const CardCvc = fieldElement<CardCvcProps, EvCardCvc>(
 );
 
 export const CardField = fieldElement<CardFieldProps, EvField>(
-  "Card.Field",
+  COMPONENT_NAMES.field,
   "ev-field",
   FIELD_ATTRIBUTES.field,
   ({ autoComplete }, { name }) => {
