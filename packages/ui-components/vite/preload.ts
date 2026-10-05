@@ -1,8 +1,10 @@
+import { createHash } from "crypto";
 import { readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
 import jsdom from "jsdom";
 import { ResolvedConfig } from "vite";
 import { COMPONENT_ENTRIES } from "../src/utilities/componentEntries";
+import { generateIntegrity } from "./integrity";
 
 interface ManifestChunk {
   file: string;
@@ -11,33 +13,19 @@ interface ManifestChunk {
 
 type Manifest = Record<string, ManifestChunk>;
 
-function preloadRequestedComponent(manifest: Record<string, string[]>) {
+function preloadRequestedComponent(
+  manifest: Record<string, Record<string, string>>
+) {
   const component = new URLSearchParams(location.search).get("component");
   const files = component ? manifest[component] : undefined;
   if (!files) return;
 
-  let integrity: Record<string, string> = {};
-  try {
-    const importMap = document.querySelector('script[type="importmap"]');
-    integrity = importMap
-      ? (
-          JSON.parse(importMap.textContent ?? "{}") as {
-            integrity?: Record<string, string>;
-          }
-        ).integrity ?? {}
-      : {};
-  } catch {
-    integrity = {};
-  }
-
-  for (const file of files) {
-    const href = `/${file}`;
+  for (const [href, integrity] of Object.entries(files)) {
     const link = document.createElement("link");
     link.rel = "modulepreload";
     link.href = href;
     link.crossOrigin = "";
-    const hash = integrity[href];
-    if (hash) link.integrity = hash;
+    link.integrity = integrity;
     document.head.appendChild(link);
   }
 }
@@ -81,16 +69,6 @@ export function componentPreload() {
         );
       }
 
-      const preloadManifest: Record<string, string[]> = {};
-      for (const [component, entryKey] of Object.entries(COMPONENT_ENTRIES)) {
-        if (!manifest[entryKey]) {
-          throw new Error(
-            `vite-plugin-component-preload: no manifest entry for "${entryKey}" (component "${component}"). Has this file moved?`
-          );
-        }
-        preloadManifest[component] = collectChunkFiles(manifest, entryKey);
-      }
-
       const indexPath = resolve(outDir, "index.html");
       const parsed = new jsdom.JSDOM(readFileSync(indexPath, "utf-8"));
       const doc = parsed.window.document;
@@ -100,16 +78,36 @@ export function componentPreload() {
           link.getAttribute("href")?.replace(/^\//, "")
         )
       );
-      for (const [component, files] of Object.entries(preloadManifest)) {
-        preloadManifest[component] = files.filter(
-          (file) => !staticPreloads.has(file)
-        );
+
+      const preloadManifest: Record<string, Record<string, string>> = {};
+      for (const [component, entryKey] of Object.entries(COMPONENT_ENTRIES)) {
+        if (!manifest[entryKey]) {
+          throw new Error(
+            `vite-plugin-component-preload: no manifest entry for "${entryKey}" (component "${component}"). Has this file moved?`
+          );
+        }
+        preloadManifest[component] = {};
+        for (const file of collectChunkFiles(manifest, entryKey)) {
+          if (staticPreloads.has(file)) continue;
+          preloadManifest[component][`/${file}`] = generateIntegrity(
+            readFileSync(resolve(outDir, file))
+          );
+        }
       }
 
-      const script = doc.createElement("script");
-      script.textContent = `(${preloadRequestedComponent.toString()})(${JSON.stringify(
+      const code = `(${preloadRequestedComponent.toString()})(${JSON.stringify(
         preloadManifest
       )});`;
+      const fileName = `assets/preload-${createHash("sha256")
+        .update(code)
+        .digest("hex")
+        .slice(0, 8)}.js`;
+      writeFileSync(resolve(outDir, fileName), code);
+
+      const script = doc.createElement("script");
+      script.setAttribute("src", `/${fileName}`);
+      script.setAttribute("crossorigin", "");
+      script.setAttribute("integrity", generateIntegrity(Buffer.from(code)));
 
       const mainScript = doc.querySelector('script[type="module"]');
       if (mainScript?.parentNode) {

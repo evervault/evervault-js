@@ -1,5 +1,18 @@
 # @evervault/react
 
+## 2.32.0
+
+### Minor Changes
+
+- aca478a: Rename `card.reveal()` to `card.show()`, and the `<Card>` ref method `reveal()` to `show()`. They display a card loaded with `preload`. The `reveal` names were released only days ago and are removed.
+- 6b9e535: Add semantic theming to the `minimal`, `clean` and `material` presets: pass `primary`, `greyTone`, `roundness`, `font` or `selectors`, for example `clean({ primary: "#16a34a" })` or `clean(myTheme, { primary: "#16a34a" })`. Use `cssVar("--brand-color")`, exported from `@evervault/js`, to take a value from your page's `:root`.
+
+## 2.31.0
+
+### Minor Changes
+
+- c162b53: Add a `preload` prop and `reveal()` ref method to `<Card>`, mirroring `@evervault/browser`'s `card.preload()`/`card.reveal()`. Pass `preload` to boot the card hidden on mount, then call `ref.current.reveal()` to show it.
+
 ## 2.30.0
 
 ### Minor Changes

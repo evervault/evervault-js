@@ -43,6 +43,8 @@ interface CVCProps {
   readOnly?: boolean;
   cardNumber: string;
   autoComplete?: boolean;
+  autoProgress?: boolean;
+  onComplete?: () => void;
   redact?: boolean;
   customBrands?: CustomBrand[];
 }
@@ -58,6 +60,8 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
       value,
       readOnly,
       autoComplete,
+      autoProgress,
+      onComplete,
       onFocus,
       onKeyUp,
       onKeyDown,
@@ -75,9 +79,27 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
       [cardNumber, customBrands]
     );
 
-    const { setValue } = useMask(innerRef, onChange, {
+    const { setValue, mask: masked } = useMask(innerRef, onChange, {
       mask,
     });
+
+    const previousMask = useRef(mask);
+
+    useEffect(() => {
+      const maskChanged = previousMask.current !== mask;
+      previousMask.current = mask;
+
+      // A mask change truncates the code: the component editing the field, not
+      // the customer finishing it.
+      if (maskChanged) return;
+
+      const isComplete = masked.current?.masked.isComplete ?? false;
+      const isFocused = document.activeElement === innerRef.current;
+
+      if (autoProgress && isFocused && isComplete) {
+        onComplete?.();
+      }
+    }, [value, mask, masked, autoProgress, onComplete]);
 
     useEffect(() => {
       setValue(value);

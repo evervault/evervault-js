@@ -1,5 +1,31 @@
 # @evervault/inputs
 
+## 2.18.52
+
+### Patch Changes
+
+- Updated dependencies [aca478a]
+- Updated dependencies [6b9e535]
+- Updated dependencies [e3372bc]
+  - @evervault/browser@2.69.0
+
+## 2.18.51
+
+### Patch Changes
+
+- 142ad57: Export `getBin` and use it for Inputs BIN truncation. PANs shorter than 16 digits keep a 6-digit BIN.
+- Updated dependencies [142ad57]
+  - @evervault/card-validator@1.8.0
+  - @evervault/browser@2.68.1
+
+## 2.18.50
+
+### Patch Changes
+
+- Updated dependencies [efec8c9]
+- Updated dependencies [542ec66]
+  - @evervault/browser@2.68.0
+
 ## 2.18.49
 
 ### Patch Changes

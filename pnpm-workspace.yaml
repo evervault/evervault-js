@@ -52,7 +52,7 @@ catalog:
   jss: ^10.10.0
   jss-preset-default: ^10.10.0
   msw: ^2.15.0
-  next: ^16.3.3
+  next: ^16.3.6
   nock: ^14.0.17
   node-fetch: ^3
   nodemon: ^3.1.4
@@ -87,7 +87,7 @@ catalog:
   vite: ^8.1.4
   vite-plugin-dts: ^5.0.2
   vite-plugin-istanbul: ^7.2.1
-  vitest: ^4.1.10
+  vitest: ^4.1.11
   wait-on: ^9.0.4
 settings:
   minimumReleaseAge: 10080
