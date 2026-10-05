@@ -105,7 +105,10 @@ export interface CardPayload {
 
 export type CardField = "name" | "number" | "expiry" | "cvc";
 
-export type CardSpecNodeType = "row" | CardField;
+// The halves of a split expiry.
+export type ExpiryHalf = "expiryMonth" | "expiryYear";
+
+export type CardSpecNodeType = "row" | CardField | ExpiryHalf;
 
 export interface CardSpecNode {
   type: CardSpecNodeType;
@@ -152,12 +155,20 @@ interface CardFieldTranslations<E extends TranslationsObject>
   errors?: E;
 }
 
+interface CardLabelTranslations extends TranslationsObject {
+  label?: string;
+  placeholder?: string;
+}
+
 export interface CardTranslations extends TranslationsObject {
   number: CardFieldTranslations<{
     invalid?: string;
     unsupportedBrand?: string;
   }>;
   expiry: CardFieldTranslations<{ invalid?: string }>;
+  // The halves of a split expiry; an invalid date is reported as `expiry`.
+  expiryMonth?: CardLabelTranslations;
+  expiryYear?: CardLabelTranslations;
   cvc: CardFieldTranslations<{ invalid?: string }>;
 }
 

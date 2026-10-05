@@ -7,12 +7,14 @@ import {
   getFocusedField,
   type CardFormValidators,
 } from "./agentTools";
-import type { CardForm } from "./types";
+import { fieldOf } from "./useSpec";
+import type { CardForm, CardInput } from "./types";
 import type { AgentToolsFrameConfig, CardField } from "types";
 
 interface UseAgentToolsParams {
   config: AgentToolsFrameConfig | undefined;
   fields: CardField[];
+  inputs: CardInput[];
   form: UseFormReturn<CardForm>;
   validators: CardFormValidators;
   t: (key: string) => string;
@@ -23,6 +25,7 @@ interface UseAgentToolsParams {
 export function useAgentTools({
   config,
   fields,
+  inputs,
   form,
   validators,
   t,
@@ -34,6 +37,7 @@ export function useAgentTools({
   const productName = config?.productName;
   const exposeTo = config?.exposeTo.join(",");
   const fieldList = fields.join(",");
+  const inputList = inputs.join(",");
 
   useEffect(() => {
     if (!namePrefix || !productName) return undefined;
@@ -53,6 +57,7 @@ export function useAgentTools({
     }
 
     const activeFields = fieldList.split(",") as CardField[];
+    const activeInputs = inputList.split(",") as CardInput[];
     const exposedTo = exposeTo ? exposeTo.split(",") : [];
 
     const buildStatus = (values: CardForm) => {
@@ -61,7 +66,7 @@ export function useAgentTools({
       return {
         fields: statuses,
         isComplete: statuses.every((status) => status.isValid),
-        focusedField: getFocusedField(activeFields),
+        focusedField: getFocusedField(activeInputs),
       };
     };
 
@@ -71,7 +76,8 @@ export function useAgentTools({
       {
         getStatus: () => buildStatus(latest.current.form.values),
         focusField: (field) => {
-          const input = document.getElementById(field);
+          const id = activeInputs.find((input) => fieldOf(input) === field);
+          const input = id && document.getElementById(id);
           if (!(input instanceof HTMLInputElement)) {
             throw new Error(fieldNotAvailableMessage(productName, field));
           }
@@ -103,5 +109,5 @@ export function useAgentTools({
     }
 
     return () => controller.abort();
-  }, [namePrefix, productName, exposeTo, fieldList]);
+  }, [namePrefix, productName, exposeTo, fieldList, inputList]);
 }

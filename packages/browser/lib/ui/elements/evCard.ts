@@ -3,6 +3,7 @@ import { CardHost } from "../cardHost";
 import { THEMES } from "./cardThemes";
 import type { ThemeName } from "./cardThemes";
 import { unknownTheme } from "./developerMessages";
+import { expiryError, expiryWarning } from "./expiry";
 import { ElementBase, adoptProperties, readAttribute } from "./reflect";
 import { serialise } from "./spec";
 import type EvervaultClient from "../../main";
@@ -57,6 +58,7 @@ export class EvCard extends ElementBase {
   #pending = false;
   #stopWaiting?: () => void;
   #attributesChanged = false;
+  #warned = false;
   #theme?: ThemeDefinition | ThemeName;
 
   get spec() {
@@ -133,7 +135,17 @@ export class EvCard extends ElementBase {
     // Mounting, however it is reached, is what ends the wait.
     this.#stopWaiting?.();
     this.#client = evervault;
-    this.#spec = this.#readSpec();
+
+    // Watched even when refused, so the card mounts once the tree is whole.
+    if (!this.#observer) this.#observe();
+
+    const spec = this.#readSpec();
+
+    if (spec) this.#mount(evervault, spec);
+  }
+
+  #mount(evervault: EvervaultClient, spec: CardSpecNode[]) {
+    this.#spec = spec;
 
     // The colour scheme goes into the frame URL, so it is read once here.
     const card = new CardHost(evervault, {
@@ -159,7 +171,6 @@ export class EvCard extends ElementBase {
     });
 
     this.#card = card;
-    this.#observe();
   }
 
   #resolveTheme(): ThemeDefinition {
@@ -188,8 +199,25 @@ export class EvCard extends ElementBase {
   }
 
   // Declaring nothing renders the default card; declaring anything replaces it.
-  #readSpec() {
+  // A tree the card cannot render is refused, with the reason logged.
+  #readSpec(): CardSpecNode[] | undefined {
     const declared = serialise(this);
+    const error = expiryError(declared);
+
+    if (error) {
+      console.error(error);
+      return undefined;
+    }
+
+    // Warned once while the arrangement stands, however often it is re-read.
+    const warning = expiryWarning(declared);
+
+    if (warning && !this.#warned) {
+      console.warn(warning);
+    }
+
+    this.#warned = warning !== null;
+
     return declared.length > 0 ? declared : DEFAULT_SPEC;
   }
 
@@ -226,8 +254,20 @@ export class EvCard extends ElementBase {
   #sync() {
     if (!this.#observer) return;
 
-    this.#spec = this.#readSpec();
-    this.#card?.setSpec(this.#spec);
+    // A refused tree leaves the card on the last one it rendered.
+    const spec = this.#readSpec();
+
+    if (spec && !this.#card && this.#client) {
+      // Mounting reads the options afresh.
+      this.#attributesChanged = false;
+      this.#mount(this.#client, spec);
+      return;
+    }
+
+    if (spec) {
+      this.#spec = spec;
+      this.#card?.setSpec(spec);
+    }
 
     if (!this.#attributesChanged) return;
 
@@ -274,6 +314,7 @@ export class EvCard extends ElementBase {
     this.#observer = undefined;
     this.#pending = false;
     this.#attributesChanged = false;
+    this.#warned = false;
     // Destroyed, not unmounted: an unmounted card keeps its window listeners.
     this.#card?.destroy();
     this.#card = undefined;

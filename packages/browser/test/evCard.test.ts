@@ -16,7 +16,12 @@ import UIComponents from "../lib/ui";
 import type EvervaultClient from "../lib/main";
 import { CardHost } from "../lib/ui/cardHost";
 import type { CardHostConfiguration } from "../lib/ui/cardHost";
-import { unknownTheme } from "../lib/ui/elements/developerMessages";
+import {
+  COMBINED_EXPIRY_WITH_HALF,
+  EXPIRY_HALVES_APART,
+  loneExpiryHalf,
+  unknownTheme,
+} from "../lib/ui/elements/developerMessages";
 import { serialise } from "../lib/ui/elements/spec";
 import { countMessageListeners } from "./helpers/messageListeners";
 import type { CardSpecNode, SelectorType } from "types";
@@ -724,5 +729,168 @@ describe("<ev-card> teardown", () => {
     element.remove();
 
     expect(listeners()).toBe(0);
+  });
+});
+
+describe("<ev-card> split expiry", () => {
+  const SPLIT = `
+    <ev-card-number></ev-card-number>
+    <ev-card-expiry-month></ev-card-expiry-month>
+    <ev-card-expiry-year></ev-card-expiry-year>
+  `;
+
+  it("mounts a card declaring both halves", () => {
+    const element = append();
+    element.innerHTML = SPLIT;
+    element.mountCard(evervault());
+
+    expect(types(mountedWith().config?.fields as CardSpecNode[])).toEqual([
+      "number",
+      "expiryMonth",
+      "expiryYear",
+    ]);
+  });
+
+  it("refuses to mount a card declaring a month without a year", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const element = append();
+    element.innerHTML = "<ev-card-expiry-month></ev-card-expiry-month>";
+    element.mountCard(evervault());
+
+    expect(hosts).toHaveLength(0);
+    expect(element.isMounted).toBe(false);
+    expect(error).toHaveBeenCalledWith(loneExpiryHalf("expiryMonth"));
+
+    error.mockRestore();
+  });
+
+  it("mounts a refused card once the missing half is added", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const element = append();
+    element.innerHTML = "<ev-card-expiry-month></ev-card-expiry-month>";
+    element.mountCard(evervault());
+
+    element.append(document.createElement("ev-card-expiry-year"));
+    await flush();
+
+    expect(hosts).toHaveLength(1);
+    expect(element.isMounted).toBe(true);
+    expect(types(mountedWith().config?.fields as CardSpecNode[])).toEqual([
+      "expiryMonth",
+      "expiryYear",
+    ]);
+
+    error.mockRestore();
+  });
+
+  it("mounts a refused card once with the options set before it was whole", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const element = append();
+    element.innerHTML = "<ev-card-expiry-year></ev-card-expiry-year>";
+    element.mountCard(evervault());
+
+    element.setAttribute("autoprogress", "");
+    element.prepend(document.createElement("ev-card-expiry-month"));
+    await flush();
+
+    expect(hosts).toHaveLength(1);
+    expect(mountedWith().config?.autoProgress).toBe(true);
+    expect(frame().update).not.toHaveBeenCalled();
+
+    error.mockRestore();
+  });
+
+  it("refuses to mount a card mixing the combined expiry and a half", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const element = append();
+    element.innerHTML = `
+      <ev-card-expiry></ev-card-expiry>
+      <ev-card-expiry-year></ev-card-expiry-year>
+    `;
+    element.mountCard(evervault());
+
+    expect(hosts).toHaveLength(0);
+    expect(error).toHaveBeenCalledWith(COMBINED_EXPIRY_WITH_HALF);
+
+    error.mockRestore();
+  });
+
+  it("keeps the last tree when a change leaves a lone half", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const element = append();
+    element.innerHTML = SPLIT;
+    element.mountCard(evervault());
+    const before = element.spec;
+
+    element.querySelector("ev-card-expiry-year")?.remove();
+    await flush();
+
+    expect(frame().setSpec).not.toHaveBeenCalled();
+    expect(element.spec).toBe(before);
+    expect(error).toHaveBeenCalledWith(loneExpiryHalf("expiryMonth"));
+
+    error.mockRestore();
+  });
+
+  it("sends the halves once the second arrives", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const element = append();
+    element.mountCard(evervault());
+
+    element.append(document.createElement("ev-card-expiry-month"));
+    await flush();
+
+    expect(frame().setSpec).not.toHaveBeenCalled();
+
+    element.append(document.createElement("ev-card-expiry-year"));
+    await flush();
+
+    expect(types(lastSpec())).toEqual(["expiryMonth", "expiryYear"]);
+
+    error.mockRestore();
+  });
+
+  it("warns once about fields between the halves", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const element = append();
+    element.innerHTML = `
+      <ev-card-expiry-month></ev-card-expiry-month>
+      <ev-card-cvc></ev-card-cvc>
+      <ev-card-expiry-year></ev-card-expiry-year>
+    `;
+    element.mountCard(evervault());
+
+    expect(warn).toHaveBeenCalledWith(EXPIRY_HALVES_APART);
+
+    element.children[0].setAttribute("label", "Month");
+    await flush();
+
+    expect(warn).toHaveBeenCalledOnce();
+
+    warn.mockRestore();
+  });
+
+  it("warns again once the halves are parted a second time", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const element = append();
+    element.innerHTML = SPLIT;
+    element.mountCard(evervault());
+
+    expect(warn).not.toHaveBeenCalled();
+
+    const cvc = document.createElement("ev-card-cvc");
+    element.insertBefore(cvc, element.children[2]);
+    await flush();
+
+    expect(warn).toHaveBeenCalledOnce();
+
+    cvc.remove();
+    await flush();
+    element.insertBefore(cvc, element.children[2]);
+    await flush();
+
+    expect(warn).toHaveBeenCalledTimes(2);
+
+    warn.mockRestore();
   });
 });
