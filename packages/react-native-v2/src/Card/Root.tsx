@@ -16,10 +16,11 @@ import { useEvervault } from "../useEvervault";
 import { formatPayload } from "./utils";
 import { EvervaultInputContext, EvervaultInputContextValue } from "../Input";
 import { EvervaultContextValue } from "../context";
-import { skippedFieldWarning } from "./developerMessages";
+import { expiryLayoutMessage, skippedFieldWarning } from "./developerMessages";
 import { DeclaredFieldsContext } from "./declaredFields";
 import type { DeclaredFieldsContextValue } from "./declaredFields";
 import { skippedNodes } from "shared/cardSpec";
+import { expiryLayoutError } from "shared/expiry";
 import type { CardSpecNode } from "types/cardSpec";
 
 const DEFAULT_ACCEPTED_BRANDS: CardBrandName[] = [];
@@ -97,6 +98,8 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     [validationMode]
   );
 
+  const focused = useRef<string | null>(null);
+
   // The fields in the order they declared themselves, as the card's tree.
   const [declared, setDeclared] = useState<CardSpecNode[]>([]);
 
@@ -119,21 +122,46 @@ export const Card = forwardRef<Card, CardProps>(function Card(
       remove(id: string) {
         setDeclared((current) => current.filter((field) => field.id !== id));
       },
+      focused,
     }),
     []
   );
 
-  const skipped = useMemo(() => skippedNodes(declared), [declared]);
+  const refusal = useMemo(() => {
+    const error = expiryLayoutError(declared);
+    return error && expiryLayoutMessage(error);
+  }, [declared]);
+
+  // A refused tree leaves the card on the last one it could render.
+  const [renderable, setRenderable] = useState(refusal ? [] : declared);
+
+  if (!refusal && renderable !== declared) {
+    setRenderable(declared);
+  }
+
+  // Of the last tree it could render, only the fields still declared remain.
+  const nodes = useMemo(() => {
+    if (!refusal) return declared;
+
+    const kept = new Set(renderable.map(({ id }) => id));
+    return declared.filter(({ id }) => kept.has(id));
+  }, [refusal, renderable, declared]);
+
+  const skipped = useMemo(() => skippedNodes(nodes), [nodes]);
 
   const declaredFieldsContext = useMemo<DeclaredFieldsContextValue>(
     () => ({
       ...declare,
       shown: new Set(
-        declared.filter((node) => !skipped.includes(node)).map(({ id }) => id)
+        nodes.filter((node) => !skipped.includes(node)).map(({ id }) => id)
       ),
     }),
-    [declare, declared, skipped]
+    [declare, nodes, skipped]
   );
+
+  useEffect(() => {
+    if (refusal) console.error(refusal);
+  }, [refusal]);
 
   const notices = useMemo(() => skipped.map(skippedFieldWarning), [skipped]);
 

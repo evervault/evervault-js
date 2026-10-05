@@ -1,5 +1,10 @@
 import { cardMessages, COMPONENT_NAMES } from "shared/developerMessages";
 
 // What the card logs for the developer, shared with the tests that check it.
-export const { duplicateField, skippedFieldWarning } =
-  cardMessages(COMPONENT_NAMES);
+export const {
+  duplicateField,
+  combinedExpiryWithHalf: COMBINED_EXPIRY_WITH_HALF,
+  loneExpiryHalf,
+  expiryLayoutMessage,
+  skippedFieldWarning,
+} = cardMessages(COMPONENT_NAMES);
