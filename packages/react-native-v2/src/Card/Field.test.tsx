@@ -247,4 +247,43 @@ describe("Card.Field", () => {
       }
     );
   });
+
+  describe("its error, shown when the card's validationMode shows a card field's", () => {
+    // Whether the holder and the field show an error after each step: typing
+    // an invalid value, leaving, typing a valid one, typing an invalid one.
+    it.each([
+      ["onBlur", [false, true, true, true]],
+      ["onChange", [false, false, false, true]],
+      ["onTouched", [false, true, false, true]],
+      ["all", [false, true, false, true]],
+    ] as const)("%s", async (validationMode, shown) => {
+      const { onChange, getByTestId } = await renderCard(
+        <>
+          <CardHolder testID="holder" pattern="[A-Z ]+" />
+          <CardField testID="postcode" name="postcode" pattern="[A-Z0-9 ]+" />
+        </>,
+        { validationMode }
+      );
+
+      const fields = [getByTestId("holder"), getByTestId("postcode")];
+      const steps = [
+        (field: (typeof fields)[number]) => fireEvent.changeText(field, "ab"),
+        (field: (typeof fields)[number]) => fireEvent(field, "blur"),
+        (field: (typeof fields)[number]) => fireEvent.changeText(field, "AB"),
+        (field: (typeof fields)[number]) => fireEvent.changeText(field, "ab"),
+      ];
+
+      for (const [index, step] of steps.entries()) {
+        for (const field of fields) await step(field);
+
+        await waitFor(() => {
+          const { errors } = lastPayload(onChange);
+          expect({
+            holder: errors.name !== undefined,
+            field: errors.fields?.postcode !== undefined,
+          }).toEqual({ holder: shown[index], field: shown[index] });
+        });
+      }
+    });
+  });
 });
