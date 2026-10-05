@@ -14,6 +14,7 @@ import {
 } from "react";
 import type { FocusEvent, ReactElement } from "react";
 import { useForm, useTranslations } from "shared";
+import type { UseFormReturn } from "shared";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
 import { Tooltip } from "../Common/Tooltip";
@@ -25,48 +26,66 @@ import { CardExpiry } from "./CardExpiry";
 import { CardExpiryHalf } from "./CardExpiryHalf";
 import { CardHolder } from "./CardHolder";
 import { CardNumber } from "./CardNumber";
+import { CustomFieldInput } from "./CustomFieldInput";
+import {
+  customFieldNodes,
+  customFieldProps,
+  customFieldWarnings,
+} from "./customField";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useAgentTools } from "./useAgentTools";
 import { useCardReader } from "./useCardReader";
-import { duplicateField } from "./developerMessages";
+import { skippedFieldWarning } from "./developerMessages";
 import { declaredExpiry, expiryError, joinExpiry, splitExpiry } from "./expiry";
 import type { ExpiryHalves } from "./expiry";
 import { isSpec, legacyNodes } from "./legacyFields";
 import { declaredProps, fieldProps } from "./props";
-import { declaredFields, declaredInputs, inputFor, useSpec } from "./useSpec";
+import {
+  customFieldInputId,
+  declaredFields,
+  declaredInputs,
+  inputFor,
+  useSpec,
+} from "./useSpec";
+import { useCustomFields } from "./useCustomFields";
 import { useFocusOrder } from "./useFocusOrder";
 import {
   changePayload,
   collectIcons,
+  customComplete,
   isBrandSupported,
   swipePayload,
 } from "./utilities";
 import type { CardFormValidators } from "./agentTools";
 import type { CardForm, CardConfig, CardInput } from "./types";
 import type {
-  CardField,
   CardSpecNode,
   CardFrameClientMessages,
   CardFrameHostMessages,
+  FieldTarget,
 } from "types";
 
 // Nodes the card leaves out: inputs already claimed earlier in the tree (the
-// first wins).
+// first wins), and <ev-field>s without a name.
 function skippedNodes(nodes: CardSpecNode[]): CardSpecNode[] {
   const rendered = new Set<CardInput>();
 
   const walk = (node: CardSpecNode): CardSpecNode[] => {
     if (node.type === "row") return (node.children ?? []).flatMap(walk);
 
-    const input = inputFor(node.type);
+    const input = inputFor(node);
 
-    if (rendered.has(input)) return [node];
+    if (!input || rendered.has(input)) return [node];
 
     rendered.add(input);
     return [];
   };
 
   return nodes.flatMap(walk);
+}
+
+function inputOf(target: FieldTarget): CardInput {
+  return typeof target === "string" ? target : customFieldInputId(target.name);
 }
 
 export function Card({ config }: { config: CardConfig }) {
@@ -161,17 +180,27 @@ export function Card({ config }: { config: CardConfig }) {
     }
   }, [autoFocusInput, declaresAutoFocus, inputs]);
 
+  const notices = useMemo(
+    () => [
+      ...skipped.map(skippedFieldWarning),
+      ...customFieldNodes(nodes)
+        .filter((node) => !skipped.includes(node))
+        .flatMap(customFieldWarnings),
+    ],
+    [nodes, skipped]
+  );
+
   // In an effect, not the render body, so a re-render does not warn again.
   const warned = useRef("");
 
   useEffect(() => {
-    const key = skipped.map((node) => node.id).join(",");
+    const key = notices.join("\n");
 
     if (key === warned.current) return;
     warned.current = key;
 
-    skipped.forEach((node) => console.warn(duplicateField(node.type)));
-  }, [skipped]);
+    notices.forEach((notice) => console.warn(notice));
+  }, [notices]);
 
   const validators: CardFormValidators = {
     name: (values) => {
@@ -243,25 +272,36 @@ export function Card({ config }: { config: CardConfig }) {
       name: config.defaultValues?.name ?? "",
     },
     validate: validators,
-    onChange: (formState) => {
-      const triggerChange = async () => {
-        if (!ev) return;
-        const cardData = await changePayload(ev, formState, fields, {
+    onChange: (formState) => sendChange(formState),
+  });
+
+  const customFields = useCustomFields(nodes, () => sendChange(form));
+
+  // Only called after a render, once `customFields` exists.
+  function sendChange(formState: UseFormReturn<CardForm>) {
+    const triggerChange = async () => {
+      if (!ev) return;
+      const cardData = await changePayload(
+        ev,
+        formState,
+        fields,
+        customFields,
+        {
           allow3DigitAmexCVC: config.allow3DigitAmexCVC,
           cvcOptional,
           customBrands,
-        });
-
-        if (cardData.isComplete) {
-          send("EV_COMPLETE", cardData);
         }
+      );
 
-        send("EV_CHANGE", cardData);
-      };
+      if (cardData.isComplete) {
+        send("EV_COMPLETE", cardData);
+      }
 
-      void triggerChange();
-    },
-  });
+      send("EV_CHANGE", cardData);
+    };
+
+    void triggerChange();
+  }
 
   // What the shopper typed in each half. A year typed before the month
   // isn't part of the form's date yet, so it's kept here.
@@ -311,6 +351,7 @@ export function Card({ config }: { config: CardConfig }) {
     form,
     validators,
     t,
+    customFieldsComplete: customComplete(customFields),
   });
 
   useLayoutEffect(() => {
@@ -322,13 +363,21 @@ export function Card({ config }: { config: CardConfig }) {
       on("EV_VALIDATE", () => {
         if (!ev) return;
 
+        const errors = customFields.validate();
+
         form.validate((formState) => {
           void (async () => {
-            const data = await changePayload(ev, formState, fields, {
-              allow3DigitAmexCVC: config.allow3DigitAmexCVC,
-              cvcOptional,
-              customBrands,
-            });
+            const data = await changePayload(
+              ev,
+              formState,
+              fields,
+              { ...customFields, errors },
+              {
+                allow3DigitAmexCVC: config.allow3DigitAmexCVC,
+                cvcOptional,
+                customBrands,
+              }
+            );
             send("EV_VALIDATED", data);
           })();
         });
@@ -339,6 +388,7 @@ export function Card({ config }: { config: CardConfig }) {
       send,
       form,
       fields,
+      customFields,
       config.allow3DigitAmexCVC,
       cvcOptional,
       customBrands,
@@ -395,21 +445,22 @@ export function Card({ config }: { config: CardConfig }) {
     focus.next("cvc");
   }, [focus]);
 
-  const hasErrors = Object.keys(form.errors ?? {}).length > 0;
+  const hasErrors =
+    Object.keys(form.errors ?? {}).length > 0 || customFields.errors.size > 0;
 
-  const handleFocus = (field: CardField) => () => {
+  const handleFocus = (field: FieldTarget) => () => {
     if (!autoFocusing.current) interacted.current = true;
 
     send("EV_FOCUS", field);
   };
 
-  const handleBlur = (field: CardField) => () => {
+  const handleBlur = (field: FieldTarget) => () => {
     send("EV_BLUR", field);
   };
 
   // The host hears about fields; focus moves between inputs.
   const handleKeyDown =
-    (field: CardField, input: CardInput = field) =>
+    (field: FieldTarget, input: CardInput = inputOf(field)) =>
     (event: React.KeyboardEvent<HTMLInputElement>) => {
       interacted.current = true;
 
@@ -428,7 +479,7 @@ export function Card({ config }: { config: CardConfig }) {
       }
     };
 
-  const handleKeyUp = (field: CardField) => () => {
+  const handleKeyUp = (field: FieldTarget) => () => {
     send("EV_KEYUP", field);
   };
 
@@ -449,6 +500,47 @@ export function Card({ config }: { config: CardConfig }) {
     }
 
     if (skipped.includes(node)) return null;
+
+    if (node.type === "field") {
+      const declared = customFieldProps(node);
+
+      if (!declared) return null;
+
+      const { name } = declared;
+      const id = customFieldInputId(name);
+      const target = { field: "field", name } as const;
+      const value = customFields.valueOf(name);
+      const code = customFields.errors.get(name);
+      const error =
+        code && (declared.errorMessage ?? t(`field.errors.${code}`));
+
+      return (
+        <Field
+          key={node.id}
+          name={id}
+          hasValue={value.length > 0}
+          error={error}
+        >
+          {declared.label && <label htmlFor={id}>{declared.label}</label>}
+          {declared.tooltip && <Tooltip>{declared.tooltip}</Tooltip>}
+          <CustomFieldInput
+            id={id}
+            field={declared}
+            value={value}
+            disabled={!config}
+            onChange={(next) => customFields.setValue(name, next)}
+            onFocus={handleFocus(target)}
+            onBlur={() => {
+              customFields.blur(name);
+              handleBlur(target)();
+            }}
+            onKeyUp={handleKeyUp(target)}
+            onKeyDown={handleKeyDown(target)}
+          />
+          {error && <Error>{error}</Error>}
+        </Field>
+      );
+    }
 
     const field = node.type;
 

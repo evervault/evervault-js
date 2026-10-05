@@ -19,6 +19,7 @@ const payload: CardPayload = {
     expiry: { month: "12", year: "30" },
     cvc: "ev:cvc",
   },
+  fields: {},
   isValid: true,
   isComplete: true,
   errors: null,
@@ -65,6 +66,26 @@ describe("CardHost events", () => {
     frameMessage(container, "EV_FOCUS", "number");
 
     expect(focus).toHaveBeenCalledWith({ field: "number", data: payload });
+  });
+
+  it.each([
+    ["EV_FOCUS", "focus"],
+    ["EV_BLUR", "blur"],
+    ["EV_KEYDOWN", "keydown"],
+    ["EV_KEYUP", "keyup"],
+  ] as const)("names the customer's own field on %s", (message, event) => {
+    const { cardHost, container } = mounted();
+    const listener = vi.fn();
+    cardHost.on(event, listener);
+
+    frameMessage(container, "EV_CHANGE", payload);
+    frameMessage(container, message, { field: "field", name: "postcode" });
+
+    expect(listener).toHaveBeenCalledWith({
+      field: "field",
+      name: "postcode",
+      data: payload,
+    });
   });
 
   it("mirrors the validated payload into values and dispatches validate", () => {

@@ -8,6 +8,8 @@ import {
 import { PromisifiedEvervaultClient } from "@evervault/react";
 import { UseFormReturn } from "shared";
 import { ICONS } from "./icons";
+import { customFieldError } from "./customField";
+import type { CustomFieldError, CustomFieldProps } from "./customField";
 import { MagStripeData } from "./useCardReader";
 import type { CardForm } from "./types";
 import type {
@@ -20,10 +22,18 @@ import type {
 } from "types";
 import { CARD_BRAND_NAMES } from "types";
 
+// `errors` holds only the errors shown so far.
+export interface CustomFields {
+  declared: Map<string, CustomFieldProps>;
+  values: Map<string, string>;
+  errors: Map<string, CustomFieldError>;
+}
+
 export async function changePayload(
   ev: PromisifiedEvervaultClient,
   form: UseFormReturn<CardForm>,
   fields: CardField[],
+  custom: CustomFields,
   opts?: {
     allow3DigitAmexCVC?: boolean;
     cvcOptional?: boolean;
@@ -38,6 +48,7 @@ export async function changePayload(
     lastFour,
     isValid: isValidCardNumber,
   } = validateNumber(number, { customBrands: opts?.customBrands });
+  const checked = checkedFields(custom);
 
   return {
     card: {
@@ -52,10 +63,50 @@ export async function changePayload(
         customBrands: opts?.customBrands,
       }),
     },
+    fields: await encryptedFields(ev, checked),
     isValid: form.isValid,
-    isComplete: isComplete(form, fields, opts),
-    errors: Object.keys(form.errors ?? {}).length > 0 ? form.errors : null,
+    isComplete: isComplete(form, fields, opts) && allValid(checked),
+    errors: payloadErrors(form, custom),
   };
+}
+
+function payloadErrors(
+  form: UseFormReturn<CardForm>,
+  custom: CustomFields
+): CardPayload["errors"] {
+  const card = Object.keys(form.errors ?? {}).length > 0 ? form.errors : null;
+
+  if (custom.errors.size === 0) return card;
+
+  return { ...card, fields: Object.fromEntries(custom.errors) };
+}
+
+interface CheckedField {
+  value: string;
+  error: CustomFieldError | undefined;
+}
+
+// Each declared field's value with its error, shown yet or not.
+function checkedFields({
+  declared,
+  values,
+}: Pick<CustomFields, "declared" | "values">): Map<string, CheckedField> {
+  return new Map(
+    [...declared].map(([name, field]) => {
+      const value = values.get(name) ?? "";
+      return [name, { value, error: customFieldError(field, value) }];
+    })
+  );
+}
+
+function allValid(checked: Map<string, CheckedField>) {
+  return [...checked.values()].every(({ error }) => !error);
+}
+
+export function customComplete(
+  custom: Pick<CustomFields, "declared" | "values">
+) {
+  return allValid(checkedFields(custom));
 }
 
 function isComplete(
@@ -166,6 +217,21 @@ function formatExpiry(expiry: string) {
 
 async function encryptedNumber(ev: PromisifiedEvervaultClient, number: string) {
   return ev.encrypt(number);
+}
+
+// Every declared field is reported, an empty or invalid one as null.
+async function encryptedFields(
+  ev: PromisifiedEvervaultClient,
+  checked: Map<string, CheckedField>
+): Promise<Record<string, string | null>> {
+  const entries = await Promise.all(
+    [...checked].map(async ([name, { value, error }]) => {
+      const valid = value.length > 0 && !error;
+      return [name, valid ? await ev.encrypt(value) : null];
+    })
+  );
+
+  return Object.fromEntries(entries);
 }
 
 async function encryptedCVC(

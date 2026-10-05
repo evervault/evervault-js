@@ -45,6 +45,7 @@ function baseParams(overrides: Partial<Params> = {}): Params {
     form: makeForm(),
     validators,
     t: (key: string) => `t:${key}`,
+    customFieldsComplete: true,
     ...overrides,
   };
 }
@@ -199,6 +200,25 @@ describe("useAgentTools handlers", () => {
 
     expect(form.setError).toHaveBeenLastCalledWith("cvc", undefined);
     expect(complete.isComplete).toBe(true);
+  });
+
+  it("is not complete while the customer's own fields are not", () => {
+    const form = makeForm({
+      number: "4242424242424242",
+      expiry: "0135",
+      cvc: "123",
+    });
+    renderHook(() =>
+      useAgentTools(baseParams({ form, customFieldsComplete: false }))
+    );
+
+    const status = find("get-form-status").execute({}, { signal }) as {
+      fields: { isValid: boolean }[];
+      isComplete: boolean;
+    };
+
+    expect(status.fields.every((field) => field.isValid)).toBe(true);
+    expect(status.isComplete).toBe(false);
   });
 
   it("focuses the requested field", () => {
