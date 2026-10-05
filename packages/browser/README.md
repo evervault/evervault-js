@@ -185,10 +185,10 @@ inputs.isInputsLoaded.then(() => {
 });
 ```
 
-### card.preload() and card.reveal()
+### card.preload() and card.show()
 
 When the card form sits behind a later checkout step, `preload` boots its iFrame hidden inside the
-target container so the network fetch and JS boot happen up front, and `reveal` shows it when the
+target container so the network fetch and JS boot happen up front, and `show` displays it when the
 user gets there. Both are opt-in; a card that calls neither behaves exactly as before.
 
 ```javascript
@@ -198,7 +198,7 @@ const card = evervault.ui.card();
 card.preload("#payment-form");
 
 // When they reach the payment step.
-card.reveal();
+card.show();
 ```
 
 **Where to call it.** As soon as the target container exists in the DOM, visible or not. For example:

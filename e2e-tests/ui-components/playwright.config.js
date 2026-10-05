@@ -87,6 +87,12 @@ export default defineConfig({
       reuseExistingServer: true,
     },
     {
+      command: "pnpm --filter @evervault/ui-components preview --port 4010",
+      url: "http://localhost:4010",
+      timeout: 20 * 3000,
+      reuseExistingServer: true,
+    },
+    {
       command: "pnpm --filter e2e-tests-ui-components-vanilla-server dev",
       url: "http://localhost:4005",
       timeout: 20 * 3000,

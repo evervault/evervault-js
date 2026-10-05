@@ -1,5 +1,30 @@
 # @evervault/ui-components
 
+## 1.44.4
+
+### Patch Changes
+
+- Updated dependencies [aca478a]
+- Updated dependencies [6b9e535]
+  - @evervault/react@2.32.0
+
+## 1.44.3
+
+### Patch Changes
+
+- Updated dependencies [142ad57]
+  - @evervault/card-validator@1.8.0
+  - shared@1.1.26
+  - @evervault/react@2.31.0
+
+## 1.44.2
+
+### Patch Changes
+
+- dbc4a79: Remove the inline importmap and inline component preload script from index.html. Both are blocked by the ui-components CSP, which has no `unsafe-inline` for `script-src`, so neither ran in production. The preload script is now emitted as an external file with its own `integrity` attribute, and it carries the SRI hash for each chunk it preloads so `modulepreload` enforces integrity on code split chunks. Static `modulepreload` links in index.html now get an `integrity` attribute too.
+- Updated dependencies [c162b53]
+  - @evervault/react@2.31.0
+
 ## 1.44.1
 
 ### Patch Changes

@@ -1,5 +1,30 @@
 # @evervault/browser
 
+## 2.69.0
+
+### Minor Changes
+
+- aca478a: Rename `card.reveal()` to `card.show()`, and the `<Card>` ref method `reveal()` to `show()`. They display a card loaded with `preload`. The `reveal` names were released only days ago and are removed.
+- 6b9e535: Add semantic theming to the `minimal`, `clean` and `material` presets: pass `primary`, `greyTone`, `roundness`, `font` or `selectors`, for example `clean({ primary: "#16a34a" })` or `clean(myTheme, { primary: "#16a34a" })`. Use `cssVar("--brand-color")`, exported from `@evervault/js`, to take a value from your page's `:root`.
+- e3372bc: Render `<ev-card>` from the children it declares. `<ev-card-holder>`, `<ev-card-number>`, `<ev-card-expiry>` and `<ev-card-cvc>` declare the fields in the order written, and `<ev-row>` places the fields inside it side by side. Declaring nothing keeps the default card; declaring anything replaces it. An unsupported child is dropped with a warning naming it.
+
+  Children added, removed, reordered or given new attributes after the card mounted are followed, with only the difference sent to the frame so the details already typed stay put. The tree the card currently holds is readable as `card.spec`.
+
+## 2.68.1
+
+### Patch Changes
+
+- shared@1.1.26
+
+## 2.68.0
+
+### Minor Changes
+
+- efec8c9: `card.values` is now read-only and is kept current by the card frame; assigning to it is no longer supported. Cards gain a `destroy()` method that releases every listener the card registered. After `destroy()` a card is inert: mounting, updating, subscribing or validating it logs an error and does nothing. Calling `validate()` again before the frame has answered replaces the earlier request, so one `validate` event fires. Updating the theme replaces the previous definition entirely, including anything it extended.
+- 542ec66: Add the `<ev-card>` custom element, a card declared in HTML rather than mounted from `ui.card()`. Loading the SDK registers it; the element renders the default card (number above expiry and cvc) in its own closed shadow root and dispatches `change` as a `CustomEvent` whose `detail` is the card payload.
+
+  `teamid` and `appid` on the element mount it as soon as it is connected. Without them, `evervault.ui.mount()` mounts every `<ev-card>` on the page with that client, skipping any that is already live. `card.mountCard(evervault)` mounts a single card with a given client. Removing the element from the DOM destroys the card and releases its listeners; reinserting it mounts a new one.
+
 ## 2.67.1
 
 ### Patch Changes

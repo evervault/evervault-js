@@ -2,6 +2,10 @@ import type EvervaultClient from "@evervault/browser";
 import type { CustomConfig as BrowserConfig } from "@evervault/browser";
 import { injectScript } from "sdk-loader";
 
+export { minimal, clean, material, cssVar } from "themes";
+export type { PresetConfig } from "themes";
+export type { ThemeDefinition } from "types";
+
 export type EvervaultInstance = EvervaultClient;
 export type EvervaultConstructor = typeof EvervaultClient;
 

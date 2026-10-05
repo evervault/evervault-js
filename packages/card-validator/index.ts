@@ -31,7 +31,7 @@ function matchesPrefix(cardNumber: string, prefix: number): boolean {
   return cardNumber.startsWith(String(prefix));
 }
 
-function getBin(cardNumber: string): string {
+export function getBin(cardNumber: string): string {
   if (cardNumber.length < 16) {
     return cardNumber.substring(0, 6);
   } else {

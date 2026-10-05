@@ -1,5 +1,6 @@
 import react from "@vitejs/plugin-react";
-import { defineConfig, UserConfig } from "vite";
+import type { UserConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import { integrity } from "./vite/integrity";
 import { componentPreload } from "./vite/preload";
 import istanbul from "vite-plugin-istanbul";
@@ -26,8 +27,17 @@ export default defineConfig({
   server: {
     port: 4001,
   },
+  preview: {
+    headers: {
+      "Content-Security-Policy":
+        "script-src 'self' *.evervault.com fonts.googleapis.com fonts.gstatic.com https://pay.google.com/gp/p/js/pay.js https://applepay.cdn-apple.com;",
+    },
+  },
   build: {
     manifest: true,
   },
   plugins,
+  test: {
+    setupFiles: ["./test/setup.ts"],
+  },
 });

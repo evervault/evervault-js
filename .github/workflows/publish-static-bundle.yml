@@ -191,6 +191,16 @@ jobs:
           webhook: ${{ secrets.PRODUCTION_SLACK_WEBHOOK }}
           service_name: ${{ inputs.package-name }} Preflight check failed for ${{ inputs.stage }}
           action: failed
+      - name: Upload preflight traces
+        uses: actions/upload-artifact@v7
+        if: ${{ failure() && inputs.run-preflight-checks }}
+        with:
+          name: preflight-traces-${{ needs.get-artifact-name.outputs.artifact-name }}
+          path: |
+            e2e-tests/*/test-results/
+            e2e-tests/*/playwright-report/
+          retention-days: 3
+          if-no-files-found: warn
   # The final deployment step is to deploy the static bundle to S3 and invalidate the CloudFront cache.
   # This will move the static bundle to the live path and make it available to clients in either staging or production as configued.
   #
