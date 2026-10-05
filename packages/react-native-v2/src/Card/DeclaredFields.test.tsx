@@ -1,10 +1,14 @@
+import { waitFor } from "@testing-library/react-native";
 import { vi } from "vitest";
-import { renderCard } from "../../test/helpers/card";
+import { lastPayload, renderCard } from "../../test/helpers/card";
 import { CardNumber } from "./Number";
 import { CardExpiry } from "./Expiry";
 import { CardExpiryMonth, CardExpiryYear } from "./ExpiryHalf";
+import { CardField } from "./Field";
 import {
   COMBINED_EXPIRY_WITH_HALF,
+  NAMELESS_CUSTOM_FIELD,
+  duplicateCustomField,
   duplicateField,
   loneExpiryHalf,
 } from "./developerMessages";
@@ -51,6 +55,52 @@ describe("declared fields", () => {
       expect(warn).toHaveBeenCalledWith(duplicateField("expiryMonth"));
     });
 
+    it("renders only the first Card.Field of a name", async () => {
+      const { getByTestId, queryByTestId } = await renderCard(
+        <>
+          <CardField testID="first" name="postcode" />
+          <CardField testID="second" name="postcode" />
+        </>
+      );
+
+      expect(getByTestId("first")).toBeTruthy();
+      expect(queryByTestId("second")).toBeNull();
+      expect(warn).toHaveBeenCalledWith(duplicateCustomField("postcode"));
+    });
+
+    it("takes the rules of the first Card.Field declaring a name", async () => {
+      const { onChange } = await renderCard(
+        <>
+          <CardField name="postcode" required />
+          <CardField name="postcode" />
+        </>
+      );
+
+      await waitFor(() => expect(onChange).toHaveBeenCalled());
+      expect(lastPayload(onChange)).toMatchObject({
+        fields: { postcode: null },
+        isComplete: false,
+      });
+    });
+
+    it("keeps reporting a Card.Field's name once the other is gone", async () => {
+      const { onChange, rerenderCard } = await renderCard(
+        <>
+          <CardField name="postcode" required />
+          <CardField name="postcode" />
+        </>
+      );
+
+      await rerenderCard(<CardField name="postcode" required />);
+
+      await waitFor(() =>
+        expect(lastPayload(onChange)).toMatchObject({
+          fields: { postcode: null },
+          isComplete: false,
+        })
+      );
+    });
+
     it("renders the second once the first is gone", async () => {
       const { queryByTestId, rerenderCard } = await renderCard(
         <>
@@ -77,6 +127,15 @@ describe("declared fields", () => {
 
       expect(warn).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("leaves out a Card.Field without a name", async () => {
+    const { queryByTestId } = await renderCard(
+      <CardField testID="nameless" name="" />
+    );
+
+    expect(queryByTestId("nameless")).toBeNull();
+    expect(warn).toHaveBeenCalledWith(NAMELESS_CUSTOM_FIELD);
   });
 
   describe("an expiry the card cannot render", () => {
