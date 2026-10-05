@@ -1,0 +1,51 @@
+import { fieldTypes } from "./fieldTypes";
+import type { CardSpecNode, ExpiryHalf } from "types/cardSpec";
+
+// Why a card cannot render a tree's expiry: a half without the other is not a
+// partial expiry, and the combined field leaves no room for the halves.
+export type ExpiryLayoutError =
+  | { kind: "combinedWithHalf" }
+  | { kind: "loneHalf"; declared: ExpiryHalf };
+
+export function expiryLayoutError(
+  nodes: CardSpecNode[]
+): ExpiryLayoutError | null {
+  const types = fieldTypes(nodes);
+  const combined = types.includes("expiry");
+  const month = types.includes("expiryMonth");
+  const year = types.includes("expiryYear");
+
+  if (combined && (month || year)) {
+    return { kind: "combinedWithHalf" };
+  }
+
+  if (month !== year) {
+    return { kind: "loneHalf", declared: month ? "expiryMonth" : "expiryYear" };
+  }
+
+  return null;
+}
+
+// The combined field, or the two halves with the one the shared error renders
+// under: whichever appears later in declared order.
+export type DeclaredExpiry =
+  | { form: "combined" }
+  | { form: "split"; later: ExpiryHalf }
+  | null;
+
+// The expiry of a tree `expiryLayoutError` accepts.
+export function declaredExpiry(nodes: CardSpecNode[]): DeclaredExpiry {
+  const types = fieldTypes(nodes);
+  const month = types.indexOf("expiryMonth");
+  const year = types.indexOf("expiryYear");
+
+  if (types.includes("expiry")) return { form: "combined" };
+  if (month === -1) return null;
+
+  return { form: "split", later: month > year ? "expiryMonth" : "expiryYear" };
+}
+
+// Browsers fill `cc-exp-year` with all four digits.
+export function yearFromAutofill(value: string): string {
+  return value.length === 4 ? value.slice(2) : value;
+}

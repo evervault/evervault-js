@@ -1,4 +1,5 @@
-import type { CardForm } from "./types";
+import { cardFieldWrittenBy } from "./useSpec";
+import type { CardForm, CardInput } from "./types";
 import type { AgentToolsFrameConfig, CardField } from "types";
 
 export type CardFormValidators = Record<
@@ -50,9 +51,10 @@ export function buildFieldStatuses(
   });
 }
 
-export function getFocusedField(fields: CardField[]): CardField | null {
+export function getFocusedField(inputs: CardInput[]): CardField | null {
   const id = document.activeElement?.id;
-  return fields.find((field) => field === id) ?? null;
+  const input = inputs.find((input) => input === id);
+  return input ? cardFieldWrittenBy(input) : null;
 }
 
 // Mirrors what the input masks keep when the value is typed, so the form

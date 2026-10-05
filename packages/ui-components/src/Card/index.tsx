@@ -10,9 +10,24 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
-import type { ReactElement } from "react";
-import { useForm, useTranslations } from "shared";
+import type { FocusEvent, ReactElement } from "react";
+import {
+  canFillDefault,
+  compilePattern,
+  customFieldInputId,
+  customFieldNodes,
+  customFieldProps,
+  declaredExpiry,
+  declaredProps,
+  fieldProps,
+  isRefusedAmexCvc,
+  skippedNodes,
+  useForm,
+  useTranslations,
+} from "shared";
+import type { FieldProps, UseFormReturn } from "shared";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
 import { Tooltip } from "../Common/Tooltip";
@@ -21,49 +36,39 @@ import { useMessaging } from "../utilities/useMessaging";
 import { BrandIcon } from "./BrandIcon";
 import { CardCVC } from "./CardCVC";
 import { CardExpiry } from "./CardExpiry";
+import { CardExpiryHalf } from "./CardExpiryHalf";
 import { CardHolder } from "./CardHolder";
 import { CardNumber } from "./CardNumber";
+import { CustomFieldInput } from "./CustomFieldInput";
+import { settingForInput, applyCardSettingsToFields } from "./fieldSettings";
 import { DEFAULT_TRANSLATIONS } from "./translations";
 import { useAgentTools } from "./useAgentTools";
 import { useCardReader } from "./useCardReader";
+import { customFieldWarnings, skippedFieldWarning } from "./developerMessages";
+import { expiryError, joinExpiry, splitExpiry } from "./expiry";
+import type { ExpiryHalves } from "./expiry";
 import { isSpec, legacyNodes } from "./legacyFields";
-import { declaredProps, fieldProps } from "./props";
-import { declaredFields, useSpec } from "./useSpec";
+import { declaredFields, declaredInputs, useSpec } from "./useSpec";
+import { useCustomFields } from "./useCustomFields";
 import { useFocusOrder } from "./useFocusOrder";
 import {
   changePayload,
   collectIcons,
+  customComplete,
   isBrandSupported,
   swipePayload,
 } from "./utilities";
 import type { CardFormValidators } from "./agentTools";
-import type { CardForm, CardConfig } from "./types";
+import type { CardForm, CardConfig, CardInput } from "./types";
 import type {
-  CardField,
   CardSpecNode,
   CardFrameClientMessages,
   CardFrameHostMessages,
+  FieldTarget,
 } from "types";
 
-// Nodes the card leaves out: fields already claimed earlier in the tree (the
-// first wins).
-function skippedNodes(nodes: CardSpecNode[]): CardSpecNode[] {
-  const rendered = new Set<CardField>();
-
-  const walk = (node: CardSpecNode): CardSpecNode[] => {
-    if (node.type === "row") return (node.children ?? []).flatMap(walk);
-
-    if (rendered.has(node.type)) return [node];
-
-    rendered.add(node.type);
-    return [];
-  };
-
-  return nodes.flatMap(walk);
-}
-
-function skipReason(node: CardSpecNode) {
-  return `<ev-card> ignored a duplicate "${node.type}" field.`;
+function inputOf(target: FieldTarget): CardInput {
+  return typeof target === "string" ? target : customFieldInputId(target.name);
 }
 
 export function Card({ config }: { config: CardConfig }) {
@@ -87,13 +92,65 @@ export function Card({ config }: { config: CardConfig }) {
     [declaredTree, config]
   );
 
-  const nodes = useSpec(on, seed);
+  const received = useSpec(on, seed);
+  const refusal = useMemo(() => expiryError(received), [received]);
+
+  // A refused tree leaves the card on the last one it could render.
+  const [renderable, setRenderable] = useState(refusal ? [] : received);
+
+  if (!refusal && renderable !== received) {
+    setRenderable(received);
+  }
+
+  const nodes = useMemo(
+    () => applyCardSettingsToFields(refusal ? renderable : received, config),
+    [refusal, renderable, received, config]
+  );
+
+  useEffect(() => {
+    if (refusal) console.error(refusal);
+  }, [refusal]);
+
+  const inputs = useMemo(() => declaredInputs(nodes), [nodes]);
   const fields = useMemo(() => declaredFields(nodes), [nodes]);
   const skipped = useMemo(() => skippedNodes(nodes), [nodes]);
   const declared = useMemo(() => declaredProps(nodes), [nodes]);
+  const expiry = useMemo(() => declaredExpiry(nodes), [nodes]);
 
   const cvcOptional =
     declared.get("cvc")?.optional ?? config.validation?.cvc?.optional;
+
+  const allow3DigitAmexCVC =
+    declared.get("cvc")?.allow3DigitAmex ?? config.allow3DigitAmexCVC;
+
+  // An invalid pattern on the holder is as good as none.
+  const holderPattern = declared.get("name")?.pattern;
+  const nameRegex =
+    (holderPattern === undefined ? undefined : compilePattern(holderPattern)) ??
+    config.validation?.name?.regex;
+
+  const autoProgressOf = (input: CardInput) =>
+    declared.get(input)?.autoProgress ??
+    settingForInput(config.autoProgress, input) ??
+    false;
+
+  const autoCompleteOf = (input: CardInput, props: FieldProps) =>
+    props.autoComplete ?? settingForInput(config.autoComplete, input) ?? true;
+
+  const errorText = (
+    props: FieldProps,
+    field: string,
+    code: string | undefined
+  ) => {
+    if (!code) return undefined;
+
+    const declaredText =
+      code === "unsupportedBrand"
+        ? props.unsupportedBrandMessage
+        : props.errorMessage;
+
+    return declaredText ?? t(`${field}.errors.${code}`);
+  };
 
   // Declaring where focus goes, or that it goes nowhere, retires
   // `config.autoFocus`.
@@ -102,7 +159,7 @@ export function Card({ config }: { config: CardConfig }) {
     [declared]
   );
 
-  const autoFocusField = useMemo(
+  const autoFocusInput = useMemo(
     () => [...declared].find(([, props]) => props.autoFocus)?.[0],
     [declared]
   );
@@ -122,9 +179,9 @@ export function Card({ config }: { config: CardConfig }) {
   useEffect(() => {
     if (interacted.current) return;
 
-    if (autoFocusField) {
+    if (autoFocusInput) {
       autoFocusing.current = true;
-      document.getElementById(autoFocusField)?.focus();
+      document.getElementById(autoFocusInput)?.focus();
       autoFocusing.current = false;
       return;
     }
@@ -135,23 +192,33 @@ export function Card({ config }: { config: CardConfig }) {
 
     if (
       active instanceof HTMLElement &&
-      fields.includes(active.id as CardField)
+      inputs.includes(active.id as CardInput)
     ) {
       active.blur();
     }
-  }, [autoFocusField, declaresAutoFocus, fields]);
+  }, [autoFocusInput, declaresAutoFocus, inputs]);
+
+  const notices = useMemo(
+    () => [
+      ...skipped.map(skippedFieldWarning),
+      ...customFieldNodes(nodes)
+        .filter((node) => !skipped.includes(node))
+        .flatMap(customFieldWarnings),
+    ],
+    [nodes, skipped]
+  );
 
   // In an effect, not the render body, so a re-render does not warn again.
   const warned = useRef("");
 
   useEffect(() => {
-    const key = skipped.map((node) => node.id).join(",");
+    const key = notices.join("\n");
 
     if (key === warned.current) return;
     warned.current = key;
 
-    skipped.forEach((node) => console.warn(skipReason(node)));
-  }, [skipped]);
+    notices.forEach((notice) => console.warn(notice));
+  }, [notices]);
 
   const validators: CardFormValidators = {
     name: (values) => {
@@ -161,8 +228,7 @@ export function Card({ config }: { config: CardConfig }) {
         return "invalid";
       }
 
-      const regex = config.validation?.name?.regex;
-      if (regex && !regex.test(values.name)) {
+      if (nameRegex && !nameRegex.test(values.name)) {
         return "regex";
       }
 
@@ -205,9 +271,9 @@ export function Card({ config }: { config: CardConfig }) {
         return "invalid";
       }
 
-      const allow3DigitAmex = config.allow3DigitAmexCVC ?? true;
-      const isAmex = cardValidation.brand === "american-express";
-      if (isAmex && values.cvc?.length === 3 && !allow3DigitAmex) {
+      if (
+        isRefusedAmexCvc(values.cvc, cardValidation.brand, allow3DigitAmexCVC)
+      ) {
         return "invalid";
       }
 
@@ -223,31 +289,65 @@ export function Card({ config }: { config: CardConfig }) {
       name: config.defaultValues?.name ?? "",
     },
     validate: validators,
-    onChange: (formState) => {
-      const triggerChange = async () => {
-        if (!ev) return;
-        const cardData = await changePayload(ev, formState, fields, {
-          allow3DigitAmexCVC: config.allow3DigitAmexCVC,
+    onChange: (formState) => sendChange(formState),
+  });
+
+  const customFields = useCustomFields(nodes, () => sendChange(form));
+
+  // Only called after a render, once `customFields` exists.
+  function sendChange(formState: UseFormReturn<CardForm>) {
+    const triggerChange = async () => {
+      if (!ev) return;
+      const cardData = await changePayload(
+        ev,
+        formState,
+        fields,
+        customFields,
+        {
+          allow3DigitAmexCVC,
           cvcOptional,
           customBrands,
-        });
-
-        if (cardData.isComplete) {
-          send("EV_COMPLETE", cardData);
         }
+      );
 
-        send("EV_CHANGE", cardData);
-      };
+      if (cardData.isComplete) {
+        send("EV_COMPLETE", cardData);
+      }
 
-      void triggerChange();
-    },
-  });
+      send("EV_CHANGE", cardData);
+    };
+
+    void triggerChange();
+  }
+
+  // What the shopper typed in each half. A year typed before the month
+  // isn't part of the form's date yet, so it's kept here.
+  const [storedHalves, setStoredHalves] = useState(() =>
+    splitExpiry(form.values.expiry)
+  );
+  const split = expiry?.form === "split";
+
+  let expiryHalves = storedHalves;
+
+  // Something else changed the date, such as the card reader, so split it again.
+  if (split && joinExpiry(storedHalves) !== form.values.expiry) {
+    expiryHalves = splitExpiry(form.values.expiry);
+    setStoredHalves(expiryHalves);
+  }
+
+  const changeExpiryHalf = (half: keyof ExpiryHalves) => (value: string) => {
+    const halves = { ...expiryHalves, [half]: value };
+    setStoredHalves(halves);
+    form.setValue("expiry", joinExpiry(halves));
+  };
 
   const cardReaderListening = useCardReader((card) => {
     form.setValues({
       name: `${card.firstName} ${card.lastName}`,
       number: card.number,
-      expiry: `${card.month}/${card.year}`,
+      expiry: split
+        ? `${card.month}${card.year}`
+        : `${card.month}/${card.year}`,
       cvc: "",
     });
 
@@ -264,9 +364,11 @@ export function Card({ config }: { config: CardConfig }) {
   useAgentTools({
     config: config.agentTools,
     fields,
+    inputs,
     form,
     validators,
     t,
+    customFieldsComplete: customComplete(customFields),
   });
 
   useLayoutEffect(() => {
@@ -278,13 +380,21 @@ export function Card({ config }: { config: CardConfig }) {
       on("EV_VALIDATE", () => {
         if (!ev) return;
 
+        const errors = customFields.validate();
+
         form.validate((formState) => {
           void (async () => {
-            const data = await changePayload(ev, formState, fields, {
-              allow3DigitAmexCVC: config.allow3DigitAmexCVC,
-              cvcOptional,
-              customBrands,
-            });
+            const data = await changePayload(
+              ev,
+              formState,
+              fields,
+              { ...customFields, errors },
+              {
+                allow3DigitAmexCVC,
+                cvcOptional,
+                customBrands,
+              }
+            );
             send("EV_VALIDATED", data);
           })();
         });
@@ -295,7 +405,8 @@ export function Card({ config }: { config: CardConfig }) {
       send,
       form,
       fields,
-      config.allow3DigitAmexCVC,
+      customFields,
+      allow3DigitAmexCVC,
       cvcOptional,
       customBrands,
     ]
@@ -319,17 +430,13 @@ export function Card({ config }: { config: CardConfig }) {
     if (defaultName === undefined || defaultName === appliedDefaultName.current)
       return;
 
-    const seeded =
-      form.values.name.length === 0 ||
-      form.values.name === appliedDefaultName.current;
-
-    if (!seeded) return;
+    if (!canFillDefault(form.values.name, appliedDefaultName.current)) return;
 
     appliedDefaultName.current = defaultName;
     form.setValues((values) => ({ ...values, name: defaultName }));
   }, [declared, form]);
 
-  const focus = useFocusOrder(fields);
+  const focus = useFocusOrder(inputs);
 
   const advanceFromNumber = useCallback(() => {
     focus.next("number");
@@ -339,42 +446,53 @@ export function Card({ config }: { config: CardConfig }) {
     focus.next("expiry");
   }, [focus]);
 
+  const advanceFromExpiryMonth = useCallback(() => {
+    focus.next("expiry-month");
+  }, [focus]);
+
+  const advanceFromExpiryYear = useCallback(() => {
+    focus.next("expiry-year");
+  }, [focus]);
+
   const advanceFromCVC = useCallback(() => {
     focus.next("cvc");
   }, [focus]);
 
-  const hasErrors = Object.keys(form.errors ?? {}).length > 0;
+  const hasErrors =
+    Object.keys(form.errors ?? {}).length > 0 || customFields.errors.size > 0;
 
-  const handleFocus = (field: CardField) => () => {
+  const handleFocus = (field: FieldTarget) => () => {
     if (!autoFocusing.current) interacted.current = true;
 
     send("EV_FOCUS", field);
   };
 
-  const handleBlur = (field: CardField) => () => {
+  const handleBlur = (field: FieldTarget) => () => {
     send("EV_BLUR", field);
   };
 
+  // The host hears about fields; focus moves between inputs.
   const handleKeyDown =
-    (field: CardField) => (event: React.KeyboardEvent<HTMLInputElement>) => {
+    (field: FieldTarget, input: CardInput = inputOf(field)) =>
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
       interacted.current = true;
 
       send("EV_KEYDOWN", field);
 
       // At keydown the value is still there, so empty means nothing to erase.
       if (
-        config.autoProgress &&
+        autoProgressOf(input) &&
         event.key === "Backspace" &&
         event.currentTarget.value.length === 0
       ) {
         // Uncancelled, the deletion lands on the field just stepped back to.
-        if (focus.previous(field)) {
+        if (focus.previous(input)) {
           event.preventDefault();
         }
       }
     };
 
-  const handleKeyUp = (field: CardField) => () => {
+  const handleKeyUp = (field: FieldTarget) => () => {
     send("EV_KEYUP", field);
   };
 
@@ -396,6 +514,59 @@ export function Card({ config }: { config: CardConfig }) {
 
     if (skipped.includes(node)) return null;
 
+    if (node.type === "field") {
+      const declared = customFieldProps(node);
+
+      if (!declared) return null;
+
+      const { name } = declared;
+      const id = customFieldInputId(name);
+      const target = { field: "field", name } as const;
+      const value = customFields.valueOf(name);
+      const code = customFields.errors.get(name);
+      const error =
+        code &&
+        (declared.errorMessage ??
+          config.translations?.fields?.[name]?.errors?.[code] ??
+          t(`field.errors.${code}`));
+
+      return (
+        <Field
+          key={node.id}
+          name={id}
+          hasValue={value.length > 0}
+          error={error}
+        >
+          {declared.label && <label htmlFor={id}>{declared.label}</label>}
+          {declared.tooltip && <Tooltip>{declared.tooltip}</Tooltip>}
+          <CustomFieldInput
+            id={id}
+            field={declared}
+            value={value}
+            disabled={!config}
+            onChange={(next) => {
+              customFields.setValue(name, next);
+
+              // A field with no set length has no point at which it is done.
+              const full =
+                declared.maxLength !== undefined &&
+                next.length >= declared.maxLength;
+
+              if (declared.autoProgress && full) focus.next(id);
+            }}
+            onFocus={handleFocus(target)}
+            onBlur={() => {
+              customFields.blur(name);
+              handleBlur(target)();
+            }}
+            onKeyUp={handleKeyUp(target)}
+            onKeyDown={handleKeyDown(target)}
+          />
+          {error && <Error>{error}</Error>}
+        </Field>
+      );
+    }
+
     const field = node.type;
 
     const props = fieldProps(node);
@@ -406,7 +577,7 @@ export function Card({ config }: { config: CardConfig }) {
           key={node.id}
           name="name"
           hasValue={form.values.name.length > 0}
-          error={form.errors?.name && t(`name.errors.${form.errors.name}`)}
+          error={errorText(props, "name", form.errors?.name)}
         >
           <label htmlFor="name">{props.label ?? t("name.label")}</label>
           {props.tooltip && <Tooltip>{props.tooltip}</Tooltip>}
@@ -416,9 +587,7 @@ export function Card({ config }: { config: CardConfig }) {
             autoFocus={declaresAutoFocus ? false : config.autoFocus}
             placeholder={props.placeholder ?? t("name.placeholder")}
             value={form.values.name}
-            autoComplete={
-              props.autoComplete ?? config.autoComplete?.name ?? true
-            }
+            autoComplete={autoCompleteOf("name", props)}
             onFocus={handleFocus("name")}
             onKeyUp={handleKeyUp("name")}
             onKeyDown={handleKeyDown("name")}
@@ -427,7 +596,7 @@ export function Card({ config }: { config: CardConfig }) {
             })}
           />
           {form.errors?.name && (
-            <Error>{t(`name.errors.${form.errors.name}`)}</Error>
+            <Error>{errorText(props, "name", form.errors.name)}</Error>
           )}
         </Field>
       );
@@ -440,9 +609,7 @@ export function Card({ config }: { config: CardConfig }) {
           name="number"
           iconPosition={props.iconPosition}
           hasValue={form.values.number.length > 0}
-          error={
-            form.errors?.number && t(`number.errors.${form.errors.number}`)
-          }
+          error={errorText(props, "number", form.errors?.number)}
         >
           <label htmlFor="number">{props.label ?? t("number.label")}</label>
           {props.tooltip && <Tooltip>{props.tooltip}</Tooltip>}
@@ -461,10 +628,8 @@ export function Card({ config }: { config: CardConfig }) {
             autoFocus={declaresAutoFocus ? false : config.autoFocus}
             placeholder={props.placeholder ?? t("number.placeholder")}
             value={form.values.number}
-            autoComplete={
-              props.autoComplete ?? config.autoComplete?.number ?? true
-            }
-            autoProgress={config.autoProgress}
+            autoComplete={autoCompleteOf("number", props)}
+            autoProgress={autoProgressOf("number")}
             onComplete={advanceFromNumber}
             form={form}
             customBrands={customBrands}
@@ -476,8 +641,74 @@ export function Card({ config }: { config: CardConfig }) {
             })}
           />
           {form.errors?.number && (
-            <Error>{t(`number.errors.${form.errors.number}`)}</Error>
+            <Error>{errorText(props, "number", form.errors.number)}</Error>
           )}
+        </Field>
+      );
+    }
+
+    if (node.type === "expiryMonth" || node.type === "expiryYear") {
+      const half = node.type === "expiryMonth" ? "month" : "year";
+      const otherHalf = half === "month" ? "year" : "month";
+      const later = expiry?.form === "split" && expiry.later === node.type;
+      // The halves share one error; either may declare its text.
+      const error = errorText(
+        {
+          errorMessage:
+            props.errorMessage ??
+            declared.get(`expiry-${otherHalf}`)?.errorMessage,
+        },
+        "expiry",
+        form.errors?.expiry
+      );
+      const registered = form.register("expiry", {
+        onBlur: handleBlur("expiry"),
+      });
+
+      // Tabbing into the other half while it's empty isn't finishing the date.
+      const onBlur = (event: FocusEvent<HTMLInputElement>) => {
+        const startingOtherHalf =
+          event.relatedTarget?.id === `expiry-${otherHalf}` &&
+          expiryHalves[otherHalf] === "";
+
+        if (startingOtherHalf) {
+          // Only fires the card's `blur` event.
+          handleBlur("expiry")();
+        } else {
+          // Fires the card's `blur` event + checks the date, showing its error if invalid.
+          registered.onBlur(event);
+        }
+      };
+
+      return (
+        <Field
+          key={node.id}
+          name={`expiry-${half}`}
+          hasValue={expiryHalves[half].length > 0}
+          error={error}
+        >
+          <label htmlFor={`expiry-${half}`}>
+            {props.label ?? t(`${node.type}.label`)}
+          </label>
+          {props.tooltip && <Tooltip>{props.tooltip}</Tooltip>}
+          <CardExpiryHalf
+            half={half}
+            value={expiryHalves[half]}
+            disabled={!config}
+            readOnly={cardReaderListening}
+            placeholder={props.placeholder ?? t(`${node.type}.placeholder`)}
+            autoComplete={autoCompleteOf(`expiry-${half}`, props)}
+            autoProgress={autoProgressOf(`expiry-${half}`)}
+            onComplete={
+              half === "month" ? advanceFromExpiryMonth : advanceFromExpiryYear
+            }
+            onChange={changeExpiryHalf(half)}
+            onBlur={onBlur}
+            onFocus={handleFocus("expiry")}
+            onKeyUp={handleKeyUp("expiry")}
+            onKeyDown={handleKeyDown("expiry", `expiry-${half}`)}
+          />
+          {later && error && <Error>{error}</Error>}
         </Field>
       );
     }
@@ -488,9 +719,7 @@ export function Card({ config }: { config: CardConfig }) {
           key={node.id}
           name="expiry"
           hasValue={form.values.expiry.length > 0}
-          error={
-            form.errors?.expiry && t(`expiry.errors.${form.errors.expiry}`)
-          }
+          error={errorText(props, "expiry", form.errors?.expiry)}
         >
           <label htmlFor="expiry">{props.label ?? t("expiry.label")}</label>
           {props.tooltip && <Tooltip>{props.tooltip}</Tooltip>}
@@ -499,10 +728,8 @@ export function Card({ config }: { config: CardConfig }) {
             disabled={!config}
             readOnly={cardReaderListening}
             placeholder={props.placeholder ?? t("expiry.placeholder")}
-            autoComplete={
-              props.autoComplete ?? config.autoComplete?.expiry ?? true
-            }
-            autoProgress={config.autoProgress}
+            autoComplete={autoCompleteOf("expiry", props)}
+            autoProgress={autoProgressOf("expiry")}
             onComplete={advanceFromExpiry}
             onFocus={handleFocus("expiry")}
             onKeyUp={handleKeyUp("expiry")}
@@ -512,7 +739,7 @@ export function Card({ config }: { config: CardConfig }) {
             })}
           />
           {form.errors?.expiry && (
-            <Error>{t(`expiry.errors.${form.errors.expiry}`)}</Error>
+            <Error>{errorText(props, "expiry", form.errors.expiry)}</Error>
           )}
         </Field>
       );
@@ -524,7 +751,7 @@ export function Card({ config }: { config: CardConfig }) {
           key={node.id}
           name="cvc"
           hasValue={form.values.cvc.length > 0}
-          error={form.errors?.cvc && t(`cvc.errors.${form.errors.cvc}`)}
+          error={errorText(props, "cvc", form.errors?.cvc)}
         >
           <label htmlFor="cvc">{props.label ?? t("cvc.label")}</label>
           {props.tooltip && <Tooltip>{props.tooltip}</Tooltip>}
@@ -538,10 +765,8 @@ export function Card({ config }: { config: CardConfig }) {
             onFocus={handleFocus("cvc")}
             onKeyUp={handleKeyUp("cvc")}
             onKeyDown={handleKeyDown("cvc")}
-            autoComplete={
-              props.autoComplete ?? config.autoComplete?.cvc ?? true
-            }
-            autoProgress={config.autoProgress}
+            autoComplete={autoCompleteOf("cvc", props)}
+            autoProgress={autoProgressOf("cvc")}
             onComplete={advanceFromCVC}
             redact={props.redact ?? config.redactCVC}
             customBrands={customBrands}
@@ -550,7 +775,7 @@ export function Card({ config }: { config: CardConfig }) {
             })}
           />
           {form.errors?.cvc && (
-            <Error>{t(`cvc.errors.${form.errors.cvc}`)}</Error>
+            <Error>{errorText(props, "cvc", form.errors.cvc)}</Error>
           )}
         </Field>
       );

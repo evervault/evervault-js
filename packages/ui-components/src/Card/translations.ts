@@ -1,3 +1,4 @@
+import { CUSTOM_FIELD_ERRORS } from "shared";
 import { CardTranslations } from "types";
 
 export const DEFAULT_TRANSLATIONS: CardTranslations = {
@@ -24,11 +25,22 @@ export const DEFAULT_TRANSLATIONS: CardTranslations = {
       invalid: "Your expiration date is invalid",
     },
   },
+  expiryMonth: {
+    label: "Expiration Month",
+    placeholder: "MM",
+  },
+  expiryYear: {
+    label: "Expiration Year",
+    placeholder: "YY",
+  },
   cvc: {
     label: "CVC",
     placeholder: "CVC",
     errors: {
       invalid: "Your CVC is invalid",
     },
+  },
+  field: {
+    errors: CUSTOM_FIELD_ERRORS,
   },
 };

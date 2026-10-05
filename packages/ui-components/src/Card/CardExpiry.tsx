@@ -18,7 +18,7 @@ interface CardExpiryProps {
   onComplete?: () => void;
 }
 
-const EXPIRY_BLOCKS = {
+export const EXPIRY_BLOCKS = {
   MM: {
     mask: IMask.MaskedRange,
     placeholderChar: "MM",

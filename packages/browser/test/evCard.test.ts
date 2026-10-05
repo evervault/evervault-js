@@ -16,7 +16,12 @@ import UIComponents from "../lib/ui";
 import type EvervaultClient from "../lib/main";
 import { CardHost } from "../lib/ui/cardHost";
 import type { CardHostConfiguration } from "../lib/ui/cardHost";
-import { unknownTheme } from "../lib/ui/elements/developerMessages";
+import {
+  COMBINED_EXPIRY_WITH_HALF,
+  EXPIRY_HALVES_APART,
+  loneExpiryHalf,
+  unknownTheme,
+} from "../lib/ui/elements/developerMessages";
 import { serialise } from "../lib/ui/elements/spec";
 import { countMessageListeners } from "./helpers/messageListeners";
 import type { CardSpecNode, SelectorType } from "types";
@@ -33,8 +38,14 @@ const { hosts, real, FakeCardHost } = vi.hoisted(() => {
     mount = vi.fn<
       (selector: SelectorType, configuration: unknown) => FakeCardHost
     >(() => this);
+    preload = vi.fn<
+      (selector: SelectorType, configuration: unknown) => FakeCardHost
+    >(() => this);
+    show = vi.fn(() => this);
     update = vi.fn(() => this);
     setSpec = vi.fn(() => this);
+    send = vi.fn(() => this);
+    validate = vi.fn(() => this);
     destroy = vi.fn(() => this);
     on = vi.fn((event: string, callback: (payload: unknown) => void) => {
       this.handlers[event] = callback;
@@ -307,6 +318,18 @@ describe("<ev-card> declared children", () => {
     expect(types(mountedWith().config?.fields as CardSpecNode[])).toEqual([
       "cvc",
       "number",
+    ]);
+  });
+
+  it("mounts the card with a declared <ev-field> in its tree", () => {
+    const element = append();
+    element.innerHTML =
+      "<ev-card-number></ev-card-number><ev-field name='postcode'></ev-field>";
+    element.mountCard(evervault());
+
+    expect(types(mountedWith().config?.fields as CardSpecNode[])).toEqual([
+      "number",
+      "field",
     ]);
   });
 
@@ -620,6 +643,68 @@ describe("<ev-card> attributes", () => {
   });
 });
 
+describe("<ev-card> preloading", () => {
+  it("preloads the card hidden instead of mounting it", () => {
+    const element = append({ preload: "" });
+    element.mountCard(evervault());
+
+    expect(frame().preload).toHaveBeenCalledOnce();
+    expect(frame().mount).not.toHaveBeenCalled();
+  });
+
+  it("preloads with the configuration it would mount with", () => {
+    const element = append({ preload: "" });
+    element.innerHTML = "<ev-card-number></ev-card-number>";
+    element.mountCard(evervault());
+
+    const [, configuration] = frame().preload.mock.calls[0];
+
+    expect(
+      types(
+        (configuration as CardHostConfiguration).config
+          ?.fields as CardSpecNode[]
+      )
+    ).toEqual(["number"]);
+  });
+
+  it("preloads when the property is set before mounting", () => {
+    const element = append();
+    element.preload = true;
+    element.mountCard(evervault());
+
+    expect(frame().preload).toHaveBeenCalledOnce();
+  });
+
+  it("shows a preloaded card", () => {
+    const element = append({ preload: "" });
+    element.mountCard(evervault());
+
+    element.show();
+
+    expect(frame().show).toHaveBeenCalledOnce();
+  });
+
+  it("mounts shown when show() is called before it mounts", () => {
+    const element = append({ preload: "" });
+
+    element.show();
+    element.mountCard(evervault());
+
+    expect(frame().mount).toHaveBeenCalledOnce();
+    expect(frame().preload).not.toHaveBeenCalled();
+  });
+
+  it("sends no update when the attribute changes after mounting", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.setAttribute("preload", "");
+    await flush();
+
+    expect(frame().update).not.toHaveBeenCalled();
+  });
+});
+
 describe("<ev-card> change event", () => {
   it("dispatches a change event carrying the card payload", () => {
     const element = append();
@@ -644,6 +729,378 @@ describe("<ev-card> change event", () => {
     expect(listener).toHaveBeenCalledOnce();
 
     document.body.removeEventListener("change", listener);
+  });
+});
+
+describe("<ev-card> events", () => {
+  it.each([
+    ["ready", null],
+    ["error", null],
+    ["complete", { isComplete: true }],
+    ["swipe", { number: "4242" }],
+    ["validate", { isValid: false }],
+    ["focus", { field: "number" }],
+    ["blur", { field: "cvc" }],
+    ["keydown", { field: "field", name: "postcode" }],
+    ["keyup", { field: "expiry" }],
+  ])("dispatches the card's %s event with its payload", (event, payload) => {
+    const element = append();
+    const listener = vi.fn();
+    element.addEventListener(event, listener);
+
+    element.mountCard(evervault());
+    frame().handlers[event](payload);
+
+    expect(listener).toHaveBeenCalledOnce();
+    expect(listener.mock.calls[0][0].detail).toEqual(payload);
+  });
+
+  it.each([
+    ["ready", undefined],
+    ["focus", { field: "number" }],
+    ["keydown", { field: "number" }],
+  ])("keeps the %s event on the element", (event, payload) => {
+    const element = append();
+    const listener = vi.fn();
+    document.body.addEventListener(event, listener);
+
+    element.mountCard(evervault());
+    frame().handlers[event](payload);
+
+    expect(listener).not.toHaveBeenCalled();
+
+    document.body.removeEventListener(event, listener);
+  });
+
+  it("asks the card to validate its fields", () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.validate();
+
+    expect(frame().validate).toHaveBeenCalledOnce();
+  });
+
+  it("does nothing when asked to validate before mounting", () => {
+    const element = append();
+
+    expect(() => element.validate()).not.toThrow();
+  });
+});
+
+describe("<ev-card> settings", () => {
+  it("mounts with the settings set as properties", () => {
+    const element = append();
+    element.acceptedBrands = ["visa"];
+    element.translations = { number: { label: "Number" } };
+    element.validation = { cvc: { optional: true } };
+
+    element.mountCard(evervault());
+
+    expect(mountedWith().config).toMatchObject({
+      acceptedBrands: ["visa"],
+      translations: { number: { label: "Number" } },
+      validation: { cvc: { optional: true } },
+    });
+  });
+
+  it("pushes a setting changed on a mounted card", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.icons = true;
+    await flush();
+
+    expect(frame().update).toHaveBeenLastCalledWith({
+      theme: expect.anything(),
+      config: expect.objectContaining({ icons: true }),
+    });
+  });
+
+  it("keeps the other settings when one changes", async () => {
+    const element = append({ autoprogress: "" });
+    element.acceptedBrands = ["visa"];
+    element.mountCard(evervault());
+
+    element.icons = true;
+    await flush();
+
+    expect(frame().update).toHaveBeenLastCalledWith({
+      theme: expect.anything(),
+      config: expect.objectContaining({
+        acceptedBrands: ["visa"],
+        icons: true,
+        autoProgress: true,
+      }),
+    });
+  });
+
+  it("pushes settings changed together as one update", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.icons = true;
+    element.translations = { number: { label: "Number" } };
+    element.acceptedBrands = ["visa"];
+    await flush();
+
+    expect(frame().update).toHaveBeenCalledOnce();
+    expect(frame().update).toHaveBeenCalledWith({
+      theme: expect.anything(),
+      config: expect.objectContaining({
+        icons: true,
+        translations: { number: { label: "Number" } },
+        acceptedBrands: ["visa"],
+      }),
+    });
+  });
+
+  it("pushes a theme definition with the settings changed alongside it", async () => {
+    const element = append();
+    const theme = { styles: { theme: "custom" } };
+    element.mountCard(evervault());
+
+    element.theme = theme;
+    element.translations = { number: { label: "Number" } };
+    await flush();
+
+    expect(frame().update).toHaveBeenCalledOnce();
+    expect(frame().update).toHaveBeenCalledWith({
+      theme,
+      config: expect.objectContaining({
+        translations: { number: { label: "Number" } },
+      }),
+    });
+  });
+
+  it("pushes the default theme when a theme definition is cleared", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.theme = { styles: { theme: "custom" } };
+    await flush();
+    element.theme = undefined;
+    await flush();
+
+    expect(frame().update).toHaveBeenCalledTimes(2);
+    expect(frame().update).toHaveBeenLastCalledWith(
+      expect.objectContaining({ theme: { styles: { theme: "clean" } } })
+    );
+  });
+
+  it("pushes nothing for agent tools set on a mounted card", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.agentTools = { enabled: true };
+    await flush();
+
+    expect(frame().update).not.toHaveBeenCalled();
+    expect(element.agentTools).toEqual({ enabled: true });
+  });
+
+  it("keeps the agent tools the card mounted with", async () => {
+    const element = append();
+    element.mountCard({
+      config: { appId: "app_test123" },
+    } as unknown as EvervaultClient);
+
+    element.agentTools = { enabled: true };
+    element.icons = true;
+    await flush();
+
+    expect(frame().update).toHaveBeenLastCalledWith({
+      theme: expect.anything(),
+      config: expect.objectContaining({ agentTools: undefined }),
+    });
+  });
+
+  it("reads each setting back through its property", () => {
+    const element = append();
+    const validation = { cvc: { optional: true } };
+
+    element.validation = validation;
+
+    expect(element.validation).toEqual(validation);
+  });
+
+  it("sends a changed cardholder name to a mounted card", () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.defaultValues = { name: "Jane" };
+
+    expect(frame().send).toHaveBeenCalledWith("EV_UPDATE_NAME", "Jane");
+  });
+
+  it("sends the cardholder name again only when it changes", () => {
+    const element = append();
+    element.mountCard(evervault());
+    element.defaultValues = { name: "Jane" };
+
+    element.defaultValues = {
+      ...element.defaultValues,
+      fields: { postcode: "SW1A" },
+    };
+
+    expect(frame().send).toHaveBeenCalledOnce();
+  });
+
+  it("delegates the tools permission to a frame with agent tools", () => {
+    const element = append();
+    element.agentTools = { enabled: true };
+
+    element.mountCard({
+      config: { appId: "app_test123" },
+    } as unknown as EvervaultClient);
+
+    expect(frame().options).toMatchObject({ allow: "payment; tools" });
+  });
+
+  it("takes a setting set before the element upgraded", () => {
+    const element = document.createElement(EV_CARD_TAG_NAME) as EvCard;
+    Object.defineProperty(element, "acceptedBrands", {
+      value: ["visa"],
+      writable: true,
+      configurable: true,
+    });
+
+    document.body.append(element);
+    element.mountCard(evervault());
+
+    expect(
+      Object.prototype.hasOwnProperty.call(element, "acceptedBrands")
+    ).toBe(false);
+    expect(mountedWith().config).toMatchObject({ acceptedBrands: ["visa"] });
+  });
+});
+
+describe("<ev-card> settings as attributes", () => {
+  it.each([
+    ["colorScheme", "colorscheme", "dark", "dark"],
+    ["autoFocus", "autofocus", true, ""],
+    ["autoProgress", "autoprogress", false, "false"],
+    ["autoComplete", "autocomplete", true, ""],
+    [
+      "acceptedBrands",
+      "acceptedbrands",
+      ["visa", "mastercard"],
+      "visa mastercard",
+    ],
+  ])("writes %s as its %s attribute", (property, attribute, value, written) => {
+    const element = append();
+
+    (element as unknown as Record<string, unknown>)[property] = value;
+
+    expect(element.getAttribute(attribute)).toBe(written);
+  });
+
+  it.each([
+    ["colorScheme", "colorscheme", "light", "light"],
+    ["autoFocus", "autofocus", "", true],
+    ["autoProgress", "autoprogress", "yes", true],
+    ["autoComplete", "autocomplete", "off", false],
+    [
+      "acceptedBrands",
+      "acceptedbrands",
+      " visa  mastercard ",
+      ["visa", "mastercard"],
+    ],
+  ])(
+    "reads %s from its %s attribute",
+    (property, attribute, written, value) => {
+      const element = append({ [attribute]: written });
+
+      expect((element as unknown as Record<string, unknown>)[property]).toEqual(
+        value
+      );
+    }
+  );
+
+  it("removes the attribute of a setting set to undefined", () => {
+    const element = append({ autofocus: "" });
+
+    element.autoFocus = undefined;
+
+    expect(element.hasAttribute("autofocus")).toBe(false);
+  });
+
+  it("writes a theme name as the theme attribute", () => {
+    const element = append();
+
+    element.theme = "minimal";
+
+    expect(element.getAttribute("theme")).toBe("minimal");
+  });
+
+  it("shows icons from the attribute and keeps a brand icon map", () => {
+    const element = append();
+    const map = { visa: "visa.svg" };
+
+    element.icons = map;
+    expect(element.getAttribute("icons")).toBe("");
+    expect(element.icons).toBe(map);
+
+    element.icons = false;
+    expect(element.getAttribute("icons")).toBe("false");
+    expect(element.icons).toBe(false);
+  });
+
+  it("mounts with the settings its attributes declare", () => {
+    const element = append({
+      icons: "",
+      acceptedbrands: "visa",
+      autocomplete: "off",
+    });
+
+    element.mountCard(evervault());
+
+    expect(mountedWith().config).toMatchObject({
+      icons: true,
+      acceptedBrands: ["visa"],
+      autoComplete: false,
+    });
+  });
+
+  it("pushes a setting whose attribute changes", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.setAttribute("acceptedbrands", "mastercard");
+    await flush();
+
+    expect(frame().update).toHaveBeenLastCalledWith({
+      theme: expect.anything(),
+      config: expect.objectContaining({ acceptedBrands: ["mastercard"] }),
+    });
+  });
+});
+
+describe("<ev-card> per-field settings", () => {
+  it("sends the card's setting for every field and each field's own", () => {
+    const element = append({ autoprogress: "" });
+    element.innerHTML = '<ev-card-cvc autoprogress="false"></ev-card-cvc>';
+
+    element.mountCard(evervault());
+
+    expect(mountedWith().config?.autoProgress).toBe(true);
+    expect(element.spec[0].props).toEqual({ autoprogress: "false" });
+  });
+});
+
+describe("<ev-card> field properties", () => {
+  it("sends a setting a field takes as a property", async () => {
+    const element = append();
+    element.innerHTML = "<ev-card-number></ev-card-number>";
+    element.mountCard(evervault());
+
+    const number = element.querySelector("ev-card-number") as HTMLElement & {
+      autoProgress?: boolean;
+    };
+    number.autoProgress = true;
+    await flush();
+
+    expect(lastSpec()?.[0].props).toEqual({ autoprogress: "" });
   });
 });
 
@@ -724,5 +1181,168 @@ describe("<ev-card> teardown", () => {
     element.remove();
 
     expect(listeners()).toBe(0);
+  });
+});
+
+describe("<ev-card> split expiry", () => {
+  const SPLIT = `
+    <ev-card-number></ev-card-number>
+    <ev-card-expiry-month></ev-card-expiry-month>
+    <ev-card-expiry-year></ev-card-expiry-year>
+  `;
+
+  it("mounts a card declaring both halves", () => {
+    const element = append();
+    element.innerHTML = SPLIT;
+    element.mountCard(evervault());
+
+    expect(types(mountedWith().config?.fields as CardSpecNode[])).toEqual([
+      "number",
+      "expiryMonth",
+      "expiryYear",
+    ]);
+  });
+
+  it("refuses to mount a card declaring a month without a year", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const element = append();
+    element.innerHTML = "<ev-card-expiry-month></ev-card-expiry-month>";
+    element.mountCard(evervault());
+
+    expect(hosts).toHaveLength(0);
+    expect(element.isMounted).toBe(false);
+    expect(error).toHaveBeenCalledWith(loneExpiryHalf("expiryMonth"));
+
+    error.mockRestore();
+  });
+
+  it("mounts a refused card once the missing half is added", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const element = append();
+    element.innerHTML = "<ev-card-expiry-month></ev-card-expiry-month>";
+    element.mountCard(evervault());
+
+    element.append(document.createElement("ev-card-expiry-year"));
+    await flush();
+
+    expect(hosts).toHaveLength(1);
+    expect(element.isMounted).toBe(true);
+    expect(types(mountedWith().config?.fields as CardSpecNode[])).toEqual([
+      "expiryMonth",
+      "expiryYear",
+    ]);
+
+    error.mockRestore();
+  });
+
+  it("mounts a refused card once with the options set before it was whole", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const element = append();
+    element.innerHTML = "<ev-card-expiry-year></ev-card-expiry-year>";
+    element.mountCard(evervault());
+
+    element.setAttribute("autoprogress", "");
+    element.prepend(document.createElement("ev-card-expiry-month"));
+    await flush();
+
+    expect(hosts).toHaveLength(1);
+    expect(mountedWith().config?.autoProgress).toBe(true);
+    expect(frame().update).not.toHaveBeenCalled();
+
+    error.mockRestore();
+  });
+
+  it("refuses to mount a card mixing the combined expiry and a half", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const element = append();
+    element.innerHTML = `
+      <ev-card-expiry></ev-card-expiry>
+      <ev-card-expiry-year></ev-card-expiry-year>
+    `;
+    element.mountCard(evervault());
+
+    expect(hosts).toHaveLength(0);
+    expect(error).toHaveBeenCalledWith(COMBINED_EXPIRY_WITH_HALF);
+
+    error.mockRestore();
+  });
+
+  it("keeps the last tree when a change leaves a lone half", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const element = append();
+    element.innerHTML = SPLIT;
+    element.mountCard(evervault());
+    const before = element.spec;
+
+    element.querySelector("ev-card-expiry-year")?.remove();
+    await flush();
+
+    expect(frame().setSpec).not.toHaveBeenCalled();
+    expect(element.spec).toBe(before);
+    expect(error).toHaveBeenCalledWith(loneExpiryHalf("expiryMonth"));
+
+    error.mockRestore();
+  });
+
+  it("sends the halves once the second arrives", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const element = append();
+    element.mountCard(evervault());
+
+    element.append(document.createElement("ev-card-expiry-month"));
+    await flush();
+
+    expect(frame().setSpec).not.toHaveBeenCalled();
+
+    element.append(document.createElement("ev-card-expiry-year"));
+    await flush();
+
+    expect(types(lastSpec())).toEqual(["expiryMonth", "expiryYear"]);
+
+    error.mockRestore();
+  });
+
+  it("warns once about fields between the halves", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const element = append();
+    element.innerHTML = `
+      <ev-card-expiry-month></ev-card-expiry-month>
+      <ev-card-cvc></ev-card-cvc>
+      <ev-card-expiry-year></ev-card-expiry-year>
+    `;
+    element.mountCard(evervault());
+
+    expect(warn).toHaveBeenCalledWith(EXPIRY_HALVES_APART);
+
+    element.children[0].setAttribute("label", "Month");
+    await flush();
+
+    expect(warn).toHaveBeenCalledOnce();
+
+    warn.mockRestore();
+  });
+
+  it("warns again once the halves are parted a second time", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const element = append();
+    element.innerHTML = SPLIT;
+    element.mountCard(evervault());
+
+    expect(warn).not.toHaveBeenCalled();
+
+    const cvc = document.createElement("ev-card-cvc");
+    element.insertBefore(cvc, element.children[2]);
+    await flush();
+
+    expect(warn).toHaveBeenCalledOnce();
+
+    cvc.remove();
+    await flush();
+    element.insertBefore(cvc, element.children[2]);
+    await flush();
+
+    expect(warn).toHaveBeenCalledTimes(2);
+
+    warn.mockRestore();
   });
 });
