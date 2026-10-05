@@ -1,5 +1,63 @@
 # @evervault/ui-components
 
+## 1.45.0
+
+### Minor Changes
+
+- d138341: Derive card auto-advance from the order the fields actually render in, rather than jumping to a fixed field id. With `autoProgress` enabled, completing a field now focuses whichever field comes next in that order, and backspace in an empty field steps back to the previous one. Completing the security code advances too.
+
+  Three behaviour changes for existing `autoProgress` integrations:
+
+  - **Cards that do not render every field now keep advancing.** Auto-advance used to look for the expiry (and then the security code) by id, so it stopped dead whenever that field was not on the card: `fields: ["number", "cvc"]` or `hiddenFields: "expiry"` left focus sitting in the number field once it was complete. Focus now moves on to the next field that is actually rendered — number to cvc in both of those examples.
+  - **Backspace in an empty field steps back**, on every card including the default `number, expiry, cvc` order: backspace in an empty security code now moves focus to the expiry, and that keystroke is cancelled so it does not delete a character there.
+  - **The security code advances once it fills the mask for its brand**, which is the longest length that brand accepts. A brand accepting three or four digits (American Express, and custom brands declaring both) only advances at four, as does a card number that has not yet identified a brand; a valid three digit code stays put, because the next digit may still be coming.
+
+  Forward auto-advance on a card rendering the full set of fields in the default order is unchanged.
+
+- 2f26f25: Validate the customer's own fields like the browser validates an input:
+
+  - `required` rejects an empty field, `pattern` must match the whole value, and `minlength`/`maxlength` bound its length.
+  - An `email` or `url` field must hold one. A `number` or `date` field must be within `min`/`max` and on a `step` from `min` (1 by default, `"any"` for none, days for a date); `pattern` and the lengths do not apply to it.
+  - A `readonly` field is not validated. A bound, length or pattern that does not parse is ignored, and an invalid pattern is warned about.
+
+  As on the card fields, an error shows once the field is left, follows the value until it clears, and shows on every field when the card is validated. The copy is "This field is required" or "Please enter a valid value", unless the field declares an `errormessage`. An invalid field is reported as `null` with its error under `errors.fields`. The card stays valid, since `isValid` only concerns the card fields, but neither it nor the agent tools report it complete until every field is valid.
+
+  Changing a field's validation rules, or declaring it again with other ones, clears what was typed into it, so a value is only ever judged by the rules it was typed under. The card fields keep their own fixed validation, whatever attributes they declare.
+
+- 2f26f25: Report the customer's own fields in the card payload under `fields`, by name, each value encrypted like the card number so no field can be used to read what is typed into it. An empty field is `null` and a field that leaves the tree is dropped. Typing reports a `change`; seeding a `defaultvalue` does not.
+- 2f26f25: Render the `field` nodes of a declared card as the customer's own inputs, in declared order among the card fields, keeping what was typed across patches.
+
+  - The input has the id `field-<name>`; themes can target its field as `[ev-name="field-<name>"]`.
+  - Takes `label`, `placeholder`, `tooltip`, `autofocus` and `defaultvalue` like the card fields.
+  - Carries `type` (`text`, `email`, `tel`, `url`, `number` or `date`), `inputmode`, `readonly`, `spellcheck`, `enterkeyhint`, `maxlength`, `min`, `max` and `step` onto the input.
+  - `autocapitalize` (`characters`, `words`, `sentences` or `on`, `none` or `off`) capitalises what is typed on any keyboard, not only a virtual one, so `autocapitalize="characters"` makes a lowercase postcode match an uppercase `pattern`. Like the browser, it leaves `email` and `url` fields alone.
+  - `autocomplete` takes a browser token (`"postal-code"`), turns autofill on bare or with `"true"`, and off with `"off"` or `"false"`.
+  - A field without a name, a second field with the same name, and an unsupported `type` (rendered as text) are warned about.
+  - Focus, blur and key events name the field as `{ field: "field", name }`.
+
+- d138341: Map the remaining per-field card options onto attributes of the `<ev-card-*>` elements, so a declared card no longer has to reach for the config object to set them:
+
+  - `label` and `placeholder` on any field element replace the translated text for that field.
+  - `tooltip` on any field element renders the text beside the label, in an element themes can target as `[ev-tooltip]`.
+  - `iconposition` on `<ev-card-number>` is carried onto the field as `ev-icon-position`, for the theme to place the brand icon.
+  - `autocomplete` on any field element, spelled the HTML way: `<ev-card-number autocomplete="off">` turns the browser's autofill off for that field.
+  - `autofocus` on any field element focuses it when the card renders, and `autofocus="false"` keeps focus away from it. A card declaring `autofocus` settles its own focus, so `config.autoFocus` no longer applies to it; declaring it on more than one field focuses the first of them, and focus never moves once the customer has started on the card.
+  - `redact` on `<ev-card-cvc>` masks the security code as it is typed.
+  - `optional` on `<ev-card-cvc>` accepts the card with an empty security code.
+  - `defaultvalue` on `<ev-card-holder>` fills the cardholder name in. It seeds the field rather than binding it: a changed default applies while the field is untouched, but never replaces a name the customer has typed, and seeding reports no `change` of its own. Hosts that want the name bound to their own state have `card.update({ defaultValues: { name } })`.
+
+  The boolean attributes follow the HTML convention: declaring one is enough to turn it on (`<ev-card-cvc redact>`), and only an explicit `="false"` turns it off. `autocomplete` also accepts `"off"`.
+
+  A declared attribute wins over the same option on the config object for that field. Cards that declare no children, or declare a field without the attribute, keep taking the value from the config exactly as before.
+
+- 3706f1b: Apply the card's settings to each field they name. `autoProgress` and `autoComplete` are read per field, with a field's own `autoprogress` or `autocomplete` winning, an expiry half falling back to `expiry`, and the customer's fields read under `fields`. A customer's field with a `maxlength` auto-progresses once it is full. The card fields read `autoprogress` and `errormessage`, the card number `unsupportedbrandmessage`, the security code `allow3digitamex`, and the cardholder `pattern`. `translations.fields`, `validation.fields` and `defaultValues.fields` fill in each customer's field that does not declare its own.
+- 836b52f: Render the split expiry a declared card sends as two inputs, `expiry-month` and `expiry-year`, that make up the one `expiry` value. The date is validated across both halves, both are marked invalid when it fails, and the error copy renders under whichever half is declared later; moving from one half into the other while it is still empty does not judge the date yet. Auto-advance and backspace move through the halves in their declared order, `autofocus` can land on either, and the halves fill from the browser's `cc-exp-month` and `cc-exp-year` tokens. Each half takes `label`, `placeholder`, `tooltip`, `autocomplete` and `autofocus` like any field, with defaults under the new `expiryMonth` and `expiryYear` translation keys. A tree declaring a half without the other, or a half alongside the combined field, is refused with a logged error rather than rendered partially, and the card stays on the last tree it rendered.
+
+### Patch Changes
+
+- Updated dependencies [88f5d7c]
+  - @evervault/react@2.33.0
+
 ## 1.44.4
 
 ### Patch Changes
