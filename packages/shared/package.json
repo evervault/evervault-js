@@ -7,7 +7,8 @@
     ".": "./src/index.ts",
     "./getAppSDKConfig": "./src/getAppSDKConfig.ts",
     "./createBrand": "./src/createBrand.ts",
-    "./fieldTypes": "./src/fieldTypes.ts"
+    "./fieldTypes": "./src/fieldTypes.ts",
+    "./fieldAttributes": "./src/fieldAttributes.ts"
   },
   "dependencies": {
     "types": "workspace:*",

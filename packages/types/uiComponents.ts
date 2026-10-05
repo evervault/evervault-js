@@ -182,6 +182,37 @@ export interface CardTranslations extends TranslationsObject {
   cvc: CardFieldTranslations<{ invalid?: string }>;
   // For an <ev-field> without an `errormessage`.
   field?: { errors?: { required?: string; invalid?: string } };
+  // Each <ev-field> by its name, ahead of `field`.
+  fields?: Record<string, CustomFieldTranslations>;
+}
+
+interface CustomFieldTranslations extends TranslationsObject {
+  label?: string;
+  placeholder?: string;
+  errors?: { required?: string; invalid?: string };
+}
+
+// A setting made per field: the card fields by key, the customer's own under
+// `fields`, as one value for all of them or each by name, so no field name can
+// pass for a card field. An expiry half falls back to `expiry`.
+export interface CardFieldMap<T> {
+  name?: T;
+  number?: T;
+  expiry?: T;
+  expiryMonth?: T;
+  expiryYear?: T;
+  cvc?: T;
+  fields?: T | Record<string, T>;
+}
+
+export interface CustomFieldValidation {
+  required?: boolean;
+  pattern?: string;
+  minLength?: number;
+  maxLength?: number;
+  min?: string;
+  max?: string;
+  step?: string;
 }
 
 export type CardIcons = Record<CardBrandName | "default", string>;
@@ -239,27 +270,30 @@ export interface CardOptions {
   acceptedBrands?: CardBrandName[];
   customBrands?: CustomBrand[];
   translations?: Partial<CardTranslations>;
-  autoProgress?: boolean;
+  autoProgress?: boolean | CardFieldMap<boolean>;
   redactCVC?: boolean;
   allow3DigitAmexCVC?: boolean;
-  defaultValues?: {
-    name?: string;
-  };
-  autoComplete?: {
-    name?: boolean;
-    number?: boolean;
-    expiry?: boolean;
-    cvc?: boolean;
-  };
-  validation?: {
-    name?: {
-      regex?: RegExp;
-    };
-    cvc?: {
-      optional?: boolean;
-    };
-  };
+  defaultValues?: CardDefaultValues;
+  autoComplete?: boolean | CardFieldMap<boolean>;
+  validation?: CardValidation;
   agentTools?: AgentToolsConfig;
+}
+
+export interface CardDefaultValues {
+  name?: string;
+  // Each <ev-field> by its name.
+  fields?: Record<string, string>;
+}
+
+export interface CardValidation {
+  name?: {
+    regex?: RegExp;
+  };
+  cvc?: {
+    optional?: boolean;
+  };
+  // Each <ev-field> by its name.
+  fields?: Record<string, CustomFieldValidation>;
 }
 
 // The `config` the card host sends in EV_INIT and EV_UPDATE, as the renderer
@@ -274,26 +308,12 @@ export interface CardFrameConfig {
   acceptedBrands?: CardBrandName[];
   customBrands?: CustomBrand[];
   translations?: Partial<CardTranslations>;
-  autoProgress?: boolean;
+  autoProgress?: boolean | CardFieldMap<boolean>;
   redactCVC?: boolean;
   allow3DigitAmexCVC?: boolean;
-  defaultValues?: {
-    name?: string;
-  };
-  autoComplete?: {
-    name?: boolean;
-    number?: boolean;
-    expiry?: boolean;
-    cvc?: boolean;
-  };
-  validation?: {
-    name?: {
-      regex?: RegExp;
-    };
-    cvc?: {
-      optional?: boolean;
-    };
-  };
+  defaultValues?: CardDefaultValues;
+  autoComplete?: boolean | CardFieldMap<boolean>;
+  validation?: CardValidation;
   agentTools?: AgentToolsFrameConfig;
 }
 
