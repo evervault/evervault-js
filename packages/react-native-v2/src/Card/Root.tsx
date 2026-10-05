@@ -6,6 +6,7 @@ import {
   useImperativeHandle,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import { CardBrandName, CardConfig, CardPayload } from "./types";
 import { DeepPartial, FormProvider, useForm } from "react-hook-form";
@@ -15,6 +16,11 @@ import { useEvervault } from "../useEvervault";
 import { formatPayload } from "./utils";
 import { EvervaultInputContext, EvervaultInputContextValue } from "../Input";
 import { EvervaultContextValue } from "../context";
+import { skippedFieldWarning } from "./developerMessages";
+import { DeclaredFieldsContext } from "./declaredFields";
+import type { DeclaredFieldsContextValue } from "./declaredFields";
+import { skippedNodes } from "shared/cardSpec";
+import type { CardSpecNode } from "types/cardSpec";
 
 const DEFAULT_ACCEPTED_BRANDS: CardBrandName[] = [];
 
@@ -91,6 +97,60 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     [validationMode]
   );
 
+  // The fields in the order they declared themselves, as the card's tree.
+  const [declared, setDeclared] = useState<CardSpecNode[]>([]);
+
+  const declare = useMemo(
+    () => ({
+      set(node: CardSpecNode) {
+        setDeclared((current) => {
+          const index = current.findIndex(({ id }) => id === node.id);
+
+          if (index === -1) return [...current, node];
+          if (
+            JSON.stringify(current[index].props) === JSON.stringify(node.props)
+          ) {
+            return current;
+          }
+
+          return current.map((field, i) => (i === index ? node : field));
+        });
+      },
+      remove(id: string) {
+        setDeclared((current) => current.filter((field) => field.id !== id));
+      },
+    }),
+    []
+  );
+
+  const skipped = useMemo(() => skippedNodes(declared), [declared]);
+
+  const declaredFieldsContext = useMemo<DeclaredFieldsContextValue>(
+    () => ({
+      ...declare,
+      shown: new Set(
+        declared.filter((node) => !skipped.includes(node)).map(({ id }) => id)
+      ),
+    }),
+    [declare, declared, skipped]
+  );
+
+  const notices = useMemo(() => skipped.map(skippedFieldWarning), [skipped]);
+
+  // In an effect, not the render body, so a re-render does not warn again.
+  const warned = useRef("");
+
+  useEffect(() => {
+    const key = notices.join("\n");
+
+    if (key === warned.current) return;
+    warned.current = key;
+
+    notices.forEach((notice) => console.warn(notice));
+  }, [notices]);
+
+  const emitChange = useRef<() => void>(() => {});
+
   // Use refs to prevent closures from being captured
   const onChangeRef = useRef<typeof onChange>(onChange);
   onChangeRef.current = onChange;
@@ -123,10 +183,17 @@ export const Card = forwardRef<Card, CardProps>(function Card(
       });
     }
 
+    emitChange.current = () => handleChange(methods.getValues());
     handleChange(methods.getValues());
     const subscription = methods.watch(handleChange);
-    return () => subscription.unsubscribe();
+    return () => {
+      emitChange.current = () => {};
+      subscription.unsubscribe();
+    };
   }, [evervault.encrypt]);
+
+  // A field declared or dropped changes the payload without a value changing.
+  useEffect(() => emitChange.current(), [declared]);
 
   useImperativeHandle(
     ref,
@@ -143,7 +210,9 @@ export const Card = forwardRef<Card, CardProps>(function Card(
   return (
     <FormProvider {...methods}>
       <EvervaultInputContext.Provider value={inputContext}>
-        {children}
+        <DeclaredFieldsContext.Provider value={declaredFieldsContext}>
+          {children}
+        </DeclaredFieldsContext.Provider>
       </EvervaultInputContext.Provider>
     </FormProvider>
   );

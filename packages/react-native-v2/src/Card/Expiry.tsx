@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 import { BaseEvervaultInputProps, EvervaultInput, mask } from "../Input";
 import { CardFormValues } from "./schema";
+import { declaredField } from "./declaredFields";
 
 const CARD_EXPIRY_MASK = mask("99 / 99");
 
@@ -8,7 +9,7 @@ export type CardExpiryProps = BaseEvervaultInputProps;
 
 export type CardExpiry = EvervaultInput;
 
-export const CardExpiry = forwardRef<CardExpiry, CardExpiryProps>(
+const CardExpiryElement = forwardRef<CardExpiry, CardExpiryProps>(
   function CardExpiry(props, ref) {
     return (
       <EvervaultInput<CardFormValues>
@@ -24,3 +25,5 @@ export const CardExpiry = forwardRef<CardExpiry, CardExpiryProps>(
     );
   }
 );
+
+export const CardExpiry = declaredField("expiry", CardExpiryElement, []);

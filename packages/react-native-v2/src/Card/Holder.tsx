@@ -2,12 +2,13 @@ import { Platform } from "react-native";
 import { forwardRef } from "react";
 import { BaseEvervaultInputProps, EvervaultInput } from "../Input";
 import { CardFormValues } from "./schema";
+import { declaredField } from "./declaredFields";
 
 export type CardHolderProps = BaseEvervaultInputProps;
 
 export type CardHolder = EvervaultInput;
 
-export const CardHolder = forwardRef<CardHolder, CardHolderProps>(
+const CardHolderElement = forwardRef<CardHolder, CardHolderProps>(
   function CardHolder(props, ref) {
     return (
       <EvervaultInput<CardFormValues>
@@ -25,3 +26,5 @@ export const CardHolder = forwardRef<CardHolder, CardHolderProps>(
     );
   }
 );
+
+export const CardHolder = declaredField("name", CardHolderElement, []);

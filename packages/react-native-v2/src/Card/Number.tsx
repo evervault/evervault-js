@@ -4,6 +4,7 @@ import { CardFormValues } from "./schema";
 import { MaskArray } from "react-native-mask-input";
 import { validateNumber } from "@evervault/card-validator";
 import { CardBrandName } from "./types";
+import { declaredField } from "./declaredFields";
 
 const DEFAULT_CARD_NUMBER_MASK = mask("9999 99[99 9999 9999]");
 
@@ -23,7 +24,7 @@ export interface CardNumberProps extends BaseEvervaultInputProps {
 
 export type CardNumber = EvervaultInput;
 
-export const CardNumber = forwardRef<CardNumber, CardNumberProps>(
+const CardNumberElement = forwardRef<CardNumber, CardNumberProps>(
   function CardNumber(props, ref) {
     const mask = useCallback((text?: string): MaskArray => {
       if (!text) {
@@ -52,3 +53,5 @@ export const CardNumber = forwardRef<CardNumber, CardNumberProps>(
     );
   }
 );
+
+export const CardNumber = declaredField("number", CardNumberElement, []);
