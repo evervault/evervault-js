@@ -9,18 +9,35 @@ import {
   useState,
 } from "react";
 import { CardBrandName, CardConfig, CardPayload } from "./types";
-import { DeepPartial, FormProvider, useForm } from "react-hook-form";
+import {
+  DeepPartial,
+  FieldErrors,
+  FormProvider,
+  Resolver,
+  useForm,
+} from "react-hook-form";
 import { CardFormValues, getCardFormSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEvervault } from "../useEvervault";
 import { formatPayload } from "./utils";
 import { EvervaultInputContext, EvervaultInputContextValue } from "../Input";
 import { EvervaultContextValue } from "../context";
-import { expiryLayoutMessage, skippedFieldWarning } from "./developerMessages";
+import { customFieldErrors, customFieldKey } from "./customFields";
+import {
+  customFieldWarnings,
+  expiryLayoutMessage,
+  skippedFieldWarning,
+} from "./developerMessages";
 import { DeclaredFieldsContext } from "./declaredFields";
 import type { DeclaredFieldsContextValue } from "./declaredFields";
 import { skippedNodes } from "shared/cardSpec";
+import {
+  customFieldNodes,
+  declaredCustomFields,
+  validationRulesKey,
+} from "shared/customField";
 import { expiryLayoutError } from "shared/expiry";
+import { canFillDefault } from "shared/defaultValue";
 import type { CardSpecNode } from "types/cardSpec";
 
 const DEFAULT_ACCEPTED_BRANDS: CardBrandName[] = [];
@@ -79,10 +96,34 @@ export const Card = forwardRef<Card, CardProps>(function Card(
 ) {
   const evervault = useEvervault();
 
-  const resolver = useMemo(() => {
-    const schema = getCardFormSchema(acceptedBrands);
-    return zodResolver(schema);
-  }, [acceptedBrands]);
+  // What the declared fields set, read when validating and reporting.
+  const declaredSettings = useRef<{
+    customFields: ReturnType<typeof declaredCustomFields>;
+  }>({ customFields: new Map() });
+
+  const resolver = useCallback<Resolver<CardFormValues>>(
+    async (values, context, options) => {
+      const result = await zodResolver(getCardFormSchema(acceptedBrands))(
+        values,
+        context,
+        options
+      );
+
+      // Card.Fields are checked with the card's fields, so whenever the
+      // validation mode checks one.
+      const fields = customFieldErrors(
+        values,
+        declaredSettings.current.customFields
+      );
+      if (!fields) return result;
+
+      return {
+        values: {},
+        errors: { ...result.errors, fields } as FieldErrors<CardFormValues>,
+      };
+    },
+    [acceptedBrands]
+  );
 
   const methods = useForm<CardFormValues>({
     defaultValues,
@@ -163,7 +204,19 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     if (refusal) console.error(refusal);
   }, [refusal]);
 
-  const notices = useMemo(() => skipped.map(skippedFieldWarning), [skipped]);
+  const customFields = useMemo(() => declaredCustomFields(nodes), [nodes]);
+
+  declaredSettings.current = { customFields };
+
+  const notices = useMemo(
+    () => [
+      ...skipped.map(skippedFieldWarning),
+      ...customFieldNodes(nodes)
+        .filter((node) => !skipped.includes(node))
+        .flatMap(customFieldWarnings),
+    ],
+    [nodes, skipped]
+  );
 
   // In an effect, not the render body, so a re-render does not warn again.
   const warned = useRef("");
@@ -202,6 +255,7 @@ export const Card = forwardRef<Card, CardProps>(function Card(
           const payload = await formatPayload(values, {
             encrypt: evervault.encrypt,
             form: methods,
+            customFields: declaredSettings.current.customFields,
           });
           if (signal.aborted) return;
           onChangeRef.current?.(payload);
@@ -220,8 +274,54 @@ export const Card = forwardRef<Card, CardProps>(function Card(
     };
   }, [evervault.encrypt]);
 
-  // A field declared or dropped changes the payload without a value changing.
-  useEffect(() => emitChange.current(), [declared]);
+  const rulesKeys = useRef(new Map<string, string>());
+
+  // A value typed under other rules is dropped, with its error, as on the web.
+  useEffect(() => {
+    const keys = new Map(
+      [...customFields].map(([name, field]) => [
+        name,
+        validationRulesKey(field),
+      ])
+    );
+
+    keys.forEach((key, name) => {
+      const previous = rulesKeys.current.get(name);
+      const field = customFieldKey(name) as keyof CardFormValues;
+
+      if (previous !== undefined && previous !== key) {
+        methods.resetField(field, { defaultValue: "" });
+      } else if (methods.getFieldState(field).error) {
+        // A field showing an error is checked again under its new settings.
+        void methods.trigger(field);
+      }
+    });
+
+    rulesKeys.current = keys;
+    emitChange.current();
+  }, [customFields]);
+
+  // Counts resets, so the declared defaults are filled in again after one.
+  const [resets, setResets] = useState(0);
+
+  // The default last filled into each Card.Field, by name.
+  const filledDefaults = useRef(new Map<string, string>());
+
+  // A default fills a Card.Field while it is empty or still holds the last one.
+  useEffect(() => {
+    customFields.forEach(({ defaultValue }, name) => {
+      const previous = filledDefaults.current.get(name);
+
+      if (defaultValue === undefined || defaultValue === previous) return;
+
+      filledDefaults.current.set(name, defaultValue);
+
+      const key = customFieldKey(name) as keyof CardFormValues;
+      const value = (methods.getValues(key) as string | undefined) ?? "";
+
+      if (canFillDefault(value, previous)) methods.setValue(key, defaultValue);
+    });
+  }, [customFields, resets]);
 
   useImperativeHandle(
     ref,
@@ -229,6 +329,8 @@ export const Card = forwardRef<Card, CardProps>(function Card(
       () => ({
         reset() {
           methods.reset();
+          filledDefaults.current.clear();
+          setResets((count) => count + 1);
         },
       }),
       []

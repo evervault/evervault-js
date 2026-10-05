@@ -8,10 +8,53 @@ import type { CardBrandName, CardPayload } from "./types";
 import { type CardFormValues } from "./schema";
 import { DeepPartial, UseFormReturn } from "react-hook-form";
 import { type Encrypted, sdk } from "../sdk";
+import type { CustomFieldProps } from "shared/customField";
+import { customFieldKey, customFieldMessage } from "./customFields";
 
 export interface FormatPayloadContext {
   form: UseFormReturn<CardFormValues>;
   encrypt<T>(data: T): Promise<Encrypted<T>>;
+  customFields?: ReadonlyMap<string, CustomFieldProps>;
+}
+
+interface CustomFieldsPayload {
+  fields: Record<string, string | null>;
+  errors: Record<string, string>;
+  isComplete: boolean;
+}
+
+// A field's error is reported once the card has checked it, as a card field's
+// is; until then it only holds the card back from complete.
+async function formatCustomFields(
+  context: FormatPayloadContext
+): Promise<CustomFieldsPayload | null> {
+  if (!context.customFields?.size) return null;
+
+  const fields: [string, string | null][] = [];
+  const errors: [string, string][] = [];
+  let isComplete = true;
+
+  for (const [name, field] of context.customFields) {
+    const key = customFieldKey(name) as keyof CardFormValues;
+    const value = (context.form.getValues(key) as string | undefined) ?? "";
+    const error = customFieldMessage(value, field);
+    const shown = context.form.getFieldState(key).error?.message;
+
+    fields.push([
+      name,
+      value.length > 0 && !error ? await context.encrypt(value) : null,
+    ]);
+
+    if (error) isComplete = false;
+    if (shown) errors.push([name, shown]);
+  }
+
+  // Built from entries, so a name such as "__proto__" is a key like any other.
+  return {
+    fields: Object.fromEntries(fields),
+    errors: Object.fromEntries(errors),
+    isComplete,
+  };
 }
 
 export async function formatPayload(
@@ -56,6 +99,9 @@ export async function formatPayload(
     errors.cvc = formErrors.cvc.message;
   }
 
+  const custom = await formatCustomFields(context);
+  const customComplete = custom?.isComplete ?? true;
+
   return {
     card: {
       name: values.name ?? null,
@@ -67,9 +113,13 @@ export async function formatPayload(
       number: isNumberValid ? await context.encrypt(number) : null,
       cvc: isCvcValid ? await context.encrypt(cvc ?? "") : null,
     },
-    isComplete,
-    isValid: isValid && isComplete,
-    errors,
+    ...(custom && { fields: custom.fields }),
+    isComplete: isComplete && customComplete,
+    isValid: isValid && isComplete && customComplete,
+    errors:
+      custom && Object.keys(custom.errors).length > 0
+        ? { ...errors, fields: custom.errors }
+        : errors,
   };
 }
 
