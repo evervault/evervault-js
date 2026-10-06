@@ -103,6 +103,7 @@ export const GOOGLE_PAY_GUARDS: FrameGuards<GooglePayClientMessages> = {
   EV_GOOGLE_PAY_CANCELLED: ignored,
   EV_GOOGLE_PAY_ERROR: isString,
   EV_GOOGLE_PAY_SUCCESS: ignored,
+  EV_GOOGLE_PAY_UNAVAILABLE: ignored,
   EV_GOOGLE_PAY_DATA_CHANGE: (value) =>
     isRecord(value) && isString(value.id) && typeof value.amount === "number",
 };
