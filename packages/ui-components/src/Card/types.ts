@@ -6,3 +6,5 @@ export interface CardForm {
   cvc: string;
   expiry: string;
 }
+
+export type { CardInput, CustomFieldInputId } from "shared";

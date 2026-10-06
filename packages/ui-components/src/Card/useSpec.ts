@@ -1,16 +1,38 @@
 import { useEffect, useState } from "react";
 import { applyPatch } from "./spec";
+import { inputFor, isCustomFieldInput } from "shared";
+import type { CardInput } from "shared";
 import type { CardField, CardFrameHostMessages, CardSpecNode } from "types";
 
-// The fields a tree renders, first declaration first.
-export function declaredFields(spec: CardSpecNode[]): CardField[] {
-  const fields = spec.flatMap((node) => {
-    if (node.type === "row") return declaredFields(node.children ?? []);
+// The card value an input writes: the expiry halves write "expiry"; an
+// <ev-field> writes none.
+export function cardFieldWrittenBy(input: CardInput): CardField | null {
+  if (input === "expiry-month" || input === "expiry-year") return "expiry";
+  if (isCustomFieldInput(input)) return null;
+  return input as CardField;
+}
 
-    return [node.type];
+// The inputs a tree renders, first declaration first.
+export function declaredInputs(spec: CardSpecNode[]): CardInput[] {
+  const inputs = spec.flatMap((node) => {
+    if (node.type === "row") return declaredInputs(node.children ?? []);
+
+    const input = inputFor(node);
+    return input ? [input] : [];
   });
 
-  return [...new Set(fields)];
+  return [...new Set(inputs)];
+}
+
+// The card fields a tree renders, first declaration first.
+export function declaredFields(spec: CardSpecNode[]): CardField[] {
+  return [
+    ...new Set(
+      declaredInputs(spec)
+        .map(cardFieldWrittenBy)
+        .filter((field) => field !== null)
+    ),
+  ];
 }
 
 type Subscribe = <T extends keyof CardFrameHostMessages>(

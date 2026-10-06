@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { declaredProps, fieldProps } from "../src/Card/props";
+import { declaredProps, fieldProps } from "../src/fieldProps";
 import type { CardSpecNode } from "types";
 
 function node(

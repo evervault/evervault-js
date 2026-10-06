@@ -1,5 +1,27 @@
 # @evervault/browser
 
+## 2.70.0
+
+### Minor Changes
+
+- 2f26f25: Report an `<ev-card>`'s own field errors under `errors.fields` of its card payload, by name, as `"required"` or `"invalid"`.
+- 3706f1b: Make the per-field card options name every field. `autoProgress` and `autoComplete` take `true`/`false` for every field or a map by field — `name`, `number`, `expiry`, `expiryMonth`, `expiryYear`, `cvc`, and `fields` for the customer's own fields, as one value or each by name — so `ui.card({ autoProgress: { number: true } })` moves on from the card number only. An expiry half takes its own key, then `expiry`. `translations.fields`, `validation.fields` and `defaultValues.fields` set the customer's fields by name. The existing shapes keep working unchanged.
+- 2f26f25: Carry an `<ev-card>`'s own fields in its card payload as `fields`, encrypted and keyed by name. A card declaring none, and every `ui.card()`, reports `fields: {}`.
+- 3706f1b: Give `<ev-card>` and its fields what `ui.card()` offers. Each setting sits on the element it is about, as an attribute and a property that always agree:
+
+  - The card's `ready`, `error`, `complete`, `swipe`, `validate`, `focus`, `blur`, `keydown` and `keyup` events are dispatched on the element, carrying the same payload as `ui.card()`'s, as `event.detail`. Unlike `change`, they do not bubble: only listeners on the `<ev-card>` itself hear them, so page-wide focus and keyboard handlers never receive them.
+  - `card.validate()` checks the fields; the result arrives as a `validate` event.
+  - An attribute is its property's name in lower case, as in HTML: `card.acceptedBrands` is `acceptedbrands`, `cvc.allow3DigitAmex` is `allow3digitamex`. `<ev-card>` is mounted from `teamid` and `appid`.
+  - On `<ev-card>`, the card-wide settings are `theme`, `colorscheme`, `icons`, `acceptedbrands` (space-separated), `autofocus`, and `autoprogress` and `autocomplete` for every field; `colorscheme` is read once, when the card mounts. Settings that are objects — a theme definition, a brand icon map, `translations`, `customBrands`, `defaultValues`, `validation` and `agentTools` — are properties only. `agentTools` is read when the card mounts.
+  - The field elements (`<ev-card-holder>`, `<ev-card-number>`, `<ev-card-expiry>`, `<ev-card-expiry-month>`, `<ev-card-expiry-year>`, `<ev-card-cvc>`, `<ev-field>`) are custom elements whose attributes are also properties: `number.autoProgress = true` is `<ev-card-number autoprogress>`. They take `autoprogress` and `errormessage`; `<ev-card-number>` takes `unsupportedbrandmessage`, `<ev-card-cvc>` `redact`, `optional` and `allow3digitamex`, and `<ev-card-holder>` `pattern`, checked against the cardholder name as `<ev-field pattern>` is.
+  - A field's own setting wins over the card's. The two are never copied into each other.
+  - Settings changed together reach the card as one update, and a property set before the SDK loads is applied once the element upgrades.
+
+- 779cba9: Configure a declared `<ev-card>` from its own attributes. `theme` names a built-in theme (`clean`, `material` or `minimal`) as an attribute, or takes a theme definition as a property; `clean` is the default. `colorscheme` takes the values `ui.card()` accepts and is read once, when the card mounts. `autoprogress` turns auto-advance on, and only `autoprogress="false"` turns it off. Changing `theme` or `autoprogress` on a live card applies to it.
+- 3706f1b: Preload a declared `<ev-card>` hidden with the `preload` attribute or property, then show it with `card.show()`, as with `ui.card()`'s `preload()` and `show()`. `preload` is read once, when the card mounts. Calling `show()` before the card has mounted mounts it shown.
+- 836b52f: Declare the expiry of an `<ev-card>` as two fields, `<ev-card-expiry-month>` and `<ev-card-expiry-year>`, placeable independently of each other, or as the one `<ev-card-expiry>` field as before. The two forms are exclusive within a card: declaring a month without a year, the reverse, or a half alongside the combined field is an error. The card logs it and refuses the tree rather than rendering a partial expiry; a card not yet mounted waits and mounts once the declaration is whole, and a live card keeps the tree it last rendered until then. Declaring other fields between the two halves is allowed but warned about once, since it is rarely meant.
+- 2f26f25: Declare the customer's own fields inside `<ev-card>` with `<ev-field name="…">`, placed among the card fields, instead of a separate input styled to match. The card's `focus`, `blur`, `keydown` and `keyup` events name one as `{ field: "field", name }`, so its name can never be mistaken for a card field.
+
 ## 2.69.0
 
 ### Minor Changes

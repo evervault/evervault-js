@@ -51,7 +51,7 @@
   "dependencies": {
     "@evervault/card-validator": "workspace:*",
     "@hookform/resolvers": "^5.4.0",
-    "react-hook-form": "^7.54.2",
+    "react-hook-form": "^7.89.0",
     "react-native-mask-input": "^1.2.3",
     "test-renderer": "^1.2.0",
     "zod": "^3.25.0"
@@ -64,7 +64,7 @@
     "@testing-library/react-native": "^14.0.1",
     "@types/react": "catalog:",
     "expo": "catalog:",
-    "glob": "^11.0.3",
+    "glob": "^13.0.6",
     "react": "catalog:",
     "react-native": "catalog:",
     "react-native-webview": "catalog:",

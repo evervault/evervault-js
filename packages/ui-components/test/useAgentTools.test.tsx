@@ -41,9 +41,11 @@ function baseParams(overrides: Partial<Params> = {}): Params {
   return {
     config,
     fields: ["number", "expiry", "cvc"],
+    inputs: ["number", "expiry", "cvc"],
     form: makeForm(),
     validators,
     t: (key: string) => `t:${key}`,
+    customFieldsComplete: true,
     ...overrides,
   };
 }
@@ -200,6 +202,25 @@ describe("useAgentTools handlers", () => {
     expect(complete.isComplete).toBe(true);
   });
 
+  it("is not complete while the customer's own fields are not", () => {
+    const form = makeForm({
+      number: "4242424242424242",
+      expiry: "0135",
+      cvc: "123",
+    });
+    renderHook(() =>
+      useAgentTools(baseParams({ form, customFieldsComplete: false }))
+    );
+
+    const status = find("get-form-status").execute({}, { signal }) as {
+      fields: { isValid: boolean }[];
+      isComplete: boolean;
+    };
+
+    expect(status.fields.every((field) => field.isValid)).toBe(true);
+    expect(status.isComplete).toBe(false);
+  });
+
   it("focuses the requested field", () => {
     const input = document.createElement("input");
     input.id = "cvc";
@@ -210,6 +231,41 @@ describe("useAgentTools handlers", () => {
       focused: "cvc",
     });
     expect(document.activeElement).toBe(input);
+  });
+
+  it("focuses the first half of a split expiry", () => {
+    const month = document.createElement("input");
+    month.id = "expiry-month";
+    const year = document.createElement("input");
+    year.id = "expiry-year";
+    document.body.append(year, month);
+    renderHook(() =>
+      useAgentTools(
+        baseParams({ inputs: ["number", "expiry-year", "expiry-month", "cvc"] })
+      )
+    );
+
+    expect(
+      find("focus-field").execute({ field: "expiry" }, { signal })
+    ).toEqual({ focused: "expiry" });
+    expect(document.activeElement).toBe(year);
+  });
+
+  it("reports focus on a half of a split expiry as the expiry", () => {
+    const month = document.createElement("input");
+    month.id = "expiry-month";
+    document.body.append(month);
+    renderHook(() =>
+      useAgentTools(
+        baseParams({ inputs: ["number", "expiry-month", "expiry-year", "cvc"] })
+      )
+    );
+
+    month.focus();
+
+    expect(find("get-form-status").execute({}, { signal })).toEqual(
+      expect.objectContaining({ focusedField: "expiry" })
+    );
   });
 
   it("throws when asked to focus a field that is not rendered", () => {
