@@ -1,5 +1,6 @@
 import EventManager from "./eventManager";
 import { EvervaultFrame } from "./evervaultFrame";
+import { THREE_D_SECURE_GUARDS } from "./messageGuards";
 import type EvervaultClient from "../main";
 import type {
   SelectorType,
@@ -37,9 +38,14 @@ export default class ThreeDSecure {
     this.#session = session;
     this.#options = options ?? {};
     this.#isOverlay = false;
-    this.#frame = new EvervaultFrame(client, "ThreeDSecure", {
-      colorScheme: this.#options.colorScheme,
-    });
+    this.#frame = new EvervaultFrame(
+      client,
+      "ThreeDSecure",
+      THREE_D_SECURE_GUARDS,
+      {
+        colorScheme: this.#options.colorScheme,
+      }
+    );
     this.#client = client;
 
     this.#frame.on("EV_SUCCESS", (cres) => {
