@@ -2,6 +2,7 @@ export * from "./createBrand";
 export * from "./useForm";
 export * from "./useTranslations";
 export * from "./getAppSDKConfig";
+export * from "./customHost";
 export * from "./fieldAttributes";
 export * from "./customField";
 export * from "./cvc";

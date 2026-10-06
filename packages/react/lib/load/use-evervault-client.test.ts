@@ -7,7 +7,7 @@ import { PromisifiedEvervaultClient } from "./client";
 import { useEvervaultClient, type CustomConfig } from "./use-evervault-client";
 import { act, renderHook } from "@testing-library/react";
 import { vi, expect, afterEach, describe, it } from "vitest";
-import { ScriptLoadError } from "./error";
+import { ScriptLoadError } from "sdk-loader";
 
 const evervaultClientMock = vi.hoisted(() =>
   vi.fn(
@@ -31,11 +31,11 @@ const injectScriptMock = vi.hoisted(() =>
   vi.fn(() => Promise.resolve(evervaultClientMock))
 );
 
-vi.mock(import("./inject-script"), async (importOriginal) => {
+vi.mock(import("sdk-loader"), async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    injectScript: injectScriptMock,
+    injectScript: injectScriptMock as unknown as typeof actual.injectScript,
   };
 });
 
@@ -159,5 +159,58 @@ describe("useEvervaultClient", () => {
     expect((newClient.config as unknown as CustomConfig)?.jsSdkUrl).toBe(
       "https://js.evervault.com/v3"
     );
+  });
+
+  it("loads the SDK from the customDomain when one is given", async () => {
+    const { result } = renderHook(() =>
+      useEvervaultClient({
+        teamId: "team_123",
+        appId: "app_123",
+        customConfig: { customDomain: "payments.acme.com" },
+      })
+    );
+
+    await result.current.client;
+    expect(injectScriptMock).toHaveBeenCalledWith(
+      "https://payments.acme.com/ev/v1/js/v2",
+      expect.objectContaining({ reuseExistingClient: false })
+    );
+  });
+
+  it("prefers jsSdkUrl over the customDomain", async () => {
+    const { result } = renderHook(() =>
+      useEvervaultClient({
+        teamId: "team_123",
+        appId: "app_123",
+        customConfig: {
+          customDomain: "payments.acme.com",
+          jsSdkUrl: "https://js.evervault.io/v2",
+        },
+      })
+    );
+
+    await result.current.client;
+    expect(injectScriptMock).toHaveBeenCalledWith(
+      "https://js.evervault.io/v2",
+      expect.objectContaining({ reuseExistingClient: false })
+    );
+  });
+
+  it("rejects an invalid customDomain without loading the SDK", async () => {
+    const onLoadError = vi.fn();
+    const { result } = renderHook(() =>
+      useEvervaultClient({
+        teamId: "team_123",
+        appId: "app_123",
+        customConfig: { customDomain: "https://payments.acme.com" },
+        onLoadError,
+      })
+    );
+
+    await expect(result.current.client).rejects.toThrow(
+      "customDomain must be a hostname"
+    );
+    expect(onLoadError).toHaveBeenCalled();
+    expect(injectScriptMock).not.toHaveBeenCalled();
   });
 });

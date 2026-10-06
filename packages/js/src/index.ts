@@ -1,10 +1,13 @@
 import type EvervaultClient from "@evervault/browser";
 import type { CustomConfig } from "@evervault/browser";
+import { injectScript } from "sdk-loader";
+import { customHostOrigin, customHostUrls } from "shared/customHost";
 
 export { minimal, clean, material, cssVar } from "themes";
 export type { PresetConfig } from "themes";
 export type { ThemeDefinition } from "types";
 
+export type { CustomConfig };
 export type EvervaultInstance = EvervaultClient;
 export type EvervaultConstructor = typeof EvervaultClient;
 
@@ -14,45 +17,30 @@ declare global {
   }
 }
 
-let injectionPromise: Promise<void> | null = null;
+const DEFAULT_JS_SDK_URL = import.meta.env.VITE_EVERVAULT_JS_URL!;
 
-async function injectScript(): Promise<void> {
-  if (injectionPromise) return injectionPromise;
+function sdkUrl(host: string | undefined): string {
+  if (host === undefined) return DEFAULT_JS_SDK_URL;
 
-  injectionPromise = new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = import.meta.env.VITE_EVERVAULT_JS_URL!;
-
-    script.onload = () => resolve();
-
-    script.onerror = () => {
-      injectionPromise = null;
-      reject();
-    };
-
-    if (!document.head) {
-      throw new Error(
-        "Expected document.head not to be null. Evervault.js requires a <head> element."
-      );
-    }
-
-    document.head.appendChild(script);
-  });
-
-  return injectionPromise;
-}
-
-async function load(): Promise<EvervaultConstructor> {
-  // If already loaded, return immediately.
-  if (window.Evervault) {
-    return window.Evervault;
+  const origin = customHostOrigin(host);
+  if (!origin) {
+    throw new Error(
+      "customDomain must be a hostname, such as payments.acme.com"
+    );
   }
 
+  return customHostUrls(origin).jsSdkUrl;
+}
+
+async function load(host?: string): Promise<EvervaultConstructor> {
+  const url = sdkUrl(host);
+
   try {
-    await injectScript();
-    return window.Evervault!;
-  } catch {
-    throw new Error("Failed to load Evervault.js");
+    return await injectScript<EvervaultConstructor>(url, {
+      reuseExistingClient: host === undefined,
+    });
+  } catch (cause) {
+    throw new Error("Failed to load Evervault.js", { cause });
   }
 }
 
@@ -61,13 +49,6 @@ export async function loadEvervault(
   app: string,
   config?: CustomConfig
 ): Promise<EvervaultInstance> {
-  const Client = await load();
+  const Client = await load(config?.customDomain);
   return new Client(team, app, config);
 }
-
-// Automatically inject the Evervault browser script
-// We call this after 1 tick to allow users to handle the script
-// injection themselves.
-Promise.resolve().then(() => {
-  load();
-});
