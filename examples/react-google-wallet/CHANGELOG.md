@@ -1,5 +1,13 @@
 # example-react-google-wallet
 
+## 0.3.58
+
+### Patch Changes
+
+- Updated dependencies [0533c8e]
+  - @evervault/browser@2.71.0
+  - @evervault/react@2.33.0
+
 ## 0.3.57
 
 ### Patch Changes
