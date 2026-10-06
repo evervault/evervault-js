@@ -21,6 +21,7 @@ interface GooglePayEvents {
   success: () => void;
   error: (error: string) => void;
   cancel: () => void;
+  unavailable: () => void;
 }
 
 export default class GooglePay {
@@ -88,6 +89,10 @@ export default class GooglePay {
 
     this.#frame.on("EV_GOOGLE_PAY_CANCELLED", () => {
       this.#events.dispatch("cancel");
+    });
+
+    this.#frame.on("EV_GOOGLE_PAY_UNAVAILABLE", () => {
+      this.#events.dispatch("unavailable");
     });
 
     this.#frame.on("EV_GOOGLE_PAY_ERROR", (error) => {

@@ -672,6 +672,7 @@ describe("GooglePay button visibility from isReadyToPay response", () => {
     getMerchantMock.mockReset();
     getAppSDKConfigMock.mockReset();
     isReadyToPayMock.mockReset();
+    isReadyToPayMock.mockResolvedValue({ result: true });
     getMerchantMock.mockResolvedValue({ id: "merchant_abc", name: "Acme Co" });
     getAppSDKConfigMock.mockResolvedValue({ is_sandbox: false });
     (globalThis as unknown as { google: unknown }).google = {
@@ -695,10 +696,18 @@ describe("GooglePay button visibility from isReadyToPay response", () => {
 
   it("does not create the button when result is false", async () => {
     isReadyToPayMock.mockResolvedValue({ result: false });
+    const postMessage = vi.spyOn(window.parent, "postMessage");
 
     await renderAndSettle(config);
 
     expect(createButtonMock).not.toHaveBeenCalled();
+    expect(postMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        frame: "frame1",
+        type: "EV_GOOGLE_PAY_UNAVAILABLE",
+      }),
+      "*"
+    );
   });
 
   it("does not create the button when existingPaymentMethodRequired is set but paymentMethodPresent is false", async () => {
@@ -706,10 +715,15 @@ describe("GooglePay button visibility from isReadyToPay response", () => {
       result: true,
       paymentMethodPresent: false,
     });
+    const postMessage = vi.spyOn(window.parent, "postMessage");
 
     await renderAndSettle({ ...config, existingPaymentMethodRequired: true });
 
     expect(createButtonMock).not.toHaveBeenCalled();
+    expect(postMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "EV_GOOGLE_PAY_UNAVAILABLE" }),
+      "*"
+    );
   });
 
   it("creates the button when existingPaymentMethodRequired is set and paymentMethodPresent is true", async () => {
@@ -717,10 +731,109 @@ describe("GooglePay button visibility from isReadyToPay response", () => {
       result: true,
       paymentMethodPresent: true,
     });
+    const postMessage = vi.spyOn(window.parent, "postMessage");
 
     await renderAndSettle({ ...config, existingPaymentMethodRequired: true });
 
     expect(createButtonMock).toHaveBeenCalled();
+    expect(postMessage).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: "EV_GOOGLE_PAY_UNAVAILABLE" }),
+      "*"
+    );
+  });
+
+  it("sends unavailable when isReadyToPay rejects", async () => {
+    isReadyToPayMock.mockRejectedValue(new Error("boom"));
+    const postMessage = vi.spyOn(window.parent, "postMessage");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(<GooglePay config={config} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+
+    await waitFor(() =>
+      expect(postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "EV_GOOGLE_PAY_UNAVAILABLE" }),
+        "*"
+      )
+    );
+    expect(createButtonMock).not.toHaveBeenCalled();
+    expect(postMessage).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: "EV_GOOGLE_PAY_ERROR" }),
+      "*"
+    );
+  });
+
+  it("sends unavailable when the merchant cannot be loaded", async () => {
+    getMerchantMock.mockResolvedValue(undefined);
+    const postMessage = vi.spyOn(window.parent, "postMessage");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(<GooglePay config={config} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+
+    await waitFor(() =>
+      expect(postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "EV_GOOGLE_PAY_UNAVAILABLE" }),
+        "*"
+      )
+    );
+    expect(createButtonMock).not.toHaveBeenCalled();
+    expect(postMessage).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: "EV_GOOGLE_PAY_ERROR" }),
+      "*"
+    );
+  });
+
+  it("sends unavailable for a disbursement without loading pay.js", () => {
+    const postMessage = vi.spyOn(window.parent, "postMessage");
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(
+      <GooglePay
+        config={
+          {
+            ...config,
+            transaction: { ...config.transaction, type: "disbursement" },
+          } as GooglePayConfig
+        }
+      />
+    );
+
+    expect(postMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "EV_GOOGLE_PAY_UNAVAILABLE" }),
+      "*"
+    );
+    expect(error).toHaveBeenCalledWith(
+      "Google Pay does not support disbursement transactions."
+    );
+    expect(getInjectedScript()).toBeNull();
+    expect(createButtonMock).not.toHaveBeenCalled();
+    expect(postMessage).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: "EV_GOOGLE_PAY_ERROR" }),
+      "*"
+    );
+  });
+
+  it("sends unavailable when pay.js fails to load", async () => {
+    const postMessage = vi.spyOn(window.parent, "postMessage");
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(<GooglePay config={config} />);
+    getInjectedScript()!.dispatchEvent(new Event("error"));
+
+    await waitFor(() =>
+      expect(postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "EV_GOOGLE_PAY_UNAVAILABLE" }),
+        "*"
+      )
+    );
+    expect(error).toHaveBeenCalledWith("Google Pay failed to load");
+    expect(isReadyToPayMock).not.toHaveBeenCalled();
+    expect(createButtonMock).not.toHaveBeenCalled();
+    expect(postMessage).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: "EV_GOOGLE_PAY_ERROR" }),
+      "*"
+    );
   });
 });
 
