@@ -50,10 +50,10 @@ describe("getConfig", () => {
     );
 
     expect(config.http).toEqual({
-      keysUrl: "https://payments.acme.com/keys/",
-      apiUrl: "https://payments.acme.com/api",
+      keysUrl: "https://payments.acme.com/ev/v1/keys/",
+      apiUrl: "https://payments.acme.com/ev/v1/api",
     });
-    expect(config.components.url).toBe("https://payments.acme.com/");
+    expect(config.components.url).toBe("https://payments.acme.com/ev/v1/");
     expect(config.input.inputsOrigin).toBe("https://inputs.evervault.com");
   });
 
@@ -67,7 +67,7 @@ describe("getConfig", () => {
     );
 
     expect(new URL("team/apps/app", http.keysUrl).href).toBe(
-      "https://payments.acme.com/keys/team/apps/app"
+      "https://payments.acme.com/ev/v1/keys/team/apps/app"
     );
   });
 
@@ -81,7 +81,7 @@ describe("getConfig", () => {
     );
 
     expect(config.http.apiUrl).toBe("https://api.acme.com");
-    expect(config.http.keysUrl).toBe("https://payments.acme.com/keys/");
+    expect(config.http.keysUrl).toBe("https://payments.acme.com/ev/v1/keys/");
   });
 });
 

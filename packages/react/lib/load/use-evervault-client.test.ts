@@ -172,7 +172,7 @@ describe("useEvervaultClient", () => {
 
     await result.current.client;
     expect(injectScriptMock).toHaveBeenCalledWith(
-      "https://payments.acme.com/js/v2",
+      "https://payments.acme.com/ev/v1/js/v2",
       expect.objectContaining({ reuseExistingClient: false })
     );
   });

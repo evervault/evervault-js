@@ -85,22 +85,22 @@ describe("resolveSdkConfig", () => {
 
   it("routes by path on a custom domain", () => {
     expect(resolveSdkConfig("https://payments.acme.com", defaults)).toEqual({
-      jsSdkUrl: "https://payments.acme.com/js/v2",
-      keysUrl: "https://payments.acme.com/keys/",
-      apiUrl: "https://payments.acme.com/api",
+      jsSdkUrl: "https://payments.acme.com/ev/v1/js/v2",
+      keysUrl: "https://payments.acme.com/ev/v1/keys/",
+      apiUrl: "https://payments.acme.com/ev/v1/api",
     });
   });
 
   it("keeps a custom domain's port", () => {
     expect(
       resolveSdkConfig("https://payments.acme.com:8443", defaults).apiUrl
-    ).toBe("https://payments.acme.com:8443/api");
+    ).toBe("https://payments.acme.com:8443/ev/v1/api");
   });
 
   it("builds a keys URL that keeps its path when resolved against", () => {
     const { keysUrl } = resolveSdkConfig("https://payments.acme.com", defaults);
     expect(new URL("team/apps/app", keysUrl).href).toBe(
-      "https://payments.acme.com/keys/team/apps/app"
+      "https://payments.acme.com/ev/v1/keys/team/apps/app"
     );
   });
 });

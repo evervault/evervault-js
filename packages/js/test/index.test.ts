@@ -3,9 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const DEFAULT_URL = "https://js.evervault.test/v2";
 const CUSTOM_HOST = "payments.acme.test";
-const CUSTOM_URL = "https://payments.acme.test/js/v2";
+const CUSTOM_URL = "https://payments.acme.test/ev/v1/js/v2";
 const OTHER_HOST = "payments.other.test";
-const OTHER_URL = "https://payments.other.test/js/v2";
+const OTHER_URL = "https://payments.other.test/ev/v1/js/v2";
 
 interface Construction {
   bundle: string;

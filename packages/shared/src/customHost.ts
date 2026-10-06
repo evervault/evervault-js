@@ -27,9 +27,9 @@ export function customHostOrigin(host: unknown): string | null {
  */
 export function customHostUrls(origin: string): CustomHostUrls {
   return {
-    jsSdkUrl: `${origin}/js/v2`,
-    keysUrl: `${origin}/keys/`,
-    apiUrl: `${origin}/api`,
-    componentsUrl: `${origin}/`,
+    jsSdkUrl: `${origin}/ev/v1/js/v2`,
+    keysUrl: `${origin}/ev/v1/keys/`,
+    apiUrl: `${origin}/ev/v1/api`,
+    componentsUrl: `${origin}/ev/v1/`,
   };
 }
