@@ -1127,10 +1127,10 @@ importers:
         version: link:../card-validator
       '@hookform/resolvers':
         specifier: ^5.4.0
-        version: 5.4.0(react-hook-form@7.54.2(react@19.2.7))
+        version: 5.4.0(react-hook-form@7.89.0(@types/react@19.2.17)(react@19.2.7))
       react-hook-form:
-        specifier: ^7.54.2
-        version: 7.54.2(react@19.2.7)
+        specifier: ^7.89.0
+        version: 7.89.0(@types/react@19.2.17)(react@19.2.7)
       react-native-mask-input:
         specifier: ^1.2.3
         version: 1.2.3(react-native@0.79.6(@babel/core@7.29.7)(@react-native-community/cli@20.2.0(typescript@5.9.3))(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)
@@ -8387,11 +8387,15 @@ packages:
     peerDependencies:
       react: '>=17.0.0'
 
-  react-hook-form@7.54.2:
-    resolution: {integrity: sha512-eHpAUgUjWbZocoQYUHposymRb4ZP6d0uwUnooL2uOybA9/3tPUvoAKqEWK1WaSiTxxOfTpffNZP7QwlnM3/gEg==}
+  react-hook-form@7.89.0:
+    resolution: {integrity: sha512-vKcoCfy8RKZDrhSdqsRFp0uEOdS1AhLjOL6hR7Wmfzg1akNxEhaPf5WORx8SgEQPVXakdDyDkqQp+KNxVnnPHg==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
+      '@types/react': '*'
       react: ^16.8.0 || ^17 || ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -12191,10 +12195,10 @@ snapshots:
     dependencies:
       '@hapi/hoek': 11.0.7
 
-  '@hookform/resolvers@5.4.0(react-hook-form@7.54.2(react@19.2.7))':
+  '@hookform/resolvers@5.4.0(react-hook-form@7.89.0(@types/react@19.2.17)(react@19.2.7))':
     dependencies:
       '@standard-schema/utils': 0.3.0
-      react-hook-form: 7.54.2(react@19.2.7)
+      react-hook-form: 7.89.0(@types/react@19.2.17)(react@19.2.7)
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -18594,9 +18598,11 @@ snapshots:
     dependencies:
       react: 19.2.7
 
-  react-hook-form@7.54.2(react@19.2.7):
+  react-hook-form@7.89.0(@types/react@19.2.17)(react@19.2.7):
     dependencies:
       react: 19.2.7
+    optionalDependencies:
+      '@types/react': 19.2.17
 
   react-is@16.13.1: {}
 
