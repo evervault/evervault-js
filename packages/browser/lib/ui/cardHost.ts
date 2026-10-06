@@ -1,5 +1,6 @@
 import EventManager from "./eventManager";
 import { EvervaultFrame } from "./evervaultFrame";
+import { CARD_GUARDS } from "./messageGuards";
 import { diff } from "./specDiff";
 import type EvervaultClient from "../main";
 import type {
@@ -53,7 +54,7 @@ export class CardHost {
   #framed: CardSpecNode[] = [];
 
   constructor(client: EvervaultClient, options: CardHostOptions = {}) {
-    this.#frame = new EvervaultFrame(client, "Card", {
+    this.#frame = new EvervaultFrame(client, "Card", CARD_GUARDS, {
       colorScheme: options.colorScheme,
       allow: options.allow,
     });

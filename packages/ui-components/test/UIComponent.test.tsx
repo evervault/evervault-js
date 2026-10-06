@@ -14,6 +14,7 @@ vi.mock("../src/Card", () => ({
 function dispatchInit(config: unknown) {
   window.dispatchEvent(
     new MessageEvent("message", {
+      source: window,
       data: { frame: "test-frame", type: "EV_INIT", payload: { config } },
     })
   );
@@ -22,6 +23,7 @@ function dispatchInit(config: unknown) {
 function dispatchUpdate(config: unknown) {
   window.dispatchEvent(
     new MessageEvent("message", {
+      source: window,
       data: { frame: "test-frame", type: "EV_UPDATE", payload: { config } },
     })
   );

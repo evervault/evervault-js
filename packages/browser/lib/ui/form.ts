@@ -1,5 +1,6 @@
 import EventManager from "./eventManager";
 import { EvervaultFrame } from "./evervaultFrame";
+import { FORM_GUARDS } from "./messageGuards";
 import type EvervaultClient from "../main";
 import type {
   SelectorType,
@@ -21,7 +22,7 @@ export default class Form {
 
   constructor(client: EvervaultClient, options?: FormOptions) {
     this.#options = options ?? {};
-    this.#frame = new EvervaultFrame(client, "Form", {
+    this.#frame = new EvervaultFrame(client, "Form", FORM_GUARDS, {
       colorScheme: this.#options.colorScheme,
     });
 
