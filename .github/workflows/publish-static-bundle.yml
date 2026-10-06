@@ -62,6 +62,16 @@ jobs:
     with:
       package-name: ${{ inputs.package-name }}
       environment: ${{ inputs.stage }}
+  notify-pending-approval:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.stage == 'production' }}
+    steps:
+      - name: Notify slack that a release is waiting for approval
+        env:
+          WEBHOOK: ${{ secrets.PRODUCTION_SLACK_WEBHOOK }}
+          TEXT: "${{ inputs.tag_name }} is waiting for production approval: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        run: |-
+          curl -sf -X POST -H 'Content-type: application/json' --data "$(jq -cn --arg text "$TEXT" '{text: $text}')" "$WEBHOOK"
   # For packages which support preflight testing/deployment previews, we deploy the static bundle under a preview namespace and optionally run a preflight test against it.
   # This is to ensure that the preview deployment is working as expected before we promote to production.
   deploy-preview:
