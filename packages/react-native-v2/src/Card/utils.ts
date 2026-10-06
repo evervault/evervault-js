@@ -4,14 +4,93 @@ import {
   validateCVC,
   CardNumberValidationResult,
 } from "@evervault/card-validator";
-import type { CardBrandName, CardPayload } from "./types";
+import type { CardBrandName, CardField, CardPayload } from "./types";
 import { type CardFormValues } from "./schema";
 import { DeepPartial, UseFormReturn } from "react-hook-form";
 import { type Encrypted, sdk } from "../sdk";
+import type { CardInput } from "shared/cardSpec";
+import { compilePattern } from "shared/customField";
+import type { CustomFieldProps } from "shared/customField";
+import type { CardFieldSettings } from "shared/cardFieldSettings";
+import { isRefusedAmexCvc } from "shared/cvc";
+import type { DeclaredExpiry } from "shared/expiry";
+import type { FieldProps } from "shared/fieldProps";
+import { customFieldKey, customFieldMessage } from "./customFields";
+
+export type CardSettings = Partial<Record<CardField, FieldProps>>;
+
+// The split expiry uses the later half's errorMessage, falling back to the
+// other half's.
+export function cardFieldSettings(
+  declared: ReadonlyMap<CardInput, FieldProps>,
+  expiry: DeclaredExpiry
+): CardSettings {
+  const settings: CardSettings = {
+    name: declared.get("name"),
+    number: declared.get("number"),
+    expiry: declared.get("expiry"),
+    cvc: declared.get("cvc"),
+  };
+
+  if (expiry?.form === "split") {
+    const later = expiry.later === "expiryMonth" ? "month" : "year";
+    const other = later === "month" ? "year" : "month";
+
+    settings.expiry = {
+      errorMessage:
+        declared.get(`expiry-${later}`)?.errorMessage ??
+        declared.get(`expiry-${other}`)?.errorMessage,
+    };
+  }
+
+  return settings;
+}
 
 export interface FormatPayloadContext {
   form: UseFormReturn<CardFormValues>;
   encrypt<T>(data: T): Promise<Encrypted<T>>;
+  customFields?: ReadonlyMap<string, CustomFieldProps>;
+  fieldSettings?: CardSettings;
+}
+
+interface CustomFieldsPayload {
+  fields: Record<string, string | null>;
+  errors: Record<string, string>;
+  isComplete: boolean;
+}
+
+// Errors show once the card has checked the field; until then an invalid value
+// only makes the card incomplete.
+async function formatCustomFields(
+  context: FormatPayloadContext
+): Promise<CustomFieldsPayload | null> {
+  if (!context.customFields?.size) return null;
+
+  const fields: [string, string | null][] = [];
+  const errors: [string, string][] = [];
+  let isComplete = true;
+
+  for (const [name, field] of context.customFields) {
+    const key = customFieldKey(name) as keyof CardFormValues;
+    const value = (context.form.getValues(key) as string | undefined) ?? "";
+    const error = customFieldMessage(value, field);
+    const shown = context.form.getFieldState(key).error?.message;
+
+    fields.push([
+      name,
+      value.length > 0 && !error ? await context.encrypt(value) : null,
+    ]);
+
+    if (error) isComplete = false;
+    if (shown) errors.push([name, shown]);
+  }
+
+  // Built from entries, so a name such as "__proto__" is a key like any other.
+  return {
+    fields: Object.fromEntries(fields),
+    errors: Object.fromEntries(errors),
+    isComplete,
+  };
 }
 
 export async function formatPayload(
@@ -36,11 +115,13 @@ export async function formatPayload(
     context.form.setValue("cvc", values.cvc?.slice(0, 3));
   }
 
-  const { cvc, isValid: isCvcValid } = validateCVC(values.cvc ?? "", number);
+  const settings = context.fieldSettings ?? {};
+  const { cvc } = validateCVC(values.cvc ?? "", number);
+  const isCvcValid = isCvcAccepted(values.cvc ?? "", number, settings.cvc);
 
   const formErrors = context.form.formState.errors;
   const isValid = !Object.keys(formErrors).length;
-  const isComplete = areValuesComplete(values);
+  const isComplete = areValuesComplete(values, settings);
 
   const errors: Record<string, string> = {};
   if (formErrors.name?.message) {
@@ -56,6 +137,9 @@ export async function formatPayload(
     errors.cvc = formErrors.cvc.message;
   }
 
+  const custom = await formatCustomFields(context);
+  const customComplete = custom?.isComplete ?? true;
+
   return {
     card: {
       name: values.name ?? null,
@@ -67,14 +151,25 @@ export async function formatPayload(
       number: isNumberValid ? await context.encrypt(number) : null,
       cvc: isCvcValid ? await context.encrypt(cvc ?? "") : null,
     },
-    isComplete,
-    isValid: isValid && isComplete,
-    errors,
+    ...(custom && { fields: custom.fields }),
+    isComplete: isComplete && customComplete,
+    isValid: isValid && isComplete && customComplete,
+    errors:
+      custom && Object.keys(custom.errors).length > 0
+        ? { ...errors, fields: custom.errors }
+        : errors,
   };
 }
 
-export function areValuesComplete(values: DeepPartial<CardFormValues>) {
+export function areValuesComplete(
+  values: DeepPartial<CardFormValues>,
+  settings: CardSettings = {}
+) {
   if ("name" in values && !values.name?.length) {
+    return false;
+  }
+
+  if ("name" in values && !nameMatches(values.name ?? "", settings.name)) {
     return false;
   }
 
@@ -88,12 +183,49 @@ export function areValuesComplete(values: DeepPartial<CardFormValues>) {
 
   if (
     "cvc" in values &&
-    !validateCVC(values.cvc ?? "", values.number).isValid
+    !isCvcComplete(values.cvc ?? "", values.number ?? "", settings.cvc)
   ) {
     return false;
   }
 
   return true;
+}
+
+// Valid for the card number and allowed by allow3DigitAmex.
+export function isCvcAccepted(
+  cvc: string,
+  number: string,
+  settings: CardFieldSettings = {}
+) {
+  return (
+    validateCVC(cvc, number).isValid &&
+    !isRefusedAmexCvc(
+      cvc,
+      validateNumber(number).brand,
+      settings.allow3DigitAmex
+    )
+  );
+}
+
+// Also true for an empty CVC when it's optional.
+export function isCvcComplete(
+  cvc: string,
+  number: string,
+  settings: CardFieldSettings = {}
+) {
+  return (
+    (settings.optional === true && cvc === "") ||
+    isCvcAccepted(cvc, number, settings)
+  );
+}
+
+// True when no pattern is set.
+export function nameMatches(name: string, settings: CardFieldSettings = {}) {
+  const pattern =
+    settings.pattern === undefined
+      ? undefined
+      : compilePattern(settings.pattern);
+  return !pattern || pattern.test(name);
 }
 
 export function isAcceptedBrand(
