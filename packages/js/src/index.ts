@@ -24,7 +24,9 @@ function sdkUrl(host: string | undefined): string {
 
   const origin = customHostOrigin(host);
   if (!origin) {
-    throw new Error("host must be a hostname, such as payments.acme.com");
+    throw new Error(
+      "customDomain must be a hostname, such as payments.acme.com"
+    );
   }
 
   return customHostUrls(origin).jsSdkUrl;
@@ -47,6 +49,6 @@ export async function loadEvervault(
   app: string,
   config?: CustomConfig
 ): Promise<EvervaultInstance> {
-  const Client = await load(config?.host);
+  const Client = await load(config?.customDomain);
   return new Client(team, app, config);
 }

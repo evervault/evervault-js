@@ -11,7 +11,7 @@ const EVERVAULT_URL = "https://js.evervault.com/v2";
 export interface CustomConfig extends BrowserConfig {
   /**
    * The URL to load the Evervault browser SDK from. Takes precedence over the
-   * URL derived from `host`.
+   * URL derived from `customDomain`.
    */
   jsSdkUrl?: string;
 }
@@ -72,7 +72,8 @@ export function useEvervaultClient({
 
     const created = new PromisifiedEvervaultClient(async (resolve, reject) => {
       try {
-        const custom = customConfig?.jsSdkUrl || hostSdkUrl(customConfig?.host);
+        const custom =
+          customConfig?.jsSdkUrl || hostSdkUrl(customConfig?.customDomain);
         const url = new URL(custom ?? EVERVAULT_URL);
         if (reloadAttempt > 0) {
           url.searchParams.set("attempt", String(reloadAttempt + 1));
@@ -101,7 +102,9 @@ function hostSdkUrl(host: string | undefined): string | undefined {
 
   const origin = customHostOrigin(host);
   if (!origin) {
-    throw new Error("host must be a hostname, such as payments.acme.com");
+    throw new Error(
+      "customDomain must be a hostname, such as payments.acme.com"
+    );
   }
 
   return customHostUrls(origin).jsSdkUrl;

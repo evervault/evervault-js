@@ -85,13 +85,13 @@ describe("getConfig", () => {
   });
 });
 
-describe("EvervaultClient host", () => {
-  it("throws on a host that is not a hostname", () => {
+describe("EvervaultClient customDomain", () => {
+  it("throws on a customDomain that is not a hostname", () => {
     expect(
       () =>
         new EvervaultClient("team", "app", {
-          host: "https://payments.acme.com",
+          customDomain: "https://payments.acme.com",
         })
-    ).toThrow("host must be a hostname");
+    ).toThrow("customDomain must be a hostname");
   });
 });

@@ -46,7 +46,7 @@ export interface CustomConfig {
    * `payments.acme.com`. Sets the keys, API and UI component URLs. A URL given
    * in `urls` takes precedence.
    */
-  host?: string;
+  customDomain?: string;
   urls?: ConfigUrls;
   publicKey?: string;
   appKey?: CageKey;
@@ -101,7 +101,7 @@ export default class EvervaultClient {
       appId,
       customConfig?.urls,
       customConfig?.publicKey,
-      hostOrigin(customConfig.host)
+      hostOrigin(customConfig.customDomain)
     );
 
     const context = getContext(
@@ -140,7 +140,7 @@ export default class EvervaultClient {
       appUuid,
       customConfig?.urls,
       customConfig?.publicKey,
-      hostOrigin(customConfig.host)
+      hostOrigin(customConfig.customDomain)
     );
 
     const context = getContext(
@@ -368,7 +368,7 @@ function hostOrigin(host: string | undefined): string | undefined {
   const origin = customHostOrigin(host);
   if (!origin) {
     throw new errors.InitializationError(
-      "host must be a hostname, such as payments.acme.com"
+      "customDomain must be a hostname, such as payments.acme.com"
     );
   }
 
