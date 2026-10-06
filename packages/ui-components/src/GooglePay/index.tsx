@@ -81,13 +81,14 @@ export function GooglePay({ config }: GooglePayProps) {
   >();
 
   useLayoutEffect(() => {
-    if (config.transaction.type == "disbursement") {
-      console.error("Google Pay does not support disbursment transactions.");
-      return;
-    }
-
     if (called.current) return;
     called.current = true;
+
+    if (config.transaction.type == "disbursement") {
+      console.error("Google Pay does not support disbursement transactions.");
+      send("EV_GOOGLE_PAY_UNAVAILABLE");
+      return;
+    }
 
     async function onLoad() {
       const appConfigPromise = getAppSDKConfig(app, apiConfig.apiUrl);
@@ -280,6 +281,10 @@ export function GooglePay({ config }: GooglePayProps) {
         },
       });
 
+      // Anything that prevents the button rendering. Kept separate from the
+      // sizing below so a failure measuring an already-visible button cannot
+      // also report it as unavailable.
+      let button: HTMLElement | undefined;
       try {
         const merchant = await merchantPromise;
         if (!merchant) {
@@ -297,6 +302,7 @@ export function GooglePay({ config }: GooglePayProps) {
             isReadyToPayResponse.paymentMethodPresent);
 
         if (!canPay) {
+          send("EV_GOOGLE_PAY_UNAVAILABLE");
           return;
         }
 
@@ -304,7 +310,7 @@ export function GooglePay({ config }: GooglePayProps) {
           paymentsClient.prefetchPaymentData(paymentRequest);
         }
 
-        const btn = paymentsClient.createButton({
+        button = paymentsClient.createButton({
           buttonLocale: config.locale || "en",
           buttonType: config.type || "plain",
           buttonColor: config.color || "black",
@@ -332,38 +338,52 @@ export function GooglePay({ config }: GooglePayProps) {
           },
         });
 
-        if (container.current) {
-          container.current.appendChild(btn);
+        if (!container.current) {
+          send("EV_GOOGLE_PAY_UNAVAILABLE");
+          return;
+        }
+        container.current.appendChild(button);
+      } catch (err) {
+        console.error(err);
+        // appendChild is the last step in the try. If it threw after inserting
+        // the button, the button is visible and this must not also report it
+        // as unavailable.
+        if (!button || !container.current?.contains(button)) {
+          send("EV_GOOGLE_PAY_UNAVAILABLE");
+        }
+        return;
+      }
 
-          setSize({
-            width: container.current.offsetWidth,
-            height: container.current.offsetHeight,
-          });
+      if (!container.current || !button) return;
 
-          const gpayButton = btn.querySelector("button");
-          if (gpayButton) {
-            const minSize: { minWidth?: number; minHeight?: number } = {};
-            const computedStyle = getComputedStyle(gpayButton);
-            if (computedStyle.minWidth) {
-              const minWidth = Number.parseFloat(computedStyle.minWidth);
-              if (!Number.isNaN(minWidth)) {
-                minSize.minWidth = minWidth;
-              }
+      try {
+        setSize({
+          width: container.current.offsetWidth,
+          height: container.current.offsetHeight,
+        });
+
+        const gpayButton = button.querySelector("button");
+        if (gpayButton) {
+          const minSize: { minWidth?: number; minHeight?: number } = {};
+          const computedStyle = getComputedStyle(gpayButton);
+          if (computedStyle.minWidth) {
+            const minWidth = Number.parseFloat(computedStyle.minWidth);
+            if (!Number.isNaN(minWidth)) {
+              minSize.minWidth = minWidth;
             }
-            if (computedStyle.minHeight) {
-              const minHeight = Number.parseFloat(computedStyle.minHeight);
-              if (!Number.isNaN(minHeight)) {
-                minSize.minHeight = minHeight;
-              }
-            }
-            setSize({
-              height: container.current.offsetHeight,
-              ...minSize,
-            });
           }
+          if (computedStyle.minHeight) {
+            const minHeight = Number.parseFloat(computedStyle.minHeight);
+            if (!Number.isNaN(minHeight)) {
+              minSize.minHeight = minHeight;
+            }
+          }
+          setSize({
+            height: container.current.offsetHeight,
+            ...minSize,
+          });
         }
       } catch (err) {
-        console.log("cancelled");
         console.error(err);
       }
     }
@@ -372,6 +392,10 @@ export function GooglePay({ config }: GooglePayProps) {
     script.src = "https://pay.google.com/gp/p/js/pay.js";
     script.async = true;
     script.onload = onLoad;
+    script.onerror = () => {
+      console.error("Google Pay failed to load");
+      send("EV_GOOGLE_PAY_UNAVAILABLE");
+    };
     document.body.appendChild(script);
   }, [app, config, send, on]);
 

@@ -110,6 +110,16 @@ it.each([
   expect(() => mount({ shippingOptions })).toThrow(message);
 });
 
+it("dispatches unavailable when the frame hides the button", () => {
+  const googlePay = mount();
+  const unavailable = vi.fn();
+  googlePay.on("unavailable", unavailable);
+
+  handlers.get("EV_GOOGLE_PAY_UNAVAILABLE")!(undefined);
+
+  expect(unavailable).toHaveBeenCalledOnce();
+});
+
 it("rejects totalPriceStatus NOT_CURRENTLY_KNOWN", () => {
   expect(() =>
     mount({
