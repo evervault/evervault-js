@@ -331,7 +331,7 @@ export class EvervaultFrame<
     return this.#client.config.components.url;
   }
 
-  #isFromFrame(e: MessageEvent<EvervaultFrameMessageDetail>) {
+  #isFromOwnFrame(e: MessageEvent<EvervaultFrameMessageDetail>) {
     return (
       e.source !== null &&
       e.source === this.iframe.contentWindow &&
@@ -374,7 +374,7 @@ export class EvervaultFrame<
     callback: (message: ReceivableMessages[K]) => void
   ) {
     const handleMessage = (e: MessageEvent<EvervaultFrameMessageDetail>) => {
-      if (!this.#isFromFrame(e)) return;
+      if (!this.#isFromOwnFrame(e)) return;
       if (e.data.type !== event) return;
       callback(e.data.payload as ReceivableMessages[K]);
     };
