@@ -423,6 +423,7 @@ export interface GooglePayClientMessages extends EvervaultFrameClientMessages {
   EV_GOOGLE_PAY_CANCELLED: undefined;
   EV_GOOGLE_PAY_ERROR: string;
   EV_GOOGLE_PAY_SUCCESS: undefined;
+  EV_GOOGLE_PAY_UNAVAILABLE: undefined;
   EV_GOOGLE_PAY_DATA_CHANGE: GooglePayDataChangeRequest;
 }
 
