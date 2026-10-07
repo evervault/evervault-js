@@ -36,6 +36,7 @@ export function CardExpiry(props: CardExpiryProps) {
       placeholder={props.placeholder ?? "MM / YY"}
       inputMode="numeric"
       autoComplete="cc-exp"
+      textContentType="creditCardExpiration"
     />
   );
 }

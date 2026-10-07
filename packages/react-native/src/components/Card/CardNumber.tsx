@@ -53,6 +53,7 @@ export function CardNumber(props: CardNumberProps) {
       }}
       inputMode="numeric"
       autoComplete="cc-number"
+      textContentType="creditCardNumber"
     />
   );
 }
