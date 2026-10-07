@@ -18,6 +18,7 @@ import {
   CreateTransactionDetails,
   DisbursementTransactionDetails,
   RecurringTransactionDetails,
+  DeferredTransactionDetails,
 } from "types";
 import { createBrand } from "shared/createBrand";
 import { registerEvCard } from "./ui/elements/evCard";
@@ -339,6 +340,7 @@ export default class EvervaultClient {
           | CreateTransactionDetails
           | RecurringTransactionDetails
           | DisbursementTransactionDetails
+          | DeferredTransactionDetails
       ) => new Transaction(details),
     };
   }

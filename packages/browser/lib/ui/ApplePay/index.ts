@@ -147,13 +147,15 @@ export type ApplePayButtonOptions = {
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   /**
    * Shipping type label on the Apple Pay sheet (shipping / delivery / pickup).
-   * Payment (one-off) transactions only — rejected for recurring and disbursement.
+   * Payment (one-off) transactions only — rejected for recurring, disbursement,
+   * and deferred transactions.
    */
   shippingType?: ApplePayShippingType;
   /**
    * Shipping methods shown as selectable options on the Apple Pay sheet.
    * Requires `requestShipping: true` (auto-enabled when methods are provided).
-   * Payment (one-off) transactions only — rejected for recurring and disbursement.
+   * Payment (one-off) transactions only — rejected for recurring, disbursement,
+   * and deferred transactions.
    *
    * When the customer selects a method, totals are recomputed. Provide
    * `onShippingMethodSelected` to control the amount/line items yourself;
@@ -186,8 +188,8 @@ export type ApplePayButtonOptions = {
    * Prefill billing contact on the Apple Pay sheet (ApplePayRequest.billingContact).
    * Requires `requestBillingAddress: true` for the postal address to actually show.
    *
-   * Payment and recurring transactions only. Apple Pay disbursements use a
-   * separate recipient-contact model (`requiredRecipientDetails` on the
+   * Payment, recurring, and deferred transactions only. Apple Pay disbursements
+   * use a separate recipient-contact model (`requiredRecipientDetails` on the
    * transaction) — this field has no effect on disbursement-type transactions.
    */
   billingContact?: PaymentContact;
@@ -195,8 +197,8 @@ export type ApplePayButtonOptions = {
    * Prefill shipping contact on the Apple Pay sheet (ApplePayRequest.shippingContact).
    * Requires `requestShipping: true` for the postal address to actually show.
    *
-   * Payment and recurring transactions only. Apple Pay disbursements use a
-   * separate recipient-contact model (`requiredRecipientDetails` on the
+   * Payment, recurring, and deferred transactions only. Apple Pay disbursements
+   * use a separate recipient-contact model (`requiredRecipientDetails` on the
    * transaction) — this field has no effect on disbursement-type transactions.
    */
   shippingContact?: PaymentContact;

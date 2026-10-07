@@ -440,7 +440,11 @@ export interface ApplePayHostMessages extends EvervaultFrameHostMessages {
   EV_APPLE_PAY_SUCCESS: undefined;
 }
 
-export type ApplePayTransactionType = "oneOff" | "recurring" | "disbursement";
+export type ApplePayTransactionType =
+  | "oneOff"
+  | "recurring"
+  | "disbursement"
+  | "deferred";
 
 export interface ApplePayCardEnrichment {
   funding?: string;
@@ -983,6 +987,18 @@ export interface RecurringTransactionDetails extends BaseTransactionDetails {
   };
 }
 
+// Deferred-payment-specific fields (pre-orders / deposits, e.g. hotel bookings)
+export interface DeferredTransactionDetails extends BaseTransactionDetails {
+  type: "deferred";
+  managementURL: string;
+  description: string;
+  billingAgreement?: string;
+  deferredBilling: TransactionLineItem;
+  freeCancellationDate?: Date;
+  freeCancellationDateTimeZone?: string;
+  tokenNotificationURL?: string;
+}
+
 // Disbursement-specific fields
 export type RequiredRecipientDetail = "email" | "phone" | "name" | "address";
 
@@ -1003,7 +1019,8 @@ export interface DisbursementTransactionDetails extends BaseTransactionDetails {
 export type TransactionDetails =
   | PaymentTransactionDetails
   | RecurringTransactionDetails
-  | DisbursementTransactionDetails;
+  | DisbursementTransactionDetails
+  | DeferredTransactionDetails;
 
 export type TransactionDetailsWithDomain = TransactionDetails & {
   domain: string;
