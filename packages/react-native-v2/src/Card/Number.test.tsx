@@ -74,3 +74,16 @@ it("uses 15 digits for mask for american express", async () => {
   );
   expect(number).toHaveProp("value", "3714 49•••• •••••");
 });
+
+it("sets the iOS content type so native card scan and autofill show", async () => {
+  const { getByTestId } = await render(
+    <Card>
+      <CardNumber testID="number" />
+    </Card>,
+    { wrapper }
+  );
+  expect(getByTestId("number")).toHaveProp(
+    "textContentType",
+    "creditCardNumber"
+  );
+});

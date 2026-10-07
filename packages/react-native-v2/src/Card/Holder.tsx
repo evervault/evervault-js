@@ -20,6 +20,7 @@ export const CardHolder = forwardRef<CardHolder, CardHolderProps>(
           ios: "cc-name",
           default: "name",
         })}
+        textContentType="creditCardName"
         keyboardType="default"
       />
     );

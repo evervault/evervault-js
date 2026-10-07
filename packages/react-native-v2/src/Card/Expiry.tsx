@@ -19,6 +19,7 @@ export const CardExpiry = forwardRef<CardExpiry, CardExpiryProps>(
         mask={CARD_EXPIRY_MASK}
         inputMode="numeric"
         autoComplete="cc-exp"
+        textContentType="creditCardExpiration"
         keyboardType="number-pad"
       />
     );

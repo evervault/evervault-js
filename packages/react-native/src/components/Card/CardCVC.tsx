@@ -43,6 +43,7 @@ export const CardCVC = (props: CVCProps) => {
       }}
       inputMode="numeric"
       autoComplete="cc-csc"
+      textContentType="creditCardSecurityCode"
     />
   );
 };

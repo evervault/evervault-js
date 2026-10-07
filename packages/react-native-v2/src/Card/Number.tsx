@@ -47,6 +47,7 @@ export const CardNumber = forwardRef<CardNumber, CardNumberProps>(
         mask={mask}
         inputMode="numeric"
         autoComplete="cc-number"
+        textContentType="creditCardNumber"
         keyboardType="number-pad"
       />
     );

@@ -18,7 +18,12 @@ import { StyleProp, TextInputProps, TextStyle, View } from "react-native";
 
 export type BaseProps = Omit<
   TextInputProps,
-  "onChange" | "onChangeText" | "inputMode" | "autoComplete" | "value"
+  | "onChange"
+  | "onChangeText"
+  | "inputMode"
+  | "autoComplete"
+  | "textContentType"
+  | "value"
 >;
 
 export interface CardProps {

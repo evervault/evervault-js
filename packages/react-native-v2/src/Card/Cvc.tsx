@@ -52,6 +52,7 @@ export const CardCvc = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
       mask={mask}
       inputMode="numeric"
       autoComplete="cc-csc"
+      textContentType="creditCardSecurityCode"
       keyboardType="number-pad"
     />
   );

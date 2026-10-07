@@ -31,6 +31,7 @@ export function CardHolder(props: CardHolderProps) {
         ios: "cc-name",
         android: "name",
       })}
+      textContentType="creditCardName"
       onChangeText={(v) => onChange(v)}
     />
   );
