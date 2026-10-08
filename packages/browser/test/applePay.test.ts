@@ -778,7 +778,9 @@ describe("buildSession recurringPaymentRequest updates", () => {
     expect(modifierData.billingAgreement).toBe(
       recurringWithTrial.billingAgreement
     );
-    expect(modifierData.paymentDescription).toBe(recurringWithTrial.description);
+    expect(modifierData.paymentDescription).toBe(
+      recurringWithTrial.description
+    );
   });
 
   it("drops recurringPaymentRequest and warns when returned for a non-recurring transaction", async () => {
