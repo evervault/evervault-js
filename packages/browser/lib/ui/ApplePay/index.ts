@@ -20,6 +20,7 @@ import {
   ApplePayCardNetwork,
   ApplePayShippingMethod,
   ApplePayShippingType,
+  ApplePayUpdateResult,
   CouponCodeChangeResult,
   PaymentContact,
   PaymentMethodUpdate,
@@ -141,73 +142,49 @@ export type ApplePayButtonOptions = {
   };
   onPaymentMethodChange?: (
     newPaymentMethod: PaymentMethodUpdate
-  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
+  ) => Promise<ApplePayUpdateResult>;
   onShippingAddressChange?: (
     newAddress: ShippingAddress
-  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
-  /**
-   * Shipping type label on the Apple Pay sheet (shipping / delivery / pickup).
-   * Payment (one-off) transactions only — rejected for recurring and disbursement.
-   */
+  ) => Promise<ApplePayUpdateResult>;
+  /** Shipping type label on the sheet (shipping/delivery/pickup). One-off payments only. */
   shippingType?: ApplePayShippingType;
-  /**
-   * Shipping methods shown as selectable options on the Apple Pay sheet.
-   * Requires `requestShipping: true` (auto-enabled when methods are provided).
-   * Payment (one-off) transactions only — rejected for recurring and disbursement.
-   *
-   * When the customer selects a method, totals are recomputed. Provide
-   * `onShippingMethodSelected` to control the amount/line items yourself;
-   * otherwise the SDK adjusts the total by the selected method's amount.
-   */
+  /** Selectable shipping options on the sheet. One-off payments only.
+   * Auto-enables `requestShipping`. Use with `onShippingMethodSelected`*/
   shippingMethods?: ApplePayShippingMethod[];
   /**
-   * Called when the customer selects a shipping method on the sheet.
-   * Return updated totals. Maps to PaymentRequest `shippingoptionchange`.
-   * Requires `shippingMethods` (and shipping to be requested).
-   */
+   * Called when the customer selects a shipping method. Return updated totals;
+   * otherwise the SDK adjusts the total automatically. */
   onShippingMethodSelected?: (
     shippingMethod: ApplePayShippingMethod
-  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
-  /**
-   * Show the coupon field on the Apple Pay sheet and receive updates when the
-   * customer changes the code. Maps to ApplePayRequest.supportsCouponCode /
-   * couponCode on the PaymentRequest bridge.
-   */
+  ) => Promise<ApplePayUpdateResult>;
+  /** Show a coupon field on the sheet; `onCouponCodeChange` fires on changes. */
   supportsCouponCode?: boolean;
   /** Initial coupon code shown in the sheet when supportsCouponCode is true. */
   couponCode?: string;
   /**
-   * Called when the customer changes the coupon on the sheet.
-   * Return updated totals, and optionally `error` to show an invalid/expired
-   * coupon message in the native Apple Pay UI.
+   * Called when the customer changes the coupon. Return updated totals,
+   * optionally `error` for an invalid/expired coupon, or `recurringPaymentRequest`
+   * to update subscription terms (recurring only).
    */
   onCouponCodeChange?: (couponCode: string) => Promise<CouponCodeChangeResult>;
   /**
-   * Prefill billing contact on the Apple Pay sheet (ApplePayRequest.billingContact).
-   * Requires `requestBillingAddress: true` for the postal address to actually show.
-   *
-   * Payment and recurring transactions only. Apple Pay disbursements use a
-   * separate recipient-contact model (`requiredRecipientDetails` on the
-   * transaction) — this field has no effect on disbursement-type transactions.
+   * Prefill billing contact on the sheet. Requires `requestBillingAddress: true`
+   * to show the postal address. Payment/recurring only — disbursements use
+   * `requiredRecipientDetails` instead.
    */
   billingContact?: PaymentContact;
   /**
-   * Prefill shipping contact on the Apple Pay sheet (ApplePayRequest.shippingContact).
-   * Requires `requestShipping: true` for the postal address to actually show.
-   *
-   * Payment and recurring transactions only. Apple Pay disbursements use a
-   * separate recipient-contact model (`requiredRecipientDetails` on the
-   * transaction) — this field has no effect on disbursement-type transactions.
+   * Prefill shipping contact on the sheet. Requires `requestShipping: true`
+   * to show the postal address. Payment/recurring only — disbursements use
+   * `requiredRecipientDetails` instead.
    */
   shippingContact?: PaymentContact;
   /**
-   * Opaque merchant data included on the Apple Pay request
-   * (ApplePayRequest.applicationData). Must be a Base64-encoded string.
+   * Opaque merchant data included on the Apple Pay request. Must be a Base64-encoded string.
    */
   applicationData?: string;
   /**
-   * Restrict payments to cards issued in these ISO 3166 country codes
-   * (ApplePayRequest.supportedCountries).
+   * Restrict payments to cards issued in these ISO 3166 country codes.
    */
   supportedCountries?: string[];
   prepareTransaction?: () => Promise<{

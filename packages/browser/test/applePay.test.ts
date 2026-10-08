@@ -656,6 +656,196 @@ describe("buildSession coupon codes", () => {
   });
 });
 
+describe("buildSession recurringPaymentRequest updates", () => {
+  beforeEach(() => {
+    server.use(
+      http.get(`${apiUrl}/frontend/sdk/config`, () =>
+        HttpResponse.json({ is_sandbox: false }, { status: 200 })
+      )
+    );
+  });
+
+  function getRecurringModifierData(update: {
+    modifiers?: unknown[];
+  }): Record<string, unknown> {
+    return (
+      update.modifiers?.[0] as unknown as {
+        data: { recurringPaymentRequest: Record<string, unknown> };
+      }
+    ).data.recurringPaymentRequest;
+  }
+
+  it("updates the recurring terms via onShippingAddressChange", async () => {
+    const onShippingAddressChange = vi.fn().mockResolvedValue({
+      amount: 1500,
+      recurringPaymentRequest: {
+        regularBilling: { label: "Monthly (discounted)", amount: 800 },
+      },
+    });
+
+    await buildSession(applePay, {
+      transaction: recurringTransaction,
+      onShippingAddressChange,
+    });
+
+    const session = paymentRequestInstances[0];
+    const updateWith = vi.fn();
+    session.onshippingaddresschange?.({
+      target: {
+        shippingAddress: {
+          addressLine: ["1 Main St"],
+          city: "Dublin",
+          country: "IE",
+          dependentLocality: "",
+          organization: "",
+          phone: "",
+          postalCode: "D01",
+          recipient: "Jane",
+          region: "",
+          sortingCode: "",
+        },
+      },
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent);
+
+    const update = await updateWith.mock.calls[0][0];
+    const modifierData = getRecurringModifierData(update);
+
+    expect(modifierData.regularBilling).toEqual({
+      label: "Monthly (discounted)",
+      amount: 800,
+      paymentTiming: "recurring",
+      recurringPaymentStartDate:
+        recurringTransaction.regularBilling.recurringPaymentStartDate,
+      recurringPaymentIntervalUnit: "month",
+      recurringPaymentIntervalCount: 1,
+    });
+    expect(modifierData.paymentDescription).toBe(
+      recurringTransaction.description
+    );
+    expect(modifierData.managementURL).toBe(recurringTransaction.managementURL);
+    expect(modifierData.billingAgreement).toBe(
+      recurringTransaction.billingAgreement
+    );
+  });
+
+  it("backfills omitted recurringPaymentRequest fields from the original transaction", async () => {
+    const recurringWithTrial = {
+      ...recurringTransaction,
+      trialBilling: {
+        label: "7-day trial",
+        amount: 0,
+        trialPaymentStartDate: new Date("2026-01-01"),
+      },
+    };
+
+    const onPaymentMethodChange = vi.fn().mockResolvedValue({
+      amount: 1500,
+      recurringPaymentRequest: {
+        regularBilling: { label: "Monthly", amount: 1200 },
+      },
+    });
+
+    await buildSession(applePay, {
+      transaction: recurringWithTrial,
+      onPaymentMethodChange,
+    });
+
+    const session = paymentRequestInstances[0];
+    const updateWith = vi.fn();
+    session.onpaymentmethodchange?.({
+      methodDetails: { type: "credit" },
+      updateWith,
+    } as unknown as PaymentMethodChangeEvent);
+
+    const update = await updateWith.mock.calls[0][0];
+    const modifierData = getRecurringModifierData(update);
+
+    expect(modifierData.regularBilling).toMatchObject({
+      label: "Monthly",
+      amount: 1200,
+      recurringPaymentIntervalUnit: "month",
+      recurringPaymentIntervalCount: 1,
+    });
+    expect(modifierData.trialBilling).toEqual({
+      label: "7-day trial",
+      amount: 0,
+      paymentTiming: "recurring",
+      recurringPaymentStartDate:
+        recurringWithTrial.trialBilling.trialPaymentStartDate,
+    });
+    expect(modifierData.managementURL).toBe(recurringWithTrial.managementURL);
+    expect(modifierData.billingAgreement).toBe(
+      recurringWithTrial.billingAgreement
+    );
+    expect(modifierData.paymentDescription).toBe(
+      recurringWithTrial.description
+    );
+  });
+
+  it("drops recurringPaymentRequest and warns when returned for a non-recurring transaction", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const onPaymentMethodChange = vi.fn().mockResolvedValue({
+      amount: 1500,
+      recurringPaymentRequest: {
+        regularBilling: { label: "Monthly", amount: 1200 },
+      },
+    });
+
+    await buildSession(applePay, {
+      transaction,
+      onPaymentMethodChange,
+    });
+
+    const session = paymentRequestInstances[0];
+    const updateWith = vi.fn();
+    session.onpaymentmethodchange?.({
+      methodDetails: { type: "credit" },
+      updateWith,
+    } as unknown as PaymentMethodChangeEvent);
+
+    const update = await updateWith.mock.calls[0][0];
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "recurringPaymentRequest is only supported for recurring transactions"
+      )
+    );
+    expect(update.modifiers).toBeUndefined();
+    expect(update.total?.amount.value).toBe("15.00");
+
+    warn.mockRestore();
+  });
+
+  it("omits modifiers on a recurring update when recurringPaymentRequest is not returned", async () => {
+    const onPaymentMethodChange = vi.fn().mockResolvedValue({
+      amount: 1500,
+      lineItems: [{ label: "Item", amount: 1500 }],
+    });
+
+    await buildSession(applePay, {
+      transaction: recurringTransaction,
+      onPaymentMethodChange,
+    });
+
+    const session = paymentRequestInstances[0];
+    const updateWith = vi.fn();
+    session.onpaymentmethodchange?.({
+      methodDetails: { type: "credit" },
+      updateWith,
+    } as unknown as PaymentMethodChangeEvent);
+
+    const update = await updateWith.mock.calls[0][0];
+
+    expect(update.modifiers).toBeUndefined();
+    expect(update.total?.amount.value).toBe("15.00");
+    expect(update.displayItems).toEqual([
+      { label: "Item", amount: { value: "15.00", currency: "USD" } },
+    ]);
+  });
+});
+
 describe("buildSession contact prefill", () => {
   beforeEach(() => {
     server.use(

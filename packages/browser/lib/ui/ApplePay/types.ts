@@ -1,4 +1,5 @@
 import { TransactionDetailsWithDomain, TransactionLineItem } from "types";
+import { RecurringPaymentIntervalUnit } from "types/uiComponents";
 
 export type ApplePayButtonType =
   | "add-money"
@@ -187,9 +188,35 @@ export type ApplePayCouponCodeErrorCode =
   | "couponCodeInvalid"
   | "couponCodeExpired";
 
+/**
+ * Lets a sheet update also change the subscription terms (recurring only).
+ * Omitted fields keep their original value; other transaction types ignore this.
+ */
+export interface RecurringPaymentRequestUpdate {
+  description?: string;
+  managementURL?: string;
+  billingAgreement?: string;
+  regularBilling?: TransactionLineItem & {
+    recurringPaymentStartDate?: Date;
+    recurringPaymentIntervalUnit?: RecurringPaymentIntervalUnit;
+    recurringPaymentIntervalCount?: number;
+  };
+  trialBilling?: TransactionLineItem & {
+    trialPaymentStartDate?: Date;
+  };
+}
+
+/** Return shape for the Apple Pay sheet update callbacks (shipping address/method, payment method). */
+export type ApplePayUpdateResult = {
+  amount: number;
+  lineItems?: TransactionLineItem[];
+  recurringPaymentRequest?: RecurringPaymentRequestUpdate;
+};
+
 export type CouponCodeChangeResult = {
   amount: number;
   lineItems?: TransactionLineItem[];
+  recurringPaymentRequest?: RecurringPaymentRequestUpdate;
   /**
    * When set, surfaced to the Apple Pay sheet via PaymentDetailsUpdate.paymentMethodErrors
    * (ApplePayError with couponCodeInvalid / couponCodeExpired).
