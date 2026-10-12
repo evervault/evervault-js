@@ -1,5 +1,12 @@
 # @evervault/inputs
 
+## 2.18.54
+
+### Patch Changes
+
+- Updated dependencies [0533c8e]
+  - @evervault/browser@2.71.0
+
 ## 2.18.53
 
 ### Patch Changes

@@ -3,6 +3,8 @@ import type { CardSpecNode, CardSpecPatchOp } from "types";
 type InsertOp = Extract<CardSpecPatchOp, { op: "insert" }>;
 type MoveOp = Extract<CardSpecPatchOp, { op: "move" }>;
 
+// Only works for comparing primitive props.
+// Comparing objects would require a deep equality check.
 function sameProps(a: Record<string, string>, b: Record<string, string>) {
   const keys = Object.keys(a);
 

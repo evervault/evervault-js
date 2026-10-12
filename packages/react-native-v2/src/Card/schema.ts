@@ -1,41 +1,51 @@
 import { z } from "zod";
-import {
-  validateNumber,
-  validateCVC,
-  validateExpiry,
-} from "@evervault/card-validator";
+import { validateNumber, validateExpiry } from "@evervault/card-validator";
 import { CardBrandName } from "./types";
-import { isAcceptedBrand } from "./utils";
+import { isAcceptedBrand, isCvcComplete, nameMatches } from "./utils";
+import type { CardField } from "./types";
+import type { CardSettings } from "./utils";
 
-export function getCardFormSchema(acceptedBrands: CardBrandName[]) {
+// The CVC is validated against the card number.
+export function getCardFormSchema(
+  acceptedBrands: CardBrandName[],
+  settings: CardSettings = {},
+  cardNumber = ""
+) {
+  const { name = {}, number = {}, expiry = {}, cvc = {} } = settings;
+
   return z.object({
-    name: z.string().min(1, "Missing name"),
+    name: z
+      .string()
+      .min(1, name.errorMessage ?? "Missing name")
+      .refine((value) => nameMatches(value, name), {
+        message: name.errorMessage ?? "Invalid name",
+      }),
 
     number: z
       .string()
-      .min(1, "Required")
+      .min(1, number.errorMessage ?? "Required")
       .refine((value) => validateNumber(value).isValid, {
-        message: "Invalid card number",
+        message: number.errorMessage ?? "Invalid card number",
       })
       .refine(
         (value) => isAcceptedBrand(acceptedBrands, validateNumber(value)),
-        { message: "Brand not accepted" }
+        { message: number.unsupportedBrandMessage ?? "Brand not accepted" }
       ),
 
     expiry: z
       .string()
-      .min(1, "Required")
+      .min(1, expiry.errorMessage ?? "Required")
       .refine((value) => validateExpiry(value).isValid, {
-        message: "Invalid expiry",
+        message: expiry.errorMessage ?? "Invalid expiry",
       }),
 
-    cvc: z
-      .string()
-      .min(1, "Required")
-      .refine((value) => validateCVC(value).isValid, {
-        message: "Invalid CVC",
-      }),
-  });
+    cvc: (cvc.optional
+      ? z.string()
+      : z.string().min(1, cvc.errorMessage ?? "Required")
+    ).refine((value) => isCvcComplete(value, cardNumber, cvc), {
+      message: cvc.errorMessage ?? "Invalid CVC",
+    }),
+  } satisfies Record<CardField, z.ZodTypeAny>);
 }
 
 export type CardFormValues = z.infer<ReturnType<typeof getCardFormSchema>>;

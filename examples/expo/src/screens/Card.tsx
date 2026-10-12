@@ -53,6 +53,7 @@ export function CardExample() {
           <Card
             ref={cardRef}
             validationMode="onBlur"
+            autoProgress
             onChange={(p) => setPayload(p)}
             onError={setError}
           >
@@ -71,9 +72,16 @@ export function CardExample() {
               />
             </Field>
 
-            <View style={styles.row}>
-              <Field label="Expiration Date" error={payload?.errors?.expiry}>
-                <Card.Expiry
+            <Card.Row style={styles.row}>
+              <Field label="Month" error={payload?.errors?.expiry}>
+                <Card.ExpiryMonth
+                  onFocus={() => onFocus("expiry")}
+                  onBlur={() => onBlur("expiry")}
+                />
+              </Field>
+
+              <Field label="Year">
+                <Card.ExpiryYear
                   onFocus={() => onFocus("expiry")}
                   onBlur={() => onBlur("expiry")}
                 />
@@ -86,7 +94,22 @@ export function CardExample() {
                   onBlur={() => onBlur("cvc")}
                 />
               </Field>
-            </View>
+            </Card.Row>
+
+            <Card.Field
+              name="postcode"
+              label="Postcode"
+              labelStyle={styles.label}
+              placeholder="SW1A 1AA"
+              autoCapitalize="characters"
+              pattern="[A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}"
+              errorMessage="Enter a UK postcode"
+              required
+              style={styles.input}
+            />
+            {payload?.errors?.fields?.postcode && (
+              <Text style={styles.error}>{payload.errors.fields.postcode}</Text>
+            )}
           </Card>
 
           <View style={styles.buttons}>
@@ -133,8 +156,21 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   row: {
-    flexDirection: "row",
     gap: 12,
+  },
+
+  label: {
+    fontSize: 12,
+    opacity: 0.6,
+    marginInline: 2,
+    marginBottom: 6,
+  },
+  input: {
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E9E5F5",
+    padding: 12,
+    fontSize: 16,
   },
 
   buttons: {
