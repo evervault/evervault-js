@@ -65,6 +65,7 @@ const CardExpiryMonthElement = forwardRef<
   return (
     <EvervaultInput<CardFormValues>
       placeholder="MM"
+      keyboardType="number-pad"
       {...props}
       ref={ref}
       id="expiry-month"
@@ -78,9 +79,7 @@ const CardExpiryMonthElement = forwardRef<
       checksOnBlur={(stored, focused) =>
         !(focused === "expiry-year" && year(stored).length === 0)
       }
-      inputMode="numeric"
       autoComplete="cc-exp-month"
-      keyboardType="number-pad"
     />
   );
 });
@@ -94,6 +93,7 @@ const CardExpiryYearElement = forwardRef<CardExpiryYear, CardExpiryYearProps>(
     return (
       <EvervaultInput<CardFormValues>
         placeholder="YY"
+        keyboardType="number-pad"
         {...props}
         ref={ref}
         id="expiry-year"
@@ -105,9 +105,7 @@ const CardExpiryYearElement = forwardRef<CardExpiryYear, CardExpiryYearProps>(
         checksOnBlur={(stored, focused) =>
           !(focused === "expiry-month" && month(stored).length === 0)
         }
-        inputMode="numeric"
         autoComplete="cc-exp-year"
-        keyboardType="number-pad"
       />
     );
   }

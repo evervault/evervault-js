@@ -17,13 +17,12 @@ const CardExpiryElement = forwardRef<CardExpiry, CardExpiryProps>(
     return (
       <EvervaultInput<CardFormValues>
         placeholder="MM / YY"
+        keyboardType="number-pad"
         {...props}
         ref={ref}
         name="expiry"
         mask={CARD_EXPIRY_MASK}
-        inputMode="numeric"
         autoComplete="cc-exp"
-        keyboardType="number-pad"
       />
     );
   }

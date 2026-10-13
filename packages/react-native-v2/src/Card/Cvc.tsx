@@ -62,13 +62,12 @@ const CardCvcElement = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
   return (
     <EvervaultInput<CardFormValues>
       placeholder="CVC"
+      keyboardType="number-pad"
       {...props}
       ref={ref}
       name="cvc"
       mask={mask}
-      inputMode="numeric"
       autoComplete="cc-csc"
-      keyboardType="number-pad"
     />
   );
 });

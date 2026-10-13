@@ -52,13 +52,12 @@ const CardNumberElement = forwardRef<CardNumber, CardNumberProps>(
     return (
       <EvervaultInput<CardFormValues>
         placeholder="1234 1234 1234 1234"
+        keyboardType="number-pad"
         {...props}
         ref={ref}
         name="number"
         mask={mask}
-        inputMode="numeric"
         autoComplete="cc-number"
-        keyboardType="number-pad"
       />
     );
   }

@@ -25,15 +25,14 @@ const CardHolderElement = forwardRef<CardHolder, CardHolderProps>(
     return (
       <EvervaultInput<CardFormValues>
         placeholder="Johnny Appleseed"
+        keyboardType="default"
         {...props}
         ref={ref}
         name="name"
-        inputMode="text"
         autoComplete={Platform.select({
           ios: "cc-name",
           default: "name",
         })}
-        keyboardType="default"
       />
     );
   }
