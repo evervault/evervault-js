@@ -21,13 +21,16 @@ export interface CardHolderProps extends CardFieldBaseProps {
 export type CardHolder = EvervaultInput;
 
 const CardHolderElement = forwardRef<CardHolder, CardHolderProps>(
-  function CardHolder({ errorMessage, pattern, defaultValue, ...props }, ref) {
+  function CardHolder(
+    { errorMessage, pattern, defaultValue, keyboardType = "default", ...props },
+    ref
+  ) {
     return (
       <EvervaultInput<CardFormValues>
         placeholder="Johnny Appleseed"
-        keyboardType="default"
         {...props}
         ref={ref}
+        keyboardType={keyboardType}
         name="name"
         autoComplete={Platform.select({
           ios: "cc-name",

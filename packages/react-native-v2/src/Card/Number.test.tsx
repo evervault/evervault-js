@@ -94,3 +94,13 @@ it("lets the keyboard type be overridden", async () => {
   );
   expect(getByTestId("number")).toHaveProp("keyboardType", "default");
 });
+
+it("uses the number pad when the keyboard type is undefined", async () => {
+  const { getByTestId } = await render(
+    <Card>
+      <CardNumber testID="number" keyboardType={undefined} />
+    </Card>,
+    { wrapper }
+  );
+  expect(getByTestId("number")).toHaveProp("keyboardType", "number-pad");
+});

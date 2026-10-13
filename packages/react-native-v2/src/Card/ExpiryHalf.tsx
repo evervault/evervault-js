@@ -61,13 +61,16 @@ export type CardExpiryMonth = EvervaultInput;
 const CardExpiryMonthElement = forwardRef<
   CardExpiryMonth,
   CardExpiryMonthProps
->(function CardExpiryMonth({ errorMessage, ...props }, ref) {
+>(function CardExpiryMonth(
+  { errorMessage, keyboardType = "number-pad", ...props },
+  ref
+) {
   return (
     <EvervaultInput<CardFormValues>
       placeholder="MM"
-      keyboardType="number-pad"
       {...props}
       ref={ref}
+      keyboardType={keyboardType}
       id="expiry-month"
       name="expiry"
       limit={2}
@@ -89,13 +92,16 @@ export type CardExpiryYearProps = CardExpiryHalfProps;
 export type CardExpiryYear = EvervaultInput;
 
 const CardExpiryYearElement = forwardRef<CardExpiryYear, CardExpiryYearProps>(
-  function CardExpiryYear({ errorMessage, ...props }, ref) {
+  function CardExpiryYear(
+    { errorMessage, keyboardType = "number-pad", ...props },
+    ref
+  ) {
     return (
       <EvervaultInput<CardFormValues>
         placeholder="YY"
-        keyboardType="number-pad"
         {...props}
         ref={ref}
+        keyboardType={keyboardType}
         id="expiry-year"
         name="expiry"
         limit={4}

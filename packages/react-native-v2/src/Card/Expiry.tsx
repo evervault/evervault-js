@@ -13,13 +13,16 @@ export interface CardExpiryProps
 export type CardExpiry = EvervaultInput;
 
 const CardExpiryElement = forwardRef<CardExpiry, CardExpiryProps>(
-  function CardExpiry({ errorMessage, ...props }, ref) {
+  function CardExpiry(
+    { errorMessage, keyboardType = "number-pad", ...props },
+    ref
+  ) {
     return (
       <EvervaultInput<CardFormValues>
         placeholder="MM / YY"
-        keyboardType="number-pad"
         {...props}
         ref={ref}
+        keyboardType={keyboardType}
         name="expiry"
         mask={CARD_EXPIRY_MASK}
         autoComplete="cc-exp"
