@@ -192,7 +192,7 @@ describe("<ev-field>", () => {
 });
 
 describe("<ev-field> type", () => {
-  it.each(["text", "email", "tel", "url", "number", "date"])(
+  it.each(["text", "email", "tel", "url", "number", "date", "password"])(
     "renders a %s input",
     (declared) => {
       const container = card([

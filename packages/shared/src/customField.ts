@@ -10,6 +10,7 @@ export const CUSTOM_FIELD_TYPES = [
   "url",
   "number",
   "date",
+  "password",
 ] as const;
 
 export type CustomFieldType = (typeof CUSTOM_FIELD_TYPES)[number];
