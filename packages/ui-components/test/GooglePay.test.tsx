@@ -159,6 +159,29 @@ describe("GooglePay button radius", () => {
   });
 });
 
+describe("GooglePay button border", () => {
+  async function renderAndGetBorderType(
+    borderType?: GooglePayConfig["borderType"]
+  ) {
+    render(<GooglePay config={{ ...config, borderType }} />);
+    getInjectedScript()!.dispatchEvent(new Event("load"));
+    await waitFor(() => expect(createButtonMock).toHaveBeenCalled());
+    return (createButtonMock.mock.calls[0][0] as { buttonBorderType?: string })
+      .buttonBorderType;
+  }
+
+  it.each([
+    [undefined, undefined],
+    ["default_border", "default_border"],
+    ["no_border", "no_border"],
+  ] as const)(
+    "maps a border type of %s to %s",
+    async (configured, expected) => {
+      expect(await renderAndGetBorderType(configured)).toBe(expected);
+    }
+  );
+});
+
 describe("GooglePay shipping data changes", () => {
   let callbacks: google.payments.api.PaymentDataCallbacks;
 

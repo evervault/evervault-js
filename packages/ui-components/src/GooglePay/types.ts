@@ -13,6 +13,7 @@ export interface GooglePayConfig {
   color: GooglePayButtonColor;
   locale?: string;
   borderRadius?: number;
+  borderType?: google.payments.api.ButtonBorderType;
   allowedAuthMethods?: string[];
   allowedCardNetworks?: string[];
   billingAddress?: GooglePayBillingAddressConfig;
