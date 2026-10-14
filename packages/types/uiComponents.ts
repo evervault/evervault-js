@@ -719,6 +719,7 @@ export interface GooglePayOptions {
   color?: GooglePayButtonColor;
   locale?: GooglePayButtonLocale;
   borderRadius?: number;
+  borderType?: google.payments.api.ButtonBorderType;
   size?: { width: WalletDimension; height: WalletDimension };
   allowedAuthMethods?: google.payments.api.CardAuthMethod[];
   allowedCardNetworks?: google.payments.api.CardNetwork[];

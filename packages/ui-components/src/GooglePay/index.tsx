@@ -315,6 +315,7 @@ export function GooglePay({ config }: GooglePayProps) {
           buttonType: config.type || "plain",
           buttonColor: config.color || "black",
           buttonRadius: config.borderRadius ?? DEFAULT_BUTTON_RADIUS,
+          buttonBorderType: config.borderType,
           buttonSizeMode: "fill",
           onClick: async () => {
             currentAmount = config.transaction.amount;
