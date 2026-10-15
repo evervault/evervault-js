@@ -1,5 +1,11 @@
 # @evervault/browser
 
+## 2.72.0
+
+### Minor Changes
+
+- 62905c3: Add a `borderType` option to Google Pay, passed to Google's [`buttonBorderType`](https://developers.google.com/pay/api/web/reference/request-objects#ButtonOptions). `"no_border"` removes the thin border Google draws around the button; `"default_border"` (the default) keeps it.
+
 ## 2.71.0
 
 ### Minor Changes

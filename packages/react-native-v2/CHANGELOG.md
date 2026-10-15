@@ -1,5 +1,12 @@
 # @evervault/react-native
 
+## 2.8.1
+
+### Patch Changes
+
+- a37fde1: Let `keyboardType` be overridden on the card fields. The number, CVC and expiry fields still default to the number pad.
+- 139dd58: Fix installing the package. 2.7.0 to 2.8.0 listed packages that are only used to build and test the SDK as dependencies: `shared` and `types`, which are not published to npm, and `test-renderer`, which requires React 19. They are now dev dependencies.
+
 ## 2.8.0
 
 ### Minor Changes
