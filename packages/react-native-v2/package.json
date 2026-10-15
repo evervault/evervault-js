@@ -53,9 +53,6 @@
     "@hookform/resolvers": "^5.4.0",
     "react-hook-form": "^7.89.0",
     "react-native-mask-input": "^1.2.3",
-    "shared": "workspace:*",
-    "test-renderer": "^1.2.0",
-    "types": "workspace:*",
     "zod": "^3.25.0"
   },
   "devDependencies": {
@@ -72,7 +69,10 @@
     "react-native-webview": "catalog:",
     "rimraf": "^6.0.1",
     "rollup": "^4.59.0",
+    "shared": "workspace:*",
+    "test-renderer": "^1.2.0",
     "tsconfig": "workspace:*",
+    "types": "workspace:*",
     "vitest": "catalog:"
   },
   "swiftDependencies": {
