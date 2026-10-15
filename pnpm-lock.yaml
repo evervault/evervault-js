@@ -1134,15 +1134,6 @@ importers:
       react-native-mask-input:
         specifier: ^1.2.3
         version: 1.2.3(react-native@0.79.6(@babel/core@7.29.7)(@react-native-community/cli@20.2.0(typescript@5.9.3))(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)
-      shared:
-        specifier: workspace:*
-        version: link:../shared
-      test-renderer:
-        specifier: ^1.2.0
-        version: 1.2.0(@types/react@19.2.17)(react@19.2.7)
-      types:
-        specifier: workspace:*
-        version: link:../types
       zod:
         specifier: ^3.25.0
         version: 3.25.76
@@ -1186,9 +1177,18 @@ importers:
       rollup:
         specifier: ^4.61.0
         version: 4.61.1
+      shared:
+        specifier: workspace:*
+        version: link:../shared
+      test-renderer:
+        specifier: ^1.2.0
+        version: 1.2.0(@types/react@19.2.17)(react@19.2.7)
       tsconfig:
         specifier: workspace:*
         version: link:../tsconfig
+      types:
+        specifier: workspace:*
+        version: link:../types
       vitest:
         specifier: 'catalog:'
         version: 4.1.11(@types/node@26.1.1)(happy-dom@20.10.2)(jsdom@30.0.1)(msw@2.15.0(@types/node@26.1.1)(typescript@5.9.3))(vite@8.1.4(@types/node@26.1.1)(esbuild@0.27.7)(terser@5.39.0)(yaml@2.9.0))
