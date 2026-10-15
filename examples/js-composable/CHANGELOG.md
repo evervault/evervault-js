@@ -1,5 +1,12 @@
 # example-js-composable
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies [62905c3]
+  - @evervault/js@2.25.0
+
 ## 0.0.2
 
 ### Patch Changes
