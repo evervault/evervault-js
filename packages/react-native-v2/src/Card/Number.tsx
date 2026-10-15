@@ -33,7 +33,12 @@ export type CardNumber = EvervaultInput;
 
 const CardNumberElement = forwardRef<CardNumber, CardNumberProps>(
   function CardNumber(
-    { errorMessage, unsupportedBrandMessage, ...props },
+    {
+      errorMessage,
+      unsupportedBrandMessage,
+      keyboardType = "number-pad",
+      ...props
+    },
     ref
   ) {
     const mask = useCallback((text?: string): MaskArray => {
@@ -54,11 +59,10 @@ const CardNumberElement = forwardRef<CardNumber, CardNumberProps>(
         placeholder="1234 1234 1234 1234"
         {...props}
         ref={ref}
+        keyboardType={keyboardType}
         name="number"
         mask={mask}
-        inputMode="numeric"
         autoComplete="cc-number"
-        keyboardType="number-pad"
       />
     );
   }

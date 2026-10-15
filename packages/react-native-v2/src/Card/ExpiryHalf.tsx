@@ -61,12 +61,16 @@ export type CardExpiryMonth = EvervaultInput;
 const CardExpiryMonthElement = forwardRef<
   CardExpiryMonth,
   CardExpiryMonthProps
->(function CardExpiryMonth({ errorMessage, ...props }, ref) {
+>(function CardExpiryMonth(
+  { errorMessage, keyboardType = "number-pad", ...props },
+  ref
+) {
   return (
     <EvervaultInput<CardFormValues>
       placeholder="MM"
       {...props}
       ref={ref}
+      keyboardType={keyboardType}
       id="expiry-month"
       name="expiry"
       limit={2}
@@ -78,9 +82,7 @@ const CardExpiryMonthElement = forwardRef<
       checksOnBlur={(stored, focused) =>
         !(focused === "expiry-year" && year(stored).length === 0)
       }
-      inputMode="numeric"
       autoComplete="cc-exp-month"
-      keyboardType="number-pad"
     />
   );
 });
@@ -90,12 +92,16 @@ export type CardExpiryYearProps = CardExpiryHalfProps;
 export type CardExpiryYear = EvervaultInput;
 
 const CardExpiryYearElement = forwardRef<CardExpiryYear, CardExpiryYearProps>(
-  function CardExpiryYear({ errorMessage, ...props }, ref) {
+  function CardExpiryYear(
+    { errorMessage, keyboardType = "number-pad", ...props },
+    ref
+  ) {
     return (
       <EvervaultInput<CardFormValues>
         placeholder="YY"
         {...props}
         ref={ref}
+        keyboardType={keyboardType}
         id="expiry-year"
         name="expiry"
         limit={4}
@@ -105,9 +111,7 @@ const CardExpiryYearElement = forwardRef<CardExpiryYear, CardExpiryYearProps>(
         checksOnBlur={(stored, focused) =>
           !(focused === "expiry-month" && month(stored).length === 0)
         }
-        inputMode="numeric"
         autoComplete="cc-exp-year"
-        keyboardType="number-pad"
       />
     );
   }

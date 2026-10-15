@@ -40,7 +40,13 @@ export interface CardCvcProps extends CardFieldBaseProps, AutoProgressProps {
 export type CardCvc = EvervaultInput;
 
 const CardCvcElement = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
-  { errorMessage, optional, allow3DigitAmex, ...props },
+  {
+    errorMessage,
+    optional,
+    allow3DigitAmex,
+    keyboardType = "number-pad",
+    ...props
+  },
   ref
 ) {
   const methods = useFormContext<CardFormValues>();
@@ -64,11 +70,10 @@ const CardCvcElement = forwardRef<CardCvc, CardCvcProps>(function CardCvc(
       placeholder="CVC"
       {...props}
       ref={ref}
+      keyboardType={keyboardType}
       name="cvc"
       mask={mask}
-      inputMode="numeric"
       autoComplete="cc-csc"
-      keyboardType="number-pad"
     />
   );
 });

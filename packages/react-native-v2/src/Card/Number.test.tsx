@@ -74,3 +74,33 @@ it("uses 15 digits for mask for american express", async () => {
   );
   expect(number).toHaveProp("value", "3714 49•••• •••••");
 });
+
+it("uses the number pad by default", async () => {
+  const { getByTestId } = await render(
+    <Card>
+      <CardNumber testID="number" />
+    </Card>,
+    { wrapper }
+  );
+  expect(getByTestId("number")).toHaveProp("keyboardType", "number-pad");
+});
+
+it("lets the keyboard type be overridden", async () => {
+  const { getByTestId } = await render(
+    <Card>
+      <CardNumber testID="number" keyboardType="default" />
+    </Card>,
+    { wrapper }
+  );
+  expect(getByTestId("number")).toHaveProp("keyboardType", "default");
+});
+
+it("uses the number pad when the keyboard type is undefined", async () => {
+  const { getByTestId } = await render(
+    <Card>
+      <CardNumber testID="number" keyboardType={undefined} />
+    </Card>,
+    { wrapper }
+  );
+  expect(getByTestId("number")).toHaveProp("keyboardType", "number-pad");
+});
