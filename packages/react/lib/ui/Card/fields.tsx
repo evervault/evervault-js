@@ -117,11 +117,12 @@ export interface CardFieldProps {
 
   /**
    * The kind of value the field takes, as HTML's input `type`. An `email`,
-   * `url`, `number` or `date` value must be one.
+   * `url`, `number` or `date` value must be one. A `password` value is
+   * hidden as the shopper types.
    *
    * @default "text"
    */
-  type?: "text" | "email" | "tel" | "url" | "number" | "date";
+  type?: "text" | "email" | "tel" | "url" | "number" | "date" | "password";
 
   /**
    * Text shown above the field.

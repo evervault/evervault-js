@@ -18,11 +18,12 @@ export interface CardFieldProps extends CardFieldBaseProps, AutoProgressProps {
 
   /**
    * The kind of value the field takes, as HTML's input `type`. An `email`,
-   * `url` or `number` value must be one.
+   * `url` or `number` value must be one. A `password` value is hidden as the
+   * shopper types.
    *
    * @default "text"
    */
-  type?: "text" | "email" | "tel" | "url" | "number";
+  type?: "text" | "email" | "tel" | "url" | "number" | "password";
 
   /**
    * The value the field starts with. A changed default replaces only a value
@@ -132,6 +133,7 @@ const CardFieldElement = forwardRef<CardField, CardFieldProps>(
       <EvervaultInput<Record<string, string>>
         id={customFieldInputId(name)}
         keyboardType={KEYBOARDS[declared?.type ?? "text"]}
+        secureTextEntry={declared?.type === "password"}
         {...input}
         ref={ref}
         name={customFieldKey(name)}

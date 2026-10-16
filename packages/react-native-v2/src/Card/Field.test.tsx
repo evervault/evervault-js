@@ -29,6 +29,18 @@ describe("Card.Field", () => {
     );
   });
 
+  it("hides a password as the shopper types", async () => {
+    const { field } = await renderField({ type: "password" });
+
+    expect(field.props.secureTextEntry).toBe(true);
+  });
+
+  it("shows any other type as typed", async () => {
+    const { field } = await renderField({ type: "email" });
+
+    expect(field.props.secureTextEntry).toBe(false);
+  });
+
   it("reports an empty field as null", async () => {
     const { onChange } = await renderField();
 
