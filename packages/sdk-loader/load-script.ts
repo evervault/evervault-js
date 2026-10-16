@@ -6,6 +6,32 @@ export interface LoadScriptOptions {
    * If the script load takes longer than the timeout, the promise will be rejected.
    */
   timeout?: number;
+  /**
+   * Reports whether a script element already in the document has finished.
+   * A script that finished before this call never fires `load` again, so
+   * adopting one without this check waits until the timeout instead.
+   *
+   * Nothing attributes a finished script to the URL that produced it, so a
+   * caller can only answer this from a side effect the script is known to
+   * have, such as a global it defines.
+   */
+  isLoaded?: () => boolean;
+}
+
+function findScript(url: string): HTMLScriptElement | null {
+  let href: string;
+  try {
+    href = new URL(url, document.baseURI).href;
+  } catch {
+    href = url;
+  }
+
+  const scripts = document.querySelectorAll<HTMLScriptElement>("script[src]");
+  for (const script of scripts) {
+    if (script.src === href) return script;
+  }
+
+  return null;
 }
 
 export function loadScript(
@@ -13,12 +39,11 @@ export function loadScript(
   options?: LoadScriptOptions
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    // Find or create the script element
-    let script = document.querySelector<HTMLScriptElement>(
-      `script[src="${url}"]`
-    );
+    let script = findScript(url);
+    let injected = false;
     if (!script) {
       script = document.createElement("script");
+      injected = true;
 
       const headOrBody = document.head || document.body;
       if (!headOrBody) {
@@ -32,11 +57,13 @@ export function loadScript(
       }
 
       headOrBody.appendChild(script);
+    } else if (options?.isLoaded?.()) {
+      resolve();
+      return;
     }
 
     let timeout: NodeJS.Timeout | undefined;
 
-    // Resolve the promise if the script loads
     script.addEventListener(
       "load",
       () => {
@@ -46,11 +73,11 @@ export function loadScript(
       { once: true }
     );
 
-    // Reject the promise if the script load fails
     script.addEventListener(
       "error",
       (event) => {
         clearTimeout(timeout);
+        if (injected) script.remove();
         reject(
           new ScriptLoadError(
             "script_error",
@@ -64,10 +91,11 @@ export function loadScript(
       { once: true }
     );
 
-    script.src = url;
+    // A script element that has already started never re-fetches, so setting
+    // src on an adopted element would leave both listeners waiting forever.
+    if (injected) script.src = url;
 
     if (options?.timeout) {
-      // Reject the promise if the script load times out
       timeout = setTimeout(() => {
         reject(
           new ScriptLoadError(

@@ -1,3 +1,5 @@
+import { customHostUrls } from "shared/customHost";
+
 const KEYS_URL = "https://keys.evervault.com";
 const INPUTS_ORIGIN = "https://inputs.evervault.com";
 const API_URL = "https://api.evervault.com";
@@ -90,21 +92,23 @@ export default function Config(
   teamId: string,
   appId: string,
   customUrls?: ConfigUrls,
-  publicKey?: string
+  publicKey?: string,
+  hostOrigin?: string
 ): Config {
+  const defaults = hostOrigin
+    ? { ...DEFAULT_CONFIG_URLS, ...customHostUrls(hostOrigin) }
+    : DEFAULT_CONFIG_URLS;
+
   return {
     teamId,
     appId,
     encryption: createEncryptionConfig(publicKey),
     http: {
-      keysUrl: validateSet(customUrls?.keysUrl, DEFAULT_CONFIG_URLS.keysUrl),
-      apiUrl: validateSet(customUrls?.apiUrl, API_URL),
+      keysUrl: validateSet(customUrls?.keysUrl, defaults.keysUrl),
+      apiUrl: validateSet(customUrls?.apiUrl, defaults.apiUrl),
     },
     components: {
-      url: validateSet(
-        customUrls?.componentsUrl,
-        DEFAULT_CONFIG_URLS.componentsUrl
-      ),
+      url: validateSet(customUrls?.componentsUrl, defaults.componentsUrl),
     },
     input: {
       inputsOrigin: validateSet(

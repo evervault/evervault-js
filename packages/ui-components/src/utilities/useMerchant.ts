@@ -1,6 +1,7 @@
 import { MerchantDetail } from "types";
+import { apiConfig } from "./config";
 
-const API = import.meta.env.VITE_API_URL as string;
+const API = apiConfig.apiUrl;
 
 export async function getMerchant(
   app: string,

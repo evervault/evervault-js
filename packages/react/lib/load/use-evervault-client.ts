@@ -1,11 +1,18 @@
-import { CustomConfig as BrowserConfig } from "@evervault/browser";
+import EvervaultClient, {
+  CustomConfig as BrowserConfig,
+} from "@evervault/browser";
 import { useCallback, useMemo, useRef, useState } from "react";
+import { injectScript } from "sdk-loader";
+import { customHostOrigin, customHostUrls } from "shared/customHost";
 import { PromisifiedEvervaultClient } from "./client";
-import { injectScript } from "./inject-script";
 
 const EVERVAULT_URL = "https://js.evervault.com/v2";
 
 export interface CustomConfig extends BrowserConfig {
+  /**
+   * The URL to load the Evervault browser SDK from. Takes precedence over the
+   * URL derived from `customDomain`.
+   */
   jsSdkUrl?: string;
 }
 
@@ -65,11 +72,16 @@ export function useEvervaultClient({
 
     const created = new PromisifiedEvervaultClient(async (resolve, reject) => {
       try {
-        const url = new URL(customConfig?.jsSdkUrl || EVERVAULT_URL);
+        const custom =
+          customConfig?.jsSdkUrl || hostSdkUrl(customConfig?.customDomain);
+        const url = new URL(custom ?? EVERVAULT_URL);
         if (reloadAttempt > 0) {
           url.searchParams.set("attempt", String(reloadAttempt + 1));
         }
-        const Evervault = await injectScript(url.toString(), { timeout });
+        const Evervault = await injectScript<typeof EvervaultClient>(
+          url.toString(),
+          { timeout, reuseExistingClient: custom === undefined }
+        );
         const client = await Evervault.init(teamId, appId, customConfig);
         resolve(client);
       } catch (error) {
@@ -83,6 +95,19 @@ export function useEvervaultClient({
   }, [reloadAttempt, teamId, appId, customConfig, timeout]);
 
   return useMemo(() => ({ client, reload }), [client, reload]);
+}
+
+function hostSdkUrl(host: string | undefined): string | undefined {
+  if (host === undefined) return undefined;
+
+  const origin = customHostOrigin(host);
+  if (!origin) {
+    throw new Error(
+      "customDomain must be a hostname, such as payments.acme.com"
+    );
+  }
+
+  return customHostUrls(origin).jsSdkUrl;
 }
 
 function depsEqual(a: unknown[], b: unknown[]): boolean {
