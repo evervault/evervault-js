@@ -1,0 +1,46 @@
+# Install the packages we publish to npm the way customers do, so a dependency
+# that is unpublished or conflicts with a supported peer fails the PR rather
+# than the customer's install.
+name: npm Install Check
+on:
+  # Version Packages PRs are created by a bot, so do not inherit the pull_request trigger.
+  push:
+    branches:
+      - "changeset-release/main"
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - "packages/*/package.json"
+      - "packages/*/rollup.config.*"
+      - "packages/*/vite.config.*"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "scripts/check-npm-install.mjs"
+      - ".github/workflows/npm-install-check.yml"
+jobs:
+  npm-install-check:
+    name: Check npm install
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+      - name: Build published packages
+        run: >-
+          pnpm run --if-present
+          --filter "@evervault/card-validator..."
+          --filter "@evervault/js..."
+          --filter "@evervault/react..."
+          --filter "@evervault/react-native..."
+          build
+      - name: Install packed packages
+        run: node scripts/check-npm-install.mjs
