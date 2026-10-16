@@ -18,12 +18,14 @@ import {
   ApplePayShippingType,
   ApplePayPaymentDetailsInit,
   ApplePayPaymentDetailsUpdate,
+  ApplePayUpdateResult,
   PaymentShippingOption,
   ShippingAddress,
   PaymentContact,
   PaymentMethodUpdate,
   CouponCodeUpdate,
   CouponCodeChangeResult,
+  RecurringPaymentRequestUpdate,
 } from "./types";
 import ApplePayButton from ".";
 import { RecurringPaymentIntervalUnit } from "types/uiComponents";
@@ -53,13 +55,13 @@ type BuildSessionOptions = {
   };
   onPaymentMethodChange?: (
     newPaymentMethod: PaymentMethodUpdate
-  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
+  ) => Promise<ApplePayUpdateResult>;
   onShippingAddressChange?: (
     newAddress: ShippingAddress
-  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
+  ) => Promise<ApplePayUpdateResult>;
   onShippingMethodSelected?: (
     shippingMethod: ApplePayShippingMethod
-  ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
+  ) => Promise<ApplePayUpdateResult>;
   supportsCouponCode?: boolean;
   couponCode?: string;
   onCouponCodeChange?: (couponCode: string) => Promise<CouponCodeChangeResult>;
@@ -117,6 +119,17 @@ function assertShippingMethodsAllowed(
   if (tx.type !== "payment") {
     throw new Error(
       "Apple Pay shipping methods are only supported for one-off payment transactions"
+    );
+  }
+}
+
+function assertRecurringPaymentRequestAllowed(
+  tx: TransactionDetailsWithDomain,
+  recurringPaymentRequest: RecurringPaymentRequestUpdate | undefined
+): void {
+  if (recurringPaymentRequest && tx.type !== "recurring") {
+    console.warn(
+      "Apple Pay: recurringPaymentRequest is only supported for recurring transactions - ignoring"
     );
   }
 }
@@ -547,10 +560,7 @@ export async function buildSession(
 }
 
 async function createPaymentUpdate(
-  updatedTransactionConfig: {
-    amount: number;
-    lineItems?: TransactionLineItem[];
-  },
+  updatedTransactionConfig: ApplePayUpdateResult,
   tx: TransactionDetailsWithDomain,
   merchant: MerchantDetail,
   shippingOptions?: PaymentShippingOption[]
@@ -566,10 +576,19 @@ async function createPaymentUpdate(
       value: (updatedTransactionConfig.amount / 100).toFixed(2),
     },
   };
+
+  const { recurringPaymentRequest } = updatedTransactionConfig;
+  assertRecurringPaymentRequestAllowed(tx, recurringPaymentRequest);
+  const modifiers =
+    recurringPaymentRequest && tx.type === "recurring"
+      ? [buildRecurringPaymentModifier(tx, recurringPaymentRequest)]
+      : undefined;
+
   return {
     displayItems,
     total,
     ...(shippingOptions ? { shippingOptions } : {}),
+    ...(modifiers ? { modifiers } : {}),
   };
 }
 
@@ -750,6 +769,46 @@ function normalizeRecurringInterval(
   };
 }
 
+function buildRecurringPaymentModifier(
+  tx: RecurringTransactionDetails,
+  override?: RecurringPaymentRequestUpdate
+) {
+  const regularBilling = { ...tx.regularBilling, ...override?.regularBilling };
+  const trialBillingSource = override?.trialBilling ?? tx.trialBilling;
+  const trialBilling = trialBillingSource
+    ? { ...tx.trialBilling, ...override?.trialBilling }
+    : undefined;
+
+  return {
+    supportedMethods: "https://apple.com/apple-pay",
+    data: {
+      recurringPaymentRequest: {
+        paymentDescription: override?.description ?? tx.description,
+        regularBilling: {
+          label: regularBilling.label,
+          amount: regularBilling.amount,
+          paymentTiming: "recurring",
+          recurringPaymentStartDate: regularBilling.recurringPaymentStartDate,
+          ...normalizeRecurringInterval(
+            regularBilling.recurringPaymentIntervalUnit,
+            regularBilling.recurringPaymentIntervalCount
+          ),
+        },
+        trialBilling: trialBilling
+          ? {
+              label: trialBilling.label,
+              amount: trialBilling.amount,
+              paymentTiming: "recurring",
+              recurringPaymentStartDate: trialBilling.trialPaymentStartDate,
+            }
+          : undefined,
+        billingAgreement: override?.billingAgreement ?? tx.billingAgreement,
+        managementURL: override?.managementURL ?? tx.managementURL,
+      },
+    },
+  };
+}
+
 function buildRecurringSession(
   merchant: MerchantDetail,
   config: BuildSessionOptions,
@@ -765,38 +824,7 @@ function buildRecurringSession(
       amount: { currency: tx.currency, value: (tx.amount / 100).toFixed(2) },
     },
     displayItems: lineItems,
-    modifiers: [
-      {
-        supportedMethods: "https://apple.com/apple-pay",
-        data: {
-          recurringPaymentRequest: {
-            paymentDescription: tx.description,
-            regularBilling: {
-              label: tx.regularBilling.label,
-              amount: tx.regularBilling.amount,
-              paymentTiming: "recurring",
-              recurringPaymentStartDate:
-                tx.regularBilling.recurringPaymentStartDate,
-              ...normalizeRecurringInterval(
-                tx.regularBilling.recurringPaymentIntervalUnit,
-                tx.regularBilling.recurringPaymentIntervalCount
-              ),
-            },
-            trialBilling: tx.trialBilling
-              ? {
-                  label: tx.trialBilling.label,
-                  amount: tx.trialBilling.amount,
-                  paymentTiming: "recurring",
-                  recurringPaymentStartDate:
-                    tx.trialBilling.trialPaymentStartDate,
-                }
-              : undefined,
-            billingAgreement: tx.billingAgreement,
-            managementURL: tx.managementURL,
-          },
-        },
-      },
-    ],
+    modifiers: [buildRecurringPaymentModifier(tx)],
   };
 
   const paymentOptions = {
