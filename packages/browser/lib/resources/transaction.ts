@@ -3,6 +3,7 @@ import {
   CreateTransactionDetails,
   DisbursementTransactionDetails,
   RecurringTransactionDetails,
+  DeferredTransactionDetails,
 } from "types";
 import { resolveTopLevelDomain } from "../utils";
 
@@ -14,6 +15,7 @@ export class Transaction {
       | CreateTransactionDetails
       | RecurringTransactionDetails
       | DisbursementTransactionDetails
+      | DeferredTransactionDetails
   ) {
     this.details = {
       ...details,
