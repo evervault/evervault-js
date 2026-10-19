@@ -56,6 +56,7 @@ jobs:
       asset-subdomain: "js"
       s3-bucket-var-name: 'BROWSER_SDK_S3_BUCKET'
       cloudfront-distribution-id: 'BROWSER_SDK_CLOUDFRONT_DISTRIBUTION_ID'
+      cloudflare-cache-tag: 'sdk-js'
       tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   deploy-inputs:
@@ -89,6 +90,7 @@ jobs:
       cloudfront-live-path-invalidation: "/index.html,/assets/*"
       asset-subdomain: "ui-components"
       cloudfront-distribution-id: 'UI_COMPONENTS_CLOUDFRONT_DISTRIBUTION_ID'
+      cloudflare-cache-tag: 'sdk-ui-components'
       tag_name: ${{ inputs.release-tag }}
     secrets: inherit
   deploy-3ds:
