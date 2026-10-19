@@ -483,20 +483,20 @@ export async function buildSession(
       return;
     }
 
-    if (target?.shippingAddress && config.onShippingAddressChange) {
+    // With a null target (Chrome QR handoff), the address is still on the request.
+    const shippingAddress =
+      target?.shippingAddress ??
+      (baseRequest as unknown as { shippingAddress?: ShippingAddress | null })
+        .shippingAddress;
+
+    if (shippingAddress && config.onShippingAddressChange) {
       const selectedId =
-        target.shippingOption ??
+        target?.shippingOption ??
         baseRequest.shippingOption ??
         activeShippingOptionId;
       // Do not await this promise — PaymentRequest expects updateWith(promise).
       event.updateWith(
-        updatePaymentRequest(
-          target.shippingAddress,
-          config,
-          tx,
-          merchant,
-          selectedId
-        )
+        updatePaymentRequest(shippingAddress, config, tx, merchant, selectedId)
       );
       return;
     }

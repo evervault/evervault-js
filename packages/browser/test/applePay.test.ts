@@ -285,6 +285,28 @@ describe("buildSession onshippingaddresschange", () => {
     expect(updateWith).toHaveBeenCalled();
   });
 
+  it("falls back to the request's shippingAddress when event.target is null", async () => {
+    // On the Chrome + phone-QR handoff the address is only on the request.
+    const onShippingAddressChange = vi.fn().mockResolvedValue({ amount: 500 });
+    const request = await buildSession(applePay, {
+      transaction,
+      requestShipping: true,
+      onShippingAddressChange,
+    });
+    (request as unknown as { shippingAddress: unknown }).shippingAddress =
+      shippingAddress;
+
+    const updateWith = vi.fn();
+    request.onshippingaddresschange?.({
+      target: null,
+      updateWith,
+    } as unknown as PaymentRequestUpdateEvent);
+
+    expect(onShippingAddressChange).toHaveBeenCalledWith(shippingAddress);
+    const update = await updateWith.mock.calls[0][0];
+    expect(update.total?.amount.value).toBe("5.00");
+  });
+
   it("calls onShippingAddressChange and updateWith when a shipping address is present", async () => {
     const onShippingAddressChange = vi.fn().mockResolvedValue({ amount: 500 });
     const request = await buildSession(applePay, {
