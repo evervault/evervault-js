@@ -1,3 +1,5 @@
+import { postToParent } from "./parentOrigin";
+
 // Posts the iframe size to the parent window
 
 export function resize() {
@@ -15,12 +17,9 @@ export function setSize(size: {
   const searchParams = new URLSearchParams(location.search);
   const frame = searchParams.get("id");
 
-  window.parent.postMessage(
-    {
-      type: "EV_RESIZE",
-      frame,
-      payload: size,
-    },
-    "*"
-  );
+  postToParent({
+    type: "EV_RESIZE",
+    frame,
+    payload: size,
+  });
 }
