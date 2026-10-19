@@ -1,12 +1,13 @@
 import { EvervaultProvider } from "@evervault/react";
 import { UIComponent } from "./UIComponent";
+import { sdkConfig } from "./utilities/config";
 import { useSearchParams } from "./utilities/useSearchParams";
 
 const customConfig = {
-  jsSdkUrl: import.meta.env.VITE_EVERVAULT_JS_URL as string,
+  jsSdkUrl: sdkConfig.jsSdkUrl,
   urls: {
-    keysUrl: import.meta.env.VITE_KEYS_URL as string,
-    apiUrl: import.meta.env.VITE_API_URL as string,
+    keysUrl: sdkConfig.keysUrl,
+    apiUrl: sdkConfig.apiUrl,
   },
 };
 

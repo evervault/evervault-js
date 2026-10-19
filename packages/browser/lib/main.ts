@@ -20,6 +20,7 @@ import {
   RecurringTransactionDetails,
 } from "types";
 import { createBrand } from "shared/createBrand";
+import { customHostOrigin } from "shared/customHost";
 import { registerEvCard } from "./ui/elements/evCard";
 
 export type * from "types";
@@ -40,6 +41,12 @@ export type {
 
 export interface CustomConfig {
   isDebugMode?: boolean;
+  /**
+   * The hostname serving Evervault from your own domain, such as
+   * `payments.acme.com`. Sets the keys, API and UI component URLs. A URL given
+   * in `urls` takes precedence.
+   */
+  customDomain?: string;
   urls?: ConfigUrls;
   publicKey?: string;
   appKey?: CageKey;
@@ -93,7 +100,8 @@ export default class EvervaultClient {
       teamId,
       appId,
       customConfig?.urls,
-      customConfig?.publicKey
+      customConfig?.publicKey,
+      hostOrigin(customConfig.customDomain)
     );
 
     const context = getContext(
@@ -131,7 +139,8 @@ export default class EvervaultClient {
       teamUuid,
       appUuid,
       customConfig?.urls,
-      customConfig?.publicKey
+      customConfig?.publicKey,
+      hostOrigin(customConfig.customDomain)
     );
 
     const context = getContext(
@@ -352,3 +361,16 @@ export default class EvervaultClient {
 }
 
 registerEvCard((teamId, appId) => new EvervaultClient(teamId, appId));
+
+function hostOrigin(host: string | undefined): string | undefined {
+  if (host === undefined) return undefined;
+
+  const origin = customHostOrigin(host);
+  if (!origin) {
+    throw new errors.InitializationError(
+      "customDomain must be a hostname, such as payments.acme.com"
+    );
+  }
+
+  return origin;
+}
