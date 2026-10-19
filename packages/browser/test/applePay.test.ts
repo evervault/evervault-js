@@ -54,6 +54,14 @@ const paymentOptionsCalls: Array<{
 }> = [];
 const paymentRequestInstances: MockPaymentRequest[] = [];
 
+/** Native events keep updateWith on the prototype; apple-pay-sdk.js sets it on the event. */
+function nativeEvent<T extends { updateWith: unknown }>({
+  updateWith,
+  ...rest
+}: T): T {
+  return Object.assign(Object.create({ updateWith }), rest);
+}
+
 class MockPaymentRequest {
   onshippingaddresschange: ((event: PaymentRequestUpdateEvent) => void) | null =
     null;
@@ -276,10 +284,10 @@ describe("buildSession onshippingaddresschange", () => {
     });
 
     const updateWith = vi.fn();
-    const event = {
+    const event = nativeEvent({
       target: null,
       updateWith,
-    } as unknown as PaymentRequestUpdateEvent;
+    }) as unknown as PaymentRequestUpdateEvent;
 
     expect(() => request.onshippingaddresschange?.(event)).not.toThrow();
     expect(updateWith).toHaveBeenCalled();
@@ -297,14 +305,92 @@ describe("buildSession onshippingaddresschange", () => {
       shippingAddress;
 
     const updateWith = vi.fn();
-    request.onshippingaddresschange?.({
-      target: null,
-      updateWith,
-    } as unknown as PaymentRequestUpdateEvent);
+    request.onshippingaddresschange?.(
+      nativeEvent({
+        target: null,
+        updateWith,
+      }) as unknown as PaymentRequestUpdateEvent
+    );
 
     expect(onShippingAddressChange).toHaveBeenCalledWith(shippingAddress);
     const update = await updateWith.mock.calls[0][0];
     expect(update.total?.amount.value).toBe("5.00");
+  });
+
+  describe("with apple-pay-sdk.js events (Chrome + phone QR)", () => {
+    // apple-pay-sdk.js sets updateWith on the event and applies its argument
+    // immediately, so it must receive the resolved update, not a promise.
+
+    it("passes the resolved shipping address update to updateWith", async () => {
+      const onShippingAddressChange = vi
+        .fn()
+        .mockResolvedValue({ amount: 500 });
+      const request = await buildSession(applePay, {
+        transaction: recurringTransaction,
+        requestShipping: true,
+        onShippingAddressChange: async (address) => ({
+          ...(await onShippingAddressChange(address)),
+          recurringPaymentRequest: {
+            regularBilling: { label: "Monthly", amount: 5 },
+          },
+        }),
+      });
+      (request as unknown as { shippingAddress: unknown }).shippingAddress =
+        shippingAddress;
+
+      const updateWith = vi.fn();
+      request.onshippingaddresschange?.({
+        target: null,
+        updateWith,
+      } as unknown as PaymentRequestUpdateEvent);
+
+      await vi.waitFor(() => expect(updateWith).toHaveBeenCalledTimes(1));
+      const update = updateWith.mock.calls[0][0];
+      expect(update).not.toBeInstanceOf(Promise);
+      expect(onShippingAddressChange).toHaveBeenCalledWith(shippingAddress);
+      expect(update.total?.amount.value).toBe("5.00");
+      expect(
+        update.modifiers?.[0].data.recurringPaymentRequest.regularBilling
+      ).toMatchObject({ label: "Monthly", amount: 5 });
+    });
+
+    it("passes the resolved payment method update to updateWith", async () => {
+      const onPaymentMethodChange = vi.fn().mockResolvedValue({ amount: 700 });
+      const request = await buildSession(applePay, {
+        transaction,
+        onPaymentMethodChange,
+      });
+
+      const updateWith = vi.fn();
+      request.onpaymentmethodchange?.({
+        methodDetails: { type: "debit" },
+        updateWith,
+      } as unknown as PaymentMethodChangeEvent);
+
+      await vi.waitFor(() => expect(updateWith).toHaveBeenCalledTimes(1));
+      const update = updateWith.mock.calls[0][0];
+      expect(update).not.toBeInstanceOf(Promise);
+      expect(update.total?.amount.value).toBe("7.00");
+    });
+
+    it("sends an empty update when the merchant callback rejects", async () => {
+      const error = vi.spyOn(console, "error").mockImplementation(() => {});
+      const request = await buildSession(applePay, {
+        transaction,
+        requestShipping: true,
+        onShippingAddressChange: vi.fn().mockRejectedValue(new Error("boom")),
+      });
+
+      const updateWith = vi.fn();
+      request.onshippingaddresschange?.({
+        target: { shippingAddress },
+        updateWith,
+      } as unknown as PaymentRequestUpdateEvent);
+
+      await vi.waitFor(() => expect(updateWith).toHaveBeenCalledWith({}));
+      expect(error).toHaveBeenCalled();
+      error.mockRestore();
+    });
   });
 
   it("calls onShippingAddressChange and updateWith when a shipping address is present", async () => {
@@ -316,10 +402,10 @@ describe("buildSession onshippingaddresschange", () => {
     });
 
     const updateWith = vi.fn();
-    const event = {
+    const event = nativeEvent({
       target: { shippingAddress },
       updateWith,
-    } as unknown as PaymentRequestUpdateEvent;
+    }) as unknown as PaymentRequestUpdateEvent;
 
     request.onshippingaddresschange?.(event);
 
@@ -506,11 +592,13 @@ describe("buildSession coupon codes", () => {
 
     const session = paymentRequestInstances[0];
     const updateWith = vi.fn();
-    session.onshippingaddresschange?.({
-      target: {},
-      methodDetails: { couponCode: "SAVE20" },
-      updateWith,
-    } as unknown as PaymentRequestUpdateEvent);
+    session.onshippingaddresschange?.(
+      nativeEvent({
+        target: {},
+        methodDetails: { couponCode: "SAVE20" },
+        updateWith,
+      }) as unknown as PaymentRequestUpdateEvent
+    );
 
     expect(onCouponCodeChange).toHaveBeenCalledWith("SAVE20");
     expect(updateWith).toHaveBeenCalledTimes(1);
@@ -531,10 +619,12 @@ describe("buildSession coupon codes", () => {
 
     const session = paymentRequestInstances[0];
     const updateWith = vi.fn();
-    session.onpaymentmethodchange?.({
-      methodDetails: { couponCode: "SAVE10" },
-      updateWith,
-    } as unknown as PaymentMethodChangeEvent);
+    session.onpaymentmethodchange?.(
+      nativeEvent({
+        methodDetails: { couponCode: "SAVE10" },
+        updateWith,
+      }) as unknown as PaymentMethodChangeEvent
+    );
 
     expect(onCouponCodeChange).toHaveBeenCalledWith("SAVE10");
     const update = await updateWith.mock.calls[0][0];
@@ -553,10 +643,12 @@ describe("buildSession coupon codes", () => {
 
     const session = paymentRequestInstances[0];
     const updateWith = vi.fn();
-    session.onpaymentmethodchange?.({
-      methodDetails: { couponCode: "SAVE20" },
-      updateWith,
-    } as unknown as PaymentMethodChangeEvent);
+    session.onpaymentmethodchange?.(
+      nativeEvent({
+        methodDetails: { couponCode: "SAVE20" },
+        updateWith,
+      }) as unknown as PaymentMethodChangeEvent
+    );
 
     expect(onPaymentMethodChange).not.toHaveBeenCalled();
     expect(updateWith).toHaveBeenCalledWith({});
@@ -573,11 +665,13 @@ describe("buildSession coupon codes", () => {
 
     const session = paymentRequestInstances[0];
     const updateWith = vi.fn();
-    session.onshippingaddresschange?.({
-      target: { shippingAddress: { country: "US" } },
-      methodDetails: { couponCode: "SAVE20" },
-      updateWith,
-    } as unknown as PaymentRequestUpdateEvent);
+    session.onshippingaddresschange?.(
+      nativeEvent({
+        target: { shippingAddress: { country: "US" } },
+        methodDetails: { couponCode: "SAVE20" },
+        updateWith,
+      }) as unknown as PaymentRequestUpdateEvent
+    );
 
     expect(onShippingAddressChange).not.toHaveBeenCalled();
     expect(updateWith).toHaveBeenCalledWith({});
@@ -622,10 +716,12 @@ describe("buildSession coupon codes", () => {
 
     const session = paymentRequestInstances[0];
     const updateWith = vi.fn();
-    session.onpaymentmethodchange?.({
-      methodDetails: { couponCode: "BAD" },
-      updateWith,
-    } as unknown as PaymentMethodChangeEvent);
+    session.onpaymentmethodchange?.(
+      nativeEvent({
+        methodDetails: { couponCode: "BAD" },
+        updateWith,
+      }) as unknown as PaymentMethodChangeEvent
+    );
 
     expect(onCouponCodeChange).toHaveBeenCalledWith("BAD");
     const update = await updateWith.mock.calls[0][0];
@@ -652,11 +748,13 @@ describe("buildSession coupon codes", () => {
 
     const session = paymentRequestInstances[0];
     const updateWith = vi.fn();
-    session.onshippingaddresschange?.({
-      target: {},
-      methodDetails: { couponCode: "OLD" },
-      updateWith,
-    } as unknown as PaymentRequestUpdateEvent);
+    session.onshippingaddresschange?.(
+      nativeEvent({
+        target: {},
+        methodDetails: { couponCode: "OLD" },
+        updateWith,
+      }) as unknown as PaymentRequestUpdateEvent
+    );
 
     const update = await updateWith.mock.calls[0][0];
     expect(update.paymentMethodErrors).toHaveLength(1);
@@ -669,10 +767,12 @@ describe("buildSession coupon codes", () => {
 
     const session = paymentRequestInstances[0];
     const updateWith = vi.fn();
-    session.onshippingaddresschange?.({
-      target: {},
-      updateWith,
-    } as unknown as PaymentRequestUpdateEvent);
+    session.onshippingaddresschange?.(
+      nativeEvent({
+        target: {},
+        updateWith,
+      }) as unknown as PaymentRequestUpdateEvent
+    );
 
     expect(updateWith).toHaveBeenCalledWith({});
   });
@@ -712,23 +812,25 @@ describe("buildSession recurringPaymentRequest updates", () => {
 
     const session = paymentRequestInstances[0];
     const updateWith = vi.fn();
-    session.onshippingaddresschange?.({
-      target: {
-        shippingAddress: {
-          addressLine: ["1 Main St"],
-          city: "Dublin",
-          country: "IE",
-          dependentLocality: "",
-          organization: "",
-          phone: "",
-          postalCode: "D01",
-          recipient: "Jane",
-          region: "",
-          sortingCode: "",
+    session.onshippingaddresschange?.(
+      nativeEvent({
+        target: {
+          shippingAddress: {
+            addressLine: ["1 Main St"],
+            city: "Dublin",
+            country: "IE",
+            dependentLocality: "",
+            organization: "",
+            phone: "",
+            postalCode: "D01",
+            recipient: "Jane",
+            region: "",
+            sortingCode: "",
+          },
         },
-      },
-      updateWith,
-    } as unknown as PaymentRequestUpdateEvent);
+        updateWith,
+      }) as unknown as PaymentRequestUpdateEvent
+    );
 
     const update = await updateWith.mock.calls[0][0];
     const modifierData = getRecurringModifierData(update);
@@ -775,10 +877,12 @@ describe("buildSession recurringPaymentRequest updates", () => {
 
     const session = paymentRequestInstances[0];
     const updateWith = vi.fn();
-    session.onpaymentmethodchange?.({
-      methodDetails: { type: "credit" },
-      updateWith,
-    } as unknown as PaymentMethodChangeEvent);
+    session.onpaymentmethodchange?.(
+      nativeEvent({
+        methodDetails: { type: "credit" },
+        updateWith,
+      }) as unknown as PaymentMethodChangeEvent
+    );
 
     const update = await updateWith.mock.calls[0][0];
     const modifierData = getRecurringModifierData(update);
@@ -823,10 +927,12 @@ describe("buildSession recurringPaymentRequest updates", () => {
 
     const session = paymentRequestInstances[0];
     const updateWith = vi.fn();
-    session.onpaymentmethodchange?.({
-      methodDetails: { couponCode: "SAVE20" },
-      updateWith,
-    } as unknown as PaymentMethodChangeEvent);
+    session.onpaymentmethodchange?.(
+      nativeEvent({
+        methodDetails: { couponCode: "SAVE20" },
+        updateWith,
+      }) as unknown as PaymentMethodChangeEvent
+    );
 
     const update = await updateWith.mock.calls[0][0];
     const modifierData = getRecurringModifierData(update);
@@ -864,10 +970,12 @@ describe("buildSession recurringPaymentRequest updates", () => {
 
     const session = paymentRequestInstances[0];
     const updateWith = vi.fn();
-    session.onpaymentmethodchange?.({
-      methodDetails: { type: "credit" },
-      updateWith,
-    } as unknown as PaymentMethodChangeEvent);
+    session.onpaymentmethodchange?.(
+      nativeEvent({
+        methodDetails: { type: "credit" },
+        updateWith,
+      }) as unknown as PaymentMethodChangeEvent
+    );
 
     const update = await updateWith.mock.calls[0][0];
 
@@ -895,10 +1003,12 @@ describe("buildSession recurringPaymentRequest updates", () => {
 
     const session = paymentRequestInstances[0];
     const updateWith = vi.fn();
-    session.onpaymentmethodchange?.({
-      methodDetails: { type: "credit" },
-      updateWith,
-    } as unknown as PaymentMethodChangeEvent);
+    session.onpaymentmethodchange?.(
+      nativeEvent({
+        methodDetails: { type: "credit" },
+        updateWith,
+      }) as unknown as PaymentMethodChangeEvent
+    );
 
     const update = await updateWith.mock.calls[0][0];
 
@@ -1116,10 +1226,12 @@ describe("buildSession shipping methods", () => {
     const session = paymentRequestInstances[0];
     session.shippingOption = "express";
     const updateWith = vi.fn();
-    request.onshippingoptionchange?.({
-      target: session,
-      updateWith,
-    } as unknown as PaymentRequestUpdateEvent);
+    request.onshippingoptionchange?.(
+      nativeEvent({
+        target: session,
+        updateWith,
+      }) as unknown as PaymentRequestUpdateEvent
+    );
 
     expect(updateWith).toHaveBeenCalledTimes(1);
     const update = await updateWith.mock.calls[0][0];
@@ -1170,10 +1282,12 @@ describe("buildSession shipping methods", () => {
     const session = paymentRequestInstances[0];
     session.shippingOption = "express";
     const updateWith = vi.fn();
-    request.onshippingoptionchange?.({
-      target: session,
-      updateWith,
-    } as unknown as PaymentRequestUpdateEvent);
+    request.onshippingoptionchange?.(
+      nativeEvent({
+        target: session,
+        updateWith,
+      }) as unknown as PaymentRequestUpdateEvent
+    );
 
     expect(onShippingMethodSelected).toHaveBeenCalledWith(shippingMethods[1]);
     const update = await updateWith.mock.calls[0][0];
@@ -1189,10 +1303,12 @@ describe("buildSession shipping methods", () => {
 
     const updateWith = vi.fn();
     expect(() =>
-      request.onshippingoptionchange?.({
-        target: null,
-        updateWith,
-      } as unknown as PaymentRequestUpdateEvent)
+      request.onshippingoptionchange?.(
+        nativeEvent({
+          target: null,
+          updateWith,
+        }) as unknown as PaymentRequestUpdateEvent
+      )
     ).not.toThrow();
     expect(updateWith).toHaveBeenCalled();
 
@@ -1227,31 +1343,35 @@ describe("buildSession shipping methods", () => {
 
     const session = paymentRequestInstances[0];
     session.shippingOption = "express";
-    request.onshippingoptionchange?.({
-      target: session,
-      updateWith: vi.fn(),
-    } as unknown as PaymentRequestUpdateEvent);
+    request.onshippingoptionchange?.(
+      nativeEvent({
+        target: session,
+        updateWith: vi.fn(),
+      }) as unknown as PaymentRequestUpdateEvent
+    );
 
     const updateWith = vi.fn();
-    request.onshippingaddresschange?.({
-      // No shippingOption on the address-change target — selection must come
-      // from the live session / persisted activeShippingOptionId.
-      target: {
-        shippingAddress: {
-          addressLine: ["1 Main St"],
-          city: "Dublin",
-          country: "IE",
-          dependentLocality: "",
-          organization: "",
-          phone: "",
-          postalCode: "D01",
-          recipient: "Jane",
-          region: "",
-          sortingCode: "",
+    request.onshippingaddresschange?.(
+      nativeEvent({
+        // No shippingOption on the address-change target — selection must come
+        // from the live session / persisted activeShippingOptionId.
+        target: {
+          shippingAddress: {
+            addressLine: ["1 Main St"],
+            city: "Dublin",
+            country: "IE",
+            dependentLocality: "",
+            organization: "",
+            phone: "",
+            postalCode: "D01",
+            recipient: "Jane",
+            region: "",
+            sortingCode: "",
+          },
         },
-      },
-      updateWith,
-    } as unknown as PaymentRequestUpdateEvent);
+        updateWith,
+      }) as unknown as PaymentRequestUpdateEvent
+    );
 
     const update = await updateWith.mock.calls[0][0];
     expect(onShippingAddressChange).toHaveBeenCalled();
@@ -1288,17 +1408,21 @@ describe("buildSession shipping methods", () => {
 
     const session = paymentRequestInstances[0];
     session.shippingOption = "express";
-    request.onshippingoptionchange?.({
-      target: session,
-      updateWith: vi.fn(),
-    } as unknown as PaymentRequestUpdateEvent);
+    request.onshippingoptionchange?.(
+      nativeEvent({
+        target: session,
+        updateWith: vi.fn(),
+      }) as unknown as PaymentRequestUpdateEvent
+    );
 
     const updateWith = vi.fn();
-    request.onshippingaddresschange?.({
-      target: {},
-      methodDetails: { couponCode: "SAVE20" },
-      updateWith,
-    } as unknown as PaymentRequestUpdateEvent);
+    request.onshippingaddresschange?.(
+      nativeEvent({
+        target: {},
+        methodDetails: { couponCode: "SAVE20" },
+        updateWith,
+      }) as unknown as PaymentRequestUpdateEvent
+    );
 
     const update = await updateWith.mock.calls[0][0];
     expect(onCouponCodeChange).toHaveBeenCalledWith("SAVE20");
@@ -1329,10 +1453,12 @@ describe("buildSession shipping methods", () => {
     const session = paymentRequestInstances[0];
     session.shippingOption = "express";
     const updateWith = vi.fn();
-    request.onshippingoptionchange?.({
-      target: session,
-      updateWith,
-    } as unknown as PaymentRequestUpdateEvent);
+    request.onshippingoptionchange?.(
+      nativeEvent({
+        target: session,
+        updateWith,
+      }) as unknown as PaymentRequestUpdateEvent
+    );
 
     await updateWith.mock.calls[0][0];
     expect(warn).toHaveBeenCalledWith(
@@ -1508,10 +1634,12 @@ describe("buildSession request-config passthrough", () => {
 
     const session = paymentRequestInstances[0];
     const updateWith = vi.fn();
-    session.onpaymentmethodchange?.({
-      methodDetails: { type: "credit" },
-      updateWith,
-    } as unknown as PaymentMethodChangeEvent);
+    session.onpaymentmethodchange?.(
+      nativeEvent({
+        methodDetails: { type: "credit" },
+        updateWith,
+      }) as unknown as PaymentMethodChangeEvent
+    );
 
     const update = await updateWith.mock.calls[0][0];
     expect(update.displayItems).toEqual([

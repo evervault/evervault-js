@@ -402,6 +402,28 @@ export function mapTransactionType(
   }
 }
 
+/**
+ * Apple's apple-pay-sdk.js (Chrome + phone QR) doesn't await a promise passed to
+ * updateWith, so resolve the update first there. Native events take the promise.
+ */
+function applyUpdate(
+  event: PaymentRequestUpdateEvent,
+  update: Promise<ApplePayPaymentDetailsUpdate>
+): void {
+  if (!Object.prototype.hasOwnProperty.call(event, "updateWith")) {
+    event.updateWith(update);
+    return;
+  }
+
+  update.then(
+    (resolved) => event.updateWith(resolved),
+    (error: unknown) => {
+      console.error("Apple Pay: failed to update the payment sheet", error);
+      event.updateWith({});
+    }
+  );
+}
+
 export async function buildSession(
   applePay: ApplePayButton,
   config: BuildSessionOptions
@@ -468,7 +490,8 @@ export async function buildSession(
     // Coupon updates must not fall through to shipping/payment handlers.
     if (isCouponCodeUpdate(methodDetails)) {
       if (config.onCouponCodeChange) {
-        event.updateWith(
+        applyUpdate(
+          event,
           updateCouponCode(
             methodDetails.couponCode,
             config,
@@ -494,8 +517,8 @@ export async function buildSession(
         target?.shippingOption ??
         baseRequest.shippingOption ??
         activeShippingOptionId;
-      // Do not await this promise — PaymentRequest expects updateWith(promise).
-      event.updateWith(
+      applyUpdate(
+        event,
         updatePaymentRequest(shippingAddress, config, tx, merchant, selectedId)
       );
       return;
@@ -518,7 +541,7 @@ export async function buildSession(
       activeShippingOptionId = selectedId;
     }
 
-    event.updateWith(updateShippingMethod(selectedId, config, tx, merchant));
+    applyUpdate(event, updateShippingMethod(selectedId, config, tx, merchant));
   };
 
   // Apple Pay widens PaymentRequest event types beyond the DOM lib.
@@ -530,7 +553,8 @@ export async function buildSession(
     // Short-circuit so coupon-shaped events never reach onPaymentMethodChange.
     if (isCouponCodeUpdate(methodDetails)) {
       if (config.onCouponCodeChange) {
-        return event.updateWith(
+        return applyUpdate(
+          event,
           updateCouponCode(
             methodDetails.couponCode,
             config,
@@ -550,7 +574,7 @@ export async function buildSession(
         tx,
         merchant
       );
-      return event.updateWith(updates);
+      return applyUpdate(event, updates);
     }
 
     return event.updateWith({});
