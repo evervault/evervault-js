@@ -783,6 +783,48 @@ describe("buildSession recurringPaymentRequest updates", () => {
     );
   });
 
+  it("updates the recurring terms via onCouponCodeChange alongside a coupon error", async () => {
+    const onCouponCodeChange = vi.fn().mockResolvedValue({
+      amount: 800,
+      recurringPaymentRequest: {
+        description: "Discounted plan",
+        regularBilling: { label: "Monthly (coupon)", amount: 800 },
+      },
+      error: { code: "couponCodeExpired", message: "Expired" },
+    });
+
+    await buildSession(applePay, {
+      transaction: recurringTransaction,
+      supportsCouponCode: true,
+      onCouponCodeChange,
+    });
+
+    const session = paymentRequestInstances[0];
+    const updateWith = vi.fn();
+    session.onpaymentmethodchange?.({
+      methodDetails: { couponCode: "SAVE20" },
+      updateWith,
+    } as unknown as PaymentMethodChangeEvent);
+
+    const update = await updateWith.mock.calls[0][0];
+    const modifierData = getRecurringModifierData(update);
+
+    expect(onCouponCodeChange).toHaveBeenCalledWith("SAVE20");
+    expect(update.total?.amount.value).toBe("8.00");
+    expect(modifierData.paymentDescription).toBe("Discounted plan");
+    expect(modifierData.regularBilling).toMatchObject({
+      label: "Monthly (coupon)",
+      amount: 800,
+    });
+    expect(update.paymentMethodErrors).toEqual([
+      {
+        code: "couponCodeExpired",
+        contactField: undefined,
+        message: "Expired",
+      },
+    ]);
+  });
+
   it("drops recurringPaymentRequest and warns when returned for a non-recurring transaction", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 

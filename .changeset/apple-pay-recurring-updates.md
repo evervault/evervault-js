@@ -3,7 +3,7 @@
 "@evervault/js": minor
 ---
 
-Apple Pay web: `onShippingAddressChange`, `onShippingMethodSelected`, `onPaymentMethodChange`, and `onCouponCodeChange` can now also update a recurring transaction's subscription terms, via a new optional `recurringPaymentRequest` field on the value they return. It reuses the same `regularBilling` / `trialBilling` / `billingAgreement` / `managementURL` shape already accepted on the transaction; any field left out falls back to the original transaction's value.
+Apple Pay web: `onShippingAddressChange`, `onShippingMethodSelected`, `onPaymentMethodChange`, and `onCouponCodeChange` can now also update a recurring transaction's subscription terms, via a new optional `recurringPaymentRequest` field on the value they return. It reuses the same `description` / `regularBilling` / `trialBilling` / `billingAgreement` / `managementURL` shape already accepted on the transaction; any field left out falls back to the original transaction's value.
 
 ```js
 onCouponCodeChange: async (couponCode) => {
