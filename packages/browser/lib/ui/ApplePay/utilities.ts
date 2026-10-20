@@ -802,7 +802,7 @@ function buildRecurringPaymentModifier(
               recurringPaymentStartDate: trialBilling.trialPaymentStartDate,
             }
           : undefined,
-        billingAgreement: override?.billingAgreement ?? tx.billingAgreement,
+        billingAgreement: tx.billingAgreement,
         managementURL: override?.managementURL ?? tx.managementURL,
       },
     },

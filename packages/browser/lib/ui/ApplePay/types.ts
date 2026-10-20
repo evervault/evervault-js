@@ -191,11 +191,11 @@ export type ApplePayCouponCodeErrorCode =
 /**
  * Lets a sheet update also change the subscription terms (recurring only).
  * Omitted fields keep their original value; other transaction types ignore this.
+ * No billingAgreement: Apple Pay cancels the sheet if it changes after opening.
  */
 export interface RecurringPaymentRequestUpdate {
   description?: string;
   managementURL?: string;
-  billingAgreement?: string;
   regularBilling?: TransactionLineItem & {
     recurringPaymentStartDate?: Date;
     recurringPaymentIntervalUnit?: RecurringPaymentIntervalUnit;
