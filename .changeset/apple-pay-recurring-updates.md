@@ -7,11 +7,12 @@ Apple Pay web: `onShippingAddressChange`, `onShippingMethodSelected`, `onPayment
 
 ```js
 onCouponCodeChange: async (couponCode) => {
-  const discounted = await applyCoupon(couponCode);
+  const monthlyAmount = await applyCoupon(couponCode); // in cents
   return {
-    amount: discounted.amount,
+    amount: monthlyAmount,
     recurringPaymentRequest: {
-      regularBilling: { label: "Monthly", amount: discounted.monthlyAmount },
+      // decimal, same as when creating the transaction
+      regularBilling: { label: "Monthly", amount: monthlyAmount / 100 },
     },
   };
 };
