@@ -391,6 +391,153 @@ describe("buildSession onshippingaddresschange", () => {
       expect(error).toHaveBeenCalled();
       error.mockRestore();
     });
+
+    // apple-pay-sdk.js merges each update over the details the sheet opened
+    // with, so anything left out of an update would reset to the original.
+
+    it("keeps the last update when the card changes without onPaymentMethodChange", async () => {
+      const request = await buildSession(applePay, {
+        transaction,
+        onCouponCodeChange: vi.fn().mockResolvedValue({ amount: 800 }),
+      });
+
+      const couponUpdate = vi.fn();
+      request.onpaymentmethodchange?.({
+        methodDetails: { couponCode: "SAVE20" },
+        updateWith: couponUpdate,
+      } as unknown as PaymentMethodChangeEvent);
+      await vi.waitFor(() => expect(couponUpdate).toHaveBeenCalledTimes(1));
+
+      const cardUpdate = vi.fn();
+      request.onpaymentmethodchange?.({
+        methodDetails: { type: "debit" },
+        updateWith: cardUpdate,
+      } as unknown as PaymentMethodChangeEvent);
+
+      expect(cardUpdate.mock.calls[0][0].total?.amount.value).toBe("8.00");
+    });
+
+    it("re-sends the last update when the merchant callback rejects", async () => {
+      const error = vi.spyOn(console, "error").mockImplementation(() => {});
+      const request = await buildSession(applePay, {
+        transaction,
+        requestShipping: true,
+        onShippingAddressChange: vi
+          .fn()
+          .mockResolvedValueOnce({ amount: 500 })
+          .mockRejectedValueOnce(new Error("boom")),
+      });
+
+      const first = vi.fn();
+      request.onshippingaddresschange?.({
+        target: { shippingAddress },
+        updateWith: first,
+      } as unknown as PaymentRequestUpdateEvent);
+      await vi.waitFor(() => expect(first).toHaveBeenCalledTimes(1));
+
+      const second = vi.fn();
+      request.onshippingaddresschange?.({
+        target: { shippingAddress },
+        updateWith: second,
+      } as unknown as PaymentRequestUpdateEvent);
+
+      await vi.waitFor(() => expect(second).toHaveBeenCalledTimes(1));
+      expect(second.mock.calls[0][0].total?.amount.value).toBe("5.00");
+      error.mockRestore();
+    });
+
+    it("keeps the recurring terms when an update leaves out recurringPaymentRequest", async () => {
+      const request = await buildSession(applePay, {
+        transaction: recurringTransaction,
+        requestShipping: true,
+        onShippingAddressChange: vi
+          .fn()
+          .mockResolvedValueOnce({
+            amount: 1200,
+            recurringPaymentRequest: {
+              regularBilling: { label: "Monthly", amount: 12 },
+            },
+          })
+          .mockResolvedValueOnce({ amount: 1000 }),
+      });
+
+      const first = vi.fn();
+      request.onshippingaddresschange?.({
+        target: { shippingAddress },
+        updateWith: first,
+      } as unknown as PaymentRequestUpdateEvent);
+      await vi.waitFor(() => expect(first).toHaveBeenCalledTimes(1));
+
+      const second = vi.fn();
+      request.onshippingaddresschange?.({
+        target: { shippingAddress },
+        updateWith: second,
+      } as unknown as PaymentRequestUpdateEvent);
+
+      await vi.waitFor(() => expect(second).toHaveBeenCalledTimes(1));
+      const update = second.mock.calls[0][0];
+      expect(update.total?.amount.value).toBe("10.00");
+      expect(
+        update.modifiers?.[0].data.recurringPaymentRequest.regularBilling
+      ).toMatchObject({ amount: 12 });
+    });
+
+    it("doesn't carry a coupon error into the next update", async () => {
+      const request = await buildSession(applePay, {
+        transaction,
+        onCouponCodeChange: vi.fn().mockResolvedValue({
+          amount: 1000,
+          error: { code: "couponCodeInvalid", message: "Unknown code" },
+        }),
+      });
+
+      const couponUpdate = vi.fn();
+      request.onpaymentmethodchange?.({
+        methodDetails: { couponCode: "BAD" },
+        updateWith: couponUpdate,
+      } as unknown as PaymentMethodChangeEvent);
+      await vi.waitFor(() => expect(couponUpdate).toHaveBeenCalledTimes(1));
+      expect(couponUpdate.mock.calls[0][0].paymentMethodErrors).toHaveLength(1);
+
+      const cardUpdate = vi.fn();
+      request.onpaymentmethodchange?.({
+        methodDetails: { type: "debit" },
+        updateWith: cardUpdate,
+      } as unknown as PaymentMethodChangeEvent);
+
+      expect(cardUpdate.mock.calls[0][0].paymentMethodErrors).toBeUndefined();
+      expect(cardUpdate.mock.calls[0][0].total?.amount.value).toBe("10.00");
+    });
+
+    it("puts the selected shipping option first", async () => {
+      const request = await buildSession(applePay, {
+        transaction,
+        shippingMethods: [
+          { id: "standard", label: "Standard", amount: 0, selected: true },
+          { id: "express", label: "Express", amount: 500 },
+        ],
+      });
+      request.shippingOption = "express";
+
+      const updateWith = vi.fn();
+      request.onshippingoptionchange?.({
+        target: null,
+        updateWith,
+      } as unknown as PaymentRequestUpdateEvent);
+
+      await vi.waitFor(() => expect(updateWith).toHaveBeenCalledTimes(1));
+      expect(
+        updateWith.mock.calls[0][0].shippingOptions.map(
+          (option: { id: string; selected: boolean }) => [
+            option.id,
+            option.selected,
+          ]
+        )
+      ).toEqual([
+        ["express", true],
+        ["standard", false],
+      ]);
+    });
   });
 
   it("calls onShippingAddressChange and updateWith when a shipping address is present", async () => {

@@ -3,4 +3,4 @@
 "@evervault/js": patch
 ---
 
-Apple Pay web: fix sheet updates when paying in Chrome by scanning the QR code with an iPhone. `onShippingAddressChange` now fires when the customer changes their address, and the totals returned by `onShippingAddressChange`, `onShippingMethodSelected`, `onPaymentMethodChange`, and `onCouponCodeChange` now show on the sheet instead of the original amounts.
+Apple Pay web: fix sheet updates when paying in Chrome by scanning the QR code with an iPhone. `onShippingAddressChange` now fires when the customer changes their address, and the totals returned by `onShippingAddressChange`, `onShippingMethodSelected`, `onPaymentMethodChange`, and `onCouponCodeChange` now show on the sheet instead of the original amounts. The sheet also keeps its current totals, coupon, and selected shipping method when a later update leaves them out, such as a card change without `onPaymentMethodChange`.

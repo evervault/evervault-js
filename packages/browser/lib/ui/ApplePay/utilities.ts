@@ -402,26 +402,86 @@ export function mapTransactionType(
   }
 }
 
-/**
- * Apple's apple-pay-sdk.js (Chrome + phone QR) doesn't await a promise passed to
- * updateWith, so resolve the update first there. Native events take the promise.
- */
-function applyUpdate(
-  event: PaymentRequestUpdateEvent,
-  update: Promise<ApplePayPaymentDetailsUpdate>
-): void {
-  if (!Object.prototype.hasOwnProperty.call(event, "updateWith")) {
-    event.updateWith(update);
-    return;
-  }
+// Errors apply to one update only, so they're never carried into the next one.
+const UPDATE_ERROR_FIELDS = [
+  "error",
+  "paymentMethodErrors",
+  "shippingAddressErrors",
+  "payerErrors",
+];
 
-  update.then(
-    (resolved) => event.updateWith(resolved),
-    (error: unknown) => {
-      console.error("Apple Pay: failed to update the payment sheet", error);
-      event.updateWith({});
-    }
-  );
+function withoutUpdateErrors(
+  update: ApplePayPaymentDetailsUpdate
+): ApplePayPaymentDetailsUpdate {
+  const copy: Record<string, unknown> = { ...update };
+  UPDATE_ERROR_FIELDS.forEach((field) => delete copy[field]);
+  return copy as ApplePayPaymentDetailsUpdate;
+}
+
+function selectedShippingOptionFirst(
+  options: PaymentShippingOption[]
+): PaymentShippingOption[] {
+  return [
+    ...options.filter((option) => option.selected),
+    ...options.filter((option) => !option.selected),
+  ];
+}
+
+/**
+ * Apple's apple-pay-sdk.js (Chrome + phone QR) handles updateWith differently:
+ * - it doesn't await a promise, so we resolve the update first
+ * - it merges each update over the opening details, so we merge over the last one
+ * - it ignores `selected` and selects the first shipping option, so we move it first
+ * Native events get the promise unchanged.
+ */
+function createSheetUpdater() {
+  let current: ApplePayPaymentDetailsUpdate = {};
+
+  const isPolyfillEvent = (event: PaymentRequestUpdateEvent) =>
+    Object.prototype.hasOwnProperty.call(event, "updateWith");
+
+  const send = (
+    event: PaymentRequestUpdateEvent,
+    update: ApplePayPaymentDetailsUpdate
+  ) => {
+    const next = { ...current, ...update };
+    current = withoutUpdateErrors(next);
+    event.updateWith({
+      ...next,
+      ...(next.shippingOptions
+        ? { shippingOptions: selectedShippingOptionFirst(next.shippingOptions) }
+        : {}),
+    });
+  };
+
+  return {
+    apply(
+      event: PaymentRequestUpdateEvent,
+      update: Promise<ApplePayPaymentDetailsUpdate>
+    ): void {
+      if (!isPolyfillEvent(event)) {
+        event.updateWith(update);
+        return;
+      }
+
+      update.then(
+        (resolved) => send(event, resolved),
+        (error: unknown) => {
+          console.error("Apple Pay: failed to update the payment sheet", error);
+          send(event, {});
+        }
+      );
+    },
+
+    // Leave the sheet as it is.
+    keep(event: PaymentRequestUpdateEvent): void {
+      if (!isPolyfillEvent(event)) {
+        event.updateWith({});
+        return;
+      }
+      send(event, {});
+    },
+  };
 }
 
 export async function buildSession(
@@ -463,6 +523,8 @@ export async function buildSession(
     resolveSelectedShippingMethod(null, config.shippingMethods ?? [])?.id ??
     null;
 
+  const sheet = createSheetUpdater();
+
   baseRequest.onmerchantvalidation = async (event) => {
     const merchantSessionPromise = await validateMerchant(
       applePay,
@@ -490,7 +552,7 @@ export async function buildSession(
     // Coupon updates must not fall through to shipping/payment handlers.
     if (isCouponCodeUpdate(methodDetails)) {
       if (config.onCouponCodeChange) {
-        applyUpdate(
+        sheet.apply(
           event,
           updateCouponCode(
             methodDetails.couponCode,
@@ -502,7 +564,7 @@ export async function buildSession(
         );
         return;
       }
-      event.updateWith({});
+      sheet.keep(event);
       return;
     }
 
@@ -517,14 +579,14 @@ export async function buildSession(
         target?.shippingOption ??
         baseRequest.shippingOption ??
         activeShippingOptionId;
-      applyUpdate(
+      sheet.apply(
         event,
         updatePaymentRequest(shippingAddress, config, tx, merchant, selectedId)
       );
       return;
     }
 
-    event.updateWith({});
+    sheet.keep(event);
   };
 
   // Apple Pay requires updateWith on every shippingoptionchange or the
@@ -541,7 +603,7 @@ export async function buildSession(
       activeShippingOptionId = selectedId;
     }
 
-    applyUpdate(event, updateShippingMethod(selectedId, config, tx, merchant));
+    sheet.apply(event, updateShippingMethod(selectedId, config, tx, merchant));
   };
 
   // Apple Pay widens PaymentRequest event types beyond the DOM lib.
@@ -553,7 +615,7 @@ export async function buildSession(
     // Short-circuit so coupon-shaped events never reach onPaymentMethodChange.
     if (isCouponCodeUpdate(methodDetails)) {
       if (config.onCouponCodeChange) {
-        return applyUpdate(
+        return sheet.apply(
           event,
           updateCouponCode(
             methodDetails.couponCode,
@@ -564,7 +626,7 @@ export async function buildSession(
           )
         );
       }
-      return event.updateWith({});
+      return sheet.keep(event);
     }
 
     if (config.onPaymentMethodChange) {
@@ -574,10 +636,10 @@ export async function buildSession(
         tx,
         merchant
       );
-      return applyUpdate(event, updates);
+      return sheet.apply(event, updates);
     }
 
-    return event.updateWith({});
+    return sheet.keep(event);
   };
 
   return baseRequest;
