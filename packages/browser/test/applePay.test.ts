@@ -375,6 +375,29 @@ describe("buildSession onshippingaddresschange", () => {
       expect(update.total?.amount.value).toBe("7.00");
     });
 
+    it("sends the disbursement payout line in the resolved update", async () => {
+      const onPaymentMethodChange = vi.fn().mockResolvedValue({ amount: 700 });
+      const request = await buildSession(applePay, {
+        transaction: disbursementTransaction,
+        onPaymentMethodChange,
+      });
+
+      const updateWith = vi.fn();
+      request.onpaymentmethodchange?.({
+        methodDetails: { type: "debit" },
+        updateWith,
+      } as unknown as PaymentMethodChangeEvent);
+
+      await vi.waitFor(() => expect(updateWith).toHaveBeenCalledTimes(1));
+      const update = updateWith.mock.calls[0][0];
+      expect(update.total?.amount.value).toBe("7.00");
+      expect(update.modifiers?.[0].data.additionalLineItems).toContainEqual({
+        label: merchantName,
+        amount: "7.00",
+        disbursementLineItemType: "disbursement",
+      });
+    });
+
     it("sends an empty update when the merchant callback rejects", async () => {
       const error = vi.spyOn(console, "error").mockImplementation(() => {});
       const request = await buildSession(applePay, {
@@ -693,6 +716,126 @@ describe("buildSession disbursement merchantCapabilities", () => {
       "visa",
       "mastercard",
     ]);
+  });
+});
+
+describe("buildSession disbursement details", () => {
+  type DisbursementModifierData = {
+    additionalLineItems: Array<Record<string, unknown>>;
+  };
+
+  const disbursementModifierData = (details: {
+    modifiers?: unknown[];
+  }): DisbursementModifierData =>
+    (details.modifiers?.[0] as { data: DisbursementModifierData }).data;
+
+  beforeEach(() => {
+    server.use(
+      http.get(`${apiUrl}/frontend/sdk/config`, () =>
+        HttpResponse.json({ is_sandbox: false }, { status: 200 })
+      )
+    );
+  });
+
+  it("uses cents and the price label for the total and the payout line", async () => {
+    const priceLabel = "Payout to Jane";
+    await buildSession(applePay, {
+      transaction: {
+        ...disbursementTransaction,
+        amount: 2291,
+        priceLabel,
+        instantTransfer: { label: "Instant transfer fee", amount: 150 },
+      },
+    });
+
+    expect(paymentRequestCalls[0].total).toEqual({
+      label: priceLabel,
+      amount: { value: "21.41", currency: "USD" },
+    });
+    expect(
+      disbursementModifierData(paymentRequestCalls[0]).additionalLineItems
+    ).toEqual([
+      { label: "Total Amount", amount: "22.91" },
+      {
+        label: "Instant transfer fee",
+        amount: "1.50",
+        disbursementLineItemType: "instantFundsOutFee",
+      },
+      {
+        label: priceLabel,
+        amount: "21.41",
+        disbursementLineItemType: "disbursement",
+      },
+    ]);
+  });
+
+  it("keeps the payout line on callback updates", async () => {
+    const onPaymentMethodChange = vi.fn().mockResolvedValue({
+      amount: 1200,
+      lineItems: [{ label: "Bonus", amount: 200 }],
+    });
+    await buildSession(applePay, {
+      transaction: {
+        ...disbursementTransaction,
+        requiredRecipientDetails: ["email", "address"],
+      },
+      onPaymentMethodChange,
+    });
+
+    const updateWith = vi.fn();
+    paymentRequestInstances[0].onpaymentmethodchange?.(
+      nativeEvent({
+        methodDetails: { type: "debit" },
+        updateWith,
+      }) as unknown as PaymentMethodChangeEvent
+    );
+
+    expect(onPaymentMethodChange).toHaveBeenCalledTimes(1);
+    const update = await updateWith.mock.calls[0][0];
+    expect(update.total).toEqual({
+      label: merchantName,
+      amount: { value: "12.00", currency: "USD" },
+    });
+    expect(update.modifiers?.[0].data.disbursementRequest).toEqual({
+      requiredRecipientContactFields: ["email", "postalAddress"],
+    });
+    expect(disbursementModifierData(update).additionalLineItems).toEqual([
+      { label: "Total Amount", amount: "12.00" },
+      { label: "Bonus", amount: "2.00" },
+      {
+        label: merchantName,
+        amount: "12.00",
+        disbursementLineItemType: "disbursement",
+      },
+    ]);
+  });
+
+  it("drops recurringPaymentRequest from callback updates with a warning", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const onPaymentMethodChange = vi.fn().mockResolvedValue({
+      amount: 1200,
+      recurringPaymentRequest: {
+        regularBilling: { label: "Monthly", amount: 12 },
+      },
+    });
+    await buildSession(applePay, {
+      transaction: disbursementTransaction,
+      onPaymentMethodChange,
+    });
+
+    const updateWith = vi.fn();
+    paymentRequestInstances[0].onpaymentmethodchange?.(
+      nativeEvent({
+        methodDetails: { type: "debit" },
+        updateWith,
+      }) as unknown as PaymentMethodChangeEvent
+    );
+
+    const update = await updateWith.mock.calls[0][0];
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(update.modifiers?.[0].data.recurringPaymentRequest).toBeUndefined();
+    expect(update.modifiers?.[0].data.additionalLineItems).toHaveLength(2);
+    warn.mockRestore();
   });
 });
 
@@ -1775,16 +1918,12 @@ describe("buildSession request-config passthrough", () => {
     ).data;
 
     expect(modifierData.additionalLineItems).toEqual([
-      { label: "Total Amount", amount: 1000 },
-      { label: "Item", amount: { value: "10.00", currency: "USD" } },
+      { label: "Total Amount", amount: "10.00" },
+      { label: "Item", amount: "10.00" },
+      { label: "Estimated tax", amount: "0.80", type: "pending" },
       {
-        label: "Estimated tax",
-        amount: { value: "0.80", currency: "USD" },
-        type: "pending",
-      },
-      {
-        label: "Apple Pay Demo",
-        amount: 1000,
+        label: merchantName,
+        amount: "10.00",
         disbursementLineItemType: "disbursement",
       },
     ]);

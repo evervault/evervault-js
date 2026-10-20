@@ -660,6 +660,19 @@ async function createPaymentUpdate(
   merchant: MerchantDetail,
   shippingOptions?: PaymentShippingOption[]
 ): Promise<ApplePayPaymentDetailsUpdate> {
+  if (tx.type === "disbursement") {
+    assertRecurringPaymentRequestAllowed(
+      tx,
+      updatedTransactionConfig.recurringPaymentRequest
+    );
+    return buildDisbursementDetails(
+      tx,
+      merchant,
+      updatedTransactionConfig.amount,
+      updatedTransactionConfig.lineItems
+    );
+  }
+
   const displayItems = mapLineItemsToDisplayItems(
     updatedTransactionConfig.lineItems,
     tx.currency
@@ -943,21 +956,75 @@ function buildRecurringSession(
   return request;
 }
 
+function toDecimalAmount(amount: number): string {
+  return (amount / 100).toFixed(2);
+}
+
+/**
+ * Total and disbursement modifier for the sheet. Used when opening it and on
+ * every update, since an update without the payout line closes the sheet.
+ */
+function buildDisbursementDetails(
+  tx: DisbursementTransactionDetails,
+  merchant: MerchantDetail,
+  amount: number,
+  lineItems: TransactionLineItem[] | undefined
+) {
+  const label = tx.priceLabel ?? merchant.name;
+  const payoutAmount = tx.instantTransfer
+    ? amount - tx.instantTransfer.amount
+    : amount;
+
+  return {
+    total: {
+      label,
+      amount: { value: toDecimalAmount(payoutAmount), currency: tx.currency },
+    },
+    modifiers: [
+      {
+        supportedMethods: "https://apple.com/apple-pay",
+        data: {
+          disbursementRequest: tx.requiredRecipientDetails
+            ? {
+                requiredRecipientContactFields: tx.requiredRecipientDetails.map(
+                  (field) => (field === "address" ? "postalAddress" : field)
+                ),
+              }
+            : {},
+          // ORDER OF THESE IS IMPORTANT - IT BREAKS IF NOT IN THIS ORDER
+          additionalLineItems: [
+            { label: "Total Amount", amount: toDecimalAmount(amount) },
+            ...(lineItems ?? []).map((item) => ({
+              label: item.label,
+              amount: toDecimalAmount(item.amount),
+              ...(item.type ? { type: item.type } : {}),
+            })),
+            ...(tx.instantTransfer
+              ? [
+                  {
+                    label: tx.instantTransfer.label,
+                    amount: toDecimalAmount(tx.instantTransfer.amount),
+                    disbursementLineItemType: "instantFundsOutFee",
+                  },
+                ]
+              : []),
+            {
+              label,
+              amount: toDecimalAmount(payoutAmount),
+              disbursementLineItemType: "disbursement",
+            },
+          ],
+        },
+      },
+    ],
+  };
+}
+
 function buildDisbursementSession(
   merchant: MerchantDetail,
   config: BuildSessionOptions,
   tx: DisbursementTransactionDetails
 ) {
-  const lineItems =
-    tx.lineItems?.map((item) => ({
-      label: item.label,
-      amount: {
-        value: (item.amount / 100).toFixed(2).toString(),
-        currency: tx.currency,
-      },
-      ...(item.type ? { type: item.type } : {}),
-    })) || [];
-
   const merchantCapabilities = resolveDisbursementMerchantCapabilities(tx);
 
   // Disbursements collect recipient info via disbursementRequest.requiredRecipientContactFields
@@ -981,61 +1048,12 @@ function buildDisbursementSession(
     },
   ];
 
-  let calculatedTotal = tx.amount;
-
-  if (tx.instantTransfer) {
-    calculatedTotal = tx.amount - tx.instantTransfer.amount;
-  }
-
-  const paymentDetails = {
-    total: {
-      label: tx.priceLabel ?? merchant.name,
-      amount: {
-        value: calculatedTotal.toString(),
-        currency: tx.currency,
-      },
-    },
-    modifiers: [
-      {
-        supportedMethods: "https://apple.com/apple-pay",
-        data: {
-          disbursementRequest: tx.requiredRecipientDetails
-            ? {
-                requiredRecipientContactFields: tx.requiredRecipientDetails.map(
-                  (field) => {
-                    if (field === "address") {
-                      return "postalAddress";
-                    } else return field;
-                  }
-                ),
-              }
-            : {},
-          // ORDER OF THESE IS IMPORTANT - IT BREAKS IF NOT IN THIS ORDER
-          additionalLineItems: [
-            {
-              label: "Total Amount",
-              amount: tx.amount,
-            },
-            ...(lineItems ? lineItems : []),
-            ...(tx.instantTransfer
-              ? [
-                  {
-                    label: tx.instantTransfer.label,
-                    amount: tx.instantTransfer.amount,
-                    disbursementLineItemType: "instantFundsOutFee",
-                  },
-                ]
-              : []),
-            {
-              label: "Apple Pay Demo",
-              amount: calculatedTotal,
-              disbursementLineItemType: "disbursement",
-            },
-          ],
-        },
-      },
-    ],
-  };
+  const paymentDetails = buildDisbursementDetails(
+    tx,
+    merchant,
+    tx.amount,
+    tx.lineItems
+  );
 
   const paymentOptions = {};
   const disbursementOverrides = config.disbursementOverrides || {};
