@@ -40,6 +40,7 @@ const paymentRequestCalls: ApplePayPaymentDetailsInit[] = [];
 const paymentMethodDataCalls: Array<{
   merchantIdentifier?: string;
   merchantCapabilities?: string[];
+  supportedNetworks?: string[];
   supportsCouponCode?: boolean;
   couponCode?: string;
   billingContact?: unknown;
@@ -77,6 +78,7 @@ class MockPaymentRequest {
       data?: {
         merchantIdentifier?: string;
         merchantCapabilities?: string[];
+        supportedNetworks?: string[];
         supportsCouponCode?: boolean;
         couponCode?: string;
         billingContact?: unknown;
@@ -668,6 +670,29 @@ describe("buildSession disbursement merchantCapabilities", () => {
     assert(
       paymentMethodDataCalls[0].merchantCapabilities?.[0] === "supportsDebit"
     );
+  });
+
+  it("defaults supportedNetworks when allowedCardNetworks isn't set", async () => {
+    await buildSession(applePay, { transaction: disbursementTransaction });
+
+    expect(paymentMethodDataCalls[0].supportedNetworks).toEqual([
+      "visa",
+      "masterCard",
+      "amex",
+      "discover",
+    ]);
+  });
+
+  it("passes allowedCardNetworks lowercased", async () => {
+    await buildSession(applePay, {
+      transaction: disbursementTransaction,
+      allowedCardNetworks: ["visa", "masterCard"],
+    });
+
+    expect(paymentMethodDataCalls[0].supportedNetworks).toEqual([
+      "visa",
+      "mastercard",
+    ]);
   });
 });
 

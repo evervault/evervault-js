@@ -338,6 +338,17 @@ export function resolveApplePayVersion(
   return 3;
 }
 
+function resolveSupportedNetworks(config: BuildSessionOptions): string[] {
+  return (
+    config.allowedCardNetworks?.map((network) => network.toLowerCase()) || [
+      "visa",
+      "masterCard",
+      "amex",
+      "discover",
+    ]
+  );
+}
+
 function buildApplePayMethodData(
   config: BuildSessionOptions,
   countryCode: string
@@ -349,9 +360,7 @@ function buildApplePayMethodData(
       config.appleMerchantId
     ),
     merchantCapabilities: ["supports3DS"],
-    supportedNetworks: config.allowedCardNetworks?.map((network) =>
-      network.toLowerCase()
-    ) || ["visa", "masterCard", "amex", "discover"],
+    supportedNetworks: resolveSupportedNetworks(config),
     countryCode,
   };
   applyCouponFields(data, config);
@@ -960,7 +969,7 @@ function buildDisbursementSession(
       config.appleMerchantId
     ),
     merchantCapabilities,
-    supportedNetworks: config.allowedCardNetworks,
+    supportedNetworks: resolveSupportedNetworks(config),
     countryCode: tx.country,
   };
   applyRequestPassthroughFields(disbursementMethodData, config);
