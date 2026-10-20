@@ -376,7 +376,7 @@ describe("buildSession onshippingaddresschange", () => {
     });
 
     it("sends the disbursement payout line in the resolved update", async () => {
-      const onPaymentMethodChange = vi.fn().mockResolvedValue({ amount: 700 });
+      const onPaymentMethodChange = vi.fn().mockResolvedValue({ amount: 7 });
       const request = await buildSession(applePay, {
         transaction: disbursementTransaction,
         onPaymentMethodChange,
@@ -390,10 +390,10 @@ describe("buildSession onshippingaddresschange", () => {
 
       await vi.waitFor(() => expect(updateWith).toHaveBeenCalledTimes(1));
       const update = updateWith.mock.calls[0][0];
-      expect(update.total?.amount.value).toBe("7.00");
+      expect(update.total?.amount.value).toBe("7");
       expect(update.modifiers?.[0].data.additionalLineItems).toContainEqual({
         label: merchantName,
-        amount: "7.00",
+        amount: "7",
         disbursementLineItemType: "disbursement",
       });
     });
@@ -737,14 +737,14 @@ describe("buildSession disbursement details", () => {
     );
   });
 
-  it("uses cents and the price label for the total and the payout line", async () => {
+  it("uses decimal amounts and the price label for the total and the payout line", async () => {
     const priceLabel = "Payout to Jane";
     await buildSession(applePay, {
       transaction: {
         ...disbursementTransaction,
-        amount: 2291,
+        amount: 22.91,
         priceLabel,
-        instantTransfer: { label: "Instant transfer fee", amount: 150 },
+        instantTransfer: { label: "Instant transfer fee", amount: 1.5 },
       },
     });
 
@@ -758,7 +758,7 @@ describe("buildSession disbursement details", () => {
       { label: "Total Amount", amount: "22.91" },
       {
         label: "Instant transfer fee",
-        amount: "1.50",
+        amount: "1.5",
         disbursementLineItemType: "instantFundsOutFee",
       },
       {
@@ -769,10 +769,22 @@ describe("buildSession disbursement details", () => {
     ]);
   });
 
+  it("rounds away float error when subtracting the instant transfer fee", async () => {
+    await buildSession(applePay, {
+      transaction: {
+        ...disbursementTransaction,
+        amount: 10.3,
+        instantTransfer: { label: "Instant transfer fee", amount: 0.1 },
+      },
+    });
+
+    expect(paymentRequestCalls[0].total?.amount.value).toBe("10.2");
+  });
+
   it("keeps the payout line on callback updates", async () => {
     const onPaymentMethodChange = vi.fn().mockResolvedValue({
-      amount: 1200,
-      lineItems: [{ label: "Bonus", amount: 200 }],
+      amount: 12,
+      lineItems: [{ label: "Bonus", amount: 2 }],
     });
     await buildSession(applePay, {
       transaction: {
@@ -794,17 +806,17 @@ describe("buildSession disbursement details", () => {
     const update = await updateWith.mock.calls[0][0];
     expect(update.total).toEqual({
       label: merchantName,
-      amount: { value: "12.00", currency: "USD" },
+      amount: { value: "12", currency: "USD" },
     });
     expect(update.modifiers?.[0].data.disbursementRequest).toEqual({
       requiredRecipientContactFields: ["email", "postalAddress"],
     });
     expect(disbursementModifierData(update).additionalLineItems).toEqual([
-      { label: "Total Amount", amount: "12.00" },
-      { label: "Bonus", amount: "2.00" },
+      { label: "Total Amount", amount: "12" },
+      { label: "Bonus", amount: "2" },
       {
         label: merchantName,
-        amount: "12.00",
+        amount: "12",
         disbursementLineItemType: "disbursement",
       },
     ]);
@@ -1904,9 +1916,10 @@ describe("buildSession request-config passthrough", () => {
     await buildSession(applePay, {
       transaction: {
         ...disbursementTransaction,
+        amount: 10.8,
         lineItems: [
-          { label: "Item", amount: 1000 },
-          { label: "Estimated tax", amount: 80, type: "pending" },
+          { label: "Item", amount: 10 },
+          { label: "Estimated tax", amount: 0.8, type: "pending" },
         ],
       },
     });
@@ -1918,12 +1931,12 @@ describe("buildSession request-config passthrough", () => {
     ).data;
 
     expect(modifierData.additionalLineItems).toEqual([
-      { label: "Total Amount", amount: "10.00" },
-      { label: "Item", amount: "10.00" },
-      { label: "Estimated tax", amount: "0.80", type: "pending" },
+      { label: "Total Amount", amount: "10.8" },
+      { label: "Item", amount: "10" },
+      { label: "Estimated tax", amount: "0.8", type: "pending" },
       {
         label: merchantName,
-        amount: "10.00",
+        amount: "10.8",
         disbursementLineItemType: "disbursement",
       },
     ]);

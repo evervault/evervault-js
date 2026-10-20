@@ -956,8 +956,19 @@ function buildRecurringSession(
   return request;
 }
 
-function toDecimalAmount(amount: number): string {
-  return (amount / 100).toFixed(2);
+// Disbursement amounts are decimal (e.g. 22.91), unlike payments and recurring,
+// which are in cents. Unifying them is a breaking change, tracked in CARD-1417.
+function formatDisbursementAmount(amount: number): string {
+  return amount.toString();
+}
+
+const decimalPlaces = (amount: number) =>
+  amount.toString().split(".")[1]?.length ?? 0;
+
+// Rounds away float error, so 10.3 - 0.1 shows as 10.2, not 10.200000000000001.
+function subtractDecimals(amount: number, fee: number): number {
+  const places = Math.max(decimalPlaces(amount), decimalPlaces(fee));
+  return Number((amount - fee).toFixed(places));
 }
 
 /**
@@ -972,13 +983,16 @@ function buildDisbursementDetails(
 ) {
   const label = tx.priceLabel ?? merchant.name;
   const payoutAmount = tx.instantTransfer
-    ? amount - tx.instantTransfer.amount
+    ? subtractDecimals(amount, tx.instantTransfer.amount)
     : amount;
 
   return {
     total: {
       label,
-      amount: { value: toDecimalAmount(payoutAmount), currency: tx.currency },
+      amount: {
+        value: formatDisbursementAmount(payoutAmount),
+        currency: tx.currency,
+      },
     },
     modifiers: [
       {
@@ -993,24 +1007,24 @@ function buildDisbursementDetails(
             : {},
           // ORDER OF THESE IS IMPORTANT - IT BREAKS IF NOT IN THIS ORDER
           additionalLineItems: [
-            { label: "Total Amount", amount: toDecimalAmount(amount) },
+            { label: "Total Amount", amount: formatDisbursementAmount(amount) },
             ...(lineItems ?? []).map((item) => ({
               label: item.label,
-              amount: toDecimalAmount(item.amount),
+              amount: formatDisbursementAmount(item.amount),
               ...(item.type ? { type: item.type } : {}),
             })),
             ...(tx.instantTransfer
               ? [
                   {
                     label: tx.instantTransfer.label,
-                    amount: toDecimalAmount(tx.instantTransfer.amount),
+                    amount: formatDisbursementAmount(tx.instantTransfer.amount),
                     disbursementLineItemType: "instantFundsOutFee",
                   },
                 ]
               : []),
             {
               label,
-              amount: toDecimalAmount(payoutAmount),
+              amount: formatDisbursementAmount(payoutAmount),
               disbursementLineItemType: "disbursement",
             },
           ],
