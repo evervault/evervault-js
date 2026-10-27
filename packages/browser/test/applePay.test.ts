@@ -12,7 +12,7 @@ import {
   beforeEach,
 } from "vitest";
 import * as applePayUtilities from "../lib/ui/ApplePay/utilities";
-import type { ApplePayMerchantCapability } from "types";
+import type { ApplePayMerchantCapability, MerchantDetail } from "types";
 import ApplePayButton, { resetApplePaySDKLoader } from "../lib/ui/ApplePay";
 import { Transaction } from "../lib/resources/transaction";
 import type EvervaultClient from "../lib/main";
@@ -2020,6 +2020,173 @@ describe("ApplePayButton user activation", () => {
       expect(cancel).toHaveBeenCalledOnce();
     });
     expect(session.show).not.toHaveBeenCalled();
+  });
+
+  it("keeps the recurring billing on the sheet when prepareTransaction runs after the click", async () => {
+    vi.spyOn(applePayUtilities, "fetchSessionMerchant").mockResolvedValue({
+      id: "merchant_test",
+      name: merchantName,
+    });
+    const session = createDeferredSession();
+    buildSessionMock.mockReturnValue(session);
+    const apple = new ApplePayButton(
+      createMockClient(),
+      new Transaction(recurringTransaction),
+      {
+        process: vi.fn(),
+        prepareTransaction: () => Promise.resolve({ amount: preparedAmount }),
+      }
+    );
+    const button = await mountApplePayButton(apple);
+
+    button.dispatchEvent(new Event("click"));
+
+    const details = await session.show.mock.calls[0][0];
+    expect(details?.total?.label).toBe(merchantName);
+    expect(details?.modifiers?.[0].data).toHaveProperty(
+      "recurringPaymentRequest.paymentDescription",
+      recurringTransaction.description
+    );
+  });
+
+  it("keeps the disbursement data on the sheet when prepareTransaction runs after the click", async () => {
+    vi.spyOn(applePayUtilities, "fetchSessionMerchant").mockResolvedValue({
+      id: "merchant_test",
+      name: merchantName,
+    });
+    const session = createDeferredSession();
+    buildSessionMock.mockReturnValue(session);
+    const apple = new ApplePayButton(
+      createMockClient(),
+      new Transaction(disbursementTransaction),
+      {
+        process: vi.fn(),
+        prepareTransaction: () => Promise.resolve({ amount: preparedAmount }),
+      }
+    );
+    const button = await mountApplePayButton(apple);
+
+    button.dispatchEvent(new Event("click"));
+
+    const details = await session.show.mock.calls[0][0];
+    expect(details?.total?.label).toBe(merchantName);
+    const data = details?.modifiers?.[0].data;
+    expect(data).toHaveProperty("disbursementRequest");
+    expect(data?.additionalLineItems?.[0]).toEqual({
+      label: "Total Amount",
+      amount: preparedAmount,
+    });
+  });
+
+  it("dispatches error, not cancel, when the merchant retry on click fails too", async () => {
+    const fetchMerchant = vi
+      .spyOn(applePayUtilities, "fetchSessionMerchant")
+      .mockRejectedValue(new Error("Merchant not found"));
+    const session = createDeferredSession();
+    buildSessionMock.mockReturnValue(session);
+    const error = vi.fn();
+    const cancel = vi.fn();
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+    apple.on("error", error);
+    apple.on("cancel", cancel);
+    const button = await mountApplePayButton(apple);
+    await expect(fetchMerchant.mock.results[0].value).rejects.toThrow();
+
+    button.dispatchEvent(new Event("click"));
+
+    await vi.waitFor(() => {
+      expect(error).toHaveBeenCalledWith("Merchant not found");
+    });
+    expect(fetchMerchant).toHaveBeenCalledTimes(2);
+    expect(cancel).not.toHaveBeenCalled();
+  });
+
+  it("replaces the placeholder merchant name when the merchant loads after the click", async () => {
+    let resolveMerchant: (merchant: MerchantDetail) => void = () => {};
+    vi.spyOn(applePayUtilities, "fetchSessionMerchant").mockReturnValue(
+      new Promise((resolve) => {
+        resolveMerchant = resolve;
+      })
+    );
+    const session = createDeferredSession();
+    buildSessionMock.mockReturnValue(session);
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+    });
+    const button = await mountApplePayButton(apple);
+
+    button.dispatchEvent(new Event("click"));
+    const [, , clickMerchant] = buildSessionMock.mock.calls[0];
+    resolveMerchant({ id: "merchant_test", name: merchantName });
+    await session.show.mock.calls[0][0];
+
+    expect(clickMerchant.name).toBe(merchantName);
+  });
+
+  // Mirrors a user closing the sheet: show() rejects with AbortError.
+  function createCancelledSession() {
+    return {
+      show: vi.fn(() =>
+        Promise.reject(new DOMException("Aborted", "AbortError"))
+      ),
+      abort: vi.fn().mockResolvedValue(undefined),
+    };
+  }
+
+  it("lets the user open the sheet again after cancelling it", async () => {
+    vi.spyOn(applePayUtilities, "fetchSessionMerchant").mockResolvedValue({
+      id: "merchant_test",
+      name: merchantName,
+    });
+    const session = withNativeShow(createCancelledSession());
+    buildSessionMock.mockReturnValue(session);
+    const cancel = vi.fn();
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+      prepareTransaction: () => Promise.resolve({ amount: preparedAmount }),
+    });
+    apple.on("cancel", cancel);
+    const button = await mountApplePayButton(apple);
+
+    button.dispatchEvent(new Event("click"));
+    await vi.waitFor(() => {
+      expect(cancel).toHaveBeenCalledOnce();
+    });
+    button.dispatchEvent(new Event("click"));
+
+    await vi.waitFor(() => {
+      expect(cancel).toHaveBeenCalledTimes(2);
+    });
+    expect(session.show).toHaveBeenCalledTimes(2);
+  });
+
+  it("lets the user open the sheet again after cancelling it on apple-pay-sdk.js", async () => {
+    vi.spyOn(applePayUtilities, "fetchSessionMerchant").mockResolvedValue({
+      id: "merchant_test",
+      name: merchantName,
+    });
+    const session = createCancelledSession();
+    buildSessionMock.mockReturnValue(session);
+    const cancel = vi.fn();
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+      prepareTransaction: () => Promise.resolve({ amount: preparedAmount }),
+    });
+    apple.on("cancel", cancel);
+    const button = await mountApplePayButton(apple);
+
+    button.dispatchEvent(new Event("click"));
+    await vi.waitFor(() => {
+      expect(cancel).toHaveBeenCalledOnce();
+    });
+    button.dispatchEvent(new Event("click"));
+
+    await vi.waitFor(() => {
+      expect(cancel).toHaveBeenCalledTimes(2);
+    });
+    expect(session.show).toHaveBeenCalledTimes(2);
   });
 });
 
