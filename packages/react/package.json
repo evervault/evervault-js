@@ -45,7 +45,7 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
-    "happy-dom": "^20.10.2",
+    "happy-dom": "^21.0.4",
     "msw": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
