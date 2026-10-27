@@ -1408,6 +1408,7 @@ function createMockSession() {
   return {
     show: vi.fn(() => showPromise),
     abort: vi.fn().mockResolvedValue(undefined),
+    addEventListener: vi.fn(),
     rejectShow: (error: Error) => showReject(error),
   };
 }
@@ -1762,8 +1763,13 @@ describe("ApplePayButton user activation", () => {
   const preparedAmount = 2000;
 
   // Mirrors WebKit: a rejected details promise aborts the sheet.
+  // presentSheet() fires merchantvalidation, as WebKit does once the sheet
+  // is up.
   function createDeferredSession() {
+    const sheet = new EventTarget();
     return withNativeShow({
+      addEventListener: vi.fn(sheet.addEventListener.bind(sheet)),
+      presentSheet: () => sheet.dispatchEvent(new Event("merchantvalidation")),
       show: vi.fn(
         (details?: Promise<PaymentDetailsUpdate>) =>
           new Promise<PaymentResponse>((_, reject) => {
@@ -1895,11 +1901,39 @@ describe("ApplePayButton user activation", () => {
     const button = await mountApplePayButton(apple);
 
     button.dispatchEvent(new Event("click"));
+    session.presentSheet();
 
     await vi.waitFor(() => {
       expect(error).toHaveBeenCalledWith("Basket expired");
     });
     expect(cancel).not.toHaveBeenCalled();
+  });
+
+  it("holds a details failure until the sheet is up", async () => {
+    vi.spyOn(applePayUtilities, "fetchSessionMerchant").mockResolvedValue({
+      id: "merchant_test",
+      name: merchantName,
+    });
+    const session = createDeferredSession();
+    buildSessionMock.mockReturnValue(session);
+    const error = vi.fn();
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+      prepareTransaction: () => Promise.reject(new Error("Basket expired")),
+    });
+    apple.on("error", error);
+    const button = await mountApplePayButton(apple);
+
+    button.dispatchEvent(new Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(error).not.toHaveBeenCalled();
+
+    session.presentSheet();
+
+    await vi.waitFor(() => {
+      expect(error).toHaveBeenCalledWith("Basket expired");
+    });
   });
 
   it("ignores a second click while a sheet is open", async () => {
@@ -2095,6 +2129,7 @@ describe("ApplePayButton user activation", () => {
     await expect(fetchMerchant.mock.results[0].value).rejects.toThrow();
 
     button.dispatchEvent(new Event("click"));
+    session.presentSheet();
 
     await vi.waitFor(() => {
       expect(error).toHaveBeenCalledWith("Merchant not found");
@@ -2132,6 +2167,7 @@ describe("ApplePayButton user activation", () => {
         Promise.reject(new DOMException("Aborted", "AbortError"))
       ),
       abort: vi.fn().mockResolvedValue(undefined),
+      addEventListener: vi.fn(),
     };
   }
 

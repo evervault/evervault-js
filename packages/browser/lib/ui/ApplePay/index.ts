@@ -366,14 +366,27 @@ export default class ApplePayButton {
       return;
     }
 
-    // If show() rejects before reading detailsPromise (e.g. another sheet is
-    // open), nothing else handles a later details failure. Ignore it: the
-    // show() error is the one reported.
-    void detailsPromise?.catch(() => {});
+    // WebKit aborts the request when the details promise rejects, but a
+    // rejection before the sheet is up (merchantvalidation) leaves it stuck on
+    // "Payment Not Completed". Hold a failure until the sheet is up. If show()
+    // fails first, the sheet never comes up and nothing is left unhandled.
+    let sheetDetails: Promise<PaymentDetailsUpdate> | null = null;
+    if (detailsPromise) {
+      const sheetUp = new Promise<void>((resolve) => {
+        session.addEventListener("merchantvalidation", () => resolve(), {
+          once: true,
+        });
+      });
+      sheetDetails = detailsPromise.catch((error: Error) =>
+        sheetUp.then(() => {
+          throw error;
+        })
+      );
+    }
 
     this.#activeSession = session;
-    const showPromise = detailsPromise
-      ? session.show(detailsPromise)
+    const showPromise = sheetDetails
+      ? session.show(sheetDetails)
       : session.show();
 
     void this.#completeSession(showPromise, () => detailsError);
