@@ -1412,6 +1412,13 @@ function createMockSession() {
   };
 }
 
+// WebKit's native PaymentRequest has show() on the prototype; apple-pay-sdk.js
+// (Chrome + phone QR) defines it on the instance.
+function withNativeShow<T extends { show: unknown }>(session: T): T {
+  const { show, ...rest } = session;
+  return Object.assign(Object.create({ show }) as T, rest);
+}
+
 function dispatchApplePaySDKLoad() {
   document
     .querySelector<HTMLScriptElement>(applePaySDKSelector)
@@ -1707,7 +1714,7 @@ describe("ApplePayButton.abort", () => {
   });
 
   it("aborts the open sheet and dispatches cancel while prepareTransaction is pending", async () => {
-    const session = createMockSession();
+    const session = withNativeShow(createMockSession());
     buildSessionMock.mockReturnValue(session);
 
     const cancel = vi.fn();
@@ -1756,7 +1763,7 @@ describe("ApplePayButton user activation", () => {
 
   // Mirrors WebKit: a rejected details promise aborts the sheet.
   function createDeferredSession() {
-    return {
+    return withNativeShow({
       show: vi.fn(
         (details?: Promise<PaymentDetailsUpdate>) =>
           new Promise<PaymentResponse>((_, reject) => {
@@ -1765,6 +1772,14 @@ describe("ApplePayButton user activation", () => {
             );
           })
       ),
+      abort: vi.fn().mockResolvedValue(undefined),
+    });
+  }
+
+  // Mirrors apple-pay-sdk.js: show() on the instance, details promise ignored.
+  function createSDKSession() {
+    return {
+      show: vi.fn(() => new Promise<PaymentResponse>(() => {})),
       abort: vi.fn().mockResolvedValue(undefined),
     };
   }
@@ -1927,6 +1942,55 @@ describe("ApplePayButton user activation", () => {
     const details = await session.show.mock.calls[0][0];
     expect(details?.total?.label).toBe(merchantName);
     expect(error).not.toHaveBeenCalled();
+  });
+
+  it("resolves the details before show() on apple-pay-sdk.js", async () => {
+    vi.spyOn(applePayUtilities, "fetchSessionMerchant")
+      .mockRejectedValueOnce(new Error("Merchant not found"))
+      .mockResolvedValue({ id: "merchant_test", name: merchantName });
+    const session = createSDKSession();
+    buildSessionMock.mockReturnValue(session);
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+      prepareTransaction: () => Promise.resolve({ amount: preparedAmount }),
+    });
+    const button = await mountApplePayButton(apple);
+
+    button.dispatchEvent(new Event("click"));
+
+    await vi.waitFor(() => {
+      expect(session.show).toHaveBeenCalledOnce();
+    });
+    expect(session.show).toHaveBeenCalledWith();
+    const [, config, merchant] = buildSessionMock.mock.calls[1];
+    expect(config.transaction.amount).toBe(preparedAmount);
+    expect(merchant.name).toBe(merchantName);
+  });
+
+  it("dispatches error without showing when prepareTransaction rejects on apple-pay-sdk.js", async () => {
+    vi.spyOn(applePayUtilities, "fetchSessionMerchant").mockResolvedValue({
+      id: "merchant_test",
+      name: merchantName,
+    });
+    const session = createSDKSession();
+    buildSessionMock.mockReturnValue(session);
+    const error = vi.fn();
+    const cancel = vi.fn();
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+      prepareTransaction: () => Promise.reject(new Error("Basket expired")),
+    });
+    apple.on("error", error);
+    apple.on("cancel", cancel);
+    const button = await mountApplePayButton(apple);
+
+    button.dispatchEvent(new Event("click"));
+
+    await vi.waitFor(() => {
+      expect(error).toHaveBeenCalledWith("Basket expired");
+    });
+    expect(session.show).not.toHaveBeenCalled();
+    expect(cancel).not.toHaveBeenCalled();
   });
 });
 

@@ -343,6 +343,23 @@ export default class ApplePayButton {
       : null;
 
     this.#sessionInProgress = true;
+
+    // apple-pay-sdk.js (Chrome + phone QR) puts show() on the instance and ignores
+    // a details promise. It has no click deadline, so resolve the details and
+    // show a fresh session.
+    if (
+      detailsPromise &&
+      Object.prototype.hasOwnProperty.call(session, "show")
+    ) {
+      const showPromise = detailsPromise.then(() => {
+        const resolved = buildSession(this, config, merchant);
+        this.#activeSession = resolved;
+        return resolved.show();
+      });
+      void this.#completeSession(showPromise, () => detailsError);
+      return;
+    }
+
     this.#activeSession = session;
     const showPromise = detailsPromise
       ? session.show(detailsPromise)
