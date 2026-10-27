@@ -366,6 +366,11 @@ export default class ApplePayButton {
       return;
     }
 
+    // If show() rejects before reading detailsPromise (e.g. another sheet is
+    // open), nothing else handles a later details failure. Ignore it: the
+    // show() error is the one reported.
+    void detailsPromise?.catch(() => {});
+
     this.#activeSession = session;
     const showPromise = detailsPromise
       ? session.show(detailsPromise)
