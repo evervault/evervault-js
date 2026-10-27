@@ -242,6 +242,8 @@ export default class ApplePayButton {
   #events = new EventManager<ApplePayEvents>();
   #activeSession: PaymentRequest | null = null;
   #sessionInProgress = false;
+  // abort() called before the apple-pay-sdk.js path has a session to abort.
+  #abortRequested = false;
   #merchant: MerchantDetail | null = null;
   #merchantPromise: Promise<MerchantDetail> | null = null;
   #availabilityPromise: Promise<
@@ -343,6 +345,7 @@ export default class ApplePayButton {
       : null;
 
     this.#sessionInProgress = true;
+    this.#abortRequested = false;
 
     // apple-pay-sdk.js (Chrome + phone QR) puts show() on the instance and ignores
     // a details promise. It has no click deadline, so resolve the details and
@@ -352,6 +355,9 @@ export default class ApplePayButton {
       Object.prototype.hasOwnProperty.call(session, "show")
     ) {
       const showPromise = detailsPromise.then(() => {
+        if (this.#abortRequested) {
+          throw new DOMException("Aborted", "AbortError");
+        }
         const resolved = buildSession(this, config, merchant);
         this.#activeSession = resolved;
         return resolved.show();
@@ -571,6 +577,9 @@ export default class ApplePayButton {
    */
   async abort(): Promise<void> {
     if (!this.#activeSession) {
+      if (this.#sessionInProgress) {
+        this.#abortRequested = true;
+      }
       return;
     }
 

@@ -1992,6 +1992,35 @@ describe("ApplePayButton user activation", () => {
     expect(session.show).not.toHaveBeenCalled();
     expect(cancel).not.toHaveBeenCalled();
   });
+
+  it("dispatches cancel without showing when aborted before the details resolve on apple-pay-sdk.js", async () => {
+    vi.spyOn(applePayUtilities, "fetchSessionMerchant").mockResolvedValue({
+      id: "merchant_test",
+      name: merchantName,
+    });
+    const session = createSDKSession();
+    buildSessionMock.mockReturnValue(session);
+    let resolvePrepare: (value: { amount: number }) => void = () => {};
+    const cancel = vi.fn();
+    const apple = new ApplePayButton(createMockClient(), createTransaction(), {
+      process: vi.fn(),
+      prepareTransaction: () =>
+        new Promise((resolve) => {
+          resolvePrepare = resolve;
+        }),
+    });
+    apple.on("cancel", cancel);
+    const button = await mountApplePayButton(apple);
+
+    button.dispatchEvent(new Event("click"));
+    await apple.abort();
+    resolvePrepare({ amount: preparedAmount });
+
+    await vi.waitFor(() => {
+      expect(cancel).toHaveBeenCalledOnce();
+    });
+    expect(session.show).not.toHaveBeenCalled();
+  });
 });
 
 describe("ApplePayButton process() payload", () => {
