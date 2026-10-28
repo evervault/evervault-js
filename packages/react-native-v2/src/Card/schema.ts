@@ -13,16 +13,23 @@ export function getCardFormSchema(
 ) {
   const { name = {}, number = {}, expiry = {}, cvc = {} } = settings;
 
+  // Fields start out as `undefined` until the shopper types in them. Zod v4
+  // reports that with a generic type error ahead of any refinements, which
+  // would hide our "Required" (or customised) message, so it's named here
+  // instead of relying on the default.
+  const requiredString = (message: string) =>
+    z.string({
+      error: (issue) => (issue.input === undefined ? message : undefined),
+    });
+
   return z.object({
-    name: z
-      .string()
+    name: requiredString(name.errorMessage ?? "Missing name")
       .min(1, name.errorMessage ?? "Missing name")
       .refine((value) => nameMatches(value, name), {
         message: name.errorMessage ?? "Invalid name",
       }),
 
-    number: z
-      .string()
+    number: requiredString(number.errorMessage ?? "Required")
       .min(1, number.errorMessage ?? "Required")
       .refine((value) => validateNumber(value).isValid, {
         message: number.errorMessage ?? "Invalid card number",
@@ -32,16 +39,18 @@ export function getCardFormSchema(
         { message: number.unsupportedBrandMessage ?? "Brand not accepted" }
       ),
 
-    expiry: z
-      .string()
+    expiry: requiredString(expiry.errorMessage ?? "Required")
       .min(1, expiry.errorMessage ?? "Required")
       .refine((value) => validateExpiry(value).isValid, {
         message: expiry.errorMessage ?? "Invalid expiry",
       }),
 
     cvc: (cvc.optional
-      ? z.string()
-      : z.string().min(1, cvc.errorMessage ?? "Required")
+      ? requiredString(cvc.errorMessage ?? "Required")
+      : requiredString(cvc.errorMessage ?? "Required").min(
+          1,
+          cvc.errorMessage ?? "Required"
+        )
     ).refine((value) => isCvcComplete(value, cardNumber, cvc), {
       message: cvc.errorMessage ?? "Invalid CVC",
     }),

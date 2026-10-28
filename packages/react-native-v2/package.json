@@ -53,7 +53,7 @@
     "@hookform/resolvers": "^5.4.0",
     "react-hook-form": "^7.89.0",
     "react-native-mask-input": "^1.2.3",
-    "zod": "^3.25.0"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@react-native-community/cli": "^20.2.0",
