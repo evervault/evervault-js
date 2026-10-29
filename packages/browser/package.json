@@ -1,5 +1,5 @@
 {
-  "private": false,
+  "private": true,
   "name": "@evervault/browser",
   "version": "2.72.0",
   "engines": {
