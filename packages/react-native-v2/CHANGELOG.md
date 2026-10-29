@@ -1,5 +1,11 @@
 # @evervault/react-native
 
+## 2.9.0
+
+### Minor Changes
+
+- 8f4e6f6: Add a `password` type to `<ev-field>`, `<Card.Field>` and the React Native `<Card.Field>`. The value is hidden as the shopper types and validated like a `text` field, so `minLength`, `maxLength` and `pattern` apply.
+
 ## 2.8.1
 
 ### Patch Changes
