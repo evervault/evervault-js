@@ -2,12 +2,16 @@ import EvervaultClient from "../../main";
 import type {
   ApplePayErrorMessage,
   EncryptedApplePayData,
+  MerchantDetail,
   SelectorType,
   TransactionLineItem,
 } from "types";
 import { resolveSelector } from "../utils";
 import {
   buildSession,
+  BuildSessionOptions,
+  buildSessionDetails,
+  fetchSessionMerchant,
   resolveMerchantIdentifier,
   mapTransactionType,
   resolveUnit,
@@ -237,9 +241,11 @@ export default class ApplePayButton {
   #options: ApplePayButtonOptions;
   #events = new EventManager<ApplePayEvents>();
   #activeSession: PaymentRequest | null = null;
-  #abortRequested = false;
   #sessionInProgress = false;
-  #showStarted = false;
+  // abort() called before the apple-pay-sdk.js path has a session to abort.
+  #abortRequested = false;
+  #merchant: MerchantDetail | null = null;
+  #merchantPromise: Promise<MerchantDetail> | null = null;
   #availabilityPromise: Promise<
     "available" | "unavailable" | "unsupported"
   > | null = null;
@@ -255,64 +261,177 @@ export default class ApplePayButton {
     void loadApplePaySDK().catch(() => {});
   }
 
-  async #handleClick() {
-    this.#abortRequested = false;
-    this.#sessionInProgress = true;
+  #loadMerchant(): Promise<MerchantDetail> {
+    if (!this.#merchantPromise) {
+      const merchantPromise = fetchSessionMerchant(
+        this,
+        this.transaction.details.merchantId
+      )
+        .then((merchant) => {
+          this.#merchant = merchant;
+          return merchant;
+        })
+        .catch((error) => {
+          // Don't cache a failed fetch, so the next click retries.
+          if (this.#merchantPromise === merchantPromise) {
+            this.#merchantPromise = null;
+          }
+          throw error;
+        });
+      this.#merchantPromise = merchantPromise;
+    }
 
+    return this.#merchantPromise;
+  }
+
+  #sessionConfig(): BuildSessionOptions {
+    return {
+      transaction: this.transaction.details,
+      allowedCardNetworks: this.#options.allowedCardNetworks,
+      requestPayerDetails: this.#options.requestPayerDetails,
+      paymentOverrides: this.#options.paymentOverrides,
+      disbursementOverrides: this.#options.disbursementOverrides,
+      requestBillingAddress: this.#options.requestBillingAddress,
+      requestShipping: this.#options.requestShipping,
+      shippingType: this.#options.shippingType,
+      shippingMethods: this.#options.shippingMethods,
+      onPaymentMethodChange: this.#options.onPaymentMethodChange,
+      onShippingAddressChange: this.#options.onShippingAddressChange,
+      onShippingMethodSelected: this.#options.onShippingMethodSelected,
+      supportsCouponCode: this.#options.supportsCouponCode,
+      couponCode: this.#options.couponCode,
+      onCouponCodeChange: this.#options.onCouponCodeChange,
+      billingContact: this.#options.billingContact,
+      shippingContact: this.#options.shippingContact,
+      applicationData: this.#options.applicationData,
+      supportedCountries: this.#options.supportedCountries,
+      prepareTransaction: this.#options.prepareTransaction,
+      appleMerchantId: this.#options.appleMerchantId,
+    };
+  }
+
+  // Safari rejects show() once the click's user activation expires, so
+  // nothing in this method may await before show(). Data that is not ready
+  // yet reaches the open sheet through show(detailsPromise).
+  #handleClick() {
+    if (this.#sessionInProgress) {
+      return;
+    }
+
+    const config = this.#sessionConfig();
+    const deferDetails =
+      !this.#merchant || Boolean(this.#options.prepareTransaction);
+    const merchant = this.#merchant ?? {
+      id: this.transaction.details.merchantId,
+      name: this.transaction.details.domain,
+    };
+
+    let session: PaymentRequest;
     try {
-      if (this.#options.prepareTransaction) {
-        const { amount, lineItems } = await this.#options.prepareTransaction();
+      session = buildSession(this, config, merchant);
+    } catch (error) {
+      this.#events.dispatch("error", (error as Error).message);
+      return;
+    }
+
+    // Read only once show() rejects, so a pending prepareTransaction never
+    // delays a user cancel.
+    let detailsError: Error | null = null;
+    const detailsPromise = deferDetails
+      ? this.#resolveDetails(config, merchant).catch((error: Error) => {
+          detailsError = error;
+          throw error;
+        })
+      : null;
+
+    this.#sessionInProgress = true;
+    this.#abortRequested = false;
+
+    // apple-pay-sdk.js (Chrome + phone QR) puts show() on the instance and ignores
+    // a details promise. It has no click deadline, so resolve the details and
+    // show a fresh session.
+    if (
+      detailsPromise &&
+      Object.prototype.hasOwnProperty.call(session, "show")
+    ) {
+      const showPromise = detailsPromise.then(() => {
         if (this.#abortRequested) {
-          this.#events.dispatch("cancel");
-          return;
+          throw new DOMException("Aborted", "AbortError");
         }
-
-        if (amount) {
-          this.transaction.details.amount = amount;
-        }
-
-        if (lineItems) {
-          this.transaction.details.lineItems = lineItems;
-        }
-      }
-
-      const session = await buildSession(this, {
-        transaction: this.transaction.details,
-        allowedCardNetworks: this.#options.allowedCardNetworks,
-        requestPayerDetails: this.#options.requestPayerDetails,
-        paymentOverrides: this.#options.paymentOverrides,
-        disbursementOverrides: this.#options.disbursementOverrides,
-        requestBillingAddress: this.#options.requestBillingAddress,
-        requestShipping: this.#options.requestShipping,
-        shippingType: this.#options.shippingType,
-        shippingMethods: this.#options.shippingMethods,
-        onPaymentMethodChange: this.#options.onPaymentMethodChange,
-        onShippingAddressChange: this.#options.onShippingAddressChange,
-        onShippingMethodSelected: this.#options.onShippingMethodSelected,
-        supportsCouponCode: this.#options.supportsCouponCode,
-        couponCode: this.#options.couponCode,
-        onCouponCodeChange: this.#options.onCouponCodeChange,
-        billingContact: this.#options.billingContact,
-        shippingContact: this.#options.shippingContact,
-        applicationData: this.#options.applicationData,
-        supportedCountries: this.#options.supportedCountries,
-        prepareTransaction: this.#options.prepareTransaction,
-        appleMerchantId: this.#options.appleMerchantId,
+        const resolved = buildSession(this, config, merchant);
+        this.#activeSession = resolved;
+        return resolved.show();
       });
+      void this.#completeSession(showPromise, () => detailsError);
+      return;
+    }
 
-      if (this.#abortRequested) {
-        this.#events.dispatch("cancel");
-        return;
-      }
+    // WebKit aborts the request when the details promise rejects, but a
+    // rejection before the sheet is up (merchantvalidation) leaves it stuck on
+    // "Payment Not Completed". Hold a failure until the sheet is up. If show()
+    // fails first, the sheet never comes up and nothing is left unhandled.
+    let sheetDetails: Promise<PaymentDetailsUpdate> | null = null;
+    if (detailsPromise) {
+      const sheetUp = new Promise<void>((resolve) => {
+        session.addEventListener("merchantvalidation", () => resolve(), {
+          once: true,
+        });
+      });
+      sheetDetails = detailsPromise.catch((error: Error) =>
+        sheetUp.then(() => {
+          throw error;
+        })
+      );
+    }
 
-      this.#activeSession = session;
-      this.#showStarted = true;
+    this.#activeSession = session;
+    const showPromise = sheetDetails
+      ? session.show(sheetDetails)
+      : session.show();
 
-      const [response, responseError] = await tryCatch(session.show());
+    void this.#completeSession(showPromise, () => detailsError);
+  }
+
+  async #resolveDetails(
+    config: BuildSessionOptions,
+    sessionMerchant: MerchantDetail
+  ): Promise<PaymentDetailsUpdate> {
+    const [merchant, prepared] = await Promise.all([
+      this.#loadMerchant(),
+      this.#options.prepareTransaction?.(),
+    ]);
+
+    if (prepared?.amount) {
+      this.transaction.details.amount = prepared.amount;
+    }
+
+    if (prepared?.lineItems) {
+      this.transaction.details.lineItems = prepared.lineItems;
+    }
+
+    // In place, because the sheet's update handlers hold this object.
+    Object.assign(sessionMerchant, merchant);
+    return buildSessionDetails(sessionMerchant, config);
+  }
+
+  async #completeSession(
+    showPromise: Promise<PaymentResponse>,
+    detailsError: () => Error | null
+  ) {
+    try {
+      const [response, responseError] = await tryCatch(showPromise);
 
       this.#activeSession = null;
 
       if (responseError) {
+        // A rejected details promise aborts the sheet, but the cause is the
+        // failed fetch or prepareTransaction, not the user.
+        const cause = detailsError();
+        if (cause) {
+          this.#events.dispatch("error", cause.message);
+          return;
+        }
+
         if (responseError.name === "AbortError") {
           this.#events.dispatch("cancel");
           return;
@@ -426,8 +545,6 @@ export default class ApplePayButton {
     } finally {
       this.#activeSession = null;
       this.#sessionInProgress = false;
-      this.#abortRequested = false;
-      this.#showStarted = false;
     }
   }
 
@@ -477,30 +594,21 @@ export default class ApplePayButton {
    * No-op if no session is in progress or abort is not possible.
    */
   async abort(): Promise<void> {
-    if (!this.#sessionInProgress) {
-      return;
-    }
-
-    if (this.#activeSession) {
-      try {
-        await this.#activeSession.abort();
-      } catch (error) {
-        if (
-          error instanceof DOMException &&
-          error.name === "InvalidStateError"
-        ) {
-          return;
-        }
-        throw error;
+    if (!this.#activeSession) {
+      if (this.#sessionInProgress) {
+        this.#abortRequested = true;
       }
       return;
     }
 
-    if (this.#showStarted) {
-      return;
+    try {
+      await this.#activeSession.abort();
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "InvalidStateError") {
+        return;
+      }
+      throw error;
     }
-
-    this.#abortRequested = true;
   }
 
   /**
@@ -577,6 +685,9 @@ export default class ApplePayButton {
     if (availability === "unavailable") {
       console.info("Apple Pay may be unavailable on this device.");
     }
+
+    // Fetch now so the click handler has the merchant before the user clicks.
+    void this.#loadMerchant().catch(() => {});
 
     await loadApplePaySDK();
 

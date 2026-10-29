@@ -36,7 +36,7 @@ import { RecurringPaymentIntervalUnit } from "types/uiComponents";
  */
 export const APPLE_PAY_MAX_VERSION = 14;
 
-type BuildSessionOptions = {
+export type BuildSessionOptions = {
   transaction: TransactionDetailsWithDomain;
   allowedCardNetworks?: ApplePayCardNetwork[];
   requestPayerDetails?: ("name" | "email" | "phone" | "postalAddress")[];
@@ -389,15 +389,12 @@ export function mapTransactionType(
   }
 }
 
-export async function buildSession(
+export async function fetchSessionMerchant(
   applePay: ApplePayButton,
-  config: BuildSessionOptions
-) {
-  const { transaction: tx } = config;
-  assertShippingMethodsAllowed(tx, config);
-
+  merchantId: string
+): Promise<MerchantDetail> {
   const [merchant, appConfig] = await Promise.all([
-    getMerchant(applePay, tx.merchantId),
+    getMerchant(applePay, merchantId),
     getAppSDKConfig(
       applePay.client.config.appId,
       applePay.client.config.http.apiUrl
@@ -411,6 +408,21 @@ export async function buildSession(
   if (appConfig.is_sandbox) {
     merchant.name = `${merchant.name} (Card is not charged)`;
   }
+
+  return merchant;
+}
+
+/**
+ * Synchronous so the click handler can call `show()` before Safari's user
+ * activation expires. Fetch the merchant first with `fetchSessionMerchant`.
+ */
+export function buildSession(
+  applePay: ApplePayButton,
+  config: BuildSessionOptions,
+  merchant: MerchantDetail
+): ApplePayPaymentRequest {
+  const { transaction: tx } = config;
+  assertShippingMethodsAllowed(tx, config);
 
   let baseRequest: ApplePayPaymentRequest;
   if (tx.type === "payment") {
@@ -678,19 +690,36 @@ async function updateCouponCode(
   return update;
 }
 
-function buildPaymentSession(
+/**
+ * The sheet details for a transaction. `show(detailsPromise)` resolves to these
+ * when the request was built before the merchant or `prepareTransaction` was ready.
+ */
+export function buildSessionDetails(
+  merchant: MerchantDetail,
+  config: BuildSessionOptions
+): PaymentDetailsInit {
+  const { transaction: tx } = config;
+
+  if (tx.type === "payment") {
+    return buildPaymentDetails(merchant, config, tx);
+  }
+
+  if (tx.type === "recurring") {
+    return buildRecurringDetails(merchant, config, tx);
+  }
+
+  return buildDisbursementDetails(merchant, config, tx);
+}
+
+function buildPaymentDetails(
   merchant: MerchantDetail,
   config: BuildSessionOptions,
   tx: PaymentTransactionDetails
-) {
+): ApplePayPaymentDetailsInit {
   const lineItems = mapLineItemsToDisplayItems(tx.lineItems, tx.currency);
-
-  const paymentMethodData = buildApplePayMethodData(config, tx.country);
   const shippingOptions = config.shippingMethods?.length
     ? mapShippingMethodsToPaymentOptions(config.shippingMethods, tx.currency)
     : undefined;
-  const requestShipping =
-    config.requestShipping || Boolean(config.shippingMethods?.length);
 
   const paymentDetails: ApplePayPaymentDetailsInit = {
     total: {
@@ -700,6 +729,18 @@ function buildPaymentSession(
     displayItems: lineItems,
     ...(shippingOptions ? { shippingOptions } : {}),
   };
+
+  return config.paymentOverrides?.paymentDetails || paymentDetails;
+}
+
+function buildPaymentSession(
+  merchant: MerchantDetail,
+  config: BuildSessionOptions,
+  tx: PaymentTransactionDetails
+) {
+  const paymentMethodData = buildApplePayMethodData(config, tx.country);
+  const requestShipping =
+    config.requestShipping || Boolean(config.shippingMethods?.length);
 
   const paymentOptions = {
     requestPayerName: config.requestPayerDetails?.includes("name") ?? false,
@@ -717,7 +758,7 @@ function buildPaymentSession(
 
   const request = new PaymentRequest(
     paymentOverrides.paymentMethodData || paymentMethodData,
-    paymentOverrides.paymentDetails || paymentDetails,
+    buildPaymentDetails(merchant, config, tx),
     // @ts-expect-error - apple overrides the payment request
     paymentOptions
   );
@@ -750,14 +791,12 @@ function normalizeRecurringInterval(
   };
 }
 
-function buildRecurringSession(
+function buildRecurringDetails(
   merchant: MerchantDetail,
   config: BuildSessionOptions,
   tx: RecurringTransactionDetails
-) {
+): PaymentDetailsInit {
   const lineItems = mapLineItemsToDisplayItems(tx.lineItems, tx.currency);
-
-  const paymentMethodData = buildApplePayMethodData(config, tx.country);
 
   const paymentDetails: PaymentDetailsInit = {
     total: {
@@ -799,6 +838,16 @@ function buildRecurringSession(
     ],
   };
 
+  return config.paymentOverrides?.paymentDetails || paymentDetails;
+}
+
+function buildRecurringSession(
+  merchant: MerchantDetail,
+  config: BuildSessionOptions,
+  tx: RecurringTransactionDetails
+) {
+  const paymentMethodData = buildApplePayMethodData(config, tx.country);
+
   const paymentOptions = {
     requestPayerName: config.requestPayerDetails?.includes("name") ?? false,
     requestBillingAddress: config.requestBillingAddress ?? false,
@@ -812,7 +861,7 @@ function buildRecurringSession(
 
   const request = new PaymentRequest(
     paymentOverrides.paymentMethodData || paymentMethodData,
-    paymentOverrides.paymentDetails || paymentDetails,
+    buildRecurringDetails(merchant, config, tx),
     // @ts-expect-error - apple overrides the payment request
     paymentOptions
   );
@@ -820,11 +869,11 @@ function buildRecurringSession(
   return request;
 }
 
-function buildDisbursementSession(
+function buildDisbursementDetails(
   merchant: MerchantDetail,
   config: BuildSessionOptions,
   tx: DisbursementTransactionDetails
-) {
+): PaymentDetailsInit {
   const lineItems =
     tx.lineItems?.map((item) => ({
       label: item.label,
@@ -834,29 +883,6 @@ function buildDisbursementSession(
       },
       ...(item.type ? { type: item.type } : {}),
     })) || [];
-
-  const merchantCapabilities = resolveDisbursementMerchantCapabilities(tx);
-
-  // Disbursements collect recipient info via disbursementRequest.requiredRecipientContactFields
-  // — billingContact/shippingContact are not used on this path.
-  const disbursementMethodData: Record<string, unknown> = {
-    version: resolveApplePayVersion(),
-    merchantIdentifier: resolveMerchantIdentifier(
-      config.transaction.merchantId,
-      config.appleMerchantId
-    ),
-    merchantCapabilities,
-    supportedNetworks: config.allowedCardNetworks,
-    countryCode: tx.country,
-  };
-  applyRequestPassthroughFields(disbursementMethodData, config);
-
-  const paymentMethodData = [
-    {
-      supportedMethods: "https://apple.com/apple-pay",
-      data: disbursementMethodData,
-    },
-  ];
 
   let calculatedTotal = tx.amount;
 
@@ -914,12 +940,42 @@ function buildDisbursementSession(
     ],
   };
 
+  return config.disbursementOverrides?.disbursementDetails || paymentDetails;
+}
+
+function buildDisbursementSession(
+  merchant: MerchantDetail,
+  config: BuildSessionOptions,
+  tx: DisbursementTransactionDetails
+) {
+  const merchantCapabilities = resolveDisbursementMerchantCapabilities(tx);
+
+  // Disbursements collect recipient info via disbursementRequest.requiredRecipientContactFields
+  // — billingContact/shippingContact are not used on this path.
+  const disbursementMethodData: Record<string, unknown> = {
+    version: resolveApplePayVersion(),
+    merchantIdentifier: resolveMerchantIdentifier(
+      config.transaction.merchantId,
+      config.appleMerchantId
+    ),
+    merchantCapabilities,
+    supportedNetworks: config.allowedCardNetworks,
+    countryCode: tx.country,
+  };
+  applyRequestPassthroughFields(disbursementMethodData, config);
+
+  const paymentMethodData = [
+    {
+      supportedMethods: "https://apple.com/apple-pay",
+      data: disbursementMethodData,
+    },
+  ];
+
   const paymentOptions = {};
-  const disbursementOverrides = config.disbursementOverrides || {};
 
   const request = new PaymentRequest(
     paymentMethodData,
-    disbursementOverrides.disbursementDetails || paymentDetails,
+    buildDisbursementDetails(merchant, config, tx),
     // @ts-expect-error - apple overrides the payment request
     paymentOptions
   );
