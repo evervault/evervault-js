@@ -29,10 +29,21 @@ export function frameMessage(
   type: string,
   payload?: unknown
 ) {
+  const iframe =
+    typeof target === "string"
+      ? document.getElementById(target)
+      : target.querySelector("iframe");
   const frame = typeof target === "string" ? target : frameId(target);
+  const source =
+    iframe instanceof HTMLIFrameElement ? iframe.contentWindow : null;
 
   window.dispatchEvent(
-    new MessageEvent("message", { data: { frame, type, payload } })
+    new MessageEvent("message", {
+      source,
+      origin:
+        iframe instanceof HTMLIFrameElement ? new URL(iframe.src).origin : "",
+      data: { frame, type, payload },
+    })
   );
 }
 

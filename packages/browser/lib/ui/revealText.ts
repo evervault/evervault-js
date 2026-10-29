@@ -1,5 +1,6 @@
 import EventManager from "./eventManager";
 import { EvervaultFrame } from "./evervaultFrame";
+import { REVEAL_CONSUMER_GUARDS } from "./messageGuards";
 import type Reveal from "./reveal";
 import type EvervaultClient from "../main";
 import type {
@@ -42,9 +43,14 @@ export default class RevealText {
     this.path = path;
     this.#reveal = reveal;
     this.#options = options ?? {};
-    this.#frame = new EvervaultFrame(client, "RevealText", {
-      colorScheme: this.#options.colorScheme,
-    });
+    this.#frame = new EvervaultFrame(
+      client,
+      "RevealText",
+      REVEAL_CONSUMER_GUARDS,
+      {
+        colorScheme: this.#options.colorScheme,
+      }
+    );
 
     this.#frame.on("EV_REVEAL_CONSUMER_READY", () => {
       this.ready = true;

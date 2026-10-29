@@ -251,6 +251,7 @@ describe("GooglePay shipping data changes", () => {
         if (type !== "EV_GOOGLE_PAY_DATA_CHANGE") return;
         window.dispatchEvent(
           new MessageEvent("message", {
+            source: window,
             data: {
               type: "EV_GOOGLE_PAY_DATA_CHANGE_RESULT",
               payload: { id: payload.id, ...(updates.shift() ?? {}) },
@@ -542,6 +543,7 @@ describe("GooglePay shipping data changes", () => {
     vi.spyOn(window.parent, "postMessage").mockImplementation(() => {
       window.dispatchEvent(
         new MessageEvent("message", {
+          source: window,
           data: {
             type: "EV_GOOGLE_PAY_DATA_CHANGE_RESULT",
             payload: { id: "gpay-data-change-does-not-exist", amount: 9999 },
