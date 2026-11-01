@@ -10,13 +10,13 @@ export function useBroadcastChannel<MessageMap>(name: string) {
     <T extends keyof MessageMap>(type: T, payload?: MessageMap[T]) => {
       channel.current.postMessage({ type, payload });
     },
-    []
+    [],
   );
 
   const on = useCallback(
     <T extends keyof MessageMap>(
       type: T,
-      callback: (payload: MessageMap[T]) => void
+      callback: (payload: MessageMap[T]) => void,
     ) => {
       const handler = (event: MessageEvent<UIComponentMessageDetail>) => {
         if (!event.data || event.data.type !== type) return;
@@ -26,7 +26,7 @@ export function useBroadcastChannel<MessageMap>(name: string) {
       channel.current.addEventListener("message", handler);
       return () => channel.current.removeEventListener("message", handler);
     },
-    []
+    [],
   );
 
   return { on, send };

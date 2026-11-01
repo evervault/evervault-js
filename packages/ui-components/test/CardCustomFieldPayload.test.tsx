@@ -70,7 +70,7 @@ describe("<ev-field> values", () => {
     await waitFor(() =>
       expect(lastChange()?.fields).toEqual({
         postcode: "encrypted(SW1A 1AA)",
-      })
+      }),
     );
     expect(encrypt).toHaveBeenCalledWith("SW1A 1AA");
   });
@@ -87,7 +87,7 @@ describe("<ev-field> values", () => {
 
     const reported = JSON.stringify(send.mock.calls).replaceAll(
       "encrypted(SW1A 1AA)",
-      ""
+      "",
     );
     expect(reported).not.toContain("SW1A 1AA");
   });
@@ -104,7 +104,7 @@ describe("<ev-field> values", () => {
       expect(lastChange()?.fields).toEqual({
         postcode: "encrypted(SW1A 1AA)",
         nickname: null,
-      })
+      }),
     );
   });
 
@@ -117,7 +117,7 @@ describe("<ev-field> values", () => {
     await userEvent.clear(input(container, "field-postcode"));
 
     await waitFor(() =>
-      expect(lastChange()?.fields).toEqual({ postcode: null })
+      expect(lastChange()?.fields).toEqual({ postcode: null }),
     );
   });
 
@@ -158,7 +158,7 @@ describe("<ev-field> values", () => {
     ]);
 
     await waitFor(() =>
-      expect(input(container, "field-postcode").value).toBe("SW1A 1AA")
+      expect(input(container, "field-postcode").value).toBe("SW1A 1AA"),
     );
     await settle();
 
@@ -176,7 +176,7 @@ describe("<ev-field> values", () => {
     await waitFor(() =>
       expect(sent("EV_VALIDATED").at(-1)?.fields).toEqual({
         postcode: "encrypted(SW1A 1AA)",
-      })
+      }),
     );
   });
 
@@ -195,7 +195,7 @@ describe("<ev-field> values", () => {
 
       await waitFor(() => expect(lastChange()?.card.name).toBe("Jane Doe"));
       expect(
-        Object.getOwnPropertyDescriptor(lastChange()?.fields, name)?.value
+        Object.getOwnPropertyDescriptor(lastChange()?.fields, name)?.value,
       ).toBeNull();
       expect(lastChange()?.errors).toBeNull();
 
@@ -203,10 +203,10 @@ describe("<ev-field> values", () => {
 
       await waitFor(() =>
         expect(
-          Object.getOwnPropertyDescriptor(lastChange()?.fields, name)?.value
-        ).toBe("encrypted(value)")
+          Object.getOwnPropertyDescriptor(lastChange()?.fields, name)?.value,
+        ).toBe("encrypted(value)"),
       );
-    }
+    },
   );
 
   it.each(["name", "number", "expiry", "cvc"])(
@@ -218,11 +218,11 @@ describe("<ev-field> values", () => {
       await userEvent.type(input(container, `field-${name}`), "value");
 
       await waitFor(() =>
-        expect(lastChange()?.fields).toEqual({ [name]: "encrypted(value)" })
+        expect(lastChange()?.fields).toEqual({ [name]: "encrypted(value)" }),
       );
       expect(lastChange()?.card.name).toBe("Jane Doe");
       expect(input(container, "name").value).toBe("Jane Doe");
-    }
+    },
   );
 
   it("reports no fields for a card that declares none", async () => {

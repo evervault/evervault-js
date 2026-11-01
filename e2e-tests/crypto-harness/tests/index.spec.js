@@ -119,12 +119,12 @@ test("Assert that both libraries correctly traverse objects, resulting in consis
   }, plaintextValue);
 
   expect(encryptionEncryptedValue.stringVal).toEqual(
-    browserEncryptedValue.stringVal
+    browserEncryptedValue.stringVal,
   );
   expect(encryptionEncryptedValue.numberVal).toEqual(
-    browserEncryptedValue.numberVal
+    browserEncryptedValue.numberVal,
   );
   expect(encryptionEncryptedValue.booleanVal).toEqual(
-    browserEncryptedValue.booleanVal
+    browserEncryptedValue.booleanVal,
   );
 });

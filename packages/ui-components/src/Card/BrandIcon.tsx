@@ -12,7 +12,7 @@ export function BrandIcon({
 }) {
   const { brand, localBrands } = validateNumber(number, { customBrands });
   const customIcons = Object.fromEntries(
-    customBrands?.map((b) => [b.name, b.iconSrc]) ?? []
+    customBrands?.map((b) => [b.name, b.iconSrc]) ?? [],
   );
   const allIcons: Record<string, string | undefined> = {
     ...icons,

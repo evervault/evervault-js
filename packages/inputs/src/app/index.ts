@@ -37,7 +37,7 @@ function insertLinkTag(
   id: string,
   rel: string,
   href: string,
-  options: { crossOrigin?: string; type?: string; media?: string } = {}
+  options: { crossOrigin?: string; type?: string; media?: string } = {},
 ): void {
   if (!document.getElementById(id)) {
     const head = document.getElementsByTagName("head")[0];
@@ -59,13 +59,13 @@ if (fontUrl) {
     // Only allow fonts from fonts.googleapis.com
     if (parsedFontUrl.hostname !== "fonts.googleapis.com") {
       throw new Error(
-        "Invalid fontUrl. Please use a fontUrl from fonts.googleapis.com"
+        "Invalid fontUrl. Please use a fontUrl from fonts.googleapis.com",
       );
     } else {
       // Avoid CSRF or Clickjacking attacks by reconstructing the URL
       const reconstructedGoogleFontUrl = new URL(
         parsedFontUrl.pathname,
-        "https://fonts.googleapis.com"
+        "https://fonts.googleapis.com",
       );
 
       // Turns out `searchParams` is a read-only property
@@ -74,14 +74,14 @@ if (fontUrl) {
       insertLinkTag(
         "font-preconnect",
         "preconnect",
-        "https://fonts.googleapis.com"
+        "https://fonts.googleapis.com",
       );
 
       insertLinkTag(
         "font-preconnect-cors",
         "preconnect",
         "https://fonts.gstatic.com",
-        { crossOrigin: "" }
+        { crossOrigin: "" },
       );
 
       insertLinkTag(
@@ -91,13 +91,13 @@ if (fontUrl) {
         {
           type: "text/css",
           media: "all",
-        }
+        },
       );
     }
   } catch (e) {
     console.error(e);
     console.error(
-      "The above error means that your custom font's have not been set."
+      "The above error means that your custom font's have not been set.",
     );
   }
 }
@@ -188,7 +188,7 @@ async function getData(): Promise<InputsData> {
 
   if (evCard.cardExpiryVerification.isPotentiallyValid) {
     inputElementsManager.elements.expirationDate.classList.remove(
-      "input-invalid"
+      "input-invalid",
     );
   } else {
     inputElementsManager.elements.expirationDate.classList.add("input-invalid");
@@ -208,10 +208,10 @@ async function getData(): Promise<InputsData> {
     number: cardNumberValue,
     expMonth: formOverrides.disableExpiry
       ? undefined
-      : evCard.cardExpiryVerification.month ?? "",
+      : (evCard.cardExpiryVerification.month ?? ""),
     expYear: formOverrides.disableExpiry
       ? undefined
-      : evCard.cardExpiryVerification.year ?? "",
+      : (evCard.cardExpiryVerification.year ?? ""),
     track,
     name,
     swipe: track.fullTrack.length > 0,
@@ -257,7 +257,7 @@ async function encryptSensitiveCardDetails(card: {
   }
   if (card.track.fullTrack.length > 0) {
     encryptedCard.track.fullTrack = await evervault.encrypt(
-      card.track.fullTrack
+      card.track.fullTrack,
     );
   }
   if (card.track.trackOne.length > 0) {
@@ -305,7 +305,7 @@ function setFrameHeight(): void {
   const { scrollHeight } = document.body;
   window.parent.postMessage(
     { type: "EV_FRAME_HEIGHT", height: scrollHeight },
-    "*"
+    "*",
   );
 }
 
@@ -336,11 +336,11 @@ const isLabels = (event: RevealMessage): event is LabelsMessage =>
   event.data !== "message" && event.data?.type !== "revealRequestConfig";
 
 const isRevealDataRequest = (
-  event: RevealMessage
+  event: RevealMessage,
 ): event is RevealDataRequest => event.data === "message";
 
 const isRevealRequestConfigMessage = (
-  event: RevealMessage
+  event: RevealMessage,
 ): event is RevealRequestConfigMessage =>
   event.data !== "message" && event.data?.type === "revealRequestConfig";
 
@@ -381,7 +381,7 @@ function onLoad(): void {
           getData().catch((e) => reject(e));
         }
       },
-      false
+      false,
     );
 
     if (!isReveal) {
@@ -414,7 +414,7 @@ function onLoad(): void {
           type: "EV_REVEAL_ERROR_EVENT",
           error: serializedError,
         },
-        "*"
+        "*",
       );
     });
 }

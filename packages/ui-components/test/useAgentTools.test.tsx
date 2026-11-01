@@ -64,7 +64,7 @@ beforeEach(() => {
     (tool: ModelContextTool, options: ModelContextRegisterToolOptions) => {
       registered.push({ tool, options });
       return Promise.resolve();
-    }
+    },
   );
   Object.defineProperty(document, "modelContext", {
     configurable: true,
@@ -182,20 +182,20 @@ describe("useAgentTools handlers", () => {
 
     const status = find("set-field-value").execute(
       { field: "cvc", value: "12" },
-      { signal }
+      { signal },
     ) as { fields: { field: string; isValid: boolean }[]; isComplete: boolean };
 
     expect(form.setValue).toHaveBeenCalledWith("cvc", "12");
     expect(form.setError).toHaveBeenCalledWith("cvc", "invalid");
     expect(status.isComplete).toBe(false);
     expect(status.fields[2]).toEqual(
-      expect.objectContaining({ field: "cvc", hasValue: true, isValid: false })
+      expect.objectContaining({ field: "cvc", hasValue: true, isValid: false }),
     );
     expect(JSON.stringify(status)).not.toContain("12");
 
     const complete = find("set-field-value").execute(
       { field: "cvc", value: "123" },
-      { signal }
+      { signal },
     ) as { isComplete: boolean };
 
     expect(form.setError).toHaveBeenLastCalledWith("cvc", undefined);
@@ -209,7 +209,7 @@ describe("useAgentTools handlers", () => {
       cvc: "123",
     });
     renderHook(() =>
-      useAgentTools(baseParams({ form, customFieldsComplete: false }))
+      useAgentTools(baseParams({ form, customFieldsComplete: false })),
     );
 
     const status = find("get-form-status").execute({}, { signal }) as {
@@ -241,12 +241,14 @@ describe("useAgentTools handlers", () => {
     document.body.append(year, month);
     renderHook(() =>
       useAgentTools(
-        baseParams({ inputs: ["number", "expiry-year", "expiry-month", "cvc"] })
-      )
+        baseParams({
+          inputs: ["number", "expiry-year", "expiry-month", "cvc"],
+        }),
+      ),
     );
 
     expect(
-      find("focus-field").execute({ field: "expiry" }, { signal })
+      find("focus-field").execute({ field: "expiry" }, { signal }),
     ).toEqual({ focused: "expiry" });
     expect(document.activeElement).toBe(year);
   });
@@ -257,21 +259,23 @@ describe("useAgentTools handlers", () => {
     document.body.append(month);
     renderHook(() =>
       useAgentTools(
-        baseParams({ inputs: ["number", "expiry-month", "expiry-year", "cvc"] })
-      )
+        baseParams({
+          inputs: ["number", "expiry-month", "expiry-year", "cvc"],
+        }),
+      ),
     );
 
     month.focus();
 
     expect(find("get-form-status").execute({}, { signal })).toEqual(
-      expect.objectContaining({ focusedField: "expiry" })
+      expect.objectContaining({ focusedField: "expiry" }),
     );
   });
 
   it("throws when asked to focus a field that is not rendered", () => {
     renderHook(() => useAgentTools(baseParams()));
     expect(() =>
-      find("focus-field").execute({ field: "name" }, { signal })
+      find("focus-field").execute({ field: "name" }, { signal }),
     ).toThrow('Acme Pay does not show a "name" field.');
   });
 });

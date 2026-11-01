@@ -125,7 +125,7 @@ export class MagStripe {
         this.#inputsManager.elements.trackTwo.value = trackTwo;
 
         this.#inputsManager.elements.cardNumber.dispatchEvent(
-          new Event("input")
+          new Event("input"),
         );
         this.#inputsManager.elements.cardNumber.disabled = true;
         this.#inputsManager.elements.expirationDate.disabled = true;
@@ -145,7 +145,7 @@ export class MagStripe {
         this.#inputsManager.elements.trackTwo.value = trackTwo;
 
         this.#inputsManager.elements.cardNumber.dispatchEvent(
-          new Event("input")
+          new Event("input"),
         );
         this.#inputsManager.elements.cardNumber.disabled = true;
         this.#inputsManager.elements.expirationDate.disabled = true;

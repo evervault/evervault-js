@@ -238,14 +238,14 @@ export type DeprecatedCardProps = Pick<
 >;
 
 export const DeprecatedCardContext = React.createContext<DeprecatedCardProps>(
-  {}
+  {},
 );
 
 // Written by hand: given them as props, React 19 sets `autofocus` and
 // `spellcheck` as the element's properties, which read "" as false.
 function useAttributes(
   ref: React.RefObject<HTMLElement | null>,
-  declared: Record<string, string>
+  declared: Record<string, string>,
 ) {
   React.useLayoutEffect(() => {
     const element = ref.current;
@@ -272,9 +272,9 @@ function fieldElement<P extends object, E extends HTMLElement>(
   // checked against both the component's props and the element's properties.
   elementAttributes: readonly (readonly [
     keyof P & keyof E & string,
-    unknown
+    unknown,
   ])[],
-  fallbacks: (deprecated: DeprecatedCardProps, props: P) => Partial<P>
+  fallbacks: (deprecated: DeprecatedCardProps, props: P) => Partial<P>,
 ) {
   function Component(props: P) {
     const ref = React.useRef<HTMLElement | null>(null);
@@ -284,8 +284,8 @@ function fieldElement<P extends object, E extends HTMLElement>(
       fieldAttributes(
         elementAttributes.map(([prop]) => prop),
         props,
-        fallbacks(deprecated, props)
-      )
+        fallbacks(deprecated, props),
+      ),
     );
 
     return React.createElement(tag, { ref });
@@ -320,21 +320,21 @@ export const CardHolder = fieldElement<CardHolderProps, EvCardHolder>(
   COMPONENT_NAMES.name,
   "ev-card-holder",
   FIELD_ATTRIBUTES.name,
-  autoCompleteFor("name")
+  autoCompleteFor("name"),
 );
 
 export const CardNumber = fieldElement<CardNumberProps, EvCardNumber>(
   COMPONENT_NAMES.number,
   "ev-card-number",
   FIELD_ATTRIBUTES.number,
-  autoCompleteFor("number")
+  autoCompleteFor("number"),
 );
 
 export const CardExpiry = fieldElement<CardExpiryProps, EvCardExpiry>(
   COMPONENT_NAMES.expiry,
   "ev-card-expiry",
   FIELD_ATTRIBUTES.expiry,
-  autoCompleteFor("expiry")
+  autoCompleteFor("expiry"),
 );
 
 export const CardExpiryMonth = fieldElement<
@@ -344,7 +344,7 @@ export const CardExpiryMonth = fieldElement<
   COMPONENT_NAMES.expiryMonth,
   "ev-card-expiry-month",
   FIELD_ATTRIBUTES.expiryMonth,
-  autoCompleteFor("expiryMonth", "expiry")
+  autoCompleteFor("expiryMonth", "expiry"),
 );
 
 export const CardExpiryYear = fieldElement<
@@ -354,7 +354,7 @@ export const CardExpiryYear = fieldElement<
   COMPONENT_NAMES.expiryYear,
   "ev-card-expiry-year",
   FIELD_ATTRIBUTES.expiryYear,
-  autoCompleteFor("expiryYear", "expiry")
+  autoCompleteFor("expiryYear", "expiry"),
 );
 
 export const CardCvc = fieldElement<CardCvcProps, EvCardCvc>(
@@ -365,7 +365,7 @@ export const CardCvc = fieldElement<CardCvcProps, EvCardCvc>(
     ...autoCompleteFor("cvc")(deprecated),
     redact: deprecated.redactCVC,
     allow3DigitAmex: deprecated.allow3DigitAmexCVC,
-  })
+  }),
 );
 
 export const CardField = fieldElement<CardFieldProps, EvField>(
@@ -380,5 +380,5 @@ export const CardField = fieldElement<CardFieldProps, EvField>(
     return {
       autoComplete: typeof setting === "object" ? setting[name] : setting,
     };
-  }
+  },
 );

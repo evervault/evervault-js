@@ -38,7 +38,7 @@ beforeEach(() => {
 
 function card(config: CardConfig, nodes?: CardSpecNode[]) {
   const { container } = render(
-    <Card config={nodes ? { ...config, fields: nodes } : config} />
+    <Card config={nodes ? { ...config, fields: nodes } : config} />,
   );
 
   return container;
@@ -176,7 +176,7 @@ describe("autofocus", () => {
     ]);
 
     await waitFor(() =>
-      expect(document.activeElement).toBe(input(container, "number"))
+      expect(document.activeElement).toBe(input(container, "number")),
     );
   });
 });
@@ -242,7 +242,7 @@ describe("defaultvalue", () => {
     ]);
 
     await waitFor(() =>
-      expect(input(container, "name").value).toBe("Jane Doe")
+      expect(input(container, "name").value).toBe("Jane Doe"),
     );
   });
 
@@ -261,7 +261,7 @@ describe("defaultvalue", () => {
     ]);
 
     await waitFor(() =>
-      expect(input(container, "name").value).toBe("Jane Doe")
+      expect(input(container, "name").value).toBe("Jane Doe"),
     );
   });
 
@@ -271,7 +271,7 @@ describe("defaultvalue", () => {
     ]);
 
     await waitFor(() =>
-      expect(input(container, "name").value).toBe("Jane Doe")
+      expect(input(container, "name").value).toBe("Jane Doe"),
     );
 
     expect(send).not.toHaveBeenCalledWith("EV_CHANGE", expect.anything());
@@ -283,7 +283,7 @@ describe("defaultvalue", () => {
     ]);
 
     await waitFor(() =>
-      expect(input(container, "name").value).toBe("Jane Doe")
+      expect(input(container, "name").value).toBe("Jane Doe"),
     );
 
     apply([
@@ -291,7 +291,7 @@ describe("defaultvalue", () => {
     ]);
 
     await waitFor(() =>
-      expect(input(container, "name").value).toBe("Jane A Doe")
+      expect(input(container, "name").value).toBe("Jane A Doe"),
     );
   });
 
@@ -301,7 +301,7 @@ describe("defaultvalue", () => {
     ]);
 
     await waitFor(() =>
-      expect(input(container, "name").value).toBe("Jane Doe")
+      expect(input(container, "name").value).toBe("Jane Doe"),
     );
 
     const name = input(container, "name");
@@ -309,7 +309,7 @@ describe("defaultvalue", () => {
     fireEvent.change(name, { target: { value: "John Smith" } });
 
     await waitFor(() =>
-      expect(input(container, "name").value).toBe("John Smith")
+      expect(input(container, "name").value).toBe("John Smith"),
     );
 
     apply([
@@ -317,7 +317,7 @@ describe("defaultvalue", () => {
     ]);
 
     await waitFor(() =>
-      expect(input(container, "name").value).toBe("John Smith")
+      expect(input(container, "name").value).toBe("John Smith"),
     );
   });
 });

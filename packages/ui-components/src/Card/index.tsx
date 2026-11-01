@@ -89,7 +89,7 @@ export function Card({ config }: { config: CardConfig }) {
 
   const seed = useMemo(
     () => declaredTree ?? legacyNodes(config),
-    [declaredTree, config]
+    [declaredTree, config],
   );
 
   const received = useSpec(on, seed);
@@ -104,7 +104,7 @@ export function Card({ config }: { config: CardConfig }) {
 
   const nodes = useMemo(
     () => applyCardSettingsToFields(refusal ? renderable : received, config),
-    [refusal, renderable, received, config]
+    [refusal, renderable, received, config],
   );
 
   useEffect(() => {
@@ -140,7 +140,7 @@ export function Card({ config }: { config: CardConfig }) {
   const errorText = (
     props: FieldProps,
     field: string,
-    code: string | undefined
+    code: string | undefined,
   ) => {
     if (!code) return undefined;
 
@@ -156,12 +156,12 @@ export function Card({ config }: { config: CardConfig }) {
   // `config.autoFocus`.
   const declaresAutoFocus = useMemo(
     () => [...declared].some(([, props]) => props.autoFocus !== undefined),
-    [declared]
+    [declared],
   );
 
   const autoFocusInput = useMemo(
     () => [...declared].find(([, props]) => props.autoFocus)?.[0],
-    [declared]
+    [declared],
   );
 
   const interacted = useRef(false);
@@ -205,7 +205,7 @@ export function Card({ config }: { config: CardConfig }) {
         .filter((node) => !skipped.includes(node))
         .flatMap(customFieldWarnings),
     ],
-    [nodes, skipped]
+    [nodes, skipped],
   );
 
   // In an effect, not the render body, so a re-render does not warn again.
@@ -307,7 +307,7 @@ export function Card({ config }: { config: CardConfig }) {
           allow3DigitAmexCVC,
           cvcOptional,
           customBrands,
-        }
+        },
       );
 
       if (cardData.isComplete) {
@@ -323,7 +323,7 @@ export function Card({ config }: { config: CardConfig }) {
   // What the shopper typed in each half. A year typed before the month
   // isn't part of the form's date yet, so it's kept here.
   const [storedHalves, setStoredHalves] = useState(() =>
-    splitExpiry(form.values.expiry)
+    splitExpiry(form.values.expiry),
   );
   const split = expiry?.form === "split";
 
@@ -393,7 +393,7 @@ export function Card({ config }: { config: CardConfig }) {
                 allow3DigitAmexCVC,
                 cvcOptional,
                 customBrands,
-              }
+              },
             );
             send("EV_VALIDATED", data);
           })();
@@ -409,7 +409,7 @@ export function Card({ config }: { config: CardConfig }) {
       allow3DigitAmexCVC,
       cvcOptional,
       customBrands,
-    ]
+    ],
   );
 
   useEffect(
@@ -417,7 +417,7 @@ export function Card({ config }: { config: CardConfig }) {
       on("EV_UPDATE_NAME", (name) => {
         form.setValue("name", name);
       }),
-    [on, form]
+    [on, form],
   );
 
   const appliedDefaultName = useRef(config.defaultValues?.name);
@@ -659,7 +659,7 @@ export function Card({ config }: { config: CardConfig }) {
             declared.get(`expiry-${otherHalf}`)?.errorMessage,
         },
         "expiry",
-        form.errors?.expiry
+        form.errors?.expiry,
       );
       const registered = form.register("expiry", {
         onBlur: handleBlur("expiry"),

@@ -2,7 +2,7 @@ import type { InputSettings, RevealSettings } from "../types";
 
 export default function calculateHeight(
   settings?: InputSettings | RevealSettings,
-  isReveal = false
+  isReveal = false,
 ): string {
   if (settings != null) {
     if (settings.height) {

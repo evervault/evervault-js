@@ -15,7 +15,7 @@ describe("declaredExpiry", () => {
 
   it("finds the split halves and the one declared later", () => {
     expect(
-      declaredExpiry([node("expiryMonth"), node("cvc"), node("expiryYear")])
+      declaredExpiry([node("expiryMonth"), node("cvc"), node("expiryYear")]),
     ).toEqual({ form: "split", later: "expiryYear" });
   });
 
@@ -31,7 +31,7 @@ describe("declaredExpiry", () => {
       declaredExpiry([
         row("row", [node("expiryMonth")]),
         row("row", [node("expiryYear")]),
-      ])
+      ]),
     ).toEqual({ form: "split", later: "expiryYear" });
   });
 });

@@ -13,7 +13,7 @@ export class Transaction {
     details:
       | CreateTransactionDetails
       | RecurringTransactionDetails
-      | DisbursementTransactionDetails
+      | DisbursementTransactionDetails,
   ) {
     this.details = {
       ...details,

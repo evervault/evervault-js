@@ -40,7 +40,7 @@ export function loadComponent(component: string | undefined): Promise<unknown> {
       return import("./Reveal/RevealText").then((m) => m.RevealText);
     case "RevealCopyButton":
       return import("./Reveal/RevealCopyButton").then(
-        (m) => m.RevealCopyButton
+        (m) => m.RevealCopyButton,
       );
     default:
       throw new Error(`Unknown component ${component}`);
@@ -110,7 +110,7 @@ export function UIComponent() {
         setTheme(payload.theme ?? null);
         setConfig(payload.config);
       }),
-    [on, send, setTheme]
+    [on, send, setTheme],
   );
 
   // update the theme and config any time the parent frame fires EV_UPDATE
@@ -122,7 +122,7 @@ export function UIComponent() {
           setConfig(payload.config);
         }
       }),
-    [on, setTheme]
+    [on, setTheme],
   );
 
   useEffect(() => {
@@ -139,7 +139,7 @@ export function UIComponent() {
 function renderComponent(
   component: string | undefined,
   config: unknown,
-  loadedComponent: unknown
+  loadedComponent: unknown,
 ) {
   if (component === "Card") {
     const Card = loadedComponent as typeof CardComponent;

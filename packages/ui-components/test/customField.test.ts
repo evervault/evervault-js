@@ -43,13 +43,13 @@ describe("capitalised", () => {
 
   it("capitalises every character", () => {
     expect(capitalise({ autocapitalize: "characters" }, "sw1a 1aa")).toBe(
-      "SW1A 1AA"
+      "SW1A 1AA",
     );
   });
 
   it("capitalises the first letter of each word", () => {
     expect(capitalise({ autocapitalize: "words" }, "jane van doe")).toBe(
-      "Jane Van Doe"
+      "Jane Van Doe",
     );
   });
 
@@ -57,16 +57,16 @@ describe("capitalised", () => {
     'capitalises the first letter of each sentence for autocapitalize="%s"',
     (autocapitalize) => {
       expect(capitalise({ autocapitalize }, "hello there. how are you?")).toBe(
-        "Hello there. How are you?"
+        "Hello there. How are you?",
       );
-    }
+    },
   );
 
   it.each(["none", "off", "unknown", ""])(
     'leaves the value alone for autocapitalize="%s"',
     (autocapitalize) => {
       expect(capitalise({ autocapitalize }, "sw1a 1aa")).toBe("sw1a 1aa");
-    }
+    },
   );
 
   it("leaves the value alone without autocapitalize", () => {
@@ -75,13 +75,13 @@ describe("capitalised", () => {
 
   it("never lowers a capital", () => {
     expect(capitalise({ autocapitalize: "words" }, "McDonald")).toBe(
-      "McDonald"
+      "McDonald",
     );
   });
 
   it.each(["email", "url"])("never capitalises a %s field", (type) => {
     expect(
-      capitalise({ type, autocapitalize: "characters" }, "jane@example.com")
+      capitalise({ type, autocapitalize: "characters" }, "jane@example.com"),
     ).toBe("jane@example.com");
   });
 });

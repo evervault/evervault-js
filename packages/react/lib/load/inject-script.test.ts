@@ -53,7 +53,7 @@ afterEach(() => {
   delete window.Evervault;
 
   const elements = document.querySelectorAll(
-    "script[src^='https://js.evervault.com']"
+    "script[src^='https://js.evervault.com']",
   );
   elements.forEach((element) => {
     element.remove();
@@ -73,7 +73,7 @@ describe("injectScript", () => {
     const script = mockScript();
     vi.spyOn(document, "createElement").mockReturnValue(script.element);
     vi.spyOn(document, "head", "get").mockReturnValue(
-      null as unknown as HTMLElement
+      null as unknown as HTMLElement,
     );
 
     injectScript("https://js.evervault.com/v2");
@@ -82,15 +82,15 @@ describe("injectScript", () => {
 
   it("should fail if the document.body or document.head is not present", async () => {
     vi.spyOn(document, "body", "get").mockReturnValue(
-      null as unknown as HTMLElement
+      null as unknown as HTMLElement,
     );
     vi.spyOn(document, "head", "get").mockReturnValue(
-      null as unknown as HTMLElement
+      null as unknown as HTMLElement,
     );
 
     const promise = injectScript("https://js.evervault.com/v2");
     await expect(promise).rejects.toThrow(
-      "Expected document.body not to be null. Evervault.js requires a <body> element."
+      "Expected document.body not to be null. Evervault.js requires a <body> element.",
     );
   });
 
@@ -103,8 +103,8 @@ describe("injectScript", () => {
     await expect(promise).rejects.toThrow(
       new ScriptLoadError(
         "script_error",
-        "Failed to load Evervault.js. See the cause for more details."
-      )
+        "Failed to load Evervault.js. See the cause for more details.",
+      ),
     );
   });
 
@@ -118,8 +118,8 @@ describe("injectScript", () => {
     await expect(promise).rejects.toThrow(
       new ScriptLoadError(
         "evervault_not_available",
-        "Evervault.js script did not load Evervault client."
-      )
+        "Evervault.js script did not load Evervault client.",
+      ),
     );
   });
 
@@ -153,8 +153,8 @@ describe("injectScript", () => {
     await expect(promise).rejects.toThrow(
       new ScriptLoadError(
         "timed_out",
-        "Failed to load Evervault.js after 100ms."
-      )
+        "Failed to load Evervault.js after 100ms.",
+      ),
     );
   });
 
@@ -178,7 +178,7 @@ describe("injectScript", () => {
       expect(w.require).toHaveBeenCalledWith(
         ["https://js.evervault.com/v2"],
         expect.any(Function),
-        expect.any(Function)
+        expect.any(Function),
       );
     });
 
@@ -196,8 +196,8 @@ describe("injectScript", () => {
           "Failed to load Evervault.js via AMD require. See the cause for more details.",
           {
             cause: error,
-          }
-        )
+          },
+        ),
       );
     });
 
@@ -211,8 +211,8 @@ describe("injectScript", () => {
       await expect(promise).rejects.toThrow(
         new ScriptLoadError(
           "amd_module_not_exported",
-          "Evervault.js AMD module did not export Evervault client."
-        )
+          "Evervault.js AMD module did not export Evervault client.",
+        ),
       );
     });
 

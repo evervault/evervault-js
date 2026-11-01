@@ -51,7 +51,7 @@ const BASE_LENGTHS = new Set(BASE_MASKS.map((m) => m.cardLength));
 export function getDynamicMask(
   compiledMasks: CardMask[],
   number: string,
-  opts?: { customBrands?: CustomBrand[] }
+  opts?: { customBrands?: CustomBrand[] },
 ): CardMask {
   const { brand, localBrands } = validateNumber(number, {
     customBrands: opts?.customBrands,
@@ -59,11 +59,11 @@ export function getDynamicMask(
 
   if (localBrands.length > 0 && opts?.customBrands) {
     const matchedCustom = opts.customBrands.find((b) =>
-      localBrands.includes(b.name)
+      localBrands.includes(b.name),
     );
     if (matchedCustom) {
       const maxLength = Math.max(
-        ...matchedCustom.numberValidationRules.lengths
+        ...matchedCustom.numberValidationRules.lengths,
       );
       const customMask = compiledMasks.find((m) => m.cardLength === maxLength);
       if (customMask) return customMask;
@@ -115,7 +115,7 @@ export function CardNumber({
     const customBrandAllows4DigitCvc = customBrands?.some(
       (b) =>
         localBrands.includes(b.name) &&
-        b.securityCodeValidationRules.lengths.includes(4)
+        b.securityCodeValidationRules.lengths.includes(4),
     );
     const allows4DigitCvc =
       brand === "american-express" || customBrandAllows4DigitCvc;

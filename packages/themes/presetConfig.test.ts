@@ -14,7 +14,7 @@ describe("withPresetConfig", () => {
   it("sets root custom properties for provided fields only", () => {
     const result = withPresetConfig(
       { ":root": { "--icon-offset": "1.9rem" } },
-      { primary: "#63e", roundness: "8px" }
+      { primary: "#63e", roundness: "8px" },
     );
 
     expect(result[":root"]).toEqual({
@@ -30,7 +30,7 @@ describe("withPresetConfig", () => {
     const result = withPresetConfig({}, { primary: cssVar("--brand-color") });
 
     expect(
-      (result[":root"] as Record<string, string>)["--ev-color-primary"]
+      (result[":root"] as Record<string, string>)["--ev-color-primary"],
     ).toBe("#123456");
   });
 
@@ -38,14 +38,14 @@ describe("withPresetConfig", () => {
     const result = withPresetConfig({}, { primary: "--brand-color" });
 
     expect(
-      (result[":root"] as Record<string, string>)["--ev-color-primary"]
+      (result[":root"] as Record<string, string>)["--ev-color-primary"],
     ).toBe("--brand-color");
   });
 
   it("lets `selectors` override the preset's own styles", () => {
     const result = withPresetConfig(
       { input: { color: "black" } },
-      { selectors: { input: { color: "blue" } } }
+      { selectors: { input: { color: "blue" } } },
     );
 
     expect(result.input).toEqual({ color: "blue" });
@@ -57,7 +57,7 @@ describe("withPresetConfig", () => {
       {
         primary: "#63e",
         selectors: { ":root": { "--custom-token": "42px" } },
-      }
+      },
     );
 
     expect(result[":root"]).toEqual({
@@ -73,11 +73,11 @@ describe("withPresetConfig", () => {
       {
         primary: "#63e",
         selectors: { ":root": { "--ev-color-primary": "#000" } },
-      }
+      },
     );
 
     expect(
-      (result[":root"] as Record<string, string>)["--ev-color-primary"]
+      (result[":root"] as Record<string, string>)["--ev-color-primary"],
     ).toBe("#000");
   });
 });

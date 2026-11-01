@@ -28,8 +28,8 @@ const reflected = Object.entries(FIELD_ELEMENTS).flatMap(([tag, element]) =>
         property as string,
         attributeFor(property),
         kind as ReflectionKind,
-      ] as const
-  )
+      ] as const,
+  ),
 );
 
 const SAMPLES = {
@@ -56,7 +56,7 @@ describe("field elements", () => {
       element[property] = value;
 
       expect(element.getAttribute(attribute)).toBe(written);
-    }
+    },
   );
 
   it.each(reflected)(
@@ -68,7 +68,7 @@ describe("field elements", () => {
       element.setAttribute(attribute, written);
 
       expect(element[property]).toEqual(value);
-    }
+    },
   );
 
   it("reads a flag denied with false as off", () => {
@@ -98,7 +98,7 @@ describe("field elements", () => {
       element[property] = value;
 
       expect(element.hasAttribute(attribute)).toBe(true);
-    }
+    },
   );
 
   it("reads autocomplete denied with off as off", () => {
@@ -140,7 +140,7 @@ describe("field elements", () => {
     document.body.append(element);
 
     expect(Object.prototype.hasOwnProperty.call(element, "autoProgress")).toBe(
-      false
+      false,
     );
     expect(element.getAttribute("autoprogress")).toBe("");
   });

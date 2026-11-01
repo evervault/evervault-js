@@ -93,7 +93,7 @@ describe("<ev-field>", () => {
     expect(label?.textContent).toBe("Postcode");
     expect(input(container, "field-postcode").placeholder).toBe("SW1A 1AA");
     expect(container.querySelector("[ev-tooltip]")?.textContent).toBe(
-      "Where the card is billed"
+      "Where the card is billed",
     );
   });
 
@@ -119,7 +119,7 @@ describe("<ev-field>", () => {
     ]);
 
     expect(
-      container.querySelector("[ev-component=card]")?.getAttribute("ev-fields")
+      container.querySelector("[ev-component=card]")?.getAttribute("ev-fields"),
     ).toBe("number");
   });
 
@@ -163,7 +163,7 @@ describe("<ev-field>", () => {
 
     expect(fieldNames(container)).toEqual(["number"]);
     await waitFor(() =>
-      expect(warn).toHaveBeenCalledWith(NAMELESS_CUSTOM_FIELD)
+      expect(warn).toHaveBeenCalledWith(NAMELESS_CUSTOM_FIELD),
     );
   });
 
@@ -176,7 +176,7 @@ describe("<ev-field>", () => {
     expect(fieldNames(container)).toEqual(["field-postcode"]);
     expect(container.querySelector("label")?.textContent).toBe("First");
     await waitFor(() =>
-      expect(warn).toHaveBeenCalledWith(duplicateCustomField("postcode"))
+      expect(warn).toHaveBeenCalledWith(duplicateCustomField("postcode")),
     );
   });
 
@@ -200,7 +200,7 @@ describe("<ev-field> type", () => {
       ]);
 
       expect(input(container, "field-custom").type).toBe(declared);
-    }
+    },
   );
 
   it("renders an unsupported type as text, with a warning", async () => {
@@ -211,8 +211,8 @@ describe("<ev-field> type", () => {
     expect(input(container, "field-custom").type).toBe("text");
     await waitFor(() =>
       expect(warn).toHaveBeenCalledWith(
-        unsupportedFieldType("custom", "checkbox")
-      )
+        unsupportedFieldType("custom", "checkbox"),
+      ),
     );
   });
 });
@@ -250,7 +250,7 @@ describe("<ev-field> input attributes", () => {
     ]);
 
     expect(input(container, "field-custom").hasAttribute("maxlength")).toBe(
-      false
+      false,
     );
   });
 
@@ -277,7 +277,7 @@ describe("<ev-field> input attributes", () => {
     ]);
 
     expect(input(container, "field-custom").getAttribute("spellcheck")).toBe(
-      expected
+      expected,
     );
   });
 });
@@ -299,7 +299,7 @@ describe("<ev-field> autocapitalize", () => {
     ]);
 
     expect(
-      input(container, "field-custom").getAttribute("autocapitalize")
+      input(container, "field-custom").getAttribute("autocapitalize"),
     ).toBe("none");
   });
 });
@@ -325,7 +325,7 @@ describe("<ev-field> autocomplete", () => {
     const container = card([field("custom", { name: "custom" })]);
 
     expect(input(container, "field-custom").hasAttribute("autocomplete")).toBe(
-      false
+      false,
     );
   });
 });
@@ -337,7 +337,7 @@ describe("<ev-field> defaultvalue", () => {
     ]);
 
     await waitFor(() =>
-      expect(input(container, "field-custom").value).toBe("Hello")
+      expect(input(container, "field-custom").value).toBe("Hello"),
     );
   });
 
@@ -347,7 +347,7 @@ describe("<ev-field> defaultvalue", () => {
     ]);
 
     await waitFor(() =>
-      expect(input(container, "field-custom").value).toBe("Hello")
+      expect(input(container, "field-custom").value).toBe("Hello"),
     );
 
     apply([
@@ -359,7 +359,7 @@ describe("<ev-field> defaultvalue", () => {
     ]);
 
     await waitFor(() =>
-      expect(input(container, "field-custom").value).toBe("Goodbye")
+      expect(input(container, "field-custom").value).toBe("Goodbye"),
     );
   });
 
@@ -369,7 +369,7 @@ describe("<ev-field> defaultvalue", () => {
     ]);
 
     await waitFor(() =>
-      expect(input(container, "field-custom").value).toBe("Hello")
+      expect(input(container, "field-custom").value).toBe("Hello"),
     );
 
     await userEvent.clear(input(container, "field-custom"));
@@ -384,7 +384,7 @@ describe("<ev-field> defaultvalue", () => {
     ]);
 
     await waitFor(() =>
-      expect(input(container, "field-custom").value).toBe("Typed")
+      expect(input(container, "field-custom").value).toBe("Typed"),
     );
   });
 });
@@ -394,7 +394,7 @@ describe("<ev-field> focus", () => {
     card([node("number"), field("custom", { name: "custom", autofocus: "" })]);
 
     await waitFor(() =>
-      expect(document.activeElement?.id).toBe("field-custom")
+      expect(document.activeElement?.id).toBe("field-custom"),
     );
   });
 
@@ -403,13 +403,13 @@ describe("<ev-field> focus", () => {
       [node("number"), field("custom", { name: "custom" })],
       {
         autoProgress: true,
-      }
+      },
     );
 
     await userEvent.type(input(container, "number"), "4242424242424242");
 
     await waitFor(() =>
-      expect(document.activeElement?.id).toBe("field-custom")
+      expect(document.activeElement?.id).toBe("field-custom"),
     );
   });
 

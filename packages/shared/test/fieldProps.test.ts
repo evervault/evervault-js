@@ -4,7 +4,7 @@ import type { CardSpecNode } from "types";
 
 function node(
   type: CardSpecNode["type"],
-  props: Record<string, string>
+  props: Record<string, string>,
 ): CardSpecNode {
   return { type, id: "a", props };
 }
@@ -17,8 +17,8 @@ describe("fieldProps", () => {
           label: "CVC",
           placeholder: "123",
           tooltip: "3 digits on the back",
-        })
-      )
+        }),
+      ),
     ).toEqual({
       label: "CVC",
       placeholder: "123",
@@ -28,19 +28,19 @@ describe("fieldProps", () => {
 
   it("maps a hyphenated attribute onto its prop", () => {
     expect(
-      fieldProps(node("number", { iconposition: "inline-start" }))
+      fieldProps(node("number", { iconposition: "inline-start" })),
     ).toEqual({ iconPosition: "inline-start" });
   });
 
   it("only maps an attribute onto the field that understands it", () => {
     expect(fieldProps(node("cvc", { iconposition: "inline-start" }))).toEqual(
-      {}
+      {},
     );
   });
 
   it("ignores attributes no field understands", () => {
     expect(fieldProps(node("number", { class: "mine", id: "number" }))).toEqual(
-      {}
+      {},
     );
   });
 
@@ -57,7 +57,7 @@ describe("fieldProps", () => {
 
   it("reads a boolean attribute set to false as false", () => {
     expect(
-      fieldProps(node("cvc", { redact: "false", autofocus: "FALSE" }))
+      fieldProps(node("cvc", { redact: "false", autofocus: "FALSE" })),
     ).toEqual({ redact: false, autoFocus: false });
   });
 
@@ -92,7 +92,7 @@ describe("fieldProps", () => {
 
   it("only maps redact and optional onto the security code", () => {
     expect(fieldProps(node("number", { redact: "", optional: "" }))).toEqual(
-      {}
+      {},
     );
   });
 

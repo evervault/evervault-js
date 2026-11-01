@@ -63,8 +63,7 @@ function postcodeCard(props: Record<string, string> = {}) {
 
 function lastSent(message: string) {
   return send.mock.calls.filter(([type]) => type === message).at(-1)?.[1] as
-    | CardPayload
-    | undefined;
+    CardPayload | undefined;
 }
 
 function errorText(container: HTMLElement) {
@@ -139,7 +138,7 @@ describe("<ev-field> validation", () => {
     await waitFor(() =>
       expect(lastSent("EV_CHANGE")?.fields).toEqual({
         postcode: "encrypted(SW1A 1AA)",
-      })
+      }),
     );
     expect(validity(container)).toBe("true");
   });
@@ -148,7 +147,7 @@ describe("<ev-field> validation", () => {
     const container = postcodeCard({ required: "" });
 
     expect(
-      input(container, "field-postcode").getAttribute("aria-required")
+      input(container, "field-postcode").getAttribute("aria-required"),
     ).toBe("true");
   });
 
@@ -163,7 +162,7 @@ describe("<ev-field> validation", () => {
     leave(postcode);
 
     await waitFor(() =>
-      expect(errorText(container)).toBe("Enter a UK postcode")
+      expect(errorText(container)).toBe("Enter a UK postcode"),
     );
   });
 
@@ -176,8 +175,10 @@ describe("<ev-field> validation", () => {
 
     await waitFor(() =>
       expect(
-        container.querySelector("[ev-component=card]")?.getAttribute("ev-valid")
-      ).toBe("false")
+        container
+          .querySelector("[ev-component=card]")
+          ?.getAttribute("ev-valid"),
+      ).toBe("false"),
     );
   });
 
@@ -190,8 +191,8 @@ describe("<ev-field> validation", () => {
 
     await waitFor(() =>
       expect(
-        container.querySelector("[ev-name=number]")?.getAttribute("ev-valid")
-      ).toBe("false")
+        container.querySelector("[ev-name=number]")?.getAttribute("ev-valid"),
+      ).toBe("false"),
     );
   });
 });
@@ -207,7 +208,7 @@ describe("<ev-field> validation in the payload", () => {
     await waitFor(() =>
       expect(lastSent("EV_CHANGE")?.errors).toEqual({
         fields: { postcode: "invalid" },
-      })
+      }),
     );
     expect(lastSent("EV_CHANGE")?.fields).toEqual({ postcode: null });
   });
@@ -226,7 +227,7 @@ describe("<ev-field> validation in the payload", () => {
     await waitFor(() =>
       expect(lastSent("EV_CHANGE")?.errors).toEqual({
         fields: { postcode: "invalid" },
-      })
+      }),
     );
     expect(lastSent("EV_CHANGE")?.isValid).toBe(true);
     expect(lastSent("EV_CHANGE")?.isComplete).toBe(false);
@@ -238,7 +239,7 @@ describe("<ev-field> validation in the payload", () => {
     await userEvent.type(input(container, "field-postcode"), "123");
 
     await waitFor(() =>
-      expect(lastSent("EV_CHANGE")?.fields).toEqual({ postcode: null })
+      expect(lastSent("EV_CHANGE")?.fields).toEqual({ postcode: null }),
     );
     expect(lastSent("EV_CHANGE")?.errors).toBeNull();
   });
@@ -260,7 +261,7 @@ describe("<ev-field> validation in the payload", () => {
       expect(lastSent("EV_CHANGE")?.errors).toEqual({
         number: "invalid",
         fields: { postcode: "invalid" },
-      })
+      }),
     );
   });
 
@@ -315,7 +316,7 @@ describe("<ev-field> validation in the payload", () => {
     await userEvent.type(input(container, "name"), "Jane Doe");
 
     await waitFor(() =>
-      expect(lastSent("EV_CHANGE")?.card.name).toBe("Jane Doe")
+      expect(lastSent("EV_CHANGE")?.card.name).toBe("Jane Doe"),
     );
     expect(lastSent("EV_CHANGE")?.isComplete).toBe(false);
     expect(lastSent("EV_CHANGE")?.isValid).toBe(true);
@@ -331,7 +332,7 @@ describe("<ev-field> validation in the payload", () => {
     await waitFor(() =>
       expect(lastSent("EV_VALIDATED")?.errors).toEqual({
         fields: { postcode: "required" },
-      })
+      }),
     );
     expect(lastSent("EV_VALIDATED")?.isValid).toBe(true);
     expect(lastSent("EV_VALIDATED")?.isComplete).toBe(false);
@@ -346,7 +347,7 @@ describe("<ev-field> validation in the payload", () => {
     await waitFor(() =>
       expect(lastSent("EV_CHANGE")?.errors).toEqual({
         fields: { postcode: "required" },
-      })
+      }),
     );
   });
 
@@ -381,7 +382,7 @@ describe("<ev-field> rule changes", () => {
     rules({ pattern: "4.*" });
 
     await waitFor(() =>
-      expect(input(container, "field-postcode").value).toBe("")
+      expect(input(container, "field-postcode").value).toBe(""),
     );
   });
 
@@ -413,7 +414,7 @@ describe("<ev-field> rule changes", () => {
     await userEvent.type(input(container, "field-postcode"), "4242");
     rules({ pattern: "4.*" });
     await waitFor(() =>
-      expect(input(container, "field-postcode").value).toBe("")
+      expect(input(container, "field-postcode").value).toBe(""),
     );
 
     rules({ pattern: "\\d+" });

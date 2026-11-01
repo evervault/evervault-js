@@ -37,7 +37,7 @@ export async function changePayload(
     allow3DigitAmexCVC?: boolean;
     cvcOptional?: boolean;
     customBrands?: CustomBrand[];
-  }
+  },
 ): Promise<CardPayload> {
   const { name, number, expiry, cvc } = form.values;
   const {
@@ -71,7 +71,7 @@ export async function changePayload(
 
 function payloadErrors(
   form: UseFormReturn<CardForm>,
-  custom: CustomFields
+  custom: CustomFields,
 ): CardPayload["errors"] {
   const card = Object.keys(form.errors ?? {}).length > 0 ? form.errors : null;
 
@@ -94,7 +94,7 @@ function checkedFields({
     [...declared].map(([name, field]) => {
       const value = values.get(name) ?? "";
       return [name, { value, error: customFieldError(field, value) }];
-    })
+    }),
   );
 }
 
@@ -103,7 +103,7 @@ function allValid(checked: Map<string, CheckedField>) {
 }
 
 export function customComplete(
-  custom: Pick<CustomFields, "declared" | "values">
+  custom: Pick<CustomFields, "declared" | "values">,
 ) {
   return allValid(checkedFields(custom));
 }
@@ -115,7 +115,7 @@ function isComplete(
     allow3DigitAmexCVC?: boolean;
     cvcOptional?: boolean;
     customBrands?: CustomBrand[];
-  }
+  },
 ) {
   if (fields.includes("name")) {
     if (form.values.name.length === 0) return false;
@@ -149,7 +149,7 @@ function isComplete(
       isRefusedAmexCvc(
         form.values.cvc,
         cardValidation.brand,
-        opts?.allow3DigitAmexCVC
+        opts?.allow3DigitAmexCVC,
       )
     ) {
       return false;
@@ -161,7 +161,7 @@ function isComplete(
 
 export async function swipePayload(
   ev: PromisifiedEvervaultClient,
-  values: MagStripeData
+  values: MagStripeData,
 ): Promise<SwipedCard> {
   const { brand, localBrands, bin, lastFour } = validateNumber(values.number);
 
@@ -189,7 +189,7 @@ export function isBrandSupported(
   opts?: {
     acceptedBrands?: CardBrandName[];
     customBrands?: CustomBrand[];
-  }
+  },
 ): boolean {
   const { acceptedBrands, customBrands } = opts ?? {};
   if (!acceptedBrands) return true;
@@ -225,13 +225,13 @@ async function encryptedNumber(ev: PromisifiedEvervaultClient, number: string) {
 // Every declared field is reported, an empty or invalid one as null.
 async function encryptedFields(
   ev: PromisifiedEvervaultClient,
-  checked: Map<string, CheckedField>
+  checked: Map<string, CheckedField>,
 ): Promise<Record<string, string | null>> {
   const entries = await Promise.all(
     [...checked].map(async ([name, { value, error }]) => {
       const valid = value.length > 0 && !error;
       return [name, valid ? await ev.encrypt(value) : null];
-    })
+    }),
   );
 
   return Object.fromEntries(entries);
@@ -241,7 +241,7 @@ async function encryptedCVC(
   ev: PromisifiedEvervaultClient,
   cvc: string,
   cardNumber: string,
-  opts?: CardNumberValidationOptions
+  opts?: CardNumberValidationOptions,
 ) {
   const { isValid } = validateCVC(cvc, cardNumber, opts);
 

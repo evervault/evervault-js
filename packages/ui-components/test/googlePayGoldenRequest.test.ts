@@ -60,8 +60,8 @@ function loadFixture(name: string): unknown {
   return JSON.parse(
     readFileSync(
       new URL(`./fixtures/google-pay/${name}.json`, import.meta.url),
-      "utf8"
-    )
+      "utf8",
+    ),
   );
 }
 
@@ -88,19 +88,19 @@ function comparableRequest(config: GooglePayConfig): GoldenRequest {
 describe("Google Pay golden requests", () => {
   it("matches the disabled-billing fixture by default", () => {
     expect(comparableRequest(baseConfig)).toEqual(
-      loadFixture("billing-disabled")
+      loadFixture("billing-disabled"),
     );
   });
 
   it("matches the disabled-billing fixture when billing is explicitly disabled", () => {
     expect(comparableRequest({ ...baseConfig, billingAddress: false })).toEqual(
-      loadFixture("billing-disabled")
+      loadFixture("billing-disabled"),
     );
   });
 
   it("matches the enabled-billing fixture when billing is enabled", () => {
     expect(comparableRequest({ ...baseConfig, billingAddress: true })).toEqual(
-      loadFixture("billing-enabled")
+      loadFixture("billing-enabled"),
     );
   });
 
@@ -125,7 +125,7 @@ describe("Google Pay golden requests", () => {
         allowPrepaidCards: false,
         allowCreditCards: false,
         assuranceDetailsRequired: true,
-      })
+      }),
     ).toEqual(loadFixture("custom"));
   });
 });
@@ -154,7 +154,7 @@ describe("Google Pay fields with no Android equivalent", () => {
         ...baseConfig,
         softwareInfo: { id: "evervault-web", version: "1.0.0" },
       },
-      merchant
+      merchant,
     );
 
     expect(request.merchantInfo).toMatchObject({

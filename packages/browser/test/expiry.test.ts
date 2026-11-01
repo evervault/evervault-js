@@ -26,25 +26,29 @@ describe("expiryError", () => {
 
   it("accepts both halves, wherever they sit", () => {
     expect(
-      expiryError([row([node("expiryMonth")]), node("cvc"), node("expiryYear")])
+      expiryError([
+        row([node("expiryMonth")]),
+        node("cvc"),
+        node("expiryYear"),
+      ]),
     ).toBeNull();
   });
 
   it("names the missing year", () => {
     expect(expiryError([node("expiryMonth")])).toBe(
-      loneExpiryHalf("expiryMonth")
+      loneExpiryHalf("expiryMonth"),
     );
   });
 
   it("names the missing month", () => {
     expect(expiryError([row([node("expiryYear")])])).toBe(
-      loneExpiryHalf("expiryYear")
+      loneExpiryHalf("expiryYear"),
     );
   });
 
   it("refuses the combined field alongside a half", () => {
     expect(expiryError([node("expiry"), node("expiryMonth")])).toBe(
-      COMBINED_EXPIRY_WITH_HALF
+      COMBINED_EXPIRY_WITH_HALF,
     );
   });
 });
@@ -52,13 +56,13 @@ describe("expiryError", () => {
 describe("expiryWarning", () => {
   it("says nothing about halves declared next to each other", () => {
     expect(
-      expiryWarning([node("number"), node("expiryMonth"), node("expiryYear")])
+      expiryWarning([node("number"), node("expiryMonth"), node("expiryYear")]),
     ).toBeNull();
   });
 
   it("says nothing about halves in neighbouring rows", () => {
     expect(
-      expiryWarning([row([node("expiryYear")]), row([node("expiryMonth")])])
+      expiryWarning([row([node("expiryYear")]), row([node("expiryMonth")])]),
     ).toBeNull();
   });
 
@@ -68,7 +72,7 @@ describe("expiryWarning", () => {
 
   it("warns about a field between the halves", () => {
     expect(
-      expiryWarning([node("expiryMonth"), node("cvc"), node("expiryYear")])
+      expiryWarning([node("expiryMonth"), node("cvc"), node("expiryYear")]),
     ).toBe(EXPIRY_HALVES_APART);
   });
 
@@ -77,7 +81,7 @@ describe("expiryWarning", () => {
       expiryWarning([
         row([node("expiryYear"), node("number")]),
         row([node("expiryMonth")]),
-      ])
+      ]),
     ).not.toBeNull();
   });
 });

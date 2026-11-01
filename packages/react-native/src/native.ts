@@ -14,5 +14,5 @@ export const EvervaultSdk = NativeModules.EvervaultSdk
         get() {
           throw new Error(LINKING_ERROR);
         },
-      }
+      },
     );

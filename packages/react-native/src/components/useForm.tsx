@@ -9,7 +9,7 @@ export interface UseFormReturn<T> {
   isValid: boolean;
   validate: () => void;
   register: <K extends keyof T>(
-    name: K
+    name: K,
   ) => {
     onChange: (value: T[K]) => void;
     // TODO(Mark): Replace with union of React.FocusEvent<HTMLInputElement> and native event
@@ -32,7 +32,7 @@ export function useForm<T extends object>({
   const triggerChange = useRef(false);
   const [values, setValues] = useState<T>(initialValues);
   const [errors, setErrors] = useState<UseFormReturn<T>["errors"]>(
-    {} as UseFormReturn<T>["errors"]
+    {} as UseFormReturn<T>["errors"],
   );
 
   // keep track of latest validation functions in a ref to prevent
@@ -65,7 +65,7 @@ export function useForm<T extends object>({
 
       triggerChange.current = true;
     },
-    []
+    [],
   );
 
   const setValue = useCallback(
@@ -96,29 +96,32 @@ export function useForm<T extends object>({
 
       triggerChange.current = true;
     },
-    [values, errors]
+    [values, errors],
   );
 
   const isValid = useMemo(
     () => Object.keys(errors ?? {}).length === 0,
-    [errors]
+    [errors],
   );
 
   const validateForm = useCallback(() => {
-    const nextErrors = Object.keys(values).reduce((acc, key) => {
-      const validator = validators.current?.[key as keyof T];
-      if (validator) {
-        const error = validator(values);
-        if (error) {
-          return {
-            ...acc,
-            [key]: error,
-          };
+    const nextErrors = Object.keys(values).reduce(
+      (acc, key) => {
+        const validator = validators.current?.[key as keyof T];
+        if (validator) {
+          const error = validator(values);
+          if (error) {
+            return {
+              ...acc,
+              [key]: error,
+            };
+          }
         }
-      }
 
-      return acc;
-    }, {} as Record<keyof T, string>);
+        return acc;
+      },
+      {} as Record<keyof T, string>,
+    );
 
     const hasErrors = Object.keys(nextErrors).length > 0;
     setErrors(hasErrors ? nextErrors : null);
@@ -142,7 +145,7 @@ export function useForm<T extends object>({
         setError(field, error);
       }
     },
-    [values, setError]
+    [values, setError],
   );
 
   const register = useCallback(
@@ -160,7 +163,7 @@ export function useForm<T extends object>({
         onChange: handleChange,
       };
     },
-    [setValue, validateField]
+    [setValue, validateField],
   );
 
   const form = useMemo(
@@ -174,7 +177,7 @@ export function useForm<T extends object>({
       setValues,
       validate: validateForm,
     }),
-    [values, setValue, errors, setError, isValid, register, validateForm]
+    [values, setValue, errors, setError, isValid, register, validateForm],
   );
 
   useEffect(() => {

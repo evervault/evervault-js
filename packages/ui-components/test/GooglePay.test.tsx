@@ -26,9 +26,8 @@ const createButtonMock = vi.fn();
 const exchangePaymentDataMock = vi.fn();
 
 vi.mock("../src/GooglePay/utilities", async (importOriginal) => {
-  const actual = await importOriginal<
-    typeof import("../src/GooglePay/utilities")
-  >();
+  const actual =
+    await importOriginal<typeof import("../src/GooglePay/utilities")>();
   return {
     ...actual,
     exchangePaymentData: (...args: unknown[]) =>
@@ -38,7 +37,7 @@ vi.mock("../src/GooglePay/utilities", async (importOriginal) => {
 
 let latestOnPaymentAuthorized:
   | ((
-      data: google.payments.api.PaymentData
+      data: google.payments.api.PaymentData,
     ) => Promise<google.payments.api.PaymentAuthorizationResult>)
   | undefined;
 const isReadyToPayMock = vi.fn().mockResolvedValue({ result: true });
@@ -48,7 +47,7 @@ class MockPaymentsClient {
   constructor(clientConfig: {
     paymentDataCallbacks: {
       onPaymentAuthorized: (
-        data: google.payments.api.PaymentData
+        data: google.payments.api.PaymentData,
       ) => Promise<google.payments.api.PaymentAuthorizationResult>;
     };
   }) {
@@ -79,7 +78,7 @@ const config: GooglePayConfig = {
 
 function getInjectedScript() {
   return document.querySelector<HTMLScriptElement>(
-    'script[src="https://pay.google.com/gp/p/js/pay.js"]'
+    'script[src="https://pay.google.com/gp/p/js/pay.js"]',
   );
 }
 
@@ -126,7 +125,7 @@ describe("GooglePay onLoad GET concurrency", () => {
     await waitFor(() => {
       expect(getMerchantMock).toHaveBeenCalledWith(
         "app_test123",
-        "merchant_abc"
+        "merchant_abc",
       );
     });
 
@@ -135,7 +134,7 @@ describe("GooglePay onLoad GET concurrency", () => {
     await waitFor(() => {
       expect(getAppSDKConfigMock).toHaveBeenCalledWith(
         "app_test123",
-        expect.any(String)
+        expect.any(String),
       );
     });
   });
@@ -161,7 +160,7 @@ describe("GooglePay button radius", () => {
 
 describe("GooglePay button border", () => {
   async function renderAndGetBorderType(
-    borderType?: GooglePayConfig["borderType"]
+    borderType?: GooglePayConfig["borderType"],
   ) {
     render(<GooglePay config={{ ...config, borderType }} />);
     getInjectedScript()!.dispatchEvent(new Event("load"));
@@ -178,7 +177,7 @@ describe("GooglePay button border", () => {
     "maps a border type of %s to %s",
     async (configured, expected) => {
       expect(await renderAndGetBorderType(configured)).toBe(expected);
-    }
+    },
   );
 });
 
@@ -220,7 +219,7 @@ describe("GooglePay shipping data changes", () => {
           shippingAddress: true,
           shippingOptions: SHIPPING_OPTIONS,
         }}
-      />
+      />,
     );
     getInjectedScript()!.dispatchEvent(new Event("load"));
     await waitFor(() => expect(callbacks.onPaymentDataChanged).toBeDefined());
@@ -238,7 +237,7 @@ describe("GooglePay shipping data changes", () => {
    * would, echoing back the id it was sent.
    */
   function replyToDataChange(
-    update: Record<string, unknown> | Record<string, unknown>[]
+    update: Record<string, unknown> | Record<string, unknown>[],
   ) {
     const updates = Array.isArray(update) ? [...update] : [update];
     return vi
@@ -255,7 +254,7 @@ describe("GooglePay shipping data changes", () => {
               type: "EV_GOOGLE_PAY_DATA_CHANGE_RESULT",
               payload: { id: payload.id, ...(updates.shift() ?? {}) },
             },
-          })
+          }),
         );
       });
   }
@@ -296,7 +295,7 @@ describe("GooglePay shipping data changes", () => {
           shippingOptions: SHIPPING_OPTIONS,
         }),
       }),
-      "*"
+      "*",
     );
     expect(result.newTransactionInfo?.totalPrice).toBe("15.00");
   });
@@ -319,7 +318,7 @@ describe("GooglePay shipping data changes", () => {
           shippingOptions: SHIPPING_OPTIONS,
         }),
       }),
-      "*"
+      "*",
     );
   });
 
@@ -355,7 +354,7 @@ describe("GooglePay shipping data changes", () => {
           lineItems: [{ label: "Shipping", amount: 500 }],
         }),
       }),
-      "*"
+      "*",
     );
   });
 
@@ -419,7 +418,7 @@ describe("GooglePay shipping data changes", () => {
       replyToDataChange({ error: { message: testCase.message } });
 
       const result = await callbacks.onPaymentDataChanged!(
-        testCase.data as google.payments.api.IntermediatePaymentData
+        testCase.data as google.payments.api.IntermediatePaymentData,
       );
 
       expect(result.error).toEqual({
@@ -427,7 +426,7 @@ describe("GooglePay shipping data changes", () => {
         intent: testCase.intent,
         message: testCase.message,
       });
-    }
+    },
   );
 
   it("replaces the sheet's options and uses them in later context", async () => {
@@ -458,7 +457,7 @@ describe("GooglePay shipping data changes", () => {
           },
         }),
       }),
-      "*"
+      "*",
     );
   });
 
@@ -469,7 +468,7 @@ describe("GooglePay shipping data changes", () => {
       .mockImplementation(() => {});
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue({ json: async () => ({ card: {} }) })
+      vi.fn().mockResolvedValue({ json: async () => ({ card: {} }) }),
     );
     const shippingAddress = { ...ADDRESS, name: "Ada Lovelace" };
 
@@ -490,8 +489,8 @@ describe("GooglePay shipping data changes", () => {
             shippingOption: SHIPPING_OPTIONS.options[0],
           }),
         }),
-        "*"
-      )
+        "*",
+      ),
     );
   });
 
@@ -532,8 +531,8 @@ describe("GooglePay shipping data changes", () => {
             }),
           }),
         }),
-        "*"
-      )
+        "*",
+      ),
     );
   });
 
@@ -546,7 +545,7 @@ describe("GooglePay shipping data changes", () => {
             type: "EV_GOOGLE_PAY_DATA_CHANGE_RESULT",
             payload: { id: "gpay-data-change-does-not-exist", amount: 9999 },
           },
-        })
+        }),
       );
     });
 
@@ -554,7 +553,7 @@ describe("GooglePay shipping data changes", () => {
       callbacks.onPaymentDataChanged!({
         callbackTrigger: "SHIPPING_ADDRESS",
         shippingAddress: ADDRESS,
-      } as google.payments.api.IntermediatePaymentData)
+      } as google.payments.api.IntermediatePaymentData),
     );
 
     const settled = await Promise.race([
@@ -618,12 +617,13 @@ describe("GooglePay assuranceDetails response surfacing", () => {
     await waitFor(() =>
       expect(postMessage).toHaveBeenCalledWith(
         expect.objectContaining({ type: "EV_GOOGLE_PAY_AUTH" }),
-        "*"
-      )
+        "*",
+      ),
     );
 
     const call = postMessage.mock.calls.find(
-      ([message]) => (message as { type: string }).type === "EV_GOOGLE_PAY_AUTH"
+      ([message]) =>
+        (message as { type: string }).type === "EV_GOOGLE_PAY_AUTH",
     );
     return (call![0] as { payload: Record<string, unknown> }).payload;
   }
@@ -665,7 +665,7 @@ describe("GooglePay isReadyToPay request", () => {
   });
 
   async function renderAndGetIsReadyToPayRequest(
-    existingPaymentMethodRequired?: boolean
+    existingPaymentMethodRequired?: boolean,
   ) {
     render(<GooglePay config={{ ...config, existingPaymentMethodRequired }} />);
     getInjectedScript()!.dispatchEvent(new Event("load"));
@@ -727,7 +727,7 @@ describe("GooglePay button visibility from isReadyToPay response", () => {
         frame: "frame1",
         type: "EV_GOOGLE_PAY_UNAVAILABLE",
       }),
-      "*"
+      "*",
     );
   });
 
@@ -743,7 +743,7 @@ describe("GooglePay button visibility from isReadyToPay response", () => {
     expect(createButtonMock).not.toHaveBeenCalled();
     expect(postMessage).toHaveBeenCalledWith(
       expect.objectContaining({ type: "EV_GOOGLE_PAY_UNAVAILABLE" }),
-      "*"
+      "*",
     );
   });
 
@@ -759,7 +759,7 @@ describe("GooglePay button visibility from isReadyToPay response", () => {
     expect(createButtonMock).toHaveBeenCalled();
     expect(postMessage).not.toHaveBeenCalledWith(
       expect.objectContaining({ type: "EV_GOOGLE_PAY_UNAVAILABLE" }),
-      "*"
+      "*",
     );
   });
 
@@ -774,13 +774,13 @@ describe("GooglePay button visibility from isReadyToPay response", () => {
     await waitFor(() =>
       expect(postMessage).toHaveBeenCalledWith(
         expect.objectContaining({ type: "EV_GOOGLE_PAY_UNAVAILABLE" }),
-        "*"
-      )
+        "*",
+      ),
     );
     expect(createButtonMock).not.toHaveBeenCalled();
     expect(postMessage).not.toHaveBeenCalledWith(
       expect.objectContaining({ type: "EV_GOOGLE_PAY_ERROR" }),
-      "*"
+      "*",
     );
   });
 
@@ -795,13 +795,13 @@ describe("GooglePay button visibility from isReadyToPay response", () => {
     await waitFor(() =>
       expect(postMessage).toHaveBeenCalledWith(
         expect.objectContaining({ type: "EV_GOOGLE_PAY_UNAVAILABLE" }),
-        "*"
-      )
+        "*",
+      ),
     );
     expect(createButtonMock).not.toHaveBeenCalled();
     expect(postMessage).not.toHaveBeenCalledWith(
       expect.objectContaining({ type: "EV_GOOGLE_PAY_ERROR" }),
-      "*"
+      "*",
     );
   });
 
@@ -817,21 +817,21 @@ describe("GooglePay button visibility from isReadyToPay response", () => {
             transaction: { ...config.transaction, type: "disbursement" },
           } as GooglePayConfig
         }
-      />
+      />,
     );
 
     expect(postMessage).toHaveBeenCalledWith(
       expect.objectContaining({ type: "EV_GOOGLE_PAY_UNAVAILABLE" }),
-      "*"
+      "*",
     );
     expect(error).toHaveBeenCalledWith(
-      "Google Pay does not support disbursement transactions."
+      "Google Pay does not support disbursement transactions.",
     );
     expect(getInjectedScript()).toBeNull();
     expect(createButtonMock).not.toHaveBeenCalled();
     expect(postMessage).not.toHaveBeenCalledWith(
       expect.objectContaining({ type: "EV_GOOGLE_PAY_ERROR" }),
-      "*"
+      "*",
     );
   });
 
@@ -845,15 +845,15 @@ describe("GooglePay button visibility from isReadyToPay response", () => {
     await waitFor(() =>
       expect(postMessage).toHaveBeenCalledWith(
         expect.objectContaining({ type: "EV_GOOGLE_PAY_UNAVAILABLE" }),
-        "*"
-      )
+        "*",
+      ),
     );
     expect(error).toHaveBeenCalledWith("Google Pay failed to load");
     expect(isReadyToPayMock).not.toHaveBeenCalled();
     expect(createButtonMock).not.toHaveBeenCalled();
     expect(postMessage).not.toHaveBeenCalledWith(
       expect.objectContaining({ type: "EV_GOOGLE_PAY_ERROR" }),
-      "*"
+      "*",
     );
   });
 });

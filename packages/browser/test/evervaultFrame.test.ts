@@ -20,7 +20,7 @@ describe("EvervaultFrame message listeners", () => {
     frame.on("EV_FRAME_READY", callback);
 
     expect(() =>
-      window.dispatchEvent(new MessageEvent("message", { data: null }))
+      window.dispatchEvent(new MessageEvent("message", { data: null })),
     ).not.toThrow();
     expect(callback).not.toHaveBeenCalled();
   });
@@ -31,7 +31,7 @@ describe("EvervaultFrame message listeners", () => {
     frame.once("EV_FRAME_READY", callback);
 
     expect(() =>
-      window.dispatchEvent(new MessageEvent("message", { data: null }))
+      window.dispatchEvent(new MessageEvent("message", { data: null })),
     ).not.toThrow();
     expect(callback).not.toHaveBeenCalled();
   });
@@ -230,7 +230,7 @@ describe("EvervaultFrame preload and show", () => {
           disconnect() {
             disconnected = true;
           }
-        }
+        },
       );
     }
 
@@ -305,7 +305,7 @@ describe("EvervaultFrame teardown", () => {
     window.dispatchEvent(
       new MessageEvent("message", {
         data: { frame: frame.iframe.id, type: "EV_FRAME_HANDSHAKE" },
-      })
+      }),
     );
 
     // The handshake and resize listeners.
@@ -398,7 +398,7 @@ describe("EvervaultFrame teardown", () => {
 
     vi.stubGlobal(
       "matchMedia",
-      vi.fn(() => ({ matches: false, addEventListener, removeEventListener }))
+      vi.fn(() => ({ matches: false, addEventListener, removeEventListener })),
     );
 
     const theme = ({ media }: ThemeUtilities) => {
@@ -496,7 +496,7 @@ describe("EvervaultFrame teardown", () => {
 
     vi.stubGlobal(
       "matchMedia",
-      vi.fn(() => ({ matches: false, addEventListener, removeEventListener }))
+      vi.fn(() => ({ matches: false, addEventListener, removeEventListener })),
     );
 
     const theme = ({ media }: ThemeUtilities) => {
@@ -520,7 +520,7 @@ describe("Theme teardown", () => {
 
     vi.stubGlobal(
       "matchMedia",
-      vi.fn(() => ({ matches: false, addEventListener, removeEventListener }))
+      vi.fn(() => ({ matches: false, addEventListener, removeEventListener })),
     );
 
     const frame = new EvervaultFrame(client, "card");
@@ -538,7 +538,7 @@ describe("Theme teardown", () => {
 
     expect(removeEventListener).toHaveBeenCalledWith(
       "change",
-      addEventListener.mock.calls[0][1]
+      addEventListener.mock.calls[0][1],
     );
   });
 
@@ -561,7 +561,7 @@ describe("Theme teardown", () => {
         matches: true,
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
-      }))
+      })),
     );
 
     const frame = new EvervaultFrame(client, "card");
@@ -581,7 +581,7 @@ describe("Theme teardown", () => {
 
     vi.stubGlobal(
       "matchMedia",
-      vi.fn(() => ({ matches: false, addEventListener, removeEventListener }))
+      vi.fn(() => ({ matches: false, addEventListener, removeEventListener })),
     );
 
     const theme = ({ media }: ThemeUtilities) => {

@@ -12,7 +12,7 @@ export type SecurityCodeValidationRules = {
 
 type BrandDefinition<
   N extends string = string,
-  Local extends boolean = boolean
+  Local extends boolean = boolean,
 > = {
   name: N;
   isLocal: Local;

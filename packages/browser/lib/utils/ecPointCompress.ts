@@ -4,7 +4,7 @@
  * sign in the first bit
  * */
 export default function ecPointCompress(
-  ecdhRawPublicKey: ArrayBuffer
+  ecdhRawPublicKey: ArrayBuffer,
 ): Uint8Array {
   const u8full = new Uint8Array(ecdhRawPublicKey);
   const len = u8full.byteLength;

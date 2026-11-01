@@ -62,7 +62,7 @@ function field(container: HTMLElement, name: string) {
 
 function errors(container: HTMLElement, name: string) {
   return [...field(container, name).querySelectorAll(".error")].map(
-    (error) => error.textContent
+    (error) => error.textContent,
   );
 }
 
@@ -112,7 +112,7 @@ describe("split expiry rendering", () => {
     const container = card(SPLIT);
 
     expect(
-      container.querySelector("[ev-component=card]")?.getAttribute("ev-fields")
+      container.querySelector("[ev-component=card]")?.getAttribute("ev-fields"),
     ).toBe("number,expiry,cvc");
   });
 
@@ -120,10 +120,10 @@ describe("split expiry rendering", () => {
     const container = card(SPLIT);
 
     expect(
-      field(container, "expiry-month").querySelector("label")?.textContent
+      field(container, "expiry-month").querySelector("label")?.textContent,
     ).toBe("Expiration Month");
     expect(
-      field(container, "expiry-year").querySelector("label")?.textContent
+      field(container, "expiry-year").querySelector("label")?.textContent,
     ).toBe("Expiration Year");
     expect(input(container, "expiry-month").placeholder).toBe("MM");
     expect(input(container, "expiry-year").placeholder).toBe("YY");
@@ -136,11 +136,11 @@ describe("split expiry rendering", () => {
     ]);
 
     expect(
-      field(container, "expiry-month").querySelector("label")?.textContent
+      field(container, "expiry-month").querySelector("label")?.textContent,
     ).toBe("Month");
     expect(input(container, "expiry-month").placeholder).toBe("00");
     expect(
-      field(container, "expiry-year").querySelector("label")?.textContent
+      field(container, "expiry-year").querySelector("label")?.textContent,
     ).toBe("Year");
   });
 
@@ -150,7 +150,7 @@ describe("split expiry rendering", () => {
     });
 
     expect(
-      field(container, "expiry-year").querySelector("label")?.textContent
+      field(container, "expiry-year").querySelector("label")?.textContent,
     ).toBe("Ano");
   });
 
@@ -158,10 +158,10 @@ describe("split expiry rendering", () => {
     const container = card(SPLIT);
 
     expect(input(container, "expiry-month").autocomplete).toBe(
-      "billing cc-exp-month"
+      "billing cc-exp-month",
     );
     expect(input(container, "expiry-year").autocomplete).toBe(
-      "billing cc-exp-year"
+      "billing cc-exp-year",
     );
   });
 
@@ -260,7 +260,7 @@ describe("split expiry value", () => {
     await userEvent.type(input(container, "expiry-year"), "35");
 
     await waitFor(() =>
-      expect(lastChange()?.card.expiry).toEqual({ month: "12", year: "35" })
+      expect(lastChange()?.card.expiry).toEqual({ month: "12", year: "35" }),
     );
   });
 
@@ -271,7 +271,7 @@ describe("split expiry value", () => {
     await userEvent.type(input(container, "expiry-month"), "12");
 
     await waitFor(() =>
-      expect(lastChange()?.card.expiry).toEqual({ month: "12", year: "35" })
+      expect(lastChange()?.card.expiry).toEqual({ month: "12", year: "35" }),
     );
     expect(input(container, "expiry-year").value).toBe("35");
   });
@@ -291,7 +291,7 @@ describe("split expiry value", () => {
     await userEvent.type(input(container, "expiry"), "1235");
 
     await waitFor(() =>
-      expect(lastChange()?.card.expiry).toEqual({ month: "12", year: "35" })
+      expect(lastChange()?.card.expiry).toEqual({ month: "12", year: "35" }),
     );
 
     apply([
@@ -301,7 +301,7 @@ describe("split expiry value", () => {
     ]);
 
     await waitFor(() =>
-      expect(input(container, "expiry-month").value).toBe("12")
+      expect(input(container, "expiry-month").value).toBe("12"),
     );
     expect(input(container, "expiry-year").value).toBe("35");
   });
@@ -317,11 +317,11 @@ describe("split expiry validation", () => {
 
     await waitFor(() =>
       expect(field(container, "expiry-year").getAttribute("ev-valid")).toBe(
-        "false"
-      )
+        "false",
+      ),
     );
     expect(field(container, "expiry-month").getAttribute("ev-valid")).toBe(
-      "false"
+      "false",
     );
   });
 
@@ -333,7 +333,7 @@ describe("split expiry validation", () => {
     fireEvent.blur(input(container, "expiry-year"));
 
     await waitFor(() =>
-      expect(errors(container, "expiry-year")).toEqual([INVALID])
+      expect(errors(container, "expiry-year")).toEqual([INVALID]),
     );
     expect(errors(container, "expiry-month")).toEqual([]);
   });
@@ -350,7 +350,7 @@ describe("split expiry validation", () => {
     fireEvent.blur(input(container, "expiry-month"));
 
     await waitFor(() =>
-      expect(errors(container, "expiry-month")).toEqual([INVALID])
+      expect(errors(container, "expiry-month")).toEqual([INVALID]),
     );
     expect(errors(container, "expiry-year")).toEqual([]);
   });
@@ -363,7 +363,7 @@ describe("split expiry validation", () => {
 
     await settle();
     expect(field(container, "expiry-month").getAttribute("ev-valid")).toBe(
-      "true"
+      "true",
     );
     expect(errors(container, "expiry-year")).toEqual([]);
   });
@@ -376,7 +376,7 @@ describe("split expiry validation", () => {
 
     await settle();
     expect(field(container, "expiry-year").getAttribute("ev-valid")).toBe(
-      "true"
+      "true",
     );
   });
 
@@ -387,7 +387,7 @@ describe("split expiry validation", () => {
     input(container, "cvc").focus();
 
     await waitFor(() =>
-      expect(errors(container, "expiry-year")).toEqual([INVALID])
+      expect(errors(container, "expiry-year")).toEqual([INVALID]),
     );
   });
 
@@ -399,7 +399,7 @@ describe("split expiry validation", () => {
     fireEvent.blur(input(container, "expiry-month"));
 
     await waitFor(() =>
-      expect(errors(container, "expiry-year")).toEqual([INVALID])
+      expect(errors(container, "expiry-year")).toEqual([INVALID]),
     );
   });
 
@@ -411,7 +411,7 @@ describe("split expiry validation", () => {
     fireEvent.blur(input(container, "expiry-year"));
 
     await waitFor(() =>
-      expect(errors(container, "expiry-year")).toEqual([INVALID])
+      expect(errors(container, "expiry-year")).toEqual([INVALID]),
     );
 
     await userEvent.clear(input(container, "expiry-year"));
@@ -419,7 +419,7 @@ describe("split expiry validation", () => {
 
     await waitFor(() => expect(errors(container, "expiry-year")).toEqual([]));
     expect(field(container, "expiry-month").getAttribute("ev-valid")).toBe(
-      "true"
+      "true",
     );
   });
 });
@@ -440,7 +440,7 @@ describe("split expiry focus", () => {
   it("advances into the halves in their declared order", async () => {
     const container = card(
       [node("number"), node("expiryYear"), node("expiryMonth"), node("cvc")],
-      { autoProgress: true }
+      { autoProgress: true },
     );
 
     await userEvent.type(input(container, "number"), "4242424242424242");
@@ -450,7 +450,7 @@ describe("split expiry focus", () => {
     await userEvent.type(input(container, "expiry-year"), "35");
 
     await waitFor(() =>
-      expect(document.activeElement?.id).toBe("expiry-month")
+      expect(document.activeElement?.id).toBe("expiry-month"),
     );
   });
 
@@ -496,7 +496,7 @@ describe("split expiry written from outside the halves", () => {
     }
 
     await waitFor(() =>
-      expect(input(container, "expiry-month").value).toBe("12")
+      expect(input(container, "expiry-month").value).toBe("12"),
     );
     expect(input(container, "expiry-year").value).toBe("35");
   });
@@ -518,7 +518,7 @@ describe("split expiry written from outside the halves", () => {
         agentTools: { namePrefix: "acme", productName: "Acme", exposeTo: [] },
       });
       const setFieldValue = tools.find((tool) =>
-        tool.name.endsWith("set-field-value")
+        tool.name.endsWith("set-field-value"),
       );
 
       act(() => {
@@ -526,7 +526,7 @@ describe("split expiry written from outside the halves", () => {
       });
 
       await waitFor(() =>
-        expect(input(container, "expiry-month").value).toBe("12")
+        expect(input(container, "expiry-month").value).toBe("12"),
       );
       expect(input(container, "expiry-year").value).toBe("35");
     } finally {
