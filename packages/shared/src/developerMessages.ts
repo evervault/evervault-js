@@ -51,31 +51,31 @@ export function cardMessages(names: CardNames) {
     `${card} ignored a second ${node("field")} named "${name}".`;
 
   const namelessCustomField = `${card} ignored a field without a name. Give every ${node(
-    "field"
+    "field",
   )} a name.`;
 
   const combinedExpiryWithHalf = `${card} declares ${node(
-    "expiry"
+    "expiry",
   )} alongside ${node("expiryMonth")} or ${node(
-    "expiryYear"
+    "expiryYear",
   )}. Declare the combined field or the two halves, not both.`;
 
   const unsupportedFieldType = (name: string | undefined, type: string) => {
     const types = CUSTOM_FIELD_TYPES.map((type) => `"${type}"`).join(", ");
     return `${card} renders the ${node(
-      "field"
+      "field",
     )} named "${name}" as a "text" field: "${type}" is not a type it supports. Types are: ${types}.`;
   };
 
   const invalidPattern = (name: string | undefined, pattern: string) =>
     `${card} ignores the pattern of the ${node(
-      "field"
+      "field",
     )} named "${name}": "${pattern}" is not a valid regular expression.`;
 
   const loneExpiryHalf = (declared: ExpiryHalf) => {
     const missing = declared === "expiryMonth" ? "expiryYear" : "expiryMonth";
     return `${card} declares ${node(declared)} without ${node(
-      missing
+      missing,
     )}. A split expiry needs both halves.`;
   };
 

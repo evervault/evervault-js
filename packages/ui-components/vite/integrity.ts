@@ -43,7 +43,7 @@ export function integrity() {
       }
 
       const links = parsed.window.document.querySelectorAll(
-        "link[rel=stylesheet], link[rel=modulepreload]"
+        "link[rel=stylesheet], link[rel=modulepreload]",
       );
       for (const link of links) {
         const href = link.getAttribute("href");

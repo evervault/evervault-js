@@ -35,7 +35,7 @@ export function RevealText({ config }: { config: RevealTextConfig }) {
         const selection = resolveJSONPath(data, config.path);
         setText(selection);
       }),
-    [config.path, channel]
+    [config.path, channel],
   );
 
   const value = useMemo(() => {

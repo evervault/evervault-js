@@ -15,7 +15,7 @@ function dispatchInit(config: unknown) {
   window.dispatchEvent(
     new MessageEvent("message", {
       data: { frame: "test-frame", type: "EV_INIT", payload: { config } },
-    })
+    }),
   );
 }
 
@@ -23,14 +23,14 @@ function dispatchUpdate(config: unknown) {
   window.dispatchEvent(
     new MessageEvent("message", {
       data: { frame: "test-frame", type: "EV_UPDATE", payload: { config } },
-    })
+    }),
   );
 }
 
 function readyMessagesSent(postMessage: ReturnType<typeof vi.spyOn>) {
   return postMessage.mock.calls.filter(
     (call: unknown[]) =>
-      (call[0] as { type?: string })?.type === "EV_FRAME_READY"
+      (call[0] as { type?: string })?.type === "EV_FRAME_READY",
   ).length;
 }
 

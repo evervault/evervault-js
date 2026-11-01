@@ -65,7 +65,7 @@ export function fakeClient() {
   };
   const evervault = { ui: { card: vi.fn(() => card) } };
   const client = Promise.resolve(
-    evervault
+    evervault,
   ) as unknown as PromisifiedEvervaultClient;
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (

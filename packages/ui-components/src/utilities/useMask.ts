@@ -10,7 +10,7 @@ interface UseMaskReturn {
 export function useMask(
   ref: RefObject<HTMLInputElement | null>,
   onAccept: (value: string) => void,
-  config: FactoryOpts
+  config: FactoryOpts,
 ): UseMaskReturn {
   const mask = useRef<ReturnType<typeof IMask> | null>(null);
 

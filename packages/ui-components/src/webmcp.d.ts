@@ -19,7 +19,7 @@ interface ModelContextTool {
   annotations?: ModelContextToolAnnotations;
   execute: (
     input: unknown,
-    options: ModelContextToolExecuteOptions
+    options: ModelContextToolExecuteOptions,
   ) => unknown | Promise<unknown>;
 }
 
@@ -31,7 +31,7 @@ interface ModelContextRegisterToolOptions {
 interface ModelContext extends EventTarget {
   registerTool(
     tool: ModelContextTool,
-    options?: ModelContextRegisterToolOptions
+    options?: ModelContextRegisterToolOptions,
   ): Promise<void> | void;
 }
 

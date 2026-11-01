@@ -32,7 +32,7 @@ export default class ThreeDSecure {
   constructor(
     client: EvervaultClient,
     session: string,
-    options?: ThreeDSecureOptions
+    options?: ThreeDSecureOptions,
   ) {
     this.#session = session;
     this.#options = options ?? {};
@@ -91,7 +91,7 @@ export default class ThreeDSecure {
   async #handleOutcome(
     outcome: string,
     cres?: string | null,
-    abortedOnChallenge: boolean = false
+    abortedOnChallenge: boolean = false,
   ) {
     if (this.#handled) return;
     this.#handled = true;
@@ -108,7 +108,7 @@ export default class ThreeDSecure {
   async #updateOutcome(
     outcome: string,
     cres?: string | null,
-    abortedOnChallenge?: boolean | null
+    abortedOnChallenge?: boolean | null,
   ): Promise<void> {
     const api = this.#client.config.http.apiUrl;
 
@@ -179,7 +179,7 @@ export default class ThreeDSecure {
 
   on<T extends keyof ThreeDSecureEvents>(
     event: T,
-    callback: ThreeDSecureEvents[T]
+    callback: ThreeDSecureEvents[T],
   ) {
     return this.#events.on(event, callback);
   }

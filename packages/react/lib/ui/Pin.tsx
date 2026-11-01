@@ -31,7 +31,7 @@ export function Pin({
       mode,
       inputType,
     }),
-    [colorScheme, theme, length, autoFocus, mode, inputType]
+    [colorScheme, theme, length, autoFocus, mode, inputType],
   );
 
   const instance = useEvInstance({

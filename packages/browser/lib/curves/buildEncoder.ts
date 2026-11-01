@@ -98,7 +98,7 @@ const AlgorithmIdentifier = (curveParams: TP256Constants) =>
 
 const SubjectPublicKeyInfo = (
   curveParams: TP256Constants,
-  decompressedKey: string
+  decompressedKey: string,
 ) =>
   new Sequence({
     name: "SubjectPublicKeyInfo",

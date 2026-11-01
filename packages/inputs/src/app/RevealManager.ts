@@ -15,7 +15,7 @@ export async function setupReveal(request: string): Promise<void> {
 }
 
 async function makeRequestAndValidateResponse(
-  requestJson: string
+  requestJson: string,
 ): Promise<CardData> {
   const requestData = JSON.parse(requestJson) as Request;
   const request = new Request(requestData.url, {
@@ -47,7 +47,7 @@ function setRevealContent(cardData: CardData) {
   const cardNumberElement = document.getElementById("cardnumber");
   if (cardNumberElement) {
     cardNumberElement.textContent = formatAnyLengthCardNumber(
-      cardData.cardNumber
+      cardData.cardNumber,
     );
   }
 

@@ -56,14 +56,13 @@ export interface CardProps {
   preload?: boolean;
 }
 
-export const Card = React.forwardRef<CardRef, CardProps>(function Card(
-  props,
-  forwardedRef
-) {
-  // Children that render nothing for a moment must not remount the card.
-  if (props.children === undefined) {
-    return <OptionsCard {...props} ref={forwardedRef} />;
-  }
+export const Card = React.forwardRef<CardRef, CardProps>(
+  function Card(props, forwardedRef) {
+    // Children that render nothing for a moment must not remount the card.
+    if (props.children === undefined) {
+      return <OptionsCard {...props} ref={forwardedRef} />;
+    }
 
-  return <DeclaredCard {...props} ref={forwardedRef} />;
-});
+    return <DeclaredCard {...props} ref={forwardedRef} />;
+  },
+);

@@ -88,12 +88,12 @@ export class Theme {
   compile(): ThemeObject {
     const extended = this.#extension;
     const matchingBreakpoints = Object.values(this.#breakpoints).filter(
-      (b) => b.matches
+      (b) => b.matches,
     );
 
     const breakpointStyles = matchingBreakpoints.reduce(
       (acc, b) => deepmerge(acc, b.styles),
-      {}
+      {},
     );
 
     const baseObject = deepmerge(this.object, extended ?? {});

@@ -40,7 +40,7 @@ export default class RevealCopyButton {
     reveal: Reveal,
     client: EvervaultClient,
     path: string,
-    options?: RevealCopyButtonOptions
+    options?: RevealCopyButtonOptions,
   ) {
     this.path = path;
     this.#reveal = reveal;
@@ -87,7 +87,7 @@ export default class RevealCopyButton {
 
   on<T extends keyof RevealCopyButtonEvents>(
     event: T,
-    callback: RevealCopyButtonEvents[T]
+    callback: RevealCopyButtonEvents[T],
   ) {
     return this.#events.on(event, callback);
   }

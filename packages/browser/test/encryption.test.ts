@@ -28,7 +28,7 @@ describe("Encryption", () => {
     setupCrypto();
     context.ev = new Evervault(
       import.meta.env.VITE_EV_TEAM_UUID,
-      import.meta.env.VITE_EV_APP_UUID
+      import.meta.env.VITE_EV_APP_UUID,
     );
   });
 
@@ -80,7 +80,7 @@ describe("Encryption with debug mode", () => {
         isDebugMode: true,
         publicKey:
           "BBbnMmMn9F/X7ukiRZLvOArwcSQjjpp+o++f3+J11TSHO5FCS69aBrgwax+AfJH0JApVcIH5eY/0lKkQMTa5r7c=",
-      }
+      },
     );
   });
 
@@ -99,7 +99,7 @@ describe("Encryption with debug mode", () => {
         isDebugMode: false,
         publicKey:
           "BBbnMmMn9F/X7ukiRZLvOArwcSQjjpp+o++f3+J11TSHO5FCS69aBrgwax+AfJH0JApVcIH5eY/0lKkQMTa5r7c=",
-      }
+      },
     );
     const string = "hello world";
 
@@ -112,7 +112,7 @@ describe("Encryption with debug mode", () => {
     const evDebug = new Evervault(
       import.meta.env.VITE_EV_TEAM_UUID,
       import.meta.env.VITE_EV_APP_UUID,
-      { isDebugMode: true }
+      { isDebugMode: true },
     );
     const string = "hello world";
 
@@ -132,12 +132,12 @@ describe("File Encryption", () => {
     setupCrypto();
     context.ev = new Evervault(
       import.meta.env.VITE_EV_TEAM_UUID,
-      import.meta.env.VITE_EV_APP_UUID
+      import.meta.env.VITE_EV_APP_UUID,
     );
     context.evDebug = new Evervault(
       import.meta.env.VITE_EV_TEAM_UUID,
       import.meta.env.VITE_EV_APP_UUID,
-      { isDebugMode: true }
+      { isDebugMode: true },
     );
   });
 
@@ -152,16 +152,16 @@ describe("File Encryption", () => {
     assert(
       Buffer.compare(
         new Uint8Array(data.subarray(0, 6)),
-        new Uint8Array(Buffer.from("%EVENC", "utf-8"))
-      ) === 0
+        new Uint8Array(Buffer.from("%EVENC", "utf-8")),
+      ) === 0,
     );
 
     // Test that the debug flag is not set
     assert(
       Buffer.compare(
         new Uint8Array(data.subarray(54, 55)),
-        new Uint8Array(Buffer.from([0x00]))
-      ) === 0
+        new Uint8Array(Buffer.from([0x00])),
+      ) === 0,
     );
   });
 
@@ -177,16 +177,16 @@ describe("File Encryption", () => {
     assert(
       Buffer.compare(
         new Uint8Array(data.subarray(0, 6)),
-        new Uint8Array(Buffer.from("%EVENC", "utf-8"))
-      ) === 0
+        new Uint8Array(Buffer.from("%EVENC", "utf-8")),
+      ) === 0,
     );
 
     // Test that the debug flag is set
     assert(
       Buffer.compare(
         new Uint8Array(data.subarray(54, 55)),
-        new Uint8Array(Buffer.from([0x01]))
-      ) === 0
+        new Uint8Array(Buffer.from([0x01])),
+      ) === 0,
     );
   });
 
@@ -194,7 +194,7 @@ describe("File Encryption", () => {
     const file = new File(["hello world"], "hello.txt");
     Object.defineProperty(file, "size", { value: 26 * 1024 * 1024 });
     await expect(() => context.ev.encrypt(file)).rejects.toThrowError(
-      /File size must be less than 25MB/
+      /File size must be less than 25MB/,
     );
   });
 
@@ -208,16 +208,16 @@ describe("File Encryption", () => {
     assert(
       Buffer.compare(
         new Uint8Array(data.subarray(0, 6)),
-        new Uint8Array(Buffer.from("%EVENC", "utf-8"))
-      ) === 0
+        new Uint8Array(Buffer.from("%EVENC", "utf-8")),
+      ) === 0,
     );
 
     // Test that the debug flag is not set
     assert(
       Buffer.compare(
         new Uint8Array(data.subarray(54, 55)),
-        new Uint8Array(Buffer.from([0x00]))
-      ) === 0
+        new Uint8Array(Buffer.from([0x00])),
+      ) === 0,
     );
   });
 
@@ -232,16 +232,16 @@ describe("File Encryption", () => {
     assert(
       Buffer.compare(
         new Uint8Array(data.subarray(0, 6)),
-        new Uint8Array(Buffer.from("%EVENC", "utf-8"))
-      ) === 0
+        new Uint8Array(Buffer.from("%EVENC", "utf-8")),
+      ) === 0,
     );
 
     // Test that the debug flag is set
     assert(
       Buffer.compare(
         new Uint8Array(data.subarray(54, 55)),
-        new Uint8Array(Buffer.from([0x01]))
-      ) === 0
+        new Uint8Array(Buffer.from([0x01])),
+      ) === 0,
     );
   });
 
@@ -255,7 +255,7 @@ describe("File Encryption", () => {
     const crc32FromFile = view.getInt32(0, true);
 
     const crc32FromFileContents = crc32.buf(
-      new Uint8Array(Buffer.from(data.slice(0, -4)))
+      new Uint8Array(Buffer.from(data.slice(0, -4))),
     );
 
     assert(crc32FromFile === crc32FromFileContents);
@@ -264,7 +264,7 @@ describe("File Encryption", () => {
   it<TestContext>("it doesnt encrypt a file with metadata", async (context) => {
     const file = new File(["Hello world"], "hello.txt");
     await expect(() => context.ev.encrypt(file, "role")).rejects.toThrowError(
-      /Data roles are not supported for files./
+      /Data roles are not supported for files./,
     );
   });
 
@@ -272,7 +272,7 @@ describe("File Encryption", () => {
     const blob = new Blob(["hello world"]);
     Object.defineProperty(blob, "size", { value: 26 * 1024 * 1024 });
     await expect(() => context.ev.encrypt(blob)).rejects.toThrowError(
-      /File size must be less than 25MB/
+      /File size must be less than 25MB/,
     );
   });
 });
@@ -288,12 +288,12 @@ describe("Encryption with evervault async initailization", () => {
     setupCrypto();
     context.evClient = await Evervault.init(
       import.meta.env.VITE_EV_TEAM_UUID,
-      import.meta.env.VITE_EV_APP_UUID
+      import.meta.env.VITE_EV_APP_UUID,
     );
     context.evDebug = await Evervault.init(
       import.meta.env.VITE_EV_TEAM_UUID,
       import.meta.env.VITE_EV_APP_UUID,
-      { isDebugMode: true }
+      { isDebugMode: true },
     );
     context.evCustomClient = await Evervault.init(
       import.meta.env.VITE_EV_TEAM_UUID,
@@ -301,7 +301,7 @@ describe("Encryption with evervault async initailization", () => {
       {
         publicKey:
           "BBbnMmMn9F/X7ukiRZLvOArwcSQjjpp+o++f3+J11TSHO5FCS69aBrgwax+AfJH0JApVcIH5eY/0lKkQMTa5r7c=",
-      }
+      },
     );
   });
 
@@ -329,8 +329,8 @@ describe("Encryption with evervault async initailization", () => {
           urls: {
             keysUrl: "http://maformed.",
           },
-        }
-      )
+        },
+      ),
     ).rejects.toThrowError("An error occurred while retrieving the apps key");
   });
 });

@@ -5,7 +5,7 @@ import { ScriptLoadError } from "./error";
 type RequireFunction = (
   deps: string[],
   onLoad: (mod?: unknown) => void,
-  onError?: (err: unknown) => void
+  onError?: (err: unknown) => void,
 ) => void;
 
 export interface InjectScriptOptions {
@@ -23,8 +23,8 @@ export function injectScript(url: string, options?: InjectScriptOptions) {
       reject(
         new ScriptLoadError(
           "window_not_available",
-          "Evervault.js is only available in browser environments with a global `window` object."
-        )
+          "Evervault.js is only available in browser environments with a global `window` object.",
+        ),
       );
       return;
     }
@@ -36,8 +36,7 @@ export function injectScript(url: string, options?: InjectScriptOptions) {
 
     const w = window as unknown as {
       define?:
-        | (((...args: unknown[]) => unknown) & { amd?: unknown })
-        | undefined;
+        (((...args: unknown[]) => unknown) & { amd?: unknown }) | undefined;
       require?: RequireFunction;
       requirejs?: RequireFunction;
     };
@@ -51,16 +50,15 @@ export function injectScript(url: string, options?: InjectScriptOptions) {
           [url],
           (client?: unknown) => {
             const ExportedEvervault = client as
-              | typeof EvervaultClient
-              | undefined;
+              typeof EvervaultClient | undefined;
             if (ExportedEvervault) {
               resolve(ExportedEvervault);
             } else {
               reject(
                 new ScriptLoadError(
                   "amd_module_not_exported",
-                  "Evervault.js AMD module did not export Evervault client."
-                )
+                  "Evervault.js AMD module did not export Evervault client.",
+                ),
               );
             }
           },
@@ -69,10 +67,10 @@ export function injectScript(url: string, options?: InjectScriptOptions) {
               new ScriptLoadError(
                 "amd_module_error",
                 "Failed to load Evervault.js via AMD require. See the cause for more details.",
-                { cause: error }
-              )
+                { cause: error },
+              ),
             );
-          }
+          },
         );
         return;
       }
@@ -86,8 +84,8 @@ export function injectScript(url: string, options?: InjectScriptOptions) {
           reject(
             new ScriptLoadError(
               "evervault_not_available",
-              "Evervault.js script did not load Evervault client."
-            )
+              "Evervault.js script did not load Evervault client.",
+            ),
           );
         }
       })

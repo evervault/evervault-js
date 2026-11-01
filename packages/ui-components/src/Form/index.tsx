@@ -11,7 +11,7 @@ import type {
 type InputRenderer = (
   name: string,
   type: string,
-  required: boolean
+  required: boolean,
 ) => JSX.Element;
 type TextareaRenderer = (name: string, required: boolean) => JSX.Element;
 type FieldRenderer = InputRenderer | TextareaRenderer;
@@ -80,7 +80,7 @@ export function Form({ config }: { config: FormConfig }): JSX.Element {
     async function makeRequest() {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/forms/${config.formUuid}`
+          `${import.meta.env.VITE_API_URL}/forms/${config.formUuid}`,
         );
         const { targetElements }: FormApiResponse =
           (await response.json()) as FormApiResponse;
@@ -137,7 +137,7 @@ export function Form({ config }: { config: FormConfig }): JSX.Element {
             return renderField(
               element.elementName,
               element.type ? element.type : "text",
-              element.required
+              element.required,
             );
           }
 

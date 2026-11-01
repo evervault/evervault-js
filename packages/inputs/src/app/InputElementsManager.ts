@@ -49,7 +49,7 @@ export class InputElementsManager {
 
   constructor(
     postToParent: (message: unknown) => void,
-    { disableCVV = false, reveal = false }
+    { disableCVV = false, reveal = false },
   ) {
     this.elements = {
       cardNumber: createGetInputElementOrThow("cardnumber"),

@@ -12,18 +12,18 @@ import type { CustomBrand } from "types";
 
 export function getCVCMask(
   cardNumber: string,
-  customBrands?: CustomBrand[]
+  customBrands?: CustomBrand[],
 ): string {
   if (!cardNumber) return "0000";
   const { brand, localBrands } = validateNumber(cardNumber, { customBrands });
   if (brand === "american-express") return "0000";
 
   const matchedCustomBrand = customBrands?.find((b) =>
-    localBrands.includes(b.name)
+    localBrands.includes(b.name),
   );
   if (matchedCustomBrand) {
     const maxLength = Math.max(
-      ...matchedCustomBrand.securityCodeValidationRules.lengths
+      ...matchedCustomBrand.securityCodeValidationRules.lengths,
     );
     return "0".repeat(maxLength);
   }
@@ -68,7 +68,7 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
       redact,
       customBrands,
     },
-    forwardedRef
+    forwardedRef,
   ) => {
     const innerRef = useRef<HTMLInputElement>(null);
 
@@ -76,7 +76,7 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
 
     const mask = useMemo(
       () => getCVCMask(cardNumber, customBrands),
-      [cardNumber, customBrands]
+      [cardNumber, customBrands],
     );
 
     const { setValue, mask: masked } = useMask(innerRef, onChange, {
@@ -123,5 +123,5 @@ export const CardCVC = forwardRef<HTMLInputElement, CVCProps>(
         onKeyDown={onKeyDown}
       />
     );
-  }
+  },
 );

@@ -18,7 +18,7 @@ const CARD_FIELD_CHARACTERS = "0123456789";
 
 function matchOrNull(
   value: string | number | undefined,
-  pattern: RegExp
+  pattern: RegExp,
 ): string | null {
   if (value === undefined) return null;
   const string = String(value);
@@ -60,14 +60,14 @@ async function assertSafeDigitGlyphs(base64: string): Promise<void> {
     const glyphId = font.glyphForCodePoint(codePoint).id;
     if (glyphId === 0) {
       throw new Error(
-        `the digit "${character}" maps to the missing-glyph placeholder`
+        `the digit "${character}" maps to the missing-glyph placeholder`,
       );
     }
 
     const seen = seenGlyphIds.get(glyphId);
     if (seen !== undefined) {
       throw new Error(
-        `the digits "${seen}" and "${character}" are drawn by the same glyph`
+        `the digits "${seen}" and "${character}" are drawn by the same glyph`,
       );
     }
     seenGlyphIds.set(glyphId, character);
@@ -75,7 +75,7 @@ async function assertSafeDigitGlyphs(base64: string): Promise<void> {
 }
 
 export async function parseFontFace(
-  face: ThemeFontFace
+  face: ThemeFontFace,
 ): Promise<FontFaceStyle> {
   const src = SRC.exec(face.src);
   if (!src) throw new Error("src must be a base64 data URL");
@@ -84,14 +84,14 @@ export async function parseFontFace(
   if (!format) {
     throw new Error(
       `src has an unsupported type "${src[1]}", expected ${Object.keys(
-        FORMATS
-      ).join(", ")}`
+        FORMATS,
+      ).join(", ")}`,
     );
   }
 
   if (!FAMILY.test(face.fontFamily)) {
     throw new Error(
-      "fontFamily must be 1-64 letters, digits, spaces, hyphens or underscores"
+      "fontFamily must be 1-64 letters, digits, spaces, hyphens or underscores",
     );
   }
 
@@ -115,10 +115,10 @@ export async function parseFontFace(
 }
 
 export async function parseFontFaces(
-  faces: ThemeFontFace[]
+  faces: ThemeFontFace[],
 ): Promise<FontFaceStyle[]> {
   const results = await Promise.allSettled(
-    faces.map((face) => parseFontFace(face))
+    faces.map((face) => parseFontFace(face)),
   );
 
   return results.reduce<FontFaceStyle[]>((acc, result, index) => {
@@ -131,7 +131,7 @@ export async function parseFontFaces(
       console.error(
         `Invalid theme font face for "${
           faces[index]?.fontFamily ?? "unknown"
-        }": ${reason}`
+        }": ${reason}`,
       );
 
       return acc;

@@ -23,7 +23,7 @@ type ValuesByFieldName<T> = Map<string, ValueWithRules<T>>;
 function withRules<T>(
   value: T,
   name: string,
-  validationRulesKeys: Map<string, string>
+  validationRulesKeys: Map<string, string>,
 ): ValueWithRules<T> {
   return { value, validationRulesKey: validationRulesKeys.get(name) };
 }
@@ -31,15 +31,15 @@ function withRules<T>(
 // The entries whose field still has the rules they were entered under.
 function enteredUnderCurrentRules<T>(
   entries: ValuesByFieldName<T>,
-  validationRulesKeys: Map<string, string>
+  validationRulesKeys: Map<string, string>,
 ): Map<string, T> {
   return new Map(
     [...entries]
       .filter(
         ([name, entry]) =>
-          entry.validationRulesKey === validationRulesKeys.get(name)
+          entry.validationRulesKey === validationRulesKeys.get(name),
       )
-      .map(([name, entry]) => [name, entry.value])
+      .map(([name, entry]) => [name, entry.value]),
   );
 }
 
@@ -47,12 +47,12 @@ function enteredUnderCurrentRules<T>(
 // back brings nothing back. Fields no longer declared keep theirs.
 function withoutChangedRules<T>(
   entries: ValuesByFieldName<T>,
-  validationRulesKeys: Map<string, string>
+  validationRulesKeys: Map<string, string>,
 ): ValuesByFieldName<T> {
   const kept = [...entries].filter(
     ([name, entry]) =>
       !validationRulesKeys.has(name) ||
-      entry.validationRulesKey === validationRulesKeys.get(name)
+      entry.validationRulesKey === validationRulesKeys.get(name),
   );
 
   return kept.length === entries.size ? entries : new Map(kept);
@@ -65,8 +65,8 @@ function useDefaultValues(
   currentValues: Map<string, string>,
   validationRulesKeys: Map<string, string>,
   setTypedValues: (
-    update: (current: ValuesByFieldName<string>) => ValuesByFieldName<string>
-  ) => void
+    update: (current: ValuesByFieldName<string>) => ValuesByFieldName<string>,
+  ) => void,
 ) {
   // The default last filled into each field, by name.
   const filledDefaults = useRef(new Map<string, string>());
@@ -87,7 +87,7 @@ function useDefaultValues(
       if (canFillDefault(value, previous)) {
         defaultsToFill.set(
           name,
-          withRules(defaultValue, name, validationRulesKeys)
+          withRules(defaultValue, name, validationRulesKeys),
         );
       }
     });
@@ -102,7 +102,7 @@ function useDefaultValues(
 export function useCustomFields(nodes: CardSpecNode[], onChange: () => void) {
   const fieldsByName = useMemo(() => declaredCustomFields(nodes), [nodes]);
   const [typedValues, setTypedValues] = useState<ValuesByFieldName<string>>(
-    () => new Map()
+    () => new Map(),
   );
   const [shownErrors, setShownErrors] = useState<
     ValuesByFieldName<CustomFieldError>
@@ -121,18 +121,18 @@ export function useCustomFields(nodes: CardSpecNode[], onChange: () => void) {
         [...fieldsByName].map(([name, field]) => [
           name,
           validationRulesKey(field),
-        ])
+        ]),
       ),
-    [fieldsByName]
+    [fieldsByName],
   );
 
   const currentValues = useMemo(
     () => enteredUnderCurrentRules(typedValues, validationRulesKeys),
-    [typedValues, validationRulesKeys]
+    [typedValues, validationRulesKeys],
   );
   const currentErrors = useMemo(
     () => enteredUnderCurrentRules(shownErrors, validationRulesKeys),
-    [shownErrors, validationRulesKeys]
+    [shownErrors, validationRulesKeys],
   );
 
   // The error a value would get in its field, if any.
@@ -141,7 +141,7 @@ export function useCustomFields(nodes: CardSpecNode[], onChange: () => void) {
       const field = fieldsByName.get(name);
       return field && customFieldError(field, value);
     },
-    [fieldsByName]
+    [fieldsByName],
   );
 
   // Shows the error under a field, or clears it when there is none.
@@ -157,26 +157,26 @@ export function useCustomFields(nodes: CardSpecNode[], onChange: () => void) {
         return next;
       });
     },
-    [currentErrors, validationRulesKeys]
+    [currentErrors, validationRulesKeys],
   );
 
   const setValue = useCallback(
     (name: string, value: string) => {
       notifyAfterRender.current = true;
       setTypedValues((current) =>
-        new Map(current).set(name, withRules(value, name, validationRulesKeys))
+        new Map(current).set(name, withRules(value, name, validationRulesKeys)),
       );
 
       // A field already showing an error is re-checked as the shopper types.
       if (currentErrors.has(name)) setShownError(name, errorFor(name, value));
     },
-    [currentErrors, setShownError, errorFor, validationRulesKeys]
+    [currentErrors, setShownError, errorFor, validationRulesKeys],
   );
 
   const blur = useCallback(
     (name: string) =>
       setShownError(name, errorFor(name, currentValues.get(name) ?? "")),
-    [setShownError, errorFor, currentValues]
+    [setShownError, errorFor, currentValues],
   );
 
   // Checks every field and shows each one's error.
@@ -199,18 +199,18 @@ export function useCustomFields(nodes: CardSpecNode[], onChange: () => void) {
         [...errors].map(([name, error]) => [
           name,
           withRules(error, name, validationRulesKeys),
-        ])
-      )
+        ]),
+      ),
     );
     return errors;
   }, [fieldsByName, currentValues, currentErrors, validationRulesKeys]);
 
   useEffect(() => {
     setTypedValues((current) =>
-      withoutChangedRules(current, validationRulesKeys)
+      withoutChangedRules(current, validationRulesKeys),
     );
     setShownErrors((current) =>
-      withoutChangedRules(current, validationRulesKeys)
+      withoutChangedRules(current, validationRulesKeys),
     );
   }, [validationRulesKeys]);
 
@@ -225,12 +225,12 @@ export function useCustomFields(nodes: CardSpecNode[], onChange: () => void) {
     fieldsByName,
     currentValues,
     validationRulesKeys,
-    setTypedValues
+    setTypedValues,
   );
 
   const valueOf = useCallback(
     (name: string) => currentValues.get(name) ?? "",
-    [currentValues]
+    [currentValues],
   );
 
   return useMemo(
@@ -251,6 +251,6 @@ export function useCustomFields(nodes: CardSpecNode[], onChange: () => void) {
       setValue,
       blur,
       validate,
-    ]
+    ],
   );
 }

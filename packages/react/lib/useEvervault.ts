@@ -9,7 +9,7 @@ export function useEvervault(): PromisifiedEvervaultClient | null {
 
   if (typeof React.useContext !== "function") {
     throw new Error(
-      "You must use React >= 18.0 in order to use useEvervault()"
+      "You must use React >= 18.0 in order to use useEvervault()",
     );
   }
 
@@ -17,7 +17,7 @@ export function useEvervault(): PromisifiedEvervaultClient | null {
   const evervault = React.useContext(EvervaultContext);
   if (!evervault) {
     throw new Error(
-      "You must wrap your app in an <EvervaultProvider> to use useEvervault()"
+      "You must wrap your app in an <EvervaultProvider> to use useEvervault()",
     );
   }
 

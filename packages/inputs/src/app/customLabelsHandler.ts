@@ -16,7 +16,7 @@ export type Labels = typeof defaultErrorLabels & Record<string, string>;
 export function setInputLabels(
   theme: string | null,
   urlParams: URLSearchParams,
-  isReveal: boolean
+  isReveal: boolean,
 ): void {
   for (const [key, v] of Object.entries(defaultInputLabels)) {
     const param = urlParams.get(key);
@@ -84,7 +84,7 @@ export function getErrorLabels(urlParams: URLSearchParams): Labels {
 
 export function updateErrorLabels(
   existingLabels: typeof defaultErrorLabels,
-  newLabels: Labels
+  newLabels: Labels,
 ): Labels {
   return { ...existingLabels, ...newLabels };
 }
@@ -95,14 +95,14 @@ const defaultFormOverrides = {
 };
 
 export function setFormOverrides(
-  urlParams: URLSearchParams
+  urlParams: URLSearchParams,
 ): typeof defaultFormOverrides {
   return {
     disableCVV: Boolean(
-      urlParams.get("disableCVV") ?? defaultFormOverrides.disableCVV
+      urlParams.get("disableCVV") ?? defaultFormOverrides.disableCVV,
     ),
     disableExpiry: Boolean(
-      urlParams.get("disableExpiry") ?? defaultFormOverrides.disableExpiry
+      urlParams.get("disableExpiry") ?? defaultFormOverrides.disableExpiry,
     ),
   };
 }

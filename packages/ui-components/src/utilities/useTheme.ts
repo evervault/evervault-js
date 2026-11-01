@@ -21,7 +21,7 @@ export function useTheme() {
 
       const opts = {
         "@import": (theme.fonts ?? []).map(
-          (url) => `url(${url})`
+          (url) => `url(${url})`,
         ) as JssStyle[],
         ...(fontFaces.length > 0 ? { "@font-face": fontFaces } : {}),
         "@global": theme.styles,

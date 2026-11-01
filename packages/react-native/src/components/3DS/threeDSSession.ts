@@ -8,7 +8,7 @@ import { EV_API_DOMAIN } from "./config";
 
 const stopPolling = (
   intervalRef: React.MutableRefObject<NodeJS.Timeout | null>,
-  setIsVisible: (show: boolean) => void
+  setIsVisible: (show: boolean) => void,
 ) => {
   setIsVisible(false);
   clearInterval(intervalRef.current!);
@@ -19,7 +19,7 @@ export const startSession = async (
   session: ThreeDSecureSession,
   callbacks: ThreeDSecureCallbacks,
   intervalRef: React.MutableRefObject<NodeJS.Timeout | null>,
-  setIsVisible: (show: boolean) => void
+  setIsVisible: (show: boolean) => void,
 ) => {
   try {
     const sessionState = await session.get();
@@ -51,7 +51,7 @@ export const pollSession = (
   callbacks: ThreeDSecureCallbacks,
   intervalRef: React.MutableRefObject<NodeJS.Timeout | null>,
   setIsVisible: (show: boolean) => void,
-  interval: number = 3000
+  interval: number = 3000,
 ) => {
   intervalRef.current = setInterval(async () => {
     try {
@@ -88,7 +88,7 @@ export function threeDSecureSession({
           headers: {
             "x-evervault-app-id": appId,
           },
-        }
+        },
       );
 
       const result = (await response.json()) as ThreeDSecureSessionResponse;
@@ -110,7 +110,7 @@ export function threeDSecureSession({
             "x-evervault-app-id": appId,
           },
           body: JSON.stringify({ outcome: "cancelled" }),
-        }
+        },
       );
 
       callbacks.onFailure(new Error("3DS session cancelled by user"));

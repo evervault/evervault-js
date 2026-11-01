@@ -39,7 +39,7 @@ function declared(types: CardSpecNode["type"][]) {
   return render(
     <Card
       config={{ autoProgress: true, fields: types.map((t) => node(t, t)) }}
-    />
+    />,
   );
 }
 

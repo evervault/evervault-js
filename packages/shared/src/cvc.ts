@@ -2,7 +2,7 @@
 export function isRefusedAmexCvc(
   cvc: string,
   brand: string | null,
-  allow3DigitAmex = true
+  allow3DigitAmex = true,
 ) {
   return !allow3DigitAmex && cvc.length === 3 && brand === "american-express";
 }

@@ -3,10 +3,7 @@ import type { CardField, CardSpecNode, CardSpecPatchOp } from "./cardSpec";
 
 type ColorSchemeValue = "light" | "dark";
 export type ColorScheme =
-  | "normal"
-  | ColorSchemeValue
-  | `only ${ColorSchemeValue}`
-  | "light dark";
+  "normal" | ColorSchemeValue | `only ${ColorSchemeValue}` | "light dark";
 
 export interface TranslationsObject {
   [key: string]: string | TranslationsObject | undefined;
@@ -133,8 +130,9 @@ export interface CardEvents {
   keyup: (event: FieldEvent) => void;
 }
 
-interface CardFieldTranslations<E extends TranslationsObject>
-  extends TranslationsObject {
+interface CardFieldTranslations<
+  E extends TranslationsObject,
+> extends TranslationsObject {
   label?: string;
   placeholder?: string;
   errors?: E;
@@ -374,14 +372,12 @@ export interface PinFrameClientMessages extends EvervaultFrameClientMessages {
   EV_COMPLETE: PinPayload;
 }
 
-export interface RevealRequestClientMessages
-  extends EvervaultFrameClientMessages {
+export interface RevealRequestClientMessages extends EvervaultFrameClientMessages {
   EV_REVEAL_REQUEST_READY: undefined;
   EV_ERROR: undefined;
 }
 
-export interface RevealConsumerClientMessages
-  extends EvervaultFrameClientMessages {
+export interface RevealConsumerClientMessages extends EvervaultFrameClientMessages {
   EV_COPY: undefined;
   EV_REVEAL_CONSUMER_READY: undefined;
   EV_REVEAL_CONSUMER_ERROR: string;
@@ -404,13 +400,11 @@ export interface ThreeDSecureOptions {
   failOnChallenge?: boolean | (() => boolean) | (() => Promise<boolean>);
 }
 
-export interface ThreeDSecureFrameHostMessages
-  extends EvervaultFrameHostMessages {
+export interface ThreeDSecureFrameHostMessages extends EvervaultFrameHostMessages {
   EV_FAIL_ON_CHALLENGE_RESULT: boolean;
 }
 
-export interface ThreeDSecureFrameClientMessages
-  extends EvervaultFrameClientMessages {
+export interface ThreeDSecureFrameClientMessages extends EvervaultFrameClientMessages {
   EV_SUCCESS: string | undefined | null;
   EV_FAILURE: string | undefined | null;
   EV_FAILURE_FORCED_DUE_TO_CHALLENGE: string | undefined | null;
@@ -610,8 +604,7 @@ export type EncryptedGooglePayFPAN = Omit<EncryptedFPAN, "card"> & {
 };
 
 export type EncryptedGooglePayData = (
-  | EncryptedGooglePayDPAN
-  | EncryptedGooglePayFPAN
+  EncryptedGooglePayDPAN | EncryptedGooglePayFPAN
 ) & {
   email?: string | null;
   billingAddress?: google.payments.api.Address | null;
@@ -638,8 +631,7 @@ export type GooglePayShippingAddressParameters =
   google.payments.api.ShippingAddressParameters;
 
 export type GooglePayShippingAddressConfig =
-  | boolean
-  | GooglePayShippingAddressParameters;
+  boolean | GooglePayShippingAddressParameters;
 
 export type GooglePayShippingOption = google.payments.api.SelectionOption & {
   /**
@@ -686,8 +678,7 @@ export interface GooglePayDataChangeFailure {
 }
 
 export type GooglePayDataChangeUpdate =
-  | GooglePayDataChangeSuccess
-  | GooglePayDataChangeFailure;
+  GooglePayDataChangeSuccess | GooglePayDataChangeFailure;
 
 /** Internal message used to run a merchant callback outside the payment frame. */
 export interface GooglePayDataChangeRequest extends GooglePayShippingContext {
@@ -712,7 +703,7 @@ export interface GooglePayOptions {
     data: EncryptedGooglePayData,
     helpers: {
       fail: (error: GooglePayErrorMessage) => void;
-    }
+    },
   ) => Promise<void>;
   colorScheme?: ColorScheme;
   type?: GooglePayButtonType;
@@ -741,7 +732,7 @@ export interface GooglePayOptions {
    */
   onShippingAddressChange?: (
     address: google.payments.api.IntermediateAddress,
-    context: GooglePayShippingContext
+    context: GooglePayShippingContext,
   ) =>
     | GooglePayDataChangeUpdate
     | void
@@ -752,7 +743,7 @@ export interface GooglePayOptions {
    */
   onShippingOptionChange?: (
     option: GooglePayShippingOption,
-    context: GooglePayShippingContext
+    context: GooglePayShippingContext,
   ) =>
     | GooglePayDataChangeUpdate
     | void
@@ -900,7 +891,7 @@ export interface ApplePayOptions {
     data: EncryptedApplePayData,
     helpers: {
       fail: (error: ApplePayErrorMessage) => void;
-    }
+    },
   ) => Promise<void>;
   type?: ApplePayButtonType;
   style?: ApplePayButtonStyle;
@@ -962,12 +953,7 @@ export interface PaymentTransactionDetails extends BaseTransactionDetails {
 }
 
 export type RecurringPaymentIntervalUnit =
-  | "minute"
-  | "hour"
-  | "day"
-  | "week"
-  | "month"
-  | "year";
+  "minute" | "hour" | "day" | "week" | "month" | "year";
 
 export interface RecurringTransactionDetails extends BaseTransactionDetails {
   type: "recurring";

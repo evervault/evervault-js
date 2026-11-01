@@ -8,11 +8,11 @@ import {
 export function material(config?: PresetConfig): ThemeDefinition;
 export function material(
   extended?: ThemeDefinition,
-  config?: PresetConfig
+  config?: PresetConfig,
 ): ThemeDefinition;
 export function material(
   first?: ThemeDefinition | PresetConfig,
-  second?: PresetConfig
+  second?: PresetConfig,
 ): ThemeDefinition {
   const [extended, config] = splitPresetArgs(first, second);
 
@@ -136,7 +136,7 @@ export function material(
               },
           },
         },
-        config
+        config,
       ),
       ...(extended ? utils.extend(extended) : {}),
     },

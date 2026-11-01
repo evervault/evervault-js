@@ -38,8 +38,10 @@ interface FrameOptions {
 // that is used to render the component. It also handles communication between
 // the iframe and the parent window.
 export class EvervaultFrame<
-  ReceivableMessages extends EvervaultFrameClientMessages = EvervaultFrameClientMessages,
-  SendableMessages extends EvervaultFrameHostMessages = EvervaultFrameHostMessages
+  ReceivableMessages extends EvervaultFrameClientMessages =
+    EvervaultFrameClientMessages,
+  SendableMessages extends EvervaultFrameHostMessages =
+    EvervaultFrameHostMessages,
 > {
   iframe: HTMLIFrameElement;
   payload: unknown;
@@ -62,7 +64,7 @@ export class EvervaultFrame<
   constructor(
     client: EvervaultClient,
     component: string,
-    options?: FrameOptions
+    options?: FrameOptions,
   ) {
     this.#client = client;
     this.#component = component;
@@ -163,7 +165,7 @@ export class EvervaultFrame<
 
     if (this.#lifecycle !== "hidden") {
       throw new Error(
-        "Evervault frame must be preloaded before it can be shown. Call preload(selector) first."
+        "Evervault frame must be preloaded before it can be shown. Call preload(selector) first.",
       );
     }
 
@@ -288,7 +290,7 @@ export class EvervaultFrame<
   // frame ID.
   on<K extends keyof ReceivableMessages>(
     event: K,
-    callback: (message: ReceivableMessages[K]) => void
+    callback: (message: ReceivableMessages[K]) => void,
   ) {
     if (!this.live()) return () => {};
     return this.#subscribe(event, this.#unsubscribes, callback);
@@ -298,7 +300,7 @@ export class EvervaultFrame<
   // not undone.
   once<K extends keyof ReceivableMessages>(
     event: K,
-    callback: (message: ReceivableMessages[K]) => void
+    callback: (message: ReceivableMessages[K]) => void,
   ) {
     const release = this.on(event, (message) => {
       release();
@@ -311,7 +313,7 @@ export class EvervaultFrame<
   // The send method is used to send messages to the iframe.
   send<K extends keyof SendableMessages>(
     type: K,
-    payload?: SendableMessages[K]
+    payload?: SendableMessages[K],
   ) {
     if (!this.live() || !this.iframe.contentWindow) return;
 
@@ -362,7 +364,7 @@ export class EvervaultFrame<
   #subscribe<K extends keyof ReceivableMessages>(
     event: K,
     held: (() => void)[],
-    callback: (message: ReceivableMessages[K]) => void
+    callback: (message: ReceivableMessages[K]) => void,
   ) {
     const handleMessage = (e: MessageEvent<EvervaultFrameMessageDetail>) => {
       if (!e.data || e.data.frame !== this.#id) return;

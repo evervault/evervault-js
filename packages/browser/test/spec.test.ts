@@ -46,7 +46,7 @@ describe("serialise", () => {
 
   it("serialises a customer's own field with its attributes", () => {
     const [node] = serialise(
-      card(`<ev-field name="postcode" label="Postcode" readonly></ev-field>`)
+      card(`<ev-field name="postcode" label="Postcode" readonly></ev-field>`),
     );
 
     expect(node).toStrictEqual({
@@ -69,7 +69,7 @@ describe("serialise", () => {
         <ev-card-number></ev-card-number>
         <ev-card-expiry></ev-card-expiry>
         <ev-card-cvc></ev-card-cvc>
-      `)
+      `),
     );
 
     expect(spec.map((node) => node.type)).toEqual(["number", "expiry", "cvc"]);
@@ -78,8 +78,8 @@ describe("serialise", () => {
   it("reads the attributes of an element into its props", () => {
     const [node] = serialise(
       card(
-        `<ev-card-number placeholder="Card number" autofocus=""></ev-card-number>`
-      )
+        `<ev-card-number placeholder="Card number" autofocus=""></ev-card-number>`,
+      ),
     );
 
     expect(node.props).toEqual({
@@ -95,7 +95,7 @@ describe("serialise", () => {
           <ev-card-expiry></ev-card-expiry>
           <ev-card-cvc></ev-card-cvc>
         </ev-row>
-      `)
+      `),
     );
 
     expect(row.type).toBe("row");
@@ -104,7 +104,7 @@ describe("serialise", () => {
 
   it("gives a field no children", () => {
     const [node] = serialise(
-      card(`<ev-card-cvc><ev-card-number></ev-card-number></ev-card-cvc>`)
+      card(`<ev-card-cvc><ev-card-number></ev-card-number></ev-card-cvc>`),
     );
 
     expect(node.children).toBeUndefined();
@@ -113,7 +113,7 @@ describe("serialise", () => {
   it("drops unknown children with a warning", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const spec = serialise(
-      card(`<div></div><ev-card-number></ev-card-number>`)
+      card(`<div></div><ev-card-number></ev-card-number>`),
     );
 
     expect(spec.map((node) => node.type)).toEqual(["number"]);
@@ -138,7 +138,7 @@ describe("serialise", () => {
 
   it("gives each element its own id", () => {
     const spec = serialise(
-      card(`<ev-card-number></ev-card-number><ev-card-cvc></ev-card-cvc>`)
+      card(`<ev-card-number></ev-card-number><ev-card-cvc></ev-card-cvc>`),
     );
 
     expect(spec[0].id).not.toBe(spec[1].id);

@@ -93,19 +93,19 @@ export default class EvervaultClient {
       teamId,
       appId,
       customConfig?.urls,
-      customConfig?.publicKey
+      customConfig?.publicKey,
     );
 
     const context = getContext(
       window?.location?.origin ?? "",
-      this.config.input.inputsOrigin
+      this.config.input.inputsOrigin,
     );
 
     this.http = Http(
       this.config.http,
       this.config.teamId,
       this.config.appId,
-      context
+      context,
     );
 
     this.forms = Forms(this);
@@ -118,7 +118,7 @@ export default class EvervaultClient {
   static async init(
     teamUuid: string,
     appUuid: string,
-    customConfig: CustomConfig = {}
+    customConfig: CustomConfig = {},
   ): Promise<EvervaultClient> {
     if (!Datatypes.isString(teamUuid)) {
       throw new errors.InitializationError("teamUuid must be a string");
@@ -131,12 +131,12 @@ export default class EvervaultClient {
       teamUuid,
       appUuid,
       customConfig?.urls,
-      customConfig?.publicKey
+      customConfig?.publicKey,
     );
 
     const context = getContext(
       window?.location?.origin ?? "",
-      config.input.inputsOrigin
+      config.input.inputsOrigin,
     );
 
     const http = Http(config.http, config.teamId, config.appId, context);
@@ -162,7 +162,7 @@ export default class EvervaultClient {
     let appKey;
     if (this.config.encryption.publicKey) {
       appKey = buildCageKeyFromSuppliedPublicKey(
-        this.config.encryption.publicKey
+        this.config.encryption.publicKey,
       );
     } else if (this.isInDebugMode()) {
       // debug mode being set true will override the public key
@@ -179,13 +179,13 @@ export default class EvervaultClient {
         namedCurve: "P-256",
       },
       true,
-      ["deriveBits", "deriveKey"]
+      ["deriveBits", "deriveKey"],
     );
 
     const derivedAesKey = await deriveSharedSecret(
       keyPair,
       appKey.ecdhP256KeyUncompressed,
-      keyPair.publicKey
+      keyPair.publicKey,
     );
 
     return new CoreCrypto(
@@ -193,7 +193,7 @@ export default class EvervaultClient {
       keyPair.publicKey,
       derivedAesKey,
       this.config.encryption,
-      this.isInDebugMode()
+      this.isInDebugMode(),
     );
   }
 
@@ -206,17 +206,17 @@ export default class EvervaultClient {
   async encrypt(data: Blob, role?: string): Promise<Blob>;
   async encrypt(
     data: Datatypes.EncryptableAsString,
-    role?: string
+    role?: string,
   ): Promise<string>;
 
   async encrypt(
     data: Datatypes.EncryptableValue[],
-    role?: string
+    role?: string,
   ): Promise<Datatypes.EncryptedValue[]>;
 
   async encrypt(
     data: Datatypes.EncryptableObject,
-    role?: string
+    role?: string,
   ): Promise<NonNullable<unknown>>;
 
   async encrypt(data: unknown, role?: string): Promise<string>;
@@ -242,7 +242,7 @@ export default class EvervaultClient {
    */
   inputs(
     elementId: string,
-    config?: string | InputSettings
+    config?: string | InputSettings,
   ): {
     isInputsLoaded: Promise<boolean>;
     getData: () => Promise<unknown>;
@@ -262,7 +262,7 @@ export default class EvervaultClient {
     elementId: string,
     request: Request | EvervaultRequestProps,
     config?: RevealSettings,
-    onCopy?: () => void
+    onCopy?: () => void,
   ): {
     isRevealLoaded: Promise<boolean>;
   } {
@@ -274,7 +274,7 @@ export default class EvervaultClient {
       },
       true,
       request,
-      onCopy
+      onCopy,
     );
 
     return {
@@ -338,7 +338,7 @@ export default class EvervaultClient {
         details:
           | CreateTransactionDetails
           | RecurringTransactionDetails
-          | DisbursementTransactionDetails
+          | DisbursementTransactionDetails,
       ) => new Transaction(details),
     };
   }
