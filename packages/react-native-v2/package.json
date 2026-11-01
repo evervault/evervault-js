@@ -63,7 +63,7 @@
     "@testing-library/react-native": "^14.0.1",
     "@types/react": "catalog:",
     "expo": "catalog:",
-    "glob": "^13.0.6",
+    "glob": "^14.0.3",
     "react": "catalog:",
     "react-native": "catalog:",
     "react-native-webview": "catalog:",
