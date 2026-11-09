@@ -9,6 +9,11 @@ import type {
   ThreeDSecureFrameHostMessages,
 } from "types";
 
+// Most sessions finish without the shopper doing anything, so the overlay stays
+// hidden. It shows when the frame asks for a challenge, or after this long, so a
+// slow session still shows the shopper that something is happening.
+const SHOW_OVERLAY_AFTER_MS = 1500;
+
 interface ThreeDSecureEvents {
   ready: () => void;
   success: () => void;
@@ -28,6 +33,8 @@ export default class ThreeDSecure {
 
   #events = new EventManager<ThreeDSecureEvents>();
   #handled = false;
+  #overlay: HTMLDivElement | null = null;
+  #showOverlayTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor(
     client: EvervaultClient,
@@ -63,6 +70,10 @@ export default class ThreeDSecure {
       void this.#handleOutcome("cancelled");
     });
 
+    this.#frame.on("EV_SHOW", () => {
+      this.#showOverlay();
+    });
+
     this.#frame.on("EV_FRAME_READY", () => {
       this.#events.dispatch("ready");
     });
@@ -95,6 +106,16 @@ export default class ThreeDSecure {
   ) {
     if (this.#handled) return;
     this.#handled = true;
+
+    // A success without a CRes came from the server, which already holds the
+    // result, so the page needn't wait on the report.
+    if (outcome === "success" && !cres) {
+      this.#updateOutcome(outcome, cres).catch(() => {});
+      this.#events.dispatch("success");
+      this.unmount();
+      return;
+    }
+
     try {
       await this.#updateOutcome(outcome, cres, abortedOnChallenge);
     } catch {
@@ -119,6 +140,7 @@ export default class ThreeDSecure {
 
     await fetch(`${api}/frontend/3ds/browser-sessions/${this.#session}`, {
       method: "PATCH",
+      keepalive: true,
       headers: {
         "X-Evervault-App-Id": this.#client.config.appId,
         "Content-Type": "application/json",
@@ -143,7 +165,7 @@ export default class ThreeDSecure {
   }
 
   mount(selector?: SelectorType) {
-    const target = selector ?? this.#frame.createOverlay();
+    const target = selector ?? this.#createHiddenOverlay();
 
     if (!selector) {
       this.#isOverlay = true;
@@ -163,6 +185,21 @@ export default class ThreeDSecure {
     return this;
   }
 
+  #createHiddenOverlay() {
+    this.#overlay = this.#frame.createOverlay();
+    this.#overlay.style.visibility = "hidden";
+    this.#showOverlayTimer = setTimeout(
+      () => this.#showOverlay(),
+      SHOW_OVERLAY_AFTER_MS
+    );
+    return this.#overlay;
+  }
+
+  #showOverlay() {
+    clearTimeout(this.#showOverlayTimer);
+    if (this.#overlay) this.#overlay.style.visibility = "";
+  }
+
   update(options?: ThreeDSecureOptions) {
     if (options) {
       this.#options = { ...this.#options, ...options };
@@ -173,6 +210,8 @@ export default class ThreeDSecure {
   }
 
   unmount() {
+    clearTimeout(this.#showOverlayTimer);
+    this.#overlay = null;
     this.#frame.unmount();
     return this;
   }

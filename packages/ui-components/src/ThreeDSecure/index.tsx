@@ -71,6 +71,13 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
     }
   }, [session?.nextAction, config.failOnChallenge, send, on]);
 
+  const showChallenge =
+    isChallengeAction(session?.nextAction) && !failOnChallenge;
+
+  useEffect(() => {
+    if (showChallenge) send("EV_SHOW");
+  }, [showChallenge, send]);
+
   return (
     <Overlay enabled={config.isOverlay} onCancel={handleCancel}>
       <div ref={container} style={size}>
