@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 4000",
+    "dev:tunnel": "./run-tunnel.sh",
     "clean": "rm -rf node_modules dist"
   },
   "dependencies": {
