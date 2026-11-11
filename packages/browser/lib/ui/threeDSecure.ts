@@ -107,8 +107,9 @@ export default class ThreeDSecure {
     if (this.#handled) return;
     this.#handled = true;
 
-    // A success without a CRes came from the server, which already holds the
-    // result, so the page needn't wait on the report.
+    // No CRes: the API already stored this session as Success. It ignores
+    // outcome PATCHes for finished sessions (oxide `patch_browser_session`),
+    // so we don't wait for this one. Await it again if that ever changes.
     if (outcome === "success" && !cres) {
       this.#updateOutcome(outcome, cres).catch(() => {});
       this.#events.dispatch("success");
@@ -140,7 +141,6 @@ export default class ThreeDSecure {
 
     await fetch(`${api}/frontend/3ds/browser-sessions/${this.#session}`, {
       method: "PATCH",
-      keepalive: true,
       headers: {
         "X-Evervault-App-Id": this.#client.config.appId,
         "Content-Type": "application/json",
