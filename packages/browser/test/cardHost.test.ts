@@ -27,10 +27,12 @@ const payload: CardPayload = {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  document.body.innerHTML = "";
 });
 
 function mounted() {
   const container = document.createElement("div");
+  document.body.append(container);
   const cardHost = new CardHost(client).mount(container);
   return { cardHost, container };
 }

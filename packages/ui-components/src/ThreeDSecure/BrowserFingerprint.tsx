@@ -16,8 +16,10 @@ export function BrowserFingerprint({
   onTimeout,
 }: BrowserFingerprintProps) {
   const postedAction = useRef<BrowserFingerprintNextAction | null>(null);
+  const frame = useRef<HTMLIFrameElement | null>(null);
   const frameRef = useCallback(
     (node: HTMLIFrameElement) => {
+      frame.current = node;
       if (!node) return;
       if (
         postedAction.current?.data === action.data &&
@@ -35,7 +37,7 @@ export function BrowserFingerprint({
     const timeout: { current?: NodeJS.Timeout } = {};
 
     const handleMessage = (e: MessageEvent) => {
-      if (isTrampolineMessage(e)) {
+      if (isTrampolineMessage(e) && e.source === frame.current?.contentWindow) {
         window.removeEventListener("message", handleMessage);
         if (timeout.current) clearTimeout(timeout.current);
         onComplete();

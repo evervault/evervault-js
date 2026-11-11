@@ -1,5 +1,6 @@
 import EventManager from "./eventManager";
 import { EvervaultFrame } from "./evervaultFrame";
+import { PIN_GUARDS } from "./messageGuards";
 import type EvervaultClient from "../main";
 import type {
   PinPayload,
@@ -28,7 +29,7 @@ export default class Pin {
 
   constructor(client: EvervaultClient, options?: PinOptions) {
     this.#options = options ?? {};
-    this.#frame = new EvervaultFrame(client, "Pin", {
+    this.#frame = new EvervaultFrame(client, "Pin", PIN_GUARDS, {
       colorScheme: this.#options.colorScheme,
     });
 
