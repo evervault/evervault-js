@@ -52,6 +52,10 @@ on:
         description: "The name of the Github environment variable which contains the S3 bucket name to deploy to. We need to pass the var name to account for the value changing based on the configured environment."
         required: true
         type: string
+      cloudflare-cache-tag:
+        description: "Cache-Tag to purge from the Cloudflare CDN zone after the CloudFront invalidation completes. Only set for packages served through SDK custom domains."
+        required: false
+        type: string
 permissions:
   contents: write
   id-token: write
@@ -265,12 +269,33 @@ jobs:
               CallerReference: `GithubCI-Live-${{ github.run_id }}`
             };
       - name: Cloudfront Cache Invalidation
+        id: cloudfront-invalidation
         # Prepare a JSON file for the invalidation batch and send it to cloudfront
         run: |- 
           echo ${{ toJson(steps.prepare-cloudfront-payload.outputs.result) }} > invalidation.json
-          aws cloudfront create-invalidation --distribution-id ${{ secrets[env.CF_DISTRO_SECRET_NAME] }} --invalidation-batch file://invalidation.json
+          INVALIDATION_ID=$(aws cloudfront create-invalidation --distribution-id ${{ secrets[env.CF_DISTRO_SECRET_NAME] }} --invalidation-batch file://invalidation.json --query 'Invalidation.Id' --output text)
+          echo "invalidation-id=$INVALIDATION_ID" >> "$GITHUB_OUTPUT"
         env:
           CF_DISTRO_SECRET_NAME: ${{ inputs.cloudfront-distribution-id }}
+      - name: Wait for Cloudfront Cache Invalidation
+        if: ${{ inputs.cloudflare-cache-tag != '' }}
+        run: aws cloudfront wait invalidation-completed --distribution-id ${{ secrets[env.CF_DISTRO_SECRET_NAME] }} --id ${{ steps.cloudfront-invalidation.outputs.invalidation-id }}
+        env:
+          CF_DISTRO_SECRET_NAME: ${{ inputs.cloudfront-distribution-id }}
+      - name: Cloudflare Cache Purge
+        if: ${{ inputs.cloudflare-cache-tag != '' }}
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ inputs.stage == 'production' && secrets.CLOUDFLARE_CDN_PURGE_TOKEN_PRODUCTION || secrets.CLOUDFLARE_CDN_PURGE_TOKEN_STAGING }}
+          CLOUDFLARE_ZONE_ID: ${{ inputs.stage == 'production' && vars.CLOUDFLARE_CDN_ZONE_ID_PRODUCTION || vars.CLOUDFLARE_CDN_ZONE_ID_STAGING }}
+          CACHE_TAG: ${{ inputs.cloudflare-cache-tag }}
+        run: |-
+          curl --silent --show-error --fail-with-body -X POST \
+            "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "$(jq -nc --arg tag "$CACHE_TAG" '{tags: [$tag]}')" \
+            | jq -e '.success'
   # If we just created a production release, take the changelog contents for the provided package and put it into the Github Release body.
   create_release:
     name: Create Github Release and Changelog
