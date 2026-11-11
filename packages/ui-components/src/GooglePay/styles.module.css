@@ -4,3 +4,11 @@
   padding: 1px;
   display: inline-block;
 }
+
+/* Google's button is at least 40px tall and sits below the 1px top padding,
+   so in a frame under 41px its bottom edge is cut off. */
+@media (max-height: 40.98px) {
+  .googlePay {
+    padding-block: 0;
+  }
+}
