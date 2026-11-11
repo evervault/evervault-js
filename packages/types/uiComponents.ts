@@ -416,6 +416,7 @@ export interface ThreeDSecureFrameClientMessages
   EV_FAILURE_FORCED_DUE_TO_CHALLENGE: string | undefined | null;
   EV_FAIL_ON_CHALLENGE: undefined;
   EV_CANCEL: undefined;
+  EV_SHOW: undefined;
 }
 
 export interface GooglePayClientMessages extends EvervaultFrameClientMessages {
