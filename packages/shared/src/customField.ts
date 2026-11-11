@@ -106,7 +106,7 @@ function isUrl(value: string) {
 function withinRangeAndStep(
   field: CustomFieldRules,
   value: number,
-  parse: typeof parseNumber
+  parse: typeof parseNumber,
 ) {
   const min = field.min === undefined ? null : parse(field.min);
   const max = field.max === undefined ? null : parse(field.max);
@@ -141,7 +141,7 @@ function matchesType(field: CustomFieldRules, value: string) {
 
 export function customFieldError(
   field: CustomFieldRules,
-  value: string
+  value: string,
 ): CustomFieldError | undefined {
   // As in HTML, the customer cannot fix what they cannot edit.
   if (field.readOnly) return undefined;
@@ -190,10 +190,10 @@ export interface CustomFieldProps {
 }
 
 export function isCustomFieldType(
-  value: string | undefined
+  value: string | undefined,
 ): value is CustomFieldType {
   return (CUSTOM_FIELD_TYPES as readonly (string | undefined)[]).includes(
-    value
+    value,
   );
 }
 
@@ -208,12 +208,7 @@ function autoComplete(value: string) {
 }
 
 type AutoCapitalizeAttribute =
-  | "none"
-  | "off"
-  | "sentences"
-  | "on"
-  | "words"
-  | "characters";
+  "none" | "off" | "sentences" | "on" | "words" | "characters";
 
 const AUTO_CAPITALIZE: Record<AutoCapitalizeAttribute, AutoCapitalize> = {
   none: "none",
@@ -225,7 +220,7 @@ const AUTO_CAPITALIZE: Record<AutoCapitalizeAttribute, AutoCapitalize> = {
 };
 
 function isAutoCapitalizeAttribute(
-  value: string
+  value: string,
 ): value is AutoCapitalizeAttribute {
   return value in AUTO_CAPITALIZE;
 }
@@ -259,7 +254,7 @@ const PARSE_BY_PROP: Partial<
 const PARSED_ELSEWHERE = new Set(["name", "type", "autoFocus"]);
 
 export function customFieldProps(
-  node: CardSpecNode
+  node: CardSpecNode,
 ): CustomFieldProps | undefined {
   const { props } = node;
 
@@ -283,7 +278,7 @@ export function customFieldProps(
         .map(([prop, kind]) => [
           prop,
           parse(prop as keyof CustomFieldProps, kind),
-        ])
+        ]),
     ),
     name: props.name,
     type: isCustomFieldType(type) ? type : "text",
@@ -299,7 +294,7 @@ export function customFieldNodes(nodes: CardSpecNode[]): CardSpecNode[] {
 
 // The <ev-field> claiming each name, in declared order: the first wins.
 export function declaredCustomFields(
-  nodes: CardSpecNode[]
+  nodes: CardSpecNode[],
 ): Map<string, CustomFieldProps> {
   const declared = new Map<string, CustomFieldProps>();
 

@@ -30,14 +30,14 @@ export function declaredFields(spec: CardSpecNode[]): CardField[] {
     ...new Set(
       declaredInputs(spec)
         .map(cardFieldWrittenBy)
-        .filter((field) => field !== null)
+        .filter((field) => field !== null),
     ),
   ];
 }
 
 type Subscribe = <T extends keyof CardFrameHostMessages>(
   type: T,
-  callback: (payload: CardFrameHostMessages[T]) => void
+  callback: (payload: CardFrameHostMessages[T]) => void,
 ) => () => void;
 
 // A new seed is the host's whole picture and replaces the tree; a patch is
@@ -60,7 +60,7 @@ export function useSpec(on: Subscribe, seed: CardSpecNode[]) {
           spec: applyPatch(current.spec, ops),
         }));
       }),
-    [on]
+    [on],
   );
 
   return spec;

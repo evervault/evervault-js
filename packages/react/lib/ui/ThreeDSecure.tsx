@@ -36,7 +36,7 @@ export function ThreeDSecure({
       size,
       failOnChallenge,
     }),
-    [colorScheme, theme, size, failOnChallenge]
+    [colorScheme, theme, size, failOnChallenge],
   );
 
   const onMount = useCallback(
@@ -46,14 +46,14 @@ export function ThreeDSecure({
       inst.mount(ref.current);
       return inst;
     },
-    [session, config]
+    [session, config],
   );
 
   const onUpdate = useCallback(
     (instance: NonNullable<ReturnType<typeof onMount>>) => {
       instance.update(config);
     },
-    [config]
+    [config],
   );
 
   const instance = useEvInstance({

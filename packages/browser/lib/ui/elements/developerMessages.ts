@@ -5,7 +5,7 @@ import { THEMES } from "./cardThemes";
 
 export function unknownTheme(name: string) {
   return `<ev-card> has no "${name}" theme and will use "clean". Themes are: ${Object.keys(
-    THEMES
+    THEMES,
   ).join(", ")}.`;
 }
 

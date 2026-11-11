@@ -329,7 +329,7 @@ export class EvCard extends ElementBase {
           detail: payload,
           bubbles: true,
           composed: true,
-        })
+        }),
       );
     });
 
@@ -386,7 +386,7 @@ export class EvCard extends ElementBase {
         validation: this.validation,
         agentTools: this.#agentTools,
       },
-      this.#client
+      this.#client,
     );
   }
 
@@ -463,7 +463,7 @@ export class EvCard extends ElementBase {
   #declaredClient() {
     if (!createClient) {
       console.error(
-        `<${EV_CARD_TAG_NAME}> was used before the SDK registered it`
+        `<${EV_CARD_TAG_NAME}> was used before the SDK registered it`,
       );
       return undefined;
     }
@@ -528,5 +528,5 @@ const OPTION_ATTRIBUTES = new Set(
   EvCard.reflections
     .map(([property]) => property)
     .filter((property) => !MOUNT_ONLY.has(property))
-    .map(attributeFor)
+    .map(attributeFor),
 );

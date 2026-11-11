@@ -19,16 +19,16 @@ const evervaultClientMock = vi.hoisted(() =>
       static async init(
         teamId: string,
         appId: string,
-        customConfig?: CustomConfig
+        customConfig?: CustomConfig,
       ) {
         return new this(teamId, appId, customConfig);
       }
-    } as unknown as typeof EvervaultClient
-  )
+    } as unknown as typeof EvervaultClient,
+  ),
 );
 
 const injectScriptMock = vi.hoisted(() =>
-  vi.fn(() => Promise.resolve(evervaultClientMock))
+  vi.fn(() => Promise.resolve(evervaultClientMock)),
 );
 
 vi.mock(import("./inject-script"), async (importOriginal) => {
@@ -57,7 +57,7 @@ afterEach(() => {
 describe("useEvervaultClient", () => {
   it("should return the client", () => {
     const { result } = renderHook(() =>
-      useEvervaultClient({ teamId: "team_123", appId: "app_123" })
+      useEvervaultClient({ teamId: "team_123", appId: "app_123" }),
     );
 
     expect(result.current.client).toBeInstanceOf(PromisifiedEvervaultClient);
@@ -69,7 +69,7 @@ describe("useEvervaultClient", () => {
     injectScriptMock.mockReturnValue(Promise.reject(error));
     const onLoadError = vi.fn();
     const { result } = renderHook(() =>
-      useEvervaultClient({ teamId: "team_123", appId: "app_123", onLoadError })
+      useEvervaultClient({ teamId: "team_123", appId: "app_123", onLoadError }),
     );
     await expect(result.current.client).rejects.toThrow(error);
     expect(onLoadError).toHaveBeenCalledWith(error);
@@ -85,7 +85,7 @@ describe("useEvervaultClient", () => {
         appId: "app_123",
         onLoadError,
         timeout: 100,
-      })
+      }),
     );
     await expect(result.current.client).rejects.toThrow(error);
     expect(onLoadError).toHaveBeenCalledWith(error);
@@ -97,14 +97,14 @@ describe("useEvervaultClient", () => {
 
     const onLoadError = vi.fn();
     const { result } = renderHook(() =>
-      useEvervaultClient({ teamId: "team_123", appId: "app_123", onLoadError })
+      useEvervaultClient({ teamId: "team_123", appId: "app_123", onLoadError }),
     );
     await expect(result.current.client).rejects.toThrow(error);
     expect(onLoadError).toHaveBeenCalledWith(error);
 
     act(() => result.current.reload());
     await expect(result.current.client).resolves.toBeInstanceOf(
-      EvervaultClient
+      EvervaultClient,
     );
   });
 
@@ -112,7 +112,7 @@ describe("useEvervaultClient", () => {
     const { result, rerender } = renderHook(
       ({ teamId }: { teamId: string }) =>
         useEvervaultClient({ teamId, appId: "app_123" }),
-      { initialProps: { teamId: "team_123" } }
+      { initialProps: { teamId: "team_123" } },
     );
     const client = await result.current.client;
     expect(client).toBeInstanceOf(EvervaultClient);
@@ -127,7 +127,7 @@ describe("useEvervaultClient", () => {
     const { result, rerender } = renderHook(
       ({ appId }: { appId: string }) =>
         useEvervaultClient({ teamId: "team_123", appId }),
-      { initialProps: { appId: "app_123" } }
+      { initialProps: { appId: "app_123" } },
     );
     const client = await result.current.client;
     expect(client.config.appId).toBe("app_123");
@@ -144,20 +144,20 @@ describe("useEvervaultClient", () => {
           appId: "app_123",
           customConfig: { jsSdkUrl },
         }),
-      { initialProps: {} }
+      { initialProps: {} },
     );
 
     const client = await result.current.client;
     expect(client).toBeInstanceOf(EvervaultClient);
     expect(
-      (client.config as unknown as CustomConfig)?.jsSdkUrl
+      (client.config as unknown as CustomConfig)?.jsSdkUrl,
     ).toBeUndefined();
 
     rerender({ jsSdkUrl: "https://js.evervault.com/v3" });
 
     const newClient = await result.current.client;
     expect((newClient.config as unknown as CustomConfig)?.jsSdkUrl).toBe(
-      "https://js.evervault.com/v3"
+      "https://js.evervault.com/v3",
     );
   });
 });

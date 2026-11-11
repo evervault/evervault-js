@@ -14,7 +14,7 @@ describe("applyPatch", () => {
   it("inserts a node at its index", () => {
     const spec = applyPatch(
       [node("a")],
-      [{ op: "insert", parentId: null, index: 0, node: node("b") }]
+      [{ op: "insert", parentId: null, index: 0, node: node("b") }],
     );
 
     expect(spec.map((entry) => entry.id)).toEqual(["b", "a"]);
@@ -23,7 +23,7 @@ describe("applyPatch", () => {
   it("removes a node by id", () => {
     const spec = applyPatch(
       [node("a"), node("b")],
-      [{ op: "remove", id: "a" }]
+      [{ op: "remove", id: "a" }],
     );
 
     expect(spec.map((entry) => entry.id)).toEqual(["b"]);
@@ -32,7 +32,7 @@ describe("applyPatch", () => {
   it("updates the props of a node by id", () => {
     const spec = applyPatch(
       [node("a"), node("b")],
-      [{ op: "update", id: "b", props: { placeholder: "CVC" } }]
+      [{ op: "update", id: "b", props: { placeholder: "CVC" } }],
     );
 
     expect(spec[1].props).toEqual({ placeholder: "CVC" });
@@ -41,7 +41,7 @@ describe("applyPatch", () => {
   it("moves a node to its new index", () => {
     const spec = applyPatch(
       [node("a"), node("b"), node("c")],
-      [{ op: "move", id: "c", parentId: null, index: 0 }]
+      [{ op: "move", id: "c", parentId: null, index: 0 }],
     );
 
     expect(spec.map((entry) => entry.id)).toEqual(["c", "a", "b"]);
@@ -50,7 +50,7 @@ describe("applyPatch", () => {
   it("counts the move index without the node being moved", () => {
     const spec = applyPatch(
       [node("a"), node("b"), node("c")],
-      [{ op: "move", id: "a", parentId: null, index: 2 }]
+      [{ op: "move", id: "a", parentId: null, index: 2 }],
     );
 
     expect(spec.map((entry) => entry.id)).toEqual(["b", "c", "a"]);
@@ -59,7 +59,7 @@ describe("applyPatch", () => {
   it("applies an op to the children of a row", () => {
     const spec = applyPatch(
       [row("row", [node("a")])],
-      [{ op: "insert", parentId: "row", index: 1, node: node("b") }]
+      [{ op: "insert", parentId: "row", index: 1, node: node("b") }],
     );
 
     expect(spec[0].children?.map((entry) => entry.id)).toEqual(["a", "b"]);
@@ -68,7 +68,7 @@ describe("applyPatch", () => {
   it("carries a child from one row to another", () => {
     const spec = applyPatch(
       [row("one", [node("a"), node("b")]), row("two", [node("c")])],
-      [{ op: "move", id: "b", parentId: "two", index: 0 }]
+      [{ op: "move", id: "b", parentId: "two", index: 0 }],
     );
 
     expect(spec[0].children?.map((entry) => entry.id)).toEqual(["a"]);
@@ -78,7 +78,7 @@ describe("applyPatch", () => {
   it("carries a child into a row", () => {
     const spec = applyPatch(
       [node("a"), row("one", [node("b")])],
-      [{ op: "move", id: "a", parentId: "one", index: 0 }]
+      [{ op: "move", id: "a", parentId: "one", index: 0 }],
     );
 
     expect(spec.map((entry) => entry.id)).toEqual(["one"]);
@@ -88,7 +88,7 @@ describe("applyPatch", () => {
   it("carries a child out of a row", () => {
     const spec = applyPatch(
       [row("one", [node("a"), node("b")])],
-      [{ op: "move", id: "a", parentId: null, index: 0 }]
+      [{ op: "move", id: "a", parentId: null, index: 0 }],
     );
 
     expect(spec.map((entry) => entry.id)).toEqual(["a", "one"]);
@@ -98,7 +98,7 @@ describe("applyPatch", () => {
   it("carries a child with its whole subtree", () => {
     const spec = applyPatch(
       [row("one", [row("two", [node("a")])]), row("three", [])],
-      [{ op: "move", id: "two", parentId: "three", index: 0 }]
+      [{ op: "move", id: "two", parentId: "three", index: 0 }],
     );
 
     expect(spec[0].children).toEqual([]);
@@ -111,7 +111,7 @@ describe("applyPatch", () => {
     const spec = [node("a")];
 
     expect(
-      applyPatch(spec, [{ op: "move", id: "b", parentId: null, index: 0 }])
+      applyPatch(spec, [{ op: "move", id: "b", parentId: null, index: 0 }]),
     ).toBe(spec);
   });
 
@@ -131,14 +131,14 @@ describe("applyPatch", () => {
     const spec = [row("one", [row("two", [node("a")])])];
 
     expect(
-      applyPatch(spec, [{ op: "move", id: "one", parentId: "two", index: 0 }])
+      applyPatch(spec, [{ op: "move", id: "one", parentId: "two", index: 0 }]),
     ).toBe(spec);
   });
 
   it("removes a node at every depth", () => {
     const spec = applyPatch(
       [node("a"), row("row", [node("b")])],
-      [{ op: "remove", id: "b" }]
+      [{ op: "remove", id: "b" }],
     );
 
     expect(spec[1].children).toEqual([]);
@@ -150,7 +150,7 @@ describe("applyPatch", () => {
       [
         { op: "insert", parentId: null, index: 1, node: node("b") },
         { op: "remove", id: "a" },
-      ]
+      ],
     );
 
     expect(spec.map((entry) => entry.id)).toEqual(["b"]);
@@ -160,7 +160,7 @@ describe("applyPatch", () => {
     const untouched = node("a");
     const spec = applyPatch(
       [untouched],
-      [{ op: "insert", parentId: null, index: 1, node: node("b") }]
+      [{ op: "insert", parentId: null, index: 1, node: node("b") }],
     );
 
     expect(spec[0]).toBe(untouched);
@@ -170,7 +170,7 @@ describe("applyPatch", () => {
     const moved = row("two", [node("a")]);
     const spec = applyPatch(
       [row("one", [moved]), row("three", [])],
-      [{ op: "move", id: "two", parentId: "three", index: 0 }]
+      [{ op: "move", id: "two", parentId: "three", index: 0 }],
     );
 
     expect(spec[1].children?.[0]).toBe(moved);
@@ -180,7 +180,7 @@ describe("applyPatch", () => {
     const untouched = row("one", [node("a")]);
     const spec = applyPatch(
       [untouched, row("two", [node("b"), node("c")])],
-      [{ op: "move", id: "c", parentId: "two", index: 0 }]
+      [{ op: "move", id: "c", parentId: "two", index: 0 }],
     );
 
     expect(spec[0]).toBe(untouched);

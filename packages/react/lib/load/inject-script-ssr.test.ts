@@ -12,8 +12,8 @@ describe("injectScript (SSR)", () => {
     await expect(promise).rejects.toThrow(
       new ScriptLoadError(
         "window_not_available",
-        "Evervault.js is only available in browser environments with a global `window` object."
-      )
+        "Evervault.js is only available in browser environments with a global `window` object.",
+      ),
     );
   });
 });

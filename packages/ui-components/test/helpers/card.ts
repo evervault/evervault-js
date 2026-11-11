@@ -4,14 +4,14 @@ import type { CardSpecNode, CardSpecPatchOp } from "types";
 export function node(
   type: CardSpecNode["type"],
   id: string = type,
-  props: Record<string, string> = {}
+  props: Record<string, string> = {},
 ): CardSpecNode {
   return { type, id, props };
 }
 
 export function field(
   id: string,
-  props: Record<string, string> = {}
+  props: Record<string, string> = {},
 ): CardSpecNode {
   return node("field", id, props);
 }
@@ -42,7 +42,7 @@ export function apply(ops: CardSpecPatchOp[]) {
 
 export function fieldNames(container: HTMLElement) {
   return [...container.querySelectorAll("[ev-name]")].map((field) =>
-    field.getAttribute("ev-name")
+    field.getAttribute("ev-name"),
   );
 }
 

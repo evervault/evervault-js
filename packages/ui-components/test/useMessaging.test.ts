@@ -13,7 +13,7 @@ describe("useMessaging on", () => {
     result.current.on("EV_INIT", callback);
 
     expect(() =>
-      window.dispatchEvent(new MessageEvent("message", { data: null }))
+      window.dispatchEvent(new MessageEvent("message", { data: null })),
     ).not.toThrow();
     expect(callback).not.toHaveBeenCalled();
   });

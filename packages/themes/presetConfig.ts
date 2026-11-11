@@ -17,7 +17,7 @@ const SEMANTIC_VARS = {
 
 export function withPresetConfig(
   styles: ThemeStyles,
-  config?: PresetConfig
+  config?: PresetConfig,
 ): ThemeStyles {
   if (!config) return styles;
 
@@ -41,7 +41,7 @@ export function withPresetConfig(
 
 export function splitPresetArgs(
   first?: ThemeDefinition | PresetConfig,
-  second?: PresetConfig
+  second?: PresetConfig,
 ): [ThemeDefinition | undefined, PresetConfig | undefined] {
   const isTheme =
     typeof first === "function" ||
@@ -54,7 +54,7 @@ export function splitPresetArgs(
     [...Object.keys(SEMANTIC_VARS), "selectors"].some((key) => key in first)
   ) {
     console.warn(
-      "Evervault: the first argument looks like a theme but also has preset config keys, which are ignored. Pass the config as the second argument, for example clean(theme, { primary })."
+      "Evervault: the first argument looks like a theme but also has preset config keys, which are ignored. Pass the config as the second argument, for example clean(theme, { primary }).",
     );
   }
 

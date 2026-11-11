@@ -37,7 +37,7 @@ export default class RevealText {
     reveal: Reveal,
     client: EvervaultClient,
     path: string,
-    options?: RevealTextOptions
+    options?: RevealTextOptions,
   ) {
     this.path = path;
     this.#reveal = reveal;
@@ -76,7 +76,7 @@ export default class RevealText {
 
   on<T extends keyof RevealTextEvents>(
     event: T,
-    callback: RevealTextEvents[T]
+    callback: RevealTextEvents[T],
   ) {
     return this.#events.on(event, callback);
   }

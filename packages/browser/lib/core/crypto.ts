@@ -15,7 +15,7 @@ function generateBytes(byteLength: number): Uint8Array {
     return randomBytes;
   }
   throw new errors.CryptoError(
-    "Your browser is outdated and does not support the Web Crypto API. Please upgrade it."
+    "Your browser is outdated and does not support the Web Crypto API. Please upgrade it.",
   );
 }
 
@@ -29,17 +29,17 @@ async function formatEncryptedData(
   keyIv: string,
   ecdhPublicKey: CryptoKey,
   encryptedData: string,
-  isDebug: boolean
+  isDebug: boolean,
 ): Promise<string> {
   const exportableEcdhPublicKey = await window.crypto.subtle.exportKey(
     "raw",
-    ecdhPublicKey
+    ecdhPublicKey,
   );
   const compressedKey = ecPointCompress(exportableEcdhPublicKey);
   return `ev:${isDebug ? "debug:" : ""}${evVersion}${
     datatype !== "string" ? `:${datatype}` : ""
   }:${base64RemovePadding(keyIv)}:${base64RemovePadding(
-    uint8ArrayToBase64String(compressedKey)
+    uint8ArrayToBase64String(compressedKey),
   )}:${base64RemovePadding(encryptedData)}:$`;
 }
 
@@ -47,32 +47,32 @@ async function formatEncryptedFileOrBlob(
   keyIv: Uint8Array,
   ecdhPublicKey: CryptoKey,
   encryptedData: ArrayBuffer,
-  isDebug: boolean
+  isDebug: boolean,
 ): Promise<Blob>;
 async function formatEncryptedFileOrBlob(
   keyIv: Uint8Array,
   ecdhPublicKey: CryptoKey,
   encryptedData: ArrayBuffer,
   isDebug: boolean,
-  fileName: string
+  fileName: string,
 ): Promise<File>;
 async function formatEncryptedFileOrBlob(
   keyIv: Uint8Array,
   ecdhPublicKey: CryptoKey,
   encryptedData: ArrayBuffer,
   isDebug: boolean,
-  fileName?: string
+  fileName?: string,
 ): Promise<File>;
 async function formatEncryptedFileOrBlob(
   keyIv: Uint8Array,
   ecdhPublicKey: CryptoKey,
   encryptedData: ArrayBuffer,
   isDebug: boolean,
-  fileName?: string
+  fileName?: string,
 ) {
   const exportableEcdhPublicKey = await window.crypto.subtle.exportKey(
     "raw",
-    ecdhPublicKey
+    ecdhPublicKey,
   );
 
   const compressedKey = ecPointCompress(exportableEcdhPublicKey);
@@ -131,7 +131,7 @@ export class CoreCrypto {
     ecdhPublicKey: CryptoKey,
     derivedSecret: ArrayBuffer,
     config: EncryptionSubConfig,
-    isDebug: boolean
+    isDebug: boolean,
   ) {
     this.#ecdhTeamKey = ecdhTeamKey;
     this.#ecdhPublicKey = ecdhPublicKey;
@@ -153,7 +153,7 @@ export class CoreCrypto {
 
     if (versionNumber === undefined) {
       throw new Error(
-        "This encryption version does not have a version number for AAD"
+        "This encryption version does not have a version number for AAD",
       );
     }
 
@@ -161,7 +161,7 @@ export class CoreCrypto {
       await window.crypto.subtle.exportKey("raw", this.#ecdhPublicKey);
 
     const exportableEcdhPublicKey = ecPointCompress(
-      exportableEcdhPublicKeyUncompressed
+      exportableEcdhPublicKeyUncompressed,
     );
 
     const configByteSize = 1;
@@ -183,7 +183,7 @@ export class CoreCrypto {
     // Set the derived secret
     aad.set(
       this.#ecdhTeamKey,
-      configByteSize + exportableEcdhPublicKey.byteLength
+      configByteSize + exportableEcdhPublicKey.byteLength,
     );
 
     return aad.buffer;
@@ -191,7 +191,7 @@ export class CoreCrypto {
 
   async #encryptObject(
     data: Datatypes.EncryptableObject,
-    role?: string
+    role?: string,
   ): Promise<Datatypes.EncrypedObject> {
     return this.#traverseObject({ ...data }, role);
   }
@@ -201,12 +201,12 @@ export class CoreCrypto {
   async #encryptFile(dataContainer: File | Blob, role?: string) {
     if (role !== undefined) {
       throw new errors.DataRolesNotSupportedError(
-        "Data roles are not supported for files."
+        "Data roles are not supported for files.",
       );
     }
     if (dataContainer.size > this.#config.maxFileSizeInBytes) {
       throw new errors.ExceededMaxFileSizeError(
-        `File size must be less than ${this.#config.maxFileSizeInMB}MB`
+        `File size must be less than ${this.#config.maxFileSizeInMB}MB`,
       );
     }
     const keyIv = generateBytes(this.#config.ivLength);
@@ -218,7 +218,7 @@ export class CoreCrypto {
         name: "AES-GCM",
       },
       true,
-      ["encrypt"]
+      ["encrypt"],
     );
 
     return new Promise((resolve, reject) => {
@@ -245,7 +245,7 @@ export class CoreCrypto {
               additionalData: this.#ecdhTeamKey,
             },
             derivedSecretImported,
-            readerResult
+            readerResult,
           )
           .then((encrypted) => {
             if (dataContainer instanceof File) {
@@ -255,8 +255,8 @@ export class CoreCrypto {
                   this.#ecdhPublicKey,
                   encrypted,
                   this.#isDebug,
-                  dataContainer.name
-                )
+                  dataContainer.name,
+                ),
               );
             } else {
               resolve(
@@ -264,8 +264,8 @@ export class CoreCrypto {
                   keyIv,
                   this.#ecdhPublicKey,
                   encrypted,
-                  this.#isDebug
-                )
+                  this.#isDebug,
+                ),
               );
             }
           });
@@ -277,7 +277,7 @@ export class CoreCrypto {
   async #encryptString(
     str: string,
     datatype: string,
-    role?: string
+    role?: string,
   ): Promise<string> {
     const keyIv = generateBytes(this.#config.ivLength);
 
@@ -288,13 +288,13 @@ export class CoreCrypto {
         name: "AES-GCM",
       },
       true,
-      ["encrypt"]
+      ["encrypt"],
     );
 
     const version = this.#config.versions.BFS;
     const metadataBytes = CoreCrypto.#buildMetadata(
       Math.floor(Date.now() / 1000),
-      role
+      role,
     );
     const metadataOffset = new Uint8Array(2); // Metadata size as a 2 bytes little-endian unsigned integer
     metadataOffset[0] = metadataBytes.length & 0xff;
@@ -313,7 +313,7 @@ export class CoreCrypto {
         additionalData: await this.#createV2Aad(datatype),
       },
       derivedSecretImported,
-      dataToEncrypt
+      dataToEncrypt,
     );
 
     return formatEncryptedData(
@@ -322,13 +322,13 @@ export class CoreCrypto {
       uint8ArrayToBase64String(keyIv),
       this.#ecdhPublicKey,
       uint8ArrayToBase64String(new Uint8Array(encryptedBuffer)),
-      this.#isDebug
+      this.#isDebug,
     );
   }
 
   static #buildMetadata(
     encryptionTimestamp: number,
-    role?: string
+    role?: string,
   ): Uint8Array {
     const bufferArray = [];
 
@@ -372,22 +372,22 @@ export class CoreCrypto {
   // Use unknown in interal methods
   async #traverseObject(
     data: Datatypes.EncryptableObject,
-    role?: string
+    role?: string,
   ): Promise<Datatypes.EncrypedObject>;
 
   async #traverseObject(
     data: Datatypes.EncryptableValue[],
-    role?: string
+    role?: string,
   ): Promise<Datatypes.EncryptedValue[]>;
 
   async #traverseObject(
     data: Datatypes.EncryptableAsString,
-    role?: string
+    role?: string,
   ): Promise<string>;
 
   async #traverseObject(
     data: Datatypes.EncryptableValue,
-    role?: string
+    role?: string,
   ): Promise<Datatypes.EncryptedValue>;
 
   async #traverseObject(data: unknown, role?: string) {
@@ -395,7 +395,7 @@ export class CoreCrypto {
       return this.#encryptString(
         Datatypes.ensureString(data),
         Datatypes.getHeaderType(data),
-        role
+        role,
       );
     }
     if (Datatypes.isObjectStrict(data)) {
@@ -410,7 +410,7 @@ export class CoreCrypto {
     if (Datatypes.isArray(data)) {
       const encryptedArray = [...data];
       return Promise.all(
-        encryptedArray.map(async (value) => this.#traverseObject(value, role))
+        encryptedArray.map(async (value) => this.#traverseObject(value, role)),
       );
     }
     return data;
@@ -418,7 +418,7 @@ export class CoreCrypto {
 
   async encrypt(
     data: unknown,
-    role?: string
+    role?: string,
   ): Promise<
     | string
     | Blob
@@ -434,7 +434,7 @@ export class CoreCrypto {
     const dataRoleRegex = /^[a-z0-9-]{1,20}$/;
     if (role != null && !dataRoleRegex.test(role)) {
       throw new Error(
-        "The provided Data Role slug is invalid. The slug can be retrieved in the Evervault dashboard (Data Roles section)."
+        "The provided Data Role slug is invalid. The slug can be retrieved in the Evervault dashboard (Data Roles section).",
       );
     }
 
@@ -453,7 +453,7 @@ export class CoreCrypto {
       return this.#encryptString(
         Datatypes.ensureString(data),
         Datatypes.getHeaderType(data),
-        role
+        role,
       );
     }
     throw new Error("The provided data to be encrypted is invalid.");

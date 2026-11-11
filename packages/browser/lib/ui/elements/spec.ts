@@ -23,7 +23,7 @@ export function warnUnknownChild(element: Element) {
     .join(", ");
 
   console.warn(
-    `<${element.localName}> is not a supported child of <ev-card> and will be ignored. Supported children are: ${supported}.`
+    `<${element.localName}> is not a supported child of <ev-card> and will be ignored. Supported children are: ${supported}.`,
   );
 }
 
@@ -47,7 +47,7 @@ function readAttributes(element: Element) {
     [...element.attributes].map((attribute) => [
       attribute.name,
       attribute.value,
-    ])
+    ]),
   );
 }
 

@@ -7,15 +7,17 @@ import type {
 } from "types";
 
 export function useMessaging<
-  ReceivableMessages extends EvervaultFrameHostMessages = EvervaultFrameHostMessages,
-  SendableMessages extends EvervaultFrameClientMessages = EvervaultFrameClientMessages
+  ReceivableMessages extends EvervaultFrameHostMessages =
+    EvervaultFrameHostMessages,
+  SendableMessages extends EvervaultFrameClientMessages =
+    EvervaultFrameClientMessages,
 >() {
   const { id } = useSearchParams();
 
   const on = useCallback(
     <T extends keyof ReceivableMessages>(
       type: T,
-      callback: (payload: ReceivableMessages[T]) => void
+      callback: (payload: ReceivableMessages[T]) => void,
     ) => {
       const handler = (event: MessageEvent<UIComponentMessageDetail>) => {
         if (!event.data || event.data.type !== type) return;
@@ -27,17 +29,17 @@ export function useMessaging<
         window.removeEventListener("message", handler);
       };
     },
-    []
+    [],
   );
 
   const send = useCallback(
     <T extends keyof SendableMessages>(
       type: T,
-      payload?: SendableMessages[T]
+      payload?: SendableMessages[T],
     ) => {
       window.parent.postMessage({ frame: id, type, payload }, "*");
     },
-    [id]
+    [id],
   );
 
   return {

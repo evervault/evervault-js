@@ -4,7 +4,7 @@ const API = import.meta.env.VITE_API_URL as string;
 
 export async function getMerchant(
   app: string,
-  merchantId: string
+  merchantId: string,
 ): Promise<MerchantDetail | undefined> {
   const response = await fetch(`${API}/frontend/merchants/${merchantId}`, {
     method: "GET",
@@ -17,7 +17,7 @@ export async function getMerchant(
   if (!response.ok) {
     console.error(
       `Failed to fetch merchant details for ${merchantId}`,
-      response.status
+      response.status,
     );
     return undefined;
   }

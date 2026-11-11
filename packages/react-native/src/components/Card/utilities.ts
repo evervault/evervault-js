@@ -10,7 +10,7 @@ import { UseFormReturn } from "../useForm";
 export async function changePayload(
   encrypt: (value: string) => Promise<string>,
   form: UseFormReturn<CardForm>,
-  fields: CardField[]
+  fields: CardField[],
 ): Promise<CardPayload> {
   const { name, number: rawNumber, expiry, cvc } = form.values;
 
@@ -73,7 +73,7 @@ export function isComplete(form: UseFormReturn<CardForm>, fields: CardField[]) {
 
 export function isAcceptedBrand(
   acceptedBrands: CardBrandName[] | undefined,
-  cardNumberValidationResult: CardNumberValidationResult
+  cardNumberValidationResult: CardNumberValidationResult,
 ): boolean {
   if (!acceptedBrands) return true;
   const { brand, localBrands } = cardNumberValidationResult;
@@ -81,7 +81,7 @@ export function isAcceptedBrand(
   const isBrandAccepted = brand !== null && acceptedBrands.includes(brand);
   // TODO: Remove `as string[]` cast once @evervault/react-native is updated
   const isLocalBrandAccepted = localBrands.some((localBrand) =>
-    (acceptedBrands as string[]).includes(localBrand)
+    (acceptedBrands as string[]).includes(localBrand),
   );
 
   return isBrandAccepted || isLocalBrandAccepted;
@@ -98,7 +98,7 @@ function formatExpiry(expiry: string) {
 
 async function encryptedNumber(
   encrypt: (value: string) => Promise<string>,
-  number: string
+  number: string,
 ) {
   return encrypt(number);
 }
@@ -106,7 +106,7 @@ async function encryptedNumber(
 async function encryptedCVC(
   encrypt: (value: string) => Promise<string>,
   cvc: string,
-  cardNumber: string
+  cardNumber: string,
 ) {
   const { isValid } = validateCVC(cvc, cardNumber);
 

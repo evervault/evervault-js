@@ -12,11 +12,11 @@ export interface CageKey {
 }
 
 export default function buildCageKeyFromSuppliedPublicKey(
-  publicKey: string
+  publicKey: string,
 ): CageKey {
   const compressedKey = ecPointCompress(base64StringToUint8Array(publicKey));
   const compressedKeyString = uint8ArrayToBase64String(
-    new Uint8Array(compressedKey)
+    new Uint8Array(compressedKey),
   );
   return {
     ecdhP256KeyUncompressed: publicKey,

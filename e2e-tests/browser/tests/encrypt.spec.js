@@ -66,7 +66,7 @@ function isEncryptedString(str) {
 
 async function decryptWithAPI(payload) {
   const token = btoa(
-    `${process.env.VITE_EV_APP_UUID}:${process.env.EV_API_KEY}`
+    `${process.env.VITE_EV_APP_UUID}:${process.env.EV_API_KEY}`,
   );
 
   const response = await fetch(`${process.env.VITE_API_URL}/decrypt`, {

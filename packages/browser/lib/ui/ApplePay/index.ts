@@ -58,7 +58,7 @@ function loadApplePaySDK(): Promise<void> {
 
   const loadPromise = new Promise<void>((resolve, reject) => {
     const existing = document.querySelector<HTMLScriptElement>(
-      `script[src="${APPLE_PAY_SCRIPT_URL}"]`
+      `script[src="${APPLE_PAY_SCRIPT_URL}"]`,
     );
 
     if (existing && isApplePayButtonDefined()) {
@@ -144,10 +144,10 @@ export type ApplePayButtonOptions = {
     disbursementDetails?: PaymentDetailsInit;
   };
   onPaymentMethodChange?: (
-    newPaymentMethod: PaymentMethodUpdate
+    newPaymentMethod: PaymentMethodUpdate,
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   onShippingAddressChange?: (
-    newAddress: ShippingAddress
+    newAddress: ShippingAddress,
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   /**
    * Shipping type label on the Apple Pay sheet (shipping / delivery / pickup).
@@ -170,7 +170,7 @@ export type ApplePayButtonOptions = {
    * Requires `shippingMethods` (and shipping to be requested).
    */
   onShippingMethodSelected?: (
-    shippingMethod: ApplePayShippingMethod
+    shippingMethod: ApplePayShippingMethod,
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   /**
    * Show the coupon field on the Apple Pay sheet and receive updates when the
@@ -223,7 +223,7 @@ export type ApplePayButtonOptions = {
     data: EncryptedApplePayData,
     helpers: {
       fail: (error?: ApplePayErrorMessage) => void;
-    }
+    },
   ) => Promise<void>;
 };
 
@@ -253,7 +253,7 @@ export default class ApplePayButton {
   constructor(
     client: EvervaultClient,
     transaction: Transaction,
-    options: ApplePayButtonOptions
+    options: ApplePayButtonOptions,
   ) {
     this.client = client;
     this.#options = options;
@@ -265,7 +265,7 @@ export default class ApplePayButton {
     if (!this.#merchantPromise) {
       const merchantPromise = fetchSessionMerchant(
         this,
-        this.transaction.details.merchantId
+        this.transaction.details.merchantId,
       )
         .then((merchant) => {
           this.#merchant = merchant;
@@ -380,7 +380,7 @@ export default class ApplePayButton {
       sheetDetails = detailsPromise.catch((error: Error) =>
         sheetUp.then(() => {
           throw error;
-        })
+        }),
       );
     }
 
@@ -394,7 +394,7 @@ export default class ApplePayButton {
 
   async #resolveDetails(
     config: BuildSessionOptions,
-    sessionMerchant: MerchantDetail
+    sessionMerchant: MerchantDetail,
   ): Promise<PaymentDetailsUpdate> {
     const [merchant, prepared] = await Promise.all([
       this.#loadMerchant(),
@@ -416,7 +416,7 @@ export default class ApplePayButton {
 
   async #completeSession(
     showPromise: Promise<PaymentResponse>,
-    detailsError: () => Error | null
+    detailsError: () => Error | null,
   ) {
     try {
       const [response, responseError] = await tryCatch(showPromise);
@@ -446,7 +446,7 @@ export default class ApplePayButton {
       const paymentMethodType = response.details?.token?.paymentMethod?.type;
 
       const [encrypted, encryptedError] = await tryCatch(
-        this.#exchangeApplePaymentData(response)
+        this.#exchangeApplePaymentData(response),
       );
 
       if (encryptedError) {
@@ -488,7 +488,7 @@ export default class ApplePayButton {
 
       if (shippingOptionId) {
         const selectedMethod = this.#options.shippingMethods?.find(
-          (method) => method.id === shippingOptionId
+          (method) => method.id === shippingOptionId,
         );
         if (selectedMethod) {
           encrypted.shippingMethod = {
@@ -501,7 +501,7 @@ export default class ApplePayButton {
           console.warn(
             `[Evervault Apple Pay] PaymentResponse.shippingOption "${shippingOptionId}" ` +
               "did not match any configured shippingMethods. " +
-              "Returning a placeholder shippingMethod with amount 0."
+              "Returning a placeholder shippingMethod with amount 0.",
           );
           encrypted.shippingMethod = {
             id: shippingOptionId,
@@ -512,7 +512,7 @@ export default class ApplePayButton {
       }
 
       encrypted.transactionType = mapTransactionType(
-        this.transaction.details.type
+        this.transaction.details.type,
       );
 
       encrypted.card.displayName = paymentMethodDisplayName;
@@ -549,7 +549,7 @@ export default class ApplePayButton {
   }
 
   async #exchangeApplePaymentData(
-    response: PaymentResponse
+    response: PaymentResponse,
   ): Promise<EncryptedApplePayData> {
     const requestBody = {
       merchantId: this.transaction.details.merchantId,
@@ -574,7 +574,7 @@ export default class ApplePayButton {
 
     if (!encrypted?.card) {
       throw new Error(
-        "Apple Pay credentials exchange returned no card credentials"
+        "Apple Pay credentials exchange returned no card credentials",
       );
     }
 
@@ -583,7 +583,7 @@ export default class ApplePayButton {
 
   on(
     event: keyof ApplePayEvents,
-    callback: ApplePayEvents[keyof ApplePayEvents]
+    callback: ApplePayEvents[keyof ApplePayEvents],
   ) {
     return this.#events.on(event, callback);
   }
@@ -657,8 +657,8 @@ export default class ApplePayButton {
     const capabilities = await ApplePaySession.applePayCapabilities(
       resolveMerchantIdentifier(
         this.transaction.details.merchantId,
-        this.#options.appleMerchantId
-      )
+        this.#options.appleMerchantId,
+      ),
     );
 
     if (capabilities.paymentCredentialStatus === "applePayUnsupported") {
@@ -709,25 +709,25 @@ export default class ApplePayButton {
     if (this.#options.padding) {
       this.#button.style.setProperty(
         "--apple-pay-button-padding",
-        this.#options.padding
+        this.#options.padding,
       );
     }
 
     if (this.#options.borderRadius) {
       this.#button.style.setProperty(
         "--apple-pay-button-border-radius",
-        resolveUnit(this.#options.borderRadius)
+        resolveUnit(this.#options.borderRadius),
       );
     }
 
     if (this.#options.size) {
       this.#button.style.setProperty(
         "--apple-pay-button-width",
-        resolveUnit(this.#options.size.width)
+        resolveUnit(this.#options.size.width),
       );
       this.#button.style.setProperty(
         "--apple-pay-button-height",
-        resolveUnit(this.#options.size.height)
+        resolveUnit(this.#options.size.height),
       );
     }
 

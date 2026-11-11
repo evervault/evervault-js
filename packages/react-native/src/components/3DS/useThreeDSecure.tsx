@@ -16,7 +16,7 @@ export const useThreeDSecure = (): ThreeDSecureState => {
 
   if (!appUuid) {
     throw new Error(
-      "useThreeDSecure must be used within an Evervault Provider"
+      "useThreeDSecure must be used within an Evervault Provider",
     );
   }
 

@@ -67,7 +67,7 @@ const createEncryptionConfig = (publicKey?: string) =>
   ({
     ...encryptionConstants,
     publicKey,
-  } satisfies EncryptionSubConfig);
+  }) satisfies EncryptionSubConfig;
 
 const debugKey = {
   ecdhP256KeyUncompressed:
@@ -90,7 +90,7 @@ export default function Config(
   teamId: string,
   appId: string,
   customUrls?: ConfigUrls,
-  publicKey?: string
+  publicKey?: string,
 ): Config {
   return {
     teamId,
@@ -103,13 +103,13 @@ export default function Config(
     components: {
       url: validateSet(
         customUrls?.componentsUrl,
-        DEFAULT_CONFIG_URLS.componentsUrl
+        DEFAULT_CONFIG_URLS.componentsUrl,
       ),
     },
     input: {
       inputsOrigin: validateSet(
         customUrls?.inputsOrigin,
-        DEFAULT_CONFIG_URLS.inputsOrigin
+        DEFAULT_CONFIG_URLS.inputsOrigin,
       ),
     },
     debugKey,
@@ -119,7 +119,7 @@ export default function Config(
 // Ensure that the value is a string and is not empty. If the value is not then return the default value
 function validateSet(
   value: string | undefined | null | String, // eslint-disable-line @typescript-eslint/no-wrapper-object-types
-  defaultValue: string
+  defaultValue: string,
 ): string {
   if (
     typeof value === "undefined" ||

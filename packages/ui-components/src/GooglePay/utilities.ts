@@ -16,7 +16,7 @@ function baseRequest() {
 // The card payment method spec is the same for both the full payment request
 // and the isReadyToPay request.
 function baseCardPaymentMethod(
-  config: GooglePayConfig
+  config: GooglePayConfig,
 ): google.payments.api.IsReadyToPayPaymentMethodSpecification {
   return {
     type: "CARD",
@@ -56,7 +56,7 @@ function baseCardPaymentMethod(
 
 export function buildPaymentRequest(
   config: GooglePayConfig,
-  merchant: MerchantDetail
+  merchant: MerchantDetail,
 ): google.payments.api.PaymentDataRequest {
   const tx = config.transaction;
   return {
@@ -90,7 +90,7 @@ export function buildPaymentRequest(
       ? {
           shippingOptionRequired: true,
           shippingOptionParameters: shippingOptionParameters(
-            config.shippingOptions
+            config.shippingOptions,
           ),
         }
       : {}),
@@ -104,7 +104,7 @@ export function buildPaymentRequest(
  * so the intent list has to follow the config rather than be hardcoded.
  */
 export function callbackIntents(
-  config: GooglePayConfig
+  config: GooglePayConfig,
 ): google.payments.api.CallbackIntent[] {
   const intents: google.payments.api.CallbackIntent[] = [];
   if (isShippingRequired(config)) intents.push("SHIPPING_ADDRESS");
@@ -116,7 +116,7 @@ export function callbackIntents(
 export function buildTransactionInfo(
   config: GooglePayConfig,
   merchantName: string,
-  overrides: { amount?: number; lineItems?: TransactionLineItem[] } = {}
+  overrides: { amount?: number; lineItems?: TransactionLineItem[] } = {},
 ): google.payments.api.TransactionInfo {
   const tx = config.transaction;
   const amount = overrides.amount ?? tx.amount;
@@ -139,7 +139,7 @@ export function buildTransactionInfo(
 }
 
 export function buildIsReadyToPayRequest(
-  config: GooglePayConfig
+  config: GooglePayConfig,
 ): google.payments.api.IsReadyToPayRequest {
   return {
     ...baseRequest(),
@@ -152,7 +152,7 @@ export function buildIsReadyToPayRequest(
 // from TransactionLineItem's own "final"/"pending" status field. Defaults to
 // LINE_ITEM to match today's behaviour when category is omitted.
 function displayItemType(
-  category: TransactionLineItem["category"]
+  category: TransactionLineItem["category"],
 ): google.payments.api.DisplayItemType {
   switch (category) {
     case "subtotal":
@@ -169,7 +169,7 @@ function displayItemType(
 }
 
 export function shippingOptionParameters(
-  shippingOptions: GooglePayShippingOptionsConfig
+  shippingOptions: GooglePayShippingOptionsConfig,
 ): google.payments.api.ShippingOptionParameters {
   return {
     shippingOptions: shippingOptions.options.map((option) => ({
@@ -192,10 +192,10 @@ const API = import.meta.env.VITE_API_URL as string;
 export async function exchangePaymentData(
   app: string,
   paymentData: google.payments.api.PaymentData,
-  merchantId: string
+  merchantId: string,
 ): Promise<EncryptedGooglePayData> {
   const token = JSON.parse(
-    paymentData.paymentMethodData.tokenizationData.token
+    paymentData.paymentMethodData.tokenizationData.token,
   );
   const requestBody = {
     token,
@@ -221,7 +221,7 @@ function isBillingRequired(config: GooglePayConfig): boolean {
 }
 
 function billingAddressFormat(
-  config: GooglePayConfig
+  config: GooglePayConfig,
 ): google.payments.api.BillingAddressFormat {
   const billingConfig = config.billingAddress;
   if (typeof billingConfig === "boolean") return "FULL";
@@ -239,7 +239,7 @@ export function isShippingRequired(config: GooglePayConfig): boolean {
 }
 
 function shippingAddressParameters(
-  config: GooglePayConfig
+  config: GooglePayConfig,
 ): google.payments.api.ShippingAddressParameters {
   return typeof config.shippingAddress === "object"
     ? config.shippingAddress
