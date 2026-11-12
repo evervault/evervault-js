@@ -2,7 +2,7 @@ import jss, { JssStyle, StyleSheet } from "jss";
 import preset from "jss-preset-default";
 import { useEffect, useRef, useState } from "react";
 import { ThemeObject } from "types";
-import { parseFontFaces } from "./fontFaces";
+import { isAllowedFontUrl, parseFontFaces } from "./fontFaces";
 import { resize } from "./resize";
 
 jss.setup(preset());
@@ -20,9 +20,9 @@ export function useTheme() {
       if (cancelled) return;
 
       const opts = {
-        "@import": (theme.fonts ?? []).map(
-          (url) => `url(${url})`
-        ) as JssStyle[],
+        "@import": (theme.fonts ?? [])
+          .filter(isAllowedFontUrl)
+          .map((url) => `url(${url})`) as JssStyle[],
         ...(fontFaces.length > 0 ? { "@font-face": fontFaces } : {}),
         "@global": theme.styles,
       };
