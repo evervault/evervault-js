@@ -1,5 +1,12 @@
 # example-js-minimal
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [ef15132]
+  - @evervault/js@2.26.1
+
 ## 0.0.3
 
 ### Patch Changes
