@@ -1,5 +1,6 @@
 import EventManager from "./eventManager";
 import { EvervaultFrame } from "./evervaultFrame";
+import { REVEAL_REQUEST_GUARDS } from "./messageGuards";
 import RevealCopyButton, { RevealCopyButtonOptions } from "./revealCopyButton";
 import RevealText, { RevealTextOptions } from "./revealText";
 import { generateID } from "./utils";
@@ -36,7 +37,11 @@ export default class Reveal {
     this.channel = generateID();
     this.#client = client;
     this.#request = request;
-    this.#frame = new EvervaultFrame(client, "RevealRequest");
+    this.#frame = new EvervaultFrame(
+      client,
+      "RevealRequest",
+      REVEAL_REQUEST_GUARDS
+    );
     this.#frame.iframe.style.position = "absolute";
     this.#frame.iframe.style.pointerEvents = "none";
     this.#frame.iframe.style.opacity = "0";

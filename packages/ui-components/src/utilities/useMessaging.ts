@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { isFromParent, postToParent } from "./parentOrigin";
 import { useSearchParams } from "./useSearchParams";
 import type {
   EvervaultFrameClientMessages,
@@ -18,6 +19,7 @@ export function useMessaging<
       callback: (payload: ReceivableMessages[T]) => void
     ) => {
       const handler = (event: MessageEvent<UIComponentMessageDetail>) => {
+        if (!isFromParent(event)) return;
         if (!event.data || event.data.type !== type) return;
         callback(event.data.payload as ReceivableMessages[T]);
       };
@@ -35,7 +37,7 @@ export function useMessaging<
       type: T,
       payload?: SendableMessages[T]
     ) => {
-      window.parent.postMessage({ frame: id, type, payload }, "*");
+      postToParent({ frame: id, type, payload });
     },
     [id]
   );

@@ -13,8 +13,10 @@ export interface ChallengeFrameProps {
 
 export function ChallengeFrame({ nextAction, onLoad }: ChallengeFrameProps) {
   const postedAction = useRef<ChallengeNextAction | null>(null);
+  const frame = useRef<HTMLIFrameElement | null>(null);
   const frameRef = useCallback(
     (node: HTMLIFrameElement) => {
+      frame.current = node;
       if (!node) return;
       if (
         postedAction.current?.creq === nextAction.creq &&
@@ -38,7 +40,7 @@ export function ChallengeFrame({ nextAction, onLoad }: ChallengeFrameProps) {
 
   useEffect(() => {
     function handleMessage(e: MessageEvent) {
-      if (isTrampolineMessage(e)) {
+      if (isTrampolineMessage(e) && e.source === frame.current?.contentWindow) {
         window.removeEventListener("message", handleMessage);
         if (check3DSSuccess(e)) {
           send("EV_SUCCESS", cresForOutcome(e.data.cres));

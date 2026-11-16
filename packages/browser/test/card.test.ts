@@ -23,6 +23,7 @@ const payload: CardPayload = {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  document.body.innerHTML = "";
 });
 
 describe("ui.card", () => {
@@ -40,6 +41,7 @@ describe("ui.card", () => {
 
   it("reads the latest values the frame reported", () => {
     const container = document.createElement("div");
+    document.body.append(container);
     const card = new Card(client).mount(container);
 
     frameMessage(container, "EV_CHANGE", payload);
@@ -70,6 +72,7 @@ describe("ui.card", () => {
 
   it("dispatches the frame's change event to its listeners", () => {
     const container = document.createElement("div");
+    document.body.append(container);
     const card = new Card(client).mount(container);
     const change = vi.fn();
     card.on("change", change);

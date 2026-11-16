@@ -1,5 +1,6 @@
 import EventManager from "./eventManager";
 import { EvervaultFrame } from "./evervaultFrame";
+import { GOOGLE_PAY_GUARDS } from "./messageGuards";
 import type EvervaultClient from "../main";
 import type {
   SelectorType,
@@ -38,7 +39,7 @@ export default class GooglePay {
     validateTotalPriceStatus(options.totalPriceStatus);
     this.#options = options;
     this.#transaction = transaction;
-    this.#frame = new EvervaultFrame(client, "GooglePay", {
+    this.#frame = new EvervaultFrame(client, "GooglePay", GOOGLE_PAY_GUARDS, {
       size: {
         width: getStringDimensionOrDefault(options.size?.width, "250px"),
         height: getStringDimensionOrDefault(options.size?.height, "45px"),

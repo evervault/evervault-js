@@ -1,3 +1,8 @@
+import {
+  BASE_GUARDS,
+  type FrameGuards,
+  type MessageGuards,
+} from "./messageGuards";
 import { Theme } from "./theme";
 import { generateID, resolveSelector } from "./utils";
 import type { EvervaultFrameMessageDetail } from "./types";
@@ -55,6 +60,7 @@ export class EvervaultFrame<
   #destroyed = false;
   #unsubscribes: (() => void)[] = [];
   #mountUnsubscribes: (() => void)[] = [];
+  #guards: MessageGuards<ReceivableMessages>;
 
   // The constructor accepts an EV client and component name and generates the URL
   // for the iframe. The component param is used to determine which component to render
@@ -62,9 +68,14 @@ export class EvervaultFrame<
   constructor(
     client: EvervaultClient,
     component: string,
+    guards: FrameGuards<ReceivableMessages>,
     options?: FrameOptions
   ) {
     this.#client = client;
+    this.#guards = {
+      ...BASE_GUARDS,
+      ...guards,
+    } as MessageGuards<ReceivableMessages>;
     this.#component = component;
     this.iframe = document.createElement("iframe");
     this.iframe.id = this.#id;
@@ -331,6 +342,15 @@ export class EvervaultFrame<
     return this.#client.config.components.url;
   }
 
+  #isFromOwnFrame(e: MessageEvent<EvervaultFrameMessageDetail>) {
+    return (
+      e.source !== null &&
+      e.source === this.iframe.contentWindow &&
+      e.origin === new URL(this.url).origin &&
+      e.data?.frame === this.#id
+    );
+  }
+
   #generateUrl(component: string, options?: FrameOptions) {
     const url = new URL(this.url);
     url.searchParams.set("id", this.#id);
@@ -365,8 +385,9 @@ export class EvervaultFrame<
     callback: (message: ReceivableMessages[K]) => void
   ) {
     const handleMessage = (e: MessageEvent<EvervaultFrameMessageDetail>) => {
-      if (!e.data || e.data.frame !== this.#id) return;
+      if (!this.#isFromOwnFrame(e)) return;
       if (e.data.type !== event) return;
+      if (!this.#guards[event](e.data.payload)) return;
       callback(e.data.payload as ReceivableMessages[K]);
     };
 
