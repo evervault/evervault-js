@@ -1,5 +1,11 @@
 # @evervault/3ds
 
+## 1.1.4
+
+### Patch Changes
+
+- 6ca5cfb: Add failOnChallenge search parameter to the redirect flow
+
 ## 1.1.3
 
 ### Patch Changes
