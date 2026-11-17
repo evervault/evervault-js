@@ -65,6 +65,7 @@ export async function changePayload(
     fields: await encryptedFields(ev, checked),
     isValid: form.isValid,
     isComplete: isComplete(form, fields, opts) && allValid(checked),
+    threeDSProfilingId: null,
     errors: payloadErrors(form, custom),
   };
 }

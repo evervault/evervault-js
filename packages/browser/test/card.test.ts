@@ -18,6 +18,7 @@ const payload: CardPayload = {
   fields: {},
   isValid: true,
   isComplete: true,
+  threeDSProfilingId: null,
   errors: null,
 };
 
@@ -64,6 +65,7 @@ describe("ui.card", () => {
       fields: {},
       isValid: false,
       isComplete: false,
+      threeDSProfilingId: null,
       errors: null,
     });
   });

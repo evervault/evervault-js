@@ -22,6 +22,7 @@ const payload: CardPayload = {
   fields: {},
   isValid: true,
   isComplete: true,
+  threeDSProfilingId: null,
   errors: null,
 };
 
