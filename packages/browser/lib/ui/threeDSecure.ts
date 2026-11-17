@@ -190,7 +190,7 @@ export default class ThreeDSecure {
     this.#overlay.style.visibility = "hidden";
     this.#showOverlayTimer = setTimeout(
       () => this.#showOverlay(),
-      SHOW_OVERLAY_AFTER_MS
+      SHOW_OVERLAY_AFTER_MS,
     );
     return this.#overlay;
   }
