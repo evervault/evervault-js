@@ -1,6 +1,6 @@
 import * as React from "react";
 import { act } from "@testing-library/react";
-import { afterEach, beforeAll, vi } from "vitest";
+import { afterEach, beforeAll, vi, type Mock } from "vitest";
 import { EvervaultContext } from "../../lib/context";
 import type { PromisifiedEvervaultClient } from "../../lib/load/client";
 
@@ -11,8 +11,8 @@ export class FakeEvCard extends HTMLElement {
   client: unknown;
   settingsAtMount: Record<string, unknown> = {};
   assigned: string[] = [];
-  validate = vi.fn();
-  show = vi.fn();
+  validate: Mock = vi.fn();
+  show: Mock = vi.fn();
   #settings: Record<string, unknown> = {};
 
   constructor() {
