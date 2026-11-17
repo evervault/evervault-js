@@ -107,7 +107,7 @@ describe("ui.card", () => {
     expect(card.config.config.threeDSProfiling).toBeUndefined();
   });
 
-  it("has no 3DS profiling ID when profiling is on", () => {
+  it("starts with no 3DS profiling ID when profiling is on", () => {
     const card = new Card(client, { threeDSProfiling: true });
 
     expect(card.values.threeDSProfilingId).toBeNull();
