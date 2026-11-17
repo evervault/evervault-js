@@ -37,6 +37,7 @@ const SETTINGS = Object.keys({
   validation: true,
   agentTools: true,
   preload: true,
+  threeDSProfiling: true,
 } satisfies Record<SettingProp, true>) as SettingProp[] satisfies (keyof EvCard)[];
 
 // Keyed by prop so that a prop left out fails to compile.

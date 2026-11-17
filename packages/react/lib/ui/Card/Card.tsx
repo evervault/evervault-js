@@ -54,6 +54,8 @@ export interface CardProps {
   customBrands?: CustomBrand[];
   agentTools?: AgentToolsConfig;
   preload?: boolean;
+  /** Opt-in, off by default. Profiles the browser for 3DS while the user types. */
+  threeDSProfiling?: boolean;
 }
 
 export const Card = React.forwardRef<CardRef, CardProps>(function Card(
