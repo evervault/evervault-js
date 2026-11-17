@@ -532,6 +532,32 @@ describe("<ev-card> attributes", () => {
     );
   });
 
+  it("mounts with 3DS profiling on when the attribute is declared", () => {
+    const element = append({ threedsprofiling: "" });
+    element.mountCard(evervault());
+
+    expect(mountedWith().config?.threeDSProfiling).toBe(true);
+  });
+
+  it("leaves 3DS profiling unset when the attribute is absent", () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    expect(mountedWith().config?.threeDSProfiling).toBeUndefined();
+  });
+
+  it("pushes 3DS profiling to the card when the attribute changes", async () => {
+    const element = append();
+    element.mountCard(evervault());
+
+    element.setAttribute("threedsprofiling", "");
+    await flush();
+
+    expect(frame().update).toHaveBeenCalledWith(
+      expect.objectContaining({ config: { threeDSProfiling: true } })
+    );
+  });
+
   it("pushes no configuration when only a child changes", async () => {
     const element = append();
     element.mountCard(evervault());
@@ -981,6 +1007,7 @@ describe("<ev-card> settings as attributes", () => {
     ["autoFocus", "autofocus", true, ""],
     ["autoProgress", "autoprogress", false, "false"],
     ["autoComplete", "autocomplete", true, ""],
+    ["threeDSProfiling", "threedsprofiling", true, ""],
     [
       "acceptedBrands",
       "acceptedbrands",

@@ -95,6 +95,7 @@ export interface EvCard {
   autoProgress?: boolean;
   autoComplete?: boolean;
   preload?: boolean;
+  threeDSProfiling?: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging -- typed by the interface above
@@ -147,6 +148,7 @@ export class EvCard extends ElementBase {
     ["autoProgress", "flag"],
     ["autoComplete", "switch"],
     ["preload", "flag"],
+    ["threeDSProfiling", "flag"],
   ];
 
   // The browser reports these changing; the observer watches the children.
@@ -385,6 +387,7 @@ export class EvCard extends ElementBase {
         autoProgress: this.autoProgress,
         validation: this.validation,
         agentTools: this.#agentTools,
+        threeDSProfiling: this.threeDSProfiling,
       },
       this.#client
     );
