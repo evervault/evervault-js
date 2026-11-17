@@ -99,8 +99,10 @@ export interface CardPayload {
   fields: Record<string, string | null>;
   isValid: boolean;
   isComplete: boolean;
-  // Pass as `profilingId` when creating a 3DS session. Null until profiling
-  // finishes, and always null without the `threeDSProfiling` option.
+  /**
+   * Pass as `profilingId` when creating a 3DS session. Null until profiling
+   * finishes, and always null without the `threeDSProfiling` option.
+   */
   threeDSProfilingId: string | null;
   errors: null | Partial<{
     number?: string;
@@ -255,7 +257,7 @@ export interface CardOptions {
   autoComplete?: boolean | CardFieldMap<boolean>;
   validation?: CardValidation;
   agentTools?: AgentToolsConfig;
-  // Opt-in, off by default. Profiles the browser for 3DS while the user types.
+  /** Opt-in, off by default. Profiles the browser for 3DS while the user types. */
   threeDSProfiling?: boolean;
 }
 
@@ -1042,6 +1044,6 @@ export interface MerchantDetail {
 
 export interface AppSDKConfig {
   is_sandbox: boolean;
-  // The `three-ds-profiling` flag for the app. Missing means off.
+  /** The `three-ds-profiling` flag for the app. Missing means off. */
   threeDSProfilingEnabled?: boolean;
 }
