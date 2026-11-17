@@ -285,7 +285,7 @@ describe("ThreeDSecure#handleOutcome idempotency", () => {
     tds.on("success", successHandler);
 
     // #updateOutcome does not check response.ok — only fetch rejections reset #handled
-    lastFrame.trigger("EV_SUCCESS", null);
+    lastFrame.trigger("EV_SUCCESS", "cres_token");
     await vi.waitFor(() => {
       expect(callCount).toBe(1);
     });
@@ -295,16 +295,106 @@ describe("ThreeDSecure#handleOutcome idempotency", () => {
     // Let the rejected fetch settle so #handleOutcome's catch resets #handled
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    lastFrame.trigger("EV_SUCCESS", null);
+    lastFrame.trigger("EV_SUCCESS", "cres_token");
     await vi.waitFor(() => {
       expect(patchRequests).toHaveLength(1);
     });
 
     expect(callCount).toBe(2);
     expect(patchRequests[0]).toEqual({
-      body: { outcome: "success", cres: null },
+      body: { outcome: "success", cres: "cres_token" },
       appId,
     });
     expect(successHandler).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("ThreeDSecure success reported by the server", () => {
+  it("dispatches success without waiting for the outcome PATCH", async () => {
+    const patchRequests: RecordedPatch[] = [];
+    let releasePatch = () => {};
+    server.use(
+      http.patch(patchUrl, async ({ request }) => {
+        patchRequests.push({
+          body: await request.json(),
+          appId: request.headers.get("X-Evervault-App-Id"),
+        });
+        await new Promise<void>((resolve) => (releasePatch = resolve));
+        return HttpResponse.json({}, { status: 200 });
+      })
+    );
+
+    const successHandler = vi.fn();
+    const { tds } = createThreeDSecure();
+    tds.on("success", successHandler);
+
+    lastFrame.trigger("EV_SUCCESS", null);
+
+    expect(successHandler).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect(patchRequests).toHaveLength(1));
+    expect(patchRequests[0]).toEqual({
+      body: { outcome: "success", cres: null },
+      appId,
+    });
+    releasePatch();
+  });
+
+  it("still dispatches success if the outcome PATCH fails", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("network error"));
+
+    const successHandler = vi.fn();
+    const { tds } = createThreeDSecure();
+    tds.on("success", successHandler);
+
+    lastFrame.trigger("EV_SUCCESS", null);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(successHandler).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("ThreeDSecure overlay visibility", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  function mountOverlay() {
+    const overlay = document.createElement("div");
+    const { tds, frame } = createThreeDSecure();
+    vi.spyOn(frame, "createOverlay").mockReturnValue(overlay);
+    tds.mount();
+    return { tds, overlay };
+  }
+
+  it("keeps the overlay hidden until the frame asks to show it", () => {
+    vi.useFakeTimers();
+    const { overlay } = mountOverlay();
+
+    expect(overlay.style.visibility).toBe("hidden");
+
+    lastFrame.trigger("EV_SHOW");
+
+    expect(overlay.style.visibility).toBe("");
+  });
+
+  it("shows the overlay if no result arrives in time", () => {
+    vi.useFakeTimers();
+    const { overlay } = mountOverlay();
+
+    vi.advanceTimersByTime(1499);
+    expect(overlay.style.visibility).toBe("hidden");
+
+    vi.advanceTimersByTime(1);
+    expect(overlay.style.visibility).toBe("");
+  });
+
+  it("does not show the overlay after it unmounts", () => {
+    vi.useFakeTimers();
+    const { tds, overlay } = mountOverlay();
+
+    tds.unmount();
+    vi.advanceTimersByTime(1500);
+
+    expect(overlay.style.visibility).toBe("hidden");
   });
 });

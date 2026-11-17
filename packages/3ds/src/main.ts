@@ -5,6 +5,8 @@ const team = searchParams.get("team");
 const app = searchParams.get("app");
 const session = searchParams.get("session")!;
 const redirect = searchParams.get("redirect");
+const failOnChallenge =
+  searchParams.get("failOnChallenge") === "true" ? true : false;
 
 const ev = new Evervault(team, app, {
   urls: {
@@ -19,6 +21,7 @@ const tds = ev.ui.threeDSecure(session, {
     height: window.innerHeight as unknown as string,
     width: window.innerWidth as unknown as string,
   },
+  failOnChallenge,
 });
 
 tds.on("success", () => {
