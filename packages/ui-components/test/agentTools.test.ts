@@ -34,7 +34,7 @@ describe("buildFieldStatuses", () => {
       ["number", "expiry", "cvc"],
       values,
       validators,
-      t
+      t,
     );
 
     expect(statuses).toEqual([
@@ -67,7 +67,7 @@ describe("buildFieldStatuses", () => {
 describe("normalizeFieldValue", () => {
   it("keeps only digits for number and cvc", () => {
     expect(normalizeFieldValue("number", "4242 4242-4242 4242")).toBe(
-      "4242424242424242"
+      "4242424242424242",
     );
     expect(normalizeFieldValue("cvc", " 123 ")).toBe("123");
   });
@@ -118,7 +118,7 @@ describe("buildAgentTools", () => {
     expect(schema.properties.field.enum).toEqual(["number", "expiry", "cvc"]);
 
     expect(() => tools[1].execute({ field: "name" }, { signal })).toThrow(
-      'Acme Pay does not show a "name" field.'
+      'Acme Pay does not show a "name" field.',
     );
     expect(tools[1].execute({ field: "cvc" }, { signal })).toEqual({
       focused: "cvc",
@@ -131,20 +131,20 @@ describe("buildAgentTools", () => {
 
     tools[2].execute(
       { field: "number", value: "4242 4242 4242 4242" },
-      { signal }
+      { signal },
     );
     expect(handlers.setFieldValue).toHaveBeenCalledWith(
       "number",
-      "4242424242424242"
+      "4242424242424242",
     );
   });
 
   it("rejects unknown fields and non-string values", () => {
     expect(() =>
-      tools[2].execute({ field: "name", value: "x" }, { signal })
+      tools[2].execute({ field: "name", value: "x" }, { signal }),
     ).toThrow('Acme Pay does not show a "name" field.');
     expect(() =>
-      tools[2].execute({ field: "cvc", value: 123 }, { signal })
+      tools[2].execute({ field: "cvc", value: 123 }, { signal }),
     ).toThrow('Acme Pay expects a string value for the "cvc" field.');
   });
 });

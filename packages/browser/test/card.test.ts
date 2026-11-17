@@ -96,7 +96,7 @@ describe("ui.card", () => {
   it("reports one error and keeps its options when updated once destroyed", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const card = new Card(client, { autoProgress: false }).mount(
-      document.createElement("div")
+      document.createElement("div"),
     );
 
     card.destroy();

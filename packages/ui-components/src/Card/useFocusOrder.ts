@@ -40,6 +40,6 @@ export function useFocusOrder(order: CardInput[]): FocusOrder {
       next: (input: CardInput) => move(input, 1),
       previous: (input: CardInput) => move(input, -1),
     }),
-    [move]
+    [move],
   );
 }

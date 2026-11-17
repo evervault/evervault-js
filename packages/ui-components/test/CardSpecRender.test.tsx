@@ -53,11 +53,11 @@ describe("Card spec rendering", () => {
     const { container } = card({ fields: [] });
 
     apply(
-      inserts([node("cvc", "a"), node("number", "b"), node("expiry", "c")])
+      inserts([node("cvc", "a"), node("number", "b"), node("expiry", "c")]),
     );
 
     await waitFor(() =>
-      expect(fieldNames(container)).toEqual(["cvc", "number", "expiry"])
+      expect(fieldNames(container)).toEqual(["cvc", "number", "expiry"]),
     );
   });
 
@@ -84,7 +84,7 @@ describe("Card spec rendering", () => {
 
     expect(fieldNames(container)).toEqual(["number", "expiry", "cvc"]);
     expect(
-      fieldNames(container.querySelector("[ev-row]") as HTMLElement)
+      fieldNames(container.querySelector("[ev-row]") as HTMLElement),
     ).toEqual(["expiry", "cvc"]);
   });
 
@@ -101,10 +101,10 @@ describe("Card spec rendering", () => {
 
     expect(container.querySelector("label")?.textContent).toBe("Card number");
     expect(
-      container.querySelector<HTMLInputElement>("#number")?.placeholder
+      container.querySelector<HTMLInputElement>("#number")?.placeholder,
     ).toBe("4242 4242 4242 4242");
     expect(container.querySelector("[ev-tooltip]")?.textContent).toBe(
-      "The long number on the front"
+      "The long number on the front",
     );
   });
 
@@ -122,7 +122,7 @@ describe("Card spec rendering", () => {
     expect(
       container
         .querySelector("[ev-name=number]")
-        ?.getAttribute("ev-icon-position")
+        ?.getAttribute("ev-icon-position"),
     ).toBe("inline-start");
   });
 
@@ -130,7 +130,7 @@ describe("Card spec rendering", () => {
     const { container } = card({ fields: ["number", "expiry", "cvc"] });
 
     expect(container.querySelector("fieldset")?.getAttribute("ev-layout")).toBe(
-      "auto"
+      "auto",
     );
   });
 
@@ -140,7 +140,7 @@ describe("Card spec rendering", () => {
     });
 
     expect(container.querySelector("fieldset")?.hasAttribute("ev-layout")).toBe(
-      false
+      false,
     );
   });
 
@@ -150,7 +150,7 @@ describe("Card spec rendering", () => {
     });
 
     expect(container.querySelector("fieldset")?.getAttribute("ev-fields")).toBe(
-      "cvc,number"
+      "cvc,number",
     );
   });
 
@@ -160,7 +160,7 @@ describe("Card spec rendering", () => {
     });
 
     rerender(
-      <Card config={{ fields: [node("cvc", "b"), node("number", "a")] }} />
+      <Card config={{ fields: [node("cvc", "b"), node("number", "a")] }} />,
     );
 
     expect(fieldNames(container)).toEqual(["cvc", "number"]);
@@ -183,7 +183,7 @@ describe("Card spec rendering", () => {
     ]);
 
     await waitFor(() =>
-      expect(fieldNames(container)).toEqual(["expiry", "cvc"])
+      expect(fieldNames(container)).toEqual(["expiry", "cvc"]),
     );
   });
 
@@ -218,7 +218,7 @@ describe("Card spec rendering", () => {
 
       expect(fieldNames(container)).toEqual(["number"]);
       expect(warn).toHaveBeenCalledWith(
-        '<ev-card> ignored a duplicate "number" field.'
+        '<ev-card> ignored a duplicate "number" field.',
       );
       expect(warn).toHaveBeenCalledTimes(1);
 
@@ -245,7 +245,7 @@ describe("Card spec rendering", () => {
 
       await waitFor(() => expect(warn).toHaveBeenCalledTimes(1));
       expect(warn).toHaveBeenCalledWith(
-        '<ev-card> ignored a duplicate "number" field.'
+        '<ev-card> ignored a duplicate "number" field.',
       );
       expect(fieldNames(container)).toEqual(["number"]);
     } finally {
@@ -300,10 +300,10 @@ describe("Card spec rendering", () => {
     apply([{ op: "insert", parentId: null, index: 1, node: node("cvc", "b") }]);
 
     await waitFor(() =>
-      expect(fieldNames(container)).toEqual(["number", "cvc"])
+      expect(fieldNames(container)).toEqual(["number", "cvc"]),
     );
     expect(container.querySelector<HTMLInputElement>("#number")?.value).toBe(
-      "4242"
+      "4242",
     );
   });
 });

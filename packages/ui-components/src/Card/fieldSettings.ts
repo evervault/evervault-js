@@ -20,7 +20,7 @@ const CUSTOM_FIELD_PREFIX = "field-".length;
 // the card leaves that input to its default.
 export function settingForInput(
   setting: boolean | CardFieldMap<boolean> | undefined,
-  input: CardInput
+  input: CardInput,
 ): boolean | undefined {
   if (typeof setting !== "object") return setting;
 
@@ -70,7 +70,7 @@ function customFieldSettings(name: string, config: CardConfig) {
 // none: a field's own attribute wins. Untouched nodes keep their identity.
 export function applyCardSettingsToFields(
   nodes: CardSpecNode[],
-  config: CardConfig
+  config: CardConfig,
 ): CardSpecNode[] {
   let changed = false;
 
@@ -87,10 +87,10 @@ export function applyCardSettingsToFields(
     if (node.type !== "field" || !node.props.name) return node;
 
     const settings = Object.entries(
-      customFieldSettings(node.props.name, config)
+      customFieldSettings(node.props.name, config),
     ).filter(
       (entry): entry is [string, string] =>
-        entry[1] !== undefined && !(entry[0] in node.props)
+        entry[1] !== undefined && !(entry[0] in node.props),
     );
 
     if (settings.length === 0) return node;

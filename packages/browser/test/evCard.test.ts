@@ -75,9 +75,8 @@ vi.mock("themes", () => ({
 }));
 
 vi.mock("../lib/ui/elements/spec", async (importOriginal) => {
-  const actual = await importOriginal<
-    typeof import("../lib/ui/elements/spec")
-  >();
+  const actual =
+    await importOriginal<typeof import("../lib/ui/elements/spec")>();
 
   return { ...actual, serialise: vi.fn(actual.serialise) };
 });
@@ -203,7 +202,7 @@ describe("<ev-card>", () => {
 
     expect(hosts).toHaveLength(1);
     expect(error).toHaveBeenCalledWith(
-      expect.stringContaining("already been mounted")
+      expect.stringContaining("already been mounted"),
     );
 
     error.mockRestore();
@@ -285,7 +284,7 @@ describe("<ev-card>", () => {
     expect(hosts).toHaveLength(2);
     expect(hosts[1].destroy).not.toHaveBeenCalled();
     expect(error).toHaveBeenCalledWith(
-      expect.stringContaining("already been mounted")
+      expect.stringContaining("already been mounted"),
     );
 
     error.mockRestore();
@@ -301,7 +300,7 @@ describe("<ev-card>", () => {
     expect(hosts).toHaveLength(1);
     expect(hosts[0].destroy).not.toHaveBeenCalled();
     expect(error).toHaveBeenCalledWith(
-      expect.stringContaining("already been mounted")
+      expect.stringContaining("already been mounted"),
     );
 
     error.mockRestore();
@@ -430,7 +429,7 @@ describe("<ev-card> parsed from markup", () => {
   beforeEach(() => {
     readyState = "loading";
     vi.spyOn(document, "readyState", "get").mockImplementation(
-      () => readyState
+      () => readyState,
     );
   });
 
@@ -516,7 +515,7 @@ describe("<ev-card> attributes", () => {
     await flush();
 
     expect(frame().update).toHaveBeenCalledWith(
-      expect.objectContaining({ config: { autoProgress: true } })
+      expect.objectContaining({ config: { autoProgress: true } }),
     );
   });
 
@@ -528,7 +527,7 @@ describe("<ev-card> attributes", () => {
     await flush();
 
     expect(frame().update).toHaveBeenCalledWith(
-      expect.objectContaining({ config: { autoProgress: undefined } })
+      expect.objectContaining({ config: { autoProgress: undefined } }),
     );
   });
 
@@ -568,7 +567,7 @@ describe("<ev-card> attributes", () => {
     await flush();
 
     expect(frame().update).toHaveBeenCalledWith(
-      expect.objectContaining({ theme: { styles: { theme: "minimal" } } })
+      expect.objectContaining({ theme: { styles: { theme: "minimal" } } }),
     );
   });
 
@@ -597,7 +596,7 @@ describe("<ev-card> attributes", () => {
     await flush();
 
     expect(frame().update).toHaveBeenCalledWith(
-      expect.objectContaining({ theme })
+      expect.objectContaining({ theme }),
     );
   });
 
@@ -615,7 +614,7 @@ describe("<ev-card> attributes", () => {
       expect.objectContaining({
         theme,
         config: expect.objectContaining({ autoProgress: true }),
-      })
+      }),
     );
   });
 
@@ -662,8 +661,8 @@ describe("<ev-card> preloading", () => {
     expect(
       types(
         (configuration as CardHostConfiguration).config
-          ?.fields as CardSpecNode[]
-      )
+          ?.fields as CardSpecNode[],
+      ),
     ).toEqual(["number"]);
   });
 
@@ -884,7 +883,7 @@ describe("<ev-card> settings", () => {
 
     expect(frame().update).toHaveBeenCalledTimes(2);
     expect(frame().update).toHaveBeenLastCalledWith(
-      expect.objectContaining({ theme: { styles: { theme: "clean" } } })
+      expect.objectContaining({ theme: { styles: { theme: "clean" } } }),
     );
   });
 
@@ -969,7 +968,7 @@ describe("<ev-card> settings", () => {
     element.mountCard(evervault());
 
     expect(
-      Object.prototype.hasOwnProperty.call(element, "acceptedBrands")
+      Object.prototype.hasOwnProperty.call(element, "acceptedBrands"),
     ).toBe(false);
     expect(mountedWith().config).toMatchObject({ acceptedBrands: ["visa"] });
   });
@@ -1012,9 +1011,9 @@ describe("<ev-card> settings as attributes", () => {
       const element = append({ [attribute]: written });
 
       expect((element as unknown as Record<string, unknown>)[property]).toEqual(
-        value
+        value,
       );
-    }
+    },
   );
 
   it("removes the attribute of a setting set to undefined", () => {
@@ -1138,7 +1137,7 @@ describe("<ev-card> teardown", () => {
 
   beforeEach(async () => {
     const actual = await vi.importActual<{ CardHost: typeof CardHost }>(
-      "../lib/ui/cardHost"
+      "../lib/ui/cardHost",
     );
     real.CardHost = actual.CardHost;
   });

@@ -27,7 +27,7 @@ export interface CardHostConfiguration {
 }
 
 export function isSpec(
-  fields: CardFrameConfig["fields"]
+  fields: CardFrameConfig["fields"],
 ): fields is CardSpecNode[] {
   return (
     Array.isArray(fields) &&
@@ -238,7 +238,7 @@ export class CardHost {
 
   send<K extends keyof CardFrameHostMessages>(
     type: K,
-    payload?: CardFrameHostMessages[K]
+    payload?: CardFrameHostMessages[K],
   ) {
     if (!this.live()) return this;
 

@@ -6,14 +6,12 @@ export type EncryptableValue =
   | { [key: string]: EncryptableValue };
 export type EncryptableObject = Record<string, EncryptableValue>;
 export type EncryptedValue =
-  | string
-  | EncryptedValue[]
-  | { [key: string]: EncryptedValue };
+  string | EncryptedValue[] | { [key: string]: EncryptedValue };
 export type EncrypedObject = Record<string, EncryptedValue>;
 
 // TODO: Replace with zod
 export const isDefined = <T>(
-  data: T | null | undefined
+  data: T | null | undefined,
 ): data is NonNullable<T> => typeof data !== "undefined" && data !== null;
 
 export const isArray = (data: unknown): data is EncryptableValue[] =>
@@ -49,7 +47,7 @@ export const isFile = (data: unknown): data is File | Blob =>
   data instanceof File || data instanceof Blob;
 
 export const isEncryptableAsString = (
-  data: unknown
+  data: unknown,
 ): data is EncryptableAsString =>
   isDefined(data) && (isString(data) || isNumber(data) || isBoolean(data));
 

@@ -75,7 +75,7 @@ export function Pin({ config }: { config: PinConfig }) {
       setPin(newPin);
       triggerChange.current = true;
     },
-    [length, pin]
+    [length, pin],
   );
 
   const handleChange = (value: string) => {

@@ -20,7 +20,7 @@ describe("Card before the SDK registers <ev-card>", () => {
         <Card ref={ref}>
           <Card.Number />
         </Card>
-      </EvervaultContext.Provider>
+      </EvervaultContext.Provider>,
     );
 
     expect(() => ref.current?.validate()).not.toThrow();

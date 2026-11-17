@@ -35,25 +35,21 @@ export const OptionsCard = React.forwardRef(function OptionsCard(
     agentTools,
     preload,
   }: CardProps,
-  forwardedRef: React.ForwardedRef<CardRef>
+  forwardedRef: React.ForwardedRef<CardRef>,
 ) {
   const ref = useRef<HTMLDivElement | null>(null);
   const inst = useRef<CardInstance | null>(null);
 
-  useImperativeHandle(
-    forwardedRef,
-    () => {
-      return {
-        validate: () => {
-          inst.current?.validate();
-        },
-        show: () => {
-          inst.current?.show();
-        },
-      };
-    },
-    []
-  );
+  useImperativeHandle(forwardedRef, () => {
+    return {
+      validate: () => {
+        inst.current?.validate();
+      },
+      show: () => {
+        inst.current?.show();
+      },
+    };
+  }, []);
 
   const config = useMemo(
     () => ({
@@ -89,7 +85,7 @@ export const OptionsCard = React.forwardRef(function OptionsCard(
       validation,
       customBrands,
       agentTools,
-    ]
+    ],
   );
 
   const instance = useEvInstance({

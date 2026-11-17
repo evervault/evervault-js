@@ -35,7 +35,7 @@ export function framePermissions(agentTools: CardOptions["agentTools"]) {
 
 export function cardSettingsConfig(
   settings: CardSettings,
-  client: EvervaultClient
+  client: EvervaultClient,
 ): CardFrameConfig {
   return {
     icons: settings.icons,
@@ -51,7 +51,7 @@ export function cardSettingsConfig(
     validation: settings.validation,
     agentTools: resolveAgentToolsConfig(
       settings.agentTools,
-      client.config.appId
+      client.config.appId,
     ),
   };
 }

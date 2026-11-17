@@ -11,6 +11,6 @@ export default function createCurve(curveValues: TP256Constants) {
 
   return (decompressedPublicKey: string) =>
     asn1Encoder(
-      uint8ArrayToHexString(base64StringToUint8Array(decompressedPublicKey))
+      uint8ArrayToHexString(base64StringToUint8Array(decompressedPublicKey)),
     );
 }

@@ -33,12 +33,12 @@ describe("Card with declared fields", () => {
       <Card fields={["number"]}>
         <Card.Cvc />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     rerender(
       <Card fields={["number"]}>
         <Card.Number />
-      </Card>
+      </Card>,
     );
     await settle();
 
@@ -53,7 +53,7 @@ describe("Card with declared fields", () => {
       <Card>
         <Card.Cvc />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
@@ -70,7 +70,7 @@ describe("Card with declared fields", () => {
           <Card.Number />
         </Card>
       </React.StrictMode>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
@@ -84,7 +84,7 @@ describe("Card with declared fields", () => {
       <Card>
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
@@ -98,7 +98,7 @@ describe("Card with declared fields", () => {
       <Card autoProgress={false} colorScheme="dark">
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
@@ -115,12 +115,12 @@ describe("Card with declared fields", () => {
       <Card redactCVC allow3DigitAmexCVC={false}>
         <Card.Cvc />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
     expect(container.innerHTML).toBe(
-      '<ev-card><ev-card-cvc redact="" allow3digitamex="false"></ev-card-cvc></ev-card>'
+      '<ev-card><ev-card-cvc redact="" allow3digitamex="false"></ev-card-cvc></ev-card>',
     );
   });
 
@@ -131,12 +131,12 @@ describe("Card with declared fields", () => {
       <Card redactCVC allow3DigitAmexCVC={false}>
         <Card.Cvc redact={false} allow3DigitAmex />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
     expect(container.innerHTML).toBe(
-      '<ev-card><ev-card-cvc redact="false" allow3digitamex=""></ev-card-cvc></ev-card>'
+      '<ev-card><ev-card-cvc redact="false" allow3digitamex=""></ev-card-cvc></ev-card>',
     );
   });
 
@@ -161,7 +161,7 @@ describe("Card with declared fields", () => {
         <Card.Field name="postcode" />
         <Card.Field name="email" />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
@@ -174,7 +174,7 @@ describe("Card with declared fields", () => {
         '<ev-card-cvc autocomplete="false"></ev-card-cvc>' +
         '<ev-field autocomplete="false" name="postcode"></ev-field>' +
         '<ev-field name="email"></ev-field>' +
-        "</ev-card>"
+        "</ev-card>",
     );
     expect(evCard().assigned).not.toContain("autoComplete");
   });
@@ -187,7 +187,7 @@ describe("Card with declared fields", () => {
         <Card.ExpiryMonth />
         <Card.ExpiryYear />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
@@ -195,7 +195,7 @@ describe("Card with declared fields", () => {
       "<ev-card>" +
         '<ev-card-expiry-month autocomplete="false"></ev-card-expiry-month>' +
         '<ev-card-expiry-year autocomplete=""></ev-card-expiry-year>' +
-        "</ev-card>"
+        "</ev-card>",
     );
   });
 
@@ -206,12 +206,12 @@ describe("Card with declared fields", () => {
       <Card autoComplete={{ fields: false }}>
         <Card.Field name="postcode" />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
     expect(container.innerHTML).toBe(
-      '<ev-card><ev-field autocomplete="false" name="postcode"></ev-field></ev-card>'
+      '<ev-card><ev-field autocomplete="false" name="postcode"></ev-field></ev-card>',
     );
   });
 
@@ -222,13 +222,13 @@ describe("Card with declared fields", () => {
       <Card autoComplete={false}>
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
     expect(evCard().settingsAtMount).toEqual({ autoComplete: false });
     expect(container.innerHTML).toBe(
-      "<ev-card><ev-card-number></ev-card-number></ev-card>"
+      "<ev-card><ev-card-number></ev-card-number></ev-card>",
     );
   });
 
@@ -244,7 +244,7 @@ describe("Card with declared fields", () => {
       <Card acceptedBrands={["visa"]} translations={translations}>
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
@@ -262,7 +262,7 @@ describe("Card with declared fields", () => {
       <Card acceptedBrands={brands}>
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
     evCard().assigned = [];
@@ -273,7 +273,7 @@ describe("Card with declared fields", () => {
         translations={{ number: {}, expiry: {}, cvc: {} }}
       >
         <Card.Number />
-      </Card>
+      </Card>,
     );
 
     expect(evCard().assigned).toEqual(["translations"]);
@@ -289,16 +289,16 @@ describe("Card with declared fields", () => {
       <Card onChange={onChange} onFocus={onFocus} onReady={onReady}>
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
     const card = evCard();
     card.dispatchEvent(
-      new CustomEvent("change", { detail: { isValid: true } })
+      new CustomEvent("change", { detail: { isValid: true } }),
     );
     card.dispatchEvent(
-      new CustomEvent("focus", { detail: { field: "number" } })
+      new CustomEvent("focus", { detail: { field: "number" } }),
     );
     card.dispatchEvent(new CustomEvent("ready"));
 
@@ -316,7 +316,7 @@ describe("Card with declared fields", () => {
         <Card.Number />
         <Card.Field name="vat" required />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
@@ -328,11 +328,11 @@ describe("Card with declared fields", () => {
           isValid: true,
           isComplete: false,
         },
-      })
+      }),
     );
 
     expect(onChange).toHaveBeenLastCalledWith(
-      expect.objectContaining({ isValid: true, isComplete: false })
+      expect.objectContaining({ isValid: true, isComplete: false }),
     );
   });
 
@@ -345,7 +345,7 @@ describe("Card with declared fields", () => {
       <Card onFocus={onFocus} onKeyDown={onKeyDown}>
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
@@ -364,7 +364,7 @@ describe("Card with declared fields", () => {
       <Card onChange={onChange}>
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
     const card = evCard();
@@ -384,14 +384,14 @@ describe("Card with declared fields", () => {
       <Card onChange={first}>
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
     rerender(
       <Card onChange={second}>
         <Card.Number />
-      </Card>
+      </Card>,
     );
     evCard().dispatchEvent(new CustomEvent("change", { detail: {} }));
 
@@ -407,7 +407,7 @@ describe("Card with declared fields", () => {
       <Card ref={ref}>
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
@@ -423,7 +423,7 @@ describe("Card with declared fields", () => {
       <Card preload>
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
@@ -438,7 +438,7 @@ describe("Card with declared fields", () => {
       <Card preload ref={ref}>
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
@@ -451,7 +451,7 @@ describe("Card with declared fields", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     const onError = vi.fn();
     const failed = Promise.reject(
-      new Error("no script")
+      new Error("no script"),
     ) as unknown as PromisifiedEvervaultClient;
     failed.catch(() => {});
 
@@ -460,7 +460,7 @@ describe("Card with declared fields", () => {
         <Card onError={onError}>
           <Card.Number />
         </Card>
-      </EvervaultContext.Provider>
+      </EvervaultContext.Provider>,
     );
     await settle();
 
@@ -480,7 +480,7 @@ describe("Card with declared fields", () => {
       <Card onError={onError}>
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
