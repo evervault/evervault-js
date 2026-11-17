@@ -95,6 +95,24 @@ describe("ui.card", () => {
     });
   });
 
+  it("sends the 3DS profiling option to the frame", () => {
+    const card = new Card(client, { threeDSProfiling: true });
+
+    expect(card.config.config.threeDSProfiling).toBe(true);
+  });
+
+  it("leaves 3DS profiling off by default", () => {
+    const card = new Card(client);
+
+    expect(card.config.config.threeDSProfiling).toBeUndefined();
+  });
+
+  it("has no 3DS profiling ID when profiling is on", () => {
+    const card = new Card(client, { threeDSProfiling: true });
+
+    expect(card.values.threeDSProfilingId).toBeNull();
+  });
+
   it("reports one error and keeps its options when updated once destroyed", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const card = new Card(client, { autoProgress: false }).mount(

@@ -82,6 +82,7 @@ export default class Card {
         ...cardSettingsConfig(this.#options, this.#client),
         hiddenFields: (this.#options.hiddenFields ?? [])?.join(","),
         fields: this.#options.fields,
+        threeDSProfiling: this.#options.threeDSProfiling,
       },
     };
   }
