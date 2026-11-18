@@ -28,11 +28,13 @@ interface ThreeDSProfiling {
 /** A profiling that waits for its 3DS Method to finish. */
 interface PendingMethod {
   app: string;
+  cardNumber: string;
   profilingId: string;
   signal: AbortSignal;
 }
 
-// 403: profiling is off for the app. 404: the app is unknown.
+// 403: profiling flag is off for the app.
+// 404: the app is unknown.
 // Neither changes while the frame is open, so there is no reason to try again.
 const STOP_STATUSES = [403, 404];
 
@@ -46,7 +48,11 @@ export function useThreeDSProfiling({
   app,
   cardNumber,
 }: ThreeDSProfilingOptions): ThreeDSProfiling {
-  const [profilingId, setProfilingId] = useState<string | null>(null);
+  // The ID is kept with its number, so an ID for an old number is never returned.
+  const [profiledCard, setProfiledCard] = useState<{
+    cardNumber: string;
+    profilingId: string;
+  } | null>(null);
   const [method, setMethod] = useState<BrowserFingerprintNextAction | null>(
     null
   );
@@ -61,7 +67,7 @@ export function useThreeDSProfiling({
   }, [active]);
 
   useEffect(() => {
-    setProfilingId(null);
+    setProfiledCard(null);
     setMethod(null);
     pendingMethod.current = null;
 
@@ -94,6 +100,7 @@ export function useThreeDSProfiling({
         if (response.methodUrl && response.threeDSMethodData) {
           pendingMethod.current = {
             app,
+            cardNumber: number,
             profilingId: response.profilingId,
             signal,
           };
@@ -103,7 +110,10 @@ export function useThreeDSProfiling({
             data: response.threeDSMethodData,
           });
         } else {
-          setProfilingId(response.profilingId);
+          setProfiledCard({
+            cardNumber: number,
+            profilingId: response.profilingId,
+          });
         }
       } catch (error) {
         if (signal.aborted) return;
@@ -132,7 +142,7 @@ export function useThreeDSProfiling({
     // Send the ID only after the backend knows the 3DS Method finished.
     // Otherwise the 3DS session could read the profiling before the update.
     const showId = () => {
-      if (!pending.signal.aborted) setProfilingId(pending.profilingId);
+      if (!pending.signal.aborted) setProfiledCard(pending);
     };
     reportProfilingMethod(
       pending.app,
@@ -152,7 +162,7 @@ export function useThreeDSProfiling({
     if (!pending) return;
     pendingMethod.current = null;
     setMethod(null);
-    setProfilingId(pending.profilingId);
+    setProfiledCard(pending);
 
     // The backend treats a missing update as a timeout,
     // so this request is not awaited, and its errors are ignored.
@@ -160,6 +170,11 @@ export function useThreeDSProfiling({
       () => undefined
     );
   }, []);
+
+  const profilingId =
+    active && profiledCard?.cardNumber === cardNumber
+      ? profiledCard.profilingId
+      : null;
 
   return { profilingId, method, onMethodComplete, onMethodTimeout };
 }

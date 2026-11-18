@@ -37,6 +37,7 @@ export async function changePayload(
     allow3DigitAmexCVC?: boolean;
     cvcOptional?: boolean;
     customBrands?: CustomBrand[];
+    threeDSProfilingId?: string | null;
   }
 ): Promise<CardPayload> {
   const { name, number, expiry, cvc } = form.values;
@@ -65,7 +66,7 @@ export async function changePayload(
     fields: await encryptedFields(ev, checked),
     isValid: form.isValid,
     isComplete: isComplete(form, fields, opts) && allValid(checked),
-    threeDSProfilingId: null,
+    threeDSProfilingId: opts?.threeDSProfilingId ?? null,
     errors: payloadErrors(form, custom),
   };
 }

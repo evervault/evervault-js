@@ -31,8 +31,11 @@ import type { FieldProps, UseFormReturn } from "shared";
 import { Error } from "../Common/Error";
 import { Field } from "../Common/Field";
 import { Tooltip } from "../Common/Tooltip";
+import { BrowserFingerprint } from "../ThreeDSecure/BrowserFingerprint";
+import { useThreeDSProfiling } from "../ThreeDSecure/useThreeDSProfiling";
 import { resize } from "../utilities/resize";
 import { useMessaging } from "../utilities/useMessaging";
+import { useSearchParams } from "../utilities/useSearchParams";
 import { BrandIcon } from "./BrandIcon";
 import { CardCVC } from "./CardCVC";
 import { CardExpiry } from "./CardExpiry";
@@ -294,6 +297,25 @@ export function Card({ config }: { config: CardConfig }) {
 
   const customFields = useCustomFields(nodes, () => sendChange(form));
 
+  const { app = "" } = useSearchParams();
+  const threeDS = useThreeDSProfiling({
+    enabled: config.threeDSProfiling === true,
+    app,
+    // Profile only a number the card component accepts.
+    cardNumber:
+      fields.includes("number") && validators.number(form.values) === undefined
+        ? form.values.number
+        : null,
+  });
+  const { profilingId } = threeDS;
+
+  // Sends a change event when the profiling ID arrives.
+  useEffect(() => {
+    if (profilingId !== null) sendChange(form);
+    // Only a new ID sends this change. The form sends its own changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profilingId]);
+
   // Only called after a render, once `customFields` exists.
   function sendChange(formState: UseFormReturn<CardForm>) {
     const triggerChange = async () => {
@@ -307,6 +329,7 @@ export function Card({ config }: { config: CardConfig }) {
           allow3DigitAmexCVC,
           cvcOptional,
           customBrands,
+          threeDSProfilingId: profilingId,
         }
       );
 
@@ -393,6 +416,7 @@ export function Card({ config }: { config: CardConfig }) {
                 allow3DigitAmexCVC,
                 cvcOptional,
                 customBrands,
+                threeDSProfilingId: profilingId,
               }
             );
             send("EV_VALIDATED", data);
@@ -409,6 +433,7 @@ export function Card({ config }: { config: CardConfig }) {
       allow3DigitAmexCVC,
       cvcOptional,
       customBrands,
+      profilingId,
     ]
   );
 
@@ -785,15 +810,26 @@ export function Card({ config }: { config: CardConfig }) {
   };
 
   return (
-    <fieldset
-      ev-component="card"
-      ev-valid={hasErrors ? "false" : "true"}
-      ev-fields={fields}
-      // A field list says nothing about layout, so the card lays it out; a
-      // declared tree is laid out exactly as written.
-      ev-layout={declaredTree ? undefined : "auto"}
-    >
-      {nodes.map(renderNode)}
-    </fieldset>
+    <>
+      <fieldset
+        ev-component="card"
+        ev-valid={hasErrors ? "false" : "true"}
+        ev-fields={fields}
+        // A field list says nothing about layout, so the card lays it out; a
+        // declared tree is laid out exactly as written.
+        ev-layout={declaredTree ? undefined : "auto"}
+      >
+        {nodes.map(renderNode)}
+      </fieldset>
+
+      {/* Outside the fieldset, so the card's layout never counts the frame. */}
+      {threeDS.method && (
+        <BrowserFingerprint
+          action={threeDS.method}
+          onComplete={threeDS.onMethodComplete}
+          onTimeout={threeDS.onMethodTimeout}
+        />
+      )}
+    </>
   );
 }
