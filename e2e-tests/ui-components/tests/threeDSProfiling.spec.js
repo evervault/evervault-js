@@ -28,4 +28,33 @@ test.describe("3DS profiling", () => {
     await expect.poll(async () => values.isValid).toBeTruthy();
     expect(values.threeDSProfilingId).toBeNull();
   });
+
+  test("the Card gives a profiling ID with the option", async ({ page }) => {
+    const profilingId = await getProfilingId(page, "5555550130659057");
+    expect(profilingId).toMatch(/\S/);
+  });
 });
+
+// Mounts a Card with `threeDSProfiling` on, fills the number and waits for
+// the profiling ID. The Card profiles as soon as the number is valid.
+async function getProfilingId(page, number) {
+  let values = {};
+
+  await page.exposeFunction("handleProfilingChange", (newValues) => {
+    values = newValues;
+  });
+
+  await page.evaluate(() => {
+    const comp = window.evervault.ui.card({ threeDSProfiling: true });
+    comp.on("change", window.handleProfilingChange);
+    comp.mount("#form");
+  });
+
+  const frame = page.frameLocator("iframe[data-evervault]");
+  await frame.getByLabel("Number").fill(number);
+  await expect
+    .poll(async () => values.threeDSProfilingId ?? "", { timeout: 10000 })
+    .toMatch(/\S/);
+
+  return values.threeDSProfilingId;
+}
