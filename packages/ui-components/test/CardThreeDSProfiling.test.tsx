@@ -60,9 +60,12 @@ const report = vi.mocked(reportProfilingMethod);
 
 const VISA = "4242424242424242";
 
-function card(config: CardConfig = { threeDSProfiling: true }) {
+function card(
+  config: CardConfig = { threeDSProfiling: true },
+  fields: ("number" | "expiry" | "cvc")[] = ["number"]
+) {
   const { container } = render(
-    <Card config={{ ...config, fields: [node("number")] }} />
+    <Card config={{ ...config, fields: fields.map((type) => node(type)) }} />
   );
   return container;
 }
@@ -146,6 +149,28 @@ describe("3DS profiling in the card", () => {
     await settle();
 
     expect(lastChange()?.threeDSProfilingId).toBeNull();
+  });
+
+  it("keeps the ID when the shopper types in another field", async () => {
+    const container = card({ threeDSProfiling: true }, [
+      "number",
+      "expiry",
+      "cvc",
+    ]);
+    await userEvent.type(input(container, "number"), VISA);
+    await waitFor(() =>
+      expect(lastChange()?.threeDSProfilingId).toBe("tdp_0123456789ab")
+    );
+    const changes = sent("EV_CHANGE").length;
+
+    await userEvent.type(input(container, "expiry"), "1230");
+    await userEvent.type(input(container, "cvc"), "123");
+    await settle();
+
+    expect(sent("EV_CHANGE").length).toBeGreaterThan(changes);
+    expect(lastChange()?.card.expiry.month).toBe("12");
+    expect(lastChange()?.threeDSProfilingId).toBe("tdp_0123456789ab");
+    expect(create).toHaveBeenCalledTimes(1);
   });
 
   it("gives the ID when the host asks the card to validate", async () => {

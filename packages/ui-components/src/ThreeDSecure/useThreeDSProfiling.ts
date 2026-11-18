@@ -152,6 +152,7 @@ export function useThreeDSProfiling({
     ).then(showId, (error: unknown) => {
       // 404: the backend has no record for this ID, so the ID is useless.
       if (error instanceof ProfilingError && error.status === 404) return;
+      // Other errors: the backend treats a missing update as a timeout, so the ID still works.
       showId();
     });
   }, []);
