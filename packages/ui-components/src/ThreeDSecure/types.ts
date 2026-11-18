@@ -12,6 +12,18 @@ export interface ChallengeNextAction {
   creq: string;
 }
 
+/** The browser fields the 3DS server needs for a browser-based authentication. */
+export interface BrowserDetails {
+  javaEnabled: boolean;
+  javascriptEnabled: boolean;
+  language: string;
+  colorDepth: number;
+  screenHeight: number;
+  screenWidth: number;
+  /** Minutes from local time to UTC, from `Date.getTimezoneOffset()`. */
+  timeZone: number;
+}
+
 export type NextAction = BrowserFingerprintNextAction | ChallengeNextAction;
 
 export interface SessionData {
