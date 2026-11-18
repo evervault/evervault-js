@@ -24,6 +24,9 @@ catalogs:
     '@eslint/js':
       specifier: ^9.12.0
       version: 9.12.0
+    '@fingerprintjs/fingerprintjs':
+      specifier: ^5.3.0
+      version: 5.3.0
     '@inquirer/prompts':
       specifier: ^8.3.0
       version: 8.3.0
@@ -1259,6 +1262,9 @@ importers:
       '@evervault/react':
         specifier: workspace:*
         version: link:../react
+      '@fingerprintjs/fingerprintjs':
+        specifier: 'catalog:'
+        version: 5.3.0
       '@types/applepayjs':
         specifier: 'catalog:'
         version: 14.0.9
@@ -3071,6 +3077,9 @@ packages:
   '@expo/xcpretty@4.3.2':
     resolution: {integrity: sha512-ReZxZ8pdnoI3tP/dNnJdnmAk7uLT4FjsKDGW7YeDdvdOMz2XCQSmSCM9IWlrXuWtMF9zeSB6WJtEhCQ41gQOfw==}
     hasBin: true
+
+  '@fingerprintjs/fingerprintjs@5.3.0':
+    resolution: {integrity: sha512-goxeuSCF/LR8E/lcsCh/YTjhlFW7AOhj4A9RQ5GHpBOKwkX/OG3z8mY5ADR1xGVRB5bSEJB66WNh5eBwehx2nQ==}
 
   '@hapi/address@5.1.1':
     resolution: {integrity: sha512-A+po2d/dVoY7cYajycYI43ZbYMXukuopIsqCjh5QzsBCipDtdofHntljDlpccMjIfTy6UOkg+5KPriwYch2bXA==}
@@ -12084,6 +12093,8 @@ snapshots:
       chalk: 4.1.2
       find-up: 5.0.0
       js-yaml: 4.3.2
+
+  '@fingerprintjs/fingerprintjs@5.3.0': {}
 
   '@hapi/address@5.1.1':
     dependencies:

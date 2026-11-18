@@ -18,6 +18,7 @@
   "dependencies": {
     "@evervault/card-validator": "workspace:*",
     "@evervault/react": "workspace:*",
+    "@fingerprintjs/fingerprintjs": "catalog:",
     "@types/applepayjs": "catalog:",
     "@types/googlepay": "catalog:",
     "fontkit": "^2.0.4",
