@@ -24,6 +24,21 @@ export interface BrowserDetails {
   timeZone: number;
 }
 
+export interface ProfilingRequest {
+  cardNumber: string;
+  /** `deviceId`: 1 to 64 characters, no whitespace. The backend ignores an invalid one. */
+  browser: BrowserDetails & { deviceId?: string };
+  frame: { width: number; height: number };
+}
+
+export interface ProfilingResponse {
+  profilingId: string;
+  methodUrl?: string;
+  threeDSMethodData?: string;
+}
+
+export type ProfilingMethodStatus = "complete" | "timeout";
+
 export type NextAction = BrowserFingerprintNextAction | ChallengeNextAction;
 
 export interface SessionData {
