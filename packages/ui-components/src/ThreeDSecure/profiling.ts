@@ -7,7 +7,13 @@ import type {
 const API = import.meta.env.VITE_API_URL as string;
 
 export class ProfilingError extends Error {
-  /** The HTTP status. 403 means 3DS profiling is off for the app. */
+  /**
+   * The HTTP status. From the backend handlers as they are today:
+   * - 400: the card number is not valid.
+   * - 403: 3DS profiling is off for the app.
+   * - 404: the app is unknown (create), or the profiling record is unknown (update).
+   * - 500: a backend error.
+   */
   status: number;
 
   constructor(status: number) {

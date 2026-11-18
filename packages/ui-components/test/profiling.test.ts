@@ -45,7 +45,9 @@ afterEach(() => {
 
 describe("createProfiling", () => {
   it("posts the card, browser and frame for the app", async () => {
-    fetchMock.mockResolvedValue(jsonResponse({ profilingId: "prof_1" }));
+    fetchMock.mockResolvedValue(
+      jsonResponse({ profilingId: "tdp_0123456789ab" })
+    );
     const { createProfiling } = await importProfiling();
 
     await createProfiling("app_1", request);
@@ -62,7 +64,7 @@ describe("createProfiling", () => {
 
   it("returns the profiling ID and the 3DS Method details", async () => {
     const body = {
-      profilingId: "prof_1",
+      profilingId: "tdp_0123456789ab",
       methodUrl: "https://acs.test/method",
       threeDSMethodData: "eyJ0aHJlZURTU2VydmVyVHJhbnNJRCI6IjEifQ",
     };
@@ -73,11 +75,13 @@ describe("createProfiling", () => {
   });
 
   it("returns only the profiling ID when the card has no 3DS Method", async () => {
-    fetchMock.mockResolvedValue(jsonResponse({ profilingId: "prof_1" }));
+    fetchMock.mockResolvedValue(
+      jsonResponse({ profilingId: "tdp_0123456789ab" })
+    );
     const { createProfiling } = await importProfiling();
 
     await expect(createProfiling("app_1", request)).resolves.toEqual({
-      profilingId: "prof_1",
+      profilingId: "tdp_0123456789ab",
     });
   });
 
@@ -94,7 +98,9 @@ describe("createProfiling", () => {
   });
 
   it("passes the abort signal to fetch", async () => {
-    fetchMock.mockResolvedValue(jsonResponse({ profilingId: "prof_1" }));
+    fetchMock.mockResolvedValue(
+      jsonResponse({ profilingId: "tdp_0123456789ab" })
+    );
     const { createProfiling } = await importProfiling();
     const controller = new AbortController();
 
@@ -126,10 +132,10 @@ describe("reportProfilingMethod", () => {
     fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
     const { reportProfilingMethod } = await importProfiling();
 
-    await reportProfilingMethod("app_1", "prof_1", "timeout");
+    await reportProfilingMethod("app_1", "tdp_0123456789ab", "timeout");
 
     const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe(`${API}/frontend/3ds/profiling/prof_1`);
+    expect(url).toBe(`${API}/frontend/3ds/profiling/tdp_0123456789ab`);
     expect(init?.method).toBe("PATCH");
     expect(init?.headers).toMatchObject({ "X-Evervault-App-Id": "app_1" });
     expect(JSON.parse(init?.body as string)).toEqual({
@@ -142,7 +148,7 @@ describe("reportProfilingMethod", () => {
     const { reportProfilingMethod, ProfilingError } = await importProfiling();
 
     await expect(
-      reportProfilingMethod("app_1", "prof_1", "complete")
+      reportProfilingMethod("app_1", "tdp_0123456789ab", "complete")
     ).rejects.toBeInstanceOf(ProfilingError);
   });
 });

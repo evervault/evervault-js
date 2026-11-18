@@ -28,6 +28,7 @@ export interface ProfilingRequest {
   cardNumber: string;
   /** `deviceId`: 1 to 64 characters, no whitespace. The backend ignores an invalid one. */
   browser: BrowserDetails & { deviceId?: string };
+  /** Whole pixels: the backend reads these as unsigned integers. */
   frame: { width: number; height: number };
 }
 
