@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BrowserFingerprint } from "./BrowserFingerprint";
 import { ChallengeFrame } from "./ChallengeFrame";
+import { defaultFrameSize } from "./frameSize";
 import { ThreeDSecureLoading } from "./Loading";
 import { Overlay } from "./Overlay";
 import { ThreeDSecureConfig } from "./types";
@@ -11,20 +12,12 @@ import {
   useThreeDSMessaging,
 } from "./utilities";
 
-function defaultSize(): { width: string; height: string } {
-  if (window.innerWidth < 500 || window.innerHeight < 600) {
-    return { width: "96vw", height: "calc(100vh - 100px)" };
-  }
-
-  return { width: "500px", height: "600px" };
-}
-
 export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
   const { send, on } = useThreeDSMessaging();
   const container = useRef<HTMLDivElement>(null);
   const [challengeFrameReady, setChallengeFrameReady] = useState(false);
   const { session, refetch } = useSession(container, config.session);
-  const size = config.size ?? defaultSize();
+  const size = config.size ?? defaultFrameSize();
   const [failOnChallenge, setFailOnChallenge] = useState(
     config.failOnChallenge ?? false
   );
