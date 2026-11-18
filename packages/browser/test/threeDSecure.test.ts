@@ -409,26 +409,23 @@ describe("ThreeDSecure with a session that is already complete", () => {
   it.each([
     ["EV_SUCCESS", "success"],
     ["EV_FAILURE", "failure"],
-  ])(
-    "gives %s as %s with no error and no window",
-    async (message, outcome) => {
-      vi.useFakeTimers();
-      server.use(patchHandler([]));
-      const overlay = document.createElement("div");
-      const { tds, frame } = createThreeDSecure();
-      vi.spyOn(frame, "createOverlay").mockReturnValue(overlay);
-      const outcomeHandler = vi.fn();
-      const errorHandler = vi.fn();
-      tds.on(outcome as "success" | "failure", outcomeHandler);
-      tds.on("error", errorHandler);
-      tds.mount();
+  ])("gives %s as %s with no error and no window", async (message, outcome) => {
+    vi.useFakeTimers();
+    server.use(patchHandler([]));
+    const overlay = document.createElement("div");
+    const { tds, frame } = createThreeDSecure();
+    vi.spyOn(frame, "createOverlay").mockReturnValue(overlay);
+    const outcomeHandler = vi.fn();
+    const errorHandler = vi.fn();
+    tds.on(outcome as "success" | "failure", outcomeHandler);
+    tds.on("error", errorHandler);
+    tds.mount();
 
-      lastFrame.trigger(message, null);
+    lastFrame.trigger(message, null);
 
-      await vi.waitFor(() => expect(outcomeHandler).toHaveBeenCalledTimes(1));
-      vi.advanceTimersByTime(1500);
-      expect(errorHandler).not.toHaveBeenCalled();
-      expect(overlay.style.visibility).toBe("hidden");
-    },
-  );
+    await vi.waitFor(() => expect(outcomeHandler).toHaveBeenCalledTimes(1));
+    vi.advanceTimersByTime(1500);
+    expect(errorHandler).not.toHaveBeenCalled();
+    expect(overlay.style.visibility).toBe("hidden");
+  });
 });

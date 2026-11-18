@@ -46,11 +46,11 @@ describe("ThreeDSecure with a session that is already complete", () => {
       fetchMock.mockResolvedValue(
         new Response(JSON.stringify({ status, nextAction: null }), {
           status: 200,
-        }),
+        })
       );
 
       const { container } = render(
-        <ThreeDSecure config={{ session: SESSION, isOverlay: true }} />,
+        <ThreeDSecure config={{ session: SESSION, isOverlay: true }} />
       );
 
       await waitFor(() => expect(sentTypes()).toContain(message));
@@ -59,6 +59,6 @@ describe("ThreeDSecure with a session that is already complete", () => {
       expect(sentTypes()).not.toContain("EV_ERROR");
       expect(sentTypes()).not.toContain("EV_SHOW");
       expect(container.querySelector("iframe")).toBeNull();
-    },
+    }
   );
 });
