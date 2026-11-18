@@ -81,6 +81,30 @@ test.describe("3DS profiling", () => {
     expect(await page.evaluate(() => window.overlayShown)).toBe(false);
     expect(challenged).toBe(false);
   });
+
+  test("a challenge with a profiling ID still succeeds", async ({ page }) => {
+    let succeeded = false;
+
+    await page.exposeFunction("handleSuccess", () => {
+      succeeded = true;
+    });
+
+    const number = "4242424242424242";
+    const profilingId = await getProfilingId(page, number);
+    const session = await createThreeDSSession(number, profilingId);
+
+    await page.evaluate((sessionId) => {
+      const comp = window.evervault.ui.threeDSecure(sessionId);
+      comp.on("success", window.handleSuccess);
+      comp.mount();
+    }, session.id);
+
+    // The Card is also an Evervault frame, so pick the one in the 3DS overlay.
+    const frame = page.frameLocator("[id^='ev-modal-'] iframe[data-evervault]");
+    const acsFrame = frame.frameLocator("iframe[name='challengeFrame']");
+    await acsFrame.locator("input").pressSequentially("111111");
+    await expect.poll(async () => succeeded).toBeTruthy();
+  });
 });
 
 // Mounts a Card with `threeDSProfiling` on, fills the number and waits for
