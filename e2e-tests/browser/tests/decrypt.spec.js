@@ -13,7 +13,7 @@ test("can decrypt with a client decrypt token", async ({ page }) => {
     async ([token, payload]) => {
       return await window.evervault.decrypt(token, payload);
     },
-    [token, payload]
+    [token, payload],
   );
 
   expect(result).toEqual(payload);
@@ -21,7 +21,7 @@ test("can decrypt with a client decrypt token", async ({ page }) => {
 
 async function createClientDecryptToken(payload) {
   const token = btoa(
-    `${process.env.VITE_EV_APP_UUID}:${process.env.EV_API_KEY}`
+    `${process.env.VITE_EV_APP_UUID}:${process.env.EV_API_KEY}`,
   );
 
   const response = await fetch(
@@ -36,7 +36,7 @@ async function createClientDecryptToken(payload) {
         action: "api:decrypt",
         payload,
       }),
-    }
+    },
   );
 
   return response.json();

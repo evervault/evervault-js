@@ -25,7 +25,7 @@ export function ChallengeFrame({ nextAction, onLoad }: ChallengeFrameProps) {
       postedAction.current = nextAction;
       postRedirectFrame(node, nextAction.url, { creq: nextAction.creq });
     },
-    [nextAction.creq, nextAction.url]
+    [nextAction.creq, nextAction.url],
   );
 
   const [loaded, setLoaded] = useState(false);

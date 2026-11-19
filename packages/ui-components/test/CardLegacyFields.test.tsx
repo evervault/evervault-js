@@ -84,7 +84,7 @@ async function observe(options: LegacyOptions) {
   send.mockClear();
 
   const { container, unmount } = render(
-    <Card config={options as CardConfig} />
+    <Card config={options as CardConfig} />,
   );
 
   await settle();
@@ -96,7 +96,7 @@ async function observe(options: LegacyOptions) {
     .join(",");
 
   const evFields = validFields(
-    container.querySelector("fieldset")?.getAttribute("ev-fields") ?? null
+    container.querySelector("fieldset")?.getAttribute("ev-fields") ?? null,
   );
 
   const inputs = Object.fromEntries(
@@ -111,7 +111,7 @@ async function observe(options: LegacyOptions) {
           container.querySelector(`label[for="${input.id}"]`)?.textContent ??
           null,
       },
-    ])
+    ]),
   );
 
   let focusedAfterNumber: string | null = null;
@@ -254,13 +254,13 @@ describe("card fields from ui.card() options", () => {
         }
 
         lines.push(
-          JSON.stringify({ options, observation: observed.observation })
+          JSON.stringify({ options, observation: observed.observation }),
         );
       }
 
       writeFileSync(
         FIXTURE,
-        `${[JSON.stringify(inputs), ...lines].join("\n")}\n`
+        `${[JSON.stringify(inputs), ...lines].join("\n")}\n`,
       );
     }, 120_000);
 

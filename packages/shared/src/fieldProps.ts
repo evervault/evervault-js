@@ -45,13 +45,13 @@ export function fieldProps(node: CardSpecNode): FieldProps {
       .map(([prop, kind, attribute]) => [
         prop,
         PARSE_BY_KIND[kind](node.props[attribute]),
-      ])
+      ]),
   ) as FieldProps;
 }
 
 // The node claiming each input, in declared order: the first of a type wins.
 export function declaredProps(
-  nodes: CardSpecNode[]
+  nodes: CardSpecNode[],
 ): Map<CardInput, FieldProps> {
   const declared = new Map<CardInput, FieldProps>();
 
@@ -78,7 +78,7 @@ export function declaredProps(
 export function fieldAttributes(
   names: readonly string[],
   props: object,
-  fallbacks: object
+  fallbacks: object,
 ): Record<string, string> {
   const values = props as Record<string, unknown>;
   const defaults = fallbacks as Record<string, unknown>;
@@ -92,6 +92,6 @@ export function fieldAttributes(
       if (value === undefined || value === null) return [];
       if (value === true) return [[attribute, ""]];
       return [[attribute, String(value)]];
-    })
+    }),
   );
 }

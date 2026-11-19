@@ -52,19 +52,19 @@ describe("card elements keeping autofocus and spellcheck as attributes where the
 
   it("declares autofocus when autoFocus is true", () => {
     expect(html(<CardNumber autoFocus />)).toBe(
-      '<ev-card-number autofocus=""></ev-card-number>'
+      '<ev-card-number autofocus=""></ev-card-number>',
     );
   });
 
   it("denies autofocus when autoFocus is false", () => {
     expect(html(<CardNumber autoFocus={false} />)).toBe(
-      '<ev-card-number autofocus="false"></ev-card-number>'
+      '<ev-card-number autofocus="false"></ev-card-number>',
     );
   });
 
   it("declares spellcheck when spellCheck is true", () => {
     expect(html(<CardField name="note" spellCheck />)).toBe(
-      '<ev-field name="note" spellcheck=""></ev-field>'
+      '<ev-field name="note" spellcheck=""></ev-field>',
     );
   });
 });
@@ -87,8 +87,8 @@ describe("card elements", () => {
       html(
         <CardRow>
           <CardCvc />
-        </CardRow>
-      )
+        </CardRow>,
+      ),
     ).toBe("<ev-row><ev-card-cvc></ev-card-cvc></ev-row>");
   });
 
@@ -100,10 +100,10 @@ describe("card elements", () => {
           placeholder="1234"
           tooltip="On the front"
           iconPosition="inline-start"
-        />
-      )
+        />,
+      ),
     ).toBe(
-      '<ev-card-number label="Card number" placeholder="1234" tooltip="On the front" iconposition="inline-start"></ev-card-number>'
+      '<ev-card-number label="Card number" placeholder="1234" tooltip="On the front" iconposition="inline-start"></ev-card-number>',
     );
   });
 
@@ -115,27 +115,27 @@ describe("card elements", () => {
           pattern="[A-Za-z ]+"
           autoProgress
           errorMessage="Check the name"
-        />
-      )
+        />,
+      ),
     ).toBe(
-      '<ev-card-holder autoprogress="" errormessage="Check the name" defaultvalue="Jane Doe" pattern="[A-Za-z ]+"></ev-card-holder>'
+      '<ev-card-holder autoprogress="" errormessage="Check the name" defaultvalue="Jane Doe" pattern="[A-Za-z ]+"></ev-card-holder>',
     );
     expect(
-      html(<CardNumber unsupportedBrandMessage="Visa or Mastercard only" />)
+      html(<CardNumber unsupportedBrandMessage="Visa or Mastercard only" />),
     ).toBe(
-      '<ev-card-number unsupportedbrandmessage="Visa or Mastercard only"></ev-card-number>'
+      '<ev-card-number unsupportedbrandmessage="Visa or Mastercard only"></ev-card-number>',
     );
     expect(html(<CardCvc allow3DigitAmex={false} autoProgress={false} />)).toBe(
-      '<ev-card-cvc autoprogress="false" allow3digitamex="false"></ev-card-cvc>'
+      '<ev-card-cvc autoprogress="false" allow3digitamex="false"></ev-card-cvc>',
     );
     expect(html(<CardExpiryMonth errorMessage="Check the month" />)).toBe(
-      '<ev-card-expiry-month errormessage="Check the month"></ev-card-expiry-month>'
+      '<ev-card-expiry-month errormessage="Check the month"></ev-card-expiry-month>',
     );
   });
 
   it("declares a boolean prop set to true and denies one set to false", () => {
     expect(html(<CardCvc redact optional={false} autoComplete={false} />)).toBe(
-      '<ev-card-cvc autocomplete="false" redact="" optional="false"></ev-card-cvc>'
+      '<ev-card-cvc autocomplete="false" redact="" optional="false"></ev-card-cvc>',
     );
   });
 
@@ -151,10 +151,10 @@ describe("card elements", () => {
     const props = { iconPosition: "inline-end", redact: true } as object;
 
     expect(html(<CardCvc {...props} />)).toBe(
-      '<ev-card-cvc redact=""></ev-card-cvc>'
+      '<ev-card-cvc redact=""></ev-card-cvc>',
     );
     expect(html(<CardNumber {...props} />)).toBe(
-      '<ev-card-number iconposition="inline-end"></ev-card-number>'
+      '<ev-card-number iconposition="inline-end"></ev-card-number>',
     );
   });
 
@@ -171,13 +171,13 @@ describe("card elements", () => {
         pattern="[A-Z0-9 ]+"
         errorMessage="Enter a postcode"
         autoProgress
-      />
+      />,
     ).container.firstElementChild;
 
     expect(
       Object.fromEntries(
-        [...(element?.attributes ?? [])].map((a) => [a.name, a.value])
-      )
+        [...(element?.attributes ?? [])].map((a) => [a.name, a.value]),
+      ),
     ).toEqual({
       name: "postcode",
       defaultvalue: "SW1A",

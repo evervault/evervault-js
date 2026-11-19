@@ -34,7 +34,7 @@ export function toSecureOrigin(value: string): string | null {
 
 export function resolveAgentToolsConfig(
   config: AgentToolsConfig | undefined,
-  appId: string
+  appId: string,
 ): AgentToolsFrameConfig | undefined {
   if (!config?.enabled) return undefined;
 
@@ -49,15 +49,15 @@ export function resolveAgentToolsConfig(
     new Set(
       requested
         .map(toSecureOrigin)
-        .filter((origin): origin is string => origin !== null)
-    )
+        .filter((origin): origin is string => origin !== null),
+    ),
   );
 
   if (exposeTo.length === 0) {
     console.warn(
       `agentTools.exposeTo contains no secure origins (${requested.join(
-        ", "
-      )}); the tools will be registered but no page will be able to discover them.`
+        ", ",
+      )}); the tools will be registered but no page will be able to discover them.`,
     );
   }
 

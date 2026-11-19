@@ -45,9 +45,8 @@ vi.mock("../src/ThreeDSecure/deviceId", () => ({
 }));
 
 vi.mock("../src/ThreeDSecure/profiling", async (importOriginal) => {
-  const actual = await importOriginal<
-    typeof import("../src/ThreeDSecure/profiling")
-  >();
+  const actual =
+    await importOriginal<typeof import("../src/ThreeDSecure/profiling")>();
   return {
     ProfilingError: actual.ProfilingError,
     createProfiling: vi.fn(),
@@ -62,10 +61,10 @@ const VISA = "4242424242424242";
 
 function card(
   config: CardConfig = { threeDSProfiling: true },
-  fields: ("number" | "expiry" | "cvc")[] = ["number"]
+  fields: ("number" | "expiry" | "cvc")[] = ["number"],
 ) {
   const { container } = render(
-    <Card config={{ ...config, fields: fields.map((type) => node(type)) }} />
+    <Card config={{ ...config, fields: fields.map((type) => node(type)) }} />,
   );
   return container;
 }
@@ -132,7 +131,7 @@ describe("3DS profiling in the card", () => {
     await userEvent.type(input(container, "number"), VISA);
 
     await waitFor(() =>
-      expect(lastChange()?.threeDSProfilingId).toBe("tdp_0123456789ab")
+      expect(lastChange()?.threeDSProfilingId).toBe("tdp_0123456789ab"),
     );
     expect(lastChange()?.card.number).toBe(`encrypted(${VISA})`);
   });
@@ -142,7 +141,7 @@ describe("3DS profiling in the card", () => {
     const number = input(container, "number");
     await userEvent.type(number, VISA);
     await waitFor(() =>
-      expect(lastChange()?.threeDSProfilingId).toBe("tdp_0123456789ab")
+      expect(lastChange()?.threeDSProfilingId).toBe("tdp_0123456789ab"),
     );
 
     await userEvent.type(number, "{Backspace}");
@@ -159,7 +158,7 @@ describe("3DS profiling in the card", () => {
     ]);
     await userEvent.type(input(container, "number"), VISA);
     await waitFor(() =>
-      expect(lastChange()?.threeDSProfilingId).toBe("tdp_0123456789ab")
+      expect(lastChange()?.threeDSProfilingId).toBe("tdp_0123456789ab"),
     );
     const changes = sent("EV_CHANGE").length;
 
@@ -177,14 +176,14 @@ describe("3DS profiling in the card", () => {
     const container = card();
     await userEvent.type(input(container, "number"), VISA);
     await waitFor(() =>
-      expect(lastChange()?.threeDSProfilingId).toBe("tdp_0123456789ab")
+      expect(lastChange()?.threeDSProfilingId).toBe("tdp_0123456789ab"),
     );
 
     act(() => validate.request());
     await settle();
 
     expect(sent("EV_VALIDATED").at(-1)?.threeDSProfilingId).toBe(
-      "tdp_0123456789ab"
+      "tdp_0123456789ab",
     );
   });
 
@@ -216,18 +215,18 @@ describe("3DS profiling in the card", () => {
         window.dispatchEvent(
           new MessageEvent("message", {
             data: { event: "ev-3ds-trampoline" },
-          })
+          }),
         );
       });
 
       await waitFor(() =>
-        expect(lastChange()?.threeDSProfilingId).toBe("tdp_0123456789ab")
+        expect(lastChange()?.threeDSProfilingId).toBe("tdp_0123456789ab"),
       );
       expect(report).toHaveBeenCalledWith(
         "app_test123",
         "tdp_0123456789ab",
         "complete",
-        expect.any(AbortSignal)
+        expect.any(AbortSignal),
       );
       expect(methodFrame()).toBeNull();
     });

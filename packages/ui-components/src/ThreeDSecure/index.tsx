@@ -19,7 +19,7 @@ export function ThreeDSecure({ config }: { config: ThreeDSecureConfig }) {
   const { session, refetch } = useSession(container, config.session);
   const size = config.size ?? defaultFrameSize();
   const [failOnChallenge, setFailOnChallenge] = useState(
-    config.failOnChallenge ?? false
+    config.failOnChallenge ?? false,
   );
 
   const handleChallengeFrameLoad = useCallback(() => {

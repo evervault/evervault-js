@@ -54,7 +54,7 @@ export function useThreeDSProfiling({
     profilingId: string;
   } | null>(null);
   const [method, setMethod] = useState<BrowserFingerprintNextAction | null>(
-    null
+    null,
   );
   const [stopped, setStopped] = useState(false);
   const pendingMethod = useRef<PendingMethod | null>(null);
@@ -93,7 +93,7 @@ export function useThreeDSProfiling({
             },
             frame: profilingFrameSize(),
           },
-          signal
+          signal,
         );
         if (signal.aborted) return;
 
@@ -148,7 +148,7 @@ export function useThreeDSProfiling({
       pending.app,
       pending.profilingId,
       "complete",
-      pending.signal
+      pending.signal,
     ).then(showId, (error: unknown) => {
       // 404: the backend has no record for this ID, so the ID is useless.
       if (error instanceof ProfilingError && error.status === 404) return;
@@ -168,7 +168,7 @@ export function useThreeDSProfiling({
     // The backend treats a missing update as a timeout,
     // so this request is not awaited, and its errors are ignored.
     reportProfilingMethod(pending.app, pending.profilingId, "timeout").catch(
-      () => undefined
+      () => undefined,
     );
   }, []);
 

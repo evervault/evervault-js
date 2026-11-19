@@ -13,7 +13,7 @@ if (colorScheme) {
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
 
 if (import.meta.env.VITE_TEST_COVERAGE === "true") {
@@ -24,7 +24,7 @@ if (import.meta.env.VITE_TEST_COVERAGE === "true") {
         type: "COVERAGE_REPORT",
         coverage: window.__coverage__,
       },
-      "*"
+      "*",
     );
   });
 
@@ -37,7 +37,7 @@ if (import.meta.env.VITE_TEST_COVERAGE === "true") {
           coverage: window.__coverage__,
           id: event.data.id,
         },
-        "*"
+        "*",
       );
     }
   });

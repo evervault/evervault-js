@@ -39,7 +39,7 @@ interface GooglePayProps {
 }
 
 function isPaymentError(
-  err: unknown
+  err: unknown,
 ): err is google.payments.api.PaymentsError {
   return Boolean((err as google.payments.api.PaymentsError).statusCode);
 }
@@ -49,7 +49,7 @@ function isPaymentError(
  * an error raised from a data change has to name an intent Google accepts.
  */
 function defaultShippingError(
-  data: google.payments.api.IntermediatePaymentData
+  data: google.payments.api.IntermediatePaymentData,
 ): Pick<google.payments.api.PaymentDataError, "reason" | "intent"> {
   return data.callbackTrigger === "SHIPPING_OPTION"
     ? { reason: "SHIPPING_OPTION_INVALID", intent: "SHIPPING_OPTION" }
@@ -62,7 +62,7 @@ function defaultShippingError(
 let dataChangeSequence = 0;
 
 function initialShippingOptionId(
-  shippingOptions: GooglePayConfig["shippingOptions"]
+  shippingOptions: GooglePayConfig["shippingOptions"],
 ): string | null {
   return (
     shippingOptions?.defaultSelectedOptionId ??
@@ -103,7 +103,7 @@ export function GooglePay({ config }: GooglePayProps) {
       let currentShippingAddress: google.payments.api.IntermediateAddress | null =
         null;
       let currentShippingOptionId = initialShippingOptionId(
-        config.shippingOptions
+        config.shippingOptions,
       );
 
       // Google raises this while the sheet is open, and can raise it more than
@@ -125,7 +125,7 @@ export function GooglePay({ config }: GooglePayProps) {
 
           const currentShippingOption =
             currentShippingOptions?.options.find(
-              (option) => option.id === currentShippingOptionId
+              (option) => option.id === currentShippingOptionId,
             ) ?? null;
 
           const update = await new Promise<GooglePayDataChangeResponse>(
@@ -145,7 +145,7 @@ export function GooglePay({ config }: GooglePayProps) {
                 lineItems: currentLineItems,
                 shippingOptions: currentShippingOptions,
               });
-            }
+            },
           );
 
           if (update.error) {
@@ -169,17 +169,17 @@ export function GooglePay({ config }: GooglePayProps) {
             result.newTransactionInfo = buildTransactionInfo(
               config,
               merchant?.name ?? "",
-              { amount: currentAmount, lineItems: currentLineItems }
+              { amount: currentAmount, lineItems: currentLineItems },
             );
           }
 
           if (update.shippingOptions) {
             currentShippingOptions = update.shippingOptions;
             currentShippingOptionId = initialShippingOptionId(
-              currentShippingOptions
+              currentShippingOptions,
             );
             result.newShippingOptionParameters = shippingOptionParameters(
-              currentShippingOptions
+              currentShippingOptions,
             );
           }
 
@@ -192,8 +192,8 @@ export function GooglePay({ config }: GooglePayProps) {
           apiConfig.environment === "staging"
             ? "TEST"
             : appConfig.is_sandbox
-            ? "TEST"
-            : "PRODUCTION",
+              ? "TEST"
+              : "PRODUCTION",
         paymentDataCallbacks: {
           ...(isShippingRequired(config)
             ? { onPaymentDataChanged: handlePaymentDataChanged }
@@ -202,7 +202,7 @@ export function GooglePay({ config }: GooglePayProps) {
             const payload = await exchangePaymentData(
               app,
               data,
-              config.transaction.merchantId
+              config.transaction.merchantId,
             );
 
             if (data.email) {
@@ -232,7 +232,7 @@ export function GooglePay({ config }: GooglePayProps) {
 
             if (data.shippingOptionData) {
               payload.shippingOption = currentShippingOptions?.options.find(
-                (option) => option.id === data.shippingOptionData?.id
+                (option) => option.id === data.shippingOptionData?.id,
               );
             }
 
@@ -293,7 +293,7 @@ export function GooglePay({ config }: GooglePayProps) {
 
         const paymentRequest = buildPaymentRequest(config, merchant);
         const isReadyToPayResponse = await paymentsClient.isReadyToPay(
-          buildIsReadyToPayRequest(config)
+          buildIsReadyToPayRequest(config),
         );
 
         const canPay =
@@ -323,7 +323,7 @@ export function GooglePay({ config }: GooglePayProps) {
             currentShippingOptions = config.shippingOptions;
             currentShippingAddress = null;
             currentShippingOptionId = initialShippingOptionId(
-              config.shippingOptions
+              config.shippingOptions,
             );
 
             try {

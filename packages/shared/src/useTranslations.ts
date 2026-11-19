@@ -3,7 +3,7 @@ import { type TranslationsObject } from "types";
 
 export function useTranslations(
   translations: TranslationsObject,
-  customTranslations: TranslationsObject = {}
+  customTranslations: TranslationsObject = {},
 ) {
   const t = useCallback(
     (key: string): string => {
@@ -11,7 +11,7 @@ export function useTranslations(
       const value = getTranslation(translations, key);
       return custom ?? value ?? key;
     },
-    [customTranslations, translations]
+    [customTranslations, translations],
   );
 
   return { t };
@@ -19,7 +19,7 @@ export function useTranslations(
 
 function getTranslation(
   translations: TranslationsObject,
-  path: string
+  path: string,
 ): string | undefined {
   const keys = path.split(".");
   let value = translations;
