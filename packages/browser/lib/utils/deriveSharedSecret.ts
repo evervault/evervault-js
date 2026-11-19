@@ -8,7 +8,7 @@ import concatUint8Arrays from "./concatUint8Arrays";
 export default async function deriveSharedSecret(
   ecdh: CryptoKeyPair,
   publicKey: string,
-  ephemeralPublicKey: CryptoKey
+  ephemeralPublicKey: CryptoKey,
 ): Promise<ArrayBuffer> {
   // Convert to a P256 `CryptoKey` object
   const importedPublicKey = await window.crypto.subtle.importKey(
@@ -19,7 +19,7 @@ export default async function deriveSharedSecret(
       namedCurve: "P-256",
     },
     true,
-    []
+    [],
   );
   const secret = await window.crypto.subtle.deriveKey(
     {
@@ -32,13 +32,13 @@ export default async function deriveSharedSecret(
       length: 256,
     },
     true,
-    ["encrypt", "decrypt"]
+    ["encrypt", "decrypt"],
   );
 
   // Convert from `CryptoKey` object to an ArrayBuffer
   const exportableEphemeralPublicKey = await window.crypto.subtle.exportKey(
     "raw",
-    ephemeralPublicKey
+    ephemeralPublicKey,
   );
 
   const exportableSecret = await window.crypto.subtle.exportKey("raw", secret);
@@ -55,7 +55,7 @@ export default async function deriveSharedSecret(
     new Uint8Array(exportableSecret),
     new Uint8Array([0x00, 0x00, 0x00, 0x01]),
     P256.encodePublicKey(
-      uint8ArrayToBase64String(new Uint8Array(exportableEphemeralPublicKey))
+      uint8ArrayToBase64String(new Uint8Array(exportableEphemeralPublicKey)),
     ),
   ]);
 

@@ -48,13 +48,13 @@ export function useAgentTools({
     const modelContext = document.modelContext;
     if (!modelContext) {
       console.warn(
-        "Agent tools are enabled but this browser does not expose document.modelContext (WebMCP)."
+        "Agent tools are enabled but this browser does not expose document.modelContext (WebMCP).",
       );
       return undefined;
     }
     if (typeof modelContext.registerTool !== "function") {
       console.warn(
-        "Agent tools are enabled but document.modelContext.registerTool is unavailable; the WebMCP build may be too old."
+        "Agent tools are enabled but document.modelContext.registerTool is unavailable; the WebMCP build may be too old.",
       );
       return undefined;
     }
@@ -81,7 +81,7 @@ export function useAgentTools({
         getStatus: () => buildStatus(latest.current.form.values),
         focusField: (field) => {
           const id = activeInputs.find(
-            (input) => cardFieldWrittenBy(input) === field
+            (input) => cardFieldWrittenBy(input) === field,
           );
           const input = id && document.getElementById(id);
           if (!(input instanceof HTMLInputElement)) {
@@ -98,7 +98,7 @@ export function useAgentTools({
           form.setError(field, validators[field](nextValues));
           return buildStatus(nextValues);
         },
-      }
+      },
     );
 
     const controller = new AbortController();
@@ -108,7 +108,7 @@ export function useAgentTools({
         modelContext.registerTool(tool, {
           signal: controller.signal,
           exposedTo,
-        })
+        }),
       ).catch((error: unknown) => {
         console.warn(`Failed to register agent tool "${tool.name}"`, error);
       });

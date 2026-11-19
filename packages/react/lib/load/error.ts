@@ -13,7 +13,7 @@ export class ScriptLoadError extends Error {
   constructor(
     code: ScriptLoadErrorCode,
     message: string,
-    options?: { cause?: unknown }
+    options?: { cause?: unknown },
   ) {
     super(message, options);
     this.code = code;

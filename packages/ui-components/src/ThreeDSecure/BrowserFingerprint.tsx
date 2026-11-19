@@ -28,7 +28,7 @@ export function BrowserFingerprint({
       postedAction.current = action;
       postRedirectFrame(node, action.url, { threeDSMethodData: action.data });
     },
-    [action.data, action.url]
+    [action.data, action.url],
   );
 
   useEffect(() => {

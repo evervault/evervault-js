@@ -75,7 +75,7 @@ describe("diff", () => {
   it("diffs the children of a row against the row id", () => {
     const ops = diff(
       [row("row", [node("a")])],
-      [row("row", [node("a"), node("b")])]
+      [row("row", [node("a"), node("b")])],
     );
 
     expect(ops).toEqual([
@@ -86,7 +86,7 @@ describe("diff", () => {
   it("moves a node between rows against its new row", () => {
     const ops = diff(
       [row("one", [node("a")]), row("two", [])],
-      [row("one", []), row("two", [node("a")])]
+      [row("one", []), row("two", [node("a")])],
     );
 
     expect(ops).toEqual([{ op: "move", id: "a", parentId: "two", index: 0 }]);
@@ -235,7 +235,7 @@ describe("diff and applyPatch", () => {
   it("patches every removal in after the last node has moved clear", () => {
     const ops = diff(
       [row("r", [node("a")]), node("b")],
-      [node("b"), node("a")]
+      [node("b"), node("a")],
     );
 
     const firstRemove = ops.findIndex((op) => op.op === "remove");

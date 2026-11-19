@@ -37,7 +37,7 @@ export function buildFieldStatuses(
   fields: CardField[],
   values: CardForm,
   validators: CardFormValidators,
-  t: (key: string) => string
+  t: (key: string) => string,
 ): CardFieldStatus[] {
   return fields.map((field) => {
     const error = validators[field](values) ?? null;
@@ -71,14 +71,14 @@ export function normalizeFieldValue(field: CardField, value: string): string {
 
 export function fieldNotAvailableMessage(
   productName: string,
-  field: string
+  field: string,
 ): string {
   return `${productName} does not show a "${field}" field.`;
 }
 
 export function invalidValueMessage(
   productName: string,
-  field: CardField
+  field: CardField,
 ): string {
   return `${productName} expects a string value for the "${field}" field.`;
 }
@@ -86,7 +86,7 @@ export function invalidValueMessage(
 function assertField(
   productName: string,
   fields: CardField[],
-  field: unknown
+  field: unknown,
 ): CardField {
   if (typeof field !== "string" || !fields.includes(field as CardField)) {
     throw new Error(fieldNotAvailableMessage(productName, String(field)));
@@ -97,7 +97,7 @@ function assertField(
 export function buildAgentTools(
   config: AgentToolsFrameConfig,
   fields: CardField[],
-  handlers: AgentToolHandlers
+  handlers: AgentToolHandlers,
 ): ModelContextTool[] {
   const { namePrefix, productName } = config;
 
@@ -127,7 +127,7 @@ export function buildAgentTools(
         const field = assertField(
           productName,
           fields,
-          (input as { field?: unknown } | null)?.field
+          (input as { field?: unknown } | null)?.field,
         );
         return handlers.focusField(field);
       },

@@ -34,7 +34,7 @@ it("Ignores the card number if it is not included in the fields", async () => {
       validate: jest.fn(),
       register: jest.fn(),
     },
-    ["name", "expiry", "cvc"]
+    ["name", "expiry", "cvc"],
   );
 
   expect(result.card.number).toBeNull();
@@ -65,12 +65,12 @@ it("Ignores the name if it is not included in the fields", async () => {
       validate: jest.fn(),
       register: jest.fn(),
     },
-    ["number", "expiry", "cvc"]
+    ["number", "expiry", "cvc"],
   );
 
   expect(result.card.name).toBeFalsy();
   expect(result.card.number).toBe(
-    `ev:${sampleFormPayload.number.replaceAll(" ", "")}`
+    `ev:${sampleFormPayload.number.replaceAll(" ", "")}`,
   );
   expect(result.card.cvc).toBe(`ev:${sampleFormPayload.cvc}`);
   expect(result.isValid).toBe(true);
@@ -99,12 +99,12 @@ it("Ignores the cvc if it is not included in the fields", async () => {
       validate: jest.fn(),
       register: jest.fn(),
     },
-    ["number", "expiry", "name"]
+    ["number", "expiry", "name"],
   );
 
   expect(result.card.name).toBe(sampleFormPayload.name);
   expect(result.card.number).toBe(
-    `ev:${sampleFormPayload.number.replaceAll(" ", "")}`
+    `ev:${sampleFormPayload.number.replaceAll(" ", "")}`,
   );
   expect(result.card.cvc).toBeFalsy();
   expect(result.isValid).toBe(true);

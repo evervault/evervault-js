@@ -31,7 +31,7 @@ export interface CardProps {
 
 function Card({ initialValue, config, children, onChange, style }: CardProps) {
   const [registeredFields, setRegisteredFields] = useState<Set<CardField>>(
-    new Set()
+    new Set(),
   );
 
   const form = useForm<CardForm>({
@@ -105,7 +105,7 @@ function Card({ initialValue, config, children, onChange, style }: CardProps) {
         const cardData = await changePayload(
           encrypt,
           formState,
-          Array.from(registeredFields)
+          Array.from(registeredFields),
         );
         if (onChange) {
           onChange(cardData);

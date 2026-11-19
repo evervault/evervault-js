@@ -18,7 +18,7 @@ if (process.env.VITE_TEST_COVERAGE === "true") {
       exclude: ["node_modules", "src/Form/**"],
       extension: [".js", ".ts", ".jsx", ".tsx"],
       requireEnv: false,
-    })
+    }),
   );
 }
 

@@ -8,7 +8,7 @@ export function getDefaultAppSDKConfig(): AppSDKConfig {
 
 export async function getAppSDKConfig(
   app: string,
-  apiUrl: string
+  apiUrl: string,
 ): Promise<AppSDKConfig> {
   try {
     const response = await fetch(`${apiUrl}/frontend/sdk/config`, {

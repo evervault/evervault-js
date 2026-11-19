@@ -31,10 +31,10 @@ describe("settingForInput", () => {
   it("reads the customer's fields as one value or each by name", () => {
     expect(settingForInput({ fields: true }, "field-postcode")).toBe(true);
     expect(
-      settingForInput({ fields: { postcode: false } }, "field-postcode")
+      settingForInput({ fields: { postcode: false } }, "field-postcode"),
     ).toBe(false);
     expect(settingForInput({ fields: { email: true } }, "field-postcode")).toBe(
-      undefined
+      undefined,
     );
   });
 
@@ -53,7 +53,7 @@ describe("applyCardSettingsToFields", () => {
         defaultValues: { fields: { postcode: "SW1A" } },
         autoComplete: { fields: false },
         autoProgress: { fields: { postcode: true } },
-      }
+      },
     );
 
     expect(settled.props).toEqual({
@@ -70,7 +70,7 @@ describe("applyCardSettingsToFields", () => {
   it("keeps a setting the field declares itself", () => {
     const [settled] = applyCardSettingsToFields(
       [field("f", { name: "postcode", label: "Mine" })],
-      { translations: { fields: { postcode: { label: "Card's" } } } }
+      { translations: { fields: { postcode: { label: "Card's" } } } },
     );
 
     expect(settled.props.label).toBe("Mine");
@@ -79,7 +79,7 @@ describe("applyCardSettingsToFields", () => {
   it("reaches custom fields inside rows", () => {
     const [settled] = applyCardSettingsToFields(
       [row("r", [field("f", { name: "postcode" })])],
-      { autoProgress: true }
+      { autoProgress: true },
     );
 
     expect(settled.children?.[0].props.autoprogress).toBe("");
@@ -89,7 +89,7 @@ describe("applyCardSettingsToFields", () => {
     const nodes = [node("number"), field("f", { name: "postcode" })];
 
     expect(
-      applyCardSettingsToFields(nodes, { autoProgress: { number: true } })
+      applyCardSettingsToFields(nodes, { autoProgress: { number: true } }),
     ).toBe(nodes);
   });
 });

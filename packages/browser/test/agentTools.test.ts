@@ -19,14 +19,14 @@ describe("resolveAgentToolsConfig", () => {
   it("returns undefined when not enabled", () => {
     expect(resolveAgentToolsConfig(undefined, "app_x")).toBeUndefined();
     expect(
-      resolveAgentToolsConfig({ enabled: false, namePrefix: "acme" }, "app_x")
+      resolveAgentToolsConfig({ enabled: false, namePrefix: "acme" }, "app_x"),
     ).toBeUndefined();
   });
 
   it("slugifies the configured prefix", () => {
     const resolved = resolveAgentToolsConfig(
       { enabled: true, namePrefix: "Acme Pay!" },
-      "app_x"
+      "app_x",
     );
     expect(resolved?.namePrefix).toBe("acme-pay");
   });
@@ -47,7 +47,7 @@ describe("resolveAgentToolsConfig", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const resolved = resolveAgentToolsConfig(
       { enabled: true, exposeTo: ["http://merchant.example", "nope"] },
-      "app_x"
+      "app_x",
     );
     expect(resolved?.exposeTo).toEqual([]);
     expect(warn).toHaveBeenCalledTimes(1);
@@ -67,7 +67,7 @@ describe("resolveAgentToolsConfig", () => {
           "https://merchant.example",
         ],
       },
-      "app_x"
+      "app_x",
     );
     expect(resolved?.exposeTo).toEqual(["https://merchant.example"]);
   });
@@ -78,7 +78,7 @@ describe("resolveAgentToolsConfig", () => {
         enabled: true,
         exposeTo: ["https://shop.example/", "https://shop.example"],
       },
-      "app_x"
+      "app_x",
     );
     expect(resolved?.exposeTo).toEqual(["https://shop.example"]);
   });
@@ -95,7 +95,7 @@ describe("helpers", () => {
     expect(toSecureOrigin("https://a.example/")).toBe("https://a.example");
     expect(toSecureOrigin("HTTPS://A.Example:443/")).toBe("https://a.example");
     expect(toSecureOrigin("http://localhost:3000")).toBe(
-      "http://localhost:3000"
+      "http://localhost:3000",
     );
     expect(toSecureOrigin("http://a.example")).toBeNull();
     expect(toSecureOrigin("https://a.example/checkout")).toBeNull();

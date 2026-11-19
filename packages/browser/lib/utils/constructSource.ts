@@ -15,7 +15,7 @@ interface ConstructSourceConfig {
 export default function constructSource(
   config: ConstructSourceConfig,
   isReveal: boolean,
-  settings?: InputSettings | RevealSettings
+  settings?: InputSettings | RevealSettings,
 ) {
   let settingsQuery = "";
 

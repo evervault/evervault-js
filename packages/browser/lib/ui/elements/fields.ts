@@ -19,7 +19,7 @@ class FieldElement extends ElementBase {
     const { reflections } = this.constructor as typeof FieldElement;
     adoptProperties(
       this,
-      reflections.map(([property]) => property)
+      reflections.map(([property]) => property),
     );
   }
 }
@@ -27,7 +27,7 @@ class FieldElement extends ElementBase {
 // An element's reflections from its attributes in the shared table, each one
 // checked against the element's own properties.
 function reflectionsOf<E extends Element>(
-  attributes: readonly (readonly [keyof E & string, ReflectionKind])[]
+  attributes: readonly (readonly [keyof E & string, ReflectionKind])[],
 ): Reflection<E>[] {
   return attributes.map(([property, kind]) => [property, kind]);
 }
@@ -41,7 +41,7 @@ export class EvCardHolder extends EvCardFieldElement {
   declare pattern?: string;
 
   static readonly reflections = reflectionsOf<EvCardHolder>(
-    FIELD_ATTRIBUTES.name
+    FIELD_ATTRIBUTES.name,
   );
 }
 
@@ -52,7 +52,7 @@ export class EvCardNumber extends EvCardFieldElement {
   declare unsupportedBrandMessage?: string;
 
   static readonly reflections = reflectionsOf<EvCardNumber>(
-    FIELD_ATTRIBUTES.number
+    FIELD_ATTRIBUTES.number,
   );
 }
 
@@ -60,7 +60,7 @@ reflect(EvCardNumber.prototype, EvCardNumber.reflections);
 
 export class EvCardExpiry extends EvCardFieldElement {
   static readonly reflections = reflectionsOf<EvCardExpiry>(
-    FIELD_ATTRIBUTES.expiry
+    FIELD_ATTRIBUTES.expiry,
   );
 }
 
@@ -68,7 +68,7 @@ reflect(EvCardExpiry.prototype, EvCardExpiry.reflections);
 
 export class EvCardExpiryMonth extends EvCardFieldElement {
   static readonly reflections = reflectionsOf<EvCardExpiryMonth>(
-    FIELD_ATTRIBUTES.expiryMonth
+    FIELD_ATTRIBUTES.expiryMonth,
   );
 }
 
@@ -76,7 +76,7 @@ reflect(EvCardExpiryMonth.prototype, EvCardExpiryMonth.reflections);
 
 export class EvCardExpiryYear extends EvCardFieldElement {
   static readonly reflections = reflectionsOf<EvCardExpiryYear>(
-    FIELD_ATTRIBUTES.expiryYear
+    FIELD_ATTRIBUTES.expiryYear,
   );
 }
 
