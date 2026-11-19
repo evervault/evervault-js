@@ -28,7 +28,7 @@ async function send(
   path: string,
   method: "POST" | "PATCH",
   body: object,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<Response> {
   const response = await fetch(`${API}${path}`, {
     method,
@@ -48,14 +48,14 @@ async function send(
 export async function createProfiling(
   app: string,
   request: ProfilingRequest,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<ProfilingResponse> {
   const response = await send(
     app,
     "/frontend/3ds/profiling",
     "POST",
     request,
-    signal
+    signal,
   );
   return (await response.json()) as ProfilingResponse;
 }
@@ -65,13 +65,13 @@ export async function reportProfilingMethod(
   app: string,
   profilingId: string,
   status: ProfilingMethodStatus,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<void> {
   await send(
     app,
     `/frontend/3ds/profiling/${encodeURIComponent(profilingId)}`,
     "PATCH",
     { browserFingerprint: status },
-    signal
+    signal,
   );
 }

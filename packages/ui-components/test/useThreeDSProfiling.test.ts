@@ -14,9 +14,8 @@ import { useThreeDSProfiling } from "../src/ThreeDSecure/useThreeDSProfiling";
 
 vi.mock("../src/ThreeDSecure/deviceId", () => ({ getDeviceId: vi.fn() }));
 vi.mock("../src/ThreeDSecure/profiling", async (importOriginal) => {
-  const actual = await importOriginal<
-    typeof import("../src/ThreeDSecure/profiling")
-  >();
+  const actual =
+    await importOriginal<typeof import("../src/ThreeDSecure/profiling")>();
   return {
     ProfilingError: actual.ProfilingError,
     createProfiling: vi.fn(),
@@ -129,7 +128,7 @@ describe("useThreeDSProfiling", () => {
     const { result } = renderProfiling();
 
     await waitFor(() =>
-      expect(result.current.profilingId).toBe("tdp_0123456789ab")
+      expect(result.current.profilingId).toBe("tdp_0123456789ab"),
     );
     expect(result.current.method).toBeNull();
   });
@@ -147,7 +146,7 @@ describe("useThreeDSProfiling", () => {
           type: "browser-fingerprint",
           url: withMethod.methodUrl,
           data: withMethod.threeDSMethodData,
-        })
+        }),
       );
       expect(result.current.profilingId).toBeNull();
     });
@@ -164,7 +163,7 @@ describe("useThreeDSProfiling", () => {
         "app_1",
         "tdp_0123456789ab",
         "complete",
-        expect.any(AbortSignal)
+        expect.any(AbortSignal),
       );
       expect(result.current.method).toBeNull();
       expect(result.current.profilingId).toBeNull();
@@ -182,7 +181,7 @@ describe("useThreeDSProfiling", () => {
       act(() => result.current.onMethodComplete());
 
       await waitFor(() =>
-        expect(result.current.profilingId).toBe("tdp_0123456789ab")
+        expect(result.current.profilingId).toBe("tdp_0123456789ab"),
       );
     });
 
@@ -208,7 +207,7 @@ describe("useThreeDSProfiling", () => {
       expect(report).toHaveBeenCalledWith(
         "app_1",
         "tdp_0123456789ab",
-        "timeout"
+        "timeout",
       );
       expect(result.current.method).toBeNull();
       expect(result.current.profilingId).toBe("tdp_0123456789ab");
@@ -281,7 +280,7 @@ describe("useThreeDSProfiling", () => {
 
       expect(oldSignal?.aborted).toBe(true);
       await waitFor(() =>
-        expect(result.current.profilingId).toBe("tdp_new000000000")
+        expect(result.current.profilingId).toBe("tdp_new000000000"),
       );
       expect(create.mock.calls[1][1].cardNumber).toBe(MASTERCARD);
     });
@@ -327,7 +326,7 @@ describe("useThreeDSProfiling", () => {
       rerender({ enabled: true, app: "app_1", cardNumber: MASTERCARD });
 
       await waitFor(() =>
-        expect(result.current.profilingId).toBe("tdp_0123456789ab")
+        expect(result.current.profilingId).toBe("tdp_0123456789ab"),
       );
       expect(create).toHaveBeenCalledTimes(2);
     });

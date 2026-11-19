@@ -46,7 +46,7 @@ afterEach(() => {
 describe("createProfiling", () => {
   it("posts the card, browser and frame for the app", async () => {
     fetchMock.mockResolvedValue(
-      jsonResponse({ profilingId: "tdp_0123456789ab" })
+      jsonResponse({ profilingId: "tdp_0123456789ab" }),
     );
     const { createProfiling } = await importProfiling();
 
@@ -76,7 +76,7 @@ describe("createProfiling", () => {
 
   it("returns only the profiling ID when the card has no 3DS Method", async () => {
     fetchMock.mockResolvedValue(
-      jsonResponse({ profilingId: "tdp_0123456789ab" })
+      jsonResponse({ profilingId: "tdp_0123456789ab" }),
     );
     const { createProfiling } = await importProfiling();
 
@@ -90,7 +90,7 @@ describe("createProfiling", () => {
     const { createProfiling, ProfilingError } = await importProfiling();
 
     const error: unknown = await createProfiling("app_1", request).catch(
-      (e: unknown) => e
+      (e: unknown) => e,
     );
 
     expect(error).toBeInstanceOf(ProfilingError);
@@ -99,7 +99,7 @@ describe("createProfiling", () => {
 
   it("passes the abort signal to fetch", async () => {
     fetchMock.mockResolvedValue(
-      jsonResponse({ profilingId: "tdp_0123456789ab" })
+      jsonResponse({ profilingId: "tdp_0123456789ab" }),
     );
     const { createProfiling } = await importProfiling();
     const controller = new AbortController();
@@ -148,7 +148,7 @@ describe("reportProfilingMethod", () => {
     const { reportProfilingMethod, ProfilingError } = await importProfiling();
 
     await expect(
-      reportProfilingMethod("app_1", "tdp_0123456789ab", "complete")
+      reportProfilingMethod("app_1", "tdp_0123456789ab", "complete"),
     ).rejects.toBeInstanceOf(ProfilingError);
   });
 });
