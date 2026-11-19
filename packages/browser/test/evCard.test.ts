@@ -553,7 +553,7 @@ describe("<ev-card> attributes", () => {
     await flush();
 
     expect(frame().update).toHaveBeenCalledWith(
-      expect.objectContaining({ config: { threeDSProfiling: true } })
+      expect.objectContaining({ config: { threeDSProfiling: true } }),
     );
   });
 

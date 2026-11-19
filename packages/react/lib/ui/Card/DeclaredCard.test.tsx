@@ -437,7 +437,7 @@ describe("Card with declared fields", () => {
       <Card threeDSProfiling>
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
@@ -451,7 +451,7 @@ describe("Card with declared fields", () => {
       <Card>
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
     evCard().assigned = [];
@@ -459,12 +459,12 @@ describe("Card with declared fields", () => {
     rerender(
       <Card threeDSProfiling>
         <Card.Number />
-      </Card>
+      </Card>,
     );
 
     expect(evCard().assigned).toEqual(["threeDSProfiling"]);
     expect(
-      (evCard() as unknown as Record<string, unknown>).threeDSProfiling
+      (evCard() as unknown as Record<string, unknown>).threeDSProfiling,
     ).toBe(true);
   });
 
