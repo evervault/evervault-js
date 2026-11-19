@@ -97,7 +97,8 @@ export interface CardPayload {
   isValid: boolean;
   isComplete: boolean;
   /**
-   * Pass as `profilingId` when creating a 3DS session. Null until profiling
+   * Pass as the `profilingId` query parameter when you create a 3DS session:
+   * `POST /payments/3ds-sessions?profilingId=...`. Null until profiling
    * finishes, and always null without the `threeDSProfiling` option.
    */
   threeDSProfilingId: string | null;
