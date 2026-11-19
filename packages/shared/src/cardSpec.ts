@@ -5,10 +5,7 @@ export type CustomFieldInputId = `field-${string}`;
 // The inputs a card can render: the fields, the two halves of a split expiry,
 // which write the one expiry between them, and the customer's own fields.
 export type CardInput =
-  | CardField
-  | "expiry-month"
-  | "expiry-year"
-  | CustomFieldInputId;
+  CardField | "expiry-month" | "expiry-year" | CustomFieldInputId;
 
 const CUSTOM_FIELD_PREFIX = "field-";
 
@@ -17,7 +14,7 @@ export function customFieldInputId(name: string): CustomFieldInputId {
 }
 
 export function isCustomFieldInput(
-  input: CardInput
+  input: CardInput,
 ): input is CustomFieldInputId {
   return input.startsWith(CUSTOM_FIELD_PREFIX);
 }

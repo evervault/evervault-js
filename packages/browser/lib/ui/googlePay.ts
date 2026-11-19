@@ -32,7 +32,7 @@ export default class GooglePay {
   constructor(
     client: EvervaultClient,
     transaction: Transaction,
-    options: GooglePayOptions
+    options: GooglePayOptions,
   ) {
     validateShippingOptions(options.shippingOptions);
     validateTotalPriceStatus(options.totalPriceStatus);
@@ -54,7 +54,7 @@ export default class GooglePay {
     this.#frame.on("EV_ERROR", (error) => {
       this.#events.dispatch(
         "error",
-        error?.message ?? "An unexpected error occurred."
+        error?.message ?? "An unexpected error occurred.",
       );
     });
 
@@ -82,7 +82,7 @@ export default class GooglePay {
     this.#frame.on("EV_GOOGLE_PAY_DATA_CHANGE", async (payload) => {
       this.#frame.send(
         "EV_GOOGLE_PAY_DATA_CHANGE_RESULT",
-        await this.#handleDataChange(payload)
+        await this.#handleDataChange(payload),
       );
     });
 
@@ -113,7 +113,7 @@ export default class GooglePay {
       const callbackResult = this.#runDataChangeCallback(payload);
       const update = await resolveWithin(
         callbackResult,
-        SHIPPING_CALLBACK_TIMEOUT_MS
+        SHIPPING_CALLBACK_TIMEOUT_MS,
       );
       validateShippingOptions(update?.shippingOptions);
       return { ...(update ?? {}), id: payload.id };
@@ -129,7 +129,7 @@ export default class GooglePay {
   }
 
   #runDataChangeCallback(
-    payload: GooglePayDataChangeRequest
+    payload: GooglePayDataChangeRequest,
   ):
     | GooglePayDataChangeUpdate
     | void
@@ -147,14 +147,14 @@ export default class GooglePay {
       if (!payload.selectedShippingOption) return undefined;
       return this.#options.onShippingOptionChange?.(
         payload.selectedShippingOption,
-        context
+        context,
       );
     }
 
     if (!payload.shippingAddress) return undefined;
     return this.#options.onShippingAddressChange?.(
       payload.shippingAddress,
-      context
+      context,
     );
   }
 
@@ -210,13 +210,13 @@ export default class GooglePay {
 
 async function resolveWithin<T>(
   value: T | Promise<T>,
-  timeoutMs: number
+  timeoutMs: number,
 ): Promise<T> {
   let timeout: ReturnType<typeof setTimeout> | undefined;
   const expired = new Promise<never>((_, reject) => {
     timeout = setTimeout(
       () => reject(new Error("Google Pay shipping callback timed out")),
-      timeoutMs
+      timeoutMs,
     );
   });
 
@@ -233,22 +233,22 @@ async function resolveWithin<T>(
  * shipping implementation.
  */
 function validateTotalPriceStatus(
-  totalPriceStatus: GooglePayOptions["totalPriceStatus"]
+  totalPriceStatus: GooglePayOptions["totalPriceStatus"],
 ) {
   if ((totalPriceStatus as string) === "NOT_CURRENTLY_KNOWN") {
     throw new Error(
-      "Google Pay totalPriceStatus 'NOT_CURRENTLY_KNOWN' is not supported. Use 'ESTIMATED' or 'FINAL' instead."
+      "Google Pay totalPriceStatus 'NOT_CURRENTLY_KNOWN' is not supported. Use 'ESTIMATED' or 'FINAL' instead.",
     );
   }
 }
 
 function validateShippingOptions(
-  shippingOptions: GooglePayOptions["shippingOptions"]
+  shippingOptions: GooglePayOptions["shippingOptions"],
 ) {
   if (!shippingOptions) return;
   if (shippingOptions.options.length === 0) {
     throw new Error(
-      "Google Pay shippingOptions must contain at least one option"
+      "Google Pay shippingOptions must contain at least one option",
     );
   }
 
@@ -271,7 +271,7 @@ function validateShippingOptions(
     !ids.has(shippingOptions.defaultSelectedOptionId)
   ) {
     throw new Error(
-      "Google Pay defaultSelectedOptionId must match a shipping option id"
+      "Google Pay defaultSelectedOptionId must match a shipping option id",
     );
   }
 }

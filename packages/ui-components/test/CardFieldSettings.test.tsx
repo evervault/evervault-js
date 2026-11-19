@@ -84,7 +84,7 @@ describe("autoprogress for each field", () => {
   it("lets a field turn off the auto-progress the card turns on", async () => {
     const container = card(
       [node("number", "number", { autoprogress: "false" }), node("cvc")],
-      { autoProgress: true }
+      { autoProgress: true },
     );
 
     await userEvent.type(input(container, "number"), NUMBER);
@@ -96,7 +96,7 @@ describe("autoprogress for each field", () => {
   it("advances from an expiry half the card sets for the whole expiry", async () => {
     const container = card(
       [row("row", [node("expiryMonth"), node("expiryYear")]), node("cvc")],
-      { autoProgress: { expiry: true } }
+      { autoProgress: { expiry: true } },
     );
 
     await userEvent.type(input(container, "expiry-month"), "12");
@@ -107,7 +107,7 @@ describe("autoprogress for each field", () => {
   it("gives an expiry half's own setting precedence over the expiry's", async () => {
     const container = card(
       [row("row", [node("expiryMonth"), node("expiryYear")]), node("cvc")],
-      { autoProgress: { expiry: true, expiryMonth: false } }
+      { autoProgress: { expiry: true, expiryMonth: false } },
     );
 
     await userEvent.type(input(container, "expiry-month"), "12");
@@ -139,7 +139,7 @@ describe("autoprogress for each field", () => {
   it("never advances from a custom field without a maximum length", async () => {
     const container = card(
       [field("postcode", { name: "postcode" }), node("number")],
-      { autoProgress: true }
+      { autoProgress: true },
     );
 
     const postcode = input(container, "field-postcode");
@@ -164,7 +164,7 @@ describe("autocomplete for each field", () => {
   it("turns autocomplete off for an expiry half the card names", () => {
     const container = card(
       [row("row", [node("expiryMonth"), node("expiryYear")])],
-      { autoComplete: { expiryMonth: false } }
+      { autoComplete: { expiryMonth: false } },
     );
 
     expect(input(container, "expiry-month").autocomplete).toBe("off");
@@ -182,7 +182,7 @@ describe("error messages", () => {
     fireEvent.blur(input(container, "number"));
 
     await waitFor(() =>
-      expect(errorOf(container, "number")).toBe("Check the number")
+      expect(errorOf(container, "number")).toBe("Check the number"),
     );
   });
 
@@ -193,14 +193,14 @@ describe("error messages", () => {
           unsupportedbrandmessage: "We take Mastercard only",
         }),
       ],
-      { acceptedBrands: ["mastercard"] }
+      { acceptedBrands: ["mastercard"] },
     );
 
     await userEvent.type(input(container, "number"), NUMBER);
     fireEvent.blur(input(container, "number"));
 
     await waitFor(() =>
-      expect(errorOf(container, "number")).toBe("We take Mastercard only")
+      expect(errorOf(container, "number")).toBe("We take Mastercard only"),
     );
   });
 
@@ -219,7 +219,7 @@ describe("error messages", () => {
     fireEvent.blur(input(container, "expiry-year"));
 
     await waitFor(() =>
-      expect(errorOf(container, "expiry-year")).toBe("Check the date")
+      expect(errorOf(container, "expiry-year")).toBe("Check the date"),
     );
   });
 
@@ -234,7 +234,7 @@ describe("error messages", () => {
     fireEvent.blur(input(container, "field-postcode"));
 
     await waitFor(() =>
-      expect(errorOf(container, "field-postcode")).toBe("Postcode, please")
+      expect(errorOf(container, "field-postcode")).toBe("Postcode, please"),
     );
   });
 });
@@ -252,7 +252,7 @@ describe("validation for each field", () => {
     fireEvent.blur(input(container, "name"));
 
     await waitFor(() =>
-      expect(errorOf(container, "name")).toBe("Letters only")
+      expect(errorOf(container, "name")).toBe("Letters only"),
     );
   });
 
@@ -278,7 +278,7 @@ describe("validation for each field", () => {
     fireEvent.blur(input(container, "field-postcode"));
 
     await waitFor(() =>
-      expect(errorOf(container, "field-postcode")).toBeTruthy()
+      expect(errorOf(container, "field-postcode")).toBeTruthy(),
     );
   });
 });
@@ -293,7 +293,7 @@ describe("custom field settings from the card", () => {
     });
 
     expect(
-      container.querySelector("label[for=field-postcode]")?.textContent
+      container.querySelector("label[for=field-postcode]")?.textContent,
     ).toBe("Postcode");
     expect(input(container, "field-postcode").placeholder).toBe("SW1A 1AA");
     expect(input(container, "field-postcode").value).toBe("EC1A");

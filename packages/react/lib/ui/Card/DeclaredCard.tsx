@@ -38,7 +38,10 @@ const SETTINGS = Object.keys({
   agentTools: true,
   preload: true,
   threeDSProfiling: true,
-} satisfies Record<SettingProp, true>) as SettingProp[] satisfies (keyof EvCard)[];
+} satisfies Record<
+  SettingProp,
+  true
+>) as SettingProp[] satisfies (keyof EvCard)[];
 
 // Keyed by prop so that a prop left out fails to compile.
 const EVENTS = {
@@ -57,7 +60,7 @@ const EVENTS = {
 // A card rendered as the `<ev-card>` element, from its declared children.
 export const DeclaredCard = React.forwardRef(function DeclaredCard(
   props: CardProps,
-  forwardedRef: React.ForwardedRef<CardRef>
+  forwardedRef: React.ForwardedRef<CardRef>,
 ) {
   const ref = useRef<EvCard | null>(null);
   const evervault = useEvervault();
@@ -80,7 +83,7 @@ export const DeclaredCard = React.forwardRef(function DeclaredCard(
         ref.current?.show?.();
       },
     }),
-    []
+    [],
   );
 
   // Before mounting, so the card mounts with them; only a changed one is set,
@@ -116,8 +119,7 @@ export const DeclaredCard = React.forwardRef(function DeclaredCard(
         if (!(dispatched instanceof CustomEvent)) return;
 
         const callback = latest.current[prop as EventProp] as
-          | ((detail?: unknown) => void)
-          | undefined;
+          ((detail?: unknown) => void) | undefined;
         callback?.(dispatched.detail ?? undefined);
       };
 
@@ -157,7 +159,7 @@ export const DeclaredCard = React.forwardRef(function DeclaredCard(
   const { autoComplete, redactCVC, allow3DigitAmexCVC } = props;
   const deprecated = useMemo(
     () => ({ autoComplete, redactCVC, allow3DigitAmexCVC }),
-    [autoComplete, redactCVC, allow3DigitAmexCVC]
+    [autoComplete, redactCVC, allow3DigitAmexCVC],
   );
 
   return (

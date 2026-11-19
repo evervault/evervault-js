@@ -146,9 +146,9 @@ describe("customFieldError", () => {
       const value = type === "number" ? "123" : "2026-01-01";
 
       expect(
-        error({ type, pattern: "x", minlength: "20", maxlength: "2" }, value)
+        error({ type, pattern: "x", minlength: "20", maxlength: "2" }, value),
       ).toBeUndefined();
-    }
+    },
   );
 
   it("ignores min, max and step on a text field", () => {

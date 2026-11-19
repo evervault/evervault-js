@@ -41,7 +41,7 @@ export function getBin(cardNumber: string): string {
 
 function matchesRangeOrPrefix(
   cardNumber: string,
-  range: number | [number, number]
+  range: number | [number, number],
 ): boolean {
   if (Array.isArray(range)) {
     if (range[0] && range[1]) {
@@ -56,7 +56,7 @@ function matchesRangeOrPrefix(
 
 export function validateNumber(
   cardNumber: string,
-  options?: CardNumberValidationOptions
+  options?: CardNumberValidationOptions,
 ): CardNumberValidationResult {
   // Remove all spaces from the card number
   const sanitizedCardNumber = String(cardNumber).replace(/\s/g, "");
@@ -75,13 +75,13 @@ export function validateNumber(
   // Filter out brands where the card number does not match any of the ranges
   const defaultCardBrands = defaultBrands.filter((brand) => {
     return brand.numberValidationRules.ranges.some((range) =>
-      matchesRangeOrPrefix(sanitizedCardNumber, range)
+      matchesRangeOrPrefix(sanitizedCardNumber, range),
     );
   });
 
   const customBrands = (options?.customBrands ?? []).filter((brand) => {
     return brand.numberValidationRules.ranges.some((range) =>
-      matchesRangeOrPrefix(sanitizedCardNumber, range)
+      matchesRangeOrPrefix(sanitizedCardNumber, range),
     );
   });
 
@@ -126,7 +126,7 @@ export function validateNumber(
 export function validateCVC(
   cvc: string,
   cardNumber?: string,
-  options?: CardNumberValidationOptions
+  options?: CardNumberValidationOptions,
 ): CardCVCValidationResult {
   // Check if the CVC only contains numbers with 3 or 4 digits
   if (!/^\d{3,4}$/.test(cvc)) {

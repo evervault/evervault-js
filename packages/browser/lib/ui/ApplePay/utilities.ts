@@ -52,13 +52,13 @@ export type BuildSessionOptions = {
     disbursementDetails?: PaymentDetailsInit;
   };
   onPaymentMethodChange?: (
-    newPaymentMethod: PaymentMethodUpdate
+    newPaymentMethod: PaymentMethodUpdate,
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   onShippingAddressChange?: (
-    newAddress: ShippingAddress
+    newAddress: ShippingAddress,
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   onShippingMethodSelected?: (
-    shippingMethod: ApplePayShippingMethod
+    shippingMethod: ApplePayShippingMethod,
   ) => Promise<{ amount: number; lineItems?: TransactionLineItem[] }>;
   supportsCouponCode?: boolean;
   couponCode?: string;
@@ -85,7 +85,7 @@ function isCouponCodeUpdate(details: unknown): details is CouponCodeUpdate {
 
 function applyCouponFields(
   data: Record<string, unknown>,
-  config: BuildSessionOptions
+  config: BuildSessionOptions,
 ) {
   if (!config.supportsCouponCode) return;
   data.supportsCouponCode = true;
@@ -94,7 +94,7 @@ function applyCouponFields(
 
 function applyContactFields(
   data: Record<string, unknown>,
-  config: BuildSessionOptions
+  config: BuildSessionOptions,
 ) {
   if (config.billingContact) {
     data.billingContact = config.billingContact;
@@ -110,19 +110,19 @@ function applyContactFields(
  */
 function assertShippingMethodsAllowed(
   tx: TransactionDetailsWithDomain,
-  config: BuildSessionOptions
+  config: BuildSessionOptions,
 ) {
   if (!config.shippingMethods?.length) return;
 
   if (tx.type !== "payment") {
     throw new Error(
-      "Apple Pay shipping methods are only supported for one-off payment transactions"
+      "Apple Pay shipping methods are only supported for one-off payment transactions",
     );
   }
 }
 
 function mapPaymentRequestShippingType(
-  shippingType?: ApplePayShippingType
+  shippingType?: ApplePayShippingType,
 ): "shipping" | "delivery" | "pickup" {
   if (shippingType === "delivery") return "delivery";
   if (shippingType === "storePickup" || shippingType === "servicePickup") {
@@ -133,7 +133,7 @@ function mapPaymentRequestShippingType(
 
 function mapShippingMethodsToPaymentOptions(
   methods: ApplePayShippingMethod[],
-  currency: string
+  currency: string,
 ): PaymentShippingOption[] {
   const selectedIndexes = methods
     .map((method, index) => (method.selected ? index : -1))
@@ -142,7 +142,7 @@ function mapShippingMethodsToPaymentOptions(
   if (selectedIndexes.length > 1) {
     console.warn(
       "[Evervault Apple Pay] Multiple shippingMethods have selected: true; " +
-        "only the first will be treated as selected."
+        "only the first will be treated as selected.",
     );
   }
 
@@ -167,7 +167,7 @@ function mapShippingMethodsToPaymentOptions(
 
 function resolveSelectedShippingMethod(
   shippingOptionId: string | null | undefined,
-  methods: ApplePayShippingMethod[]
+  methods: ApplePayShippingMethod[],
 ): ApplePayShippingMethod | undefined {
   if (!methods.length) return undefined;
   if (shippingOptionId) {
@@ -184,7 +184,7 @@ function resolveSelectedShippingMethod(
  */
 function resolveGoodsAmount(
   tx: TransactionDetailsWithDomain,
-  methods: ApplePayShippingMethod[]
+  methods: ApplePayShippingMethod[],
 ): number {
   if (!methods.length) return tx.amount;
   const initial = methods.find((method) => method.selected) ?? methods[0];
@@ -194,21 +194,21 @@ function resolveGoodsAmount(
 function withUpdatedShippingSelection(
   methods: ApplePayShippingMethod[],
   selectedId: string,
-  currency: string
+  currency: string,
 ): PaymentShippingOption[] {
   return mapShippingMethodsToPaymentOptions(
     methods.map((method) => ({
       ...method,
       selected: method.id === selectedId,
     })),
-    currency
+    currency,
   );
 }
 
 function resolveShippingOptionsForUpdate(
   config: BuildSessionOptions,
   currency: string,
-  selectedId: string | null | undefined
+  selectedId: string | null | undefined,
 ): PaymentShippingOption[] | undefined {
   const methods = config.shippingMethods;
   if (!methods?.length) return undefined;
@@ -223,7 +223,7 @@ function resolveShippingOptionsForUpdate(
 function buildInternalShippingMethodUpdate(
   selected: ApplePayShippingMethod,
   config: BuildSessionOptions,
-  tx: TransactionDetailsWithDomain
+  tx: TransactionDetailsWithDomain,
 ): { amount: number; lineItems?: TransactionLineItem[] } {
   const methods = config.shippingMethods ?? [];
   const goodsAmount = resolveGoodsAmount(tx, methods);
@@ -232,7 +232,7 @@ function buildInternalShippingMethodUpdate(
   const methodLabels = new Set(methods.map((method) => method.label));
   const originalLineItems = tx.lineItems ?? [];
   const baseLineItems = originalLineItems.filter(
-    (item) => !methodLabels.has(item.label)
+    (item) => !methodLabels.has(item.label),
   );
   const removedCount = originalLineItems.length - baseLineItems.length;
 
@@ -246,7 +246,7 @@ function buildInternalShippingMethodUpdate(
         `replace exactly one line item matching a shippingMethods[].label, but removed ${removedCount}. ` +
         `Ensure an initial line item uses the same label as the selected shipping method` +
         (expectedLabel ? ` (e.g. "${expectedLabel}")` : "") +
-        ". Prefer onShippingMethodSelected to control line items explicitly."
+        ". Prefer onShippingMethodSelected to control line items explicitly.",
     );
   }
 
@@ -276,7 +276,7 @@ function assertBase64ApplicationData(applicationData: string) {
 
 function applyRequestPassthroughFields(
   data: Record<string, unknown>,
-  config: BuildSessionOptions
+  config: BuildSessionOptions,
 ) {
   if (config.applicationData !== undefined) {
     assertBase64ApplicationData(config.applicationData);
@@ -289,7 +289,7 @@ function applyRequestPassthroughFields(
 
 function mapLineItemsToDisplayItems(
   lineItems: TransactionLineItem[] | undefined,
-  currency: string
+  currency: string,
 ): PaymentItem[] {
   return (lineItems ?? []).map((item) => ({
     label: item.label,
@@ -307,7 +307,7 @@ function mapLineItemsToDisplayItems(
  * unavailable (e.g. unit tests / non-Safari), matching the previous hardcoded default.
  */
 export function resolveApplePayVersion(
-  maxVersion = APPLE_PAY_MAX_VERSION
+  maxVersion = APPLE_PAY_MAX_VERSION,
 ): number {
   if (
     typeof ApplePaySession === "undefined" ||
@@ -327,17 +327,17 @@ export function resolveApplePayVersion(
 
 function buildApplePayMethodData(
   config: BuildSessionOptions,
-  countryCode: string
+  countryCode: string,
 ): PaymentMethodData[] {
   const data: Record<string, unknown> = {
     version: resolveApplePayVersion(),
     merchantIdentifier: resolveMerchantIdentifier(
       config.transaction.merchantId,
-      config.appleMerchantId
+      config.appleMerchantId,
     ),
     merchantCapabilities: ["supports3DS"],
     supportedNetworks: config.allowedCardNetworks?.map((network) =>
-      network.toLowerCase()
+      network.toLowerCase(),
     ) || ["visa", "masterCard", "amex", "discover"],
     countryCode,
   };
@@ -355,13 +355,13 @@ function buildApplePayMethodData(
 
 export function resolveMerchantIdentifier(
   evervaultMerchantId: string,
-  appleMerchantId?: string
+  appleMerchantId?: string,
 ): string {
   return appleMerchantId ?? `merchant.com.evervault.${evervaultMerchantId}`;
 }
 
 export function resolveDisbursementMerchantCapabilities(
-  tx: DisbursementTransactionDetails
+  tx: DisbursementTransactionDetails,
 ): ApplePayMerchantCapability[] {
   if (tx.merchantCapabilities?.length) {
     return tx.merchantCapabilities;
@@ -377,7 +377,7 @@ export function resolveDisbursementMerchantCapabilities(
 }
 
 export function mapTransactionType(
-  type: TransactionDetails["type"]
+  type: TransactionDetails["type"],
 ): ApplePayTransactionType {
   switch (type) {
     case "payment":
@@ -391,13 +391,13 @@ export function mapTransactionType(
 
 export async function fetchSessionMerchant(
   applePay: ApplePayButton,
-  merchantId: string
+  merchantId: string,
 ): Promise<MerchantDetail> {
   const [merchant, appConfig] = await Promise.all([
     getMerchant(applePay, merchantId),
     getAppSDKConfig(
       applePay.client.config.appId,
-      applePay.client.config.http.apiUrl
+      applePay.client.config.http.apiUrl,
     ),
   ]);
 
@@ -419,7 +419,7 @@ export async function fetchSessionMerchant(
 export function buildSession(
   applePay: ApplePayButton,
   config: BuildSessionOptions,
-  merchant: MerchantDetail
+  merchant: MerchantDetail,
 ): ApplePayPaymentRequest {
   const { transaction: tx } = config;
   assertShippingMethodsAllowed(tx, config);
@@ -444,7 +444,7 @@ export function buildSession(
     const merchantSessionPromise = await validateMerchant(
       applePay,
       event.validationURL,
-      tx
+      tx,
     );
     event.complete(merchantSessionPromise.sessionData);
   };
@@ -473,8 +473,8 @@ export function buildSession(
             config,
             tx,
             merchant,
-            activeShippingOptionId
-          )
+            activeShippingOptionId,
+          ),
         );
         return;
       }
@@ -494,8 +494,8 @@ export function buildSession(
           config,
           tx,
           merchant,
-          selectedId
-        )
+          selectedId,
+        ),
       );
       return;
     }
@@ -535,8 +535,8 @@ export function buildSession(
             config,
             tx,
             merchant,
-            activeShippingOptionId
-          )
+            activeShippingOptionId,
+          ),
         );
       }
       return event.updateWith({});
@@ -547,7 +547,7 @@ export function buildSession(
         methodDetails as PaymentMethodUpdate,
         config,
         tx,
-        merchant
+        merchant,
       );
       return event.updateWith(updates);
     }
@@ -565,11 +565,11 @@ async function createPaymentUpdate(
   },
   tx: TransactionDetailsWithDomain,
   merchant: MerchantDetail,
-  shippingOptions?: PaymentShippingOption[]
+  shippingOptions?: PaymentShippingOption[],
 ): Promise<ApplePayPaymentDetailsUpdate> {
   const displayItems = mapLineItemsToDisplayItems(
     updatedTransactionConfig.lineItems,
-    tx.currency
+    tx.currency,
   );
   const total = {
     label: tx.priceLabel ?? merchant.name,
@@ -590,21 +590,20 @@ async function updatePaymentRequest(
   config: BuildSessionOptions,
   tx: TransactionDetailsWithDomain,
   merchant: MerchantDetail,
-  selectedShippingOptionId?: string | null
+  selectedShippingOptionId?: string | null,
 ): Promise<ApplePayPaymentDetailsUpdate> {
-  const updatedTransactionConfig = await config.onShippingAddressChange!(
-    newAddress
-  );
+  const updatedTransactionConfig =
+    await config.onShippingAddressChange!(newAddress);
   const shippingOptions = resolveShippingOptionsForUpdate(
     config,
     tx.currency,
-    selectedShippingOptionId
+    selectedShippingOptionId,
   );
   return createPaymentUpdate(
     updatedTransactionConfig,
     tx,
     merchant,
-    shippingOptions
+    shippingOptions,
   );
 }
 
@@ -612,11 +611,10 @@ async function updatePaymentMethod(
   newMethod: PaymentMethodUpdate,
   config: BuildSessionOptions,
   tx: TransactionDetailsWithDomain,
-  merchant: MerchantDetail
+  merchant: MerchantDetail,
 ): Promise<ApplePayPaymentDetailsUpdate> {
-  const updatedTransactionConfig = await config.onPaymentMethodChange!(
-    newMethod
-  );
+  const updatedTransactionConfig =
+    await config.onPaymentMethodChange!(newMethod);
   return createPaymentUpdate(updatedTransactionConfig, tx, merchant);
 }
 
@@ -624,7 +622,7 @@ async function updateShippingMethod(
   shippingOptionId: string | null,
   config: BuildSessionOptions,
   tx: TransactionDetailsWithDomain,
-  merchant: MerchantDetail
+  merchant: MerchantDetail,
 ): Promise<ApplePayPaymentDetailsUpdate> {
   const methods = config.shippingMethods ?? [];
   const selected = resolveSelectedShippingMethod(shippingOptionId, methods);
@@ -636,18 +634,17 @@ async function updateShippingMethod(
   const shippingOptions = withUpdatedShippingSelection(
     methods,
     selected.id,
-    tx.currency
+    tx.currency,
   );
 
   if (config.onShippingMethodSelected) {
-    const updatedTransactionConfig = await config.onShippingMethodSelected(
-      selected
-    );
+    const updatedTransactionConfig =
+      await config.onShippingMethodSelected(selected);
     return createPaymentUpdate(
       updatedTransactionConfig,
       tx,
       merchant,
-      shippingOptions
+      shippingOptions,
     );
   }
 
@@ -655,7 +652,7 @@ async function updateShippingMethod(
     buildInternalShippingMethodUpdate(selected, config, tx),
     tx,
     merchant,
-    shippingOptions
+    shippingOptions,
   );
 }
 
@@ -664,19 +661,19 @@ async function updateCouponCode(
   config: BuildSessionOptions,
   tx: TransactionDetailsWithDomain,
   merchant: MerchantDetail,
-  selectedShippingOptionId?: string | null
+  selectedShippingOptionId?: string | null,
 ): Promise<ApplePayPaymentDetailsUpdate> {
   const result = await config.onCouponCodeChange!(couponCode);
   const shippingOptions = resolveShippingOptionsForUpdate(
     config,
     tx.currency,
-    selectedShippingOptionId
+    selectedShippingOptionId,
   );
   const update = await createPaymentUpdate(
     result,
     tx,
     merchant,
-    shippingOptions
+    shippingOptions,
   );
 
   if (result.error) {
@@ -696,7 +693,7 @@ async function updateCouponCode(
  */
 export function buildSessionDetails(
   merchant: MerchantDetail,
-  config: BuildSessionOptions
+  config: BuildSessionOptions,
 ): PaymentDetailsInit {
   const { transaction: tx } = config;
 
@@ -714,7 +711,7 @@ export function buildSessionDetails(
 function buildPaymentDetails(
   merchant: MerchantDetail,
   config: BuildSessionOptions,
-  tx: PaymentTransactionDetails
+  tx: PaymentTransactionDetails,
 ): ApplePayPaymentDetailsInit {
   const lineItems = mapLineItemsToDisplayItems(tx.lineItems, tx.currency);
   const shippingOptions = config.shippingMethods?.length
@@ -736,7 +733,7 @@ function buildPaymentDetails(
 function buildPaymentSession(
   merchant: MerchantDetail,
   config: BuildSessionOptions,
-  tx: PaymentTransactionDetails
+  tx: PaymentTransactionDetails,
 ) {
   const paymentMethodData = buildApplePayMethodData(config, tx.country);
   const requestShipping =
@@ -760,7 +757,7 @@ function buildPaymentSession(
     paymentOverrides.paymentMethodData || paymentMethodData,
     buildPaymentDetails(merchant, config, tx),
     // @ts-expect-error - apple overrides the payment request
-    paymentOptions
+    paymentOptions,
   );
 
   return request;
@@ -771,7 +768,7 @@ type NormalizedRecurringInterval = "minute" | "hour" | "day" | "month" | "year";
 
 function normalizeRecurringInterval(
   unit?: RecurringPaymentIntervalUnit,
-  count?: number
+  count?: number,
 ): {
   recurringPaymentIntervalUnit?: NormalizedRecurringInterval;
   recurringPaymentIntervalCount?: number;
@@ -794,7 +791,7 @@ function normalizeRecurringInterval(
 function buildRecurringDetails(
   merchant: MerchantDetail,
   config: BuildSessionOptions,
-  tx: RecurringTransactionDetails
+  tx: RecurringTransactionDetails,
 ): PaymentDetailsInit {
   const lineItems = mapLineItemsToDisplayItems(tx.lineItems, tx.currency);
 
@@ -818,7 +815,7 @@ function buildRecurringDetails(
                 tx.regularBilling.recurringPaymentStartDate,
               ...normalizeRecurringInterval(
                 tx.regularBilling.recurringPaymentIntervalUnit,
-                tx.regularBilling.recurringPaymentIntervalCount
+                tx.regularBilling.recurringPaymentIntervalCount,
               ),
             },
             trialBilling: tx.trialBilling
@@ -844,7 +841,7 @@ function buildRecurringDetails(
 function buildRecurringSession(
   merchant: MerchantDetail,
   config: BuildSessionOptions,
-  tx: RecurringTransactionDetails
+  tx: RecurringTransactionDetails,
 ) {
   const paymentMethodData = buildApplePayMethodData(config, tx.country);
 
@@ -863,7 +860,7 @@ function buildRecurringSession(
     paymentOverrides.paymentMethodData || paymentMethodData,
     buildRecurringDetails(merchant, config, tx),
     // @ts-expect-error - apple overrides the payment request
-    paymentOptions
+    paymentOptions,
   );
 
   return request;
@@ -872,7 +869,7 @@ function buildRecurringSession(
 function buildDisbursementDetails(
   merchant: MerchantDetail,
   config: BuildSessionOptions,
-  tx: DisbursementTransactionDetails
+  tx: DisbursementTransactionDetails,
 ): PaymentDetailsInit {
   const lineItems =
     tx.lineItems?.map((item) => ({
@@ -909,7 +906,7 @@ function buildDisbursementDetails(
                     if (field === "address") {
                       return "postalAddress";
                     } else return field;
-                  }
+                  },
                 ),
               }
             : {},
@@ -946,7 +943,7 @@ function buildDisbursementDetails(
 function buildDisbursementSession(
   merchant: MerchantDetail,
   config: BuildSessionOptions,
-  tx: DisbursementTransactionDetails
+  tx: DisbursementTransactionDetails,
 ) {
   const merchantCapabilities = resolveDisbursementMerchantCapabilities(tx);
 
@@ -956,7 +953,7 @@ function buildDisbursementSession(
     version: resolveApplePayVersion(),
     merchantIdentifier: resolveMerchantIdentifier(
       config.transaction.merchantId,
-      config.appleMerchantId
+      config.appleMerchantId,
     ),
     merchantCapabilities,
     supportedNetworks: config.allowedCardNetworks,
@@ -977,7 +974,7 @@ function buildDisbursementSession(
     paymentMethodData,
     buildDisbursementDetails(merchant, config, tx),
     // @ts-expect-error - apple overrides the payment request
-    paymentOptions
+    paymentOptions,
   );
 
   return request;
@@ -986,7 +983,7 @@ function buildDisbursementSession(
 async function validateMerchant(
   applePay: ApplePayButton,
   validationUrl: string,
-  tx: TransactionDetailsWithDomain
+  tx: TransactionDetailsWithDomain,
 ): Promise<ValidateMerchantResponse> {
   const app = applePay.client.config.appId;
   const apiURL = applePay.client.config.http.apiUrl;
@@ -1004,7 +1001,7 @@ async function validateMerchant(
         merchantUuid: tx.merchantId,
         domain: tx.domain,
       }),
-    }
+    },
   );
 
   return response.json();
@@ -1012,7 +1009,7 @@ async function validateMerchant(
 
 async function getMerchant(
   applePay: ApplePayButton,
-  id: string
+  id: string,
 ): Promise<MerchantDetail | undefined> {
   const app = applePay.client.config.appId;
   const apiURL = applePay.client.config.http.apiUrl;
@@ -1027,7 +1024,7 @@ async function getMerchant(
   if (!response.ok) {
     console.error(
       `Failed to fetch merchant details for ${id}`,
-      response.status
+      response.status,
     );
     return undefined;
   }

@@ -3,7 +3,7 @@ import type { CardSpecNode } from "types";
 export function node(
   type: CardSpecNode["type"],
   id: string = type,
-  props: Record<string, string> = {}
+  props: Record<string, string> = {},
 ): CardSpecNode {
   return { type, id, props };
 }

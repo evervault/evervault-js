@@ -10,12 +10,12 @@ export interface LoadScriptOptions {
 
 export function loadScript(
   url: string,
-  options?: LoadScriptOptions
+  options?: LoadScriptOptions,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     // Find or create the script element
     let script = document.querySelector<HTMLScriptElement>(
-      `script[src="${url}"]`
+      `script[src="${url}"]`,
     );
     if (!script) {
       script = document.createElement("script");
@@ -25,8 +25,8 @@ export function loadScript(
         reject(
           new ScriptLoadError(
             "head_or_body_not_found",
-            "Expected document.body not to be null. Evervault.js requires a <body> element."
-          )
+            "Expected document.body not to be null. Evervault.js requires a <body> element.",
+          ),
         );
         return;
       }
@@ -43,7 +43,7 @@ export function loadScript(
         clearTimeout(timeout);
         resolve();
       },
-      { once: true }
+      { once: true },
     );
 
     // Reject the promise if the script load fails
@@ -57,11 +57,11 @@ export function loadScript(
             "Failed to load Evervault.js. See the cause for more details.",
             {
               cause: event.error,
-            }
-          )
+            },
+          ),
         );
       },
-      { once: true }
+      { once: true },
     );
 
     script.src = url;
@@ -72,8 +72,8 @@ export function loadScript(
         reject(
           new ScriptLoadError(
             "timed_out",
-            `Failed to load Evervault.js after ${options.timeout}ms.`
-          )
+            `Failed to load Evervault.js after ${options.timeout}ms.`,
+          ),
         );
       }, options.timeout);
     }

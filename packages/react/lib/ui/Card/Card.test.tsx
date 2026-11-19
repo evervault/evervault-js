@@ -24,7 +24,10 @@ describe("Card", () => {
     await settle();
 
     expect(evervault.ui.card).toHaveBeenCalledWith(
-      expect.objectContaining({ fields: ["number", "cvc"], autoProgress: true })
+      expect.objectContaining({
+        fields: ["number", "cvc"],
+        autoProgress: true,
+      }),
     );
     expect(card.mount).toHaveBeenCalledOnce();
     expect(FakeEvCard.cards).toHaveLength(0);
@@ -49,7 +52,7 @@ describe("Card", () => {
     await settle();
 
     expect(evervault.ui.card).toHaveBeenCalledWith(
-      expect.objectContaining({ fields: ["number"], redactCVC: true })
+      expect.objectContaining({ fields: ["number"], redactCVC: true }),
     );
   });
 
@@ -66,7 +69,7 @@ describe("Card", () => {
         </Card.Row>
         <Card.Field name="postcode" required />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
@@ -79,7 +82,7 @@ describe("Card", () => {
         '<ev-card-cvc redact=""></ev-card-cvc>' +
         "</ev-row>" +
         '<ev-field name="postcode" required=""></ev-field>' +
-        "</ev-card>"
+        "</ev-card>",
     );
     expect(evervault.ui.card).not.toHaveBeenCalled();
   });
@@ -104,12 +107,12 @@ describe("Card", () => {
       <Card fields={["number", "expiry"]}>
         <Card.Cvc />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
 
     expect(container.innerHTML).toBe(
-      "<ev-card><ev-card-cvc></ev-card-cvc></ev-card>"
+      "<ev-card><ev-card-cvc></ev-card-cvc></ev-card>",
     );
     expect(evervault.ui.card).not.toHaveBeenCalled();
   });
@@ -121,7 +124,7 @@ describe("Card", () => {
       <Card>
         <Card.Number />
       </Card>,
-      { wrapper }
+      { wrapper },
     );
     await settle();
     const card = evCard();

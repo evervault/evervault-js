@@ -32,7 +32,7 @@ async function injectScript(): Promise<void> {
 
     if (!document.head) {
       throw new Error(
-        "Expected document.head not to be null. Evervault.js requires a <head> element."
+        "Expected document.head not to be null. Evervault.js requires a <head> element.",
       );
     }
 
@@ -59,7 +59,7 @@ async function load(): Promise<EvervaultConstructor> {
 export async function loadEvervault(
   team: string,
   app: string,
-  config?: CustomConfig
+  config?: CustomConfig,
 ): Promise<EvervaultInstance> {
   const Client = await load();
   return new Client(team, app, config);

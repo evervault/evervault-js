@@ -11,25 +11,25 @@ describe("expiryError", () => {
     expect(expiryError([node("number"), node("cvc")])).toBeNull();
     expect(expiryError([node("expiry")])).toBeNull();
     expect(
-      expiryError([node("expiryMonth"), node("cvc"), node("expiryYear")])
+      expiryError([node("expiryMonth"), node("cvc"), node("expiryYear")]),
     ).toBeNull();
   });
 
   it("refuses a month without a year", () => {
     expect(expiryError([node("expiryMonth")])).toBe(
-      loneExpiryHalf("expiryMonth")
+      loneExpiryHalf("expiryMonth"),
     );
   });
 
   it("refuses a year without a month", () => {
     expect(expiryError([row("row", [node("expiryYear")])])).toBe(
-      loneExpiryHalf("expiryYear")
+      loneExpiryHalf("expiryYear"),
     );
   });
 
   it("refuses the combined field alongside a half", () => {
     expect(
-      expiryError([node("expiry"), node("expiryMonth"), node("expiryYear")])
+      expiryError([node("expiry"), node("expiryMonth"), node("expiryYear")]),
     ).toBe(COMBINED_EXPIRY_WITH_HALF);
   });
 });

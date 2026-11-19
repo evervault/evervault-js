@@ -15,17 +15,17 @@ export default function Http(
   config: HttpConfig,
   teamId: string,
   appId: string,
-  context: SdkContext
+  context: SdkContext,
 ) {
   if (window == null) {
     throw new errors.InitializationError(
-      "`window` object not found. You cannot run this SDK outside of a browser environment."
+      "`window` object not found. You cannot run this SDK outside of a browser environment.",
     );
   }
 
   if (!("fetch" in window)) {
     throw new errors.InitializationError(
-      "Your browser is outdated and does not support window.fetch(). Please upgrade it."
+      "Your browser is outdated and does not support window.fetch(). Please upgrade it.",
     );
   }
 
@@ -33,7 +33,7 @@ export default function Http(
     try {
       const keyEndpoint = new URL(
         `${teamId}/apps/${appId}?context=${context}`,
-        config.keysUrl
+        config.keysUrl,
       );
 
       const response = await fetch(keyEndpoint, {
@@ -54,14 +54,14 @@ export default function Http(
     } catch (err) {
       throw new errors.CageKeyError(
         "An error occurred while retrieving the apps key",
-        { cause: err }
+        { cause: err },
       );
     }
   }
 
   async function decryptWithToken<T>(
     token: string,
-    data: T
+    data: T,
   ): Promise<{ value: T }> {
     try {
       const response = await fetch(`${config.apiUrl}/decrypt`, {
@@ -82,7 +82,7 @@ export default function Http(
     } catch (err) {
       throw new errors.DecryptError(
         "An error occurred while decrypting the data",
-        { cause: err }
+        { cause: err },
       );
     }
   }

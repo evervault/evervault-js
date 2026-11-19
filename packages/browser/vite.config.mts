@@ -28,7 +28,7 @@ if (generateCoverage) {
       extension: [".js", ".ts"],
       requireEnv: false,
       forceBuildInstrument: true,
-    })
+    }),
   );
 }
 

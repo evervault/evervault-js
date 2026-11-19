@@ -29,7 +29,7 @@ class SessionError extends Error {
 export async function getBrowserSession(
   app: string,
   id: string,
-  payload: object
+  payload: object,
 ): Promise<SessionData> {
   const response = await fetch(`${API}/frontend/3ds/browser-sessions/${id}`, {
     method: "PATCH",
@@ -44,13 +44,13 @@ export async function getBrowserSession(
     if (response.status === 400) {
       throw new SessionError(
         "session-complete",
-        "The session has already been completed (either successfully or unsuccessfully). Therefore, rendering the 3DS screen is not required."
+        "The session has already been completed (either successfully or unsuccessfully). Therefore, rendering the 3DS screen is not required.",
       );
     }
 
     throw new SessionError(
       "session-not-found",
-      "Failed to fetch 3DS Session. Please ensure you are passing a valid 3DS Session ID."
+      "Failed to fetch 3DS Session. Please ensure you are passing a valid 3DS Session ID.",
     );
   }
 
@@ -71,7 +71,7 @@ interface UseSessionReturn {
 
 export function useSession(
   container: RefObject<HTMLDivElement | null>,
-  id: string
+  id: string,
 ): UseSessionReturn {
   const initialized = useRef(false);
   const { app } = useSearchParams();
@@ -97,7 +97,7 @@ export function useSession(
         }
       }
     },
-    [app, id, send]
+    [app, id, send],
   );
 
   useEffect(() => {
@@ -121,7 +121,7 @@ export function useSession(
 export function postRedirectFrame(
   frame: HTMLIFrameElement,
   url: string,
-  data: Record<string, string>
+  data: Record<string, string>,
 ) {
   const form = document.createElement("form");
   form.target = frame.name;
@@ -141,19 +141,19 @@ export function postRedirectFrame(
 }
 
 export function isTrampolineMessage(
-  message: MessageEvent
+  message: MessageEvent,
 ): message is TrampolineMessage {
   return (message as TrampolineMessage).data?.event === "ev-3ds-trampoline";
 }
 
 export function isChallengeAction(
-  action?: NextAction | null
+  action?: NextAction | null,
 ): action is ChallengeNextAction {
   return action?.type === "challenge";
 }
 
 export function isBrowserFingerprintAction(
-  action?: NextAction | null
+  action?: NextAction | null,
 ): action is BrowserFingerprintNextAction {
   return action?.type === "browser-fingerprint";
 }

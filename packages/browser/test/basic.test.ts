@@ -20,7 +20,7 @@ describe("customConfig", () => {
       {
         publicKey:
           "BDeIKmwjqB35+tnMzQFEvXIvM2kyK6DX75NBEhSZxCR5CQZYnh1fwWsXMEqqKihmEGfMX0+EDHtmZNP/TK7mqMc=",
-      }
+      },
     );
     const encryptedString = await ev.encrypt("Big Secret");
     assert(encryptedStringRegex.test(encryptedString));
@@ -33,13 +33,13 @@ describe("Resolving SDK Context", () => {
     assert(
       getContext(
         "https://inputs.evervault.com",
-        "https://inputs.evervault.com"
-      ) === "inputs"
+        "https://inputs.evervault.com",
+      ) === "inputs",
     );
     // SDK on a non-inputs iFrame should always resolve `default` context
     assert(
       getContext("https://app.acme.com", "https://inputs.evervault.com") ===
-        "default"
+        "default",
     );
   });
 });

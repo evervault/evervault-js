@@ -36,7 +36,7 @@ describe("Card from its options", () => {
     await settle();
 
     expect(evervault.ui.card).toHaveBeenCalledWith(
-      expect.objectContaining({ threeDSProfiling: true })
+      expect.objectContaining({ threeDSProfiling: true }),
     );
   });
 
@@ -50,7 +50,7 @@ describe("Card from its options", () => {
     await settle();
 
     expect(card.update).toHaveBeenLastCalledWith(
-      expect.objectContaining({ threeDSProfiling: true })
+      expect.objectContaining({ threeDSProfiling: true }),
     );
   });
 

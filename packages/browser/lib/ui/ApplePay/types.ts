@@ -107,10 +107,7 @@ export interface ShippingAddress {
  * (storePickup / servicePickup → "pickup" on the Payment Request bridge).
  */
 export type ApplePayShippingType =
-  | "shipping"
-  | "delivery"
-  | "storePickup"
-  | "servicePickup";
+  "shipping" | "delivery" | "storePickup" | "servicePickup";
 
 /**
  * A shipping method the customer can pick on the Apple Pay sheet.
@@ -184,8 +181,7 @@ export interface CouponCodeUpdate {
 
 /** Maps to ApplePayErrorCode values for coupon validation on the sheet. */
 export type ApplePayCouponCodeErrorCode =
-  | "couponCodeInvalid"
-  | "couponCodeExpired";
+  "couponCodeInvalid" | "couponCodeExpired";
 
 export type CouponCodeChangeResult = {
   amount: number;

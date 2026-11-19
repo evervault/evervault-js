@@ -14,7 +14,7 @@ interface ManifestChunk {
 type Manifest = Record<string, ManifestChunk>;
 
 function preloadRequestedComponent(
-  manifest: Record<string, Record<string, string>>
+  manifest: Record<string, Record<string, string>>,
 ) {
   const component = new URLSearchParams(location.search).get("component");
   const files = component ? manifest[component] : undefined;
@@ -65,7 +65,7 @@ export function componentPreload() {
       } catch (cause) {
         throw new Error(
           `vite-plugin-component-preload: could not read build manifest at ${manifestPath}. Is "build.manifest: true" set?`,
-          { cause }
+          { cause },
         );
       }
 
@@ -75,28 +75,28 @@ export function componentPreload() {
 
       const staticPreloads = new Set(
         [...doc.querySelectorAll('link[rel="modulepreload"]')].map((link) =>
-          link.getAttribute("href")?.replace(/^\//, "")
-        )
+          link.getAttribute("href")?.replace(/^\//, ""),
+        ),
       );
 
       const preloadManifest: Record<string, Record<string, string>> = {};
       for (const [component, entryKey] of Object.entries(COMPONENT_ENTRIES)) {
         if (!manifest[entryKey]) {
           throw new Error(
-            `vite-plugin-component-preload: no manifest entry for "${entryKey}" (component "${component}"). Has this file moved?`
+            `vite-plugin-component-preload: no manifest entry for "${entryKey}" (component "${component}"). Has this file moved?`,
           );
         }
         preloadManifest[component] = {};
         for (const file of collectChunkFiles(manifest, entryKey)) {
           if (staticPreloads.has(file)) continue;
           preloadManifest[component][`/${file}`] = generateIntegrity(
-            readFileSync(resolve(outDir, file))
+            readFileSync(resolve(outDir, file)),
           );
         }
       }
 
       const code = `(${preloadRequestedComponent.toString()})(${JSON.stringify(
-        preloadManifest
+        preloadManifest,
       )});`;
       const fileName = `assets/preload-${createHash("sha256")
         .update(code)

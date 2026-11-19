@@ -17,7 +17,7 @@ const MISSING_DIGIT_FONT = fixtureDataUri("digits-missing.otf");
 describe("parseFontFace", () => {
   it("builds a font-face style from a base64 data URL", async () => {
     expect(
-      await parseFontFace({ fontFamily: "Natural Sans", src: VALID_FONT })
+      await parseFontFace({ fontFamily: "Natural Sans", src: VALID_FONT }),
     ).toEqual({
       fontFamily: "Natural Sans",
       src: `url("${VALID_FONT}") format("opentype")`,
@@ -32,7 +32,7 @@ describe("parseFontFace", () => {
         fontWeight: 700,
         fontStyle: "italic",
         fontDisplay: "swap",
-      })
+      }),
     ).toMatchObject({
       fontWeight: "700",
       fontStyle: "italic",
@@ -58,7 +58,7 @@ describe("parseFontFace", () => {
       parseFontFace({
         fontFamily: "Natural Sans",
         src: "https://www.natural.com/fonts/natural-sans.woff2",
-      })
+      }),
     ).rejects.toThrow("src must be a base64 data URL");
   });
 
@@ -67,7 +67,7 @@ describe("parseFontFace", () => {
       parseFontFace({
         fontFamily: "Natural Sans",
         src: "data:text/html;base64,PHNjcmlwdD4=",
-      })
+      }),
     ).rejects.toThrow('src has an unsupported type "text/html"');
   });
 
@@ -76,7 +76,7 @@ describe("parseFontFace", () => {
       parseFontFace({
         fontFamily: "Natural Sans",
         src: 'data:font/woff2;base64,abc") format("woff2"); } body { display: none } @font-face { src: url("',
-      })
+      }),
     ).rejects.toThrow("src must be a base64 data URL");
   });
 
@@ -86,13 +86,13 @@ describe("parseFontFace", () => {
         fontFamily:
           'Natural"; } body { display: none } @font-face { font-family: "x',
         src: VALID_FONT,
-      })
+      }),
     ).rejects.toThrow("fontFamily must be 1-64 letters");
   });
 
   it("rejects a font that maps two digits to the same glyph", async () => {
     await expect(
-      parseFontFace({ fontFamily: "Natural Sans", src: SPOOFED_FONT })
+      parseFontFace({ fontFamily: "Natural Sans", src: SPOOFED_FONT }),
     ).rejects.toThrow("are drawn by the same glyph");
   });
 
@@ -101,7 +101,7 @@ describe("parseFontFace", () => {
       parseFontFace({
         fontFamily: "Natural Sans",
         src: MISSING_DIGIT_FONT,
-      })
+      }),
     ).rejects.toThrow('no glyph for the digit "9"');
   });
 
@@ -110,7 +110,7 @@ describe("parseFontFace", () => {
       parseFontFace({
         fontFamily: "Natural Sans",
         src: "data:font/woff2;base64,AAAAA",
-      })
+      }),
     ).rejects.toThrow("src is not a valid base64 payload");
   });
 
@@ -119,7 +119,7 @@ describe("parseFontFace", () => {
       parseFontFace({
         fontFamily: "Natural Sans",
         src: "data:font/woff2;base64,d09GMgABAAAAAA==",
-      })
+      }),
     ).rejects.toThrow("font could not be parsed");
   });
 });
@@ -151,7 +151,7 @@ describe("parseFontFaces", () => {
 
     expect(faces).toHaveLength(1);
     expect(console.error).toHaveBeenCalledWith(
-      expect.stringContaining("src is not a valid base64 payload")
+      expect.stringContaining("src is not a valid base64 payload"),
     );
   });
 
@@ -162,7 +162,7 @@ describe("parseFontFaces", () => {
 
     expect(faces).toHaveLength(0);
     expect(console.error).toHaveBeenCalledWith(
-      expect.stringContaining("are drawn by the same glyph")
+      expect.stringContaining("are drawn by the same glyph"),
     );
   });
 });

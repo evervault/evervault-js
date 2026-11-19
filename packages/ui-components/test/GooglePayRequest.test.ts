@@ -43,7 +43,7 @@ describe("buildPaymentRequest shipping fields", () => {
       expect.objectContaining({
         shippingAddressRequired: expect.anything(),
         shippingOptionRequired: expect.anything(),
-      })
+      }),
     );
   });
 
@@ -55,7 +55,7 @@ describe("buildPaymentRequest shipping fields", () => {
     };
 
     expect(build({ shippingAddress }).shippingAddressParameters).toEqual(
-      shippingAddress
+      shippingAddress,
     );
   });
 
@@ -104,7 +104,7 @@ describe("Google Pay display item category mapping", () => {
           ],
         },
       },
-      MERCHANT
+      MERCHANT,
     );
 
     expect(request.transactionInfo.displayItems).toEqual([

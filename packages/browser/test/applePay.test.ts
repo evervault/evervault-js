@@ -33,11 +33,11 @@ const buildSessionMock = vi.fn();
 /** Fetches the merchant then builds the request, as the click handler does once the merchant has loaded. */
 async function buildSessionFromApi(
   button: ApplePayButton,
-  config: Parameters<typeof buildSession>[1]
+  config: Parameters<typeof buildSession>[1],
 ) {
   const merchant = await fetchSessionMerchant(
     button,
-    config.transaction.merchantId
+    config.transaction.merchantId,
   );
   return buildSession(button, config, merchant);
 }
@@ -95,7 +95,7 @@ class MockPaymentRequest {
     options?: {
       requestShipping?: boolean;
       shippingType?: string;
-    }
+    },
   ) {
     paymentMethodDataCalls.push(methodData[0]?.data ?? {});
     paymentRequestCalls.push(details);
@@ -172,8 +172,11 @@ beforeEach(() => {
   paymentRequestInstances.length = 0;
   server.use(
     http.get(`${apiUrl}/frontend/merchants/${merchantId}`, () =>
-      HttpResponse.json({ id: merchantId, name: merchantName }, { status: 200 })
-    )
+      HttpResponse.json(
+        { id: merchantId, name: merchantName },
+        { status: 200 },
+      ),
+    ),
   );
 });
 
@@ -192,23 +195,23 @@ describe("buildSession sandbox label", () => {
   it("appends '(Card is not charged)' to the merchant name when is_sandbox is true", async () => {
     server.use(
       http.get(`${apiUrl}/frontend/sdk/config`, () =>
-        HttpResponse.json({ is_sandbox: true }, { status: 200 })
-      )
+        HttpResponse.json({ is_sandbox: true }, { status: 200 }),
+      ),
     );
 
     await buildSessionFromApi(applePay, { transaction });
 
     assert(
       paymentRequestCalls[0].total?.label ===
-        `${merchantName} (Card is not charged)`
+        `${merchantName} (Card is not charged)`,
     );
   });
 
   it("leaves the merchant name unchanged when is_sandbox is false", async () => {
     server.use(
       http.get(`${apiUrl}/frontend/sdk/config`, () =>
-        HttpResponse.json({ is_sandbox: false }, { status: 200 })
-      )
+        HttpResponse.json({ is_sandbox: false }, { status: 200 }),
+      ),
     );
 
     await buildSessionFromApi(applePay, { transaction });
@@ -230,13 +233,13 @@ describe("buildSession GET concurrency", () => {
         await merchantGate;
         return HttpResponse.json(
           { id: merchantId, name: merchantName },
-          { status: 200 }
+          { status: 200 },
         );
       }),
       http.get(`${apiUrl}/frontend/sdk/config`, () => {
         sdkConfigRequested = true;
         return HttpResponse.json({ is_sandbox: false }, { status: 200 });
-      })
+      }),
     );
 
     const buildSessionPromise = buildSessionFromApi(applePay, { transaction });
@@ -257,8 +260,8 @@ describe("buildSession onshippingaddresschange", () => {
   beforeEach(() => {
     server.use(
       http.get(`${apiUrl}/frontend/sdk/config`, () =>
-        HttpResponse.json({ is_sandbox: false }, { status: 200 })
-      )
+        HttpResponse.json({ is_sandbox: false }, { status: 200 }),
+      ),
     );
   });
 
@@ -322,13 +325,13 @@ describe("buildSession onshippingaddresschange", () => {
 describe("resolveMerchantIdentifier", () => {
   it("returns the Evervault merchant identifier by default", () => {
     expect(resolveMerchantIdentifier("merchant_abc")).toBe(
-      "merchant.com.evervault.merchant_abc"
+      "merchant.com.evervault.merchant_abc",
     );
   });
 
   it("returns a custom Apple merchant identifier when provided", () => {
     expect(
-      resolveMerchantIdentifier("merchant_abc", "merchant.com.example.store")
+      resolveMerchantIdentifier("merchant_abc", "merchant.com.example.store"),
     ).toBe("merchant.com.example.store");
   });
 });
@@ -348,7 +351,7 @@ describe("resolveDisbursementMerchantCapabilities", () => {
       resolveDisbursementMerchantCapabilities({
         ...baseDisbursement,
         merchantCapabilities: ["supportsEMV", "supportsCredit"],
-      })
+      }),
     ).toEqual(["supportsEMV", "supportsCredit"]);
   });
 
@@ -363,7 +366,7 @@ describe("resolveDisbursementMerchantCapabilities", () => {
       resolveDisbursementMerchantCapabilities({
         ...baseDisbursement,
         instantTransfer: { label: "Instant fee", amount: 50 },
-      })
+      }),
     ).toEqual(["supports3DS", "supportsInstantFundsOut"]);
   });
 });
@@ -372,8 +375,8 @@ describe("buildSession appleMerchantId", () => {
   beforeEach(() => {
     server.use(
       http.get(`${apiUrl}/frontend/sdk/config`, () =>
-        HttpResponse.json({ is_sandbox: false }, { status: 200 })
-      )
+        HttpResponse.json({ is_sandbox: false }, { status: 200 }),
+      ),
     );
   });
 
@@ -385,7 +388,7 @@ describe("buildSession appleMerchantId", () => {
 
     assert(
       paymentMethodDataCalls[0].merchantIdentifier ===
-        "merchant.com.example.custom"
+        "merchant.com.example.custom",
     );
   });
 
@@ -394,7 +397,7 @@ describe("buildSession appleMerchantId", () => {
 
     assert(
       paymentMethodDataCalls[0].merchantIdentifier ===
-        `merchant.com.evervault.${merchantId}`
+        `merchant.com.evervault.${merchantId}`,
     );
   });
 });
@@ -415,8 +418,8 @@ describe("buildSession disbursement merchantCapabilities", () => {
   beforeEach(() => {
     server.use(
       http.get(`${apiUrl}/frontend/sdk/config`, () =>
-        HttpResponse.json({ is_sandbox: false }, { status: 200 })
-      )
+        HttpResponse.json({ is_sandbox: false }, { status: 200 }),
+      ),
     );
   });
 
@@ -426,7 +429,7 @@ describe("buildSession disbursement merchantCapabilities", () => {
     });
 
     assert(
-      paymentMethodDataCalls[0].merchantCapabilities?.[0] === "supportsDebit"
+      paymentMethodDataCalls[0].merchantCapabilities?.[0] === "supportsDebit",
     );
   });
 });
@@ -449,8 +452,8 @@ describe("buildSession coupon codes", () => {
   beforeEach(() => {
     server.use(
       http.get(`${apiUrl}/frontend/sdk/config`, () =>
-        HttpResponse.json({ is_sandbox: false }, { status: 200 })
-      )
+        HttpResponse.json({ is_sandbox: false }, { status: 200 }),
+      ),
     );
   });
 
@@ -675,8 +678,8 @@ describe("buildSession contact prefill", () => {
   beforeEach(() => {
     server.use(
       http.get(`${apiUrl}/frontend/sdk/config`, () =>
-        HttpResponse.json({ is_sandbox: false }, { status: 200 })
-      )
+        HttpResponse.json({ is_sandbox: false }, { status: 200 }),
+      ),
     );
   });
 
@@ -775,8 +778,8 @@ describe("buildSession shipping methods", () => {
   beforeEach(() => {
     server.use(
       http.get(`${apiUrl}/frontend/sdk/config`, () =>
-        HttpResponse.json({ is_sandbox: false }, { status: 200 })
-      )
+        HttpResponse.json({ is_sandbox: false }, { status: 200 }),
+      ),
     );
   });
 
@@ -832,9 +835,9 @@ describe("buildSession shipping methods", () => {
       buildSessionFromApi(applePay, {
         transaction: recurringTransaction,
         shippingMethods,
-      })
+      }),
     ).rejects.toThrow(
-      "Apple Pay shipping methods are only supported for one-off payment transactions"
+      "Apple Pay shipping methods are only supported for one-off payment transactions",
     );
   });
 
@@ -843,9 +846,9 @@ describe("buildSession shipping methods", () => {
       buildSessionFromApi(applePay, {
         transaction: disbursementTransaction,
         shippingMethods,
-      })
+      }),
     ).rejects.toThrow(
-      "Apple Pay shipping methods are only supported for one-off payment transactions"
+      "Apple Pay shipping methods are only supported for one-off payment transactions",
     );
   });
 
@@ -901,11 +904,11 @@ describe("buildSession shipping methods", () => {
     ]);
     expect(
       update.shippingOptions?.find((o: { id: string }) => o.id === "express")
-        ?.selected
+        ?.selected,
     ).toBe(true);
     expect(
       update.shippingOptions?.find((o: { id: string }) => o.id === "standard")
-        ?.selected
+        ?.selected,
     ).toBe(false);
   });
 
@@ -953,7 +956,7 @@ describe("buildSession shipping methods", () => {
       request.onshippingoptionchange?.({
         target: null,
         updateWith,
-      } as unknown as PaymentRequestUpdateEvent)
+      } as unknown as PaymentRequestUpdateEvent),
     ).not.toThrow();
     expect(updateWith).toHaveBeenCalled();
 
@@ -1018,11 +1021,11 @@ describe("buildSession shipping methods", () => {
     expect(onShippingAddressChange).toHaveBeenCalled();
     expect(
       update.shippingOptions?.find((o: { id: string }) => o.id === "express")
-        ?.selected
+        ?.selected,
     ).toBe(true);
     expect(
       update.shippingOptions?.find((o: { id: string }) => o.id === "standard")
-        ?.selected
+        ?.selected,
     ).toBe(false);
   });
 
@@ -1066,7 +1069,7 @@ describe("buildSession shipping methods", () => {
     expect(update.shippingOptions).toHaveLength(2);
     expect(
       update.shippingOptions?.find((o: { id: string }) => o.id === "express")
-        ?.selected
+        ?.selected,
     ).toBe(true);
   });
 
@@ -1098,8 +1101,8 @@ describe("buildSession shipping methods", () => {
     await updateWith.mock.calls[0][0];
     expect(warn).toHaveBeenCalledWith(
       expect.stringContaining(
-        "expected to replace exactly one line item matching a shippingMethods[].label"
-      )
+        "expected to replace exactly one line item matching a shippingMethods[].label",
+      ),
     );
 
     warn.mockRestore();
@@ -1127,7 +1130,7 @@ describe("buildSession shipping methods", () => {
     });
 
     expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining("Multiple shippingMethods have selected: true")
+      expect.stringContaining("Multiple shippingMethods have selected: true"),
     );
     expect(paymentRequestCalls[0].shippingOptions).toEqual([
       expect.objectContaining({ id: "standard", selected: true }),
@@ -1142,8 +1145,8 @@ describe("buildSession request-config passthrough", () => {
   beforeEach(() => {
     server.use(
       http.get(`${apiUrl}/frontend/sdk/config`, () =>
-        HttpResponse.json({ is_sandbox: false }, { status: 200 })
-      )
+        HttpResponse.json({ is_sandbox: false }, { status: 200 }),
+      ),
     );
   });
 
@@ -1192,7 +1195,7 @@ describe("buildSession request-config passthrough", () => {
       buildSessionFromApi(applePay, {
         transaction,
         applicationData: "not base64!!!",
-      })
+      }),
     ).rejects.toThrow("applicationData must be a Base64-encoded string");
   });
 
@@ -1510,11 +1513,11 @@ describe("ApplePayButton script loading", () => {
       const apple = new ApplePayButton(
         createMockClient(),
         createTransaction(),
-        { process: vi.fn() }
+        { process: vi.fn() },
       );
 
       const assertion = expect(apple.availability()).rejects.toThrow(
-        "Apple Pay SDK script load timeout"
+        "Apple Pay SDK script load timeout",
       );
 
       await vi.advanceTimersByTimeAsync(10000);
@@ -1536,7 +1539,7 @@ describe("ApplePayButton script loading", () => {
     firstScript!.dispatchEvent(new Event("error"));
 
     await expect(first.availability()).rejects.toThrow(
-      "Apple Pay SDK script load failed"
+      "Apple Pay SDK script load failed",
     );
     expect(document.querySelector(applePaySDKSelector)).toBeNull();
 
@@ -1577,11 +1580,11 @@ describe("ApplePayButton script loading", () => {
       const apple = new ApplePayButton(
         createMockClient(),
         createTransaction(),
-        { process: vi.fn() }
+        { process: vi.fn() },
       );
 
       const assertion = expect(apple.availability()).rejects.toThrow(
-        "Apple Pay SDK script load timeout"
+        "Apple Pay SDK script load timeout",
       );
 
       await vi.advanceTimersByTimeAsync(10000);
@@ -1641,8 +1644,8 @@ describe("ApplePayButton script loading", () => {
     expect(buttons).toHaveLength(2);
     expect(
       document.querySelectorAll(
-        'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]'
-      )
+        'script[src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"]',
+      ),
     ).toHaveLength(1);
   });
 });
@@ -1651,7 +1654,7 @@ describe("ApplePayButton.abort", () => {
   beforeEach(() => {
     buildSessionMock.mockReset();
     vi.spyOn(applePayUtilities, "buildSession").mockImplementation(
-      buildSessionMock
+      buildSessionMock,
     );
     vi.spyOn(applePayUtilities, "fetchSessionMerchant").mockResolvedValue({
       id: "merchant_test",
@@ -1741,7 +1744,7 @@ describe("ApplePayButton.abort", () => {
   it("swallows InvalidStateError from PaymentRequest.abort", async () => {
     const session = createMockSession();
     session.abort.mockRejectedValue(
-      new DOMException("Invalid state", "InvalidStateError")
+      new DOMException("Invalid state", "InvalidStateError"),
     );
     buildSessionMock.mockReturnValue(session);
 
@@ -1774,9 +1777,9 @@ describe("ApplePayButton user activation", () => {
         (details?: Promise<PaymentDetailsUpdate>) =>
           new Promise<PaymentResponse>((_, reject) => {
             void details?.catch(() =>
-              reject(new DOMException("Aborted", "AbortError"))
+              reject(new DOMException("Aborted", "AbortError")),
             );
-          })
+          }),
       ),
       abort: vi.fn().mockResolvedValue(undefined),
     });
@@ -1803,7 +1806,7 @@ describe("ApplePayButton user activation", () => {
   beforeEach(() => {
     buildSessionMock.mockReset();
     vi.spyOn(applePayUtilities, "buildSession").mockImplementation(
-      buildSessionMock
+      buildSessionMock,
     );
 
     vi.stubGlobal("PaymentRequest", class PaymentRequest {});
@@ -1828,7 +1831,7 @@ describe("ApplePayButton user activation", () => {
 
   it("calls show() during the click while the merchant is still loading", async () => {
     vi.spyOn(applePayUtilities, "fetchSessionMerchant").mockReturnValue(
-      new Promise(() => {})
+      new Promise(() => {}),
     );
     const session = createDeferredSession();
     buildSessionMock.mockReturnValue(session);
@@ -2069,7 +2072,7 @@ describe("ApplePayButton user activation", () => {
       {
         process: vi.fn(),
         prepareTransaction: () => Promise.resolve({ amount: preparedAmount }),
-      }
+      },
     );
     const button = await mountApplePayButton(apple);
 
@@ -2079,7 +2082,7 @@ describe("ApplePayButton user activation", () => {
     expect(details?.total?.label).toBe(merchantName);
     expect(details?.modifiers?.[0].data).toHaveProperty(
       "recurringPaymentRequest.paymentDescription",
-      recurringTransaction.description
+      recurringTransaction.description,
     );
   });
 
@@ -2096,7 +2099,7 @@ describe("ApplePayButton user activation", () => {
       {
         process: vi.fn(),
         prepareTransaction: () => Promise.resolve({ amount: preparedAmount }),
-      }
+      },
     );
     const button = await mountApplePayButton(apple);
 
@@ -2143,7 +2146,7 @@ describe("ApplePayButton user activation", () => {
     vi.spyOn(applePayUtilities, "fetchSessionMerchant").mockReturnValue(
       new Promise((resolve) => {
         resolveMerchant = resolve;
-      })
+      }),
     );
     const session = createDeferredSession();
     buildSessionMock.mockReturnValue(session);
@@ -2164,7 +2167,7 @@ describe("ApplePayButton user activation", () => {
   function createCancelledSession() {
     return {
       show: vi.fn(() =>
-        Promise.reject(new DOMException("Aborted", "AbortError"))
+        Promise.reject(new DOMException("Aborted", "AbortError")),
       ),
       abort: vi.fn().mockResolvedValue(undefined),
       addEventListener: vi.fn(),
@@ -2246,7 +2249,7 @@ describe("ApplePayButton process() payload", () => {
   beforeEach(() => {
     buildSessionMock.mockReset();
     vi.spyOn(applePayUtilities, "buildSession").mockImplementation(
-      buildSessionMock
+      buildSessionMock,
     );
     vi.spyOn(applePayUtilities, "fetchSessionMerchant").mockResolvedValue({
       id: "merchant_test",
@@ -2268,8 +2271,8 @@ describe("ApplePayButton process() payload", () => {
 
     server.use(
       http.post(`${apiUrl}/frontend/apple-pay/credentials`, () =>
-        HttpResponse.json({ card: {} })
-      )
+        HttpResponse.json({ card: {} }),
+      ),
     );
   });
 
@@ -2281,7 +2284,7 @@ describe("ApplePayButton process() payload", () => {
 
   it("attaches the matching shippingMethod to the process() payload", async () => {
     buildSessionMock.mockReturnValue(
-      createResolvedSession({ shippingOption: "express" })
+      createResolvedSession({ shippingOption: "express" }),
     );
     const process = vi.fn().mockResolvedValue(undefined);
     const apple = new ApplePayButton(createMockClient(), createTransaction(), {
@@ -2311,7 +2314,7 @@ describe("ApplePayButton process() payload", () => {
   it("falls back to a placeholder and warns when shippingOption matches nothing", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     buildSessionMock.mockReturnValue(
-      createResolvedSession({ shippingOption: "unknown-id" })
+      createResolvedSession({ shippingOption: "unknown-id" }),
     );
     const process = vi.fn().mockResolvedValue(undefined);
     const apple = new ApplePayButton(createMockClient(), createTransaction(), {
@@ -2330,7 +2333,7 @@ describe("ApplePayButton process() payload", () => {
       amount: 0,
     });
     expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining("did not match any configured shippingMethods")
+      expect.stringContaining("did not match any configured shippingMethods"),
     );
     warn.mockRestore();
   });
@@ -2353,7 +2356,7 @@ describe("ApplePayButton process() payload", () => {
     const payerEmail = "john@example.com";
     const payerPhone = "+14085551234";
     buildSessionMock.mockReturnValue(
-      createResolvedSession({ payerName, payerEmail, payerPhone })
+      createResolvedSession({ payerName, payerEmail, payerPhone }),
     );
     const process = vi.fn().mockResolvedValue(undefined);
     const apple = new ApplePayButton(createMockClient(), createTransaction(), {
@@ -2376,7 +2379,7 @@ describe("ApplePayButton process() payload", () => {
         payerName: null,
         payerEmail: null,
         payerPhone: null,
-      })
+      }),
     );
     const process = vi.fn().mockResolvedValue(undefined);
     const apple = new ApplePayButton(createMockClient(), createTransaction(), {
@@ -2428,7 +2431,7 @@ describe("ApplePayButton credentials exchange", () => {
   beforeEach(() => {
     buildSessionMock.mockReset();
     vi.spyOn(applePayUtilities, "buildSession").mockImplementation(
-      buildSessionMock
+      buildSessionMock,
     );
     vi.spyOn(applePayUtilities, "fetchSessionMerchant").mockResolvedValue({
       id: "merchant_test",
@@ -2464,9 +2467,9 @@ describe("ApplePayButton credentials exchange", () => {
             title: "Internal Error",
             detail: "Unable to decrypt the payment token",
           },
-          { status: 500 }
-        )
-      )
+          { status: 500 },
+        ),
+      ),
     );
 
     const { apple, error, process, response } = mountButton();
@@ -2475,7 +2478,7 @@ describe("ApplePayButton credentials exchange", () => {
 
     await vi.waitFor(() => expect(error).toHaveBeenCalledOnce());
     expect(error).toHaveBeenCalledWith(
-      "Apple Pay credentials exchange failed (500): Unable to decrypt the payment token"
+      "Apple Pay credentials exchange failed (500): Unable to decrypt the payment token",
     );
     expect(process).not.toHaveBeenCalled();
     expect(response.complete).toHaveBeenCalledOnce();
@@ -2486,8 +2489,8 @@ describe("ApplePayButton credentials exchange", () => {
     server.use(
       http.post(
         `${apiUrl}/frontend/apple-pay/credentials`,
-        () => new HttpResponse(null, { status: 502 })
-      )
+        () => new HttpResponse(null, { status: 502 }),
+      ),
     );
 
     const { apple, error, process } = mountButton();
@@ -2496,7 +2499,7 @@ describe("ApplePayButton credentials exchange", () => {
 
     await vi.waitFor(() => expect(error).toHaveBeenCalledOnce());
     expect(error).toHaveBeenCalledWith(
-      "Apple Pay credentials exchange failed (502)"
+      "Apple Pay credentials exchange failed (502)",
     );
     expect(process).not.toHaveBeenCalled();
   });
@@ -2504,8 +2507,8 @@ describe("ApplePayButton credentials exchange", () => {
   it("dispatches error when a 200 response carries no card credentials", async () => {
     server.use(
       http.post(`${apiUrl}/frontend/apple-pay/credentials`, () =>
-        HttpResponse.json({})
-      )
+        HttpResponse.json({}),
+      ),
     );
 
     const { apple, error, process, response } = mountButton();
@@ -2514,7 +2517,7 @@ describe("ApplePayButton credentials exchange", () => {
 
     await vi.waitFor(() => expect(error).toHaveBeenCalledOnce());
     expect(error).toHaveBeenCalledWith(
-      "Apple Pay credentials exchange returned no card credentials"
+      "Apple Pay credentials exchange returned no card credentials",
     );
     expect(process).not.toHaveBeenCalled();
     expect(response.complete).toHaveBeenCalledOnce();
@@ -2524,8 +2527,8 @@ describe("ApplePayButton credentials exchange", () => {
   it("completes the sheet successfully when the exchange succeeds", async () => {
     server.use(
       http.post(`${apiUrl}/frontend/apple-pay/credentials`, () =>
-        HttpResponse.json({ card: {} })
-      )
+        HttpResponse.json({ card: {} }),
+      ),
     );
 
     const { apple, error, process, response } = mountButton();
@@ -2543,7 +2546,7 @@ describe("ApplePayButton.availability", () => {
   function stubApplePaySession(
     capabilities:
       | { paymentCredentialStatus: string }
-      | (() => Promise<{ paymentCredentialStatus: string }>)
+      | (() => Promise<{ paymentCredentialStatus: string }>),
   ) {
     vi.stubGlobal("ApplePaySession", {
       applePayCapabilities:
@@ -2619,7 +2622,7 @@ describe("ApplePayButton.availability", () => {
       () =>
         new Promise((resolve) => {
           resolveCapabilities = resolve;
-        })
+        }),
     );
 
     const apple = new ApplePayButton(createMockClient(), createTransaction(), {

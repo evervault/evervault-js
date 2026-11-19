@@ -76,7 +76,7 @@ async function raiseDataChange(payload: Record<string, unknown>) {
 it("passes shipping configuration to the frame", () => {
   const shippingAddress = { allowedCountryCodes: ["US"] };
   expect(
-    mount({ shippingAddress, shippingOptions: SHIPPING_OPTIONS }).config.config
+    mount({ shippingAddress, shippingOptions: SHIPPING_OPTIONS }).config.config,
   ).toMatchObject({ shippingAddress, shippingOptions: SHIPPING_OPTIONS });
 });
 
@@ -124,7 +124,7 @@ it("rejects totalPriceStatus NOT_CURRENTLY_KNOWN", () => {
   expect(() =>
     mount({
       totalPriceStatus: "NOT_CURRENTLY_KNOWN",
-    } as unknown as Partial<GooglePayOptions>)
+    } as unknown as Partial<GooglePayOptions>),
   ).toThrow("NOT_CURRENTLY_KNOWN");
 });
 
@@ -155,7 +155,7 @@ describe("GooglePay data change callbacks", () => {
         selectedShippingOption: SHIPPING_OPTIONS.options[0],
         amount: 1000,
         shippingOptions: SHIPPING_OPTIONS,
-      })
+      }),
     );
     expect(reply).toEqual({
       type: "EV_GOOGLE_PAY_DATA_CHANGE_RESULT",
@@ -179,7 +179,7 @@ describe("GooglePay data change callbacks", () => {
         trigger: "SHIPPING_OPTION",
         selectedShippingOption: SHIPPING_OPTIONS.options[1],
         amount: 1000,
-      })
+      }),
     );
     expect(onShippingAddressChange).not.toHaveBeenCalled();
   });

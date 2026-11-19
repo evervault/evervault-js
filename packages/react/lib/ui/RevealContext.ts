@@ -8,7 +8,7 @@ export interface RevealContextType {
 }
 
 export const RevealContext = createContext<RevealContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export function useRevealContext() {

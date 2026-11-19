@@ -31,7 +31,7 @@ interface Plan {
 function placements(
   spec: CardSpecNode[],
   parentId: string | null,
-  into: Map<string, Placement>
+  into: Map<string, Placement>,
 ) {
   for (const node of spec) {
     into.set(node.id, { node, parentId });
@@ -45,7 +45,7 @@ function placements(
 function track(spec: CardSpecNode[], parentId: string | null, plan: Plan) {
   plan.containers.set(
     parentId,
-    spec.map((node) => node.id)
+    spec.map((node) => node.id),
   );
 
   for (const node of spec) {
@@ -96,7 +96,7 @@ function reconcile(next: CardSpecNode[], parentId: string | null, plan: Plan) {
 
     const siblings = plan.containers.get(parentId) ?? [];
     const staying = siblings.filter(
-      (id) => plan.after.get(id)?.parentId === parentId
+      (id) => plan.after.get(id)?.parentId === parentId,
     );
 
     if (staying[position] !== node.id) {
@@ -131,7 +131,7 @@ function removals(plan: Plan): CardSpecPatchOp[] {
   return [...plan.before]
     .filter(
       ([id, { parentId }]) =>
-        !plan.after.has(id) && (parentId === null || plan.after.has(parentId))
+        !plan.after.has(id) && (parentId === null || plan.after.has(parentId)),
     )
     .map(([id]) => ({ op: "remove", id }));
 }
@@ -140,7 +140,7 @@ function removals(plan: Plan): CardSpecPatchOp[] {
 // once every node that outlives them has been moved clear.
 export function diff(
   previous: CardSpecNode[],
-  next: CardSpecNode[]
+  next: CardSpecNode[],
 ): CardSpecPatchOp[] {
   const plan: Plan = {
     before: placements(previous, null, new Map()),

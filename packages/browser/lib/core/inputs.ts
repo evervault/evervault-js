@@ -22,22 +22,21 @@ export default function Inputs(config: Config) {
       settings: InputSettings | RevealSettings,
       isReveal = false,
       request: Request | EvervaultRequestProps | undefined = undefined,
-      onCopyCallback: (() => void) | undefined = undefined
+      onCopyCallback: (() => void) | undefined = undefined,
     ) {
       // TODO: add error check in a seperate pr (small behavour change)
-      (
-        document.getElementById(id) as HTMLIFrameElement
-      ).innerHTML = `<iframe src="${constructSource(
-        config,
-        // TODO: better typings for this (will affect user facing typings)
-        isReveal,
-        settings
-      )}" id="ev-iframe" title="Payment details" frameborder="0" scrolling="0" height=${calculateHeight(
-        settings,
-        isReveal
-      )} ${
-        isReveal ? 'width="100%"' : ""
-      } allowTransparency="true" allow="clipboard-write"></iframe>`;
+      (document.getElementById(id) as HTMLIFrameElement).innerHTML =
+        `<iframe src="${constructSource(
+          config,
+          // TODO: better typings for this (will affect user facing typings)
+          isReveal,
+          settings,
+        )}" id="ev-iframe" title="Payment details" frameborder="0" scrolling="0" height=${calculateHeight(
+          settings,
+          isReveal,
+        )} ${
+          isReveal ? 'width="100%"' : ""
+        } allowTransparency="true" allow="clipboard-write"></iframe>`;
 
       window.addEventListener("message", (event: InputMessage) => {
         if (event.origin !== config.input.inputsOrigin) return;
@@ -73,7 +72,7 @@ export default function Inputs(config: Config) {
 
               if (request.headers instanceof Headers) {
                 requestSerializable.headers = Object.fromEntries(
-                  request.headers.entries()
+                  request.headers.entries(),
                 );
               } else if (request.headers instanceof Object) {
                 requestSerializable.headers = request.headers;
@@ -93,7 +92,7 @@ export default function Inputs(config: Config) {
                   customStyles,
                 },
                 "*",
-                [channel.port2]
+                [channel.port2],
               );
             } else {
               resolve(true);
@@ -123,7 +122,7 @@ export default function Inputs(config: Config) {
                 reject(
                   `Failed to parse Error: ${
                     (e as Error).message
-                  }, Unparsed: ${errorStr}`
+                  }, Unparsed: ${errorStr}`,
                 );
               }
             }
@@ -165,7 +164,7 @@ export default function Inputs(config: Config) {
                 if (event.data?.type === "EV_REVEAL_ERROR_EVENT") return;
                 fn(event.data);
               },
-              false
+              false,
             );
           }
         },
