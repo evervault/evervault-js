@@ -131,9 +131,10 @@ async function getProfilingId(page, number) {
   return values.threeDSProfilingId;
 }
 
-// Same as in threeDSecure.spec.js, with an optional profiling ID.
+// Same as in threeDSecure.spec.js, with an optional profiling ID. Throws if
+// the API gives no session, so the test fails here with the API's error.
 async function createThreeDSSession(number, profilingId) {
-  return evervaultAPI("POST", "/payments/3ds-sessions", {
+  const session = await evervaultAPI("POST", "/payments/3ds-sessions", {
     card: {
       number,
       cvv: "123",
@@ -160,6 +161,14 @@ async function createThreeDSSession(number, profilingId) {
     },
     ...(profilingId && { profilingId }),
   });
+
+  if (!session.id) {
+    throw new Error(
+      `Could not create the 3DS session: ${JSON.stringify(session)}`
+    );
+  }
+
+  return session;
 }
 
 async function evervaultAPI(method, path, payload) {
