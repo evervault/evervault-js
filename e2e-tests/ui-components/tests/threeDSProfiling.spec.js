@@ -55,21 +55,8 @@ test.describe("3DS profiling", () => {
     const profilingId = await getProfilingId(page, number);
     const session = await createThreeDSSession(number, profilingId);
 
+    await watchOverlay(page);
     await page.evaluate((sessionId) => {
-      // The overlay is removed on unmount, so watch it for the whole run.
-      window.overlayShown = false;
-      new MutationObserver(() => {
-        const overlays = document.querySelectorAll("[id^='ev-modal-']");
-        for (const overlay of overlays) {
-          if (overlay.style.visibility !== "hidden") window.overlayShown = true;
-        }
-      }).observe(document.body, {
-        subtree: true,
-        childList: true,
-        attributes: true,
-        attributeFilter: ["style"],
-      });
-
       const comp = window.evervault.ui.threeDSecure(sessionId);
       comp.on("success", window.handleSuccess);
       comp.on("error", window.handleError);
@@ -77,6 +64,41 @@ test.describe("3DS profiling", () => {
     }, session.id);
 
     await expect.poll(async () => succeeded).toBeTruthy();
+    await expect.poll(async () => errored, { timeout: 1000 }).toBeFalsy();
+    expect(await page.evaluate(() => window.overlayShown)).toBe(false);
+    expect(challenged).toBe(false);
+  });
+
+  test("a frictionless profiled session fails without showing the window", async ({
+    page,
+  }) => {
+    let failed = false;
+    let errored = false;
+    let challenged = false;
+
+    await page.exposeFunction("handleFailure", () => {
+      failed = true;
+    });
+    await page.exposeFunction("handleError", () => {
+      errored = true;
+    });
+    page.on("frameattached", (frame) => {
+      if (frame.name() === "challengeFrame") challenged = true;
+    });
+
+    const number = "5555550487847545";
+    const profilingId = await getProfilingId(page, number);
+    const session = await createThreeDSSession(number, profilingId);
+
+    await watchOverlay(page);
+    await page.evaluate((sessionId) => {
+      const comp = window.evervault.ui.threeDSecure(sessionId);
+      comp.on("failure", window.handleFailure);
+      comp.on("error", window.handleError);
+      comp.mount();
+    }, session.id);
+
+    await expect.poll(async () => failed).toBeTruthy();
     await expect.poll(async () => errored, { timeout: 1000 }).toBeFalsy();
     expect(await page.evaluate(() => window.overlayShown)).toBe(false);
     expect(challenged).toBe(false);
@@ -129,6 +151,25 @@ async function getProfilingId(page, number) {
     .toMatch(/\S/);
 
   return values.threeDSProfilingId;
+}
+
+// Sets `window.overlayShown` if a 3DS overlay is ever visible. The overlay is
+// removed on unmount, so it must be watched for the whole run.
+async function watchOverlay(page) {
+  await page.evaluate(() => {
+    window.overlayShown = false;
+    new MutationObserver(() => {
+      const overlays = document.querySelectorAll("[id^='ev-modal-']");
+      for (const overlay of overlays) {
+        if (overlay.style.visibility !== "hidden") window.overlayShown = true;
+      }
+    }).observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["style"],
+    });
+  });
 }
 
 // Same as in threeDSecure.spec.js, with an optional profiling ID. Throws if
