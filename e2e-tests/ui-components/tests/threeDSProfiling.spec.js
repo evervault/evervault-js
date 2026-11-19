@@ -175,7 +175,10 @@ async function watchOverlay(page) {
 // Same as in threeDSecure.spec.js, with an optional profiling ID. Throws if
 // the API gives no session, so the test fails here with the API's error.
 async function createThreeDSSession(number, profilingId) {
-  const session = await evervaultAPI("POST", "/payments/3ds-sessions", {
+  const path = profilingId
+    ? `/payments/3ds-sessions?profilingId=${encodeURIComponent(profilingId)}`
+    : "/payments/3ds-sessions";
+  const session = await evervaultAPI("POST", path, {
     card: {
       number,
       cvv: "123",
@@ -200,12 +203,11 @@ async function createThreeDSSession(number, profilingId) {
       merchantIdentifier: "837223891854392",
       country: "ie",
     },
-    ...(profilingId && { profilingId }),
   });
 
   if (!session.id) {
     throw new Error(
-      `Could not create the 3DS session: ${JSON.stringify(session)}`
+      `Could not create the 3DS session: ${JSON.stringify(session)}`,
     );
   }
 
@@ -214,7 +216,7 @@ async function createThreeDSSession(number, profilingId) {
 
 async function evervaultAPI(method, path, payload) {
   const token = btoa(
-    `${process.env.VITE_EV_APP_UUID}:${process.env.EV_API_KEY}`
+    `${process.env.VITE_EV_APP_UUID}:${process.env.EV_API_KEY}`,
   );
   const response = await fetch(`${process.env.VITE_API_URL}${path}`, {
     method,
