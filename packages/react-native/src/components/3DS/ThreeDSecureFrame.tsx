@@ -12,13 +12,13 @@ export function ThreeDSecureFrame() {
 
   if (!teamUuid || !appUuid) {
     throw new Error(
-      "Missing Evervault Team or App Uuid. Make sure the ThreeDSecureFrame is nested within the Evervault Provider"
+      "Missing Evervault Team or App Uuid. Make sure the ThreeDSecureFrame is nested within the Evervault Provider",
     );
   }
 
   if (!context) {
     throw new Error(
-      "ThreeDSecure.Frame must be used within an Evervault ThreeDSecure provider component"
+      "ThreeDSecure.Frame must be used within an Evervault ThreeDSecure provider component",
     );
   }
 

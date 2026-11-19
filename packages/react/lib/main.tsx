@@ -68,7 +68,7 @@ export const EvervaultProvider = React.forwardRef<
       loadTimeout,
       ...props
     },
-    ref
+    ref,
   ) => {
     const { client, reload } = useEvervaultClient({
       teamId,
@@ -85,7 +85,7 @@ export const EvervaultProvider = React.forwardRef<
         {children}
       </EvervaultContext.Provider>
     );
-  }
+  },
 );
 
 export interface EvervaultInputProps {

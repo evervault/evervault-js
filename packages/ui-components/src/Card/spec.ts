@@ -7,7 +7,7 @@ type MoveOp = Extract<CardSpecPatchOp, { op: "move" }>;
 // keeps the identity that keeps its field mounted.
 function withChildren(
   spec: CardSpecNode[],
-  apply: (children: CardSpecNode[], parent: CardSpecNode) => CardSpecNode[]
+  apply: (children: CardSpecNode[], parent: CardSpecNode) => CardSpecNode[],
 ): CardSpecNode[] {
   let touched = false;
 
@@ -49,7 +49,7 @@ function detach(spec: CardSpecNode[], id: string): CardSpecNode[] {
 function place(
   spec: CardSpecNode[],
   node: CardSpecNode,
-  op: InsertOp | MoveOp
+  op: InsertOp | MoveOp,
 ): CardSpecNode[] {
   if (op.parentId === null) {
     const next = [...spec];
@@ -69,7 +69,7 @@ function place(
 function update(
   spec: CardSpecNode[],
   id: string,
-  props: Record<string, string>
+  props: Record<string, string>,
 ): CardSpecNode[] {
   if (spec.some((node) => node.id === id)) {
     return spec.map((node) => (node.id === id ? { ...node, props } : node));
@@ -98,7 +98,7 @@ function applyOp(spec: CardSpecNode[], op: CardSpecPatchOp): CardSpecNode[] {
 // Patching by id keeps untouched nodes mounted, preserving values already typed.
 export function applyPatch(
   spec: CardSpecNode[],
-  ops: CardSpecPatchOp[]
+  ops: CardSpecPatchOp[],
 ): CardSpecNode[] {
   return ops.reduce(applyOp, spec);
 }

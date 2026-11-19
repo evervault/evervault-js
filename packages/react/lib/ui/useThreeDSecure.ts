@@ -84,7 +84,7 @@ export function useThreeDSecure(opts?: UseThreeDSecureOptions) {
 
       void init();
     },
-    [ev, opts]
+    [ev, opts],
   );
 
   useEffect(() => {

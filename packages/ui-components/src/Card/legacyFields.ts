@@ -9,7 +9,7 @@ const FIELD_ORDER: CardField[] = ["name", "number", "expiry", "cvc"];
 // Deliberately not shared with the SDK's copy: the two deploy separately, so
 // one edit to a shared helper would change both sides at once.
 export function isSpec(
-  fields: CardFrameConfig["fields"]
+  fields: CardFrameConfig["fields"],
 ): fields is CardSpecNode[] {
   return (
     Array.isArray(fields) &&
@@ -19,12 +19,12 @@ export function isSpec(
 }
 
 export function legacyNodes(
-  config: Pick<CardFrameConfig, "fields" | "hiddenFields">
+  config: Pick<CardFrameConfig, "fields" | "hiddenFields">,
 ): CardSpecNode[] {
-  const fields = isSpec(config.fields) ? [] : config.fields ?? DEFAULT_FIELDS;
+  const fields = isSpec(config.fields) ? [] : (config.fields ?? DEFAULT_FIELDS);
   const hidden = String(config.hiddenFields ?? "").split(",");
 
   return FIELD_ORDER.filter(
-    (field) => fields.includes(field) && !hidden.includes(field)
+    (field) => fields.includes(field) && !hidden.includes(field),
   ).map((field) => ({ type: field, id: field, props: {} }));
 }

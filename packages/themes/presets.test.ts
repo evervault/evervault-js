@@ -37,7 +37,9 @@ describe.each(Object.entries(presets))("%s", (_name, preset) => {
     const result = apply(preset({ primary: "#16a34a" }), utils);
 
     expect(
-      (result.styles?.[":root"] as Record<string, string>)["--ev-color-primary"]
+      (result.styles?.[":root"] as Record<string, string>)[
+        "--ev-color-primary"
+      ],
     ).toBe("#16a34a");
     expect(utils.extend).not.toHaveBeenCalled();
   });
@@ -45,11 +47,13 @@ describe.each(Object.entries(presets))("%s", (_name, preset) => {
   it("takes the preset config as its second argument", () => {
     const result = apply(
       preset(undefined, { primary: "#16a34a" }),
-      stubUtils()
+      stubUtils(),
     );
 
     expect(
-      (result.styles?.[":root"] as Record<string, string>)["--ev-color-primary"]
+      (result.styles?.[":root"] as Record<string, string>)[
+        "--ev-color-primary"
+      ],
     ).toBe("#16a34a");
   });
 
@@ -78,7 +82,7 @@ describe.each(Object.entries(presets))("%s", (_name, preset) => {
   it("takes only `selectors` as the config", () => {
     const result = apply(
       preset({ selectors: { label: { fontWeight: 600 } } }),
-      stubUtils()
+      stubUtils(),
     );
 
     expect(result.styles?.label).toEqual({ fontWeight: 600 });
@@ -90,7 +94,7 @@ describe.each(Object.entries(presets))("%s", (_name, preset) => {
         primary: "#16a34a",
         selectors: { label: { fontWeight: 600 } },
       }),
-      stubUtils()
+      stubUtils(),
     );
 
     expect(rootOf(result)?.["--ev-color-primary"]).toBe("#16a34a");
@@ -111,7 +115,7 @@ describe.each(Object.entries(presets))("%s", (_name, preset) => {
     const utils = stubUtils();
     const result = apply(
       preset(extension, { selectors: { label: { fontWeight: 600 } } }),
-      utils
+      utils,
     );
 
     expect(utils.extend).toHaveBeenCalledWith(extension);
@@ -126,7 +130,7 @@ describe.each(Object.entries(presets))("%s", (_name, preset) => {
         primary: "#16a34a",
         selectors: { label: { fontWeight: 600 } },
       }),
-      utils
+      utils,
     );
 
     expect(utils.extend).toHaveBeenCalledWith(extension);
@@ -172,7 +176,7 @@ describe.each(Object.entries(presets))("%s", (_name, preset) => {
 
     const result = apply(
       preset({ primary: cssVar("--brand-color") }),
-      stubUtils()
+      stubUtils(),
     );
 
     expect(rootOf(result)?.["--ev-color-primary"]).toBe("#123456");
@@ -183,7 +187,7 @@ describe.each(Object.entries(presets))("%s", (_name, preset) => {
 
     const result = apply(
       preset({ selectors: { label: { color: cssVar("--brand-color") } } }),
-      stubUtils()
+      stubUtils(),
     );
 
     expect(result.styles?.label).toEqual({ color: "#123456" });
@@ -195,7 +199,7 @@ describe.each(Object.entries(presets))("%s", (_name, preset) => {
         primary: "#16a34a",
         selectors: { ":root": { "--my-token": "42px" } },
       }),
-      stubUtils()
+      stubUtils(),
     );
 
     expect(rootOf(result)).toMatchObject({

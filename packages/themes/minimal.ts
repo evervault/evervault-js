@@ -8,11 +8,11 @@ import {
 export function minimal(config?: PresetConfig): ThemeDefinition;
 export function minimal(
   extended?: ThemeDefinition,
-  config?: PresetConfig
+  config?: PresetConfig,
 ): ThemeDefinition;
 export function minimal(
   first?: ThemeDefinition | PresetConfig,
-  second?: PresetConfig
+  second?: PresetConfig,
 ): ThemeDefinition {
   const [extended, config] = splitPresetArgs(first, second);
 
@@ -201,7 +201,7 @@ export function minimal(
             },
           },
         },
-        config
+        config,
       ),
       ...(extended ? utils.extend(extended) : {}),
     },

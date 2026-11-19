@@ -19,7 +19,7 @@ export interface Codec<E extends Element> {
 // written.
 export type Reflection<E extends Element = Element> = [
   property: keyof E & string,
-  kind: ReflectionKind | Codec<E>
+  kind: ReflectionKind | Codec<E>,
 ];
 
 // As HTML names them: `readOnly` is `readonly`, `autoProgress` `autoprogress`.
@@ -30,7 +30,7 @@ export function attributeFor(property: string) {
 export function readAttribute(
   element: Element,
   attribute: string,
-  kind: ReflectionKind
+  kind: ReflectionKind,
 ) {
   const value = element.getAttribute(attribute);
 
@@ -55,7 +55,7 @@ export function writeAttribute(
   element: Element,
   attribute: string,
   kind: ReflectionKind,
-  value: unknown
+  value: unknown,
 ) {
   if (value === undefined || value === null) {
     element.removeAttribute(attribute);
@@ -79,7 +79,7 @@ export function writeAttribute(
 // two never disagree.
 export function reflect<E extends Element>(
   prototype: E,
-  reflections: readonly Reflection<E>[]
+  reflections: readonly Reflection<E>[],
 ) {
   for (const [property, kind] of reflections) {
     const attribute = attributeFor(property);

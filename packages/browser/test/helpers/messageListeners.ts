@@ -11,7 +11,7 @@ export function countMessageListeners() {
     const live = new Set(
       added.mock.calls
         .filter(([event]) => event === "message")
-        .map(([, handler]) => handler)
+        .map(([, handler]) => handler),
     );
 
     for (const [event, handler] of removed.mock.calls) {
@@ -27,12 +27,12 @@ export function countMessageListeners() {
 export function frameMessage(
   target: HTMLElement | string,
   type: string,
-  payload?: unknown
+  payload?: unknown,
 ) {
   const frame = typeof target === "string" ? target : frameId(target);
 
   window.dispatchEvent(
-    new MessageEvent("message", { data: { frame, type, payload } })
+    new MessageEvent("message", { data: { frame, type, payload } }),
   );
 }
 

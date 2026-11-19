@@ -21,6 +21,6 @@ export function setSize(size: {
       frame,
       payload: size,
     },
-    "*"
+    "*",
   );
 }

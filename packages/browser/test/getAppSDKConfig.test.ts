@@ -28,7 +28,7 @@ describe("getAppSDKConfig", () => {
       http.get(`${apiUrl}/frontend/sdk/config`, ({ request }) => {
         assert(request.headers.get("X-Evervault-App-Id") === app);
         return HttpResponse.json({ is_sandbox: true }, { status: 200 });
-      })
+      }),
     );
 
     const config = await getAppSDKConfig(app, apiUrl);
@@ -38,8 +38,8 @@ describe("getAppSDKConfig", () => {
   it("returns the default config when the API responds non-2xx", async () => {
     server.use(
       http.get(`${apiUrl}/frontend/sdk/config`, () =>
-        HttpResponse.json({}, { status: 500 })
-      )
+        HttpResponse.json({}, { status: 500 }),
+      ),
     );
 
     const config = await getAppSDKConfig(app, apiUrl);
@@ -48,7 +48,7 @@ describe("getAppSDKConfig", () => {
 
   it("returns the default config when fetch throws", async () => {
     server.use(
-      http.get(`${apiUrl}/frontend/sdk/config`, () => HttpResponse.error())
+      http.get(`${apiUrl}/frontend/sdk/config`, () => HttpResponse.error()),
     );
 
     const config = await getAppSDKConfig(app, apiUrl);

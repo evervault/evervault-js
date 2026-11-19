@@ -321,7 +321,7 @@ describe("ThreeDSecure success reported by the server", () => {
         });
         await new Promise<void>((resolve) => (releasePatch = resolve));
         return HttpResponse.json({}, { status: 200 });
-      })
+      }),
     );
 
     const successHandler = vi.fn();
