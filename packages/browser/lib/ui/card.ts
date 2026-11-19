@@ -25,6 +25,7 @@ export type CardSettings = Pick<
   | "allow3DigitAmexCVC"
   | "validation"
   | "agentTools"
+  | "threeDSProfiling"
 >;
 
 // Cross-origin iframes need the `tools` Permissions Policy delegated before
@@ -53,6 +54,7 @@ export function cardSettingsConfig(
       settings.agentTools,
       client.config.appId,
     ),
+    threeDSProfiling: settings.threeDSProfiling,
   };
 }
 

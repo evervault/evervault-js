@@ -38,6 +38,7 @@ export class FakeEvCard extends HTMLElement {
       "translations",
       "autoComplete",
       "preload",
+      "threeDSProfiling",
     ]) {
       Object.defineProperty(this.prototype, setting, {
         // As on the element, a list reads back as a new array.

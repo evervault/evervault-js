@@ -33,6 +33,7 @@ export const OptionsCard = React.forwardRef(function OptionsCard(
     validation,
     customBrands,
     agentTools,
+    threeDSProfiling,
     preload,
   }: CardProps,
   forwardedRef: React.ForwardedRef<CardRef>,
@@ -68,6 +69,7 @@ export const OptionsCard = React.forwardRef(function OptionsCard(
       validation,
       customBrands,
       agentTools,
+      threeDSProfiling,
     }),
     [
       colorScheme,
@@ -85,6 +87,7 @@ export const OptionsCard = React.forwardRef(function OptionsCard(
       validation,
       customBrands,
       agentTools,
+      threeDSProfiling,
     ],
   );
 
