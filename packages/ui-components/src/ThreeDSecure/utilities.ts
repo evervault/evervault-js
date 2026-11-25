@@ -5,6 +5,7 @@ import {
 } from "types";
 import { useMessaging } from "../utilities/useMessaging";
 import { useSearchParams } from "../utilities/useSearchParams";
+import { getBrowserDetails } from "./browserDetails";
 import {
   ChallengeNextAction,
   BrowserFingerprintNextAction,
@@ -107,15 +108,7 @@ export function useSession(
 
     void fetchAction({
       frame: { width, height },
-      browser: {
-        javaEnabled: window.navigator.javaEnabled(),
-        javaScriptEnabled: true,
-        language: navigator.language,
-        colorDepth: window.screen.colorDepth,
-        screenHeight: window.screen.height,
-        screenWidth: window.screen.width,
-        timeZone: new Date().getTimezoneOffset(),
-      },
+      browser: getBrowserDetails(),
     });
   }, []);
 
