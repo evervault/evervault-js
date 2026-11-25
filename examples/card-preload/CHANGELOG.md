@@ -1,5 +1,12 @@
 # example-card-preload
 
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies [a5950ac]
+  - @evervault/js@2.27.0
+
 ## 0.0.5
 
 ### Patch Changes

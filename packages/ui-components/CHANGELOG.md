@@ -1,5 +1,17 @@
 # @evervault/ui-components
 
+## 1.47.0
+
+### Minor Changes
+
+- a5950ac: Add a `threeDSProfiling` option to the Card: `ui.card({ threeDSProfiling: true })`, the `threedsprofiling` attribute on `<ev-card>`, and the `threeDSProfiling` prop on the React `<Card>`. With the option, the Card profiles the browser for 3D Secure when the shopper enters a valid card number. It collects the browser details and runs the card issuer's 3DS Method in a hidden frame. It then sends `threeDSProfilingId` in a `change` event. Pass this ID as the `profilingId` query parameter when you create the 3DS session (`POST /payments/3ds-sessions?profilingId=...`), so the session can skip its own browser check. If profiling fails or is off for the app, `threeDSProfilingId` stays `null` and 3D Secure works as before.
+
+### Patch Changes
+
+- dac5e94: Send `javascriptEnabled` instead of `javaScriptEnabled` in the 3D Secure browser details. The backend reads `javascriptEnabled`, so before this change it ignored the value and did not send "JavaScript enabled" to the 3DS server.
+- Updated dependencies [a5950ac]
+  - @evervault/react@2.35.0
+
 ## 1.46.1
 
 ### Patch Changes
