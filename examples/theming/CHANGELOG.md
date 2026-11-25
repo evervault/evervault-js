@@ -1,5 +1,12 @@
 # example-theming
 
+## 0.1.6
+
+### Patch Changes
+
+- Updated dependencies [a5950ac]
+  - @evervault/js@2.27.0
+
 ## 0.1.5
 
 ### Patch Changes
