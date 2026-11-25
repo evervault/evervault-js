@@ -1031,6 +1031,4 @@ export interface MerchantDetail {
 
 export interface AppSDKConfig {
   is_sandbox: boolean;
-  /** The `three-ds-profiling` flag for the app. Missing means off. */
-  threeDSProfilingEnabled?: boolean;
 }
