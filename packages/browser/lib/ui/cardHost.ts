@@ -115,6 +115,7 @@ export class CardHost {
       fields: {},
       isValid: false,
       isComplete: false,
+      threeDSProfilingId: null,
       errors: null,
     };
   }

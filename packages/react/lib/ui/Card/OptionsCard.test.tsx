@@ -29,6 +29,31 @@ describe("Card from its options", () => {
     expect(card.mount).not.toHaveBeenCalled();
   });
 
+  it("creates the card with 3DS profiling", async () => {
+    const { evervault, wrapper } = fakeClient();
+
+    render(<Card threeDSProfiling />, { wrapper });
+    await settle();
+
+    expect(evervault.ui.card).toHaveBeenCalledWith(
+      expect.objectContaining({ threeDSProfiling: true }),
+    );
+  });
+
+  it("updates the card when 3DS profiling is turned on later", async () => {
+    const { card, wrapper } = fakeClient();
+
+    const { rerender } = render(<Card />, { wrapper });
+    await settle();
+
+    rerender(<Card threeDSProfiling />);
+    await settle();
+
+    expect(card.update).toHaveBeenLastCalledWith(
+      expect.objectContaining({ threeDSProfiling: true }),
+    );
+  });
+
   it("shows a preloaded card through its ref", async () => {
     const { card, wrapper } = fakeClient();
     const ref = React.createRef<CardRef>();

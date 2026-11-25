@@ -37,6 +37,7 @@ const SETTINGS = Object.keys({
   validation: true,
   agentTools: true,
   preload: true,
+  threeDSProfiling: true,
 } satisfies Record<
   SettingProp,
   true

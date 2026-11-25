@@ -430,6 +430,44 @@ describe("Card with declared fields", () => {
     expect(evCard().settingsAtMount).toEqual({ preload: true });
   });
 
+  it("hands 3DS profiling to the <ev-card> before it mounts", async () => {
+    const { wrapper } = fakeClient();
+
+    render(
+      <Card threeDSProfiling>
+        <Card.Number />
+      </Card>,
+      { wrapper },
+    );
+    await settle();
+
+    expect(evCard().settingsAtMount).toEqual({ threeDSProfiling: true });
+  });
+
+  it("hands 3DS profiling to the <ev-card> when it is turned on later", async () => {
+    const { wrapper } = fakeClient();
+
+    const { rerender } = render(
+      <Card>
+        <Card.Number />
+      </Card>,
+      { wrapper },
+    );
+    await settle();
+    evCard().assigned = [];
+
+    rerender(
+      <Card threeDSProfiling>
+        <Card.Number />
+      </Card>,
+    );
+
+    expect(evCard().assigned).toEqual(["threeDSProfiling"]);
+    expect(
+      (evCard() as unknown as Record<string, unknown>).threeDSProfiling,
+    ).toBe(true);
+  });
+
   it("shows the <ev-card> through its ref", async () => {
     const { wrapper } = fakeClient();
     const ref = React.createRef<CardRef>();
