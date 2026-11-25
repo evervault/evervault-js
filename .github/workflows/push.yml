@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - "main"
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+# Concurrency is set per job, not per workflow. A release job waiting for
+# production approval must not block later pushes to master.
 jobs:
   lint-and-test:
     uses: ./.github/workflows/lint.yml
@@ -58,6 +59,7 @@ jobs:
     secrets: inherit
   deploy-browser:
     needs: [lint-and-test,e2e-test,build]
+    concurrency: staging-deploy-browser
     uses: ./.github/workflows/publish-static-bundle.yml
     with:
       stage: "staging"
@@ -74,6 +76,7 @@ jobs:
     secrets: inherit
   deploy-inputs:
     needs: [lint-and-test,e2e-test,build]
+    concurrency: staging-deploy-inputs
     uses: ./.github/workflows/publish-static-bundle.yml
     with:
       stage: "staging"
@@ -87,6 +90,7 @@ jobs:
     secrets: inherit
   deploy-ui-components:
     needs: [lint-and-test,e2e-test,build]
+    concurrency: staging-deploy-ui-components
     uses: ./.github/workflows/publish-static-bundle.yml
     with:
       stage: "staging"
@@ -103,6 +107,7 @@ jobs:
     secrets: inherit
   deploy-3ds:
     needs: [lint-and-test,e2e-test,build]
+    concurrency: staging-deploy-3ds
     uses: ./.github/workflows/publish-static-bundle.yml
     with:
       stage: "staging"
@@ -118,6 +123,7 @@ jobs:
     name: Create Tags
     runs-on: ubuntu-latest
     needs: [lint-and-test,e2e-test,build]
+    concurrency: create-tags
     outputs:
       has-changesets: ${{ steps.changesets.outputs.has-changesets }}
       tags-to-publish: ${{ steps.create-tags.outputs.tags-to-publish }}
@@ -171,6 +177,7 @@ jobs:
     strategy:
       matrix:
         tag: ${{ fromJson(needs.create-tags.outputs.tags-to-publish) }}
+    concurrency: release-${{ matrix.tag }}
     permissions:
       id-token: write
       contents: write
